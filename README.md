@@ -1,11 +1,12 @@
-# alternancia_cliente
+# planeacion_cliente
 
-Cliente del Sistema de XX
+Cliente del Sistema de Planeación. Contiene las características, funcionalidades y vistas iniciales para el cliente del susbistema de planeación. 
 
 ## Especificaciones Técnicas
 
 ### Tecnologías Implementadas y Versiones
-* [Angular 11.2.1](https://angular.io/)
+* [Angular 11.2.2](https://angular.io/)
+* [Node 14.17.3](https://nodejs.org/es/)
 
 ### Variables de Entorno
 ```shell
@@ -20,11 +21,14 @@ AWS_SECRET_ACCESS_KEY: Secreto de Usuario AWS
 Clonar el proyecto del repositorio de git
 ```bash
 # clone the project
-git clone https://github.com/udistrital/alternancia_cliente.git
+git clone https://github.com/udistrital/planeacion_cliente.git
+
 # enter the project directory
-cd alternancia_cliente
+cd planeacion_cliente
 ```
+
 Iniciar el servidor en local
+
 ```bash
 # install dependency
 npx npm install
@@ -35,6 +39,7 @@ npx ng serve
 # Whenever you want to change the port just run
 npx ng dev --port = 9528
 ```
+
 Linter
 ```bash
 # Angular linter
@@ -67,9 +72,15 @@ npm run test:ui
 
 ## Estado CI
 
-| Develop | Relese 0.0.1 | Master |
-| -- | -- | -- |
-| [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/alternancia_cliente/status.svg?ref=refs/heads/develop)](https://hubci.portaloas.udistrital.edu.co/udistrital/alternancia_cliente) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/alternancia_cliente/status.svg?ref=refs/heads/release/0.0.1)](https://hubci.portaloas.udistrital.edu.co/udistrital/alternancia_cliente) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/alternancia_cliente/status.svg?ref=refs/heads/master)](https://hubci.portaloas.udistrital.edu.co/udistrital/alternancia_cliente) |
+```bash
+# Developing
+```
+
+## Modelo de Datos 
+
+```bash
+# Developing
+```
 
 ## Licencia
 
