@@ -1,7 +1,7 @@
 kind: pipeline
 name: oas_cliente_ci
 
-# steps:
+steps:
 # - name: check_readme
 #   image: jjvargass/qa_develoment:latest
 #   commands:
@@ -48,14 +48,14 @@ name: oas_cliente_ci
 #     branch:
 #     - unitest
 #
-# - name:  pruebas_linter
-#   image: node:14.15.2
-#   commands:
-#   - npm i
-#   - npm run lint
-#   when:
-#     branch:
-#     - unitest
+- name:  pruebas_linter
+  image: node:14.15.2
+  commands:
+  - npm i
+  - npm run lint
+  when:
+    branch:
+    - unitest
 
 - name: run_sonar_scanner
   image: aosapps/drone-sonar-plugin
