@@ -23,6 +23,7 @@ Clonar el proyecto del repositorio de git
 # clone the project
 git clone https://github.com/udistrital/planeacion_cliente.git
 
+
 # enter the project directory
 cd planeacion_cliente
 ```
