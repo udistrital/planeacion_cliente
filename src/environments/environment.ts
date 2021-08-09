@@ -8,8 +8,8 @@ export const environment = {
   autenticacion: true,
   notificaciones: false,
   menuApps: false,
-  appname: 'ud',
-  appMenu: 'alternancia',
+  appname: 'planeacion',
+  appMenu: 'planeacion',
   NUXEO: {
     PATH: 'https://documental.udistrital.edu.co/nuxeo/',
   },

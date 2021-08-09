@@ -3,38 +3,64 @@ import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { InformacionBasicaComponent } from './informacion-basica/informacion-basica.component';
 import { PagesComponent } from './pages.component';
-import { PreexistenciaComponent } from './preexistencia/preexistencia.component';
-import { SaludActualComponent } from './salud-actual/salud-actual.component'
-import { QrComponent } from './qr/qr.component';
-import { QrscanComponent } from './qrscan/qrscan.component';
+import { CrearPlanComponent } from './plan/crear-plan/crear-plan.component';
+import { ListarPlanComponent } from './plan/listar-plan/listar-plan.component';
+import { ConstruirPlanComponent } from './plan/construir-plan/construir-plan.component';
+import { ConsultarPlanComponent } from './plan/consultar-plan/consultar-plan.component';
+import { EvaluacionComponent } from './evaluacion/evaluacion.component';
+import { SeguimientoComponent } from './seguimiento/seguimiento.component';
+import { FormulacionComponent } from './formulacion/formulacion.component';
+
 const routes: Routes = [{
   path: '',
   component: PagesComponent,
   children: [
     {
-      path: 'dashboard',
-      component: DashboardComponent,
+       path: 'dashboard',
+       component: DashboardComponent,
+     },
+    // {
+    //   path: 'informacion_basica',
+    //   component: InformacionBasicaComponent,
+    // },
+    // {
+    //   path: 'caracterizacion',
+    //   component: PreexistenciaComponent,
+    // },
+    {
+      path: 'plan',
+      component: PagesComponent,
+      children: [
+        {
+          path: 'crear-plan',
+          component: CrearPlanComponent,
+        },
+        {
+          path: 'listar-plan',
+          component: ListarPlanComponent,
+        },
+        {
+          path: 'consultar-plan',
+          component: ConsultarPlanComponent,
+        }, 
+        {
+          path: 'construir-plan',
+          component: ConstruirPlanComponent,
+        }
+      ]
     },
     {
-      path: 'informacion_basica',
-      component: InformacionBasicaComponent,
+      path: 'evaluacion',
+      component: EvaluacionComponent,
     },
     {
-      path: 'caracterizacion',
-      component: PreexistenciaComponent,
-    },
-    /* {
-      path: 'sintomas',
-      component: SaludActualComponent,
+      path: 'seguimiento',
+      component: SeguimientoComponent,
     },
     {
-      path: 'ingreso',
-      component: QrscanComponent,
+      path: 'formulacion',
+      component: FormulacionComponent,
     },
-    {
-      path: 'qrcode',
-      component: QrComponent,
-    }, */
     {
       path: '', redirectTo: 'dashboard', pathMatch: 'full',
     },

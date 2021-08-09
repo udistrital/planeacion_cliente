@@ -1,0 +1,46 @@
+<mat-card class="card-dialog">
+  <mat-card-header>
+    <mat-card-title>Agregar Nivel {{data.nivel}}</mat-card-title>
+  </mat-card-header>
+  <form [formGroup]="formAgregar">
+    <mat-card-content>
+      <mat-form-field appearance="fill" [style.width.%]="100">
+        <mat-label id="nombre-input-label">Nombre</mat-label>
+        <input type="text" matInput formControlName="nombre" placeholder="Ingrese un nombre" required>
+        <mat-icon matSuffix>create</mat-icon>
+        <mat-error *ngIf="formAgregar.get('nombre').invalid">
+            {{getErrorMessage(formAgregar.get('nombre'))}}
+        </mat-error>
+      </mat-form-field>
+        <mat-form-field appearance="fill" [style.width.%]="100">
+          <mat-label id="desc-input-label">Descripción / Objetivo</mat-label>
+            <textarea matInput formControlName="descripcion" placeholder="Realice una descripción o digite el objetivo" required></textarea>
+            <mat-icon matSuffix>create</mat-icon>
+          <mat-error *ngIf="formAgregar.get('descripcion').invalid">
+            {{getErrorMessage(formAgregar.get('descripcion'))}}
+          </mat-error>
+      </mat-form-field>
+      <mat-label id="tipo-radio-group-label">Estado</mat-label>
+        <mat-radio-group formControlName="estado" class="example-radio-group" aria-labelledby="example-radio-group-label" required>
+          <mat-radio-button class="example-radio-button" value="true">Activo</mat-radio-button>
+          <mat-radio-button class="example-radio-button" value="false">Inactivo</mat-radio-button>
+        </mat-radio-group>
+    </mat-card-content>
+    <mat-card-actions style="text-align: center;">
+      <ng-container>
+        <button [disabled]="!formAgregar.valid" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" [mat-dialog-close]="formAgregar.value">
+          Guardar
+        </button>
+      </ng-container>
+      <br><br>
+      <ng-container>
+        <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="deshacer()">
+          Deshacer
+        </button>
+        <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="close()">
+          Cancelar
+        </button>
+      </ng-container>      
+    </mat-card-actions>
+  </form>
+</mat-card>
