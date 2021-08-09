@@ -1,0 +1,29 @@
+.crear-content{
+    margin-left: 1rem;
+}
+
+.example-radio-group {
+    display: flex;
+    flex-direction: column;
+    margin: 1px 30px;
+    // position: absolute;
+    // left: 2px;
+}
+  
+.example-radio-button {
+    margin: 20px;
+}
+
+.outline{
+    border-radius: 7px;
+    border-style: solid;
+    border-width: 1px;
+}
+.title-overlap{
+  position: absolute;
+  top: -17px;
+  left: 20px;
+
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
