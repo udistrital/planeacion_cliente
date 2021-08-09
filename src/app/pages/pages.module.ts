@@ -8,6 +8,7 @@ import { InformacionBasicaComponent } from './informacion-basica/informacion-bas
 import { HttpClientModule } from '@angular/common/http';
 import { RequestManager } from './services/requestManager';
 
+import { MatTableModule } from '@angular/material/table' 
 import {MatRadioModule} from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,28 +22,39 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS,} from '@angular/material-moment-adapter';
 import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { SaludActualComponent } from './salud-actual/salud-actual.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { PreexistenciaComponent } from './preexistencia/preexistencia.component';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { OasGridColsDirective } from './directives/oas-grid-cols.directive';
 import { QrCodeModule } from 'ng-qrcode';
-import { QrComponent } from './qr/qr.component';
+import {MatDialogModule} from '@angular/material/dialog';
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
-import { QrscanComponent } from './qrscan/qrscan.component';
 import { NgQrScannerModule } from 'angular2-qrscanner';
 import { UtilService } from './services/utilService';
 import { UserService } from './services/userService';
+import { CrearPlanComponent } from './plan/crear-plan/crear-plan.component';
+import { ListarPlanComponent } from './plan/listar-plan/listar-plan.component';
+import { ConstruirPlanComponent } from './plan/construir-plan/construir-plan.component';
+import { ConsultarPlanComponent } from './plan/consultar-plan/consultar-plan.component';
+import { EvaluacionComponent } from './evaluacion/evaluacion.component';
+import { SeguimientoComponent } from './seguimiento/seguimiento.component';
+import { ArbolComponent } from './plan/arbol/arbol.component';
+import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agregar-dialog.component';
+import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
+import { FormulacionComponent } from './formulacion/formulacion.component';
 
 
 const pagesComponents = [
   DashboardComponent,
   PagesComponent,
-  InformacionBasicaComponent,
-  SaludActualComponent,
-  PreexistenciaComponent,
+  //InformacionBasicaComponent,
+  CrearPlanComponent,
+  ListarPlanComponent,
+  ConstruirPlanComponent,
+  ConsultarPlanComponent,
+  EvaluacionComponent,
+  SeguimientoComponent
 ];
 
 const materialModules = [
@@ -65,8 +77,16 @@ const materialModules = [
   declarations: [
     ...pagesComponents,
     OasGridColsDirective,
-    QrComponent,
-    QrscanComponent,
+    CrearPlanComponent,
+    ListarPlanComponent,
+    ConstruirPlanComponent,
+    ConsultarPlanComponent,
+    EvaluacionComponent,
+    SeguimientoComponent,
+    ArbolComponent,
+    AgregarDialogComponent,
+    EditarDialogComponent,
+    FormulacionComponent,
   ],
   imports: [
     NgQrScannerModule,
@@ -75,8 +95,10 @@ const materialModules = [
     FormsModule,
     ReactiveFormsModule,
     PagesRoutingModule,
-    QrCodeModule,
     Ng2SmartTableModule,
+    MatTableModule,
+    MatDialogModule,
+    MatRadioModule,
     ...materialModules
   ],
   providers: [

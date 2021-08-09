@@ -1,0 +1,60 @@
+    <mat-card class="card-oas">
+        <mat-card-header>
+            <mat-card-title>Definir Proyecto / Plan</mat-card-title>
+        </mat-card-header>
+        <form [formGroup]="formCrearPlan" (ngSubmit)="createPlan()">
+            <mat-card-content>
+                <mat-grid-list [appOasGridCols]="{xs: 1, sm: 2, md: 2, lg: 2, xl: 4}" rowHeight="170px" gutterSize="25px">
+                    <mat-grid-tile>
+                        <mat-form-field appearance="fill" [style.width.%]="200">
+                            <mat-label id="tipo-input-label">Tipo</mat-label>
+                            <mat-select formControlName="tipoControl" required>
+                                <mat-option>--</mat-option>
+                                <mat-option *ngFor="let tipo of tipos" [value]="tipo">
+                                    {{tipo.name}}
+                                </mat-option>
+                            </mat-select>
+                            <mat-error *ngIf="formCrearPlan.get('tipoControl').invalid">
+                                {{getErrorMessage(formCrearPlan.get('tipoControl'))}}
+                            </mat-error>
+                            <mat-hint>Seleccione el tipo de proyecto o plan</mat-hint>
+                        </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field appearance="fill" [style.width.%]="200">
+                            <mat-label id="nombre-input-label">Nombre</mat-label>
+                            <input type="text" matInput formControlName="nombreControl" placeholder="Escriba el nombre del proyecto o plan" required>
+                            <mat-icon matSuffix>create</mat-icon>
+                            <mat-error *ngIf="formCrearPlan.get('nombreControl').invalid">
+                                {{getErrorMessage(formCrearPlan.get('nombreControl'))}}
+                            </mat-error>
+                        </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field appearance="fill" [style.width.%]="200">
+                            <mat-label id="desc-input-label">Descripción</mat-label>
+                            <textarea matInput formControlName="descControl" placeholder="Realice una descripción del proyecto o plan" required></textarea>
+                            <mat-icon matSuffix>create</mat-icon>
+                            <mat-error *ngIf="formCrearPlan.get('descControl').invalid">
+                                {{getErrorMessage(formCrearPlan.get('descControl'))}}
+                            </mat-error>
+                        </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-label id="tipo-radio-group-label">Estado</mat-label>
+                        <mat-radio-group formControlName="radioEstado" class="example-radio-group" aria-labelledby="example-radio-group-label" required>
+                            <mat-radio-button class="example-radio-button" value="true">Activo</mat-radio-button>
+                            <mat-radio-button class="example-radio-button" value="false">Inactivo</mat-radio-button>
+                        </mat-radio-group>
+                    </mat-grid-tile>             
+                </mat-grid-list>
+            </mat-card-content>
+            <mat-card-actions>
+                <div style="margin: 1rem;">
+                    <button [disabled]="!formCrearPlan.valid" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3">
+                        Guardar
+                    </button>
+                </div>
+            </mat-card-actions>
+        </form>
+    </mat-card>
