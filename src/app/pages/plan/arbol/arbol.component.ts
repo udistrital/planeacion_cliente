@@ -13,7 +13,7 @@ interface Subgrupo {
   id: number;
   nombre: string;
   descripcion: string;
-  children?: Subgrupo[];
+  hijos?: Subgrupo[];
 }
 
 interface SubgrupoArbol {
@@ -26,22 +26,22 @@ const TREE_DATA: Subgrupo[] = [
   {
     id: 1,
     nombre: 'N1',
-    children: [
+    hijos: [
       { id: 11, nombre: 'N11', descripcion: 'D11' },
       { id: 12, nombre: 'N12', descripcion: 'D12' },
       { id: 13, nombre: 'N13', descripcion: 'D13' },
-      { id: 14, nombre: 'N14', descripcion: 'D14', children: [{ id: 141, nombre: 'N141', descripcion: 'D141'}]}
+      { id: 14, nombre: 'N14', descripcion: 'D14', hijos: [{ id: 141, nombre: 'N141', descripcion: 'D141'}]}
     ],
     descripcion: 'D1'
   },
   {
     id: 2,
     nombre: 'N2',
-    children: [
+    hijos: [
       {
         id: 21,
         nombre: 'N21',
-        children: [
+        hijos: [
           { id: 211, nombre: 'N211', descripcion: 'D211' },
           { id: 212, nombre: 'N212', descripcion: 'D212' }
         ], descripcion: 'D21',
@@ -49,7 +49,7 @@ const TREE_DATA: Subgrupo[] = [
       {
         id: 22,
         nombre: 'N22',
-        children: [
+        hijos: [
           { id: 221, nombre: 'N221', descripcion: 'D221' },
           { id: 222, nombre: 'N222', descripcion: 'D222' }
         ], descripcion: 'D22',
@@ -63,22 +63,22 @@ const TREE_DATA_: Subgrupo[] = [
   {
     id: 1,
     nombre: 'N1',
-    children: [
+    hijos: [
       { id: 11, nombre: 'N11', descripcion: 'D11' },
       { id: 12, nombre: 'N12', descripcion: 'D12' },
       { id: 13, nombre: 'N13', descripcion: 'D13' },
-      { id: 14, nombre: 'N14', descripcion: 'D14', children: [{ id: 141, nombre: 'N141', descripcion: 'D141'}]}
+      { id: 14, nombre: 'N14', descripcion: 'D14', hijos: [{ id: 141, nombre: 'N141', descripcion: 'D141'}]}
     ],
     descripcion: 'D1'
   },
   {
     id: 2,
     nombre: 'N2',
-    children: [
+    hijos: [
       {
         id: 21,
         nombre: 'N21',
-        children: [
+        hijos: [
           { id: 211, nombre: 'N211', descripcion: 'D211' },
           { id: 212, nombre: 'N212', descripcion: 'D212' }
         ], descripcion: 'D21',
@@ -86,7 +86,7 @@ const TREE_DATA_: Subgrupo[] = [
       {
         id: 22,
         nombre: 'N22',
-        children: [
+        hijos: [
           { id: 221, nombre: 'N221', descripcion: 'D221' },
           { id: 222, nombre: 'N222', descripcion: 'D222' }
         ], descripcion: 'D22',
@@ -125,7 +125,7 @@ export class ArbolComponent implements OnInit {
 
   private transformer = (node: Subgrupo, level: number) => {
     return {
-      expandable: !!node.children && node.children.length > 0,
+      expandable: !!node.hijos && node.hijos.length > 0,
       id: node.id,
       nombre: node.nombre,
       descripcion: node.descripcion,
@@ -142,7 +142,7 @@ export class ArbolComponent implements OnInit {
     this.transformer,
     node => node.level,
     node => node.expandable,
-    node => node.children
+    node => node.hijos
   );
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
