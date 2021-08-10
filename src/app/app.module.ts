@@ -10,6 +10,12 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { HttpClientModule } from '@angular/common/http';
 import {MatDialogModule} from '@angular/material/dialog';;
+import { MatRadioModule } from '@angular/material/radio';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 @NgModule({
   declarations: [
@@ -23,6 +29,12 @@ import {MatDialogModule} from '@angular/material/dialog';;
     MatTableModule,
     BrowserAnimationsModule,
     MatDialogModule,
+    MatRadioModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatGridListModule,
+    MatButtonModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }  ],

@@ -9,7 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RequestManager } from './services/requestManager';
 
 import { MatTableModule } from '@angular/material/table' 
-import {MatRadioModule} from '@angular/material/radio';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -26,11 +26,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { OasGridColsDirective } from './directives/oas-grid-cols.directive';
-import { QrCodeModule } from 'ng-qrcode';
-import {MatDialogModule} from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
-import { NgQrScannerModule } from 'angular2-qrscanner';
 import { UtilService } from './services/utilService';
 import { UserService } from './services/userService';
 import { CrearPlanComponent } from './plan/crear-plan/crear-plan.component';
@@ -54,7 +52,11 @@ const pagesComponents = [
   ConstruirPlanComponent,
   ConsultarPlanComponent,
   EvaluacionComponent,
-  SeguimientoComponent
+  SeguimientoComponent,
+  FormulacionComponent,
+  AgregarDialogComponent,
+  EditarDialogComponent,
+  ArbolComponent
 ];
 
 const materialModules = [
@@ -71,7 +73,7 @@ const materialModules = [
   MatExpansionModule,
   MatButtonModule,
   MatStepperModule,
-  MatRadioModule
+  MatRadioModule,
 ];
 @NgModule({
   declarations: [
@@ -89,7 +91,6 @@ const materialModules = [
     FormulacionComponent,
   ],
   imports: [
-    NgQrScannerModule,
     HttpClientModule,
     CommonModule,
     FormsModule,
@@ -99,6 +100,11 @@ const materialModules = [
     MatTableModule,
     MatDialogModule,
     MatRadioModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatGridListModule,
+    MatButtonModule,
     ...materialModules
   ],
   providers: [
