@@ -28,6 +28,8 @@ import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { OasGridColsDirective } from './directives/oas-grid-cols.directive';
 import { QrCodeModule } from 'ng-qrcode';
 import {MatDialogModule} from '@angular/material/dialog';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import {MatSortModule} from '@angular/material/sort';
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { NgQrScannerModule } from 'angular2-qrscanner';
@@ -99,6 +101,8 @@ const materialModules = [
     MatTableModule,
     MatDialogModule,
     MatRadioModule,
+    MatPaginatorModule,
+    MatSortModule,
     ...materialModules
   ],
   providers: [
