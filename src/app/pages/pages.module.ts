@@ -26,14 +26,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { OasGridColsDirective } from './directives/oas-grid-cols.directive';
-<<<<<<< HEAD
-import { QrCodeModule } from 'ng-qrcode';
 import {MatDialogModule} from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
-=======
-import { MatDialogModule } from '@angular/material/dialog';
->>>>>>> 053a281bb789808f9db607fae1b3369c4bb1435e
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { UtilService } from './services/utilService';
@@ -107,16 +102,13 @@ const materialModules = [
     MatTableModule,
     MatDialogModule,
     MatRadioModule,
-<<<<<<< HEAD
     MatPaginatorModule,
     MatSortModule,
-=======
     MatIconModule,
     MatFormFieldModule,
     MatCardModule,
     MatGridListModule,
     MatButtonModule,
->>>>>>> 053a281bb789808f9db607fae1b3369c4bb1435e
     ...materialModules
   ],
   providers: [
