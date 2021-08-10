@@ -22,9 +22,9 @@ export const environment = {
     CLIENTE_ID: 'uNb7k8hXSICJqmZzPqrKE6sDM6Ea',
     RESPONSE_TYPE: 'id_token token',
     SCOPE: 'openid email',
-    REDIRECT_URL: 'https://alternancia.portaloas.udistrital.edu.co',
+    REDIRECT_URL: 'https://pruebasplaneacion.portaloas.udistrital.edu.co',
     SIGN_OUT_URL: 'https://autenticacion.portaloas.udistrital.edu.co/oidc/logout',
-    SIGN_OUT_REDIRECT_URL: 'https://alternancia.portaloas.udistrital.edu.co',
+    SIGN_OUT_REDIRECT_URL: 'https://pruebasplaneacion.portaloas.udistrital.edu.co',
     AUTENTICACION_MID: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/autenticacion_mid/v1/token/userRol',
   },
 };
