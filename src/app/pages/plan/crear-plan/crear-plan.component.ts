@@ -21,6 +21,8 @@ export class CrearPlanComponent implements OnInit {
     {name: 'Proyecto'},
   ];
 
+  tipo: string;
+
   constructor(
     private request: RequestManager,
     private userService: UserService,
@@ -37,8 +39,11 @@ export class CrearPlanComponent implements OnInit {
     }
   }
 
-  async createPlan() {
-    
+  createPlan() {
+    this.tipo = this.formCrearPlan.get('tipoControl').value;
+    // POST
+    console.log(this.tipo)
+    console.log('Hace el POST')
   }
 
   ngOnInit(): void {

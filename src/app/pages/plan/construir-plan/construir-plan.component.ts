@@ -89,7 +89,7 @@ export class ConstruirPlanComponent implements OnInit {
     const dialogRef = this.dialog.open(EditarDialogComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
-      data: {nivel: this.uid_n, sub}
+      data: {nivel: this.uid_n, ban: false, sub}
     });
 
     dialogRef.afterClosed().subscribe(result => {

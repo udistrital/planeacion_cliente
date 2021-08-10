@@ -1,6 +1,7 @@
 <mat-card class="card-dialog">
     <mat-card-header>
-      <mat-card-title>Editar Nivel {{data.nivel}}</mat-card-title>
+      <mat-card-title *ngIf="!data.ban">Editar Nivel {{data.nivel}}</mat-card-title>
+      <mat-card-title *ngIf="data.ban">Editar Plan</mat-card-title>
     </mat-card-header>
     <form [formGroup]="formEditar">
       <mat-card-content>
