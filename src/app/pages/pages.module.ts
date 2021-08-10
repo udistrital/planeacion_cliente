@@ -9,7 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RequestManager } from './services/requestManager';
 
 import { MatTableModule } from '@angular/material/table' 
-import {MatRadioModule} from '@angular/material/radio';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -26,13 +26,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { OasGridColsDirective } from './directives/oas-grid-cols.directive';
+<<<<<<< HEAD
 import { QrCodeModule } from 'ng-qrcode';
 import {MatDialogModule} from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
+=======
+import { MatDialogModule } from '@angular/material/dialog';
+>>>>>>> 053a281bb789808f9db607fae1b3369c4bb1435e
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
-import { NgQrScannerModule } from 'angular2-qrscanner';
 import { UtilService } from './services/utilService';
 import { UserService } from './services/userService';
 import { CrearPlanComponent } from './plan/crear-plan/crear-plan.component';
@@ -56,7 +59,11 @@ const pagesComponents = [
   ConstruirPlanComponent,
   ConsultarPlanComponent,
   EvaluacionComponent,
-  SeguimientoComponent
+  SeguimientoComponent,
+  FormulacionComponent,
+  AgregarDialogComponent,
+  EditarDialogComponent,
+  ArbolComponent
 ];
 
 const materialModules = [
@@ -73,7 +80,7 @@ const materialModules = [
   MatExpansionModule,
   MatButtonModule,
   MatStepperModule,
-  MatRadioModule
+  MatRadioModule,
 ];
 @NgModule({
   declarations: [
@@ -91,7 +98,6 @@ const materialModules = [
     FormulacionComponent,
   ],
   imports: [
-    NgQrScannerModule,
     HttpClientModule,
     CommonModule,
     FormsModule,
@@ -101,8 +107,16 @@ const materialModules = [
     MatTableModule,
     MatDialogModule,
     MatRadioModule,
+<<<<<<< HEAD
     MatPaginatorModule,
     MatSortModule,
+=======
+    MatIconModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatGridListModule,
+    MatButtonModule,
+>>>>>>> 053a281bb789808f9db607fae1b3369c4bb1435e
     ...materialModules
   ],
   providers: [
