@@ -16,11 +16,48 @@ interface Subgrupo {
   hijos?: Subgrupo[];
 }
 
+interface Subgrupo2 {
+  nombre: string;
+  descripcion: string;
+  children?: Subgrupo2[];
+}
+
 interface SubgrupoArbol {
   id: number;
   nombre: string;
   descripcion: string;
 }
+
+const TREE_DATA_V: Subgrupo2[] = [
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "descripcion": "descripcion indicador 1",
+            "nombre": "Indicador 1"
+          },
+          {
+            "descripcion": "descripcion indicador 2",
+            "nombre": "Indicador 2"
+          }
+        ],
+        "descripcion": "descripcion meta 1",
+        "nombre": "Meta 1"
+      },
+      {
+        "descripcion": "descripcion meta 2",
+        "nombre": "Meta 2"
+      }
+    ],
+    "descripcion": "Lineamiento estrategico 1 actualizado",
+    "nombre": "Lineamiento 1"
+  },
+  {
+    "descripcion": "descripcion linemiento 2",
+    "nombre": "Lineamiento 2"
+  }
+]
 
 const TREE_DATA: Subgrupo[] = [
   {
@@ -110,6 +147,13 @@ interface Nodo {
   level: number;
 }
 
+interface Nodo2 {
+  expandable: boolean;
+  nombre: string;
+  descripcion: string;
+  level: number;
+}
+
 @Component({
   selector: 'app-arbol',
   templateUrl: './arbol.component.html',
@@ -133,6 +177,15 @@ export class ArbolComponent implements OnInit {
     };
   };
 
+  private transformer2 = (node: Subgrupo2, level: number) => {
+    return {
+      expandable: !!node.children && node.children.length > 0,
+      nombre: node.nombre,
+      descripcion: node.descripcion,
+      level: level
+    };
+  };
+
   treeControl = new FlatTreeControl<Nodo>(
     node => node.level,
     node => node.expandable
@@ -145,7 +198,15 @@ export class ArbolComponent implements OnInit {
     node => node.hijos
   );
 
+  treeFlattener2 = new MatTreeFlattener(
+    this.transformer2,
+    node => node.level,
+    node => node.expandable,
+    node => node.children
+  );
+
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+  dataSource2 = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener2);
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -188,7 +249,8 @@ export class ArbolComponent implements OnInit {
   loadArbol(){
     // GET ARBOL CATALOGO
     this.mostrar = true;
-    this.dataSource.data = TREE_DATA;
+    //this.dataSource.data = TREE_DATA;
+    this.dataSource2.data = TREE_DATA_V;
   }
 
   loadArbol2(){

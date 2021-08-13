@@ -51,7 +51,7 @@
             <mat-label>Filter</mat-label>
             <input matInput (keyup)="applyFilter($event)" placeholder="Digite para filtrar" #fil>
         </mat-form-field> -->
-        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+        <table mat-table [dataSource]="dataSource2" class="mat-elevation-z8">
             <ng-container matColumnDef="nombre">
               <th mat-header-cell *matHeaderCellDef> 
                 <span [style.paddingLeft.px]="40"> Nombre </span>

@@ -7,7 +7,7 @@
       <mat-label id="tipo-input-label">Seleccionar Proyecto / Plan</mat-label>
         <mat-select (selectionChange)="select($event.value)">
           <mat-option>--</mat-option>
-          <mat-option *ngFor="let plan of planes" [value]="plan.id">
+          <mat-option *ngFor="let plan of planes" [value]="plan">
             {{plan.name}}
           </mat-option>
         </mat-select>

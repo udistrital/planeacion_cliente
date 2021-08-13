@@ -246,7 +246,7 @@ export class InformacionBasicaComponent implements OnInit {
                 Dato: JSON.stringify({ dato: itemVacunacion.dato }),
                 Activo: true,
               };
-
+              console.log(itemVacunacionTercero)
               if (this.isPost) {
                 this.request
                   .post(environment.TERCEROS_SERVICE, 'info_complementaria_tercero/', itemVacunacionTercero)
@@ -328,7 +328,7 @@ export class InformacionBasicaComponent implements OnInit {
                   };
 
               }
-
+              console.log(itemVacunacionTercero)
             });
         }
       });

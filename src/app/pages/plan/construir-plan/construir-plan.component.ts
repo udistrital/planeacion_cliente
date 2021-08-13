@@ -124,7 +124,7 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   select(plan){
-    this.planId = plan;
+    this.planId = plan.id;
     console.log(this.planId)
   }
 

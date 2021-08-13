@@ -4,10 +4,9 @@ import { UserService } from '../../services/userService';
 import { UtilService } from '../../services/utilService';
 import { RequestManager } from '../../services/requestManager';
 import { Router } from '@angular/router';
-
-interface Tipo {
-  name: string;
-}
+import { environment } from '../../../../environments/environment'
+import { combineLatest, from } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-crear-plan',
@@ -16,12 +15,9 @@ interface Tipo {
 })
 export class CrearPlanComponent implements OnInit {
   formCrearPlan: FormGroup;
-  tipos: Tipo[] = [
-    {name: 'Plan'},
-    {name: 'Proyecto'},
-  ];
 
-  tipo: string;
+  tipos: any[]
+  tipoPlan: any;
 
   constructor(
     private request: RequestManager,
@@ -40,19 +36,51 @@ export class CrearPlanComponent implements OnInit {
   }
 
   createPlan() {
-    this.tipo = this.formCrearPlan.get('tipoControl').value;
-    // POST
-    console.log(this.tipo)
-    console.log('Hace el POST')
+    let dataPlan = {
+      nombre: this.formCrearPlan.get('nombre').value,
+      descripcion: this.formCrearPlan.get('desc').value,
+      tipo_plan_id: this.tipoPlan._id,
+      aplicativo_id: "idPlaneacion",
+      activo: JSON.parse(this.formCrearPlan.get('radioEstado').value)
+    }
+    this.request.post(environment.LOCAL, 'plan', dataPlan).subscribe(
+      (data: any) => {
+        if(data){         
+          Swal.fire({
+            title: 'Registro correcto',
+            text: `Se ingresaron correctamente los datos del plan`,
+            icon: 'success',
+          }).then((result) => {
+            if (result.value) {
+             window.location.reload();
+            }
+          })
+        }else{ }
+      }),
+      (error) => {
+        console.log(error)
+      } 
+  }
+
+  select(tipo){
+    this.tipoPlan = tipo;
   }
 
   ngOnInit(): void {
     this.formCrearPlan = this.formBuilder.group({
-      nombreControl: ['', Validators.required],
-      descControl: ['', Validators.required],
-      tipoControl: ['', Validators.required],
+      nombre: ['', Validators.required],
+      desc: ['', Validators.required],
+      tipo: ['', Validators.required],
       radioEstado: ['', Validators.required],
     });
+
+    this.request.get(environment.LOCAL, `tipo-plan`).subscribe((data: any) => {
+      if (data){
+        this.tipos = data.Data;
+      }
+    }, (error) => {
+      console.log(error);
+    })
   }
 
 }

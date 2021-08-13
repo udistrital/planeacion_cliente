@@ -13,7 +13,7 @@ export class EditarDialogComponent implements OnInit {
   formEditar: FormGroup;
   nombre: string;
   descripcion: string;
-  estadoS: string;
+  activoS: string;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -21,20 +21,20 @@ export class EditarDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any) {
       this.nombre = data.sub.nombre;
       this.descripcion = data.sub.descripcion;
-      this.estadoS = String(data.sub.estado);
+      this.activoS = String(data.sub.activo);
      }
 
-  consulta(){
-    this.formEditar.get('estado').setValue(this.estadoS);
-    this.formEditar.get('nombre').setValue(this.nombre);
-    this.formEditar.get('descripcion').setValue(this.descripcion);
-  }
+  // consulta(){
+  //   this.formEditar.get('estado').setValue(this.estadoS);
+  //   this.formEditar.get('nombre').setValue(this.nombre);
+  //   this.formEditar.get('descripcion').setValue(this.descripcion);
+  // }
 
   ngOnInit(): void {
     this.formEditar = this.formBuilder.group({
       descripcion: [this.descripcion, Validators.required],
       nombre: [this.nombre, Validators.required],
-      estado: [this.estadoS, Validators.required],
+      activo: [this.activoS, Validators.required],
     });
   }
 
