@@ -5,7 +5,6 @@ import { UtilService } from '../../services/utilService';
 import { RequestManager } from '../../services/requestManager';
 import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environment'
-import { combineLatest, from } from 'rxjs';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -43,12 +42,12 @@ export class CrearPlanComponent implements OnInit {
       aplicativo_id: "idPlaneacion",
       activo: JSON.parse(this.formCrearPlan.get('radioEstado').value)
     }
-    this.request.post(environment.LOCAL, 'plan', dataPlan).subscribe(
+    this.request.post(environment.CRUD_PRUEBAS, 'plan', dataPlan).subscribe(
       (data: any) => {
         if(data){         
           Swal.fire({
             title: 'Registro correcto',
-            text: `Se ingresaron correctamente los datos del plan`,
+            text: `Se ingresaron correctamente los datos`,
             icon: 'success',
           }).then((result) => {
             if (result.value) {
@@ -74,11 +73,11 @@ export class CrearPlanComponent implements OnInit {
       radioEstado: ['', Validators.required],
     });
 
-    this.request.get(environment.LOCAL, `tipo-plan`).subscribe((data: any) => {
+    this.request.get(environment.CRUD_PRUEBAS, `tipo-plan`).subscribe((data: any) => {
       if (data){
         this.tipos = data.Data;
       }
-    }, (error) => {
+    },(error) => {
       console.log(error);
     })
   }

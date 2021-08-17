@@ -4,17 +4,9 @@ import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { EditarDialogComponent } from '../construir-plan/editar-dialog/editar-dialog.component';
-import { Subgrupo } from '../construir-plan/construir-plan.component';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment'
 import Swal from 'sweetalert2';
-
-export interface Plan {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  estado: string;
-}
 
 @Component({
   selector: 'app-listar-plan',
@@ -51,7 +43,7 @@ export class ListarPlanComponent implements OnInit {
     const dialogRef = this.dialog.open(EditarDialogComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
-      data: {ban: true, sub}
+      data: {ban: 'plan', sub}
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -65,11 +57,11 @@ export class ListarPlanComponent implements OnInit {
 
   putData(res, bandera){
     if (bandera == 'editar'){
-      this.request.put(environment.LOCAL, `plan`, res, this.uid).subscribe((data: any) => {
+      this.request.put(environment.CRUD_PRUEBAS, `plan`, res, this.uid).subscribe((data: any) => {
         if(data){
           Swal.fire({
             title: 'Actualización correcta',
-            text: `Se actualizaron correctamente los datos del plan`,
+            text: `Se actualizaron correctamente los datos`,
             icon: 'success',
           }).then((result) => {
             if (result.value) {
@@ -90,7 +82,7 @@ export class ListarPlanComponent implements OnInit {
         cancelButtonText: `No`,
       }).then((result) => {
           if (result.isConfirmed) {
-            this.request.put(environment.LOCAL, `plan`, res, this.uid).subscribe((data: any) => {
+            this.request.put(environment.CRUD_PRUEBAS, `plan`, res, this.uid).subscribe((data: any) => {
               if (data){
                 Swal.fire({
                   title: 'Cambio realizado', 
@@ -118,8 +110,8 @@ export class ListarPlanComponent implements OnInit {
   }
 
   loadData(){
-    this.cambiarValor("activo", true, "Activo")
-    this.cambiarValor("activo", false, "Inactivo")
+    //this.cambiarValor("activo", true, "Activo")
+    //this.cambiarValor("activo", false, "Inactivo")
     this.dataSource = new MatTableDataSource(this.planes);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -127,7 +119,7 @@ export class ListarPlanComponent implements OnInit {
 
   editar(fila): void{
     this.uid = fila._id;
-    this.request.get(environment.LOCAL, `plan/`+this.uid).subscribe((data: any) => {
+    this.request.get(environment.CRUD_PRUEBAS, `plan/`+this.uid).subscribe((data: any) => {
       if(data){
         this.plan = data.Data;
         this.openDialogEditar(this.plan);  
@@ -140,12 +132,12 @@ export class ListarPlanComponent implements OnInit {
 
   inactivar(fila):void{
     this.uid = fila._id;
-    if (fila.activo == 'Activo'){
+    if (fila.activo == true){
       let res = {
         activo: false,
       }
       this.putData(res, 'activo')
-    } else if (fila.activo == 'Inactivo'){
+    } else if (fila.activo == false){
       Swal.fire({
         title: 'Plan ya inactivo',
         text: `El plan ya se encuentra en estado inactivo`,
@@ -157,20 +149,20 @@ export class ListarPlanComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.request.get(environment.LOCAL, `plan`).subscribe((data: any) => {
+    this.request.get(environment.CRUD_PRUEBAS, `plan`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.loadData();
       }
-    }, (error) => {
+    },(error) => {
       console.log(error);
     })
   }
 
-  cambiarValor(valorABuscar, valorViejo, valorNuevo) {
-    this.planes.forEach(function (elemento) {
-      elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
-    })
-  }
+  // cambiarValor(valorABuscar, valorViejo, valorNuevo) {
+  //   this.planes.forEach(function (elemento) {
+  //     elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
+  //   })
+  // }
 
 }

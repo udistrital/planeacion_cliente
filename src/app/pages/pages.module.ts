@@ -48,7 +48,7 @@ import { FormulacionComponent } from './formulacion/formulacion.component';
 const pagesComponents = [
   DashboardComponent,
   PagesComponent,
-  InformacionBasicaComponent,
+  //InformacionBasicaComponent,
   CrearPlanComponent,
   ListarPlanComponent,
   ConstruirPlanComponent,

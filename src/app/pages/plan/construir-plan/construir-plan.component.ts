@@ -1,13 +1,10 @@
 import { Component, Inject, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import { AgregarDialogComponent } from './agregar-dialog/agregar-dialog.component'
-import { EditarDialogComponent } from './editar-dialog/editar-dialog.component'
- 
-interface Plan {
-  id: number;
-  name: string;
-}
+import { AgregarDialogComponent } from './agregar-dialog/agregar-dialog.component';
+import { EditarDialogComponent } from './editar-dialog/editar-dialog.component';
+import { RequestManager } from '../../services/requestManager';
+import { environment } from '../../../../environments/environment';
 
 export interface Subgrupo{
   id: number;
@@ -24,7 +21,7 @@ export interface Subgrupo{
 export class ConstruirPlanComponent implements OnInit {
   
   formConstruirPlan: FormGroup;
-  planId: number; // id plan
+  tipoPlanId: string; // id plan
   nivel: number; // nivel objeto
   idPadre: number; // id padre del objeto
   nivelHijo: number; // nivel hijo objeto
@@ -36,15 +33,13 @@ export class ConstruirPlanComponent implements OnInit {
   descripcion: string;
   estado: boolean;
 
-  planes: Plan[] = [
-    {name: 'Proyecto Universitario Institucional', id: 1},
-    {name: 'Plan Estratégico de Desarrollo', id: 2},
-  ];
+  planes: any[];
 
   @Output() eventChange = new EventEmitter();
   constructor(
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
+    private request: RequestManager,
   ) { }
 
   openDialogAgregar(): void {
@@ -62,7 +57,6 @@ export class ConstruirPlanComponent implements OnInit {
       } else {
         this.postData(result);
       }
-      //console.log(JSON.stringify(this.sub));
     });
   }
 
@@ -89,7 +83,7 @@ export class ConstruirPlanComponent implements OnInit {
     const dialogRef = this.dialog.open(EditarDialogComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
-      data: {nivel: this.uid_n, ban: false, sub}
+      data: {nivel: this.uid_n, ban: 'nivel', sub}
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -124,8 +118,12 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   select(plan){
-    this.planId = plan.id;
-    console.log(this.planId)
+    if (plan == undefined){
+      this.tipoPlanId = undefined;
+    } else {
+      this.tipoPlanId = plan.tipo_plan_id;
+      console.log(this.tipoPlanId)
+    }
   }
 
   receiveMessage(event){
@@ -152,7 +150,7 @@ export class ConstruirPlanComponent implements OnInit {
 
   agregarSub(niv: number){
     this.uid_n = niv;
-    console.log("llega a agregar 1")
+    //console.log("llega a agregar 1")
     this.openDialogAgregar()
   }
 
@@ -160,22 +158,18 @@ export class ConstruirPlanComponent implements OnInit {
     this.formConstruirPlan = this.formBuilder.group({
       planControl: ['', Validators.required],
     });
+
+    this.request.get(environment.CRUD_PRUEBAS, `plan`).subscribe((data: any) => {
+      if (data){
+        this.planes = data.Data;
+        this.planes = this.filterActivos(this.planes);
+      }
+    },(error) => {
+      console.log(error);
+    })
   }
 
+  filterActivos(data) {
+    return data.filter(e => e.activo == true);
+ }
 }
-
-// @Component({
-//   selector: 'agregar-dialog',
-//   templateUrl: './agregar-dialog.html',
-// })
-// export class AgregarDialog {
-
-//   constructor(
-//     public dialogRef: MatDialogRef<AgregarDialog>,
-//     @Inject(MAT_DIALOG_DATA) public data: Subgrupo) {}
-
-//   onNoClick(): void {
-//     this.dialogRef.close();
-//   }
-
-// }

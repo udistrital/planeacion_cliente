@@ -210,7 +210,7 @@ export class ArbolComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  @Input() planId: number;
+  @Input() planId: string;
   @Input() updateSignal: Observable<String[]>;
   @Output() grupo = new EventEmitter<any>();
   constructor(
@@ -279,17 +279,6 @@ export class ArbolComponent implements OnInit {
   buildPUI(){
 
   }
-
-  createPUI(){
-    
-  }
-
-  // clickedRow(fila){
-  //   //console.log(fila)
-  //   //this.grupo.emit(fila);
-  //   this.dataRow = fila;
-  //   console.log(this.dataRow)
-  // }
 
   editar(fila, bandera){
     console.log('Está en editar')

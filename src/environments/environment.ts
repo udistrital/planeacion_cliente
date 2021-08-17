@@ -15,6 +15,7 @@ export const environment = {
   },
   SINTOMAS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/sintomas_crud/v1/',
   LOCAL: 'http://localhost:3000/',
+  CRUD_PRUEBAS: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8523/',
   PRUEBAS: 'http://pruebasapi.intranetoas.udistrital.edu.co:8121/v1/',
   TERCEROS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/terceros_crud/v1/',
   ACADEMICA_JBPM_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/academica_jbpm/v1/',
