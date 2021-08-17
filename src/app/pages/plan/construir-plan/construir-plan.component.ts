@@ -159,7 +159,7 @@ export class ConstruirPlanComponent implements OnInit {
       planControl: ['', Validators.required],
     });
 
-    this.request.get(environment.CRUD_PRUEBAS, `plan`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.planes = this.filterActivos(this.planes);
