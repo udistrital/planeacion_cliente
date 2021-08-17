@@ -42,7 +42,7 @@ export class CrearPlanComponent implements OnInit {
       aplicativo_id: "idPlaneacion",
       activo: JSON.parse(this.formCrearPlan.get('radioEstado').value)
     }
-    this.request.post(environment.CRUD_PRUEBAS, 'plan', dataPlan).subscribe(
+    this.request.post(environment.PLANES_CRUD, 'plan', dataPlan).subscribe(
       (data: any) => {
         if(data){         
           Swal.fire({
@@ -73,7 +73,7 @@ export class CrearPlanComponent implements OnInit {
       radioEstado: ['', Validators.required],
     });
 
-    this.request.get(environment.CRUD_PRUEBAS, `tipo-plan`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `tipo-plan`).subscribe((data: any) => {
       if (data){
         this.tipos = data.Data;
       }

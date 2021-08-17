@@ -57,7 +57,7 @@ export class ListarPlanComponent implements OnInit {
 
   putData(res, bandera){
     if (bandera == 'editar'){
-      this.request.put(environment.CRUD_PRUEBAS, `plan`, res, this.uid).subscribe((data: any) => {
+      this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
         if(data){
           Swal.fire({
             title: 'Actualización correcta',
@@ -82,7 +82,7 @@ export class ListarPlanComponent implements OnInit {
         cancelButtonText: `No`,
       }).then((result) => {
           if (result.isConfirmed) {
-            this.request.put(environment.CRUD_PRUEBAS, `plan`, res, this.uid).subscribe((data: any) => {
+            this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
               if (data){
                 Swal.fire({
                   title: 'Cambio realizado', 
@@ -119,7 +119,7 @@ export class ListarPlanComponent implements OnInit {
 
   editar(fila): void{
     this.uid = fila._id;
-    this.request.get(environment.CRUD_PRUEBAS, `plan/`+this.uid).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan/`+this.uid).subscribe((data: any) => {
       if(data){
         this.plan = data.Data;
         this.openDialogEditar(this.plan);  
@@ -149,7 +149,7 @@ export class ListarPlanComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.request.get(environment.CRUD_PRUEBAS, `plan`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.loadData();
