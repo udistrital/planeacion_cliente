@@ -1,6 +1,7 @@
 <mat-card class="card-dialog">
     <mat-card-header>
-      <mat-card-title>Editar Nivel {{data.nivel}}</mat-card-title>
+      <mat-card-title *ngIf="data.ban == 'nivel'">Editar Nivel {{data.nivel}}</mat-card-title>
+      <mat-card-title *ngIf="data.ban == 'plan'">Editar Plan</mat-card-title>
     </mat-card-header>
     <form [formGroup]="formEditar">
       <mat-card-content>
@@ -22,8 +23,8 @@
         </mat-form-field>
         <ng-container *ngIf="data">
             <mat-label id="tipo-radio-group-label">Estado</mat-label>
-          <mat-radio-group formControlName="estado" class="example-radio-group" aria-labelledby="example-radio-group-label"
-          required [checked]="estadoS">
+          <mat-radio-group formControlName="activo" class="example-radio-group" aria-labelledby="example-radio-group-label"
+          required [checked]="activoS">
             <mat-radio-button class="example-radio-button" value="true">Activo</mat-radio-button>
             <mat-radio-button class="example-radio-button" value="false">Inactivo</mat-radio-button>
           </mat-radio-group>

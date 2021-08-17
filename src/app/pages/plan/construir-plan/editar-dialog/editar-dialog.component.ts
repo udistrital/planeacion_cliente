@@ -8,12 +8,11 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialo
   styleUrls: ['./editar-dialog.component.scss']
 })
 export class EditarDialogComponent implements OnInit {
-
-  nivel: number;
+  
   formEditar: FormGroup;
   nombre: string;
   descripcion: string;
-  estadoS: string;
+  activoS: string;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -21,35 +20,16 @@ export class EditarDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any) {
       this.nombre = data.sub.nombre;
       this.descripcion = data.sub.descripcion;
-      this.estadoS = String(data.sub.estado);
+      this.activoS = String(data.sub.activo);
      }
-
-  consulta(){
-    this.formEditar.get('estado').setValue(this.estadoS);
-    this.formEditar.get('nombre').setValue(this.nombre);
-    this.formEditar.get('descripcion').setValue(this.descripcion);
-  }
 
   ngOnInit(): void {
     this.formEditar = this.formBuilder.group({
       descripcion: [this.descripcion, Validators.required],
       nombre: [this.nombre, Validators.required],
-      estado: [this.estadoS, Validators.required],
+      activo: [this.activoS, Validators.required],
     });
   }
-
-  // createEditFormGroup(): void {
-  //   // Here you'll have the object already, so don't do this
-  //   const thread = {
-  //     nombre: this.nombre,
-  //     descripcion: this.descripcion,
-  //     estado: this.estado
-  //   }
-
-  //   // Now simply create the form, passing this object (in this
-  //   // case, the object "thread")
-  //   this.formEditar = this.formBuilder.group(thread);
-  // }
 
   close(): void {
     this.dialogRef.close();

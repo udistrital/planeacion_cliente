@@ -19,10 +19,10 @@ const routes: Routes = [{
        path: 'dashboard',
        component: DashboardComponent,
      },
-    // {
-    //   path: 'informacion_basica',
-    //   component: InformacionBasicaComponent,
-    // },
+    {
+      path: 'informacion_basica',
+      component: InformacionBasicaComponent,
+    },
     // {
     //   path: 'caracterizacion',
     //   component: PreexistenciaComponent,
