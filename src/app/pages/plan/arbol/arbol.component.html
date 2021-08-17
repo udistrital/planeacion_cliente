@@ -1,10 +1,10 @@
 <!-- <mat-card *ngIf="planId == 1" style="width:calc(96vw - 40px);"> -->
-    <ng-container *ngIf="planId == 1">
-        <mat-form-field appearance="outline" [style.width.%]="25">
+    <ng-container *ngIf="planId == '611af8464a34b3599e3799a2'">
+        <!-- <mat-form-field appearance="outline" [style.width.%]="25">
             <mat-label id="busqueda-input-label">Buscar:</mat-label>
             <input matInput [(ngModel)]="stringBusqueda" (ngModelChange)="filterSearch()" id="search"  placeholder="Digite para buscar">
             <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+        </mat-form-field> -->
         <p>En este modulo se le permitirá registrar un PUI. Por favor tener a la mano la evidencia del acto administrativo.
             A continuación podrá ingresar la información deseada.
         </p>
@@ -41,7 +41,7 @@
 <!-- </mat-card> -->
 
 <!-- <mat-card *ngIf="planId !== 1 && planId !== undefined" style="width:calc(96vw - 40px);"> -->
-    <ng-container *ngIf="planId !== 1 && planId !== undefined && mostrar">
+    <ng-container *ngIf="planId == '611af8364a34b3b2df3799a0' && mostrar">
         <mat-form-field appearance="outline" [style.width.%]="25">
             <mat-label id="busqueda-input-label">Buscar:</mat-label>
             <input matInput [(ngModel)]="stringBusqueda" (ngModelChange)="filterSearch()" id="search"  placeholder="Digite para buscar">
@@ -51,7 +51,7 @@
             <mat-label>Filter</mat-label>
             <input matInput (keyup)="applyFilter($event)" placeholder="Digite para filtrar" #fil>
         </mat-form-field> -->
-        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+        <table mat-table [dataSource]="dataSource2" class="mat-elevation-z8">
             <ng-container matColumnDef="nombre">
               <th mat-header-cell *matHeaderCellDef> 
                 <span [style.paddingLeft.px]="40"> Nombre </span>
@@ -90,7 +90,7 @@
                 </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-row matRipple *matRowDef="let row; columns: displayedColumns;"></tr>
             <!-- <tr class="mat-row" *matNoDataRow>
                 <td class="mat-cell" colspan="4">No se pudo filtrar a través de "{{fil.value}}"</td>
             </tr> -->

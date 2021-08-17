@@ -7,14 +7,14 @@
       <mat-label id="tipo-input-label">Seleccionar Proyecto / Plan</mat-label>
         <mat-select (selectionChange)="select($event.value)">
           <mat-option>--</mat-option>
-          <mat-option *ngFor="let plan of planes" [value]="plan.id">
-            {{plan.name}}
+          <mat-option *ngFor="let plan of planes" [value]="plan">
+            {{plan.nombre}}
           </mat-option>
         </mat-select>
     </mat-form-field>
-    <app-arbol *ngIf="planId !== 0" [planId]="planId" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
+    <app-arbol *ngIf="tipoPlanId !== undefined" [planId]="tipoPlanId" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
   </mat-card-content>
-  <mat-card-footer *ngIf="planId !== undefined && planId !== 1" style="text-align: center;">
+  <mat-card-footer *ngIf="tipoPlanId == '611af8364a34b3b2df3799a0'" style="text-align: center;">
     <ng-container>
       <button mat-raised-button color="primary" (click)="agregarSub(1)">
         Agregar Nivel
@@ -23,12 +23,3 @@
     <br><br>
   </mat-card-footer>
 </mat-card>
-<!-- <div *ngIf="verFormulario">
-  <mat-card class="card-oas" *ngIf="uid_1">
-    <p>WORKS!</p>
-  </mat-card>
-</div> -->
-
-    
-
-    
