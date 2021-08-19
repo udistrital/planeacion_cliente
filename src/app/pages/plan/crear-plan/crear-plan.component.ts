@@ -13,8 +13,8 @@ import Swal from 'sweetalert2';
   styleUrls: ['./crear-plan.component.scss']
 })
 export class CrearPlanComponent implements OnInit {
+  
   formCrearPlan: FormGroup;
-
   tipos: any[]
   tipoPlan: any;
 
@@ -39,7 +39,7 @@ export class CrearPlanComponent implements OnInit {
       nombre: this.formCrearPlan.get('nombre').value,
       descripcion: this.formCrearPlan.get('desc').value,
       tipo_plan_id: this.tipoPlan._id,
-      aplicativo_id: "idPlaneacion",
+      aplicativo_id: "idPlaneacion", // Valor por revisar
       activo: JSON.parse(this.formCrearPlan.get('radioEstado').value)
     }
     this.request.post(environment.PLANES_CRUD, 'plan', dataPlan).subscribe(
@@ -54,10 +54,22 @@ export class CrearPlanComponent implements OnInit {
              window.location.reload();
             }
           })
-        }else{ }
+        }else{
+          Swal.fire({
+            title: 'Error en la operación',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+         }
       }),
       (error) => {
-        console.log(error)
+        Swal.fire({
+          title: 'Error en la operación', 
+          text: `${JSON.stringify(error)}`,
+          icon: 'error',
+          showConfirmButton: true
+        })
       } 
   }
 
@@ -78,8 +90,12 @@ export class CrearPlanComponent implements OnInit {
         this.tipos = data.Data;
       }
     },(error) => {
-      console.log(error);
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: `${JSON.stringify(error)}`,
+        icon: 'error',
+        showConfirmButton: true
+      })
     })
   }
-
 }

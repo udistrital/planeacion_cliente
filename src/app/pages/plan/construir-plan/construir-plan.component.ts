@@ -7,13 +7,6 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 
-export interface Subgrupo{
-  id: number;
-  nombre: string;
-  descripcion: string;
-  estado: boolean;
-}
-
 @Component({
   selector: 'app-construir-plan',
   templateUrl: './construir-plan.component.html',
@@ -25,15 +18,8 @@ export class ConstruirPlanComponent implements OnInit {
   tipoPlanId: string; // id tipo plan
   nivel: number; // nivel objeto
   idPadre: string; // id padre del objeto
-  nivelHijo: number; // nivel hijo objeto
   uid: string; // id objeto
   uid_n: number; // nuevo nivel
-
-  id: number;
-  nombre: string;
-  descripcion: string;
-  estado: boolean;
-
   planes: any[];
 
   @Output() eventChange = new EventEmitter();
@@ -74,7 +60,6 @@ export class ConstruirPlanComponent implements OnInit {
         padre: this.uid,
         activo: JSON.parse(res.activo),
       }
-      console.log('Post nivel '+this.uid_n)
     }
     this.request.post(environment.PLANES_CRUD, 'subgrupo/registrar_nodo', dataSub).subscribe(
       (data: any) => {
@@ -86,13 +71,24 @@ export class ConstruirPlanComponent implements OnInit {
           }).then((result) => {
             if (result.value) {
               this.eventChange.emit(true);
-              //window.location.reload();
             }
           })
-        }else{ }
+        }else{ 
+          Swal.fire({
+            title: 'Error en la operación',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
       }),
       (error) => {
-        console.log(error)
+        Swal.fire({
+          title: 'Error en la operación', 
+          text: `${JSON.stringify(error)}`,
+          icon: 'error',
+          showConfirmButton: true
+        })
       }
   };
 
@@ -104,8 +100,6 @@ export class ConstruirPlanComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      console.log(result);
       if (result == undefined){
         return undefined;
       } else {
@@ -115,7 +109,6 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   putData(res){
-    console.log('Llega put');
     this.request.put(environment.PLANES_CRUD, `subgrupo`, res, this.uid).subscribe((data: any) => {
       if(data){
         Swal.fire({
@@ -125,13 +118,24 @@ export class ConstruirPlanComponent implements OnInit {
         }).then((result) => {
           if (result.value) {
             this.eventChange.emit(true);
-            //window.location.reload();
           }
         })
-      } else {}
+      } else {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
     }),
     (error) => {
-      console.log(error)
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: `${JSON.stringify(error)}`,
+        icon: 'error',
+        showConfirmButton: true
+      })
     };
   }
 
@@ -143,29 +147,19 @@ export class ConstruirPlanComponent implements OnInit {
     }
   }
 
-  async buildPlan() {
-    
-  }
-
   select(plan){
     if (plan == undefined){
       this.tipoPlanId = undefined;
     } else {
       this.tipoPlanId = plan.tipo_plan_id;
       this.idPadre = plan._id; // id plan
-      //console.log(this.idPadre)
     }
   }
 
   receiveMessage(event){
-    console.log(event)
-    console.log('llego a construir')
     if (event.bandera == 'editar'){
-      console.log('llego a editar ' + (event.fila.level + 1))
       this.uid_n = event.fila.level + 1;
       this.uid = event.fila.id; // id del nivel a editar
-      console.log(this.uid)
-      // GET BY ID
       this.request.get(environment.PLANES_CRUD, `subgrupo/`+this.uid).subscribe((data: any) => {
         if (data){
           console.log(data)
@@ -176,9 +170,16 @@ export class ConstruirPlanComponent implements OnInit {
           }
           this.openDialogEditar(subData); 
         }
-      })
+      }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación', 
+          text: `${JSON.stringify(error)}`,
+          icon: 'error',
+          showConfirmButton: true
+        })
+      } 
     } else if (event.bandera == 'agregar'){
-      console.log('llego a agregar ' + (event.fila.level + 2))
       this.uid_n = event.fila.level + 2; // el nuevo nivel
       this.uid = event.fila.id; // será el padre del nuevo nivel
       this.openDialogAgregar();
@@ -201,7 +202,12 @@ export class ConstruirPlanComponent implements OnInit {
         this.planes = this.filterActivos(this.planes);
       }
     },(error) => {
-      console.log(error);
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: `${JSON.stringify(error)}`,
+        icon: 'error',
+        showConfirmButton: true
+      })
     })
   }
 
