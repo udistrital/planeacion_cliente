@@ -43,6 +43,7 @@ export class ArbolComponent implements OnInit {
   formConstruirPUI: FormGroup;
   displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'actions'];
   mostrar: boolean = false;
+  planActual: string;
 
   private transformer = (node: Subgrupo, level: number) => {
     return {
@@ -89,6 +90,12 @@ export class ArbolComponent implements OnInit {
   }
 
   ngOnChanges(changes){
+    if (this.tipoPlanId !== '611af8464a34b3599e3799a2'){
+      if (this.idPlan !== this.planActual){
+        this.loadArbolMid();
+        this.planActual = this.idPlan;
+      }
+    }
     if (changes['updateSignal'] && this.updateSignal){
       this.updateSignal.subscribe(() => {
         this.loadArbolMid();
@@ -97,19 +104,26 @@ export class ArbolComponent implements OnInit {
   }
 
   loadArbolMid(){
+    this.mostrar = false;
     this.request.get(environment.LOCAL, `arbol/`+this.idPlan).subscribe((data: any) => {
-      if (data){
+      if (data !== null){
         this.mostrar = true;
         this.dataSource.data = data;
+      } else {
+        this.mostrar = false;
+        this.dataSource.data = [];
       }
-    },(error) => {
+    }
+    ,(error) => {
       Swal.fire({
         title: 'Error en la operación', 
-        text: `${JSON.stringify(error)}`,
-        icon: 'error',
-        showConfirmButton: true
+        text: 'No se encontraron datos registrados',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
       })
-    })
+    }
+    )
   }
 
   selectFile(event) {
@@ -135,8 +149,6 @@ export class ArbolComponent implements OnInit {
       requiredfile: ['', Validators.required]
     });
     
-    if (this.tipoPlanId !== '611af8464a34b3599e3799a2'){
-      this.loadArbolMid();
-    }
+    this.planActual = '';
   }
 }

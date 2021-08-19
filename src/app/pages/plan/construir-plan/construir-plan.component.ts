@@ -27,7 +27,10 @@ export class ConstruirPlanComponent implements OnInit {
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
     private request: RequestManager,
-  ) { }
+  ) { 
+    this.idPadre = '';
+    this.loadPlanes(); 
+  }
 
   openDialogAgregar(): void {
     const dialogRef = this.dialog.open(AgregarDialogComponent, {
@@ -73,21 +76,14 @@ export class ConstruirPlanComponent implements OnInit {
               this.eventChange.emit(true);
             }
           })
-        }else{ 
-          Swal.fire({
-            title: 'Error en la operación',
-            icon: 'error',
-            showConfirmButton: false,
-            timer: 2500
-          })
         }
       }),
       (error) => {
         Swal.fire({
-          title: 'Error en la operación', 
-          text: `${JSON.stringify(error)}`,
+          title: 'Error en la operación',
           icon: 'error',
-          showConfirmButton: true
+          showConfirmButton: false,
+          timer: 2500
         })
       }
   };
@@ -120,21 +116,14 @@ export class ConstruirPlanComponent implements OnInit {
             this.eventChange.emit(true);
           }
         })
-      } else {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          showConfirmButton: false,
-          timer: 2500
-        })
       }
     }),
     (error) => {
       Swal.fire({
-        title: 'Error en la operación', 
-        text: `${JSON.stringify(error)}`,
-        icon: 'error',
-        showConfirmButton: true
+        title: 'Error en la operación',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
       })
     };
   }
@@ -147,7 +136,7 @@ export class ConstruirPlanComponent implements OnInit {
     }
   }
 
-  select(plan){
+  onChange(plan){
     if (plan == undefined){
       this.tipoPlanId = undefined;
     } else {
@@ -174,9 +163,10 @@ export class ConstruirPlanComponent implements OnInit {
       (error) => {
         Swal.fire({
           title: 'Error en la operación', 
-          text: `${JSON.stringify(error)}`,
-          icon: 'error',
-          showConfirmButton: true
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
         })
       } 
     } else if (event.bandera == 'agregar'){
@@ -191,11 +181,7 @@ export class ConstruirPlanComponent implements OnInit {
     this.openDialogAgregar()
   }
 
-  ngOnInit(): void {
-    this.formConstruirPlan = this.formBuilder.group({
-      planControl: ['', Validators.required],
-    });
-
+  loadPlanes(){
     this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
@@ -204,14 +190,21 @@ export class ConstruirPlanComponent implements OnInit {
     },(error) => {
       Swal.fire({
         title: 'Error en la operación', 
-        text: `${JSON.stringify(error)}`,
-        icon: 'error',
-        showConfirmButton: true
+        text: 'No se encontraron datos registrados',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
       })
     })
   }
 
   filterActivos(data) {
     return data.filter(e => e.activo == true);
- }
+  }
+
+  ngOnInit(): void {
+    this.formConstruirPlan = this.formBuilder.group({
+      planControl: ['', Validators.required],
+    });
+  }
 }

@@ -24,7 +24,9 @@ export class CrearPlanComponent implements OnInit {
     private utilService: UtilService,
     private router: Router,
     private formBuilder: FormBuilder
-  ) { }
+  ) { 
+    this.loadTipos();
+  }
 
   getErrorMessage(campo: FormControl) {
     if (campo.hasError('required', )) {
@@ -51,30 +53,39 @@ export class CrearPlanComponent implements OnInit {
             icon: 'success',
           }).then((result) => {
             if (result.value) {
-             window.location.reload();
+              this.router.navigate(['pages/plan/listar-plan']);
             }
           })
-        }else{
-          Swal.fire({
-            title: 'Error en la operación',
-            icon: 'error',
-            showConfirmButton: false,
-            timer: 2500
-          })
-         }
+        }
       }),
       (error) => {
         Swal.fire({
-          title: 'Error en la operación', 
-          text: `${JSON.stringify(error)}`,
+          title: 'Error en la operación',
           icon: 'error',
-          showConfirmButton: true
+          showConfirmButton: false,
+          timer: 2500
         })
       } 
   }
 
   select(tipo){
     this.tipoPlan = tipo;
+  }
+
+  loadTipos(){
+    this.request.get(environment.PLANES_CRUD, `tipo-plan`).subscribe((data: any) => {
+      if (data){
+        this.tipos = data.Data;
+      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: 'No se encontraron datos registrados',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   ngOnInit(): void {
@@ -84,18 +95,5 @@ export class CrearPlanComponent implements OnInit {
       tipo: ['', Validators.required],
       radioEstado: ['', Validators.required],
     });
-
-    this.request.get(environment.PLANES_CRUD, `tipo-plan`).subscribe((data: any) => {
-      if (data){
-        this.tipos = data.Data;
-      }
-    },(error) => {
-      Swal.fire({
-        title: 'Error en la operación', 
-        text: `${JSON.stringify(error)}`,
-        icon: 'error',
-        showConfirmButton: true
-      })
-    })
   }
 }

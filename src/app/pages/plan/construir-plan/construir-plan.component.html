@@ -5,7 +5,7 @@
   <mat-card-content>
     <mat-form-field appearance="fill" [style.width.%]="100">
       <mat-label id="tipo-input-label">Seleccionar Proyecto / Plan</mat-label>
-        <mat-select (selectionChange)="select($event.value)">
+        <mat-select (selectionChange)="onChange($event.value)">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let plan of planes" [value]="plan">
             {{plan.nombre}}
