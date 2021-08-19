@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ViewChild, AfterViewInit, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ViewChild, AfterViewInit, OnChanges, ElementRef } from '@angular/core';
 import { ControlValueAccessor, FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import {MatPaginator} from '@angular/material/paginator';
@@ -8,12 +8,15 @@ import {
   MatTreeFlatDataSource,
   MatTreeFlattener
 } from '@angular/material/tree';
+import { RequestManager } from '../../services/requestManager';
+import { environment } from '../../../../environments/environment';
 
 interface Subgrupo {
-  id: number;
+  activo: string;
   nombre: string;
   descripcion: string;
-  hijos?: Subgrupo[];
+  id: string;
+  children?: Subgrupo[];
 }
 
 interface Subgrupo2 {
@@ -28,122 +31,127 @@ interface SubgrupoArbol {
   descripcion: string;
 }
 
-const TREE_DATA_V: Subgrupo2[] = [
-  {
-    "children": [
-      {
-        "children": [
-          {
-            "descripcion": "descripcion indicador 1",
-            "nombre": "Indicador 1"
-          },
-          {
-            "descripcion": "descripcion indicador 2",
-            "nombre": "Indicador 2"
-          }
-        ],
-        "descripcion": "descripcion meta 1",
-        "nombre": "Meta 1"
-      },
-      {
-        "descripcion": "descripcion meta 2",
-        "nombre": "Meta 2"
-      }
-    ],
-    "descripcion": "Lineamiento estrategico 1 actualizado",
-    "nombre": "Lineamiento 1"
-  },
-  {
-    "descripcion": "descripcion linemiento 2",
-    "nombre": "Lineamiento 2"
-  }
-]
+// const TREE_DATA_V: Subgrupo2[] = [
+//   {
+//     "children": [
+//       {
+//         "children": [
+//           {
+//             "descripcion": "descripcion indicador 1",
+//             "nombre": "Indicador 1"
+//           },
+//           {
+//             "descripcion": "descripcion indicador 2",
+//             "nombre": "Indicador 2"
+//           }
+//         ],
+//         "descripcion": "descripcion meta 1",
+//         "nombre": "Meta 1"
+//       },
+//       {
+//         "descripcion": "descripcion meta 2",
+//         "nombre": "Meta 2"
+//       }
+//     ],
+//     "descripcion": "Lineamiento estrategico 1 actualizado",
+//     "nombre": "Lineamiento 1"
+//   },
+//   {
+//     "descripcion": "descripcion linemiento 2",
+//     "nombre": "Lineamiento 2"
+//   }
+// ]
 
-const TREE_DATA: Subgrupo[] = [
-  {
-    id: 1,
-    nombre: 'N1',
-    hijos: [
-      { id: 11, nombre: 'N11', descripcion: 'D11' },
-      { id: 12, nombre: 'N12', descripcion: 'D12' },
-      { id: 13, nombre: 'N13', descripcion: 'D13' },
-      { id: 14, nombre: 'N14', descripcion: 'D14', hijos: [{ id: 141, nombre: 'N141', descripcion: 'D141'}]}
-    ],
-    descripcion: 'D1'
-  },
-  {
-    id: 2,
-    nombre: 'N2',
-    hijos: [
-      {
-        id: 21,
-        nombre: 'N21',
-        hijos: [
-          { id: 211, nombre: 'N211', descripcion: 'D211' },
-          { id: 212, nombre: 'N212', descripcion: 'D212' }
-        ], descripcion: 'D21',
-      },
-      {
-        id: 22,
-        nombre: 'N22',
-        hijos: [
-          { id: 221, nombre: 'N221', descripcion: 'D221' },
-          { id: 222, nombre: 'N222', descripcion: 'D222' }
-        ], descripcion: 'D22',
-      }
-    ],
-    descripcion: 'D2'
-  }
-];
 
-const TREE_DATA_: Subgrupo[] = [
-  {
-    id: 1,
-    nombre: 'N1',
-    hijos: [
-      { id: 11, nombre: 'N11', descripcion: 'D11' },
-      { id: 12, nombre: 'N12', descripcion: 'D12' },
-      { id: 13, nombre: 'N13', descripcion: 'D13' },
-      { id: 14, nombre: 'N14', descripcion: 'D14', hijos: [{ id: 141, nombre: 'N141', descripcion: 'D141'}]}
-    ],
-    descripcion: 'D1'
-  },
-  {
-    id: 2,
-    nombre: 'N2',
-    hijos: [
-      {
-        id: 21,
-        nombre: 'N21',
-        hijos: [
-          { id: 211, nombre: 'N211', descripcion: 'D211' },
-          { id: 212, nombre: 'N212', descripcion: 'D212' }
-        ], descripcion: 'D21',
-      },
-      {
-        id: 22,
-        nombre: 'N22',
-        hijos: [
-          { id: 221, nombre: 'N221', descripcion: 'D221' },
-          { id: 222, nombre: 'N222', descripcion: 'D222' }
-        ], descripcion: 'D22',
-      }
-    ],
-    descripcion: 'D2'
-  },
-  {
-    id: 3,
-    nombre: 'N3',
-    descripcion: 'D3'
-  }
-];
+// const TREE_DATA: Subgrupo[] = [
+//   {
+//     id: 1,
+//     nombre: 'N1',
+//     hijos: [
+//       { id: 11, nombre: 'N11', descripcion: 'D11' },
+//       { id: 12, nombre: 'N12', descripcion: 'D12' },
+//       { id: 13, nombre: 'N13', descripcion: 'D13' },
+//       { id: 14, nombre: 'N14', descripcion: 'D14', hijos: [{ id: 141, nombre: 'N141', descripcion: 'D141'}]}
+//     ],
+//     descripcion: 'D1'
+//   },
+//   {
+//     id: 2,
+//     nombre: 'N2',
+//     hijos: [
+//       {
+//         id: 21,
+//         nombre: 'N21',
+//         hijos: [
+//           { id: 211, nombre: 'N211', descripcion: 'D211' },
+//           { id: 212, nombre: 'N212', descripcion: 'D212' }
+//         ], descripcion: 'D21',
+//       },
+//       {
+//         id: 22,
+//         nombre: 'N22',
+//         hijos: [
+//           { id: 221, nombre: 'N221', descripcion: 'D221' },
+//           { id: 222, nombre: 'N222', descripcion: 'D222' }
+//         ], descripcion: 'D22',
+//       }
+//     ],
+//     descripcion: 'D2'
+//   }
+// ];
+
+const TREE_VACIO: Subgrupo[] = []
+
+// const TREE_DATA_: Subgrupo[] = [
+//   {
+//     id: 1,
+//     nombre: 'N1',
+//     hijos: [
+//       { id: 11, nombre: 'N11', descripcion: 'D11' },
+//       { id: 12, nombre: 'N12', descripcion: 'D12' },
+//       { id: 13, nombre: 'N13', descripcion: 'D13' },
+//       { id: 14, nombre: 'N14', descripcion: 'D14', hijos: [{ id: 141, nombre: 'N141', descripcion: 'D141'}]}
+//     ],
+//     descripcion: 'D1'
+//   },
+//   {
+//     id: 2,
+//     nombre: 'N2',
+//     hijos: [
+//       {
+//         id: 21,
+//         nombre: 'N21',
+//         hijos: [
+//           { id: 211, nombre: 'N211', descripcion: 'D211' },
+//           { id: 212, nombre: 'N212', descripcion: 'D212' }
+//         ], descripcion: 'D21',
+//       },
+//       {
+//         id: 22,
+//         nombre: 'N22',
+//         hijos: [
+//           { id: 221, nombre: 'N221', descripcion: 'D221' },
+//           { id: 222, nombre: 'N222', descripcion: 'D222' }
+//         ], descripcion: 'D22',
+//       }
+//     ],
+//     descripcion: 'D2'
+//   },
+//   {
+//     id: 3,
+//     nombre: 'N3',
+//     descripcion: 'D3'
+//   }
+// ];
 
 // Objeto fila
+
 interface Nodo {
   expandable: boolean;
-  id: number;
+  activo: string;
   nombre: string;
   descripcion: string;
+  id: string;
   level: number;
 }
 
@@ -164,15 +172,16 @@ export class ArbolComponent implements OnInit {
   selectedFiles: any;
   dataRow: any;
   formConstruirPUI: FormGroup;
-  displayedColumns: string[] = ['nombre', 'descripcion', 'id', 'actions'];
+  displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'actions'];
   mostrar: boolean = false;
 
   private transformer = (node: Subgrupo, level: number) => {
     return {
-      expandable: !!node.hijos && node.hijos.length > 0,
-      id: node.id,
+      expandable: !!node.children && node.children.length > 0,
+      activo: node.activo,
       nombre: node.nombre,
       descripcion: node.descripcion,
+      id: node.id,
       level: level
     };
   };
@@ -195,7 +204,7 @@ export class ArbolComponent implements OnInit {
     this.transformer,
     node => node.level,
     node => node.expandable,
-    node => node.hijos
+    node => node.children
   );
 
   treeFlattener2 = new MatTreeFlattener(
@@ -210,13 +219,14 @@ export class ArbolComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  @Input() planId: string;
+  @Input() tipoPlanId: string;
+  @Input() idPlan: string;
   @Input() updateSignal: Observable<String[]>;
   @Output() grupo = new EventEmitter<any>();
   constructor(
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private request: RequestManager,
   ) {
-    this.loadArbol();
   }
 
   getErrorMessage(campo: FormControl) {
@@ -234,7 +244,7 @@ export class ArbolComponent implements OnInit {
   ngOnChanges(changes){
     if (changes['updateSignal'] && this.updateSignal){
       this.updateSignal.subscribe(() => {
-        this.loadArbol2();
+        this.loadArbolMid();
       })
     }
   }
@@ -244,19 +254,27 @@ export class ArbolComponent implements OnInit {
       infoControl: ['', Validators.required],
       requiredfile: ['', Validators.required]
     });
+    
+    this.loadArbolMid();
   }
 
   loadArbol(){
     // GET ARBOL CATALOGO
     this.mostrar = true;
     //this.dataSource.data = TREE_DATA;
-    this.dataSource2.data = TREE_DATA_V;
+    this.dataSource2.data = TREE_VACIO;
   }
 
-  loadArbol2(){
-    // GET ARBOL CATALOGO
-    this.mostrar = true;
-    this.dataSource.data = TREE_DATA_;
+  loadArbolMid(){
+    this.request.get(environment.LOCAL, `arbol/`+this.idPlan).subscribe((data: any) => {
+      if (data){
+        console.log(data)
+        this.mostrar = true;
+        this.dataSource.data = data;
+      }
+    },(error) => {
+      console.log(error);
+    })
   }
 
   // ngAfterViewInit() {

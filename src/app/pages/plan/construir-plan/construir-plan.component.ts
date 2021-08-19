@@ -5,6 +5,7 @@ import { AgregarDialogComponent } from './agregar-dialog/agregar-dialog.componen
 import { EditarDialogComponent } from './editar-dialog/editar-dialog.component';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
+import Swal from 'sweetalert2';
 
 export interface Subgrupo{
   id: number;
@@ -21,11 +22,11 @@ export interface Subgrupo{
 export class ConstruirPlanComponent implements OnInit {
   
   formConstruirPlan: FormGroup;
-  tipoPlanId: string; // id plan
+  tipoPlanId: string; // id tipo plan
   nivel: number; // nivel objeto
-  idPadre: number; // id padre del objeto
+  idPadre: string; // id padre del objeto
   nivelHijo: number; // nivel hijo objeto
-  uid: number; // id objeto
+  uid: string; // id objeto
   uid_n: number; // nuevo nivel
 
   id: number;
@@ -50,8 +51,6 @@ export class ConstruirPlanComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      console.log(result);
       if (result == undefined){
         return undefined;
       } else {
@@ -61,22 +60,40 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   postData(res){
-    let sub = {} as Subgrupo;
-    sub.id = 1;
-    sub.nombre = res.nombre;
-    sub.descripcion = res.descripcion;
-    sub.estado = res.estado;
-    // OTROS PARA SUB 
     if (this.uid_n == 1){
-      // (PADRE ES sub.padre = this.planId -- Editar padre)
-      console.log('Post nivel 1')
+      var dataSub = {
+        nombre: res.nombre,
+        descripcion: res.descripcion,
+        padre: this.idPadre,
+        activo: JSON.parse(res.activo),
+      } 
     } else if (this.uid_n > 1){
-      // (PADRE ES sub.padre = this.uid -- Editar padre)
+      var dataSub = {
+        nombre: res.nombre,
+        descripcion: res.descripcion,
+        padre: this.uid,
+        activo: JSON.parse(res.activo),
+      }
       console.log('Post nivel '+this.uid_n)
     }
-    // POST
-    // RECARGAR
-    this.eventChange.emit(true);
+    this.request.post(environment.PLANES_CRUD, 'subgrupo/registrar_nodo', dataSub).subscribe(
+      (data: any) => {
+        if(data){         
+          Swal.fire({
+            title: 'Registro correcto',
+            text: `Se ingresaron correctamente los datos del nivel`,
+            icon: 'success',
+          }).then((result) => {
+            if (result.value) {
+              this.eventChange.emit(true);
+              //window.location.reload();
+            }
+          })
+        }else{ }
+      }),
+      (error) => {
+        console.log(error)
+      }
   };
 
   openDialogEditar(sub): void {
@@ -94,15 +111,28 @@ export class ConstruirPlanComponent implements OnInit {
       } else {
         this.putData(result);
       }
-      //console.log(JSON.stringify(this.sub));
     });
   }
 
   putData(res){
-    console.log('Hace put');
-    // PUT
-    // RECARGAR
-    this.eventChange.emit(true);
+    console.log('Llega put');
+    this.request.put(environment.PLANES_CRUD, `subgrupo`, res, this.uid).subscribe((data: any) => {
+      if(data){
+        Swal.fire({
+          title: 'Actualización correcta',
+          text: `Se actualizaron correctamente los datos`,
+          icon: 'success',
+        }).then((result) => {
+          if (result.value) {
+            this.eventChange.emit(true);
+            //window.location.reload();
+          }
+        })
+      } else {}
+    }),
+    (error) => {
+      console.log(error)
+    };
   }
 
   getErrorMessage(campo: FormControl) {
@@ -122,7 +152,8 @@ export class ConstruirPlanComponent implements OnInit {
       this.tipoPlanId = undefined;
     } else {
       this.tipoPlanId = plan.tipo_plan_id;
-      console.log(this.tipoPlanId)
+      this.idPadre = plan._id; // id plan
+      //console.log(this.idPadre)
     }
   }
 
@@ -133,13 +164,19 @@ export class ConstruirPlanComponent implements OnInit {
       console.log('llego a editar ' + (event.fila.level + 1))
       this.uid_n = event.fila.level + 1;
       this.uid = event.fila.id; // id del nivel a editar
+      console.log(this.uid)
       // GET BY ID
-      let sub = {} as Subgrupo;
-      sub.id = 20000;
-      sub.nombre = 'nombre consultado';
-      sub.descripcion = 'descripcion consultada';
-      sub.estado = false; // boolean consultado ¿String?
-      this.openDialogEditar(sub);
+      this.request.get(environment.PLANES_CRUD, `subgrupo/`+this.uid).subscribe((data: any) => {
+        if (data){
+          console.log(data)
+          let subData = {
+            nombre: data.Data.nombre,
+            descripcion: data.Data.descripcion,
+            activo: data.Data.activo,
+          }
+          this.openDialogEditar(subData); 
+        }
+      })
     } else if (event.bandera == 'agregar'){
       console.log('llego a agregar ' + (event.fila.level + 2))
       this.uid_n = event.fila.level + 2; // el nuevo nivel
@@ -150,7 +187,6 @@ export class ConstruirPlanComponent implements OnInit {
 
   agregarSub(niv: number){
     this.uid_n = niv;
-    //console.log("llega a agregar 1")
     this.openDialogAgregar()
   }
 

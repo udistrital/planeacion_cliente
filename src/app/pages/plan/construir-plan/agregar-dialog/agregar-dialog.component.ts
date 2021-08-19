@@ -26,7 +26,7 @@ export class AgregarDialogComponent implements OnInit {
     this.formAgregar = this.formBuilder.group({
       descripcion: ['', Validators.required],
       nombre: ['', Validators.required],
-      estado: ['', Validators.required],
+      activo: ['', Validators.required],
     });
   }
 
