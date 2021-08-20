@@ -5,13 +5,7 @@ import { AgregarDialogComponent } from './agregar-dialog/agregar-dialog.componen
 import { EditarDialogComponent } from './editar-dialog/editar-dialog.component';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
-
-export interface Subgrupo{
-  id: number;
-  nombre: string;
-  descripcion: string;
-  estado: boolean;
-}
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-construir-plan',
@@ -21,18 +15,11 @@ export interface Subgrupo{
 export class ConstruirPlanComponent implements OnInit {
   
   formConstruirPlan: FormGroup;
-  tipoPlanId: string; // id plan
+  tipoPlanId: string; // id tipo plan
   nivel: number; // nivel objeto
-  idPadre: number; // id padre del objeto
-  nivelHijo: number; // nivel hijo objeto
-  uid: number; // id objeto
+  idPadre: string; // id padre del objeto
+  uid: string; // id objeto
   uid_n: number; // nuevo nivel
-
-  id: number;
-  nombre: string;
-  descripcion: string;
-  estado: boolean;
-
   planes: any[];
 
   @Output() eventChange = new EventEmitter();
@@ -40,7 +27,10 @@ export class ConstruirPlanComponent implements OnInit {
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
     private request: RequestManager,
-  ) { }
+  ) { 
+    this.idPadre = '';
+    this.loadPlanes(); 
+  }
 
   openDialogAgregar(): void {
     const dialogRef = this.dialog.open(AgregarDialogComponent, {
@@ -50,8 +40,6 @@ export class ConstruirPlanComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      console.log(result);
       if (result == undefined){
         return undefined;
       } else {
@@ -61,22 +49,43 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   postData(res){
-    let sub = {} as Subgrupo;
-    sub.id = 1;
-    sub.nombre = res.nombre;
-    sub.descripcion = res.descripcion;
-    sub.estado = res.estado;
-    // OTROS PARA SUB 
     if (this.uid_n == 1){
-      // (PADRE ES sub.padre = this.planId -- Editar padre)
-      console.log('Post nivel 1')
+      var dataSub = {
+        nombre: res.nombre,
+        descripcion: res.descripcion,
+        padre: this.idPadre,
+        activo: JSON.parse(res.activo),
+      } 
     } else if (this.uid_n > 1){
-      // (PADRE ES sub.padre = this.uid -- Editar padre)
-      console.log('Post nivel '+this.uid_n)
+      var dataSub = {
+        nombre: res.nombre,
+        descripcion: res.descripcion,
+        padre: this.uid,
+        activo: JSON.parse(res.activo),
+      }
     }
-    // POST
-    // RECARGAR
-    this.eventChange.emit(true);
+    this.request.post(environment.PLANES_CRUD, 'subgrupo/registrar_nodo', dataSub).subscribe(
+      (data: any) => {
+        if(data){         
+          Swal.fire({
+            title: 'Registro correcto',
+            text: `Se ingresaron correctamente los datos del nivel`,
+            icon: 'success',
+          }).then((result) => {
+            if (result.value) {
+              this.eventChange.emit(true);
+            }
+          })
+        }
+      }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   };
 
   openDialogEditar(sub): void {
@@ -87,22 +96,36 @@ export class ConstruirPlanComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      console.log(result);
       if (result == undefined){
         return undefined;
       } else {
         this.putData(result);
       }
-      //console.log(JSON.stringify(this.sub));
     });
   }
 
   putData(res){
-    console.log('Hace put');
-    // PUT
-    // RECARGAR
-    this.eventChange.emit(true);
+    this.request.put(environment.PLANES_CRUD, `subgrupo`, res, this.uid).subscribe((data: any) => {
+      if(data){
+        Swal.fire({
+          title: 'Actualización correcta',
+          text: `Se actualizaron correctamente los datos`,
+          icon: 'success',
+        }).then((result) => {
+          if (result.value) {
+            this.eventChange.emit(true);
+          }
+        })
+      }
+    }),
+    (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+      })
+    };
   }
 
   getErrorMessage(campo: FormControl) {
@@ -113,35 +136,40 @@ export class ConstruirPlanComponent implements OnInit {
     }
   }
 
-  async buildPlan() {
-    
-  }
-
-  select(plan){
+  onChange(plan){
     if (plan == undefined){
       this.tipoPlanId = undefined;
     } else {
       this.tipoPlanId = plan.tipo_plan_id;
-      console.log(this.tipoPlanId)
+      this.idPadre = plan._id; // id plan
     }
   }
 
   receiveMessage(event){
-    console.log(event)
-    console.log('llego a construir')
     if (event.bandera == 'editar'){
-      console.log('llego a editar ' + (event.fila.level + 1))
       this.uid_n = event.fila.level + 1;
       this.uid = event.fila.id; // id del nivel a editar
-      // GET BY ID
-      let sub = {} as Subgrupo;
-      sub.id = 20000;
-      sub.nombre = 'nombre consultado';
-      sub.descripcion = 'descripcion consultada';
-      sub.estado = false; // boolean consultado ¿String?
-      this.openDialogEditar(sub);
+      this.request.get(environment.PLANES_CRUD, `subgrupo/`+this.uid).subscribe((data: any) => {
+        if (data){
+          console.log(data)
+          let subData = {
+            nombre: data.Data.nombre,
+            descripcion: data.Data.descripcion,
+            activo: data.Data.activo,
+          }
+          this.openDialogEditar(subData); 
+        }
+      }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación', 
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      } 
     } else if (event.bandera == 'agregar'){
-      console.log('llego a agregar ' + (event.fila.level + 2))
       this.uid_n = event.fila.level + 2; // el nuevo nivel
       this.uid = event.fila.id; // será el padre del nuevo nivel
       this.openDialogAgregar();
@@ -150,26 +178,33 @@ export class ConstruirPlanComponent implements OnInit {
 
   agregarSub(niv: number){
     this.uid_n = niv;
-    //console.log("llega a agregar 1")
     this.openDialogAgregar()
   }
 
-  ngOnInit(): void {
-    this.formConstruirPlan = this.formBuilder.group({
-      planControl: ['', Validators.required],
-    });
-
+  loadPlanes(){
     this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.planes = this.filterActivos(this.planes);
       }
     },(error) => {
-      console.log(error);
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: 'No se encontraron datos registrados',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
     })
   }
 
   filterActivos(data) {
     return data.filter(e => e.activo == true);
- }
+  }
+
+  ngOnInit(): void {
+    this.formConstruirPlan = this.formBuilder.group({
+      planControl: ['', Validators.required],
+    });
+  }
 }

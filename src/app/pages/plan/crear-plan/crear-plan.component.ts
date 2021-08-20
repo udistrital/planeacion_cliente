@@ -13,8 +13,8 @@ import Swal from 'sweetalert2';
   styleUrls: ['./crear-plan.component.scss']
 })
 export class CrearPlanComponent implements OnInit {
+  
   formCrearPlan: FormGroup;
-
   tipos: any[]
   tipoPlan: any;
 
@@ -24,7 +24,9 @@ export class CrearPlanComponent implements OnInit {
     private utilService: UtilService,
     private router: Router,
     private formBuilder: FormBuilder
-  ) { }
+  ) { 
+    this.loadTipos();
+  }
 
   getErrorMessage(campo: FormControl) {
     if (campo.hasError('required', )) {
@@ -39,7 +41,7 @@ export class CrearPlanComponent implements OnInit {
       nombre: this.formCrearPlan.get('nombre').value,
       descripcion: this.formCrearPlan.get('desc').value,
       tipo_plan_id: this.tipoPlan._id,
-      aplicativo_id: "idPlaneacion",
+      aplicativo_id: "idPlaneacion", // Valor por revisar
       activo: JSON.parse(this.formCrearPlan.get('radioEstado').value)
     }
     this.request.post(environment.PLANES_CRUD, 'plan', dataPlan).subscribe(
@@ -51,18 +53,39 @@ export class CrearPlanComponent implements OnInit {
             icon: 'success',
           }).then((result) => {
             if (result.value) {
-             window.location.reload();
+              this.router.navigate(['pages/plan/listar-plan']);
             }
           })
-        }else{ }
+        }
       }),
       (error) => {
-        console.log(error)
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
       } 
   }
 
   select(tipo){
     this.tipoPlan = tipo;
+  }
+
+  loadTipos(){
+    this.request.get(environment.PLANES_CRUD, `tipo-plan`).subscribe((data: any) => {
+      if (data){
+        this.tipos = data.Data;
+      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: 'No se encontraron datos registrados',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   ngOnInit(): void {
@@ -72,14 +95,5 @@ export class CrearPlanComponent implements OnInit {
       tipo: ['', Validators.required],
       radioEstado: ['', Validators.required],
     });
-
-    this.request.get(environment.PLANES_CRUD, `tipo-plan`).subscribe((data: any) => {
-      if (data){
-        this.tipos = data.Data;
-      }
-    },(error) => {
-      console.log(error);
-    })
   }
-
 }
