@@ -18,7 +18,6 @@ export class ListarPlanComponent implements OnInit {
   displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'actions'];
   dataSource: MatTableDataSource<any>;
   uid: number; // id del objeto
-
   planes: any[];
   plan: any;
 
@@ -28,7 +27,8 @@ export class ListarPlanComponent implements OnInit {
     public dialog: MatDialog,
     private request: RequestManager,
   ) {
-   }
+    this.loadData();
+  }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -68,10 +68,15 @@ export class ListarPlanComponent implements OnInit {
               window.location.reload();
             }
           })
-        } else {}
+        }
       }),
       (error) => {
-        console.log(error)
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
       }
     } else if (bandera == 'activo') {
       Swal.fire({
@@ -92,10 +97,15 @@ export class ListarPlanComponent implements OnInit {
                     window.location.reload();
                   }
                 })
-              } else {}
+              }
             }),
             (error) => {
-              console.log(error)
+              Swal.fire({
+                title: 'Error en la operación',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 2500
+              })
             }
           } else if (result.dismiss === Swal.DismissReason.cancel) {
             Swal.fire({
@@ -110,8 +120,26 @@ export class ListarPlanComponent implements OnInit {
   }
 
   loadData(){
-    //this.cambiarValor("activo", true, "Activo")
-    //this.cambiarValor("activo", false, "Inactivo")
+    this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
+      if (data){
+        this.planes = data.Data;
+        this.ajustarData();
+      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: 'No se encontraron datos registrados',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+
+    })
+  }
+
+  ajustarData(){
+    this.cambiarValor("activo", true, "Activo")
+    this.cambiarValor("activo", false, "Inactivo")
     this.dataSource = new MatTableDataSource(this.planes);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -126,18 +154,24 @@ export class ListarPlanComponent implements OnInit {
       }
     }),
     (error) => {
-      console.log(error)
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: 'No se encontraron datos registrados',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
     } 
   }
 
   inactivar(fila):void{
     this.uid = fila._id;
-    if (fila.activo == true){
+    if (fila.activo == 'Activo'){
       let res = {
         activo: false,
       }
       this.putData(res, 'activo')
-    } else if (fila.activo == false){
+    } else if (fila.activo == 'Inactivo'){
       Swal.fire({
         title: 'Plan ya inactivo',
         text: `El plan ya se encuentra en estado inactivo`,
@@ -148,21 +182,13 @@ export class ListarPlanComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
-    this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
-      if (data){
-        this.planes = data.Data;
-        this.loadData();
-      }
-    },(error) => {
-      console.log(error);
+  cambiarValor(valorABuscar, valorViejo, valorNuevo) {
+    this.planes.forEach(function(elemento) {
+      elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
     })
   }
 
-  // cambiarValor(valorABuscar, valorViejo, valorNuevo) {
-  //   this.planes.forEach(function (elemento) {
-  //     elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
-  //   })
-  // }
-
+  ngOnInit(): void {
+  
+  }
 }

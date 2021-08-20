@@ -1,6 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import { Subgrupo } from '../construir-plan.component';
 import { FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
 
 @Component({
@@ -10,7 +9,6 @@ import { FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '
 })
 export class AgregarDialogComponent implements OnInit {
 
-  nivel: number;
   formAgregar: FormGroup;
 
   constructor(
@@ -26,7 +24,7 @@ export class AgregarDialogComponent implements OnInit {
     this.formAgregar = this.formBuilder.group({
       descripcion: ['', Validators.required],
       nombre: ['', Validators.required],
-      estado: ['', Validators.required],
+      activo: ['', Validators.required],
     });
   }
 
