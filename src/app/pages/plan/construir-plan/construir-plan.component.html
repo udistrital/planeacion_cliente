@@ -12,7 +12,7 @@
           </mat-option>
         </mat-select>
     </mat-form-field>
-    <app-arbol *ngIf="tipoPlanId !== undefined" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
+    <app-arbol *ngIf="tipoPlanId !== undefined" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre" [consulta]="false" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
   </mat-card-content>
   <mat-card-footer *ngIf="tipoPlanId == '611af8364a34b3b2df3799a0'" style="text-align: center;">
     <ng-container>

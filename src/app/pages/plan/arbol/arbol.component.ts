@@ -42,6 +42,7 @@ export class ArbolComponent implements OnInit {
   dataRow: any;
   formConstruirPUI: FormGroup;
   displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'actions'];
+  displayedColumnsView: string[] = ['nombre', 'descripcion', 'activo'];
   mostrar: boolean = false;
   planActual: string;
 
@@ -74,6 +75,7 @@ export class ArbolComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
   @Input() tipoPlanId: string;
   @Input() idPlan: string;
+  @Input() consulta: boolean;
   @Input() updateSignal: Observable<String[]>;
   @Output() grupo = new EventEmitter<any>();
   constructor(

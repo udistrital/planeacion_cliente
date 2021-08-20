@@ -1,5 +1,5 @@
 <!-- <mat-card *ngIf="planId == 1" style="width:calc(96vw - 40px);"> -->
-    <ng-container *ngIf="tipoPlanId == '611af8464a34b3599e3799a2'">
+    <ng-container *ngIf="tipoPlanId == '611af8464a34b3599e3799a2' && !consulta">
         <!-- <mat-form-field appearance="outline" [style.width.%]="25">
             <mat-label id="busqueda-input-label">Buscar:</mat-label>
             <input matInput [(ngModel)]="stringBusqueda" (ngModelChange)="filterSearch()" id="search"  placeholder="Digite para buscar">
@@ -41,7 +41,7 @@
 <!-- </mat-card> -->
 
 <!-- <mat-card *ngIf="planId !== 1 && planId !== undefined" style="width:calc(96vw - 40px);"> -->
-    <ng-container *ngIf="tipoPlanId == '611af8364a34b3b2df3799a0' && mostrar">
+    <ng-container *ngIf="tipoPlanId == '611af8364a34b3b2df3799a0' && mostrar && !consulta">
         <mat-form-field appearance="outline" [style.width.%]="25">
             <mat-label id="busqueda-input-label">Buscar:</mat-label>
             <input matInput [(ngModel)]="stringBusqueda" (ngModelChange)="filterSearch()" id="search"  placeholder="Digite para buscar">
@@ -97,3 +97,50 @@
         </table>
     </ng-container>
 <!-- </mat-card> -->
+
+<ng-container *ngIf="tipoPlanId == '611af8364a34b3b2df3799a0' && mostrar && consulta">
+    <mat-form-field appearance="outline" [style.width.%]="25">
+        <mat-label id="busqueda-input-label">Buscar:</mat-label>
+        <input matInput [(ngModel)]="stringBusqueda" (ngModelChange)="filterSearch()" id="search"  placeholder="Digite para buscar">
+        <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <!-- <mat-form-field appearance="standard">
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Digite para filtrar" #fil>
+    </mat-form-field> -->
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef> 
+            <span [style.paddingLeft.px]="40"> Nombre </span>
+          </th>
+          <td mat-cell *matCellDef="let data"> 
+            <button mat-icon-button 
+                    [style.visibility]="!data.expandable ? 'hidden' : ''"
+                    [style.marginLeft.px]="data.level * 32"
+                    (click)="treeControl.toggle(data)">
+              <mat-icon class="mat-icon-rtl-mirror">
+                {{treeControl.isExpanded(data) ? 'expand_more' : 'chevron_right'}}
+              </mat-icon>
+            </button>
+            {{data.nombre}}
+          </td>
+        </ng-container> 
+        <ng-container matColumnDef="descripcion">
+            <th mat-header-cell *matHeaderCellDef >
+              <span [style.paddingLeft.px]="40"> Descripción </span>
+            </th>
+          <td mat-cell *matCellDef="let data"> {{data.descripcion}} </td>
+        </ng-container> 
+        <ng-container matColumnDef="activo">
+            <th mat-header-cell *matHeaderCellDef >
+              <span [style.paddingLeft.px]="40"> Activo </span>
+            </th>
+          <td mat-cell *matCellDef="let data"> {{data.activo}} </td>
+        </ng-container> 
+        <tr mat-header-row *matHeaderRowDef="displayedColumnsView"></tr>
+        <tr mat-row matRipple *matRowDef="let row; columns: displayedColumnsView;"></tr>
+        <!-- <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">No se pudo filtrar a través de "{{fil.value}}"</td>
+        </tr> -->
+    </table>
+</ng-container>
