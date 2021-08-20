@@ -107,7 +107,7 @@ export class ArbolComponent implements OnInit {
 
   loadArbolMid(){
     this.mostrar = false;
-    this.request.get(environment.LOCAL, `arbol/`+this.idPlan).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `arbol/`+this.idPlan).subscribe((data: any) => {
       if (data !== null){
         this.mostrar = true;
         this.dataSource.data = data;
