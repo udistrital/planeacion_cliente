@@ -119,6 +119,47 @@ export class ListarPlanComponent implements OnInit {
     } 
   }
 
+  // Inactivar todo el árbol
+  deleteData(){ 
+    Swal.fire({
+      title: 'Inhabilitar plan',
+      text: `¿Está seguro de inhabilitar el plan?`,
+      showCancelButton: true,
+      confirmButtonText: `Si`,
+      cancelButtonText: `No`,
+    }).then((result) => {
+        if (result.isConfirmed) {
+          this.request.delete(environment.PLANES_MID, `arbol`, this.uid).subscribe((data: any) => {
+            if(data){
+              Swal.fire({
+                title: 'Cambio realizado', 
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  window.location.reload();
+                }
+              })
+            }
+          }),
+          (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          Swal.fire({
+            title: 'Cambio cancelado', 
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+    })
+  }
+
   loadData(){
     this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
       if (data){
@@ -167,10 +208,14 @@ export class ListarPlanComponent implements OnInit {
   inactivar(fila):void{
     this.uid = fila._id;
     if (fila.activo == 'Activo'){
-      let res = {
-        activo: false,
-      }
-      this.putData(res, 'activo')
+      if (fila.tipo_plan_id == '611af8364a34b3b2df3799a0'){
+        this.deleteData();
+      } else if (fila.tipo_plan_id == '611af8464a34b3599e3799a2'){
+        let res = {
+          activo: false,
+        }
+        this.putData(res, 'activo')
+      } 
     } else if (fila.activo == 'Inactivo'){
       Swal.fire({
         title: 'Plan ya inactivo',

@@ -101,15 +101,15 @@ export class ArbolComponent implements OnInit {
     if (changes['updateSignal'] && this.updateSignal){
       this.updateSignal.subscribe(() => {
         this.loadArbolMid();
-      })
+      });
     }
   }
 
   loadArbolMid(){
     this.mostrar = false;
     this.request.get(environment.PLANES_MID, `arbol/`+this.idPlan).subscribe((data: any) => {
+      this.mostrar = true;
       if (data !== null){
-        this.mostrar = true;
         this.dataSource.data = data;
       } else {
         this.mostrar = false;
