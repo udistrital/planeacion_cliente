@@ -60,15 +60,15 @@ export class PagesComponent implements OnInit {
     }) */
     this.loaded = true;
 
-    this.userService.user$.subscribe((data: any)=> {
-      if(data?data.userService?data.userService.documento?true:false:false:false) {
-        this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion?query=Numero:`+ data.userService.documento)
-        .subscribe((datosIdentificacion: DatosIdentificacion)=> {
-          let tercero = datosIdentificacion[0].TerceroId;
-          this.terceroName = tercero?tercero.NombreCompleto?tercero.NombreCompleto:'':'';
-          this.userService.updateTercero(tercero);
-        })
-      }
-    })
+    // this.userService.user$.subscribe((data: any)=> {
+    //   if(data?data.userService?data.userService.documento?true:false:false:false) {
+    //     this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion?query=Numero:`+ data.userService.documento)
+    //     .subscribe((datosIdentificacion: DatosIdentificacion)=> {
+    //       let tercero = datosIdentificacion[0].TerceroId;
+    //       this.terceroName = tercero?tercero.NombreCompleto?tercero.NombreCompleto:'':'';
+    //       this.userService.updateTercero(tercero);
+    //     })
+    //   }
+    // })
   }
 }
