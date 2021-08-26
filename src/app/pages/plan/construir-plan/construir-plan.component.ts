@@ -172,7 +172,7 @@ export class ConstruirPlanComponent implements OnInit {
     } else if (event.bandera == 'agregar'){
       this.uid_n = event.fila.level + 2; // el nuevo nivel
       this.uid = event.fila.id; // será el padre del nuevo nivel
-      if (event.fila.activo == true){
+      if (event.fila.activo == true || event.fila.activo == 'activo' || event.fila.activo == 'Activo'){
         this.openDialogAgregar();
       } else {
         Swal.fire({

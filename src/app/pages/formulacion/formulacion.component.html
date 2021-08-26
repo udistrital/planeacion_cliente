@@ -1,1 +1,81 @@
-<p>formulacion works!</p>
+<!-- <mat-accordion cdkDropList (cdkDropListDropped)="drop($event)">
+    <mat-expansion-panel *ngFor="let panel of accordions" cdkDrag
+      (opened)="panelOpenState = true"
+      (closed)="panelOpenState = false"
+    >
+      <mat-expansion-panel-header>
+         <mat-panel-title>{{ panel.title }}</mat-panel-title>
+        <mat-panel-description>{{ panel.description }}</mat-panel-description>
+      </mat-expansion-panel-header>
+      
+      <ng-container *ngIf="panel.subAccordion">
+
+        <mat-accordion>
+          <mat-expansion-panel *ngFor="let subpanel of panel.subAccordion"
+            (opened)="panelOpenState = true"
+            (closed)="panelOpenState = false"
+          >
+            <mat-expansion-panel-header>
+              <mat-panel-title>{{ subpanel.title }}</mat-panel-title>
+              <mat-panel-description>{{ subpanel.description }}</mat-panel-description>
+            </mat-expansion-panel-header>
+            <mat-form-field appearance="fill">
+                <mat-label>Select me</mat-label>
+                <mat-select>
+                  <mat-option value="option">Option</mat-option>
+                </mat-select>
+              </mat-form-field>
+          </mat-expansion-panel>
+        </mat-accordion>
+
+      </ng-container>
+
+    </mat-expansion-panel>
+
+  </mat-accordion> -->
+
+<form [formGroup]="form">
+  <mat-horizontal-stepper>
+    <mat-step *ngFor="let step of steps; let index = index; let last = last;">
+      <ng-template matStepLabel>{{step.id}}</ng-template>
+      <mat-accordion cdkDropList>
+        <mat-expansion-panel *ngFor="let subs of step.sub" cdkDrag
+        (opened)="panelOpenState = true"
+        (closed)="panelOpenState = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{subs.id}}
+            </mat-panel-title>
+            <mat-panel-description>
+              
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.type == 'input'">
+            <mat-label id="informacion-input-label">Digite la información:</mat-label>
+            <textarea matInput id="info" formControlName="{{subs.key}}" placeholder="Escriba la información deseada" required></textarea>
+            <mat-icon matSuffix>create</mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subs.type == 'select'">
+              <mat-select (selectionChange)="onChange($event.value)">
+                <mat-option>--</mat-option>
+                <mat-option *ngFor="let plan of planes" [value]="plan">
+                  {{plan.nombre}}
+                </mat-option>
+              </mat-select>
+          </mat-form-field>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <br><br>
+      <div>
+        <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="index !== 0" matStepperPrevious (click)="prevStep(index)">Volver</button>
+        <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="!last" matStepperNext (click)="nextStep(index)">Siguiente</button>
+        <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="last" [disabled]="!form.valid" (click)="submit()">Guardar</button>
+        <!-- <button *ngIf="index !== 0" matStepperPrevious class="btn btn-primary" type="button" (click)="prevStep(index)">Atrás</button>
+        <button *ngIf="!last" matStepperNext class="btn btn-primary" type="button" [disabled]="!formStep.at(index).valid" (click)="nextStep(index)">Siguiente</button>
+        <button *ngIf="last" class="btn btn-primary" [disabled]="!formStep.valid" type="submit">Guardar</button> -->
+      </div> 
+    </mat-step>
+  </mat-horizontal-stepper>
+</form>
+    
+  
