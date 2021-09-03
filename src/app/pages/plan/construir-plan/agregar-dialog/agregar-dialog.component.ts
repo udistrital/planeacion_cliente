@@ -7,9 +7,21 @@ import { FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '
   templateUrl: './agregar-dialog.component.html',
   styleUrls: ['./agregar-dialog.component.scss']
 })
+
 export class AgregarDialogComponent implements OnInit {
 
   formAgregar: FormGroup;
+  tipos: tipoDato[] = [
+    {value: 'numeric', viewValue:'Numérico'},
+    {value: 'input', viewValue:'Texto'},
+    {value: 'select', viewValue:'Select'}
+  ]
+  aux = {
+    value: '',
+    disabled: false  
+  };
+
+ 
 
   constructor(
     private formBuilder: FormBuilder,
@@ -21,11 +33,16 @@ export class AgregarDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.verificarNivel();
     this.formAgregar = this.formBuilder.group({
       descripcion: ['', Validators.required],
       nombre: ['', Validators.required],
       activo: ['', Validators.required],
+      tipoDato: [this.aux, Validators.required],
+      requerido: [this.aux, Validators.required]
     });
+
+
   }
 
   getErrorMessage(campo: FormControl) {
@@ -40,4 +57,19 @@ export class AgregarDialogComponent implements OnInit {
     this.formAgregar.reset();
   }
 
+  verificarNivel(){
+    if(this.data.nivel === 1){
+      this.aux = {
+        value: '',
+        disabled: true
+      }
+    }
+
+  }
+
+}
+
+interface tipoDato{
+  value: string;
+  viewValue: string;
 }

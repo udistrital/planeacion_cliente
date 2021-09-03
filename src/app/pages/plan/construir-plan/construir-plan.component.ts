@@ -43,12 +43,13 @@ export class ConstruirPlanComponent implements OnInit {
       if (result == undefined){
         return undefined;
       } else {
+
         this.postData(result);
       }
     });
   }
 
-  postData(res){
+  async postData(res){
     if (this.uid_n == 1){
       var dataSub = {
         nombre: res.nombre,
@@ -64,10 +65,38 @@ export class ConstruirPlanComponent implements OnInit {
         activo: JSON.parse(res.activo),
       }
     }
-    this.request.post(environment.PLANES_CRUD, 'subgrupo/registrar_nodo', dataSub).subscribe(
+    var dato = {
+      type : res.tipoDato,
+      required: res.requerido
+    }
+
+    let subgrupo
+    await this.request.post(environment.PLANES_CRUD, 'subgrupo/registrar_nodo', dataSub).subscribe(
       (data: any) => {
-        if(data){         
+        if(data){   
+           
+          var dataSubDetalle ={
+            nombre: "subgrupo detalle " + res.nombre,
+            descripcion: res.nombre,
+            subgrupo_id: ""+data.Data._id,
+            dato: JSON.stringify(dato),
+            activo: JSON.parse(res.activo)
+          } 
+          this.request.post(environment.PLANES_CRUD, 'subgrupo-detalle', dataSubDetalle).subscribe(
+            (data: any) =>{
+              if(!data){
+                Swal.fire({
+                  title: 'Error en la operación',
+                  icon: 'error',
+                  showConfirmButton: false,
+                  timer: 2500
+                })
+              }
+            }
+          )
+          subgrupo = data.Data    
           Swal.fire({
+            
             title: 'Registro correcto',
             text: `Se ingresaron correctamente los datos del nivel`,
             icon: 'success',
@@ -88,11 +117,11 @@ export class ConstruirPlanComponent implements OnInit {
       }
   };
 
-  openDialogEditar(sub): void {
+  openDialogEditar(sub, subDetalle): void {
     const dialogRef = this.dialog.open(EditarDialogComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
-      data: {nivel: this.uid_n, ban: 'nivel', sub}
+      data: {nivel: this.uid_n, ban: 'nivel', sub, subDetalle}
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -105,27 +134,54 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   putData(res){
-    this.request.put(environment.PLANES_CRUD, `subgrupo`, res, this.uid).subscribe((data: any) => {
+    console.log(res)
+    let subgrupo = {
+      nombre: res.nombre,
+      descripcion: res.descripcion,
+      activo: res.activo
+    }
+    let dato = {
+      type: res.tipoDato,
+      required: res.requerido
+    }
+    let subgrupoDetalle = {
+      dato: JSON.stringify(dato)
+    }
+    console.log(subgrupoDetalle)
+    console.log(this.uid)
+    this.request.get(environment.PLANES_CRUD, `subgrupo-detalle/detalle/`+ this.uid).subscribe((data: any) => {
       if(data){
-        Swal.fire({
-          title: 'Actualización correcta',
-          text: `Se actualizaron correctamente los datos`,
-          icon: 'success',
-        }).then((result) => {
-          if (result.value) {
-            this.eventChange.emit(true);
+        console.log(data.Data[0])
+        this.request.put(environment.PLANES_CRUD, `subgrupo-detalle`, subgrupoDetalle, data.Data[0]._id).subscribe((data: any) => {
+          if(data){
+            console.log(data)
           }
         })
+      }else{
+        this.request.put(environment.PLANES_CRUD, `subgrupo`, subgrupo, this.uid).subscribe((data: any) => {
+          if(data){
+            Swal.fire({
+              title: 'Actualización correcta',
+              text: `Se actualizaron correctamente los datos`,
+              icon: 'success',
+            }).then((result) => {
+              if (result.value) {
+                this.eventChange.emit(true);
+              }
+            })
+          }
+        }),
+        (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2500
+          })
+        };
       }
-    }),
-    (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-          icon: 'error',
-          showConfirmButton: false,
-          timer: 2500
-      })
-    };
+    })
+
   }
 
   getErrorMessage(campo: FormControl) {
@@ -145,19 +201,30 @@ export class ConstruirPlanComponent implements OnInit {
     }
   }
 
-  receiveMessage(event){
+   receiveMessage(event){
     if (event.bandera == 'editar'){
       this.uid_n = event.fila.level + 1;
       this.uid = event.fila.id; // id del nivel a editar
       this.request.get(environment.PLANES_CRUD, `subgrupo/`+this.uid).subscribe((data: any) => {
         if (data){
           console.log(data)
-          let subData = {
-            nombre: data.Data.nombre,
-            descripcion: data.Data.descripcion,
-            activo: data.Data.activo,
-          }
-          this.openDialogEditar(subData); 
+          this.request.get(environment.PLANES_CRUD, 'subgrupo-detalle/detalle/' + this.uid).subscribe((dataDetalle: any) => {
+            if (dataDetalle){
+              let auxiliar = JSON.parse(dataDetalle.Data[0].dato)
+              let subDataDetalle = {
+                type: auxiliar.type,
+                required: auxiliar.required
+              }
+              let subData = {
+                nombre: data.Data.nombre,
+                descripcion: data.Data.descripcion,
+                activo: data.Data.activo,
+    
+              }
+              console.log(subDataDetalle)
+              this.openDialogEditar(subData, subDataDetalle); 
+            }
+          })
         }
       }),
       (error) => {
@@ -186,7 +253,7 @@ export class ConstruirPlanComponent implements OnInit {
 
     }
   }
-
+  
   agregarSub(niv: number){
     this.uid_n = niv;
     this.openDialogAgregar()
