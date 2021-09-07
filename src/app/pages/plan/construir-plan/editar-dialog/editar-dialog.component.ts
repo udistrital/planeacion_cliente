@@ -13,6 +13,14 @@ export class EditarDialogComponent implements OnInit {
   nombre: string;
   descripcion: string;
   activoS: string;
+  tipoDato: string;
+  required: boolean;
+
+  tipos: tipoDato[] = [
+    {value: 'numeric', viewValue:'Numérico'},
+    {value: 'input', viewValue:'Texto'},
+    {value: 'select', viewValue:'Select'}
+  ]
 
   constructor(
     private formBuilder: FormBuilder,
@@ -21,6 +29,8 @@ export class EditarDialogComponent implements OnInit {
       this.nombre = data.sub.nombre;
       this.descripcion = data.sub.descripcion;
       this.activoS = String(data.sub.activo);
+      this.tipoDato = data.subDetalle.type;
+      this.required = data.subDetalle.required;
      }
 
   ngOnInit(): void {
@@ -28,6 +38,8 @@ export class EditarDialogComponent implements OnInit {
       descripcion: [this.descripcion, Validators.required],
       nombre: [this.nombre, Validators.required],
       activo: [this.activoS, Validators.required],
+      tipoDato:[this.tipoDato, Validators.required],
+      requerido:[this.required, Validators.required]
     });
   }
 
@@ -47,4 +59,9 @@ export class EditarDialogComponent implements OnInit {
     this.formEditar.reset();
   }
 
+}
+
+interface tipoDato{
+  value: string;
+  viewValue: string;
 }
