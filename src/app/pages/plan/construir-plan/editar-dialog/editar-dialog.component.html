@@ -29,6 +29,21 @@
             <mat-radio-button class="example-radio-button" value="false">Inactivo</mat-radio-button>
           </mat-radio-group>
         </ng-container>
+        <mat-form-field appearance="fill" [style.width.%]="30">
+          <mat-label>Tipo de dato </mat-label>
+            <mat-select formControlName="tipoDato" requiered>
+              <mat-option>--</mat-option>
+              <mat-option *ngFor="let tipo of tipos" [value]="tipo.value">
+              {{tipo.viewValue}}
+              </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-label class="requerido-radio-group-label">Obligatorio</mat-label>
+          <mat-radio-group formControlName="requerido" class="requerido-radio-group" aria-labelledby="example-radio-group-label" required>
+            <mat-radio-button class="requerido-radio-button" value="true">Sí</mat-radio-button>
+            <mat-radio-button class="requerido-radio-button" value="false">No</mat-radio-button>
+          </mat-radio-group>
+        
       </mat-card-content>
       <mat-card-actions style="text-align: center;">
         <ng-container>
