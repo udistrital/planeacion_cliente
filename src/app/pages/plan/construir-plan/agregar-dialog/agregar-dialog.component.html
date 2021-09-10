@@ -25,7 +25,7 @@
           <mat-radio-button class="example-radio-button" value="true">Activo</mat-radio-button>
           <mat-radio-button class="example-radio-button" value="false">Inactivo</mat-radio-button>
         </mat-radio-group>
-      <div *ngIf="aux.disabled === false">
+      <div *ngIf="visible.disabled === false">
       <mat-form-field appearance="fill" [style.width.%]="30">
         <mat-label>Tipo de dato </mat-label>
           <mat-select formControlName="tipoDato" required>
@@ -35,7 +35,7 @@
             </mat-option>
           </mat-select>
       </mat-form-field>
-      <mat-label class="requerido-radio-group-label">Obligatorio</mat-label>
+      <mat-label class="requerido-radio-group-label">Obligatorio:</mat-label>
         <mat-radio-group formControlName="requerido" class="requerido-radio-group"  aria-labelledby="example-radio-group-label" required>
           <mat-radio-button class="requerido-radio-button" value="true">Sí</mat-radio-button>
           <mat-radio-button class="requerido-radio-button" value="false">No</mat-radio-button>
