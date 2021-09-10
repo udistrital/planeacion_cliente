@@ -21,6 +21,11 @@ export class EditarDialogComponent implements OnInit {
     {value: 'input', viewValue:'Texto'},
     {value: 'select', viewValue:'Select'}
   ]
+  visible = {
+    value: '',
+    disabled: false  
+  };
+
 
   constructor(
     private formBuilder: FormBuilder,
@@ -31,16 +36,23 @@ export class EditarDialogComponent implements OnInit {
       this.activoS = String(data.sub.activo);
       this.tipoDato = data.subDetalle.type;
       this.required = data.subDetalle.required;
+      
+
+      
+
      }
 
   ngOnInit(): void {
+ 
     this.formEditar = this.formBuilder.group({
       descripcion: [this.descripcion, Validators.required],
       nombre: [this.nombre, Validators.required],
       activo: [this.activoS, Validators.required],
-      tipoDato:[this.tipoDato, Validators.required],
-      requerido:[this.required, Validators.required]
+      tipoDato:[this.tipoDato, this.visible , Validators.required],
+      requerido:[this.required, this.visible,Validators.required]
     });
+    this.verificarNivel();
+
   }
 
   close(): void {
@@ -57,6 +69,16 @@ export class EditarDialogComponent implements OnInit {
 
   deshacer(){
     this.formEditar.reset();
+  }
+
+  verificarNivel(){
+    if(this.data.nivel === 1){
+      this.visible = {
+        value: '',
+        disabled: true
+      }
+    }
+
   }
 
 }

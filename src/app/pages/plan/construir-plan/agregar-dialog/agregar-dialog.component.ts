@@ -16,7 +16,7 @@ export class AgregarDialogComponent implements OnInit {
     {value: 'input', viewValue:'Texto'},
     {value: 'select', viewValue:'Select'}
   ]
-  aux = {
+  visible = {
     value: '',
     disabled: false  
   };
@@ -38,8 +38,8 @@ export class AgregarDialogComponent implements OnInit {
       descripcion: ['', Validators.required],
       nombre: ['', Validators.required],
       activo: ['', Validators.required],
-      tipoDato: [this.aux, Validators.required],
-      requerido: [this.aux, Validators.required]
+      tipoDato: [this.visible, Validators.required],
+      requerido: [this.visible, Validators.required]
     });
 
 
@@ -59,7 +59,7 @@ export class AgregarDialogComponent implements OnInit {
 
   verificarNivel(){
     if(this.data.nivel === 1){
-      this.aux = {
+      this.visible = {
         value: '',
         disabled: true
       }

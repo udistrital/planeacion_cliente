@@ -49,7 +49,7 @@ export class ConstruirPlanComponent implements OnInit {
     });
   }
 
-  async postData(res){
+  postData(res){
     if (this.uid_n == 1){
       var dataSub = {
         nombre: res.nombre,
@@ -69,9 +69,9 @@ export class ConstruirPlanComponent implements OnInit {
       type : res.tipoDato,
       required: res.requerido
     }
-
     let subgrupo
-    await this.request.post(environment.PLANES_CRUD, 'subgrupo/registrar_nodo', dataSub).subscribe(
+
+    this.request.post(environment.PLANES_CRUD, 'subgrupo/registrar_nodo', dataSub).subscribe(
       (data: any) => {
         if(data){   
            
@@ -82,18 +82,21 @@ export class ConstruirPlanComponent implements OnInit {
             dato: JSON.stringify(dato),
             activo: JSON.parse(res.activo)
           } 
-          this.request.post(environment.PLANES_CRUD, 'subgrupo-detalle', dataSubDetalle).subscribe(
-            (data: any) =>{
-              if(!data){
-                Swal.fire({
-                  title: 'Error en la operación',
-                  icon: 'error',
-                  showConfirmButton: false,
-                  timer: 2500
-                })
+          if(dataSubDetalle.dato.length > 10){
+            this.request.post(environment.PLANES_CRUD, 'subgrupo-detalle', dataSubDetalle).subscribe(
+              (data: any) =>{
+                if(!data){
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    icon: 'error',
+                    showConfirmButton: false,
+                    timer: 2500
+                  })
+                }
               }
-            }
-          )
+            )
+          }
+
           subgrupo = data.Data    
           Swal.fire({
             
@@ -134,7 +137,6 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   putData(res){
-    console.log(res)
     let subgrupo = {
       nombre: res.nombre,
       descripcion: res.descripcion,
@@ -147,15 +149,30 @@ export class ConstruirPlanComponent implements OnInit {
     let subgrupoDetalle = {
       dato: JSON.stringify(dato)
     }
-    console.log(subgrupoDetalle)
-    console.log(this.uid)
     this.request.get(environment.PLANES_CRUD, `subgrupo-detalle/detalle/`+ this.uid).subscribe((data: any) => {
-      if(data){
-        console.log(data.Data[0])
-        this.request.put(environment.PLANES_CRUD, `subgrupo-detalle`, subgrupoDetalle, data.Data[0]._id).subscribe((data: any) => {
-          if(data){
-            console.log(data)
-          }
+      if(data.Data.length > 0){ 
+        this.request.put(environment.PLANES_CRUD, `subgrupo-detalle`, subgrupoDetalle, data.Data[0]._id).subscribe((data:any) =>{
+          this.request.put(environment.PLANES_CRUD, `subgrupo`, subgrupo, this.uid).subscribe((data: any) => {
+            if(data){
+              Swal.fire({
+                title: 'Actualización correcta',
+                text: `Se actualizaron correctamente los datos`,
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  this.eventChange.emit(true);
+                }
+              })
+            }
+          }),
+          (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 2500
+            })
+          };
         })
       }else{
         this.request.put(environment.PLANES_CRUD, `subgrupo`, subgrupo, this.uid).subscribe((data: any) => {
@@ -207,22 +224,37 @@ export class ConstruirPlanComponent implements OnInit {
       this.uid = event.fila.id; // id del nivel a editar
       this.request.get(environment.PLANES_CRUD, `subgrupo/`+this.uid).subscribe((data: any) => {
         if (data){
-          console.log(data)
           this.request.get(environment.PLANES_CRUD, 'subgrupo-detalle/detalle/' + this.uid).subscribe((dataDetalle: any) => {
             if (dataDetalle){
-              let auxiliar = JSON.parse(dataDetalle.Data[0].dato)
-              let subDataDetalle = {
-                type: auxiliar.type,
-                required: auxiliar.required
+              if(dataDetalle.Data.length > 0 ){
+                let auxiliar = JSON.parse(dataDetalle.Data[0].dato)
+                let subDataDetalle = {
+                  type: auxiliar.type,
+                  required: auxiliar.required
+                }
+
+                let subData = {
+                  nombre: data.Data.nombre,
+                  descripcion: data.Data.descripcion,
+                  activo: data.Data.activo,
+                }
+                this.openDialogEditar(subData, subDataDetalle); 
+              }else{
+                let subDataDetalle = {
+                  type: "",
+                  required: ""
+                }
+
+                let subData = {
+                  nombre: data.Data.nombre,
+                  descripcion: data.Data.descripcion,
+                  activo: data.Data.activo,
+                }
+                this.openDialogEditar(subData, subDataDetalle); 
+
               }
-              let subData = {
-                nombre: data.Data.nombre,
-                descripcion: data.Data.descripcion,
-                activo: data.Data.activo,
-    
-              }
-              console.log(subDataDetalle)
-              this.openDialogEditar(subData, subDataDetalle); 
+
+
             }
           })
         }
