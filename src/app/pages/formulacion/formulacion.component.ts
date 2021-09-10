@@ -57,6 +57,8 @@ export class FormulacionComponent implements OnInit {
   //   "Some_Value_2": "",
   // }
 
+
+
   ngOnInit(): void {
     
   }
@@ -208,10 +210,9 @@ export class FormulacionComponent implements OnInit {
   cargaFormato(plan){
     this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
       if (data){
-        console.log(data[0])
         this.steps = data[0]
-        console.log(data[1])
-        this.json = data[1]
+        this.json = data[1][0]
+        //console.log(this.json)
         this.form = this.formBuilder.group(this.json);
       }
     },(error) => {

@@ -58,12 +58,47 @@
                   
                 </mat-panel-description>
               </mat-expansion-panel-header>
+              <ng-container *ngIf="subs.sub">
+                <mat-accordion>
+                  <mat-expansion-panel *ngFor="let subpanel of subs.sub"
+                    (opened)="panelOpenState = true"
+                    (closed)="panelOpenState = false">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>{{subpanel.nombre}}</mat-panel-title>
+                      <mat-panel-description>
+
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    
+                    <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.type == 'input'">
+                      <mat-label>Digite la información:</mat-label>
+                      <textarea matInput formControlName="{{subpanel.id}}" placeholder="Escriba la información deseada" required="{{subpanel.required}}"></textarea>
+                      <mat-icon matSuffix>create</mat-icon>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.type == 'numeric'">
+                      <mat-label>Ingrese el valor:</mat-label>
+                      <input type="number" matInput formControlName="{{subpanel.id}}" placeholder="Ingrese el valor numérico" required="{{subpanel.required}}">
+                      <mat-icon matSuffix>create</mat-icon>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subpanel.type == 'select'">
+                        <mat-select (selectionChange)="onChange($event.value)" [(value)]="selected" formControlName="{{subpanel.id}}" required="{{subpanel.required}}">
+                          <mat-option>--</mat-option>
+                          <mat-option *ngFor="let opt of subs.options" [value]="opt">
+                            {{opt.nombre}}
+                          </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="subpanel.type == 'button'" (click)="but()">Foo</button>
+
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </ng-container>
               <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.type == 'input'">
                 <mat-label>Digite la información:</mat-label>
                 <textarea matInput formControlName="{{subs.id}}" placeholder="Escriba la información deseada" required="{{subs.required}}"></textarea>
                 <mat-icon matSuffix>create</mat-icon>
               </mat-form-field>
-              <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.type == 'number'">
+              <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.type == 'numeric'">
                 <mat-label>Ingrese el valor:</mat-label>
                 <input type="number" matInput formControlName="{{subs.id}}" placeholder="Ingrese el valor numérico" required="{{subs.required}}">
                 <mat-icon matSuffix>create</mat-icon>
