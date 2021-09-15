@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
+import {MatPaginator} from '@angular/material/paginator';
+import {MatSort} from '@angular/material/sort';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { FormArray, FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
 import { RequestManager } from '../services/requestManager';
 import { environment } from '../../../environments/environment';
+import {MatTableDataSource} from '@angular/material/table';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -13,22 +16,37 @@ import Swal from 'sweetalert2';
 export class FormulacionComponent implements OnInit {
 
   activedStep = 0;
-
   form: FormGroup;
   planes: any[];
   planSelected: boolean;
   unidadSelected: boolean;
   vigenciaSelected: boolean;
+  addActividad: boolean;
   plan: any;
   steps: any[];
   json: any;
 
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
   ) {
-    this.loadPlanes(); 
+    this.loadPlanes();
+    this.addActividad = false;
+    this.planSelected = false;
+    this.unidadSelected = false;
+    this.vigenciaSelected = false;
    }
+
+   applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
 
   loadPlanes(){
     this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
@@ -58,6 +76,8 @@ export class FormulacionComponent implements OnInit {
   // }
 
 
+  displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo', 'actions'];
+  dataSource: MatTableDataSource<any>;
 
   ngOnInit(): void {
     
@@ -121,6 +141,33 @@ export class FormulacionComponent implements OnInit {
     },
   ]
 
+  infoPlan: any[] = [
+    {
+      numero: "1",
+      nombre: "Nombre 1",
+      rubro: "Rubro 1",
+      valor: "Valor 1",
+      observacion: "Existe",
+      activo: true
+    },
+    {
+      numero: "2",
+      nombre: "Nombre 2",
+      rubro: "Rubro 2",
+      valor: "Valor 2",
+      observacion: "Existe",
+      activo: true
+    },
+    {
+      numero: "3",
+      nombre: "Nombre 3",
+      rubro: "Rubro 3",
+      valor: "Valor 3",
+      observacion: "No existe",
+      activo: true
+    }
+  ]
+
   // steps: any[] = [
   //   {
   //     id: 'Meta - Some Value',
@@ -154,8 +201,27 @@ export class FormulacionComponent implements OnInit {
   }
 
   submit() {
-    alert(JSON.stringify(this.form.value));
-    this.form.reset();
+    Swal.fire({
+      title: 'Registro agregado', 
+      text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+      icon: 'success'
+    }).then((result) => {
+      if (result.value) {
+        this.infoPlan.push({
+          numero: "4",
+          nombre: "Nombre 4",
+          rubro: "Rubro 4",
+          valor: "Valor 4",
+          observacion: "No Existe",
+          activo: true
+        })
+        this.loadData()
+        this.form.reset();
+        this.addActividad = false;
+        //window.location.reload();
+      }
+    })
+    //alert(JSON.stringify(this.form.value));
   }
 
   but() {
@@ -187,7 +253,7 @@ export class FormulacionComponent implements OnInit {
     } else {
       this.planSelected = true;
       this.plan = plan;
-      this.cargaFormato(this.plan);
+      //this.cargaFormato(this.plan);
     }
   }
 
@@ -204,7 +270,22 @@ export class FormulacionComponent implements OnInit {
       this.vigenciaSelected = false;
     } else {
       this.vigenciaSelected = true;
+      //this.cargaFormato(this.plan);
+      this.loadData();
     }
+  }
+
+  loadData(){
+    // carga de la tabla
+    this.ajustarData();
+  }
+
+  ajustarData(){
+    this.cambiarValor("activo", true, "Activo")
+    this.cambiarValor("activo", false, "Inactivo")
+    this.dataSource = new MatTableDataSource(this.infoPlan); // this.data de la consulta (!)
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
   cargaFormato(plan){
@@ -214,16 +295,104 @@ export class FormulacionComponent implements OnInit {
         this.json = data[1][0]
         //console.log(this.json)
         this.form = this.formBuilder.group(this.json);
+        // this.form = this.formBuilder.group({
+        //   "613991a6df020f6a5556e5b7": "3"
+        // });
       }
-    },(error) => {
+    }, (error) => {
       Swal.fire({
         title: 'Error en la operación', 
-        text: 'No se encontraron datos registrados',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
       })
     })
+  }
+
+  editar(fila): void {
+    this.cargaFormato(this.plan);
+    this.addActividad = true;
+  }
+
+  agregarActividad() {
+    this.cargaFormato(this.plan);
+    this.addActividad = true;
+  }
+
+  culminarPlan() {
+    Swal.fire({
+      title: 'Envío de Plan',
+      text: `¿Está seguro de enviar plan para revisión?`,
+      showCancelButton: true,
+      confirmButtonText: `Si`,
+      cancelButtonText: `No`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+            Swal.fire({
+              title: 'Plan enviado', 
+              icon: 'success',
+            }).then((result) => {
+              if (result.value) {
+                this.loadData()
+                this.addActividad = false;
+              }
+            })
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            Swal.fire({
+              title: 'Envío cancelado', 
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+        }),
+        (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            icon: 'error',
+            text: `${JSON.stringify(error)}`,
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+  }
+
+  cambiarValor(valorABuscar, valorViejo, valorNuevo) {
+    this.infoPlan.forEach(function(elemento) {
+      elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
+    })
+  }
+
+  ocultar() {
+    Swal.fire({
+      title: 'Registro de la actividad',
+      text: `¿Desea cancelar el registro de la actividad?`,
+      showCancelButton: true,
+      confirmButtonText: `Si`,
+      cancelButtonText: `No`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+            this.addActividad = false;
+            Swal.fire({
+              title: 'Registro cancelado', 
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            
+          }
+        }),
+        (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            icon: 'error',
+            text: `${JSON.stringify(error)}`,
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
   }
 
   panelOpenState = true;
