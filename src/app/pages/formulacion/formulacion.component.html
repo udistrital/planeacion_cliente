@@ -1,3 +1,4 @@
+<!-- SELECCIÓN -->
 <mat-card class="card-oas">
   <mat-card-header>
     <mat-card-title>Selección de Plan</mat-card-title>
@@ -36,12 +37,62 @@
     </mat-form-field>
   </ng-container>
 </mat-card>
-
+<br><br>
+<!-- FORMULACIÓN -->
 <mat-card class="card-oas" *ngIf="vigenciaSelected">
   <mat-card-header>
     <mat-card-title>Formulación {{plan.nombre}}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    <!-- TABLA ESTÁTICA -->
+    <mat-form-field appearance="standard" [style.width.%]="50">
+      <mat-label>Búsqueda</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Actividad" #input>
+    </mat-form-field>
+    <div class="mat-elevation-z8">
+      <table mat-table [dataSource]="dataSource" matSort>
+          <ng-container matColumnDef="numero">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Número actividad </th>
+              <td mat-cell *matCellDef="let row"> {{row.numero}} </td>
+          </ng-container>
+      <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre actividad </th>
+          <td mat-cell *matCellDef="let row"> {{row.nombre}} </td>
+      </ng-container>
+      <ng-container matColumnDef="rubro">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Rubro presupuestal </th>
+          <td mat-cell *matCellDef="let row"> {{row.rubro}} </td>
+      </ng-container>
+      <ng-container matColumnDef="valor">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Valor presupuestal </th>
+        <td mat-cell *matCellDef="let row"> {{row.valor}} </td>
+      </ng-container>
+      <ng-container matColumnDef="observacion">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Observación </th>
+        <td mat-cell *matCellDef="let row"> {{row.observacion}} </td>
+      </ng-container>
+      <ng-container matColumnDef="activo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado </th>
+        <td mat-cell *matCellDef="let row"> {{row.activo}} </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="header-align-right"> Acciones </th>
+          <td mat-cell *matCellDef="let row" class="td-align-right">
+              <button mat-icon-button (click)="editar(row)"><mat-icon>edit</mat-icon></button>
+         </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="4">No se han encontrado resultados para la búsqueda "{{input.value}}"</td>
+      </tr>
+      </table>
+      <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+    </div>
+    <br><br>
+    <mat-card class="card-oas-int" *ngIf="addActividad">
+    <!-- FORMULARIO -->
+    <mat-card-content>
     <form [formGroup]="form">
       <mat-horizontal-stepper>
         <mat-step *ngFor="let step of steps; let index = index; let last = last;">
@@ -118,6 +169,7 @@
           <div>
             <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="index !== 0" matStepperPrevious (click)="prevStep(index)">Volver</button>
             <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="!last" matStepperNext (click)="nextStep(index)">Siguiente</button>
+            <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="ocultar()">Cancelar</button>
             <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="last" [disabled]="!form.valid" (click)="submit()">Guardar</button>
             <!-- <button *ngIf="index !== 0" matStepperPrevious class="btn btn-primary" type="button" (click)="prevStep(index)">Atrás</button>
             <button *ngIf="!last" matStepperNext class="btn btn-primary" type="button" [disabled]="!formStep.at(index).valid" (click)="nextStep(index)">Siguiente</button>
@@ -127,6 +179,21 @@
       </mat-horizontal-stepper>
     </form>
   </mat-card-content>
+  </mat-card>
+  </mat-card-content>
+  <!-- AGREGAR ACTIVIDAD / CULMINAR PLAN -->
+  <mat-card-footer style="text-align: center;">
+    <ng-container>
+      <button mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad">
+        Agregar actividad
+      </button>
+      <br><br>
+      <button mat-raised-button color="primary" (click)="culminarPlan()">
+        Culminar plan
+      </button>
+    </ng-container>
+    <br><br>
+  </mat-card-footer>
 </mat-card>
 
     
