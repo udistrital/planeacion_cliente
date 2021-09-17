@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
-
+import { MatRadioChange } from '@angular/material/radio';
 @Component({
   selector: 'app-agregar-dialog',
   templateUrl: './agregar-dialog.component.html',
@@ -16,9 +16,10 @@ export class AgregarDialogComponent implements OnInit {
     {value: 'input', viewValue:'Texto'},
     {value: 'select', viewValue:'Select'}
   ]
-  visible = {
+  control = {
     value: '',
-    disabled: false  
+    disabled: false,
+    visible: false
   };
 
  
@@ -33,13 +34,13 @@ export class AgregarDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.verificarNivel();
     this.formAgregar = this.formBuilder.group({
       descripcion: ['', Validators.required],
       nombre: ['', Validators.required],
       activo: ['', Validators.required],
-      tipoDato: [this.visible, Validators.required],
-      requerido: [this.visible, Validators.required]
+      tipoDato: ['',this.control, Validators.required],
+      requerido: ['',this.control, Validators.required],
+      parametro: ['', Validators.required]
     });
 
 
@@ -57,16 +58,22 @@ export class AgregarDialogComponent implements OnInit {
     this.formAgregar.reset();
   }
 
-  verificarNivel(){
-    if(this.data.nivel === 1){
-      this.visible = {
+  verificarNivel(event: MatRadioChange){
+    if(event.value == "false"){
+      this.control = {
         value: '',
-        disabled: true
+        disabled: true,
+        visible: false
+      }
+    }else if (event.value == "true"){
+      this.control = {
+        value: '',
+        disabled: false,
+        visible: true
       }
     }
 
-  }
-
+}
 }
 
 interface tipoDato{

@@ -15,16 +15,27 @@ export class EditarDialogComponent implements OnInit {
   activoS: string;
   tipoDato: string;
   required: boolean;
+  formatoS: string;
 
   tipos: tipoDato[] = [
     {value: 'numeric', viewValue:'Numérico'},
     {value: 'input', viewValue:'Texto'},
     {value: 'select', viewValue:'Select'}
   ]
-  visible = {
-    value: '',
+  visibleType = {
+    value: this.data.subDetalle.type,
     disabled: false  
   };
+
+  visibleRequired = {
+    value: this.data.subDetalle.required,
+    disabled: false  
+  };
+  visibleFormato = {
+    value: String(this.data.sub.formato),
+    disabled: false  
+  };
+
 
 
   constructor(
@@ -34,12 +45,9 @@ export class EditarDialogComponent implements OnInit {
       this.nombre = data.sub.nombre;
       this.descripcion = data.sub.descripcion;
       this.activoS = String(data.sub.activo);
+      this.formatoS = String(data.sub.formato);
       this.tipoDato = data.subDetalle.type;
       this.required = data.subDetalle.required;
-      
-
-      
-
      }
 
   ngOnInit(): void {
@@ -48,10 +56,12 @@ export class EditarDialogComponent implements OnInit {
       descripcion: [this.descripcion, Validators.required],
       nombre: [this.nombre, Validators.required],
       activo: [this.activoS, Validators.required],
-      tipoDato:[this.tipoDato, this.visible , Validators.required],
-      requerido:[this.required, this.visible,Validators.required]
+      radioFormato:[this.formatoS,this.visibleFormato, Validators.required],
+      tipoDato:[this.tipoDato, this.visibleType , Validators.required],
+      requerido:[this.required, this.visibleRequired ,Validators.required]
     });
-    this.verificarNivel();
+    this.verificarDetalle();
+    console.log(this.visibleRequired, this.visibleType)
 
   }
 
@@ -71,14 +81,36 @@ export class EditarDialogComponent implements OnInit {
     this.formEditar.reset();
   }
 
-  verificarNivel(){
-    if(this.data.nivel === 1){
-      this.visible = {
+
+
+
+  verificarDetalle(){
+    if(this.data.subDetalle.type == "" && this.data.subDetalle.required == ""){
+      this.visibleType = {
+        value: "",
+        disabled: true
+      }
+      this.visibleRequired = {
+        value: "",
+        disabled: true
+      }
+    }
+    if(this.data.ban == "plan"){
+      this.visibleType = {
+        value:  this.visibleType.value,
+        disabled: true
+      }
+      this.visibleRequired = {
+        value:this.visibleRequired.value ,
+        disabled: true
+      }
+    }
+    if(this.formatoS == "undefined"){
+      this.visibleFormato ={
         value: '',
         disabled: true
       }
     }
-
   }
 
 }
