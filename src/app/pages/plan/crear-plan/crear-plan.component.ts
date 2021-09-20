@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
 import { UserService } from '../../services/userService';
 import { UtilService } from '../../services/utilService';
@@ -17,6 +17,11 @@ export class CrearPlanComponent implements OnInit {
   formCrearPlan: FormGroup;
   tipos: any[]
   tipoPlan: any;
+  control = {
+    value: '',
+    disabled: false,
+    visible: false
+  };
 
   constructor(
     private request: RequestManager,
@@ -37,15 +42,29 @@ export class CrearPlanComponent implements OnInit {
   }
 
   createPlan() {
-    let dataPlan = {
-      nombre: this.formCrearPlan.get('nombre').value,
-      descripcion: this.formCrearPlan.get('desc').value,
-      tipo_plan_id: this.tipoPlan._id,
-      aplicativo_id: "idPlaneacion", // Valor por revisar
-      activo: JSON.parse(this.formCrearPlan.get('radioEstado').value)
+    let dataPlan
+    if(this.formCrearPlan.get('radioFormato').value == ""){
+      dataPlan = {
+        nombre: this.formCrearPlan.get('nombre').value,
+        descripcion: this.formCrearPlan.get('desc').value,
+        tipo_plan_id: this.tipoPlan._id,
+        aplicativo_id: "idPlaneacion", // Valor por revisar
+        activo: JSON.parse(this.formCrearPlan.get('radioEstado').value),
+      }
+    }else{
+
+      dataPlan = {
+        nombre: this.formCrearPlan.get('nombre').value,
+        descripcion: this.formCrearPlan.get('desc').value,
+        tipo_plan_id: this.tipoPlan._id,
+        aplicativo_id: "idPlaneacion", // Valor por revisar
+        activo: JSON.parse(this.formCrearPlan.get('radioEstado').value),
+        formato: JSON.parse(this.formCrearPlan.get('radioFormato').value)
+      }
     }
+   
     this.request.post(environment.PLANES_CRUD, 'plan', dataPlan).subscribe(
-      (data: any) => {
+      (data) => {
         if(data){         
           Swal.fire({
             title: 'Registro correcto',
@@ -70,7 +89,15 @@ export class CrearPlanComponent implements OnInit {
 
   select(tipo){
     this.tipoPlan = tipo;
+    if(tipo.nombre === "Plan"){
+      this.control.disabled = false
+      this.control.visible = true
+    }else if(tipo.nombre ==="Proyecto"){
+      this.control.disabled = true
+      this.control.visible = false
+    }
   }
+
 
   loadTipos(){
     this.request.get(environment.PLANES_CRUD, `tipo-plan`).subscribe((data: any) => {
@@ -87,13 +114,15 @@ export class CrearPlanComponent implements OnInit {
       })
     })
   }
-
+  
   ngOnInit(): void {
     this.formCrearPlan = this.formBuilder.group({
       nombre: ['', Validators.required],
       desc: ['', Validators.required],
       tipo: ['', Validators.required],
       radioEstado: ['', Validators.required],
+      radioFormato: ['',this.control, Validators.required]
     });
   }
+
 }

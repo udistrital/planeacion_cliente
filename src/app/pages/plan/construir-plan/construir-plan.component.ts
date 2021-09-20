@@ -82,7 +82,7 @@ export class ConstruirPlanComponent implements OnInit {
             dato: JSON.stringify(dato),
             activo: JSON.parse(res.activo)
           } 
-          if(dataSubDetalle.dato.length > 10){
+          if(dato.type != "" && dato.required != ""){
             this.request.post(environment.PLANES_CRUD, 'subgrupo-detalle', dataSubDetalle).subscribe(
               (data: any) =>{
                 if(!data){
@@ -153,17 +153,34 @@ export class ConstruirPlanComponent implements OnInit {
       if(data.Data.length > 0){ 
         this.request.put(environment.PLANES_CRUD, `subgrupo-detalle`, subgrupoDetalle, data.Data[0]._id).subscribe((data:any) =>{
           this.request.put(environment.PLANES_CRUD, `subgrupo`, subgrupo, this.uid).subscribe((data: any) => {
-            if(data){
-              Swal.fire({
-                title: 'Actualización correcta',
-                text: `Se actualizaron correctamente los datos`,
-                icon: 'success',
-              }).then((result) => {
-                if (result.value) {
-                  this.eventChange.emit(true);
+            if(data.Data.activo == false){
+              this.request.put(environment.PLANES_CRUD, `subgrupo/delete_nodo`, subgrupo, this.uid).subscribe((data: any) => {
+                if(data){
+                  Swal.fire({
+                    title: 'Actualización correcta',
+                    text: `Se actualizaron correctamente los datos`,
+                    icon: 'success',
+                  }).then((result) => {
+                    if (result.value) {
+                      this.eventChange.emit(true);
+                    }
+                  })
                 }
-              })
-            }
+              }) 
+            }else{
+              if(data){
+                Swal.fire({
+                  title: 'Actualización correcta',
+                  text: `Se actualizaron correctamente los datos`,
+                  icon: 'success',
+                }).then((result) => {
+                  if (result.value) {
+                    this.eventChange.emit(true);
+                  }
+                })
+              }
+            } 
+           
           }),
           (error) => {
             Swal.fire({
