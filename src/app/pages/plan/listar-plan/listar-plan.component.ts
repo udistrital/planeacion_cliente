@@ -39,11 +39,11 @@ export class ListarPlanComponent implements OnInit {
     }
   }
 
-  openDialogEditar(sub): void {
+  openDialogEditar(sub, subDetalle): void {
     const dialogRef = this.dialog.open(EditarDialogComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
-      data: {ban: 'plan', sub}
+      data: {ban: 'plan', sub, subDetalle}
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -191,7 +191,11 @@ export class ListarPlanComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `plan/`+this.uid).subscribe((data: any) => {
       if(data){
         this.plan = data.Data;
-        this.openDialogEditar(this.plan);  
+        let subgrupoDetalle={
+          type: "",
+          required: false
+        }
+        this.openDialogEditar(this.plan, subgrupoDetalle);  
       }
     }),
     (error) => {
