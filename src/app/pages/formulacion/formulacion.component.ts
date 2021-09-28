@@ -18,14 +18,18 @@ export class FormulacionComponent implements OnInit {
   activedStep = 0;
   form: FormGroup;
   planes: any[];
+  unidades: any[];
+  vigencias: any[];
   planSelected: boolean;
   unidadSelected: boolean;
   vigenciaSelected: boolean;
   addActividad: boolean;
   plan: any;
+  unidad: any;
+  vigencia: any;
   steps: any[];
   json: any;
-  estado: string = "2";
+  estado: string = "1";
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -34,6 +38,8 @@ export class FormulacionComponent implements OnInit {
     private request: RequestManager,
   ) {
     this.loadPlanes();
+    this.loadPeriodos();
+    this.loadUnidades();
     this.addActividad = false;
     this.planSelected = false;
     this.unidadSelected = false;
@@ -49,6 +55,38 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
+  loadUnidades(){
+    this.request.get(environment.OIKOS_SERVICE, `dependencia?limit=0`).subscribe((data: any) => {
+      if (data){
+        this.unidades = data;
+      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  loadPeriodos(){
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG`).subscribe((data: any) => {
+      if (data){
+        this.vigencias = data.Data;
+      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
   loadPlanes(){
     this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
       if (data){
@@ -58,7 +96,7 @@ export class FormulacionComponent implements OnInit {
     },(error) => {
       Swal.fire({
         title: 'Error en la operación', 
-        text: 'No se encontraron datos registrados',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
@@ -82,34 +120,6 @@ export class FormulacionComponent implements OnInit {
   ngOnInit(): void {
     
   }
-
-  unidades: any[] = [{
-    id: "131",
-    nombre: "Unidad nombre 1",
-  },
-  {
-    id: "121",
-    nombre: "Unidad nombre 2",
-  },
-  {
-    id: "111",
-    nombre: "Unidad nombre 3",
-  }
-  ]
-
-  vigencias: any[] = [{
-    id: "131",
-    nombre: "Vigencia 2021",
-  },
-  {
-    id: "121",
-    nombre: "Vigencia 2022",
-  },
-  {
-    id: "111",
-    nombre: "Vigencia 2023",
-  }
-  ]
 
   planes1: any[] = [
     {
@@ -263,6 +273,7 @@ export class FormulacionComponent implements OnInit {
       this.unidadSelected = false;
     } else {
       this.unidadSelected = true;
+      this.unidad = unidad;
     }
   }
 
@@ -271,6 +282,7 @@ export class FormulacionComponent implements OnInit {
       this.vigenciaSelected = false;
     } else {
       this.vigenciaSelected = true;
+      this.vigencia = vigencia;
       //this.cargaFormato(this.plan);
       this.loadData();
     }
@@ -323,31 +335,31 @@ export class FormulacionComponent implements OnInit {
           "613adc09df020f83dd56ee8a": "",
           "613b4b71df020f6c0456f06f": "",
           "613b4cf0df020f4f1156f19f": "", 
-          "6139894fdf020f41fc56e5afo": "",
-          "613991a6df020f6a5556e5b7o": "",
-          "613991d1df020ff74556e5c2o": "",
-          "613991e3df020f680656e5cfo": "",
-          "613991f4df020fd61956e5deo": "",
-          "61399208df020f3fea56e5efo": "",
-          "613acf8edf020f82a056eb2bo": "",
-          "613ad17adf020f2d0f56eb70o": "",
-          "613ad189df020f10fb56eb85o": "",
-          "613ad1a3df020f474756ebb0o": "",
-          "613ad1b4df020f3f0d56ebc9o": "",
-          "613ad1cfdf020f4e0156ebe4o": "",
-          "613ad1eadf020f305a56ec01o": "",
-          "613ad203df020f799a56ec20o": "",
-          "613ad21adf020f6fc156ec41o": "",
-          "613ad22fdf020fd90856ec78o": "",
-          "613ad247df020f2ea656ec9do": "",
-          "613ad25cdf020fd15156ecc4o": "",
-          "613ad46edf020fed5256edd8o": "",
-          "613adb88df020fdb1e56edfeo": "",
-          "613adb9cdf020f00f656ee29o": "",
-          "613adbcadf020f74af56ee56o": "",
-          "613adc09df020f83dd56ee8ao": "",
-          "613b4b71df020f6c0456f06fo": "",
-          "613b4cf0df020f4f1156f19fo": ""
+          // "6139894fdf020f41fc56e5afo": "",
+          // "613991a6df020f6a5556e5b7o": "",
+          // "613991d1df020ff74556e5c2o": "",
+          // "613991e3df020f680656e5cfo": "",
+          // "613991f4df020fd61956e5deo": "",
+          // "61399208df020f3fea56e5efo": "",
+          // "613acf8edf020f82a056eb2bo": "",
+          // "613ad17adf020f2d0f56eb70o": "",
+          // "613ad189df020f10fb56eb85o": "",
+          // "613ad1a3df020f474756ebb0o": "",
+          // "613ad1b4df020f3f0d56ebc9o": "",
+          // "613ad1cfdf020f4e0156ebe4o": "",
+          // "613ad1eadf020f305a56ec01o": "",
+          // "613ad203df020f799a56ec20o": "",
+          // "613ad21adf020f6fc156ec41o": "",
+          // "613ad22fdf020fd90856ec78o": "",
+          // "613ad247df020f2ea656ec9do": "",
+          // "613ad25cdf020fd15156ecc4o": "",
+          // "613ad46edf020fed5256edd8o": "",
+          // "613adb88df020fdb1e56edfeo": "",
+          // "613adb9cdf020f00f656ee29o": "",
+          // "613adbcadf020f74af56ee56o": "",
+          // "613adc09df020f83dd56ee8ao": "",
+          // "613b4b71df020f6c0456f06fo": "",
+          // "613b4cf0df020f4f1156f19fo": ""
           }
         this.form = this.formBuilder.group(this.json);
         // this.form = this.formBuilder.group({
