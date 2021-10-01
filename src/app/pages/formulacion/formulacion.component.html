@@ -1,50 +1,62 @@
 <!-- SELECCIÓN -->
 <mat-card class="card-oas">
   <mat-card-header>
-    <mat-card-title>Selección de Plan</mat-card-title>
+    <mat-card-title>Formulación de Planes</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <mat-form-field appearance="fill" [style.width.%]="100">
-      <mat-label id="tipo-input-label">Seleccionar Plan</mat-label>
-        <mat-select (selectionChange)="onChangeP($event.value)">
-          <mat-option>--</mat-option>
-          <mat-option *ngFor="let plan of planes" [value]="plan">
-            {{plan.nombre}}
-          </mat-option>
-        </mat-select>
-    </mat-form-field>
+    <ng-container>
+      <mat-form-field appearance="fill" [style.width.%]="100">
+        <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
+          <mat-select (selectionChange)="onChangeU($event.value)">
+            <mat-option>--</mat-option>
+            <mat-option *ngFor="let unidad of unidades" [value]="unidad">
+              {{unidad.Nombre}}
+            </mat-option>
+          </mat-select>
+      </mat-form-field>
+    </ng-container>
+    <ng-container *ngIf="unidadSelected">
+      <mat-form-field appearance="fill" [style.width.%]="100">
+        <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
+          <mat-select (selectionChange)="onChangeV($event.value)">
+            <mat-option>--</mat-option>
+            <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
+              {{vigencia.Nombre}}
+            </mat-option>
+          </mat-select>
+      </mat-form-field>
+    </ng-container>
+    <ng-container *ngIf="vigenciaSelected">
+      <mat-form-field appearance="fill" [style.width.%]="100">
+        <mat-label id="tipo-input-label">Seleccione el Plan</mat-label>
+          <mat-select (selectionChange)="onChangeP($event.value)">
+            <mat-option>--</mat-option>
+            <mat-option *ngFor="let plan of planes" [value]="plan">
+              {{plan.nombre}}
+            </mat-option>
+          </mat-select>
+      </mat-form-field>
+    </ng-container>
   </mat-card-content>
-  <ng-container *ngIf="planSelected">
-    <mat-form-field appearance="fill" [style.width.%]="100">
-      <mat-label id="tipo-input-label">Seleccionar Unidad</mat-label>
-        <mat-select (selectionChange)="onChangeU($event.value)">
-          <mat-option>--</mat-option>
-          <mat-option *ngFor="let unidad of unidades" [value]="unidad">
-            {{unidad.Nombre}}
-          </mat-option>
-        </mat-select>
-    </mat-form-field>
-  </ng-container>
-  <ng-container *ngIf="unidadSelected">
-    <mat-form-field appearance="fill" [style.width.%]="100">
-      <mat-label id="tipo-input-label">Seleccionar Vigencia</mat-label>
-        <mat-select (selectionChange)="onChangeV($event.value)">
-          <mat-option>--</mat-option>
-          <mat-option *ngFor="let vigencia of vigencias" [value]="vigencias">
-            {{vigencia.Nombre}}
-          </mat-option>
-        </mat-select>
-    </mat-form-field>
-  </ng-container>
+  <mat-card-footer *ngIf="clonar" style="text-align: center;">
+    <ng-container>
+      <button mat-raised-button color="primary" (click)="formularPlan()">
+        Formular plan
+      </button>
+    </ng-container>
+    <br><br>
+  </mat-card-footer>
 </mat-card>
+
 <br><br>
+
 <!-- FORMULACIÓN -->
-<mat-card class="card-oas" *ngIf="vigenciaSelected">
+<mat-card class="card-oas" *ngIf="!clonar && planAsignado">
   <mat-card-header>
-    <mat-card-title>Formulación {{plan.nombre}}</mat-card-title>
+    <mat-card-title *ngIf="plan != undefined">Formulación {{plan.nombre}}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <!-- TABLA ESTÁTICA -->
+    <!-- TABLA ESTÁTICA
     <mat-form-field appearance="standard" [style.width.%]="50">
       <mat-label>Búsqueda</mat-label>
       <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Actividad" #input>
@@ -89,7 +101,7 @@
       </table>
       <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
     </div>
-    <br><br>
+    <br><br> -->
     <mat-card class="card-oas-int" *ngIf="addActividad">
     <!-- FORMULARIO -->
     <mat-card-content>
@@ -216,6 +228,4 @@
     <br><br>
   </mat-card-footer>
 </mat-card>
-
-    
   

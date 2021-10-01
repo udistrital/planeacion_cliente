@@ -21,6 +21,7 @@ export class FormulacionComponent implements OnInit {
   unidades: any[];
   vigencias: any[];
   planSelected: boolean;
+  planAsignado: boolean;
   unidadSelected: boolean;
   vigenciaSelected: boolean;
   addActividad: boolean;
@@ -30,6 +31,7 @@ export class FormulacionComponent implements OnInit {
   steps: any[];
   json: any;
   estado: string = "1";
+  clonar: boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -44,6 +46,7 @@ export class FormulacionComponent implements OnInit {
     this.planSelected = false;
     this.unidadSelected = false;
     this.vigenciaSelected = false;
+    this.clonar = false;
    }
 
    applyFilter(event: Event) {
@@ -251,23 +254,6 @@ export class FormulacionComponent implements OnInit {
     return dataAux.filter(e => e.activo == true);
   }  
 
-  onChangeP(plan){
-    // if (plan == undefined){
-    //   this.tipoPlanId = undefined;
-    // } else {
-    //   this.tipoPlanId = plan.tipo_plan_id;
-    //   this.idPadre = plan._id; // id plan
-    // }
-    if (plan == undefined){
-      this.planSelected = false;
-    } else {
-      this.planSelected = true;
-      this.plan = plan;
-      this.addActividad = false;
-      //this.cargaFormato(this.plan);
-    }
-  }
-
   onChangeU(unidad){
     if (unidad == undefined){
       this.unidadSelected = false;
@@ -283,9 +269,51 @@ export class FormulacionComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
+      console.log(this.vigencia)
       //this.cargaFormato(this.plan);
-      this.loadData();
+      //this.loadData();
     }
+  }
+
+  onChangeP(plan){
+    // if (plan == undefined){
+    //   this.tipoPlanId = undefined;
+    // } else {
+    //   this.tipoPlanId = plan.tipo_plan_id;
+    //   this.idPadre = plan._id; // id plan
+    // }
+    if (plan == undefined){
+      this.planSelected = false;
+    } else {
+      this.busquedaPlanes(plan);
+      //this.planSelected = true;
+      //this.plan = plan;
+      //this.addActividad = false;
+      //this.cargaFormato(this.plan);
+    }
+  }
+
+  //'sintomas?limit=1&order=desc&sortby=fecha_creacion&query=terceroId:'+ this.tercero.Id
+
+  busquedaPlanes(planB){
+    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:`+this.unidad.Id+`,vigencia:`+
+    this.vigencia.Id+`,formato:false,nombre:`+planB.nombre).subscribe((data: any) => {
+      if (data.Data.length > 0){
+        this.plan = data.Data;
+        this.planAsignado = true;
+      } else if (data.Data.length == 0) {
+        this.clonar = true;
+        this.plan = planB;
+      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   loadData(){
@@ -429,6 +457,12 @@ export class FormulacionComponent implements OnInit {
     this.infoPlan.forEach(function(elemento) {
       elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
     })
+  }
+
+  formularPlan(){
+    // CLONAR
+    this.clonar = false;
+    this.planAsignado = true;
   }
 
   ocultar() {
