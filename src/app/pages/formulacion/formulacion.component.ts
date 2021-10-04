@@ -396,6 +396,9 @@ export class FormulacionComponent implements OnInit {
       cancelButtonText: `No`,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
+        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data:any) =>{
+          if(data){
             Swal.fire({
               title: 'Plan enviado', 
               icon: 'success',
@@ -405,6 +408,9 @@ export class FormulacionComponent implements OnInit {
                 this.addActividad = false;
               }
             })
+          }
+        })
+           
           } else if (result.dismiss === Swal.DismissReason.cancel) {
             Swal.fire({
               title: 'Envío cancelado', 
