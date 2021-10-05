@@ -118,7 +118,6 @@
                   {{subs.nombre}}
                 </mat-panel-title>
                 <mat-panel-description>
-                  
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <ng-container *ngIf="subs.sub">
@@ -129,10 +128,8 @@
                     <mat-expansion-panel-header>
                       <mat-panel-title>{{subpanel.nombre}}</mat-panel-title>
                       <mat-panel-description>
-
                       </mat-panel-description>
                     </mat-expansion-panel-header>
-                    
                     <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.type == 'input'">
                       <mat-label>Digite la información:</mat-label>
                       <textarea matInput formControlName="{{subpanel.id}}" placeholder="Escriba la información deseada" required="{{subpanel.required}}"></textarea>
@@ -152,9 +149,7 @@
                         </mat-select>
                     </mat-form-field>
                     <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="subpanel.type == 'button'" (click)="but()">Foo</button>
-
                     <!-- OBSERVACIÓN -->
-
                     <ng-container *ngIf="estado != '614d3ad301c7a200482fabfd'">
                       <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.required == 'true'">
                         <mat-label>Campo de observación:</mat-label>
@@ -162,7 +157,6 @@
                         <mat-icon matSuffix>create</mat-icon>
                       </mat-form-field>
                     </ng-container>
-
                   </mat-expansion-panel>
                 </mat-accordion>
               </ng-container>
@@ -185,7 +179,6 @@
                   </mat-select>
               </mat-form-field>
               <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="subs.type == 'button'" (click)="but()">Foo</button>
-
               <!-- OBSERVACIÓN -->
               <ng-container *ngIf="estado != '614d3ad301c7a200482fabfd'">
                 <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.required == 'true'">
@@ -194,7 +187,6 @@
                   <mat-icon matSuffix>create</mat-icon>
                 </mat-form-field>
               </ng-container>
-
             </mat-expansion-panel>
           </mat-accordion>
           <br><br>
@@ -228,4 +220,3 @@
     <br><br>
   </mat-card-footer>
 </mat-card>
-  
