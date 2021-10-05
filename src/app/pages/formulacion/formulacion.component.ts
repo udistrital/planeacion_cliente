@@ -30,7 +30,7 @@ export class FormulacionComponent implements OnInit {
   vigencia: any;
   steps: any[];
   json: any;
-  estado: string = "1";
+  estado: string;
   clonar: boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -214,6 +214,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   submit() {
+    // PUT ACTIVIDAD
     Swal.fire({
       title: 'Registro agregado', 
       text: `Acción generada: ${JSON.stringify(this.form.value)}`,
@@ -299,9 +300,18 @@ export class FormulacionComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:`+this.unidad.Id+`,vigencia:`+
     this.vigencia.Id+`,formato:false,nombre:`+planB.nombre).subscribe((data: any) => {
       if (data.Data.length > 0){
-        this.plan = data.Data;
+        this.plan = data.Data[0];
+        //console.log(this.plan)
         this.planAsignado = true;
       } else if (data.Data.length == 0) {
+        Swal.fire({
+          title: 'Formulación nuevo plan', 
+          text: `No existe plan para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}. 
+          Se formulará un nuevo plan`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 7000
+        })
         this.clonar = true;
         this.plan = planB;
       }
@@ -330,65 +340,77 @@ export class FormulacionComponent implements OnInit {
   }
 
   cargaFormato(plan){
+    Swal.fire({
+      title: 'Cargando formato',
+      timerProgressBar: true,
+      showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+    })
     this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
       if (data){
+        //console.log(data)
+        Swal.close();
+        this.estado = plan.estado_plan_id;
         this.steps = data[0]
-        //this.json = data[1][0]
+        this.json = data[1][0]
         //console.log(this.json)
         //this.json.push
 
-        this.json = {
-          "6139894fdf020f41fc56e5af": "",
-          "613991a6df020f6a5556e5b7": "",
-          "613991d1df020ff74556e5c2": "",
-          "613991e3df020f680656e5cf": "",
-          "613991f4df020fd61956e5de": "",
-          "61399208df020f3fea56e5ef": "",
-          "613acf8edf020f82a056eb2b": "",
-          "613ad17adf020f2d0f56eb70": "",
-          "613ad189df020f10fb56eb85": "",
-          "613ad1a3df020f474756ebb0": "",
-          "613ad1b4df020f3f0d56ebc9": "",
-          "613ad1cfdf020f4e0156ebe4": "",
-          "613ad1eadf020f305a56ec01": "",
-          "613ad203df020f799a56ec20": "",
-          "613ad21adf020f6fc156ec41": "",
-          "613ad22fdf020fd90856ec78": "",
-          "613ad247df020f2ea656ec9d": "",
-          "613ad25cdf020fd15156ecc4": "",
-          "613ad46edf020fed5256edd8": "",
-          "613adb88df020fdb1e56edfe": "",
-          "613adb9cdf020f00f656ee29": "",
-          "613adbcadf020f74af56ee56": "",
-          "613adc09df020f83dd56ee8a": "",
-          "613b4b71df020f6c0456f06f": "",
-          "613b4cf0df020f4f1156f19f": "", 
-          // "6139894fdf020f41fc56e5afo": "",
-          // "613991a6df020f6a5556e5b7o": "",
-          // "613991d1df020ff74556e5c2o": "",
-          // "613991e3df020f680656e5cfo": "",
-          // "613991f4df020fd61956e5deo": "",
-          // "61399208df020f3fea56e5efo": "",
-          // "613acf8edf020f82a056eb2bo": "",
-          // "613ad17adf020f2d0f56eb70o": "",
-          // "613ad189df020f10fb56eb85o": "",
-          // "613ad1a3df020f474756ebb0o": "",
-          // "613ad1b4df020f3f0d56ebc9o": "",
-          // "613ad1cfdf020f4e0156ebe4o": "",
-          // "613ad1eadf020f305a56ec01o": "",
-          // "613ad203df020f799a56ec20o": "",
-          // "613ad21adf020f6fc156ec41o": "",
-          // "613ad22fdf020fd90856ec78o": "",
-          // "613ad247df020f2ea656ec9do": "",
-          // "613ad25cdf020fd15156ecc4o": "",
-          // "613ad46edf020fed5256edd8o": "",
-          // "613adb88df020fdb1e56edfeo": "",
-          // "613adb9cdf020f00f656ee29o": "",
-          // "613adbcadf020f74af56ee56o": "",
-          // "613adc09df020f83dd56ee8ao": "",
-          // "613b4b71df020f6c0456f06fo": "",
-          // "613b4cf0df020f4f1156f19fo": ""
-          }
+        // this.json = {
+        //   "6139894fdf020f41fc56e5af": "",
+        //   "613991a6df020f6a5556e5b7": "",
+        //   "613991d1df020ff74556e5c2": "",
+        //   "613991e3df020f680656e5cf": "",
+        //   "613991f4df020fd61956e5de": "",
+        //   "61399208df020f3fea56e5ef": "",
+        //   "613acf8edf020f82a056eb2b": "",
+        //   "613ad17adf020f2d0f56eb70": "",
+        //   "613ad189df020f10fb56eb85": "",
+        //   "613ad1a3df020f474756ebb0": "",
+        //   "613ad1b4df020f3f0d56ebc9": "",
+        //   "613ad1cfdf020f4e0156ebe4": "",
+        //   "613ad1eadf020f305a56ec01": "",
+        //   "613ad203df020f799a56ec20": "",
+        //   "613ad21adf020f6fc156ec41": "",
+        //   "613ad22fdf020fd90856ec78": "",
+        //   "613ad247df020f2ea656ec9d": "",
+        //   "613ad25cdf020fd15156ecc4": "",
+        //   "613ad46edf020fed5256edd8": "",
+        //   "613adb88df020fdb1e56edfe": "",
+        //   "613adb9cdf020f00f656ee29": "",
+        //   "613adbcadf020f74af56ee56": "",
+        //   "613adc09df020f83dd56ee8a": "",
+        //   "613b4b71df020f6c0456f06f": "",
+        //   "613b4cf0df020f4f1156f19f": "", 
+        //   "6139894fdf020f41fc56e5afo": "",
+        //   "613991a6df020f6a5556e5b7o": "",
+        //   "613991d1df020ff74556e5c2o": "",
+        //   "613991e3df020f680656e5cfo": "",
+        //   "613991f4df020fd61956e5deo": "",
+        //   "61399208df020f3fea56e5efo": "",
+        //   "613acf8edf020f82a056eb2bo": "",
+        //   "613ad17adf020f2d0f56eb70o": "",
+        //   "613ad189df020f10fb56eb85o": "",
+        //   "613ad1a3df020f474756ebb0o": "",
+        //   "613ad1b4df020f3f0d56ebc9o": "",
+        //   "613ad1cfdf020f4e0156ebe4o": "",
+        //   "613ad1eadf020f305a56ec01o": "",
+        //   "613ad203df020f799a56ec20o": "",
+        //   "613ad21adf020f6fc156ec41o": "",
+        //   "613ad22fdf020fd90856ec78o": "",
+        //   "613ad247df020f2ea656ec9do": "",
+        //   "613ad25cdf020fd15156ecc4o": "",
+        //   "613ad46edf020fed5256edd8o": "",
+        //   "613adb88df020fdb1e56edfeo": "",
+        //   "613adb9cdf020f00f656ee29o": "",
+        //   "613adbcadf020f74af56ee56o": "",
+        //   "613adc09df020f83dd56ee8ao": "",
+        //   "613b4b71df020f6c0456f06fo": "",
+        //   "613b4cf0df020f4f1156f19fo": ""
+        //   }
+        console.log(this.estado)
         this.form = this.formBuilder.group(this.json);
         // this.form = this.formBuilder.group({
         //   "613991a6df020f6a5556e5b7": "3"
@@ -416,6 +438,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   culminarPlan() {
+    // Revisar si tiene actividades (!)
     Swal.fire({
       title: 'Envío de Plan',
       text: `¿Está seguro de enviar plan para revisión?`,
@@ -461,8 +484,41 @@ export class FormulacionComponent implements OnInit {
 
   formularPlan(){
     // CLONAR
-    this.clonar = false;
-    this.planAsignado = true;
+    let parametros = {
+      "dependencia_id": String(this.unidad.Id),
+      "vigencia": String(this.vigencia.Id)
+    }
+    this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/`+this.plan._id, parametros).subscribe((data: any) => {
+      if (data){
+          let upd = {
+            estado_plan_id:"614d3ad301c7a200482fabfd"
+          }
+          this.request.put(environment.PLANES_CRUD, `plan`, upd, data.Data._id).subscribe((dataPut: any) => {
+            if(dataPut){
+              this.plan = dataPut.Data;
+              //console.log(this.plan);
+              Swal.fire({
+                title: 'Formulación nuevo plan', 
+                text: `Plan creado satisfactoriamente`,
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 4000
+              })
+              this.clonar = false;
+              this.planAsignado = true;
+            }
+          })
+      }
+    }),
+    (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    }
   }
 
   ocultar() {

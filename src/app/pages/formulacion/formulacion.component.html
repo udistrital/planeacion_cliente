@@ -1,4 +1,4 @@
-<!-- SELECCIÓN -->
+<!-- SELECCIÓN MENÚ PRINCIPAL -->
 <mat-card class="card-oas">
   <mat-card-header>
     <mat-card-title>Formulación de Planes</mat-card-title>
@@ -155,10 +155,10 @@
 
                     <!-- OBSERVACIÓN -->
 
-                    <ng-container *ngIf="estado == '2'">
+                    <ng-container *ngIf="estado != '614d3ad301c7a200482fabfd'">
                       <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.required == 'true'">
                         <mat-label>Campo de observación:</mat-label>
-                        <textarea matInput formControlName="{{subpanel.id+'o'}}" placeholder="Escriba la observación" required="false"></textarea>
+                        <textarea matInput formControlName="{{subpanel.id+'_o'}}" placeholder="Escriba la observación" required="false"></textarea>
                         <mat-icon matSuffix>create</mat-icon>
                       </mat-form-field>
                     </ng-container>
@@ -187,10 +187,10 @@
               <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="subs.type == 'button'" (click)="but()">Foo</button>
 
               <!-- OBSERVACIÓN -->
-              <ng-container *ngIf="estado == '2'">
+              <ng-container *ngIf="estado != '614d3ad301c7a200482fabfd'">
                 <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.required == 'true'">
                   <mat-label>Campo de observación:</mat-label>
-                  <textarea matInput formControlName="{{subs.id+'o'}}" placeholder="Escriba la observación" required="false"></textarea>
+                  <textarea matInput formControlName="{{subs.id+'_o'}}" placeholder="Escriba la observación" required="false"></textarea>
                   <mat-icon matSuffix>create</mat-icon>
                 </mat-form-field>
               </ng-container>
