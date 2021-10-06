@@ -21,15 +21,19 @@ export class FormulacionComponent implements OnInit {
   unidades: any[];
   vigencias: any[];
   planSelected: boolean;
+  planAsignado: boolean;
   unidadSelected: boolean;
   vigenciaSelected: boolean;
   addActividad: boolean;
   plan: any;
+  planAux: any;
   unidad: any;
   vigencia: any;
   steps: any[];
   json: any;
-  estado: string = "1";
+  estado: string;
+  clonar: boolean;
+  panelOpenState = true;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -44,9 +48,15 @@ export class FormulacionComponent implements OnInit {
     this.planSelected = false;
     this.unidadSelected = false;
     this.vigenciaSelected = false;
+    this.clonar = false;
    }
 
-   applyFilter(event: Event) {
+  displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo', 'actions'];
+  dataSource: MatTableDataSource<any>;
+
+  ngOnInit(): void {}
+
+  applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
 
@@ -88,7 +98,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   loadPlanes(){
-    this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.planes = this.filterPlanes(this.planes);
@@ -103,53 +113,6 @@ export class FormulacionComponent implements OnInit {
       })
     })
   }
-
-  // json: any = {
-  //   "Meta_Plan_de_Accion_2022": "",
-  //   //"Meta_SEGPLAN": "",
-  //   "Tipo_Meta": "",
-  //   "Descripcion_Meta": "",
-  //   "Formula_indicador": "",
-  //   "Some_Value": "",
-  //   "Some_Value_2": "",
-  // }
-
-  displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo', 'actions'];
-  dataSource: MatTableDataSource<any>;
-
-  ngOnInit(): void {
-    
-  }
-
-  planes1: any[] = [
-    {
-      nombre: "Primera",
-      descripcion: "d"
-    },
-    {
-      nombre: "Segunda",
-      descripcion: "d"
-    },
-    {
-      nombre: "Tercera",
-      descripcion: "d"
-    },
-    {
-      nombre: "Cuarta",
-      descripcion: "d"
-    },
-  ] 
-
-  planes2: any[] = [
-    {
-      nombre: "Primera Otra",
-      descripcion: "d"
-    },
-    {
-      nombre: "Segunda Otra",
-      descripcion: "d"
-    },
-  ]
 
   infoPlan: any[] = [
     {
@@ -178,30 +141,6 @@ export class FormulacionComponent implements OnInit {
     }
   ]
 
-  // steps: any[] = [
-  //   {
-  //     id: 'Meta - Some Value',
-  //     sub: [
-  //       {id: 'Meta Plan de Accion 2022', type: 'input', key: "Meta_Plan_de_Accion_2022", required: "true"},
-  //       {id: 'Meta SEGPLAN', type: 'input', key: "Meta_SEGPLAN", required: "false"},
-  //       {id: 'Tipo Meta', type: 'select', key: "Tipo_Meta", options: this.planes1, required: "true"},
-  //       {id: 'Descripcion Meta', type: 'input', key: "Descripcion_Meta", required: "true"},
-  //       {id: 'Formula indicador', type: 'number', key: "Formula_indicador", required: "true"},
-  //     ],
-  //   },{
-  //     id: 'Programación de Magnitudes',
-  //     sub: [
-  //       {id: 'Some Value', type: 'button', key: "Some_Value", required: "true"},
-  //       {id: 'Some Value 2', type: 'select', key: "Some_Value_2", options: this.planes2, required: "true"},
-  //     ]
-  //   },{
-  //     id: 'Programación de Presupuestal',
-  //     sub: [
-  //       {id: 'Maybe Some Value'},
-  //     ]
-  //   }
-  // ]
-
   prevStep(step) {
     this.activedStep = step - 1;
   }
@@ -211,31 +150,22 @@ export class FormulacionComponent implements OnInit {
   }
 
   submit() {
-    Swal.fire({
-      title: 'Registro agregado', 
-      text: `Acción generada: ${JSON.stringify(this.form.value)}`,
-      icon: 'success'
-    }).then((result) => {
-      if (result.value) {
-        this.infoPlan.push({
-          numero: "4",
-          nombre: "Nombre 4",
-          rubro: "Rubro 4",
-          valor: "Valor 4",
-          observacion: "No Existe",
-          activo: true
+    this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, this.form.value, this.plan._id).subscribe((data : any) => {
+      if (data){
+        Swal.fire({
+          title: 'Actividad agregada', 
+          //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+          text: 'La actividad se ha registrado satisfactoriamente',
+          icon: 'success'
+        }).then((result) => {
+          if (result.value) {
+            this.loadData()
+            this.form.reset();
+            this.addActividad = false;
+          }
         })
-        this.loadData()
-        this.form.reset();
-        this.addActividad = false;
-        //window.location.reload();
       }
     })
-    //alert(JSON.stringify(this.form.value));
-  }
-
-  but() {
-    alert("Hola");
   }
 
   getErrorMessage(campo: FormControl) {
@@ -251,29 +181,15 @@ export class FormulacionComponent implements OnInit {
     return dataAux.filter(e => e.activo == true);
   }  
 
-  onChangeP(plan){
-    // if (plan == undefined){
-    //   this.tipoPlanId = undefined;
-    // } else {
-    //   this.tipoPlanId = plan.tipo_plan_id;
-    //   this.idPadre = plan._id; // id plan
-    // }
-    if (plan == undefined){
-      this.planSelected = false;
-    } else {
-      this.planSelected = true;
-      this.plan = plan;
-      this.addActividad = false;
-      //this.cargaFormato(this.plan);
-    }
-  }
-
   onChangeU(unidad){
     if (unidad == undefined){
       this.unidadSelected = false;
     } else {
       this.unidadSelected = true;
       this.unidad = unidad;
+      if (this.vigenciaSelected && this.planSelected){
+        this.busquedaPlanes(this.planAux);
+      }
     }
   }
 
@@ -283,13 +199,57 @@ export class FormulacionComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
-      //this.cargaFormato(this.plan);
-      this.loadData();
+      if (this.unidadSelected && this.planSelected){
+        this.busquedaPlanes(this.planAux);
+      }
     }
   }
 
+  onChangeP(plan){
+    if (plan == undefined){
+      this.planSelected = false;
+    } else {
+      this.planAux = plan;
+      this.planSelected = true;
+      this.busquedaPlanes(plan);
+    }
+  }
+
+  busquedaPlanes(planB){
+    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:`+this.unidad.Id+`,vigencia:`+
+    this.vigencia.Id+`,formato:false,nombre:`+planB.nombre).subscribe((data: any) => {
+      if (data.Data.length > 0){
+        this.plan = data.Data[0];
+        this.planAsignado = true;
+        this.clonar = false;
+      } else if (data.Data.length == 0) {
+        Swal.fire({
+          title: 'Formulación nuevo plan', 
+          html:'No existe plan <b>'+planB.nombre+'</b> <br>' +
+              'para la dependencia <b>'+this.unidad.Nombre+'</b> y la <br>' +
+              'vigencia <b>'+this.vigencia.Nombre+'</b><br></br>'+
+              '<i>Deberá formular el plan</i>',
+          // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}. 
+          // Deberá formular un nuevo plan`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 7000
+        })
+        this.clonar = true;
+        this.plan = planB;
+      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
   loadData(){
-    // carga de la tabla
     this.ajustarData();
   }
 
@@ -302,69 +262,21 @@ export class FormulacionComponent implements OnInit {
   }
 
   cargaFormato(plan){
+    Swal.fire({
+      title: 'Cargando formato',
+      timerProgressBar: true,
+      showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+    })
     this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
       if (data){
+        Swal.close();
+        this.estado = plan.estado_plan_id;
         this.steps = data[0]
-        //this.json = data[1][0]
-        //console.log(this.json)
-        //this.json.push
-
-        this.json = {
-          "6139894fdf020f41fc56e5af": "",
-          "613991a6df020f6a5556e5b7": "",
-          "613991d1df020ff74556e5c2": "",
-          "613991e3df020f680656e5cf": "",
-          "613991f4df020fd61956e5de": "",
-          "61399208df020f3fea56e5ef": "",
-          "613acf8edf020f82a056eb2b": "",
-          "613ad17adf020f2d0f56eb70": "",
-          "613ad189df020f10fb56eb85": "",
-          "613ad1a3df020f474756ebb0": "",
-          "613ad1b4df020f3f0d56ebc9": "",
-          "613ad1cfdf020f4e0156ebe4": "",
-          "613ad1eadf020f305a56ec01": "",
-          "613ad203df020f799a56ec20": "",
-          "613ad21adf020f6fc156ec41": "",
-          "613ad22fdf020fd90856ec78": "",
-          "613ad247df020f2ea656ec9d": "",
-          "613ad25cdf020fd15156ecc4": "",
-          "613ad46edf020fed5256edd8": "",
-          "613adb88df020fdb1e56edfe": "",
-          "613adb9cdf020f00f656ee29": "",
-          "613adbcadf020f74af56ee56": "",
-          "613adc09df020f83dd56ee8a": "",
-          "613b4b71df020f6c0456f06f": "",
-          "613b4cf0df020f4f1156f19f": "", 
-          // "6139894fdf020f41fc56e5afo": "",
-          // "613991a6df020f6a5556e5b7o": "",
-          // "613991d1df020ff74556e5c2o": "",
-          // "613991e3df020f680656e5cfo": "",
-          // "613991f4df020fd61956e5deo": "",
-          // "61399208df020f3fea56e5efo": "",
-          // "613acf8edf020f82a056eb2bo": "",
-          // "613ad17adf020f2d0f56eb70o": "",
-          // "613ad189df020f10fb56eb85o": "",
-          // "613ad1a3df020f474756ebb0o": "",
-          // "613ad1b4df020f3f0d56ebc9o": "",
-          // "613ad1cfdf020f4e0156ebe4o": "",
-          // "613ad1eadf020f305a56ec01o": "",
-          // "613ad203df020f799a56ec20o": "",
-          // "613ad21adf020f6fc156ec41o": "",
-          // "613ad22fdf020fd90856ec78o": "",
-          // "613ad247df020f2ea656ec9do": "",
-          // "613ad25cdf020fd15156ecc4o": "",
-          // "613ad46edf020fed5256edd8o": "",
-          // "613adb88df020fdb1e56edfeo": "",
-          // "613adb9cdf020f00f656ee29o": "",
-          // "613adbcadf020f74af56ee56o": "",
-          // "613adc09df020f83dd56ee8ao": "",
-          // "613b4b71df020f6c0456f06fo": "",
-          // "613b4cf0df020f4f1156f19fo": ""
-          }
+        this.json = data[1][0]
         this.form = this.formBuilder.group(this.json);
-        // this.form = this.formBuilder.group({
-        //   "613991a6df020f6a5556e5b7": "3"
-        // });
       }
     }, (error) => {
       Swal.fire({
@@ -388,6 +300,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   culminarPlan() {
+    // Revisar si tiene actividades (!)
     Swal.fire({
       title: 'Envío de Plan',
       text: `¿Está seguro de enviar plan para revisión?`,
@@ -431,6 +344,43 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
+  formularPlan(){
+    let parametros = {
+      "dependencia_id": String(this.unidad.Id),
+      "vigencia": String(this.vigencia.Id)
+    }
+    this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/`+this.plan._id, parametros).subscribe((data: any) => {
+      if (data){
+          let upd = {
+            estado_plan_id:"614d3ad301c7a200482fabfd"
+          }
+          this.request.put(environment.PLANES_CRUD, `plan`, upd, data.Data._id).subscribe((dataPut: any) => {
+            if(dataPut){
+              this.plan = dataPut.Data;
+              Swal.fire({
+                title: 'Formulación nuevo plan', 
+                text: `Plan creado satisfactoriamente`,
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 4000
+              })
+              this.clonar = false;
+              this.planAsignado = true;
+            }
+          })
+      }
+    }),
+    (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    }
+  }
+
   ocultar() {
     Swal.fire({
       title: 'Registro de la actividad',
@@ -461,66 +411,4 @@ export class FormulacionComponent implements OnInit {
           })
         }
   }
-
-  panelOpenState = true;
-
-  // accordions = [
-  //   {
-  //     title: 'Meta Plan de Accion 2022', 
-  //     description: 'you can reorder this list easily',
-  //     subAccordion: [{
-  //       title: 'item 1',
-  //       description: 'description',
-  //       content: 'Content of subpanel 01',
-  //     },
-  //     {
-  //       title: 'item 2',
-  //       description: '',
-  //       content: 'Content of subpanel 02',
-  //     }]
-  //   },
-  //   {
-  //     title: 'Meta SEGPLAN', 
-  //     description: 'simply click, drag & drop one of us around',
-  //     subAccordion: [{
-  //       title: 'item 1', 
-  //       description: 'description',
-  //       content: 'Content of subpanel 01',
-  //     }]
-  //   },
-  //   {
-  //     title: 'Tipo Meta', 
-  //     description: 'You will see, it\'s very easy!',
-  //     subAccordion: [{
-  //       title: 'item 1', 
-  //       description: 'description',
-  //       content: 'Content of subpanel 01',
-  //     }]
-  //   },
-  //   {
-  //     title: 'Descripcion Meta', 
-  //     description: 'Try it now, go ahead',
-  //     subAccordion: [{
-  //       title: 'item 1', 
-  //       description: 'description',
-  //       content: 'Content of subpanel 01',
-  //     }]
-  //   },
-  //   {
-  //     title: 'Formula indicador', 
-  //     description: 'Try it now, go ahead',
-  //     subAccordion: [{
-  //       title: 'item 1', 
-  //       description: 'description',
-  //       content: 'Content of subpanel 01',
-  //     }]
-  //   }
-  // ]
-  
-  // drop(event: CdkDragDrop<string[]>) {
-  //   moveItemInArray(this.accordions, event.previousIndex, event.currentIndex);
-  // }
-
-  //form = new FormArray(this.steps.map(() => new FormGroup({})));
-
 }
