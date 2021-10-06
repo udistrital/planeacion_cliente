@@ -1,50 +1,62 @@
-<!-- SELECCIÓN -->
+<!-- SELECCIÓN MENÚ PRINCIPAL -->
 <mat-card class="card-oas">
   <mat-card-header>
-    <mat-card-title>Selección de Plan</mat-card-title>
+    <mat-card-title>Formulación de Planes</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <mat-form-field appearance="fill" [style.width.%]="100">
-      <mat-label id="tipo-input-label">Seleccionar Plan</mat-label>
-        <mat-select (selectionChange)="onChangeP($event.value)">
-          <mat-option>--</mat-option>
-          <mat-option *ngFor="let plan of planes" [value]="plan">
-            {{plan.nombre}}
-          </mat-option>
-        </mat-select>
-    </mat-form-field>
+    <ng-container>
+      <mat-form-field appearance="fill" [style.width.%]="100">
+        <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
+          <mat-select (selectionChange)="onChangeU($event.value)">
+            <mat-option>--</mat-option>
+            <mat-option *ngFor="let unidad of unidades" [value]="unidad">
+              {{unidad.Nombre}}
+            </mat-option>
+          </mat-select>
+      </mat-form-field>
+    </ng-container>
+    <ng-container *ngIf="unidadSelected">
+      <mat-form-field appearance="fill" [style.width.%]="100">
+        <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
+          <mat-select (selectionChange)="onChangeV($event.value)">
+            <mat-option>--</mat-option>
+            <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
+              {{vigencia.Nombre}}
+            </mat-option>
+          </mat-select>
+      </mat-form-field>
+    </ng-container>
+    <ng-container *ngIf="vigenciaSelected">
+      <mat-form-field appearance="fill" [style.width.%]="100">
+        <mat-label id="tipo-input-label">Seleccione el Plan</mat-label>
+          <mat-select (selectionChange)="onChangeP($event.value)">
+            <mat-option>--</mat-option>
+            <mat-option *ngFor="let plan of planes" [value]="plan">
+              {{plan.nombre}}
+            </mat-option>
+          </mat-select>
+      </mat-form-field>
+    </ng-container>
   </mat-card-content>
-  <ng-container *ngIf="planSelected">
-    <mat-form-field appearance="fill" [style.width.%]="100">
-      <mat-label id="tipo-input-label">Seleccionar Unidad</mat-label>
-        <mat-select (selectionChange)="onChangeU($event.value)">
-          <mat-option>--</mat-option>
-          <mat-option *ngFor="let unidad of unidades" [value]="unidad">
-            {{unidad.Nombre}}
-          </mat-option>
-        </mat-select>
-    </mat-form-field>
-  </ng-container>
-  <ng-container *ngIf="unidadSelected">
-    <mat-form-field appearance="fill" [style.width.%]="100">
-      <mat-label id="tipo-input-label">Seleccionar Vigencia</mat-label>
-        <mat-select (selectionChange)="onChangeV($event.value)">
-          <mat-option>--</mat-option>
-          <mat-option *ngFor="let vigencia of vigencias" [value]="vigencias">
-            {{vigencia.Nombre}}
-          </mat-option>
-        </mat-select>
-    </mat-form-field>
-  </ng-container>
+  <mat-card-footer *ngIf="clonar" style="text-align: center;">
+    <ng-container>
+      <button mat-raised-button color="primary" (click)="formularPlan()">
+        Formular plan
+      </button>
+    </ng-container>
+    <br><br>
+  </mat-card-footer>
 </mat-card>
+
 <br><br>
+
 <!-- FORMULACIÓN -->
-<mat-card class="card-oas" *ngIf="vigenciaSelected">
+<mat-card class="card-oas" *ngIf="!clonar && planAsignado">
   <mat-card-header>
-    <mat-card-title>Formulación {{plan.nombre}}</mat-card-title>
+    <mat-card-title *ngIf="plan != undefined">Formulación {{plan.nombre}}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <!-- TABLA ESTÁTICA -->
+    <!-- TABLA ESTÁTICA
     <mat-form-field appearance="standard" [style.width.%]="50">
       <mat-label>Búsqueda</mat-label>
       <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Actividad" #input>
@@ -89,7 +101,7 @@
       </table>
       <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
     </div>
-    <br><br>
+    <br><br> -->
     <mat-card class="card-oas-int" *ngIf="addActividad">
     <!-- FORMULARIO -->
     <mat-card-content>
@@ -106,7 +118,6 @@
                   {{subs.nombre}}
                 </mat-panel-title>
                 <mat-panel-description>
-                  
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <ng-container *ngIf="subs.sub">
@@ -117,10 +128,8 @@
                     <mat-expansion-panel-header>
                       <mat-panel-title>{{subpanel.nombre}}</mat-panel-title>
                       <mat-panel-description>
-
                       </mat-panel-description>
                     </mat-expansion-panel-header>
-                    
                     <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.type == 'input'">
                       <mat-label>Digite la información:</mat-label>
                       <textarea matInput formControlName="{{subpanel.id}}" placeholder="Escriba la información deseada" required="{{subpanel.required}}"></textarea>
@@ -140,17 +149,14 @@
                         </mat-select>
                     </mat-form-field>
                     <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="subpanel.type == 'button'" (click)="but()">Foo</button>
-
                     <!-- OBSERVACIÓN -->
-
-                    <ng-container *ngIf="estado == '2'">
+                    <ng-container *ngIf="estado != '614d3ad301c7a200482fabfd'">
                       <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.required == 'true'">
                         <mat-label>Campo de observación:</mat-label>
-                        <textarea matInput formControlName="{{subpanel.id+'o'}}" placeholder="Escriba la observación" required="false"></textarea>
+                        <textarea matInput formControlName="{{subpanel.id+'_o'}}" placeholder="Escriba la observación" required="false"></textarea>
                         <mat-icon matSuffix>create</mat-icon>
                       </mat-form-field>
                     </ng-container>
-
                   </mat-expansion-panel>
                 </mat-accordion>
               </ng-container>
@@ -173,16 +179,14 @@
                   </mat-select>
               </mat-form-field>
               <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="subs.type == 'button'" (click)="but()">Foo</button>
-
               <!-- OBSERVACIÓN -->
-              <ng-container *ngIf="estado == '2'">
+              <ng-container *ngIf="estado != '614d3ad301c7a200482fabfd'">
                 <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.required == 'true'">
                   <mat-label>Campo de observación:</mat-label>
-                  <textarea matInput formControlName="{{subs.id+'o'}}" placeholder="Escriba la observación" required="false"></textarea>
+                  <textarea matInput formControlName="{{subs.id+'_o'}}" placeholder="Escriba la observación" required="false"></textarea>
                   <mat-icon matSuffix>create</mat-icon>
                 </mat-form-field>
               </ng-container>
-
             </mat-expansion-panel>
           </mat-accordion>
           <br><br>
@@ -216,6 +220,3 @@
     <br><br>
   </mat-card-footer>
 </mat-card>
-
-    
-  
