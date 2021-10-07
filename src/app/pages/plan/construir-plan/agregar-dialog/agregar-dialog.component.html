@@ -25,15 +25,21 @@
           <mat-radio-button class="example-radio-button" value="true">Activo</mat-radio-button>
           <mat-radio-button class="example-radio-button" value="false">Inactivo</mat-radio-button>
         </mat-radio-group>
-      <mat-label id="tipo-radio-group-label">Parametros</mat-label>
+        <ng-container *ngIf="data.nivel > 1">
+          <mat-label id="tipo-radio-group-label">Campo en tabla resumen</mat-label>
+          <mat-radio-group formControlName="bandera" class="example-radio-group" aria-labelledby="example-radio-group-label" required>
+            <mat-radio-button class="example-radio-button" value="true">Sí</mat-radio-button>
+            <mat-radio-button class="example-radio-button" value="false">No</mat-radio-button>
+          </mat-radio-group>
+        </ng-container>
+      <mat-label id="tipo-radio-group-label">Parámetros</mat-label>
         <mat-radio-group formControlName="parametro" class="example-radio-group" aria-labelledby="example-radio-group-label" (change)="verificarNivel($event)" required>
           <mat-radio-button class="example-radio-button" value="true">Sí</mat-radio-button>
           <mat-radio-button class="example-radio-button" value="false">No</mat-radio-button>
         </mat-radio-group>
-   
-      <div *ngIf="control.visible === true">
+      <ng-container *ngIf="control.visible">
       <mat-form-field appearance="fill" [style.width.%]="30">
-        <mat-label>Tipo de dato </mat-label>
+        <mat-label>Tipo de dato</mat-label>
           <mat-select formControlName="tipoDato" required>
             <mat-option>--</mat-option>
             <mat-option *ngFor="let tipo of tipos" [value]="tipo.value">
@@ -46,7 +52,7 @@
           <mat-radio-button class="requerido-radio-button" value="true">Sí</mat-radio-button>
           <mat-radio-button class="requerido-radio-button" value="false">No</mat-radio-button>
         </mat-radio-group>
-      </div>
+      </ng-container>
     </mat-card-content>
     <mat-card-actions style="text-align: center;">
       <ng-container>

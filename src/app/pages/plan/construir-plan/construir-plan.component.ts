@@ -43,7 +43,6 @@ export class ConstruirPlanComponent implements OnInit {
       if (result == undefined){
         return undefined;
       } else {
-
         this.postData(result);
       }
     });
@@ -56,6 +55,7 @@ export class ConstruirPlanComponent implements OnInit {
         descripcion: res.descripcion,
         padre: this.idPadre,
         activo: JSON.parse(res.activo),
+        bandera_tabla: JSON.parse(res.bandera)
       } 
     } else if (this.uid_n > 1){
       var dataSub = {
@@ -63,6 +63,7 @@ export class ConstruirPlanComponent implements OnInit {
         descripcion: res.descripcion,
         padre: this.uid,
         activo: JSON.parse(res.activo),
+        bandera_tabla: JSON.parse(res.bandera)
       }
     }
     var dato = {
@@ -309,7 +310,7 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   loadPlanes(){
-    this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.planes = this.filterActivos(this.planes);
