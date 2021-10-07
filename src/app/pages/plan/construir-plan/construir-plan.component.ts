@@ -141,7 +141,8 @@ export class ConstruirPlanComponent implements OnInit {
     let subgrupo = {
       nombre: res.nombre,
       descripcion: res.descripcion,
-      activo: res.activo
+      activo: res.activo,
+      bandera_tabla: res.banderaTabla
     }
     let dato = {
       type: res.tipoDato,
@@ -250,11 +251,11 @@ export class ConstruirPlanComponent implements OnInit {
                   type: auxiliar.type,
                   required: auxiliar.required
                 }
-
                 let subData = {
                   nombre: data.Data.nombre,
                   descripcion: data.Data.descripcion,
                   activo: data.Data.activo,
+                  banderaTabla: data.Data.bandera_tabla
                 }
                 this.openDialogEditar(subData, subDataDetalle); 
               }else{
@@ -262,17 +263,14 @@ export class ConstruirPlanComponent implements OnInit {
                   type: "",
                   required: ""
                 }
-
                 let subData = {
                   nombre: data.Data.nombre,
                   descripcion: data.Data.descripcion,
                   activo: data.Data.activo,
+                  banderaTabla: data.Data.bandera_tabla
                 }
                 this.openDialogEditar(subData, subDataDetalle); 
-
               }
-
-
             }
           })
         }
