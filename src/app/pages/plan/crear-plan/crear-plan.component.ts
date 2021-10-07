@@ -52,7 +52,6 @@ export class CrearPlanComponent implements OnInit {
         activo: JSON.parse(this.formCrearPlan.get('radioEstado').value),
       }
     }else{
-
       dataPlan = {
         nombre: this.formCrearPlan.get('nombre').value,
         descripcion: this.formCrearPlan.get('desc').value,
@@ -62,7 +61,6 @@ export class CrearPlanComponent implements OnInit {
         formato: JSON.parse(this.formCrearPlan.get('radioFormato').value)
       }
     }
-   
     this.request.post(environment.PLANES_CRUD, 'plan', dataPlan).subscribe(
       (data) => {
         if(data){         

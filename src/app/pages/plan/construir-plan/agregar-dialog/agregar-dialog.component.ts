@@ -19,15 +19,15 @@ export class AgregarDialogComponent implements OnInit {
   control = {
     value: '',
     disabled: false,
-    visible: false
+    visible: false,
   };
-
- 
 
   constructor(
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<AgregarDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any) {}
+    @Inject(MAT_DIALOG_DATA) public data: any) {
+      
+    }
 
   close(): void {
     this.dialogRef.close();
@@ -38,12 +38,14 @@ export class AgregarDialogComponent implements OnInit {
       descripcion: ['', Validators.required],
       nombre: ['', Validators.required],
       activo: ['', Validators.required],
-      tipoDato: ['',this.control, Validators.required],
-      requerido: ['',this.control, Validators.required],
-      parametro: ['', Validators.required]
+      tipoDato: ['', this.control, Validators.required],
+      requerido: ['', this.control, Validators.required],
+      parametro: ['', Validators.required],
+      bandera: ['', Validators.required],
     });
-
-
+    if (this.data.nivel == 1){
+      this.formAgregar.get('bandera').setValue('false')
+    }
   }
 
   getErrorMessage(campo: FormControl) {
@@ -63,17 +65,20 @@ export class AgregarDialogComponent implements OnInit {
       this.control = {
         value: '',
         disabled: true,
-        visible: false
+        visible: false,
       }
+      this.formAgregar.get('tipoDato').disable();
+      this.formAgregar.get('requerido').disable();
     }else if (event.value == "true"){
       this.control = {
         value: '',
         disabled: false,
-        visible: true
+        visible: true,
       }
+      this.formAgregar.get('tipoDato').enable();
+      this.formAgregar.get('requerido').enable();
     }
-
-}
+  }
 }
 
 interface tipoDato{

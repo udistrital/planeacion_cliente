@@ -16,6 +16,8 @@ export class EditarDialogComponent implements OnInit {
   tipoDato: string;
   required: boolean;
   formatoS: string;
+  banderaTablaS: string;
+  nivel: number;
 
   tipos: tipoDato[] = [
     {value: 'numeric', viewValue:'Numérico'},
@@ -26,7 +28,6 @@ export class EditarDialogComponent implements OnInit {
     value: this.data.subDetalle.type,
     disabled: false  
   };
-
   visibleRequired = {
     value: this.data.subDetalle.required,
     disabled: false  
@@ -35,8 +36,10 @@ export class EditarDialogComponent implements OnInit {
     value: String(this.data.sub.formato),
     disabled: false  
   };
-
-
+  visibleBandera = {
+    value: String(this.data.sub.banderaTabla),
+    disabled: false  
+  };
 
   constructor(
     private formBuilder: FormBuilder,
@@ -48,21 +51,22 @@ export class EditarDialogComponent implements OnInit {
       this.formatoS = String(data.sub.formato);
       this.tipoDato = data.subDetalle.type;
       this.required = data.subDetalle.required;
-     }
+      this.banderaTablaS = String(data.sub.banderaTabla);
+      this.nivel = data.nivel;
+    }
 
   ngOnInit(): void {
- 
     this.formEditar = this.formBuilder.group({
       descripcion: [this.descripcion, Validators.required],
       nombre: [this.nombre, Validators.required],
       activo: [this.activoS, Validators.required],
-      radioFormato:[this.formatoS,this.visibleFormato, Validators.required],
-      tipoDato:[this.tipoDato, this.visibleType , Validators.required],
-      requerido:[this.required, this.visibleRequired ,Validators.required]
+      formato: [this.formatoS, this.visibleFormato, Validators.required],
+      tipoDato: [this.tipoDato, this.visibleType, Validators.required],
+      requerido: [this.required, this.visibleRequired, Validators.required],
+      banderaTabla: [this.banderaTablaS, this.visibleBandera, Validators.required]
     });
     this.verificarDetalle();
-    console.log(this.visibleRequired, this.visibleType)
-
+    //console.log(this.visibleRequired, this.visibleType)
   }
 
   close(): void {
@@ -81,38 +85,55 @@ export class EditarDialogComponent implements OnInit {
     this.formEditar.reset();
   }
 
-
-
-
   verificarDetalle(){
-    if(this.data.subDetalle.type == "" && this.data.subDetalle.required == ""){
+    if(this.data.subDetalle.type == undefined && this.data.subDetalle.required == undefined){
       this.visibleType = {
-        value: "",
+        value: '',
         disabled: true
       }
       this.visibleRequired = {
-        value: "",
+        value: '',
         disabled: true
       }
+      this.formEditar.get('tipoDato').disable();
+      this.formEditar.get('requerido').disable();      
     }
     if(this.data.ban == "plan"){
       this.visibleType = {
-        value:  this.visibleType.value,
+        value: this.visibleType.value,
         disabled: true
       }
       this.visibleRequired = {
-        value:this.visibleRequired.value ,
+        value: this.visibleRequired.value ,
         disabled: true
       }
     }
-    if(this.formatoS == "undefined"){
-      this.visibleFormato ={
+    if(this.formatoS == "undefined" || this.formatoS == undefined){
+      this.visibleFormato = {
+        value: '',
+        disabled: true
+      }
+    }
+    if (this.nivel == 1){
+      this.visibleBandera = {
+        value: this.visibleBandera.value,
+        disabled: true
+      }
+      this.formEditar.get('banderaTabla').setValue(this.visibleBandera.value);
+    }
+    if (this.nivel > 1){
+      this.visibleBandera = {
+        value: this.visibleBandera.value,
+        disabled: false
+      }
+    }
+    if (this.nivel > 1 && (this.banderaTablaS == "undefined" || this.banderaTablaS == undefined)){
+      this.visibleBandera = {
         value: '',
         disabled: true
       }
     }
   }
-
 }
 
 interface tipoDato{
