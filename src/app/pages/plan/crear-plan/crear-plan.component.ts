@@ -87,10 +87,10 @@ export class CrearPlanComponent implements OnInit {
 
   select(tipo){
     this.tipoPlan = tipo;
-    if(tipo.nombre === "Plan"){
+    if(tipo._id != "611af8464a34b3599e3799a2"){ // diferente de proyecto
       this.control.disabled = false
       this.control.visible = true
-    }else if(tipo.nombre ==="Proyecto"){
+    }else{
       this.control.disabled = true
       this.control.visible = false
     }

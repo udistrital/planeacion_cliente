@@ -30,7 +30,7 @@ export class ConsultarPlanComponent implements OnInit {
   }
 
   loadPlanes(){
-    this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.planes = this.filterActivos(this.planes);

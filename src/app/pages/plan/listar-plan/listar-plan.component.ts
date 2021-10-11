@@ -161,7 +161,7 @@ export class ListarPlanComponent implements OnInit {
   }
 
   loadData(){
-    this.request.get(environment.PLANES_CRUD, `plan`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.ajustarData();
@@ -212,7 +212,7 @@ export class ListarPlanComponent implements OnInit {
   inactivar(fila):void{
     this.uid = fila._id;
     if (fila.activo == 'Activo'){
-      if (fila.tipo_plan_id == '611af8364a34b3b2df3799a0'){
+      if (fila.tipo_plan_id != '611af8464a34b3599e3799a2'){
         this.deleteData();
       } else if (fila.tipo_plan_id == '611af8464a34b3599e3799a2'){
         let res = {
