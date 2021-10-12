@@ -44,6 +44,8 @@ export class FormulacionComponent implements OnInit {
     this.loadPlanes();
     this.loadPeriodos();
     this.loadUnidades();
+    // IMPORTANTE CUANDO CARGUE PLAN
+    this.loadData();
     this.addActividad = false;
     this.planSelected = false;
     this.unidadSelected = false;
@@ -51,7 +53,8 @@ export class FormulacionComponent implements OnInit {
     this.clonar = false;
    }
 
-  displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo', 'actions'];
+  displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
+  columnsToDisplay: string[] = this.displayedColumns.slice();
   dataSource: MatTableDataSource<any>;
 
   ngOnInit(): void {}
@@ -177,7 +180,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   filterPlanes(data) {
-    var dataAux = data.filter(e => e.tipo_plan_id == "611af8364a34b3b2df3799a0");
+    var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
     return dataAux.filter(e => e.activo == true);
   }  
 
@@ -290,6 +293,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   editar(fila): void {
+    //GET ACTIVIDAD
     this.cargaFormato(this.plan);
     this.addActividad = true;
   }
@@ -372,6 +376,8 @@ export class FormulacionComponent implements OnInit {
               })
               this.clonar = false;
               this.planAsignado = true;
+              //CARGA TABLA
+              this.loadData();
             }
           })
       }
