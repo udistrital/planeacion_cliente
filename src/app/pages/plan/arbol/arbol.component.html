@@ -43,7 +43,7 @@
 <!-- CONSTRUCCIÓN -->
 
 <!-- <mat-card *ngIf="planId !== 1 && planId !== undefined" style="width:calc(96vw - 40px);"> -->
-    <ng-container *ngIf="tipoPlanId == '611af8364a34b3b2df3799a0' && mostrar && !consulta">
+    <ng-container *ngIf="tipoPlanId != '611af8464a34b3599e3799a2' && mostrar && !consulta">
         <mat-form-field appearance="outline" [style.width.%]="25">
             <mat-label id="busqueda-input-label">Buscar:</mat-label>
             <input matInput [(ngModel)]="stringBusqueda" (ngModelChange)="filterSearch()" id="search"  placeholder="Digite para buscar">
@@ -102,7 +102,7 @@
 
 <!-- CONSULTA -->
 
-<ng-container *ngIf="tipoPlanId == '611af8364a34b3b2df3799a0' && mostrar && consulta">
+<ng-container *ngIf="tipoPlanId != '611af8464a34b3599e3799a2' && mostrar && consulta">
     <mat-form-field appearance="outline" [style.width.%]="25">
         <mat-label id="busqueda-input-label">Buscar:</mat-label>
         <input matInput [(ngModel)]="stringBusqueda" (ngModelChange)="filterSearch()" id="search"  placeholder="Digite para buscar">
