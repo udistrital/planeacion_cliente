@@ -34,6 +34,9 @@ export class FormulacionComponent implements OnInit {
   estado: string;
   clonar: boolean;
   panelOpenState = true;
+  dataT: boolean;
+  banderaEdit: boolean;
+  rowActividad: string;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -44,8 +47,6 @@ export class FormulacionComponent implements OnInit {
     this.loadPlanes();
     this.loadPeriodos();
     this.loadUnidades();
-    // IMPORTANTE CUANDO CARGUE PLAN
-    this.loadData();
     this.addActividad = false;
     this.planSelected = false;
     this.unidadSelected = false;
@@ -53,8 +54,11 @@ export class FormulacionComponent implements OnInit {
     this.clonar = false;
    }
 
-  displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
-  columnsToDisplay: string[] = this.displayedColumns.slice();
+  //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
+  //columnsToDisplay: string[] = this.displayedColumns.slice();
+
+  displayedColumns: string[];
+  columnsToDisplay: string[]
   dataSource: MatTableDataSource<any>;
 
   ngOnInit(): void {}
@@ -117,33 +121,6 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
-  infoPlan: any[] = [
-    {
-      numero: "1",
-      nombre: "Nombre 1",
-      rubro: "Rubro 1",
-      valor: "Valor 1",
-      observacion: "Existe",
-      activo: true
-    },
-    {
-      numero: "2",
-      nombre: "Nombre 2",
-      rubro: "Rubro 2",
-      valor: "Valor 2",
-      observacion: "Existe",
-      activo: true
-    },
-    {
-      numero: "3",
-      nombre: "Nombre 3",
-      rubro: "Rubro 3",
-      valor: "Valor 3",
-      observacion: "No existe",
-      activo: true
-    }
-  ]
-
   prevStep(step) {
     this.activedStep = step - 1;
   }
@@ -153,22 +130,41 @@ export class FormulacionComponent implements OnInit {
   }
 
   submit() {
-    this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, this.form.value, this.plan._id).subscribe((data : any) => {
-      if (data){
-        Swal.fire({
-          title: 'Actividad agregada', 
-          //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
-          text: 'La actividad se ha registrado satisfactoriamente',
-          icon: 'success'
-        }).then((result) => {
-          if (result.value) {
-            this.loadData()
-            this.form.reset();
-            this.addActividad = false;
-          }
-        })
-      }
-    })
+    if (!this.banderaEdit){ // ADD NUEVA ACTIVIDAD
+      this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, this.form.value, this.plan._id).subscribe((data : any) => {
+        if (data){
+          Swal.fire({
+            title: 'Información de actividad registrada', 
+            //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+            text: 'La actividad se ha registrado satisfactoriamente',
+            icon: 'success'
+          }).then((result) => {
+            if (result.value) {
+              this.form.reset();
+              this.addActividad = false;
+              this.loadData();
+            }
+          })
+        }
+      })
+    } else { // EDIT ACTIVIDAD
+      this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, this.form.value, this.plan._id+`/`+this.rowActividad).subscribe((data: any) => {
+        if (data){
+          Swal.fire({
+            title: 'Información de actividad actualizada', 
+            //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+            text: 'La actividad se ha actualizado satisfactoriamente',
+            icon: 'success'
+          }).then((result) => {
+            if (result.value) {
+              this.form.reset();
+              this.addActividad = false;
+              this.loadData();
+            }
+          })
+        }
+      })
+    }
   }
 
   getErrorMessage(campo: FormControl) {
@@ -225,6 +221,7 @@ export class FormulacionComponent implements OnInit {
         this.plan = data.Data[0];
         this.planAsignado = true;
         this.clonar = false;
+        this.loadData();
       } else if (data.Data.length == 0) {
         Swal.fire({
           title: 'Formulación nuevo plan', 
@@ -257,11 +254,33 @@ export class FormulacionComponent implements OnInit {
   }
 
   ajustarData(){
-    this.cambiarValor("activo", true, "Activo")
-    this.cambiarValor("activo", false, "Inactivo")
-    this.dataSource = new MatTableDataSource(this.infoPlan); // this.data de la consulta (!)
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/`+this.plan._id).subscribe((data: any) => {
+      if (data.Data.data_source != null){
+        this.dataSource = new MatTableDataSource(data.Data.data_source);
+        this.displayedColumns = data.Data.displayed_columns;
+        this.columnsToDisplay = this.displayedColumns.slice();
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        this.dataT = true;
+      } else if (data.Data.data_source == null){
+        this.dataT = false;
+        Swal.fire({
+          title: 'Atención en la operación', 
+          text: `No hay actividades registradas para el plan`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 3500
+        })
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   cargaFormato(plan){
@@ -293,14 +312,81 @@ export class FormulacionComponent implements OnInit {
   }
 
   editar(fila): void {
-    //GET ACTIVIDAD
-    this.cargaFormato(this.plan);
     this.addActividad = true;
+    this.banderaEdit = true;
+    this.rowActividad = fila.index;
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+    })
+    this.request.get(environment.PLANES_MID, `formulacion/get_plan/`+this.plan._id+`/`+fila.index).subscribe((data: any) => {
+      if (data){
+        Swal.close();
+        this.estado = this.plan.estado_plan_id;
+        this.steps = data.Data[0]
+        this.json = data.Data[1][0]
+        this.form = this.formBuilder.group(this.json);
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  inactivar(fila): void{
+    Swal.fire({
+      title: 'Inhabilitar actividad',
+      text: `¿Está seguro de inhabilitar esta actividad?`,
+      showCancelButton: true,
+      confirmButtonText: `Si`,
+      cancelButtonText: `No`,
+    }).then((result) => {
+        if (result.isConfirmed) {
+          this.request.put(environment.PLANES_MID, `formulacion/delete_actividad`, `null`, this.plan._id+`/`+fila.index).subscribe((data: any) => {
+            if(data){
+              Swal.fire({
+                title: 'Cambio realizado', 
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  this.loadData()
+                }
+              })
+            }
+          }),
+          (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              icon: 'error',
+              text: `${JSON.stringify(error)}`,
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          Swal.fire({
+            title: 'Cambio cancelado', 
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+    })
   }
 
   agregarActividad() {
     this.cargaFormato(this.plan);
     this.addActividad = true;
+    this.banderaEdit = false;
   }
 
   culminarPlan() {
@@ -313,22 +399,30 @@ export class FormulacionComponent implements OnInit {
       cancelButtonText: `No`,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
-        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data:any) =>{
-          if(data){
-            Swal.fire({
-              title: 'Plan enviado', 
-              icon: 'success',
-            }).then((result) => {
-              if (result.value) {
-                this.loadData()
-                this.addActividad = false;
-              }
-            })
-          }
+        let mod ={
+          estado_plan_id: "614d3aeb01c7a245952fabff"
+        }
+        // this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
+        // this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data:any) =>{
+        //   if(data){
+        //     Swal.fire({
+        //       title: 'Plan enviado', 
+        //       icon: 'success',
+        //     }).then((result) => {
+        //       if (result.value) {
+        //         this.loadData()
+        //         this.addActividad = false;
+        //       }
+        //     })
+        //   }
+        // })
+        Swal.fire({
+          title: 'Envío realizado (SIN CAMBIOS)', 
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 2500
         })
-           
-          } else if (result.dismiss === Swal.DismissReason.cancel) {
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
             Swal.fire({
               title: 'Envío cancelado', 
               icon: 'error',
@@ -349,9 +443,9 @@ export class FormulacionComponent implements OnInit {
   }
 
   cambiarValor(valorABuscar, valorViejo, valorNuevo) {
-    this.infoPlan.forEach(function(elemento) {
-      elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
-    })
+    // this.infoPlan.forEach(function(elemento) {
+    //   elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
+    // })
   }
 
   formularPlan(){
