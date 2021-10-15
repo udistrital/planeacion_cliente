@@ -254,9 +254,11 @@ export class FormulacionComponent implements OnInit {
   }
 
   ajustarData(){
-    this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/`+this.plan._id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/`+this.plan._id+`?order=asc&sortby=index`).subscribe((data: any) => {
       if (data.Data.data_source != null){
         this.dataSource = new MatTableDataSource(data.Data.data_source);
+        this.cambiarValor("activo", true, "Activo", this.dataSource.data)
+        this.cambiarValor("activo", false, "Inactivo", this.dataSource.data)
         this.displayedColumns = data.Data.displayed_columns;
         this.columnsToDisplay = this.displayedColumns.slice();
         this.dataSource.paginator = this.paginator;
@@ -312,34 +314,58 @@ export class FormulacionComponent implements OnInit {
   }
 
   editar(fila): void {
-    this.addActividad = true;
-    this.banderaEdit = true;
-    this.rowActividad = fila.index;
-    Swal.fire({
-      title: 'Cargando información',
-      timerProgressBar: true,
-      showConfirmButton: false,
-        willOpen: () => {
-          Swal.showLoading();
-        },
-    })
-    this.request.get(environment.PLANES_MID, `formulacion/get_plan/`+this.plan._id+`/`+fila.index).subscribe((data: any) => {
-      if (data){
-        Swal.close();
-        this.estado = this.plan.estado_plan_id;
-        this.steps = data.Data[0]
-        this.json = data.Data[1][0]
-        this.form = this.formBuilder.group(this.json);
-      }
-    }, (error) => {
+    if (fila.activo == 'Inactivo'){
       Swal.fire({
-        title: 'Error en la operación', 
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
+        title: 'Actividad inactiva',
+        text: `No puede editar una actividad en estado inactivo`,
+        icon: 'info',
+        showConfirmButton: false,
+        timer: 3500
+      });
+    } else {
+      this.addActividad = true;
+      this.banderaEdit = true;
+      this.rowActividad = fila.index;
+      Swal.fire({
+        title: 'Cargando información',
+        timerProgressBar: true,
+        showConfirmButton: false,
+          willOpen: () => {
+            Swal.showLoading();
+          },
+      })
+      this.request.get(environment.PLANES_MID, `formulacion/get_plan/`+this.plan._id+`/`+fila.index).subscribe((data: any) => {
+        if (data){
+          Swal.close();
+          this.estado = this.plan.estado_plan_id;
+          this.steps = data.Data[0]
+          this.json = data.Data[1][0]
+          this.form = this.formBuilder.group(this.json);
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación', 
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
+    }
+  }
+
+  inhabilitar(fila): void{
+    if (fila.activo == 'Inactivo'){
+      Swal.fire({
+        title: 'Actividad ya inactiva',
+        text: `La actividad ya se encuentra en estado inactivo`,
+        icon: 'info',
         showConfirmButton: false,
         timer: 2500
-      })
-    })
+      });
+    } else {
+      this.inactivar(fila);
+    }
   }
 
   inactivar(fila): void{
@@ -442,10 +468,10 @@ export class FormulacionComponent implements OnInit {
         }
   }
 
-  cambiarValor(valorABuscar, valorViejo, valorNuevo) {
-    // this.infoPlan.forEach(function(elemento) {
-    //   elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
-    // })
+  cambiarValor(valorABuscar, valorViejo, valorNuevo, dataS) {
+    dataS.forEach(function(elemento) {
+      elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
+    })
   }
 
   formularPlan(){
