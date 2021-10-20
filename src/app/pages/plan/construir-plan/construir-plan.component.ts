@@ -71,7 +71,7 @@ export class ConstruirPlanComponent implements OnInit {
       required: res.requerido
     }
     let subgrupo
-
+    
     this.request.post(environment.PLANES_CRUD, 'subgrupo/registrar_nodo', dataSub).subscribe(
       (data: any) => {
         if(data){   
@@ -82,7 +82,7 @@ export class ConstruirPlanComponent implements OnInit {
             subgrupo_id: ""+data.Data._id,
             dato: JSON.stringify(dato),
             activo: JSON.parse(res.activo)
-          } 
+          }
           if(dato.type != "" && dato.required != ""){
             this.request.post(environment.PLANES_CRUD, 'subgrupo-detalle', dataSubDetalle).subscribe(
               (data: any) =>{
@@ -313,6 +313,10 @@ export class ConstruirPlanComponent implements OnInit {
         this.planes = data.Data;
         this.planes = this.filterActivos(this.planes);
       }
+      this.request.get(environment.PLANES_CRUD, `plan?query=nombre:Plan%20Estrategico%20de%20Desarrollo`).subscribe((data : any)=>{
+        this.planes = this.planes.concat(data.Data);
+        this.planes = this.filterActivos(this.planes);
+      })
     },(error) => {
       Swal.fire({
         title: 'Error en la operación', 

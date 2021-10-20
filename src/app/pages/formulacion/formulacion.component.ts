@@ -7,6 +7,7 @@ import { RequestManager } from '../services/requestManager';
 import { environment } from '../../../environments/environment';
 import {MatTableDataSource} from '@angular/material/table';
 import Swal from 'sweetalert2';
+import { ArbolComponent } from '../plan/arbol/arbol.component';
 
 @Component({
   selector: 'app-formulacion',
@@ -34,6 +35,12 @@ export class FormulacionComponent implements OnInit {
   estado: string;
   clonar: boolean;
   panelOpenState = true;
+
+  tipoPlanId: string;
+  idPadre: string;
+  planesDesarrollo: any[];
+  planDSelected: boolean;
+  idsArmonizacion : string[] = []
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -153,22 +160,42 @@ export class FormulacionComponent implements OnInit {
   }
 
   submit() {
-    this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, this.form.value, this.plan._id).subscribe((data : any) => {
-      if (data){
-        Swal.fire({
-          title: 'Actividad agregada', 
-          //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
-          text: 'La actividad se ha registrado satisfactoriamente',
-          icon: 'success'
-        }).then((result) => {
-          if (result.value) {
-            this.loadData()
-            this.form.reset();
-            this.addActividad = false;
-          }
-        })
+    var armonizacion;
+    var formValue = this.form.value;
+    if (this.idsArmonizacion.length != 0){
+      var body = {
+        Data: this.idsArmonizacion
       }
-    })
+      this.request.post(environment.PLANES_MID, `formulacion/get_arbol_armonizacion/`+this.plan._id, body).subscribe((data :any) => {
+        if(data){
+          armonizacion = JSON.stringify(data.Data)
+          var actividad = {
+            armo: armonizacion,
+            entrada: formValue
+          }
+          this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data : any) => {
+            if (data){
+              Swal.fire({
+                title: 'Actividad agregada', 
+                //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+                text: 'La actividad se ha registrado satisfactoriamente',
+                icon: 'success'
+              }).then((result) => {
+                if (result.value) {
+                  this.loadData()
+                  this.form.reset();
+                  this.addActividad = false;
+                  this.idsArmonizacion = [];
+                }
+              })
+            }
+          })
+    
+        }
+      })    
+    }
+   
+
   }
 
   getErrorMessage(campo: FormControl) {
@@ -217,6 +244,16 @@ export class FormulacionComponent implements OnInit {
       this.busquedaPlanes(plan);
     }
   }
+
+
+  onChangePD(planD){
+    if (planD == undefined){
+    } else {
+      this.idPadre = planD._id
+      this.tipoPlanId = planD.tipo_plan_id
+    }
+  }
+
 
   busquedaPlanes(planB){
     this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:`+this.unidad.Id+`,vigencia:`+
@@ -299,8 +336,37 @@ export class FormulacionComponent implements OnInit {
   }
 
   agregarActividad() {
+    if(this.tipoPlanId === undefined && this.idPadre === undefined){
+      this.cargarPlanesDesarrollo();
+    }
     this.cargaFormato(this.plan);
     this.addActividad = true;
+
+  }
+
+  cargarPlanesDesarrollo(){
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
+      if(data){
+        this.planesDesarrollo = data.Data
+      }
+    })
+  }
+
+  receiveMessage(event){
+    if (event.bandera == 'armonizar'){
+      var uid_n = event.fila.level;
+      var uid = event.fila.id; // id del nivel a editar
+      if (!event.fila.expandable){
+        if (uid != this.idsArmonizacion.find(id => id === uid)){
+          this.idsArmonizacion.push(uid)
+        }else{
+          const index = this.idsArmonizacion.indexOf(uid, 0);
+          if (index > -1) {
+            this.idsArmonizacion.splice(index, 1);
+          }
+        }
+      }
+    } 
   }
 
   culminarPlan() {
