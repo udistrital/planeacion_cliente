@@ -21,12 +21,13 @@ export class AgregarDialogComponent implements OnInit {
     disabled: false,
     visible: false,
   };
+  opt: boolean;
 
   constructor(
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<AgregarDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
-      
+      this.opt = false;
     }
 
   close(): void {
@@ -42,9 +43,12 @@ export class AgregarDialogComponent implements OnInit {
       requerido: ['', this.control, Validators.required],
       parametro: ['', Validators.required],
       bandera: ['', Validators.required],
+      opciones: ['', Validators.required]
     });
     if (this.data.nivel == 1){
       this.formAgregar.get('bandera').setValue('false')
+    }if (this.opt == false){
+      this.formAgregar.get('opciones').disable();
     }
   }
 
@@ -60,6 +64,16 @@ export class AgregarDialogComponent implements OnInit {
     this.formAgregar.reset();
   }
 
+  onChange(event){
+    if (event == 'select'){
+      this.opt = true;
+      this.formAgregar.get('opciones').enable();
+    } else {
+      this.opt = false;
+      this.formAgregar.get('opciones').disable();
+    }
+  }
+
   verificarNivel(event: MatRadioChange){
     if(event.value == "false"){
       this.control = {
@@ -69,6 +83,7 @@ export class AgregarDialogComponent implements OnInit {
       }
       this.formAgregar.get('tipoDato').disable();
       this.formAgregar.get('requerido').disable();
+      this.formAgregar.get('opciones').disable();
     }else if (event.value == "true"){
       this.control = {
         value: '',
@@ -77,6 +92,9 @@ export class AgregarDialogComponent implements OnInit {
       }
       this.formAgregar.get('tipoDato').enable();
       this.formAgregar.get('requerido').enable();
+      if (this.opt){
+        this.formAgregar.get('opciones').enable();
+      }
     }
   }
 }

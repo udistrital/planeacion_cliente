@@ -15,9 +15,11 @@ export class EditarDialogComponent implements OnInit {
   activoS: string;
   tipoDato: string;
   required: boolean;
+  opciones: string;
   formatoS: string;
   banderaTablaS: string;
   nivel: number;
+  opt: boolean;
 
   tipos: tipoDato[] = [
     {value: 'numeric', viewValue:'Numérico'},
@@ -31,6 +33,10 @@ export class EditarDialogComponent implements OnInit {
   visibleRequired = {
     value: this.data.subDetalle.required,
     disabled: false  
+  };
+  visibleOpciones = {
+    value: this.data.subDetalle.options,
+    disabled: false
   };
   visibleFormato = {
     value: String(this.data.sub.formato),
@@ -51,8 +57,10 @@ export class EditarDialogComponent implements OnInit {
       this.formatoS = String(data.sub.formato);
       this.tipoDato = data.subDetalle.type;
       this.required = data.subDetalle.required;
+      this.opciones = data.subDetalle.options;
       this.banderaTablaS = String(data.sub.banderaTabla);
       this.nivel = data.nivel;
+      this.opt = false;
     }
 
   ngOnInit(): void {
@@ -63,7 +71,8 @@ export class EditarDialogComponent implements OnInit {
       formato: [this.formatoS, this.visibleFormato, Validators.required],
       tipoDato: [this.tipoDato, this.visibleType, Validators.required],
       requerido: [this.required, this.visibleRequired, Validators.required],
-      banderaTabla: [this.banderaTablaS, this.visibleBandera, Validators.required]
+      banderaTabla: [this.banderaTablaS, this.visibleBandera, Validators.required],
+      opciones: [this.opciones, Validators.required]
     });
     this.verificarDetalle();
     //console.log(this.visibleRequired, this.visibleType)
@@ -85,6 +94,16 @@ export class EditarDialogComponent implements OnInit {
     this.formEditar.reset();
   }
 
+  onChange(event){
+    if (event == 'select'){
+      this.opt = true;
+      this.formEditar.get('opciones').enable();
+    } else {
+      this.opt = false;
+      this.formEditar.get('opciones').disable();
+    }
+  }
+
   verificarDetalle(){
     if(this.data.subDetalle.type == undefined && this.data.subDetalle.required == undefined){
       this.visibleType = {
@@ -96,7 +115,7 @@ export class EditarDialogComponent implements OnInit {
         disabled: true
       }
       this.formEditar.get('tipoDato').disable();
-      this.formEditar.get('requerido').disable();      
+      this.formEditar.get('requerido').disable();
     }
     if(this.data.ban == "plan"){
       this.visibleType = {
@@ -132,6 +151,14 @@ export class EditarDialogComponent implements OnInit {
         value: '',
         disabled: true
       }
+    }
+    if (this.tipoDato == "select"){
+      this.visibleOpciones = {
+        value: this.visibleOpciones.value ,
+        disabled: false
+      }
+      this.formEditar.get('opciones').enable();
+      this.opt = true;
     }
   }
 }

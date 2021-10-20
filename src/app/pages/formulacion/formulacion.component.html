@@ -91,7 +91,7 @@
             <td class="mat-cell" colspan="4">No se han encontrado resultados para la búsqueda "{{input.value}}"</td>
           </tr>
         </table>
-        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+        <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" aria-label="Select page of users"></mat-paginator>
     </ng-container>
 
     <div *ngIf="!dataT" style="text-align: center;">
@@ -103,7 +103,7 @@
     <!-- FORMULARIO -->
     <mat-card-content>
     <form [formGroup]="form">
-      <mat-horizontal-stepper>
+      <mat-vertical-stepper>
         <mat-step *ngFor="let step of steps; let index = index; let last = last;">
           <ng-template matStepLabel>{{step.nombre}}</ng-template>
           <!-- PRIMER NIVEL -->
@@ -118,10 +118,10 @@
             <mat-icon matSuffix>create</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="step.type == 'select'">
-              <mat-select (selectionChange)="onChange($event.value)" [(value)]="selected" formControlName="{{step.id}}" required="{{step.required}}">
+              <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{step.id}}" required="{{step.required}}">
                 <mat-option>--</mat-option>
-                <mat-option *ngFor="let opt of step.options" [value]="opt">
-                  {{opt.nombre}}
+                <mat-option *ngFor="let opt of step.options" [value]="opt.valor">
+                  {{opt.valor}}
                 </mat-option>
               </mat-select>
           </mat-form-field>
@@ -168,10 +168,10 @@
                       <mat-icon matSuffix>create</mat-icon>
                     </mat-form-field>
                     <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subpanel.type == 'select'">
-                        <mat-select (selectionChange)="onChange($event.value)" [(value)]="selected" formControlName="{{subpanel.id}}" required="{{subpanel.required}}">
+                        <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subpanel.id}}" required="{{subpanel.required}}">
                           <mat-option>--</mat-option>
-                          <mat-option *ngFor="let opt of subs.options" [value]="opt">
-                            {{opt.nombre}}
+                          <mat-option *ngFor="let opt of subpanel.options" [value]="opt.valor">
+                            {{opt.valor}}
                           </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -198,10 +198,10 @@
                 <mat-icon matSuffix>create</mat-icon>
               </mat-form-field>
               <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subs.type == 'select'">
-                  <mat-select (selectionChange)="onChange($event.value)" [(value)]="selected" formControlName="{{subs.id}}" required="{{subs.required}}">
+                  <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subs.id}}" required="{{subs.required}}">
                     <mat-option>--</mat-option>
-                    <mat-option *ngFor="let opt of subs.options" [value]="opt">
-                      {{opt.nombre}}
+                    <mat-option *ngFor="let opt of subs.options" [value]="opt.valor">
+                      {{opt.valor}}
                     </mat-option>
                   </mat-select>
               </mat-form-field>
@@ -228,7 +228,7 @@
             <button *ngIf="last" class="btn btn-primary" [disabled]="!formStep.valid" type="submit">Guardar</button> -->
           </div> 
         </mat-step>
-      </mat-horizontal-stepper>
+      </mat-vertical-stepper>
     </form>
   </mat-card-content>
   </mat-card>
