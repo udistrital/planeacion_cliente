@@ -45,15 +45,26 @@
         </ng-container>
         <ng-container *ngIf="!visibleType.disabled">
           <mat-label>Parámetros</mat-label><br>
-        <mat-form-field appearance="fill" [style.width.%]="30">
-          <mat-label>Tipo de dato </mat-label>
-            <mat-select formControlName="tipoDato" required>
-              <mat-option>--</mat-option>
-              <mat-option *ngFor="let tipo of tipos" [value]="tipo.value">
-              {{tipo.viewValue}}
-              </mat-option>
-            </mat-select>
-        </mat-form-field>
+          <mat-form-field appearance="fill" [style.width.%]="30">
+            <mat-label>Tipo de dato </mat-label>
+              <mat-select formControlName="tipoDato" (selectionChange)="onChange($event.value)" required>
+                <mat-option>--</mat-option>
+                <mat-option *ngFor="let tipo of tipos" [value]="tipo.value">
+                {{tipo.viewValue}}
+                </mat-option>
+              </mat-select>
+          </mat-form-field>
+          <ng-container *ngIf="opt">
+            <mat-form-field appearance="fill" [style.width.%]="100">
+              <mat-label id="opciones-input-label">Opciones</mat-label>
+              <p><i>Ingrese las opciones para la lista de selección separadas por coma, sin puntos al final y sin espacios al comienzo o al final. Ejemplo: valor1,valor2,...,valorN</i></p>
+              <input type="text" matInput formControlName="opciones" placeholder="Ingrese las opciones para la lista de selección separadas por coma y sin espacios. Ejemplo: valor1,valor2,...,valorN" required>
+              <mat-icon matSuffix>create</mat-icon>
+              <mat-error *ngIf="formEditar.get('opciones').invalid">
+                  {{getErrorMessage(formEditar.get('opciones'))}}
+              </mat-error>
+            </mat-form-field>
+          </ng-container>
         <mat-label class="requerido-radio-group-label">Obligatorio:</mat-label>
           <mat-radio-group formControlName="requerido" class="requerido-radio-group" aria-labelledby="example-radio-group-label" required>
             <mat-radio-button class="requerido-radio-button" value="true">Sí</mat-radio-button>

@@ -21,6 +21,7 @@ export class ConstruirPlanComponent implements OnInit {
   uid: string; // id objeto
   uid_n: number; // nuevo nivel
   planes: any[];
+  dato: any;
 
   @Output() eventChange = new EventEmitter();
   constructor(
@@ -66,24 +67,38 @@ export class ConstruirPlanComponent implements OnInit {
         bandera_tabla: JSON.parse(res.bandera)
       }
     }
-    var dato = {
-      type : res.tipoDato,
-      required: res.requerido
+    if (res.hasOwnProperty("opciones")) {
+      var array = res.opciones.split(",");
+      let jsonArray = []
+      for (let val of array){
+        jsonArray.push({
+          valor: val
+        })
+      }
+      this.dato = {
+        type: res.tipoDato,
+        required: res.requerido,
+        options: jsonArray
+      }
+    } else if (!res.hasOwnProperty("opciones")){
+      this.dato = {
+        type : res.tipoDato,
+        required: res.requerido,
+        //options: ""
+      }
     }
     let subgrupo
-
     this.request.post(environment.PLANES_CRUD, 'subgrupo/registrar_nodo', dataSub).subscribe(
       (data: any) => {
         if(data){   
-           
-          var dataSubDetalle ={
+          var dataSubDetalle = {
             nombre: "subgrupo detalle " + res.nombre,
             descripcion: res.nombre,
             subgrupo_id: ""+data.Data._id,
-            dato: JSON.stringify(dato),
+            dato: JSON.stringify(this.dato),
             activo: JSON.parse(res.activo)
           } 
-          if(dato.type != "" && dato.required != ""){
+          if(this.dato.type != "" && this.dato.required != ""){
             this.request.post(environment.PLANES_CRUD, 'subgrupo-detalle', dataSubDetalle).subscribe(
               (data: any) =>{
                 if(!data){
@@ -97,10 +112,8 @@ export class ConstruirPlanComponent implements OnInit {
               }
             )
           }
-
           subgrupo = data.Data    
           Swal.fire({
-            
             title: 'Registro correcto',
             text: `Se ingresaron correctamente los datos del nivel`,
             icon: 'success',
@@ -144,12 +157,28 @@ export class ConstruirPlanComponent implements OnInit {
       activo: res.activo,
       bandera_tabla: res.banderaTabla
     }
-    let dato = {
-      type: res.tipoDato,
-      required: res.requerido
+    if (res.hasOwnProperty("opciones")){
+      var array = res.opciones.split(",");
+      let jsonArray = []
+      for (let val of array){
+        jsonArray.push({
+          valor: val
+        })
+      }
+      this.dato = {
+        type: res.tipoDato,
+        required: res.requerido,
+        options: jsonArray
+      }
+    } else if (!res.hasOwnProperty("opciones")){
+      this.dato = {
+        type: res.tipoDato,
+        required: res.requerido,
+        //options: ""
+      }
     }
     let subgrupoDetalle = {
-      dato: JSON.stringify(dato)
+      dato: JSON.stringify(this.dato)
     }
     this.request.get(environment.PLANES_CRUD, `subgrupo-detalle/detalle/`+ this.uid).subscribe((data: any) => {
       if(data.Data.length > 0){ 
@@ -247,21 +276,42 @@ export class ConstruirPlanComponent implements OnInit {
             if (dataDetalle){
               if(dataDetalle.Data.length > 0 ){
                 let auxiliar = JSON.parse(dataDetalle.Data[0].dato)
-                let subDataDetalle = {
-                  type: auxiliar.type,
-                  required: auxiliar.required
+                if (auxiliar.hasOwnProperty("options")){
+                  let auxOptions = auxiliar.options;
+                  var result = auxOptions.map(function(val) {
+                    return val.valor;
+                  }).join(',');
+                  let subDataDetalle = {
+                    type: auxiliar.type,
+                    required: auxiliar.required,
+                    options: result
+                  }
+                  let subData = {
+                    nombre: data.Data.nombre,
+                    descripcion: data.Data.descripcion,
+                    activo: data.Data.activo,
+                    banderaTabla: data.Data.bandera_tabla
+                  }
+                  this.openDialogEditar(subData, subDataDetalle); 
+                } else if (!auxiliar.hasOwnProperty("options")){
+                  let subDataDetalle = {
+                    type: auxiliar.type,
+                    required: auxiliar.required,
+                    options: ""
+                  }
+                  let subData = {
+                    nombre: data.Data.nombre,
+                    descripcion: data.Data.descripcion,
+                    activo: data.Data.activo,
+                    banderaTabla: data.Data.bandera_tabla
+                  }
+                  this.openDialogEditar(subData, subDataDetalle);
                 }
-                let subData = {
-                  nombre: data.Data.nombre,
-                  descripcion: data.Data.descripcion,
-                  activo: data.Data.activo,
-                  banderaTabla: data.Data.bandera_tabla
-                }
-                this.openDialogEditar(subData, subDataDetalle); 
-              }else{
+              } else {
                 let subDataDetalle = {
                   type: "",
-                  required: ""
+                  required: "",
+                  options: ""
                 }
                 let subData = {
                   nombre: data.Data.nombre,
