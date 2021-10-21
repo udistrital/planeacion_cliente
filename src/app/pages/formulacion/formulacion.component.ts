@@ -137,23 +137,43 @@ export class FormulacionComponent implements OnInit {
   }
 
   submit() {
+    
     if (!this.banderaEdit){ // ADD NUEVA ACTIVIDAD
-      this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, this.form.value, this.plan._id).subscribe((data : any) => {
-        if (data){
-          Swal.fire({
-            title: 'Información de actividad registrada', 
-            //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
-            text: 'La actividad se ha registrado satisfactoriamente',
-            icon: 'success'
-          }).then((result) => {
-            if (result.value) {
-              this.form.reset();
-              this.addActividad = false;
-              this.loadData();
+      var armonizacion;
+    var formValue = this.form.value;
+    if (this.idsArmonizacion.length != 0){
+      var body = {
+        Data: this.idsArmonizacion
+      }
+      this.request.post(environment.PLANES_MID, `formulacion/get_arbol_armonizacion/`+this.plan._id, body).subscribe((data :any) => {
+        if(data){
+          armonizacion = JSON.stringify(data.Data)
+          var actividad = {
+            armo: armonizacion,
+            entrada: formValue
+          }
+
+          this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data : any) => {
+            if (data){
+              Swal.fire({
+                title: 'Actividad agregada', 
+                //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+                text: 'La actividad se ha registrado satisfactoriamente',
+                icon: 'success'
+              }).then((result) => {
+                if (result.value) {
+                  this.loadData()
+                  this.form.reset();
+                  this.addActividad = false;
+                  this.idsArmonizacion = [];
+                }
+              })
             }
           })
+    
         }
-      })
+      })    
+    }
     } else { // EDIT ACTIVIDAD
       this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, this.form.value, this.plan._id+`/`+this.rowActividad).subscribe((data: any) => {
         if (data){
