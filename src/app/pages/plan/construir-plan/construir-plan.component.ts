@@ -363,6 +363,10 @@ export class ConstruirPlanComponent implements OnInit {
         this.planes = data.Data;
         this.planes = this.filterActivos(this.planes);
       }
+      this.request.get(environment.PLANES_CRUD, `plan?query=nombre:Plan%20Estrategico%20de%20Desarrollo`).subscribe((data : any)=>{
+        this.planes = this.planes.concat(data.Data);
+        this.planes = this.filterActivos(this.planes);
+      })
     },(error) => {
       Swal.fire({
         title: 'Error en la operación', 
