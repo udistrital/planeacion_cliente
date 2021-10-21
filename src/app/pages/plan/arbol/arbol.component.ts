@@ -45,6 +45,8 @@ export class ArbolComponent implements OnInit {
   displayedColumnsView: string[] = ['nombre', 'descripcion', 'activo'];
   mostrar: boolean = false;
   planActual: string;
+  icon : string
+  idIcon : string
 
   private transformer = (node: Subgrupo, level: number) => {
     return {
@@ -53,7 +55,8 @@ export class ArbolComponent implements OnInit {
       nombre: node.nombre,
       descripcion: node.descripcion,
       id: node.id,
-      level: level
+      level: level,
+      icon: 'compare_arrows'
     };
   };
 
@@ -76,6 +79,7 @@ export class ArbolComponent implements OnInit {
   @Input() tipoPlanId: string;
   @Input() idPlan: string;
   @Input() consulta: boolean;
+  @Input() armonizacion: boolean;
   @Input() updateSignal: Observable<String[]>;
   @Output() grupo = new EventEmitter<any>();
   constructor(
@@ -135,12 +139,28 @@ export class ArbolComponent implements OnInit {
     }
   }
 
+
   editar(fila, bandera){
     this.grupo.emit({fila, bandera})
   }
 
   agregar(fila, bandera){
     this.grupo.emit({fila, bandera})
+  }
+
+  armonizar(fila, bandera){
+    this.changeIcon(fila)
+    this.grupo.emit({fila, bandera})
+  }
+
+  changeIcon(fila){
+    if (!fila.expandable){
+      if (fila.icon == 'compare_arrows'){
+        fila.icon = 'done'
+      }else{
+        fila.icon = 'compare_arrows'
+      }
+    }
   }
 
   hasChild = (_: number, node: Nodo) => node.expandable;
