@@ -7,6 +7,7 @@ import { RequestManager } from '../services/requestManager';
 import { environment } from '../../../environments/environment';
 import {MatTableDataSource} from '@angular/material/table';
 import Swal from 'sweetalert2';
+import { ArbolComponent } from '../plan/arbol/arbol.component';
 
 @Component({
   selector: 'app-formulacion',
@@ -37,6 +38,12 @@ export class FormulacionComponent implements OnInit {
   dataT: boolean;
   banderaEdit: boolean;
   rowActividad: string;
+
+  tipoPlanId: string;
+  idPadre: string;
+  planesDesarrollo: any[];
+  planDSelected: boolean;
+  idsArmonizacion : string[] = []
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -217,6 +224,16 @@ export class FormulacionComponent implements OnInit {
   onChangeSelect(opcion) {
     
   }
+
+
+  onChangePD(planD){
+    if (planD == undefined){
+    } else {
+      this.idPadre = planD._id
+      this.tipoPlanId = planD.tipo_plan_id
+    }
+  }
+
 
   busquedaPlanes(planB){
     this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:`+this.unidad.Id+`,vigencia:`+
@@ -414,9 +431,38 @@ export class FormulacionComponent implements OnInit {
   }
 
   agregarActividad() {
+    if(this.tipoPlanId === undefined && this.idPadre === undefined){
+      this.cargarPlanesDesarrollo();
+    }
     this.cargaFormato(this.plan);
     this.addActividad = true;
     this.banderaEdit = false;
+
+  }
+
+  cargarPlanesDesarrollo(){
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
+      if(data){
+        this.planesDesarrollo = data.Data
+      }
+    })
+  }
+
+  receiveMessage(event){
+    if (event.bandera == 'armonizar'){
+      var uid_n = event.fila.level;
+      var uid = event.fila.id; // id del nivel a editar
+      if (!event.fila.expandable){
+        if (uid != this.idsArmonizacion.find(id => id === uid)){
+          this.idsArmonizacion.push(uid)
+        }else{
+          const index = this.idsArmonizacion.indexOf(uid, 0);
+          if (index > -1) {
+            this.idsArmonizacion.splice(index, 1);
+          }
+        }
+      }
+    } 
   }
 
   culminarPlan() {
