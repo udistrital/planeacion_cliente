@@ -38,6 +38,8 @@ export class FormulacionComponent implements OnInit {
   dataT: boolean;
   banderaEdit: boolean;
   rowActividad: string;
+  banderaRecursos: boolean;
+  existAct: boolean;
 
   tipoPlanId: string;
   idPadre: string;
@@ -59,6 +61,8 @@ export class FormulacionComponent implements OnInit {
     this.unidadSelected = false;
     this.vigenciaSelected = false;
     this.clonar = false;
+    this.banderaRecursos = false;
+    this.existAct = false;
    }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -137,10 +141,9 @@ export class FormulacionComponent implements OnInit {
   }
 
   submit() {
-    
     if (!this.banderaEdit){ // ADD NUEVA ACTIVIDAD
       var armonizacion;
-    var formValue = this.form.value;
+      var formValue = this.form.value;
     if (this.idsArmonizacion.length != 0){
       var body = {
         Data: this.idsArmonizacion
@@ -152,7 +155,6 @@ export class FormulacionComponent implements OnInit {
             armo: armonizacion,
             entrada: formValue
           }
-
           this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data : any) => {
             if (data){
               Swal.fire({
@@ -166,11 +168,11 @@ export class FormulacionComponent implements OnInit {
                   this.form.reset();
                   this.addActividad = false;
                   this.idsArmonizacion = [];
+                  this.banderaRecursos = false;
                 }
               })
             }
           })
-    
         }
       })    
     }
@@ -187,6 +189,7 @@ export class FormulacionComponent implements OnInit {
               this.form.reset();
               this.addActividad = false;
               this.loadData();
+              this.banderaRecursos = false;
             }
           })
         }
@@ -213,6 +216,7 @@ export class FormulacionComponent implements OnInit {
     } else {
       this.unidadSelected = true;
       this.unidad = unidad;
+      this.addActividad = false;
       if (this.vigenciaSelected && this.planSelected){
         this.busquedaPlanes(this.planAux);
       }
@@ -225,6 +229,7 @@ export class FormulacionComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
+      this.addActividad = false;
       if (this.unidadSelected && this.planSelected){
         this.busquedaPlanes(this.planAux);
       }
@@ -237,6 +242,7 @@ export class FormulacionComponent implements OnInit {
     } else {
       this.planAux = plan;
       this.planSelected = true;
+      this.addActividad = false;
       this.busquedaPlanes(plan);
     }
   }
@@ -254,7 +260,6 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
-
   busquedaPlanes(planB){
     this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:`+this.unidad.Id+`,vigencia:`+
     this.vigencia.Id+`,formato:false,nombre:`+planB.nombre).subscribe((data: any) => {
@@ -263,6 +268,7 @@ export class FormulacionComponent implements OnInit {
         this.planAsignado = true;
         this.clonar = false;
         this.loadData();
+        this.existAct = true;
       } else if (data.Data.length == 0) {
         Swal.fire({
           title: 'Formulación nuevo plan', 
@@ -278,6 +284,7 @@ export class FormulacionComponent implements OnInit {
         })
         this.clonar = true;
         this.plan = planB;
+        this.existAct = false;
       }
     },(error) => {
       Swal.fire({
@@ -613,4 +620,9 @@ export class FormulacionComponent implements OnInit {
           })
         }
   }
+
+  identificacionRecursos(){
+    this.banderaRecursos = true;
+  }
+
 }
