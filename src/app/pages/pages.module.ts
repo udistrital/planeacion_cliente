@@ -43,6 +43,7 @@ import { ArbolComponent } from './plan/arbol/arbol.component';
 import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agregar-dialog.component';
 import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
+import { ContratistasComponent } from './formulacion/contratistas/contratistas.component';
 
 
 const pagesComponents = [
@@ -91,6 +92,7 @@ const materialModules = [
     AgregarDialogComponent,
     EditarDialogComponent,
     FormulacionComponent,
+    ContratistasComponent,
   ],
   imports: [
     HttpClientModule,
@@ -104,6 +106,7 @@ const materialModules = [
     MatRadioModule,
     MatPaginatorModule,
     MatSortModule,
+    MatInputModule,
     MatIconModule,
     MatFormFieldModule,
     MatCardModule,
