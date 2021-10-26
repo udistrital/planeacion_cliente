@@ -43,6 +43,7 @@ import { ArbolComponent } from './plan/arbol/arbol.component';
 import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agregar-dialog.component';
 import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
+import { RecursosComponent } from './formulacion/recursos/recursos.component';
 
 
 const pagesComponents = [
@@ -91,6 +92,7 @@ const materialModules = [
     AgregarDialogComponent,
     EditarDialogComponent,
     FormulacionComponent,
+    RecursosComponent,
   ],
   imports: [
     HttpClientModule,
