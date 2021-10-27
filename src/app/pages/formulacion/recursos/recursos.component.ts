@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
@@ -17,10 +17,13 @@ export class RecursosComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
   total: number;
   actividades: any[];
+  accionBoton: string;
+  selectedActividades;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @Input() dataSourceActividades: MatTableDataSource<any>;
+  @Output() acciones = new EventEmitter<any>();
   constructor() {
     this.displayedColumns = ['codigo','nombre','valor','descripcion', 'actividades', 'acciones']
     this.dataSource = new MatTableDataSource<any>();
@@ -120,15 +123,37 @@ export class RecursosComponent implements OnInit {
   }
 
   onChange(event) {
-    //console.log(event) Event tiene el arreglo de las actividades
+    
   }
 
   onSelected(event, rowIndex) {
-    if (event.value == undefined){
+    if (event == undefined){
       this.dataSource.data[rowIndex].codigo = '';
     } else {
-      let elemento = this.rubros.find(el => el.nombre === event.value.nombre); 
+      let elemento = this.rubros.find(el => el.nombre === event.value); 
       this.dataSource.data[rowIndex].codigo = elemento.codigo;
     }
   }
+
+  ocultarRecursos(){
+    this.accionBoton = 'ocultar';
+    let data = this.dataSource.data;
+    let accion = this.accionBoton;
+    this.acciones.emit({data, accion});
+  }
+
+  guardarRecursos(){
+    this.accionBoton = 'guardar';
+    let data = this.dataSource.data;
+    let accion = this.accionBoton;
+    for (var i in data){
+      var obj = data[i];
+      obj["activo"] = true;
+      var num = +i+1;
+      obj["index"] = num.toString();
+    }
+    let dataS = JSON.stringify(Object.assign({}, data))
+    this.acciones.emit({dataS, accion});
+  }
+
 }
