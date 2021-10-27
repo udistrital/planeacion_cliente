@@ -44,6 +44,8 @@ import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agr
 import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { ContratistasComponent } from './formulacion/contratistas/contratistas.component';
+import { RecursosComponent } from './formulacion/recursos/recursos.component';
+
 
 
 const pagesComponents = [
@@ -93,6 +95,7 @@ const materialModules = [
     EditarDialogComponent,
     FormulacionComponent,
     ContratistasComponent,
+    RecursosComponent,
   ],
   imports: [
     HttpClientModule,

@@ -48,7 +48,6 @@
   </mat-card-footer>
 </mat-card>
 
-
 <br><br>
 <mat-card class="card-oas-int" *ngIf="!clonar && planAsignado && addActividad">
   <mat-card-header>
@@ -69,7 +68,6 @@
     <app-arbol *ngIf="tipoPlanId !== undefined" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre" [consulta]="false" [armonizacion]="true" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
   </mad-card-content>
 </mat-card>
-
 
 <br><br>
 <!-- FORMULACIÓN -->
@@ -264,6 +262,8 @@
       <br><br>
       <button mat-raised-button color="primary" (click)="identificarContratistas()">
         Identificación de Contratistas
+      <button mat-raised-button color="primary" (click)="identificacionRecursos()" [disabled]="!existAct">
+        Agregar identificación de recursos
       </button>
       <br><br>
       <button mat-raised-button color="primary" (click)="culminarPlan()">
@@ -275,6 +275,7 @@
 </mat-card>
 
 <br><br>
+
 <mat-card class="card-oas-int" *ngIf="!clonar && planAsignado && identContratistas">
   <mat-card-header>
     <mat-card-title >Identificación de Contratistas </mat-card-title>
@@ -291,3 +292,7 @@
     </ng-container>
   </mat-card-footer>
 </mat-card>
+<ng-container class="card-oas" *ngIf="banderaRecursos">
+  <app-recursos [dataSourceActividades]="dataSource"></app-recursos>
+</ng-container>
+
