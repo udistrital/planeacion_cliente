@@ -260,10 +260,10 @@
         Agregar actividad
       </button>
       <br><br>
-      <button mat-raised-button color="primary" (click)="identificarContratistas()">
+      <button mat-raised-button color="primary" (click)="identificarContratistas()" [disabled]="!dataT">
         Identificación de Contratistas
       </button>
-      <button mat-raised-button color="primary" (click)="identificacionRecursos()" [disabled]="!existAct">
+      <button mat-raised-button color="primary" (click)="identificacionRecursos()" [disabled]="!dataT">
         Agregar identificación de recursos
       </button>
       <br><br>
@@ -294,6 +294,7 @@
   </mat-card-footer>
 </mat-card>
 <ng-container class="card-oas" *ngIf="banderaRecursos">
-  <app-recursos [dataSourceActividades]="dataSource"></app-recursos>
+  <app-recursos [dataSourceActividades]="dataSource" (acciones)="messageRecursos($event)">
+  </app-recursos>
 </ng-container>
 
