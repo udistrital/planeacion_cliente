@@ -260,6 +260,8 @@
         Agregar actividad
       </button>
       <br><br>
+      <button mat-raised-button color="primary" (click)="identificarContratistas()">
+        Identificación de Contratistas
       <button mat-raised-button color="primary" (click)="identificacionRecursos()" [disabled]="!existAct">
         Agregar identificación de recursos
       </button>
@@ -273,6 +275,24 @@
 </mat-card>
 
 <br><br>
+
+<mat-card class="card-oas-int" *ngIf="!clonar && planAsignado && identContratistas">
+  <mat-card-header>
+    <mat-card-title >Identificación de Contratistas </mat-card-title>
+  </mat-card-header>
+  <br><br>
+  <mad-card-content>
+    <app-contratistas [dataSourceActividades]="dataSource"></app-contratistas>
+    <br>
+  </mad-card-content>
+  <mat-card-footer style="text-align: center;">
+    <ng-container>
+      <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="ocultarIdentContratistas()">Cancelar</button>
+      <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"  (click)="guardarIdentContratistas()">Guardar</button>
+    </ng-container>
+  </mat-card-footer>
+</mat-card>
 <ng-container class="card-oas" *ngIf="banderaRecursos">
   <app-recursos [dataSourceActividades]="dataSource"></app-recursos>
 </ng-container>
+

@@ -1,6 +1,6 @@
 table {
     width: 100%;
-  }
+}
 
 th {
     color: white;
@@ -14,6 +14,12 @@ th {
 
 .header-align-right{
   display: flex;
+  padding: 21px 0;
+  justify-content: flex-end;
+}
+
+.button-contratistas{
+  margin: 20px;
   padding: 21px 0;
   justify-content: flex-end;
 }

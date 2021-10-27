@@ -1,0 +1,39 @@
+table {
+    width: 100%;
+  }
+
+
+th.mat-header-cell, td.mat-cell {
+    text-align: center;
+    padding: 0 !important;
+    color:white;
+}
+
+
+.td-align-right{
+  text-align: right;
+  justify-content: flex-end;
+}
+
+.header-align-right{
+  display: flex;
+  padding: 21px 0;
+  justify-content: flex-end;
+}
+
+th {
+  color: white;
+  text-align: center;
+}
+
+::ng-deep input.mat-input-element {
+  color: #000000;
+}
+
+.material-icons-delete{
+  color: #000000;
+}
+
+.footer{
+  text-align: center;
+}
