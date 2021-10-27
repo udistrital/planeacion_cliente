@@ -26,6 +26,7 @@ export class FormulacionComponent implements OnInit {
   unidadSelected: boolean;
   vigenciaSelected: boolean;
   addActividad: boolean;
+  identContratistas : boolean;
   plan: any;
   planAux: any;
   unidad: any;
@@ -467,6 +468,10 @@ export class FormulacionComponent implements OnInit {
 
   }
 
+  identificarContratistas(){
+    this.identContratistas = true;
+  }
+
   cargarPlanesDesarrollo(){
     this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
       if(data){
@@ -621,6 +626,41 @@ export class FormulacionComponent implements OnInit {
         }
   }
 
+
+  guardarIdentContratistas(){
+    //console.log("Guardar Identificacion Contratistas")
+  }
+
+  ocultarIdentContratistas(){
+    Swal.fire({
+      title: 'Identificación de Contratistas',
+      text: `¿Desea cancelar la identificación de contratistas?`,
+      showCancelButton: true,
+      confirmButtonText: `Si`,
+      cancelButtonText: `No`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+            this.identContratistas = false;
+            Swal.fire({
+              title: 'Identificación cancelada', 
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            
+          }
+        }),
+        (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            icon: 'error',
+            text: `${JSON.stringify(error)}`,
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+  }
   identificacionRecursos(){
     this.banderaRecursos = true;
   }
