@@ -65,7 +65,7 @@
           </mat-select>
       </mat-form-field>
     </ng-container>
-    <app-arbol *ngIf="tipoPlanId !== undefined" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre" [consulta]="false" [armonizacion]="true" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
+    <app-arbol *ngIf="tipoPlanId !== undefined" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre" [dataArmonizacion]="dataArmonizacion" [consulta]="false" [armonizacion]="true" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
   </mad-card-content>
 </mat-card>
 
@@ -263,6 +263,7 @@
       <button mat-raised-button color="primary" (click)="identificarContratistas()">
         Identificación de Contratistas
       </button>
+      <br><br>
       <button mat-raised-button color="primary" (click)="identificacionRecursos()" [disabled]="!existAct">
         Agregar identificación de recursos
       </button>
@@ -277,7 +278,7 @@
 
 <br><br>
 
-<mat-card class="card-oas-int" *ngIf="!clonar && planAsignado && identContratistas">
+<mat-card *ngIf="!clonar && planAsignado && identContratistas">
   <mat-card-header>
     <mat-card-title >Identificación de Contratistas </mat-card-title>
   </mat-card-header>

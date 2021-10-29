@@ -49,15 +49,27 @@ export class ArbolComponent implements OnInit {
   idIcon : string
 
   private transformer = (node: Subgrupo, level: number) => {
-    return {
-      expandable: !!node.children && node.children.length > 0,
-      activo: node.activo,
-      nombre: node.nombre,
-      descripcion: node.descripcion,
-      id: node.id,
-      level: level,
-      icon: 'compare_arrows'
-    };
+    if (this.armonizacion){
+      return {
+        expandable: !!node.children && node.children.length > 0,
+        activo: node.activo,
+        nombre: node.nombre,
+        descripcion: node.descripcion,
+        id: node.id,
+        level: level,
+        icon: this.iconArmonizacion(node.id)
+      };
+    }else{
+      return {
+        expandable: !!node.children && node.children.length > 0,
+        activo: node.activo,
+        nombre: node.nombre,
+        descripcion: node.descripcion,
+        id: node.id,
+        level: level,
+      };
+    }
+
   };
 
   treeControl = new FlatTreeControl<Nodo>(
@@ -80,6 +92,7 @@ export class ArbolComponent implements OnInit {
   @Input() idPlan: string;
   @Input() consulta: boolean;
   @Input() armonizacion: boolean;
+  @Input() dataArmonizacion : any [];
   @Input() updateSignal: Observable<String[]>;
   @Output() grupo = new EventEmitter<any>();
   constructor(
@@ -153,6 +166,19 @@ export class ArbolComponent implements OnInit {
     this.grupo.emit({fila, bandera})
   }
 
+  iconArmonizacion(id):string{
+    if(this.dataArmonizacion.length != 0){
+      const found = this.dataArmonizacion.find(element => element === id);
+      if(id === found){
+        return 'done'
+      }else{
+        return 'compare_arrows'
+      }      
+    }else{
+      return 'compare_arrows'
+    }
+  }
+
   changeIcon(fila){
     if (!fila.expandable){
       if (fila.icon == 'compare_arrows'){
@@ -166,6 +192,7 @@ export class ArbolComponent implements OnInit {
   hasChild = (_: number, node: Nodo) => node.expandable;
 
   ngOnInit(): void {
+
     this.formConstruirPUI = this.formBuilder.group({
       infoControl: ['', Validators.required],
       requiredfile: ['', Validators.required]

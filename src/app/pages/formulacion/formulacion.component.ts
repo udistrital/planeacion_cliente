@@ -8,6 +8,7 @@ import { environment } from '../../../environments/environment';
 import {MatTableDataSource} from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ArbolComponent } from '../plan/arbol/arbol.component';
+import { element } from 'protractor';
 
 @Component({
   selector: 'app-formulacion',
@@ -46,7 +47,7 @@ export class FormulacionComponent implements OnInit {
   idPadre: string;
   planesDesarrollo: any[];
   planDSelected: boolean;
-  idsArmonizacion : string[] = []
+  dataArmonizacion : string[] = [];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -74,6 +75,7 @@ export class FormulacionComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
 
   ngOnInit(): void {}
+
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -143,19 +145,11 @@ export class FormulacionComponent implements OnInit {
 
   submit() {
     if (!this.banderaEdit){ // ADD NUEVA ACTIVIDAD
-      var armonizacion;
-      var formValue = this.form.value;
-    if (this.idsArmonizacion.length != 0){
-      var body = {
-        Data: this.idsArmonizacion
-      }
-      this.request.post(environment.PLANES_MID, `formulacion/get_arbol_armonizacion/`+this.plan._id, body).subscribe((data :any) => {
-        if(data){
-          armonizacion = JSON.stringify(data.Data)
-          var actividad = {
-            armo: armonizacion,
+    var formValue = this.form.value;
+    var actividad = {
+            armo: this.dataArmonizacion.toString(),
             entrada: formValue
-          }
+    }
           this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data : any) => {
             if (data){
               Swal.fire({
@@ -168,17 +162,25 @@ export class FormulacionComponent implements OnInit {
                   this.loadData()
                   this.form.reset();
                   this.addActividad = false;
-                  this.idsArmonizacion = [];
+                  this.dataArmonizacion = [];
                   this.banderaRecursos = false;
+                  this.idPadre = '';
+                  this.tipoPlanId = '';
                 }
               })
             }
           })
-        }
-      })    
-    }
+        
+      
+    
     } else { // EDIT ACTIVIDAD
-      this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, this.form.value, this.plan._id+`/`+this.rowActividad).subscribe((data: any) => {
+      var aux = this.dataArmonizacion.toString()
+      var formValue = this.form.value;
+      var actividad = {
+        entrada: formValue,
+        armo : aux
+      } 
+      this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id+`/`+this.rowActividad).subscribe((data: any) => {
         if (data){
           Swal.fire({
             title: 'Información de actividad actualizada', 
@@ -191,6 +193,8 @@ export class FormulacionComponent implements OnInit {
               this.addActividad = false;
               this.loadData();
               this.banderaRecursos = false;
+              this.idPadre = '';
+              this.tipoPlanId = '';
             }
           })
         }
@@ -372,6 +376,9 @@ export class FormulacionComponent implements OnInit {
         timer: 3500
       });
     } else {
+      if (this.planesDesarrollo == undefined){
+        this.cargarPlanesDesarrollo()
+      }
       this.addActividad = true;
       this.banderaEdit = true;
       this.rowActividad = fila.index;
@@ -384,12 +391,17 @@ export class FormulacionComponent implements OnInit {
           },
       })
       this.request.get(environment.PLANES_MID, `formulacion/get_plan/`+this.plan._id+`/`+fila.index).subscribe((data: any) => {
+
         if (data){
           Swal.close();
           this.estado = this.plan.estado_plan_id;
           this.steps = data.Data[0]
           this.json = data.Data[1][0]
           this.form = this.formBuilder.group(this.json);
+          var strAmonizacion = data.Data[2][0]
+          var arrArmonizacion = strAmonizacion.armo
+          var len  = (arrArmonizacion.split(",").length)
+          this.dataArmonizacion = strAmonizacion.split(",", len)
         }
       }, (error) => {
         Swal.fire({
@@ -485,12 +497,12 @@ export class FormulacionComponent implements OnInit {
       var uid_n = event.fila.level;
       var uid = event.fila.id; // id del nivel a editar
       if (!event.fila.expandable){
-        if (uid != this.idsArmonizacion.find(id => id === uid)){
-          this.idsArmonizacion.push(uid)
+        if (uid != this.dataArmonizacion.find(id => id === uid)){
+          this.dataArmonizacion.push(uid)
         }else{
-          const index = this.idsArmonizacion.indexOf(uid, 0);
+          const index = this.dataArmonizacion.indexOf(uid, 0);
           if (index > -1) {
-            this.idsArmonizacion.splice(index, 1);
+            this.dataArmonizacion.splice(index, 1);
           }
         }
       }
