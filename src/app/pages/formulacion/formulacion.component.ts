@@ -388,17 +388,16 @@ export class FormulacionComponent implements OnInit {
           },
       })
       this.request.get(environment.PLANES_MID, `formulacion/get_plan/`+this.plan._id+`/`+fila.index).subscribe((data: any) => {
-
         if (data){
           Swal.close();
           this.estado = this.plan.estado_plan_id;
           this.steps = data.Data[0]
           this.json = data.Data[1][0]
           this.form = this.formBuilder.group(this.json);
-          var strAmonizacion = data.Data[2][0]
-          var arrArmonizacion = strAmonizacion.armo
-          var len  = (arrArmonizacion.split(",").length)
-          this.dataArmonizacion = strAmonizacion.split(",", len)
+          var auxAmonizacion = data.Data[2][0]
+          var strArmonizacion = auxAmonizacion.armo
+          var len  = (strArmonizacion.split(",").length)
+          this.dataArmonizacion = strArmonizacion.split(",", len)
         }
       }, (error) => {
         Swal.fire({
@@ -474,6 +473,7 @@ export class FormulacionComponent implements OnInit {
     this.cargaFormato(this.plan);
     this.addActividad = true;
     this.banderaEdit = false;
+    this.dataArmonizacion = []
 
   }
 
@@ -614,6 +614,7 @@ export class FormulacionComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
             this.addActividad = false;
+            this.dataArmonizacion = []
             Swal.fire({
               title: 'Registro cancelado', 
               icon: 'warning',
