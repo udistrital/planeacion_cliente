@@ -41,7 +41,6 @@ export class FormulacionComponent implements OnInit {
   banderaEdit: boolean;
   rowActividad: string;
   banderaRecursos: boolean;
-  existAct: boolean;
 
   tipoPlanId: string;
   idPadre: string;
@@ -64,7 +63,7 @@ export class FormulacionComponent implements OnInit {
     this.vigenciaSelected = false;
     this.clonar = false;
     this.banderaRecursos = false;
-    this.existAct = false;
+    this.dataT = false;
    }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -273,7 +272,6 @@ export class FormulacionComponent implements OnInit {
         this.planAsignado = true;
         this.clonar = false;
         this.loadData();
-        this.existAct = true;
       } else if (data.Data.length == 0) {
         Swal.fire({
           title: 'Formulación nuevo plan', 
@@ -289,7 +287,6 @@ export class FormulacionComponent implements OnInit {
         })
         this.clonar = true;
         this.plan = planB;
-        this.existAct = false;
       }
     },(error) => {
       Swal.fire({
@@ -673,8 +670,50 @@ export class FormulacionComponent implements OnInit {
           })
         }
   }
+
   identificacionRecursos(){
     this.banderaRecursos = true;
   }
 
+  messageRecursos(event){
+    if (event.accion == 'ocultar'){
+      Swal.fire({
+        title: 'Identificación de Recursos',
+        text: `¿Desea cancelar la identificación de recursos?`,
+        showCancelButton: true,
+        confirmButtonText: `Si`,
+        cancelButtonText: `No`,
+      }).then((result) => {
+        if (result.isConfirmed) {
+              this.banderaRecursos = false;
+              Swal.fire({
+                title: 'Identificación cancelada', 
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+              
+            }
+          }),
+          (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              icon: 'error',
+              text: `${JSON.stringify(error)}`,
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+    } else if (event.accion == 'guardar'){
+      // GUARDAR (se envia event.dataS)
+      // console.log(event.dataS)
+      // PARA GET USAR ESTA FUNCIÓN PARA PASARLE AL DATASOURCE:
+      // var obj = JSON.parse(event.dataS);
+      // var res = [];
+      // for(var i in obj)
+      //   res.push(obj[i]);
+
+    }
+  }
 }

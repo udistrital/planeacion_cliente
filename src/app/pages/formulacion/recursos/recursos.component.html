@@ -14,7 +14,7 @@
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Código del rubro </th>
                     <td mat-cell *matCellDef="let element">
                         <mat-form-field floatLabel="never">
-                            <input disabled matInput placeholder="Código del rubro" [value]="element.codigo" [(ngModel)]="element.codigo" readonly>
+                            <input disabled matInput placeholder="Código del rubro" [value]="element.codigo" [(ngModel)]="element.codigo" required readonly>
                         </mat-form-field>
                     </td>
                     <td mat-footer-cell *matFooterCellDef></td>
@@ -26,7 +26,7 @@
                         <mat-form-field floatLabel="never">
                             <mat-select [(ngModel)]="element.nombre" (selectionChange)="onSelected($event, rowIndex)" placeholder="Nombre del rubro" required>
                                 <mat-option>--</mat-option>
-                                <mat-option *ngFor="let rubro of rubros" [value]="rubro">
+                                <mat-option *ngFor="let rubro of rubros" [value]="rubro.nombre">
                                     {{rubro.nombre}}
                                 </mat-option>
                             </mat-select>
@@ -51,7 +51,7 @@
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Descripción del bien y/o servicio </th>
                     <td mat-cell *matCellDef="let element">
                         <mat-form-field floatLabel="never">
-                            <textarea matInput placeholder="Descripción" required></textarea>
+                            <textarea matInput placeholder="Descripción" [value]="element.descripcion" [(ngModel)]="element.descripcion"  required></textarea>
                         </mat-form-field>
                     </td>
                     <td mat-footer-cell *matFooterCellDef></td>
@@ -61,8 +61,7 @@
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Actividades </th>
                     <td mat-cell *matCellDef="let element">
                         <mat-form-field floatLabel="never">
-                            <mat-select placeholder="Actividades" (selectionChange)="onChange($event.value)" required multiple>
-                                <mat-option>--</mat-option>
+                            <mat-select [(ngModel)]="element.actividades" [value]="selectedActividades" placeholder="Actividades" (selectionChange)="onChange($event.value)" required multiple>
                                 <mat-option *ngFor="let actividad of actividades" [value]="actividad.index">
                                     {{actividad.index + " - " +actividad.Meta}}
                                 </mat-option>
@@ -93,4 +92,10 @@
             <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" aria-label="Select page of users"></mat-paginator>
         </ng-container>
     </mat-card-content>
+    <mat-card-footer style="text-align: center;">
+        <ng-container>
+          <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="ocultarRecursos()">Cancelar</button>
+          <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"  (click)="guardarRecursos()">Guardar</button>
+        </ng-container>
+      </mat-card-footer>
 </mat-card>
