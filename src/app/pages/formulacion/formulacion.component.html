@@ -49,6 +49,7 @@
 </mat-card>
 
 <br><br>
+<!-- ARMONIZACIÓN -->
 <mat-card class="card-oas-int" *ngIf="!clonar && planAsignado && addActividad">
   <mat-card-header>
     <mat-card-title *ngIf="plan != undefined">Armonización  {{plan.nombre}}</mat-card-title>
@@ -253,7 +254,7 @@
   </mat-card-content>
   </mat-card>
   </mat-card-content>
-  <!-- AGREGAR ACTIVIDAD / CULMINAR PLAN -->
+  <!-- AGREGAR ACTIVIDAD / IDENTIFICACIÓN / CULMINAR PLAN -->
   <mat-card-footer style="text-align: center;">
     <ng-container>
       <button mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad">
@@ -264,11 +265,11 @@
         Identificación de Contratistas
       </button>
       <br><br>
-      <button mat-raised-button color="primary" (click)="identificacionRecursos()" [disabled]="!existAct">
-        Agregar identificación de recursos
+      <button mat-raised-button color="primary" (click)="identificarRecursos()" [disabled]="!dataT">
+        Identificación de Recursos
       </button>
       <br><br>
-      <button mat-raised-button color="primary" (click)="culminarPlan()">
+      <button mat-raised-button color="primary" (click)="culminarPlan()" [disabled]="!dataT">
         Culminar plan
       </button>
     </ng-container>
@@ -276,26 +277,14 @@
   </mat-card-footer>
 </mat-card>
 
+<!-- DIRECTIVAS IDENTIFICACIÓN RECURSOS Y CONTRATISTAS -->
 <br><br>
-
-<mat-card *ngIf="!clonar && planAsignado && identContratistas">
-  <mat-card-header>
-    <mat-card-title >Identificación de Contratistas </mat-card-title>
-  </mat-card-header>
-  <br><br>
-  <mad-card-content>
-    <app-contratistas [dataSourceActividades]="dataSource"></app-contratistas>
-    <br>
-  </mad-card-content>
-  <mat-card-footer style="text-align: center;">
-    <ng-container>
-      <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="ocultarIdentContratistas()">Cancelar</button>
-      <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"  (click)="guardarIdentContratistas()">Guardar</button>
-    </ng-container>
-  </mat-card-footer>
-</mat-card>
-<ng-container class="card-oas" *ngIf="banderaRecursos">
-  <app-recursos [dataSourceActividades]="dataSource" (acciones)="messageRecursos($event)">
+<ng-container class="card-oas" *ngIf="!clonar && planAsignado && identContratistas">
+  <app-contratistas [dataSourceActividades]="dataSource" (acciones)="messageIdentificacion($event)">
+  </app-contratistas>
+</ng-container>
+<br><br>
+<ng-container class="card-oas" *ngIf="!clonar && planAsignado && identRecursos">
+  <app-recursos [dataSourceActividades]="dataSource" (acciones)="messageIdentificacion($event)">
   </app-recursos>
 </ng-container>
-
