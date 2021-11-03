@@ -51,7 +51,7 @@ export class ArbolComponent implements OnInit {
   private transformer = (node: Subgrupo, level: number) => {
     if (this.armonizacion){
       return {
-        expandable: !!node.children && node.children.length > 0,
+        expandable: !!node.children && node.children.length > 0 && level < 2,
         activo: node.activo,
         nombre: node.nombre,
         descripcion: node.descripcion,
@@ -132,6 +132,9 @@ export class ArbolComponent implements OnInit {
         this.mostrar = false;
         this.dataSource.data = [];
       }
+      if (this.armonizacion){
+        this.expandNodes()
+      }
     }
     ,(error) => {
       Swal.fire({
@@ -186,6 +189,16 @@ export class ArbolComponent implements OnInit {
       }else{
         fila.icon = 'compare_arrows'
       }
+    }
+  }
+
+  expandNodes(){
+    for (let nodo of this.dataArmonizacion){
+      let found = this.treeControl.dataNodes.find(element => element.id == nodo)
+      let index = this.treeControl.dataNodes.indexOf(found)
+      this.treeControl.expand(this.treeControl.dataNodes[index-2])
+      this.treeControl.expand(this.treeControl.dataNodes[index-1])
+      this.treeControl.expand(this.treeControl.dataNodes[index])
     }
   }
 

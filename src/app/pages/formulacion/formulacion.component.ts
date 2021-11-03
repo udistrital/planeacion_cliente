@@ -144,60 +144,80 @@ export class FormulacionComponent implements OnInit {
 
   submit() {
     if (!this.banderaEdit){ // ADD NUEVA ACTIVIDAD
-    var formValue = this.form.value;
-    var actividad = {
-            armo: this.dataArmonizacion.toString(),
-            entrada: formValue
-    }
-          this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data : any) => {
-            if (data){
-              Swal.fire({
-                title: 'Actividad agregada', 
-                //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
-                text: 'La actividad se ha registrado satisfactoriamente',
-                icon: 'success'
-              }).then((result) => {
-                if (result.value) {
-                  this.loadData()
-                  this.form.reset();
-                  this.addActividad = false;
-                  this.dataArmonizacion = [];
-                  this.banderaRecursos = false;
-                  this.idPadre = '';
-                  this.tipoPlanId = '';
-                }
-              })
-            }
-          })
-        
-      
-    
-    } else { // EDIT ACTIVIDAD
-      var aux = this.dataArmonizacion.toString()
-      var formValue = this.form.value;
-      var actividad = {
-        entrada: formValue,
-        armo : aux
-      } 
-      this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id+`/`+this.rowActividad).subscribe((data: any) => {
-        if (data){
-          Swal.fire({
-            title: 'Información de actividad actualizada', 
-            //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
-            text: 'La actividad se ha actualizado satisfactoriamente',
-            icon: 'success'
-          }).then((result) => {
-            if (result.value) {
-              this.form.reset();
-              this.addActividad = false;
-              this.loadData();
-              this.banderaRecursos = false;
-              this.idPadre = '';
-              this.tipoPlanId = '';
-            }
-          })
+      if (this.dataArmonizacion.length != 0){
+                    
+        var formValue = this.form.value;
+        var actividad = {
+          armo: this.dataArmonizacion.toString(),
+          entrada: formValue
         }
-      })
+        this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data : any) => {
+          if (data){
+            Swal.fire({
+            title: 'Actividad agregada', 
+            //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+            text: 'La actividad se ha registrado satisfactoriamente',
+            icon: 'success'
+            }).then((result) => {
+            if (result.value) {
+              this.loadData()
+                this.form.reset();
+                this.addActividad = false;
+                this.dataArmonizacion = [];
+                this.banderaRecursos = false;
+                this.idPadre = '';
+                this.tipoPlanId = '';
+              }
+            })
+          }
+        })
+      }else{
+        Swal.fire({
+          title: 'Por favor complete la armonización para continuar', 
+          text: `No se encontraron datos registrados`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+
+    } else { // EDIT ACTIVIDAD
+      if (this.dataArmonizacion.length != 0){
+        var aux = this.dataArmonizacion.toString()
+        var formValue = this.form.value;
+        var actividad = {
+          entrada: formValue,
+          armo : aux
+        } 
+        this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id+`/`+this.rowActividad).subscribe((data: any) => {
+          if (data){
+            Swal.fire({
+              title: 'Información de actividad actualizada', 
+              //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+              text: 'La actividad se ha actualizado satisfactoriamente',
+              icon: 'success'
+            }).then((result) => {
+              if (result.value) {
+                this.form.reset();
+                this.addActividad = false;
+                this.loadData();
+                this.banderaRecursos = false;
+                this.idPadre = '';
+                this.tipoPlanId = '';
+              }
+            })
+          } 
+        })
+      }else{
+        Swal.fire({
+          title: 'Por favor complete la armonización para continuar', 
+          text: `No se encontraron datos registrados`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+
     }
   }
 
