@@ -165,7 +165,6 @@ export class FormulacionComponent implements OnInit {
                 this.form.reset();
                 this.addActividad = false;
                 this.dataArmonizacion = [];
-                this.banderaRecursos = false;
                 this.idPadre = '';
                 this.tipoPlanId = '';
               }
@@ -202,7 +201,6 @@ export class FormulacionComponent implements OnInit {
                 this.form.reset();
                 this.addActividad = false;
                 this.loadData();
-                this.banderaRecursos = false;
                 this.idPadre = '';
                 this.tipoPlanId = '';
               }
