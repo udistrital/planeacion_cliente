@@ -4,6 +4,8 @@ import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { isNumeric } from 'rxjs/internal-compatibility';
+import { FormArray, FormBuilder, FormGroup, NgForm, FormControl, Validators, AbstractControl } from '@angular/forms';
+import { Console } from 'console';
 
 @Component({
   selector: 'app-recursos',
@@ -19,6 +21,9 @@ export class RecursosComponent implements OnInit {
   actividades: any[];
   accionBoton: string;
   selectedActividades;
+  tipoIdenti: string;
+  errorDataSource: boolean = false;
+  contador: number = 0;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -137,23 +142,56 @@ export class RecursosComponent implements OnInit {
 
   ocultarRecursos(){
     this.accionBoton = 'ocultar';
+    this.tipoIdenti = 'recursos';
     let data = this.dataSource.data;
     let accion = this.accionBoton;
-    this.acciones.emit({data, accion});
+    let identi = this.tipoIdenti;
+    this.acciones.emit({data, accion, identi});
   }
 
   guardarRecursos(){
     this.accionBoton = 'guardar';
+    this.tipoIdenti = 'recursos';
     let data = this.dataSource.data;
-    let accion = this.accionBoton;
-    for (var i in data){
-      var obj = data[i];
-      obj["activo"] = true;
-      var num = +i+1;
-      obj["index"] = num.toString();
+    this.validarDataSource(data);
+    if (this.errorDataSource){
+      Swal.fire({
+        title: 'Tiene datos sin completar. Por favor verifique', 
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 3500
+      })
+    } else if (!this.errorDataSource) {
+      let accion = this.accionBoton;
+      let identi = this.tipoIdenti;
+      for (var i in data){
+        var obj = data[i];
+        obj["activo"] = true;
+        var num = +i+1;
+        obj["index"] = num.toString();
+      }
+      let dataS = JSON.stringify(Object.assign({}, data))
+      this.acciones.emit({dataS, accion, identi});
     }
-    let dataS = JSON.stringify(Object.assign({}, data))
-    this.acciones.emit({dataS, accion});
   }
 
+  submit(data) {
+    
+  }
+  
+  validarDataSource(data){
+    this.contador = 0;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].codigo == '' || data[i].nombre == '' || data[i].valor == null || data[i].descripcion == '' || data[i].actividades == "" 
+      || data[i].actividades == null){
+        this.contador++;
+      }
+    }
+    if (this.contador > 0){
+      this.errorDataSource = true;
+    }
+    else {
+      this.errorDataSource = false;
+    }
+  }
 }

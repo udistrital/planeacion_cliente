@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { FormArray, FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { RequestManager } from '../services/requestManager';
 import { environment } from '../../../environments/environment';
 import {MatTableDataSource} from '@angular/material/table';
@@ -40,7 +40,7 @@ export class FormulacionComponent implements OnInit {
   dataT: boolean;
   banderaEdit: boolean;
   rowActividad: string;
-  banderaRecursos: boolean;
+  identRecursos: boolean;
 
   tipoPlanId: string;
   idPadre: string;
@@ -62,7 +62,8 @@ export class FormulacionComponent implements OnInit {
     this.unidadSelected = false;
     this.vigenciaSelected = false;
     this.clonar = false;
-    this.banderaRecursos = false;
+    this.identRecursos = false;
+    this.identContratistas = false;
     this.dataT = false;
    }
 
@@ -274,7 +275,6 @@ export class FormulacionComponent implements OnInit {
   onChangeSelect(opcion) {
     
   }
-
 
   onChangePD(planD){
     if (planD == undefined){
@@ -494,11 +494,14 @@ export class FormulacionComponent implements OnInit {
     this.addActividad = true;
     this.banderaEdit = false;
     this.dataArmonizacion = []
-
   }
 
   identificarContratistas(){
     this.identContratistas = true;
+  }
+
+  identificarRecursos(){
+    this.identRecursos = true;
   }
 
   cargarPlanesDesarrollo(){
@@ -633,99 +636,63 @@ export class FormulacionComponent implements OnInit {
       cancelButtonText: `No`,
     }).then((result) => {
       if (result.isConfirmed) {
-            this.addActividad = false;
-            this.dataArmonizacion = []
-            Swal.fire({
-              title: 'Registro cancelado', 
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-            })
-          } else if (result.dismiss === Swal.DismissReason.cancel) {
-            
-          }
-        }),
-        (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            icon: 'error',
-            text: `${JSON.stringify(error)}`,
-            showConfirmButton: false,
-            timer: 2500
-          })
-        }
+        this.addActividad = false;
+        this.dataArmonizacion = []
+        Swal.fire({
+          title: 'Registro cancelado', 
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        
+      }
+    }),
+    (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    }
   }
 
-
-  guardarIdentContratistas(){
-    //console.log("Guardar Identificacion Contratistas")
-  }
-
-  ocultarIdentContratistas(){
-    Swal.fire({
-      title: 'Identificación de Contratistas',
-      text: `¿Desea cancelar la identificación de contratistas?`,
-      showCancelButton: true,
-      confirmButtonText: `Si`,
-      cancelButtonText: `No`,
-    }).then((result) => {
-      if (result.isConfirmed) {
-            this.identContratistas = false;
-            Swal.fire({
-              title: 'Identificación cancelada', 
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-            })
-          } else if (result.dismiss === Swal.DismissReason.cancel) {
-            
-          }
-        }),
-        (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            icon: 'error',
-            text: `${JSON.stringify(error)}`,
-            showConfirmButton: false,
-            timer: 2500
-          })
-        }
-  }
-
-  identificacionRecursos(){
-    this.banderaRecursos = true;
-  }
-
-  messageRecursos(event){
+  messageIdentificacion(event){
     if (event.accion == 'ocultar'){
       Swal.fire({
-        title: 'Identificación de Recursos',
-        text: `¿Desea cancelar la identificación de recursos?`,
+        title: `Identificación de ${event.identi}`,
+        text: `¿Desea cancelar la identificación de ${event.identi}?`,
         showCancelButton: true,
         confirmButtonText: `Si`,
         cancelButtonText: `No`,
       }).then((result) => {
         if (result.isConfirmed) {
-              this.banderaRecursos = false;
-              Swal.fire({
-                title: 'Identificación cancelada', 
-                icon: 'warning',
-                showConfirmButton: false,
-                timer: 2500
-              })
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-              
-            }
-          }),
-          (error) => {
-            Swal.fire({
-              title: 'Error en la operación',
-              icon: 'error',
-              text: `${JSON.stringify(error)}`,
-              showConfirmButton: false,
-              timer: 2500
-            })
-          }
+          if (event.identi == 'contratistas'){
+            this.identContratistas = false;
+          } else if (event.identi == 'recursos'){
+            this.identRecursos = false;
+          }    
+          Swal.fire({
+            title: 'Identificación cancelada', 
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          
+        }
+      }),
+        (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            icon: 'error',
+            text: `${JSON.stringify(error)}`,
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
     } else if (event.accion == 'guardar'){
       // GUARDAR (se envia event.dataS)
       // console.log(event.dataS)
@@ -734,7 +701,17 @@ export class FormulacionComponent implements OnInit {
       // var res = [];
       // for(var i in obj)
       //   res.push(obj[i]);
-
+      Swal.fire({
+        title: 'Guardado exitoso', 
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 3500
+      })
+      if (event.identi == 'contratistas'){
+        this.identContratistas = false;
+      } else if (event.identi == 'recursos'){
+        this.identRecursos = false;
+      }
     }
   }
 }
