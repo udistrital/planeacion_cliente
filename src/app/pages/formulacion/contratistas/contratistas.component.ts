@@ -23,11 +23,16 @@ export class ContratistasComponent implements OnInit {
   contratistas: any[];
   actividades: any[];
   perfiles : any[];
+  accionBoton: string;
+  tipoIdenti: string;
+  selectedActividades;
+  errorDataSource: boolean = false;
+  contador: number = 0;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @Input() dataSourceActividades: MatTableDataSource<any>;
-
+  @Output() acciones = new EventEmitter<any>();
   constructor(private request: RequestManager){
     
     this.displayedColumns = ['descripcionNecesidad','perfil','cantidad','meses','dias','valorUnitario','valorTotal','actividades', 'acciones'];
@@ -145,4 +150,58 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
+  ocultarContratistas(){
+    this.accionBoton = 'ocultar';
+    this.tipoIdenti = 'contratistas'
+    let data = this.dataSource.data;
+    let accion = this.accionBoton;
+    let identi = this.tipoIdenti;
+    this.acciones.emit({data, accion, identi});
+  }
+
+  guardarContratistas(){
+    this.accionBoton = 'guardar';
+    this.tipoIdenti = 'contratistas'
+    let data = this.dataSource.data;
+    this.validarDataSource(data);
+    if (this.errorDataSource){
+      Swal.fire({
+        title: 'Tiene datos sin completar. Por favor verifique', 
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 3500
+      })
+    } else if (!this.errorDataSource) {
+      let accion = this.accionBoton;
+      let identi = this.tipoIdenti;
+      for (var i in data){
+        var obj = data[i];
+        obj["activo"] = true;
+        var num = +i+1;
+        obj["index"] = num.toString();
+      }
+      let dataS = JSON.stringify(Object.assign({}, data))
+      this.acciones.emit({dataS, accion, identi});
+    }
+  }
+
+  submit(data) {
+    
+  }
+
+  validarDataSource(data){
+    this.contador = 0;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].descripcionNecesidad == '' || data[i].perfil == '' || data[i].cantidad == null || data[i].meses == null || data[i].dias == null
+      || data[i].valorUnitario == null || data[i].valorTotal == null || data[i].actividades == "" || data[i].actividades == null){
+        this.contador++;
+      } 
+      if (this.contador > 0) {
+        this.errorDataSource = true; 
+      }
+      else {
+        this.errorDataSource = false;
+      }
+    }
+  }
 }
