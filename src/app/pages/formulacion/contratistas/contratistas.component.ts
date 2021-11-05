@@ -32,19 +32,28 @@ export class ContratistasComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @Input() dataSourceActividades: MatTableDataSource<any>;
+  @Input() dataTabla: boolean;
+  @Input() plan: string;
   @Output() acciones = new EventEmitter<any>();
   constructor(private request: RequestManager){
-    
     this.displayedColumns = ['descripcionNecesidad','perfil','cantidad','meses','dias','valorUnitario','valorTotal','actividades', 'acciones'];
     this.dataSource = new MatTableDataSource<any>();
   }
 
-  
-
   ngOnInit(): void {
     this.loadPerfiles();
     this.actividades = this.dataSourceActividades.data;
-    
+    this.loadTabla();
+  }
+
+  loadTabla(){
+    if (this.dataTabla){
+      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/`+this.plan+`/6184b3e6f6fc97850127bb68`).subscribe((dataG: any) => {
+        if (dataG.Data != null){
+          this.dataSource.data = dataG.Data
+        }
+      })
+    }
   }
 
   loadPerfiles(){
@@ -181,7 +190,17 @@ export class ContratistasComponent implements OnInit {
         obj["index"] = num.toString();
       }
       let dataS = JSON.stringify(Object.assign({}, data))
-      this.acciones.emit({dataS, accion, identi});
+      this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, this.plan+`/6184b3e6f6fc97850127bb68`).subscribe((data: any) => {
+        if (data){
+          Swal.fire({
+            title: 'Guardado exitoso', 
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 3500
+          })
+          this.acciones.emit({dataS, accion, identi});
+        }
+      })
     }
   }
 
