@@ -30,6 +30,11 @@ th {
   color: #000000;
 }
 
+
+::ng-deep textarea.mat-input-element {
+  color: #000000;
+}
+
 .material-icons-delete{
   color: #000000;
 }
