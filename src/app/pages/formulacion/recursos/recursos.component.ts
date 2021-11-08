@@ -6,6 +6,8 @@ import Swal from 'sweetalert2';
 import { isNumeric } from 'rxjs/internal-compatibility';
 import { FormArray, FormBuilder, FormGroup, NgForm, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { Console } from 'console';
+import { RequestManager } from '../../services/requestManager';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-recursos',
@@ -28,8 +30,10 @@ export class RecursosComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @Input() dataSourceActividades: MatTableDataSource<any>;
+  @Input() dataTabla: boolean;
+  @Input() plan: string;
   @Output() acciones = new EventEmitter<any>();
-  constructor() {
+  constructor(private request: RequestManager,) {
     this.displayedColumns = ['codigo','nombre','valor','descripcion', 'actividades', 'acciones']
     this.dataSource = new MatTableDataSource<any>();
   }
@@ -52,12 +56,19 @@ export class RecursosComponent implements OnInit {
     }
   ]
 
-  //selectedActividades;
-
   ngOnInit(): void {
-    //console.log(this.selectedActividades);
-    //console.log(this.dataSourceActividades.data)
     this.actividades = this.dataSourceActividades.data;
+    this.loadTabla();
+  }
+
+  loadTabla(){
+    if (this.dataTabla){
+      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/`+this.plan+`/617b6630f6fc97b776279afa`).subscribe((dataG: any) => {
+        if (dataG.Data != null){
+          this.dataSource.data = dataG.Data
+        }
+      })
+    }
   }
 
   applyFilter(event: Event) {
@@ -171,7 +182,17 @@ export class RecursosComponent implements OnInit {
         obj["index"] = num.toString();
       }
       let dataS = JSON.stringify(Object.assign({}, data))
-      this.acciones.emit({dataS, accion, identi});
+      this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, this.plan+`/617b6630f6fc97b776279afa`).subscribe((data: any) => {
+        if (data){
+          Swal.fire({
+            title: 'Guardado exitoso', 
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 3500
+          })
+          this.acciones.emit({dataS, accion, identi});
+        }
+      })
     }
   }
 

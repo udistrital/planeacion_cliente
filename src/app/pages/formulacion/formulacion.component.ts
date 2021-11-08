@@ -9,6 +9,7 @@ import {MatTableDataSource} from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ArbolComponent } from '../plan/arbol/arbol.component';
 import { element } from 'protractor';
+import { stringify } from 'querystring';
 
 @Component({
   selector: 'app-formulacion',
@@ -495,11 +496,65 @@ export class FormulacionComponent implements OnInit {
   }
 
   identificarContratistas(){
-    this.identContratistas = true;
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:`+this.plan._id+`,tipo_identificacion_id:6184b3e6f6fc97850127bb68`).subscribe((data: any) => {
+      if (data.Data.length == 0){
+        var str1 = 'Identificación de Contratistas '+this.plan.nombre
+        var str2 = 'Identificación de Contratistas '+this.plan.nombre+' '+this.unidad.Nombre
+        let datoIdenti = {
+          "nombre": String(str1),
+          "descripcion": String(str2),
+          "plan_id": String(this.plan._id),
+          "dato": "{}",
+          "tipo_identificacion_id": "6184b3e6f6fc97850127bb68",
+          "activo": true
+        }
+        this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
+          if (dataP){
+            this.identContratistas = true;
+          } else {
+            Swal.fire({
+              title: 'Error al crear identificación. Intente de nuevo', 
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+        })
+      } else {
+        this.identContratistas = true;
+      }
+    })
   }
 
   identificarRecursos(){
-    this.identRecursos = true;
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:`+this.plan._id+`,tipo_identificacion_id:617b6630f6fc97b776279afa`).subscribe((data: any) => {
+      if (data.Data.length == 0){
+        var str1 = 'Identificación de Recursos '+this.plan.nombre
+        var str2 = 'Identificación de Recursos '+this.plan.nombre+' '+this.unidad.Nombre
+        let datoIdenti = {
+          "nombre": String(str1),
+          "descripcion": String(str2),
+          "plan_id": String(this.plan._id),
+          "dato": "{}",
+          "tipo_identificacion_id": "617b6630f6fc97b776279afa",
+          "activo": true
+        }
+        this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
+          if (dataP){
+            this.identRecursos = true;
+          } else {
+            Swal.fire({
+              title: 'Error al crear identificación. Intente de nuevo', 
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+        })
+      } else {
+        this.identRecursos = true;
+      }
+    })
   }
 
   cargarPlanesDesarrollo(){
@@ -661,7 +716,7 @@ export class FormulacionComponent implements OnInit {
     if (event.accion == 'ocultar'){
       Swal.fire({
         title: `Identificación de ${event.identi}`,
-        text: `¿Desea cancelar la identificación de ${event.identi}?`,
+        text: `¿Desea cerrar la identificación de ${event.identi}?`,
         showCancelButton: true,
         confirmButtonText: `Si`,
         cancelButtonText: `No`,
@@ -673,7 +728,7 @@ export class FormulacionComponent implements OnInit {
             this.identRecursos = false;
           }    
           Swal.fire({
-            title: 'Identificación cancelada', 
+            title: 'Cierre exitoso.', 
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500
@@ -692,19 +747,6 @@ export class FormulacionComponent implements OnInit {
           })
         }
     } else if (event.accion == 'guardar'){
-      // GUARDAR (se envia event.dataS)
-      // console.log(event.dataS)
-      // PARA GET USAR ESTA FUNCIÓN PARA PASARLE AL DATASOURCE:
-      // var obj = JSON.parse(event.dataS);
-      // var res = [];
-      // for(var i in obj)
-      //   res.push(obj[i]);
-      Swal.fire({
-        title: 'Guardado exitoso', 
-        icon: 'success',
-        showConfirmButton: false,
-        timer: 3500
-      })
       if (event.identi == 'contratistas'){
         this.identContratistas = false;
       } else if (event.identi == 'recursos'){
