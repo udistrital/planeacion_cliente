@@ -20,6 +20,8 @@ export const environment = {
   PLANES_MID: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8524/v1/',
   OIKOS_SERVICE: 'http://api.intranetoas.udistrital.edu.co:8087/v1/',
   PARAMETROS_SERVICE: 'http://pruebasapi.intranetoas.udistrital.edu.co:8510/v1/',
+  //PLANES_CRUD: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/planes_crud/',
+  //PLANES_MID: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/planeacion_mid/v1/',
   ///
   PRUEBAS: 'http://pruebasapi.intranetoas.udistrital.edu.co:8121/v1/',
   TERCEROS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/terceros_crud/v1/',

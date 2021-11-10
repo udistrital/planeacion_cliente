@@ -42,6 +42,7 @@ export class FormulacionComponent implements OnInit {
   banderaEdit: boolean;
   rowActividad: string;
   identRecursos: boolean;
+  identDocentes: boolean;
 
   tipoPlanId: string;
   idPadre: string;
@@ -65,6 +66,7 @@ export class FormulacionComponent implements OnInit {
     this.clonar = false;
     this.identRecursos = false;
     this.identContratistas = false;
+    this.identDocentes = false;
     this.dataT = false;
    }
 
@@ -241,6 +243,8 @@ export class FormulacionComponent implements OnInit {
       this.unidadSelected = true;
       this.unidad = unidad;
       this.addActividad = false;
+      this.identRecursos = false;
+      this.identContratistas = false;
       if (this.vigenciaSelected && this.planSelected){
         this.busquedaPlanes(this.planAux);
       }
@@ -254,6 +258,8 @@ export class FormulacionComponent implements OnInit {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
       this.addActividad = false;
+      this.identRecursos = false;
+      this.identContratistas = false;
       if (this.unidadSelected && this.planSelected){
         this.busquedaPlanes(this.planAux);
       }
@@ -267,6 +273,8 @@ export class FormulacionComponent implements OnInit {
       this.planAux = plan;
       this.planSelected = true;
       this.addActividad = false;
+      this.identRecursos = false;
+      this.identContratistas = false;
       this.busquedaPlanes(plan);
     }
   }
@@ -557,6 +565,38 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
+  identificarDocentes(){
+    // this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:`+this.plan._id+`,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
+    //   if (data.Data.length == 0){
+    //     var str1 = 'Identificación de Docentes '+this.plan.nombre
+    //     var str2 = 'Identificación de Docentes '+this.plan.nombre+' '+this.unidad.Nombre
+    //     let datoIdenti = {
+    //       "nombre": String(str1),
+    //       "descripcion": String(str2),
+    //       "plan_id": String(this.plan._id),
+    //       "dato": "{}",
+    //       "tipo_identificacion_id": "61897518f6fc97091727c3c3",
+    //       "activo": true
+    //     }
+    //     this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
+    //       if (dataP){
+    //         this.identDocentes = true;
+    //       } else {
+    //         Swal.fire({
+    //           title: 'Error al crear identificación. Intente de nuevo', 
+    //           icon: 'warning',
+    //           showConfirmButton: false,
+    //           timer: 2500
+    //         })
+    //       }
+    //     })
+    //   } else {
+    //     this.identDocentes = true;
+    //   }
+    // })
+    this.identDocentes = true;
+  }
+
   cargarPlanesDesarrollo(){
     this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
       if(data){
@@ -726,7 +766,9 @@ export class FormulacionComponent implements OnInit {
             this.identContratistas = false;
           } else if (event.identi == 'recursos'){
             this.identRecursos = false;
-          }    
+          } else if (event.identi == 'docentes'){
+            this.identDocentes = false;
+          }
           Swal.fire({
             title: 'Cierre exitoso.', 
             icon: 'warning',
@@ -751,6 +793,8 @@ export class FormulacionComponent implements OnInit {
         this.identContratistas = false;
       } else if (event.identi == 'recursos'){
         this.identRecursos = false;
+      } else if (event.identi == 'docentes'){
+        this.identDocentes = false;
       }
     }
   }
