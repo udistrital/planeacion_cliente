@@ -1,0 +1,338 @@
+<mat-card class="card-oas">
+    <mat-card-header>
+        <mat-card-title>Identificación de Recursos Docente</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <form #myForm="ngForm" (ngSubmit)="submit(myForm)">
+            <mat-vertical-stepper>
+                <mat-step *ngFor="let step of steps; let index = index; let last = last;">
+                    <ng-template matStepLabel>{{step.nombre}}</ng-template>
+                    <ng-container>                        
+                        <mat-label *ngIf="step.descripcion != 'NA'">{{step.descripcion}}</mat-label>
+                        <br><br>
+                        <div class="table-responsive">
+                        <table mat-table matSort [dataSource]="step.data">
+                            <!-- Docente -->
+                            <ng-container matColumnDef="docente">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Docente </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                        <input disabled matInput class="form-control" placeholder="Docente" [value]="element.docente" [(ngModel)]="element.docente" [ngModelOptions]="{standalone: true}" required readonly>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    {{step.footer}}
+                                </td>
+                            </ng-container>
+                            <!-- Cantidad -->
+                            <ng-container matColumnDef="cantidad">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Cantidad </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" max="25" type="number" class="form-control" matInput placeholder="Cantidad" [value]="element.cantidad" [(ngModel)]="element.cantidad" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getCantidad(step.tipo)}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Sueldo básico -->
+                            <ng-container matColumnDef="sueldoBasico">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Sueldo básico </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Sueldo básico" [value]="element.sueldoBasico" [(ngModel)]="element.sueldoBasico" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorSueldo(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Prima de servicios -->
+                            <ng-container matColumnDef="primaServicios">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Prima de servicios </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Prima de servicios" [value]="element.primaServicios" [(ngModel)]="element.primaServicios" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorPrimaServicios(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Prima Navidad -->
+                            <ng-container matColumnDef="primaNavidad">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Prima Navidad </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Prima Navidad" [value]="element.primaNavidad" [(ngModel)]="element.primaNavidad" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorPrimaNavidad(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Prima Vacaciones -->
+                            <ng-container matColumnDef="primaVacaciones">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Prima Vacaciones </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Prima Vacaciones" [value]="element.primaVacaciones" [(ngModel)]="element.primaVacaciones" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorPrimaVacaciones(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Aportes Seguridad Social pensiones públicas -->
+                            <ng-container matColumnDef="aportesPensionesPublicas">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes Seguridad Social pensiones públicas </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Aportes pensiones públicas" [value]="element.aportesPensionesPublicas" [(ngModel)]="element.aportesPensionesPublicas" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorPensionesPublicas(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Aportes Seguridad Social pensiones privadas -->
+                            <ng-container matColumnDef="aportesPensionesPrivadas">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes Seguridad Social pensiones privadas </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Aportes pensiones privadas" [value]="element.aportesPensionesPrivadas" [(ngModel)]="element.aportesPensionesPrivadas" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorPensionesPrivadas(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Aportes Seguridad Social salud privada -->
+                            <ng-container matColumnDef="aportesSaludPrivada">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes Seguridad Social salud privada </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Aportes salud privada" [value]="element.aportesSaludPrivada" [(ngModel)]="element.aportesSaludPrivada" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorSaludPrivada(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Aportes de cesantías a fondos públicosa -->
+                            <ng-container matColumnDef="aportesCesantiasPublicos">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes de cesantías a fondos públicos </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Aportes cesantías públicos" [value]="element.aportesCesantiasPublicos" [(ngModel)]="element.aportesCesantiasPublicos" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorCesantiasPublicos(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Aportes de cesantías a fondos privados -->
+                            <ng-container matColumnDef="aportesCesantiasPrivados">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes de cesantías a fondos privados </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Aportes cesantías privados" [value]="element.aportesCesantiasPrivados" [(ngModel)]="element.aportesCesantiasPrivados" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorCesantiasPrivados(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Aportes generales al sistema de riesgo Públicos -->
+                            <ng-container matColumnDef="aportesRiesgoPublicos">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes generales al sistema de riesgo Públicos </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Aportes riesgo Públicos" [value]="element.aportesRiesgoPublicos" [(ngModel)]="element.aportesRiesgoPublicos" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorRiesgoPublicos(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Aportes generales al sistema de riesgo Privados -->
+                            <ng-container matColumnDef="aportesRiesgoPrivados">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes generales al sistema de riesgo Privados </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Aportes riesgo Privados" [value]="element.aportesRiesgoPrivados" [(ngModel)]="element.aportesRiesgoPrivados" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorRiesgoPrivados(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Aportes al ICBF -->
+                            <ng-container matColumnDef="aportesICBF">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes al ICBF </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Aportes al ICBF" [value]="element.aportesICBF" [(ngModel)]="element.aportesICBF" [ngModelOptions]="{standalone: true}" required>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorICBF(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+                            <!-- Total -->
+                            <ng-container matColumnDef="total">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header> Total </th>
+                                <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                    <mat-form-field floatLabel="never">
+                                    <input min="0" type="number" class="form-control" matInput placeholder="Total" [value]="getTotal(element, rowIndex, step.tipo)" [(ngModel)]="element.total" [ngModelOptions]="{standalone: true}" required readonly>
+                                    </mat-form-field>
+                                </td>
+                                <td mat-footer-cell *matFooterCellDef class="footer">
+                                    <p>{{getValorTotal(step.tipo) | currency}}</p>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                            <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+
+                        </table>
+                        </div>
+                    </ng-container>
+                    <br><br>
+                    <div>
+                        <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="index !== 0" matStepperPrevious (click)="prevStep(index)">Volver</button>
+                        <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="!last" matStepperNext (click)="nextStep(index)">Siguiente</button>
+                        <!-- <button *ngIf="index !== 0" matStepperPrevious class="btn btn-primary" type="button" (click)="prevStep(index)">Atrás</button>
+                        <button *ngIf="!last" matStepperNext class="btn btn-primary" type="button" [disabled]="!formStep.at(index).valid" (click)="nextStep(index)">Siguiente</button>
+                        <button *ngIf="last" class="btn btn-primary" [disabled]="!formStep.valid" type="submit">Guardar</button> -->
+                    </div>
+                </mat-step>
+            </mat-vertical-stepper>
+        </form>
+        <ng-container style="text-align: center;">
+            <p style="text-align: center;"><b>Total Recurso Docente</b></p>
+            <br><br>
+            <div class="table-responsive" style="text-align: center;">
+                <table mat-table matSort >
+                    <!-- Docente -->
+                    <ng-container matColumnDef="docente">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Docente </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            Total Recurso Docente
+                        </td>
+                    </ng-container>
+                    <!-- Cantidad -->
+                    <ng-container matColumnDef="cantidad">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Cantidad </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('cantidad')}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Sueldo básico -->
+                    <ng-container matColumnDef="sueldoBasico">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Sueldo básico </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('sueldo') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Prima de servicios -->
+                    <ng-container matColumnDef="primaServicios">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Prima de servicios </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('primaServicios') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Prima Navidad -->
+                    <ng-container matColumnDef="primaNavidad">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Prima Navidad </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('primaNavidad') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Prima Vacaciones -->
+                    <ng-container matColumnDef="primaVacaciones">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Prima Vacaciones </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('primaVacaciones') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Aportes Seguridad Social pensiones públicas -->
+                    <ng-container matColumnDef="aportesPensionesPublicas">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes Seguridad Social pensiones públicas </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('pensionesPublicas') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Aportes Seguridad Social pensiones privadas -->
+                    <ng-container matColumnDef="aportesPensionesPrivadas">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes Seguridad Social pensiones privadas </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('pensionesPrivadas') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Aportes Seguridad Social salud privada -->
+                    <ng-container matColumnDef="aportesSaludPrivada">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes Seguridad Social salud privada </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('saludPrivada') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Aportes de cesantías a fondos públicosa -->
+                    <ng-container matColumnDef="aportesCesantiasPublicos">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes de cesantías a fondos públicos </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('cesantiasPublicos') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Aportes de cesantías a fondos privados -->
+                    <ng-container matColumnDef="aportesCesantiasPrivados">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes de cesantías a fondos privados </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('cesantiasPrivados') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Aportes generales al sistema de riesgo Públicos -->
+                    <ng-container matColumnDef="aportesRiesgoPublicos">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes generales al sistema de riesgo Públicos </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('riesgoPublico') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Aportes generales al sistema de riesgo Privados -->
+                    <ng-container matColumnDef="aportesRiesgoPrivados">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes generales al sistema de riesgo Privados </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('riesgoPrivado') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Aportes al ICBF -->
+                    <ng-container matColumnDef="aportesICBF">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Aportes al ICBF </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('icbf') | currency}}</p>
+                        </td>
+                    </ng-container>
+                    <!-- Total -->
+                    <ng-container matColumnDef="total">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Total </th>
+                        <td mat-footer-cell *matFooterCellDef class="footer">
+                            <p>{{sumasTotales('total') | currency}}</p>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                    <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+                </table>
+            </div>
+        </ng-container>
+    </mat-card-content>
+    <mat-card-footer style="text-align: center;">
+        <ng-container>
+          <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="ocultarRecursos()">Cerrar</button>
+          <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"  (click)="guardarRecursos()">Guardar</button>
+        </ng-container>
+    </mat-card-footer>
+</mat-card>
