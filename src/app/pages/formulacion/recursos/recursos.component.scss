@@ -1,8 +1,78 @@
 table {
-    width: 100%;
-  }
+  width: 100%;
+}
 
 th {
-    color: white;
+  color: white;
+  text-align: center;
+}
+
+th.mat-header-cell, td.mat-cell {
+  text-align: center;
+  padding: 0 !important;
+  color:white;
+}
+
+.td-align-right{
+text-align: right;
+justify-content: flex-end;
+}
+
+.header-align-right{
+display: flex;
+padding: 21px 0;
+justify-content: flex-end;
+}
+
+th {
+color: white;
+text-align: center;
+}
+
+::ng-deep input.mat-input-element {
+color: #000000;
+}
+
+
+::ng-deep textarea.mat-input-element {
+color: #000000;
+}
+
+.material-icons-delete{
+color: #000000;
+}
+
+.footer{
+text-align: center;
+}
+
+.table-responsive {
+display: block;
+width: 100%;
+overflow-x: auto;
+.mat-table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    display: table;
+    border-collapse: collapse;
+    margin: 0px;
+}
+.mat-row,
+.mat-header-row {
+    display: table-row;
     text-align: center;
+}
+.mat-cell,
+.mat-header-cell {
+    text-align: center;
+    word-wrap: initial;
+    display: table-cell;
+    padding: 0px 5px;
+    line-break: unset;
+    width: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    vertical-align: middle;
+}
 }
