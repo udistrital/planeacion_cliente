@@ -13,19 +13,19 @@ const menu = [
     { Nombre: "Consultar", Icono: 'search', Url: "pages/plan/consultar-plan", TipoOpcion: "Menú", Opciones: null }
     ]},
   {Nombre: "Plan de Acción", Icono: "assignment", Url: null, Opciones: [
-    { Nombre: "Funcionamiento", Icono: "forward", Url: null, Opciones: [
+    { Nombre: "Funcionamiento", Icono: "business", Url: null, Opciones: [
       { Nombre: "Formulación", Icono: "forward", Url: "pages/formulacion", Opciones: null },
       { Nombre: "Evaluación", Icono: "done_all", Url: "pages/evaluacion", Opciones: null },
       { Nombre: "Seguimiento", Icono: "find_in_page", Url: "pages/seguimiento", Opciones: null },  
     ] },
-    { Nombre: "Inversion", Icono: "done_all", Url: null, Opciones: [
+    { Nombre: "Inversion", Icono: "work_outline", Url: null, Opciones: [
       { Nombre: "Formulación", Icono: "forward", Url: "pages/formulacion", Opciones: null },
       { Nombre: "Evaluación", Icono: "done_all", Url: "pages/evaluacion", Opciones: null },
       { Nombre: "Seguimiento", Icono: "find_in_page", Url: "pages/seguimiento", Opciones: null },  
     ] }
   ]},  
-  { Nombre: "Banco de Proyectos", Icono: "forward", Url: null, Opciones: null },
-  { Nombre: "Programacion Presupuestal", Icono: "done_all", Url: null, Opciones: null },
+  { Nombre: "Banco de Proyectos", Icono: "account_balance", Url: null, Opciones: null },
+  { Nombre: "Programacion Presupuestal", Icono: "account_balance_wallet", Url: null, Opciones: null },
 ]; 
 
 localStorage.setItem('menu', btoa(JSON.stringify(menu)));
