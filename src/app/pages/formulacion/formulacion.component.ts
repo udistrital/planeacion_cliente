@@ -292,7 +292,6 @@ export class FormulacionComponent implements OnInit {
   }
 
   busquedaPlanes(planB){
-    console.log(planB)
     this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:`+this.unidad.Id+`,vigencia:`+
     this.vigencia.Id+`,formato:false,nombre:`+planB.nombre).subscribe((data: any) => {
       if (data.Data.length > 0){
