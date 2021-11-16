@@ -18,7 +18,7 @@ const routes: Routes = [{
     {
        path: 'dashboard',
        component: DashboardComponent,
-     },
+    },
     {
       path: 'informacion_basica',
       component: InformacionBasicaComponent,
