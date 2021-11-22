@@ -47,7 +47,7 @@
                             <mat-radio-button class="example-radio-button" value="false">Inactivo</mat-radio-button>
                         </mat-radio-group>
                     </mat-grid-tile>
-                    <mat-grid-tile *ngIf="control.visible == true" >
+                    <mat-grid-tile *ngIf="banderaFormato">
                             <mat-label id="tipo-radio-group-label">Formato</mat-label>
                             <mat-radio-group formControlName="radioFormato" class="example-radio-group" aria-labelledby="example-radio-group-label"  required>
                             <mat-radio-button class="example-radio-button" value="true">Sí</mat-radio-button>

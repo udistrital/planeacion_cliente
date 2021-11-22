@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, AfterContentChecked, DoCheck } from '@angular/core';
 import { FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 
@@ -20,6 +20,11 @@ export class EditarDialogComponent implements OnInit {
   banderaTablaS: string;
   nivel: number;
   opt: boolean;
+
+  vTipo : boolean;
+  vRequired : boolean;
+  vOpciones : boolean;
+  vFormato : boolean;
 
   tipos: tipoDato[] = [
     {value: 'numeric', viewValue:'Numérico'},
@@ -68,10 +73,10 @@ export class EditarDialogComponent implements OnInit {
       descripcion: [this.descripcion, Validators.required],
       nombre: [this.nombre, Validators.required],
       activo: [this.activoS, Validators.required],
-      formato: [this.formatoS, this.visibleFormato, Validators.required],
-      tipoDato: [this.tipoDato, this.visibleType, Validators.required],
-      requerido: [this.required, this.visibleRequired, Validators.required],
-      banderaTabla: [this.banderaTablaS, this.visibleBandera, Validators.required],
+      formato: [this.formatoS,  Validators.required],
+      tipoDato: [this.tipoDato, Validators.required],
+      requerido: [this.required, Validators.required],
+      banderaTabla: [this.banderaTablaS, Validators.required],
       opciones: [this.opciones, Validators.required]
     });
     this.verificarDetalle();
@@ -105,62 +110,40 @@ export class EditarDialogComponent implements OnInit {
   }
 
   verificarDetalle(){
-    if(this.data.subDetalle.type == undefined && this.data.subDetalle.required == undefined){
-      this.visibleType = {
-        value: '',
-        disabled: true
+    if(this.data.ban == "plan"){
+      this.vTipo = false
+      this.vFormato = true
+      this.opt = false
+      this.formEditar.get('tipoDato').disable();
+      this.formEditar.get('opciones').disable();
+    }else if(this.data.ban == "nivel"){
+      this.vTipo = true
+      this.vFormato = false
+      this.opt = false
+      this.formEditar.get('tipoDato').enable();
+      if (this.tipoDato == 'select'){
+        this.opt = true;
+        this.formEditar.get('opciones').enable();
+      } else {
+        this.opt = false;
+        this.formEditar.get('opciones').disable();
       }
-      this.visibleRequired = {
-        value: '',
-        disabled: true
-      }
+    }
+    if(this.tipoDato == "undefined" || this.tipoDato == undefined){
+      this.vTipo = false
       this.formEditar.get('tipoDato').disable();
       this.formEditar.get('requerido').disable();
-    }
-    if(this.data.ban == "plan"){
-      this.visibleType = {
-        value: this.visibleType.value,
-        disabled: true
-      }
-      this.visibleRequired = {
-        value: this.visibleRequired.value ,
-        disabled: true
-      }
+      this.formEditar.get('opciones').disable();
     }
     if(this.formatoS == "undefined" || this.formatoS == undefined){
-      this.visibleFormato = {
-        value: '',
-        disabled: true
-      }
-    }
-    if (this.nivel == 1){
-      this.visibleBandera = {
-        value: this.visibleBandera.value,
-        disabled: true
-      }
-      this.formEditar.get('banderaTabla').setValue(this.visibleBandera.value);
+      this.vFormato = false
     }
     if (this.nivel > 1){
-      this.visibleBandera = {
-        value: this.visibleBandera.value,
-        disabled: false
-      }
-    }
-    if (this.nivel > 1 && (this.banderaTablaS == "undefined" || this.banderaTablaS == undefined)){
-      this.visibleBandera = {
-        value: '',
-        disabled: true
-      }
-    }
-    if (this.tipoDato == "select"){
-      this.visibleOpciones = {
-        value: this.visibleOpciones.value ,
-        disabled: false
-      }
-      this.formEditar.get('opciones').enable();
-      this.opt = true;
+      this.formEditar.get('banderaTabla').setValue(this.visibleBandera.value);
     }
   }
+
+
 }
 
 interface tipoDato{

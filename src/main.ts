@@ -15,13 +15,13 @@ const menu = [
   {Nombre: "Plan de Acción", Icono: "assignment", Url: null, Opciones: [
     { Nombre: "Funcionamiento", Icono: "business", Url: null, Opciones: [
       { Nombre: "Formulación", Icono: "forward", Url: "pages/formulacion", Opciones: null },
-      { Nombre: "Evaluación", Icono: "done_all", Url: "pages/evaluacion", Opciones: null },
       { Nombre: "Seguimiento", Icono: "find_in_page", Url: "pages/seguimiento", Opciones: null },  
+      { Nombre: "Evaluación", Icono: "done_all", Url: "pages/evaluacion", Opciones: null },
     ] },
     { Nombre: "Inversion", Icono: "work_outline", Url: null, Opciones: [
       { Nombre: "Formulación", Icono: "forward", Url: "pages/formulacion", Opciones: null },
-      { Nombre: "Evaluación", Icono: "done_all", Url: "pages/evaluacion", Opciones: null },
-      { Nombre: "Seguimiento", Icono: "find_in_page", Url: "pages/seguimiento", Opciones: null },  
+      { Nombre: "Seguimiento", Icono: "find_in_page", Url: "pages/seguimiento", Opciones: null },
+      { Nombre: "Evaluación", Icono: "done_all", Url: "pages/evaluacion", Opciones: null },  
     ] }
   ]},  
   { Nombre: "Banco de Proyectos", Icono: "account_balance", Url: null, Opciones: null },
