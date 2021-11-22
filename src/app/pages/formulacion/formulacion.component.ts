@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { FormArray, FormBuilder, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormControl, Validators, AbstractControl, ControlContainer } from '@angular/forms';
 import { RequestManager } from '../services/requestManager';
 import { environment } from '../../../environments/environment';
 import {MatTableDataSource} from '@angular/material/table';
@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 import { ArbolComponent } from '../plan/arbol/arbol.component';
 import { element } from 'protractor';
 import { stringify } from 'querystring';
+import { timeStamp } from 'console';
 
 @Component({
   selector: 'app-formulacion',
@@ -50,6 +51,10 @@ export class FormulacionComponent implements OnInit {
   planesDesarrollo: any[];
   planDSelected: boolean;
   dataArmonizacion : string[] = [];
+  estadoPlan: string;
+  versionPlan: string;
+  versiones: any[];
+  controlVersion = new FormControl();
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -247,6 +252,8 @@ export class FormulacionComponent implements OnInit {
       this.identRecursos = false;
       this.identContratistas = false;
       this.banderaIdentDocentes = this.mostrarIdentDocente(unidad.DependenciaTipoDependencia);
+      this.estadoPlan = "";
+      this.versionPlan = "";
       if (this.vigenciaSelected && this.planSelected){
         this.busquedaPlanes(this.planAux);
       }
@@ -269,6 +276,8 @@ export class FormulacionComponent implements OnInit {
       this.addActividad = false;
       this.identRecursos = false;
       this.identContratistas = false;
+      this.estadoPlan = "";
+      this.versionPlan = "";
       if (this.unidadSelected && this.planSelected){
         this.busquedaPlanes(this.planAux);
       }
@@ -284,6 +293,8 @@ export class FormulacionComponent implements OnInit {
       this.addActividad = false;
       this.identRecursos = false;
       this.identContratistas = false;
+      this.estadoPlan = "";
+      this.versionPlan = "";
       this.busquedaPlanes(plan);
     }
   }
@@ -300,14 +311,70 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
+  onChangeVersion(version){
+    this.plan = version;
+    this.versionPlan = this.plan.numero;
+    this.controlVersion = new FormControl(this.plan);
+    this.getEstado();
+    this.planAsignado = true;
+    this.clonar = false;
+    this.loadData();
+  }
+
+  getEstado(){
+    this.request.get(environment.PLANES_CRUD, `estado-plan/`+this.plan.estado_plan_id).subscribe((data: any) => {
+      if (data){
+        this.estadoPlan = data.Data.nombre
+      }
+    }),
+    (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    }
+  }
+
+  getVersiones(planB) {
+    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/`+this.unidad.Id+`/`+this.vigencia.Id+
+      `/`+planB.nombre).subscribe((data: any) => {
+        if (data){
+          this.versiones = data;
+          for (var i in this.versiones){
+            var obj = this.versiones[i];
+            var num = +i+1;
+            obj["numero"] = num.toString();
+          }
+          var len = this.versiones.length;
+          var pos = +len-1;
+          this.plan = this.versiones[pos];
+          this.planAsignado = true;
+          this.clonar = false;
+          this.loadData();
+          this.controlVersion = new FormControl(this.plan);
+          this.versionPlan = this.plan.numero;
+          this.getEstado();
+        }
+    }),
+    (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    }
+  }
+
   busquedaPlanes(planB){
     this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:`+this.unidad.Id+`,vigencia:`+
     this.vigencia.Id+`,formato:false,nombre:`+planB.nombre).subscribe((data: any) => {
       if (data.Data.length > 0){
-        this.plan = data.Data[0];
-        this.planAsignado = true;
-        this.clonar = false;
-        this.loadData();
+        this.getVersiones(planB);
       } else if (data.Data.length == 0) {
         Swal.fire({
           title: 'Formulación nuevo plan', 
@@ -710,10 +777,11 @@ export class FormulacionComponent implements OnInit {
                 showConfirmButton: false,
                 timer: 4000
               })
-              this.clonar = false;
-              this.planAsignado = true;
-              //CARGA TABLA
-              this.loadData();
+              // this.clonar = false;
+              // this.planAsignado = true;
+              // //CARGA TABLA
+              // this.loadData();
+              this.getVersiones(this.plan);
             }
           })
       }

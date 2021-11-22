@@ -23,3 +23,31 @@ th {
   padding: 21px 0;
   justify-content: flex-end;
 }
+
+#box {
+  border: 3px solid;
+}
+
+.container {
+  width: 200px;
+  vertical-align: middle;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+.flex {
+  display: flex;
+  vertical-align: middle;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.sameRow {
+  border: 3px solid black;
+  justify-content: center;
+  text-align: center;
+  align-content: center;
+  vertical-align: middle;
+  padding: 10px;
+}
