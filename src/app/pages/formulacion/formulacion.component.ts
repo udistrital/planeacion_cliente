@@ -43,6 +43,7 @@ export class FormulacionComponent implements OnInit {
   rowActividad: string;
   identRecursos: boolean;
   identDocentes: boolean;
+  banderaIdentDocentes: boolean;
 
   tipoPlanId: string;
   idPadre: string;
@@ -245,9 +246,17 @@ export class FormulacionComponent implements OnInit {
       this.addActividad = false;
       this.identRecursos = false;
       this.identContratistas = false;
+      this.banderaIdentDocentes = this.mostrarIdentDocente(unidad.DependenciaTipoDependencia);
       if (this.vigenciaSelected && this.planSelected){
         this.busquedaPlanes(this.planAux);
       }
+    }
+  }
+
+  mostrarIdentDocente(tipoDependencias : any[]):boolean {
+    for(let element of tipoDependencias){
+      if(element.TipoDependenciaId.Id === 2 || element.DependenciaId.Id === 67) return true
+      else return false
     }
   }
 

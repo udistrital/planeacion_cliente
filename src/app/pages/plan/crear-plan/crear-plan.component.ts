@@ -1,4 +1,4 @@
-import { Component, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit, SimpleChanges, DoCheck } from '@angular/core';
 import { FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
 import { UserService } from '../../services/userService';
 import { UtilService } from '../../services/utilService';
@@ -17,12 +17,7 @@ export class CrearPlanComponent implements OnInit {
   formCrearPlan: FormGroup;
   tipos: any[]
   tipoPlan: any;
-  control = {
-    value: '',
-    disabled: false,
-    visible: false
-  };
-
+  banderaFormato : boolean = false;
   constructor(
     private request: RequestManager,
     private userService: UserService,
@@ -31,6 +26,7 @@ export class CrearPlanComponent implements OnInit {
     private formBuilder: FormBuilder
   ) { 
     this.loadTipos();
+    
   }
 
   getErrorMessage(campo: FormControl) {
@@ -87,12 +83,12 @@ export class CrearPlanComponent implements OnInit {
 
   select(tipo){
     this.tipoPlan = tipo;
-    if(tipo._id != "611af8464a34b3599e3799a2"){ // diferente de proyecto
-      this.control.disabled = false
-      this.control.visible = true
+    if(tipo._id !== "611af8464a34b3599e3799a2"){ // diferente de proyecto
+      this.banderaFormato = true
+      this.formCrearPlan.get('radioFormato').enable();
     }else{
-      this.control.disabled = true
-      this.control.visible = false
+      this.banderaFormato = false
+      this.formCrearPlan.get('radioFormato').disable();
     }
   }
 
@@ -119,7 +115,7 @@ export class CrearPlanComponent implements OnInit {
       desc: ['', Validators.required],
       tipo: ['', Validators.required],
       radioEstado: ['', Validators.required],
-      radioFormato: ['',this.control, Validators.required]
+      radioFormato: ['', Validators.required]
     });
   }
 

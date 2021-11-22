@@ -269,7 +269,7 @@
         Identificación de Recursos
       </button>
       <br><br>
-      <button mat-raised-button color="primary" (click)="identificarDocentes()" [disabled]="!dataT">
+      <button *ngIf="banderaIdentDocentes" mat-raised-button color="primary" (click)="identificarDocentes()" [disabled]="!dataT">
         Identificación de Recurso Docente 
       </button>
       <br><br>
