@@ -46,6 +46,7 @@ import { FormulacionComponent } from './formulacion/formulacion.component';
 import { ContratistasComponent } from './formulacion/contratistas/contratistas.component';
 import { RecursosComponent } from './formulacion/recursos/recursos.component';
 import { DocentesComponent } from './formulacion/docentes/docentes.component';
+import { NgIsGrantedDirective } from './directives/ng-is-granted.directive';
 
 
 
@@ -85,6 +86,7 @@ const materialModules = [
   declarations: [
     ...pagesComponents,
     OasGridColsDirective,
+    NgIsGrantedDirective,
     CrearPlanComponent,
     ListarPlanComponent,
     ConstruirPlanComponent,
