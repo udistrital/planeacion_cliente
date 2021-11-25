@@ -55,6 +55,8 @@ export class FormulacionComponent implements OnInit {
   versionPlan: string;
   versiones: any[];
   controlVersion = new FormControl();
+  readonlyObs: boolean;
+  hiddenObs: boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -161,6 +163,7 @@ export class FormulacionComponent implements OnInit {
           armo: this.dataArmonizacion.toString(),
           entrada: formValue
         }
+        //console.log(actividad)
         this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data : any) => {
           if (data){
             Swal.fire({
@@ -198,6 +201,7 @@ export class FormulacionComponent implements OnInit {
           entrada: formValue,
           armo : aux
         } 
+        //console.log(actividad)
         this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id+`/`+this.rowActividad).subscribe((data: any) => {
           if (data){
             Swal.fire({
@@ -319,12 +323,35 @@ export class FormulacionComponent implements OnInit {
     this.planAsignado = true;
     this.clonar = false;
     this.loadData();
+    this.addActividad = false;
+  }
+
+  visualizeObs(){
+    if (this.estadoPlan == 'En formulación' || this.estadoPlan == 'Formulado' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal'){
+      this.readonlyObs = true;
+    }
+    if (this.estadoPlan == 'En revisión'){
+      this.readonlyObs = false;
+    }
+    if (this.versiones.length == 1 && this.estadoPlan == 'En formulación'){
+      this.hiddenObs = true;
+    } else if (this.versiones.length > 1 && (this.estadoPlan == 'En formulación' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') && this.banderaEdit && this.addActividad) {
+      this.hiddenObs = false;
+    } else if (this.versiones.length > 1 && this.estadoPlan == 'En formulación' && this.addActividad && !this.banderaEdit) {
+      this.hiddenObs = true;
+    } else if (this.versiones.length > 1 && (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') && this.banderaEdit && this.addActividad) {
+      this.hiddenObs = true;
+    } 
+    if (this.estadoPlan == 'Formulado') {
+      this.hiddenObs = false;
+    }
   }
 
   getEstado(){
     this.request.get(environment.PLANES_CRUD, `estado-plan/`+this.plan.estado_plan_id).subscribe((data: any) => {
       if (data){
-        this.estadoPlan = data.Data.nombre
+        this.estadoPlan = data.Data.nombre;
+        this.visualizeObs();
       }
     }),
     (error) => {
@@ -343,6 +370,7 @@ export class FormulacionComponent implements OnInit {
       `/`+planB.nombre).subscribe((data: any) => {
         if (data){
           this.versiones = data;
+          //console.log(data)
           for (var i in this.versiones){
             var obj = this.versiones[i];
             var num = +i+1;
@@ -350,6 +378,7 @@ export class FormulacionComponent implements OnInit {
           }
           var len = this.versiones.length;
           var pos = +len-1;
+          //console.log(this.versiones)
           this.plan = this.versiones[pos];
           this.planAsignado = true;
           this.clonar = false;
@@ -481,6 +510,7 @@ export class FormulacionComponent implements OnInit {
       }
       this.addActividad = true;
       this.banderaEdit = true;
+      this.visualizeObs();
       this.rowActividad = fila.index;
       Swal.fire({
         title: 'Cargando información',
@@ -576,6 +606,7 @@ export class FormulacionComponent implements OnInit {
     this.cargaFormato(this.plan);
     this.addActividad = true;
     this.banderaEdit = false;
+    this.visualizeObs();
     this.dataArmonizacion = []
   }
 

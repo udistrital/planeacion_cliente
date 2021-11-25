@@ -14,10 +14,10 @@ export const environment = {
     PATH: 'https://documental.udistrital.edu.co/nuxeo/',
   },
   SINTOMAS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/sintomas_crud/v1/',
-  //LOCAL: 'http://localhost:8080/v1/',
+  PLANES_MID: 'http://localhost:8080/v1/',
   //SERVICES PLANEACIÓN
   PLANES_CRUD: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8523/',
-  PLANES_MID: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8524/v1/',
+  ///PLANES_MID: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8524/v1/',
   OIKOS_SERVICE: 'http://api.intranetoas.udistrital.edu.co:8087/v1/',
   PARAMETROS_SERVICE: 'http://pruebasapi.intranetoas.udistrital.edu.co:8510/v1/',
   //PLANES_CRUD: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/planes_crud/',
