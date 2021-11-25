@@ -274,25 +274,48 @@
   <!-- AGREGAR ACTIVIDAD / IDENTIFICACIÓN / CULMINAR PLAN -->
   <mat-card-footer style="text-align: center;">
     <ng-container>
-      <button mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad">
+      <button class="btn-formulacion"  mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad">
         Agregar actividad
       </button>
-      <br><br>
-      <button mat-raised-button color="primary" (click)="identificarContratistas()" [disabled]="!dataT">
+      <button class="btn-formulacion"  mat-raised-button color="primary" (click)="identificarContratistas()" [disabled]="!dataT">
         Identificación de Contratistas
       </button>
-      <br><br>
-      <button mat-raised-button color="primary" (click)="identificarRecursos()" [disabled]="!dataT">
+      <button class="btn-formulacion"  mat-raised-button color="primary" (click)="identificarRecursos()" [disabled]="!dataT">
         Identificación de Recursos
       </button>
-      <br><br>
-      <button *ngIf="banderaIdentDocentes" mat-raised-button color="primary" (click)="identificarDocentes()" [disabled]="!dataT">
+      <button class="btn-formulacion"  *ngIf="banderaIdentDocentes" mat-raised-button color="primary" (click)="identificarDocentes()" [disabled]="!dataT">
         Identificación de Recurso Docente 
       </button>
-      <br><br>
-      <button mat-raised-button color="primary" (click)="culminarPlan()" [disabled]="!dataT">
-        Culminar plan
-      </button>
+      <ng-container *ngIsGranted="['JEFE_DEPENDENCIA']">
+        <button class="btn-formulacion"  *ngIf="plan.estado_plan_id == '614d3ad301c7a200482fabfd'"  mat-raised-button color="primary" (click)="culminarPlan()" [disabled]="!dataT">
+          Culminar plan
+        </button>
+      </ng-container>
+      <ng-container *ngIsGranted="['PLANEACION']" >
+        <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b0301c7a2a44e2fac01'" mat-raised-button color="primary"  [disabled]="!dataT">
+          Enviar Revisión
+        </button>
+      </ng-container>
+      <ng-container *ngIsGranted="['JEFE_DEPENDENCIA']" >
+        <button class="btn-formulacion"  *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03' || plan.estado_plan_id === '615335c501c7a213a12fb2a3'" mat-raised-button color="primary"  [disabled]="!dataT">
+          Realizar Ajustes
+        </button>
+      </ng-container>
+      <ng-container *ngIsGranted="['PLANEACION']" >
+        <button class="btn-formulacion"  *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03'" mat-raised-button color="primary"  [disabled]="!dataT">
+          Dar Pre-Aval
+        </button>
+      </ng-container>
+      <ng-container *ngIsGranted="['PLANEACION']" >
+        <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b4401c7a222052fac05'" mat-raised-button color="primary"  [disabled]="!dataT">
+          Remitir Ajuste Presupuestal
+        </button>
+      </ng-container>
+      <ng-container *ngIsGranted="['PLANEACION']" >
+        <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b4401c7a222052fac05'" mat-raised-button color="primary"  [disabled]="!dataT">
+          Dar Aval
+        </button>
+      </ng-container>
     </ng-container>
     <br><br>
   </mat-card-footer>
