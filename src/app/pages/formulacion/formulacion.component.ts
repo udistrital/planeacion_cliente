@@ -57,6 +57,7 @@ export class FormulacionComponent implements OnInit {
   controlVersion = new FormControl();
   readonlyObs: boolean;
   hiddenObs: boolean;
+  readOnlyAll: boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -344,6 +345,11 @@ export class FormulacionComponent implements OnInit {
     } 
     if (this.estadoPlan == 'Formulado') {
       this.hiddenObs = false;
+    }
+    if (this.estadoPlan == 'Aval'){
+      this.readOnlyAll == true;
+    } else {
+      this.readOnlyAll == false;
     }
   }
 

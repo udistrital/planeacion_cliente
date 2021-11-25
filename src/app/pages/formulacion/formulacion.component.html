@@ -147,16 +147,16 @@
           <!-- PRIMER NIVEL -->
           <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'input'">
             <mat-label>Digite la información:</mat-label>
-            <textarea matInput formControlName="{{step.id}}" placeholder="Escriba la información deseada" required="{{step.required}}"></textarea>
+            <textarea matInput formControlName="{{step.id}}" placeholder="Escriba la información deseada" required="{{step.required}}" readonly="{{readOnlyAll}}"></textarea>
             <mat-icon matSuffix>create</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'numeric'">
             <mat-label>Ingrese el valor:</mat-label>
-            <input type="number" matInput formControlName="{{step.id}}" placeholder="Ingrese el valor numérico" required="{{step.required}}">
+            <input type="number" matInput formControlName="{{step.id}}" placeholder="Ingrese el valor numérico" required="{{step.required}}" readonly="{{readOnlyAll}}">
             <mat-icon matSuffix>create</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="step.type == 'select'">
-              <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{step.id}}" required="{{step.required}}">
+              <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{step.id}}" required="{{step.required}}" disabled="{{readOnlyAll}}">
                 <mat-option>--</mat-option>
                 <mat-option *ngFor="let opt of step.options" [value]="opt.valor">
                   {{opt.valor}}
@@ -197,16 +197,16 @@
                     </mat-expansion-panel-header>
                     <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.type == 'input'">
                       <mat-label>Digite la información:</mat-label>
-                      <textarea matInput formControlName="{{subpanel.id}}" placeholder="Escriba la información deseada" required="{{subpanel.required}}"></textarea>
+                      <textarea matInput formControlName="{{subpanel.id}}" placeholder="Escriba la información deseada" required="{{subpanel.required}}" readonly="{{readOnlyAll}}"></textarea>
                       <mat-icon matSuffix>create</mat-icon>
                     </mat-form-field>
                     <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.type == 'numeric'">
                       <mat-label>Ingrese el valor:</mat-label>
-                      <input type="number" matInput formControlName="{{subpanel.id}}" placeholder="Ingrese el valor numérico" required="{{subpanel.required}}">
+                      <input type="number" matInput formControlName="{{subpanel.id}}" placeholder="Ingrese el valor numérico" required="{{subpanel.required}}" readonly="{{readOnlyAll}}">
                       <mat-icon matSuffix>create</mat-icon>
                     </mat-form-field>
                     <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subpanel.type == 'select'">
-                        <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subpanel.id}}" required="{{subpanel.required}}">
+                        <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subpanel.id}}" required="{{subpanel.required}}" disabled="{{readOnlyAll}}">
                           <mat-option>--</mat-option>
                           <mat-option *ngFor="let opt of subpanel.options" [value]="opt.valor">
                             {{opt.valor}}
@@ -227,16 +227,16 @@
               </ng-container>
               <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.type == 'input'">
                 <mat-label>Digite la información:</mat-label>
-                <textarea matInput formControlName="{{subs.id}}" placeholder="Escriba la información deseada" required="{{subs.required}}"></textarea>
+                <textarea matInput formControlName="{{subs.id}}" placeholder="Escriba la información deseada" required="{{subs.required}}" readonly="{{readOnlyAll}}"></textarea>
                 <mat-icon matSuffix>create</mat-icon>
               </mat-form-field>
               <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.type == 'numeric'">
                 <mat-label>Ingrese el valor:</mat-label>
-                <input type="number" matInput formControlName="{{subs.id}}" placeholder="Ingrese el valor numérico" required="{{subs.required}}">
+                <input type="number" matInput formControlName="{{subs.id}}" placeholder="Ingrese el valor numérico" required="{{subs.required}}" readonly="{{readOnlyAll}}">
                 <mat-icon matSuffix>create</mat-icon>
               </mat-form-field>
               <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subs.type == 'select'">
-                  <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subs.id}}" required="{{subs.required}}">
+                  <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subs.id}}" required="{{subs.required}}" disabled="{{readOnlyAll}}">
                     <mat-option>--</mat-option>
                     <mat-option *ngFor="let opt of subs.options" [value]="opt.valor">
                       {{opt.valor}}
