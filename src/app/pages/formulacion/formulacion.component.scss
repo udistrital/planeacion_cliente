@@ -19,11 +19,18 @@ th {
 }
 
 .btn-formulacion{
-  display: block !important;
+  display: inline-block ;
   margin-top: 20px;
   margin-left: auto;
   margin-right: auto;
 
+}
+
+.mat-raised-button{
+  display: block !important;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #box {
@@ -54,10 +61,22 @@ th {
   padding: 10px;
 }
 
-.readonly-wrapper {
-  cursor: not-allowed;
+.container{
+  display: block !important;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
 }
 
-.readonly-wrapper .readonly-block {
-  pointer-events: none;
+.notice{
+  display:  block !important;
+  width: fit-content;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 30px;
+  margin-right: auto;
+  background-color: lightyellow;
+  font-style: oblique;
 }
