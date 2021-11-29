@@ -329,29 +329,60 @@ export class FormulacionComponent implements OnInit {
     this.addActividad = false;
   }
 
+  rol: string;
+
   visualizeObs(){
-    if (this.estadoPlan == 'En formulación' || this.estadoPlan == 'Formulado' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal'){
-      this.readonlyObs = true;
+    let roles: any = this.autenticationService.getRole();
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')){
+      this.rol = 'JEFE_DEPENDENCIA'
+    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')){
+      this.rol = 'PLANEACION'
     }
-    if (this.estadoPlan == 'En revisión'){
-      this.readonlyObs = false;
+    if (this.rol == 'JEFE_DEPENDENCIA'){
+      if (this.estadoPlan == 'En formulación'){
+        if (this.versiones.length == 1){
+          this.hiddenObs = true;
+        } else if (this.versiones.length > 1 && this.banderaEdit && this.addActividad){
+          this.hiddenObs = false;
+        } else if (this.versiones.length > 1 && !this.banderaEdit && this.addActividad) {
+          this.hiddenObs = true;
+        }
+        this.readonlyObs = true;
+        this.readOnlyAll = false;
+      }
+      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal'){
+        this.readonlyObs = true;
+        this.readOnlyAll = true;
+        this.hiddenObs = false;
+      }
+      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval'){
+        this.readonlyObs = true;
+        this.readOnlyAll = true;
+        this.hiddenObs = true;
+      }
     }
-    if (this.versiones.length == 1 && this.estadoPlan == 'En formulación'){
-      this.hiddenObs = true;
-    } else if (this.versiones.length > 1 && (this.estadoPlan == 'En formulación' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') && this.banderaEdit && this.addActividad) {
-      this.hiddenObs = false;
-    } else if (this.versiones.length > 1 && this.estadoPlan == 'En formulación' && this.addActividad && !this.banderaEdit) {
-      this.hiddenObs = true;
-    } else if (this.versiones.length > 1 && (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') && this.banderaEdit && this.addActividad) {
-      this.hiddenObs = true;
-    } 
-    if (this.estadoPlan == 'Formulado') {
-      this.hiddenObs = false;
-    }
-    if (this.estadoPlan == 'Aval'){
-      this.readOnlyAll == true;
-    } else {
-      this.readOnlyAll == false;
+
+    if (this.rol == 'PLANEACION'){ 
+      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En formulación'){
+        this.readonlyObs = true;
+        this.readOnlyAll = true;
+        this.hiddenObs = false;
+      }
+      if (this.estadoPlan == 'En revisión' || this.estadoPlan == 'Aval'){
+        this.readOnlyAll = true;
+        this.readonlyObs = false;
+        this.hiddenObs = false;
+      }
+      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal'){
+        this.readOnlyAll = true;
+        this.readonlyObs = true;
+        this.hiddenObs = false;
+      }
+      if (this.estadoPlan == 'Pre Aval'){
+        this.readonlyObs = true;
+        this.readOnlyAll = true;
+        this.hiddenObs = true;
+      }
     }
   }
 
