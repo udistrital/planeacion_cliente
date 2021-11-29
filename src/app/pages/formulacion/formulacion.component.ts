@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, DoCheck } from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -11,6 +11,7 @@ import { ArbolComponent } from '../plan/arbol/arbol.component';
 import { element } from 'protractor';
 import { stringify } from 'querystring';
 import { timeStamp } from 'console';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 @Component({
   selector: 'app-formulacion',
@@ -61,6 +62,7 @@ export class FormulacionComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
+    private autenticationService: ImplicitAutenticationService
   ) {
     this.loadPlanes();
     this.loadPeriodos();
