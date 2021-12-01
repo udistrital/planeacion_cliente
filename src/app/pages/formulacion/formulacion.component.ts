@@ -363,12 +363,12 @@ export class FormulacionComponent implements OnInit {
     }
 
     if (this.rol == 'PLANEACION'){ 
-      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En formulación'){
+      if (this.estadoPlan == 'En formulación'){
         this.readonlyObs = true;
         this.readOnlyAll = true;
         this.hiddenObs = false;
       }
-      if (this.estadoPlan == 'En revisión' || this.estadoPlan == 'Aval'){
+      if (this.estadoPlan == 'En revisión'){
         this.readOnlyAll = true;
         this.readonlyObs = false;
         this.hiddenObs = false;
@@ -378,7 +378,7 @@ export class FormulacionComponent implements OnInit {
         this.readonlyObs = true;
         this.hiddenObs = false;
       }
-      if (this.estadoPlan == 'Pre Aval'){
+      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado'){
         this.readonlyObs = true;
         this.readOnlyAll = true;
         this.hiddenObs = true;
