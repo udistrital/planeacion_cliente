@@ -56,7 +56,7 @@
   </mat-card-header>
   <mat-card-content>
     <ng-container>
-      <div class="container" >
+      <div class="container">
         <div class="flex">
           <div class="sameRow" style="vertical-align: middle;" [style.width.%]="60">Estado del plan: {{estadoPlan}}
           </div>
@@ -77,7 +77,8 @@
     <ng-container
       *ngIf="plan != undefined && (plan.tipo_plan_id == '61639b8c1634adf976ed4b4c' || plan.tipo_plan_id == '61639c701634adbf74ed4b50') && dataT">
       <mat-card class="notice">
-        <p>Señor usuario, la siguiente tabla expone un resumen de las actividades relacionadas al {{plan.nombre}}, el cual se encuentra formulando.</p>
+        <p>Señor usuario, la siguiente tabla expone un resumen de las actividades relacionadas al {{plan.nombre}}, el
+          cual se encuentra formulando.</p>
       </mat-card>
       <mat-form-field appearance="standard" [style.width.%]="50">
         <mat-label>Búsqueda</mat-label>
@@ -150,159 +151,177 @@
 
     <br><br>
     <mat-card class="card-oas-int" *ngIf="addActividad">
-    <!-- FORMULARIO -->
-    <mat-card-content>
-      <form [formGroup]="form">
-        <mat-vertical-stepper>
-          <mat-step *ngFor="let step of steps; let index = index; let last = last;">
-            <ng-template matStepLabel>{{step.nombre}}</ng-template>
-            <!-- PRIMER NIVEL -->
-            <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'input'">
-              <mat-label>Digite la información:</mat-label>
-              <textarea matInput formControlName="{{step.id}}" placeholder="Escriba la información deseada" required="{{step.required}}" readonly="{{readOnlyAll}}"></textarea>
-              <mat-icon matSuffix>create</mat-icon>
-            </mat-form-field>
-            <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'numeric'">
-              <mat-label>Ingrese el valor:</mat-label>
-              <input type="number" matInput formControlName="{{step.id}}" placeholder="Ingrese el valor numérico" required="{{step.required}}" readonly="{{readOnlyAll}}">
-              <mat-icon matSuffix>create</mat-icon>
-            </mat-form-field>
-            <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="step.type == 'select'">
-                <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{step.id}}" required="{{step.required}}" disabled="{{readOnlyAll}}">
+      <!-- FORMULARIO -->
+      <mat-card-content>
+        <form [formGroup]="form">
+          <mat-vertical-stepper>
+            <mat-step *ngFor="let step of steps; let index = index; let last = last;">
+              <ng-template matStepLabel>{{step.nombre}}</ng-template>
+              <!-- PRIMER NIVEL -->
+              <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'input'">
+                <mat-label>Digite la información:</mat-label>
+                <textarea matInput formControlName="{{step.id}}" placeholder="Escriba la información deseada"
+                  required="{{step.required}}" readonly="{{readOnlyAll}}"></textarea>
+                <mat-icon matSuffix>create</mat-icon>
+              </mat-form-field>
+              <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'numeric'">
+                <mat-label>Ingrese el valor:</mat-label>
+                <input type="number" matInput formControlName="{{step.id}}" placeholder="Ingrese el valor numérico"
+                  required="{{step.required}}" readonly="{{readOnlyAll}}">
+                <mat-icon matSuffix>create</mat-icon>
+              </mat-form-field>
+              <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="step.type == 'select'">
+                <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{step.id}}"
+                  required="{{step.required}}" disabled="{{readOnlyAll}}">
                   <mat-option>--</mat-option>
                   <mat-option *ngFor="let opt of step.options" [value]="opt.valor">
                     {{opt.valor}}
                   </mat-option>
                 </mat-select>
-            </mat-form-field>
-            <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="step.type == 'button'" (click)="but()">Foo</button>
-            <!-- OBSERVACIÓN -->
-            <ng-container *ngIf="!hiddenObs">
-              <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.required == 'true'">
-                <mat-label>Campo de observación:</mat-label>
-                <textarea matInput formControlName="{{step.id+'_o'}}" placeholder="Escriba la observación" required="false" readonly="{{readonlyObs}}"></textarea>
-                <mat-icon matSuffix>create</mat-icon>
               </mat-form-field>
-            </ng-container>
-            <!-- SEGUNDO NIVEL -->
-            <mat-accordion cdkDropList>
-              <mat-expansion-panel *ngFor="let subs of step.sub" cdkDrag
-              (opened)="panelOpenState = true"
-              (closed)="panelOpenState = false">
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    {{subs.nombre}}
-                  </mat-panel-title>
-                  <mat-panel-description>
-                  </mat-panel-description>
-                </mat-expansion-panel-header>
-                <!-- TERCER NIVEL -->
-                <ng-container *ngIf="subs.sub">
-                  <mat-accordion>
-                    <mat-expansion-panel *ngFor="let subpanel of subs.sub"
-                      (opened)="panelOpenState = true"
-                      (closed)="panelOpenState = false">
-                      <mat-expansion-panel-header>
-                        <mat-panel-title>{{subpanel.nombre}}</mat-panel-title>
-                        <mat-panel-description>
-                        </mat-panel-description>
-                      </mat-expansion-panel-header>
-                      <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.type == 'input'">
-                        <mat-label>Digite la información:</mat-label>
-                        <textarea matInput formControlName="{{subpanel.id}}" placeholder="Escriba la información deseada" required="{{subpanel.required}}" readonly="{{readOnlyAll}}"></textarea>
-                        <mat-icon matSuffix>create</mat-icon>
-                      </mat-form-field>
-                      <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.type == 'numeric'">
-                        <mat-label>Ingrese el valor:</mat-label>
-                        <input type="number" matInput formControlName="{{subpanel.id}}" placeholder="Ingrese el valor numérico" required="{{subpanel.required}}" readonly="{{readOnlyAll}}">
-                        <mat-icon matSuffix>create</mat-icon>
-                      </mat-form-field>
-                      <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subpanel.type == 'select'">
-                          <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subpanel.id}}" required="{{subpanel.required}}" disabled="{{readOnlyAll}}">
+              <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
+                *ngIf="step.type == 'button'" (click)="but()">Foo</button>
+              <!-- OBSERVACIÓN -->
+              <ng-container *ngIf="!hiddenObs">
+                <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.required == 'true'">
+                  <mat-label>Campo de observación:</mat-label>
+                  <textarea matInput formControlName="{{step.id+'_o'}}" placeholder="Escriba la observación"
+                    required="false" readonly="{{readonlyObs}}"></textarea>
+                  <mat-icon matSuffix>create</mat-icon>
+                </mat-form-field>
+              </ng-container>
+              <!-- SEGUNDO NIVEL -->
+              <mat-accordion cdkDropList>
+                <mat-expansion-panel *ngFor="let subs of step.sub" cdkDrag (opened)="panelOpenState = true"
+                  (closed)="panelOpenState = false">
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      {{subs.nombre}}
+                    </mat-panel-title>
+                    <mat-panel-description>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+                  <!-- TERCER NIVEL -->
+                  <ng-container *ngIf="subs.sub">
+                    <mat-accordion>
+                      <mat-expansion-panel *ngFor="let subpanel of subs.sub" (opened)="panelOpenState = true"
+                        (closed)="panelOpenState = false">
+                        <mat-expansion-panel-header>
+                          <mat-panel-title>{{subpanel.nombre}}</mat-panel-title>
+                          <mat-panel-description>
+                          </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.type == 'input'">
+                          <mat-label>Digite la información:</mat-label>
+                          <textarea matInput formControlName="{{subpanel.id}}"
+                            placeholder="Escriba la información deseada" required="{{subpanel.required}}"
+                            readonly="{{readOnlyAll}}"></textarea>
+                          <mat-icon matSuffix>create</mat-icon>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.type == 'numeric'">
+                          <mat-label>Ingrese el valor:</mat-label>
+                          <input type="number" matInput formControlName="{{subpanel.id}}"
+                            placeholder="Ingrese el valor numérico" required="{{subpanel.required}}"
+                            readonly="{{readOnlyAll}}">
+                          <mat-icon matSuffix>create</mat-icon>
+                        </mat-form-field>
+                        <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subpanel.type == 'select'">
+                          <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subpanel.id}}"
+                            required="{{subpanel.required}}" disabled="{{readOnlyAll}}">
                             <mat-option>--</mat-option>
                             <mat-option *ngFor="let opt of subpanel.options" [value]="opt.valor">
                               {{opt.valor}}
                             </mat-option>
                           </mat-select>
-                      </mat-form-field>
-                      <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="subpanel.type == 'button'" (click)="but()">Foo</button>
-                      <!-- OBSERVACIÓN -->
-                      <ng-container *ngIf="!hiddenObs">
-                        <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.required == 'true'">
-                          <mat-label>Campo de observación:</mat-label>
-                          <textarea matInput formControlName="{{subpanel.id+'_o'}}" placeholder="Escriba la observación" required="false" readonly="{{readonlyObs}}"></textarea>
-                          <mat-icon matSuffix>create</mat-icon>
                         </mat-form-field>
-                      </ng-container>
-                    </mat-expansion-panel>
-                  </mat-accordion>
-                </ng-container>
-                <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.type == 'input'">
-                  <mat-label>Digite la información:</mat-label>
-                  <textarea matInput formControlName="{{subs.id}}" placeholder="Escriba la información deseada" required="{{subs.required}}" readonly="{{readOnlyAll}}"></textarea>
-                  <mat-icon matSuffix>create</mat-icon>
-                </mat-form-field>
-                <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.type == 'numeric'">
-                  <mat-label>Ingrese el valor:</mat-label>
-                  <input type="number" matInput formControlName="{{subs.id}}" placeholder="Ingrese el valor numérico" required="{{subs.required}}" readonly="{{readOnlyAll}}">
-                  <mat-icon matSuffix>create</mat-icon>
-                </mat-form-field>
-                <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subs.type == 'select'">
-                    <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subs.id}}" required="{{subs.required}}" disabled="{{readOnlyAll}}">
+                        <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
+                          *ngIf="subpanel.type == 'button'" (click)="but()">Foo</button>
+                        <!-- OBSERVACIÓN -->
+                        <ng-container *ngIf="!hiddenObs">
+                          <mat-form-field appearance="outline" [style.width.%]="100"
+                            *ngIf="subpanel.required == 'true'">
+                            <mat-label>Campo de observación:</mat-label>
+                            <textarea matInput formControlName="{{subpanel.id+'_o'}}"
+                              placeholder="Escriba la observación" required="false"
+                              readonly="{{readonlyObs}}"></textarea>
+                            <mat-icon matSuffix>create</mat-icon>
+                          </mat-form-field>
+                        </ng-container>
+                      </mat-expansion-panel>
+                    </mat-accordion>
+                  </ng-container>
+                  <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.type == 'input'">
+                    <mat-label>Digite la información:</mat-label>
+                    <textarea matInput formControlName="{{subs.id}}" placeholder="Escriba la información deseada"
+                      required="{{subs.required}}" readonly="{{readOnlyAll}}"></textarea>
+                    <mat-icon matSuffix>create</mat-icon>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.type == 'numeric'">
+                    <mat-label>Ingrese el valor:</mat-label>
+                    <input type="number" matInput formControlName="{{subs.id}}" placeholder="Ingrese el valor numérico"
+                      required="{{subs.required}}" readonly="{{readOnlyAll}}">
+                    <mat-icon matSuffix>create</mat-icon>
+                  </mat-form-field>
+                  <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subs.type == 'select'">
+                    <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subs.id}}"
+                      required="{{subs.required}}" disabled="{{readOnlyAll}}">
                       <mat-option>--</mat-option>
                       <mat-option *ngFor="let opt of subs.options" [value]="opt.valor">
                         {{opt.valor}}
                       </mat-option>
                     </mat-select>
-                </mat-form-field>
-                <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="subs.type == 'button'" (click)="but()">Foo</button>
-                <!-- OBSERVACIÓN -->
-                <ng-container *ngIf="!hiddenObs">
-                  <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.required == 'true'">
-                    <mat-label>Campo de observación:</mat-label>
-                    <textarea matInput formControlName="{{subs.id+'_o'}}" placeholder="Escriba la observación" required="false" readonly="{{readonlyObs}}"></textarea>
-                    <mat-icon matSuffix>create</mat-icon>
                   </mat-form-field>
-                </ng-container>
-              </mat-expansion-panel>
-            </mat-accordion>
-            <br><br>
-            <div>
-              <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="index !== 0" matStepperPrevious (click)="prevStep(index)">Volver</button>
-              <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="!last" matStepperNext (click)="nextStep(index)">Siguiente</button>
+                  <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
+                    *ngIf="subs.type == 'button'" (click)="but()">Foo</button>
+                  <!-- OBSERVACIÓN -->
+                  <ng-container *ngIf="!hiddenObs">
+                    <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.required == 'true'">
+                      <mat-label>Campo de observación:</mat-label>
+                      <textarea matInput formControlName="{{subs.id+'_o'}}" placeholder="Escriba la observación"
+                        required="false" readonly="{{readonlyObs}}"></textarea>
+                      <mat-icon matSuffix>create</mat-icon>
+                    </mat-form-field>
+                  </ng-container>
+                </mat-expansion-panel>
+              </mat-accordion>
               <br><br>
-              <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="ocultar()">Cancelar</button>
-              <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="last" [disabled]="!form.valid" (click)="submit()">Guardar</button>
-              <!-- <button *ngIf="index !== 0" matStepperPrevious class="btn btn-primary" type="button" (click)="prevStep(index)">Atrás</button>
+              <div>
+                <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="index !== 0"
+                  matStepperPrevious (click)="prevStep(index)">Volver</button>
+                <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="!last"
+                  matStepperNext (click)="nextStep(index)">Siguiente</button>
+                <br><br>
+                <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
+                  (click)="ocultar()">Cancelar</button>
+                <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="last"
+                  [disabled]="!form.valid" (click)="submit()">Guardar</button>
+                <!-- <button *ngIf="index !== 0" matStepperPrevious class="btn btn-primary" type="button" (click)="prevStep(index)">Atrás</button>
               <button *ngIf="!last" matStepperNext class="btn btn-primary" type="button" [disabled]="!formStep.at(index).valid" (click)="nextStep(index)">Siguiente</button>
               <button *ngIf="last" class="btn btn-primary" [disabled]="!formStep.valid" type="submit">Guardar</button> -->
-            </div> 
-          </mat-step>
-        </mat-vertical-stepper>
-      </form>
-    </mat-card-content>
+              </div>
+            </mat-step>
+          </mat-vertical-stepper>
+        </form>
+      </mat-card-content>
     </mat-card>
   </mat-card-content>
   <!-- AGREGAR ACTIVIDAD / IDENTIFICACIÓN / CULMINAR PLAN -->
   <mat-card-footer style="text-align: center;">
     <ng-container>
-      <button mat-raised-button color="primary" (click)="agregarActividad()"
-        [disabled]="addActividad">
+      <button mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad">
         Agregar actividad
       </button>
-      <button  mat-raised-button color="primary" (click)="identificarContratistas()"
-        [disabled]="!dataT">
+      <button mat-raised-button color="primary" (click)="identificarContratistas()" [disabled]="!dataT">
         Identificación de Contratistas
       </button>
-      <button  mat-raised-button color="primary" (click)="identificarRecursos()"
-        [disabled]="!dataT">
+      <button mat-raised-button color="primary" (click)="identificarRecursos()" [disabled]="!dataT">
         Identificación de Recursos
       </button>
-      <button  *ngIf="banderaIdentDocentes" mat-raised-button color="primary"
-        (click)="identificarDocentes()" [disabled]="!dataT">
+      <button *ngIf="banderaIdentDocentes" mat-raised-button color="primary" (click)="identificarDocentes()"
+        [disabled]="!dataT">
         Identificación de Recurso Docente
       </button>
-      
+
       <ng-container *ngIsGranted="['JEFE_DEPENDENCIA']">
         <button class="btn-formulacion" *ngIf="plan.estado_plan_id == '614d3ad301c7a200482fabfd'" mat-raised-button
           color="primary" (click)="culminarPlan()" [disabled]="!dataT">
@@ -348,14 +367,14 @@
 <!-- DIRECTIVAS IDENTIFICACIÓN RECURSOS Y CONTRATISTAS -->
 <br><br>
 <ng-container class="card-oas" *ngIf="!clonar && planAsignado && identContratistas">
-  <app-contratistas [dataSourceActividades]="dataSource" [dataTabla]="identContratistas" [plan]="plan._id"
-    (acciones)="messageIdentificacion($event)">
+  <app-contratistas [dataSourceActividades]="dataSource" [dataTabla]="identContratistas" [plan]="plan._id" [rol]="rol"
+    [versiones]="versiones" (acciones)="messageIdentificacion($event)">
   </app-contratistas>
 </ng-container>
 <br><br>
 <ng-container class="card-oas" *ngIf="!clonar && planAsignado && identRecursos">
-  <app-recursos [dataSourceActividades]="dataSource" [dataTabla]="identRecursos" [plan]="plan._id"
-    (acciones)="messageIdentificacion($event)">
+  <app-recursos [dataSourceActividades]="dataSource" [dataTabla]="identRecursos" [plan]="plan._id" [rol]="rol"
+    [versiones]="versiones" (acciones)="messageIdentificacion($event)">
   </app-recursos>
 </ng-container>
 <ng-container class="card-oas" *ngIf="!clonar && planAsignado && identDocentes">
