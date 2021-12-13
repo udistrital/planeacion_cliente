@@ -14,7 +14,7 @@ export const environment = {
     PATH: 'https://documental.udistrital.edu.co/nuxeo/',
   },
   SINTOMAS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/sintomas_crud/v1/',
-  ///PLANES_MID: 'http://localhost:8080/v1/',
+  //PRUEBA: 'http://localhost:8080/v1/',
   //SERVICES PLANEACIÓN
   PLANES_CRUD: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8523/',
   PLANES_MID: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8524/v1/',
@@ -23,6 +23,7 @@ export const environment = {
   //PLANES_CRUD: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/planes_crud/',
   //PLANES_MID: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/planeacion_mid/v1/',
   ///
+  KRONOS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/plan_cuentas_mongo_crud/v1/',
   PRUEBAS: 'http://pruebasapi.intranetoas.udistrital.edu.co:8121/v1/',
   TERCEROS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/terceros_crud/v1/',
   ACADEMICA_JBPM_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/academica_jbpm/v1/',

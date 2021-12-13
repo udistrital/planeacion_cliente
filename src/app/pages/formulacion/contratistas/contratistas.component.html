@@ -4,184 +4,224 @@
   </mat-card-header>
   <mat-card-content>
     <form #myForm="ngForm" (ngSubmit)="submit(myForm)">
-    <ng-container>
-      <div class="table-responsive">
-      <table mat-table [dataSource]="dataSource" matSort>    
-         <!-- Descripción de Necesidad -->
-          <ng-container matColumnDef="descripcionNecesidad">
-              <th mat-header-cell *matHeaderCellDef  [ngStyle]="{'display': 'none'}">Descripción de Necesidad</th>
+      <ng-container>
+        <div class="table-responsive">
+          <table mat-table [dataSource]="dataSource" matSort>
+            <!-- Descripción de Necesidad -->
+            <ng-container matColumnDef="descripcionNecesidad">
+              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Descripción de Necesidad</th>
               <td mat-cell *matCellDef="let element">
                 <mat-form-field floatLabel="never">
-                  <textarea class="form-control" matInput placeholder="Descripción"  [value]="element.descripcionNecesidad" [(ngModel)]="element.descripcionNecesidad" [ngModelOptions]="{standalone: true}" required></textarea>
+                  <textarea [readonly]="readonlyTable" class="form-control" matInput placeholder="Descripción"
+                    [value]="element.descripcionNecesidad" [(ngModel)]="element.descripcionNecesidad"
+                    [ngModelOptions]="{standalone: true}" required></textarea>
                 </mat-form-field>
               </td>
               <td mat-footer-cell *matFooterCellDef></td>
-          </ng-container>
-  
-  
-          <!-- Perfil -->
-         <ng-container matColumnDef="perfil">
-            <th  mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Perfil</th>
-            <td mat-cell *matCellDef="let element; let rowIndex = index">
-              <mat-form-field floatLabel="never">
-                <mat-select class="form-control" [(ngModel)]="element.perfil" [ngModelOptions]="{standalone: true}" (selectionChange)="onSelected($event, rowIndex)" placeholder="Perfil del contratista" required>
-                  <mat-option *ngFor="let perfil of perfiles" [value]="perfil.Id">
-                    {{perfil.Nombre}}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </td>
-            <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
-  
-  
-        <!-- Cantidad -->
-        <ng-container matColumnDef="cantidad">
-            <th  mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Cantidad</th>
-            <td mat-cell *matCellDef="let element">
-              <mat-form-field floatLabel="never">
-                <input min="0" type="number" matInput class="form-control" placeholder="Cantidad" [value]="element.cantidad" [(ngModel)]="element.cantidad" [ngModelOptions]="{standalone: true}" required>
-              </mat-form-field>
-            </td>
-            <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
-  
-  
-      <!-- Meses -->
-      <ng-container matColumnDef="meses">
-          <th  mat-header-cell *matHeaderCellDef >Meses</th>
-          <td mat-cell *matCellDef="let element">
-            <mat-form-field floatLabel="never">
-              <input  min="1" max="12" class="form-control" matInput  type="number" [value]="element.meses" [(ngModel)]="element.meses" [ngModelOptions]="{standalone: true}" required>
-            </mat-form-field>
-          </td>
-          <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+
+            <!-- Perfil -->
+            <ng-container matColumnDef="perfil">
+              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Perfil</th>
+              <td mat-cell *matCellDef="let element; let rowIndex = index">
+                <mat-form-field floatLabel="never">
+                  <mat-select [disabled]="readonlyTable" class="form-control" [(ngModel)]="element.perfil" [ngModelOptions]="{standalone: true}"
+                    (selectionChange)="onSelected($event, rowIndex)" placeholder="Perfil del contratista" required>
+                    <mat-option *ngFor="let perfil of perfiles" [value]="perfil.Id">
+                      {{perfil.Nombre}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+
+            <!-- Cantidad -->
+            <ng-container matColumnDef="cantidad">
+              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Cantidad</th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field floatLabel="never">
+                  <input [readonly]="readonlyTable" min="0" type="number" matInput class="form-control" placeholder="Cantidad"
+                    [value]="element.cantidad" [(ngModel)]="element.cantidad" [ngModelOptions]="{standalone: true}"
+                    required>
+                </mat-form-field>
+              </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+
+            <!-- Meses -->
+            <ng-container matColumnDef="meses">
+              <th mat-header-cell *matHeaderCellDef>Meses</th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field floatLabel="never">
+                  <input [readonly]="readonlyTable" min="1" max="12" class="form-control" matInput type="number" [value]="element.meses"
+                    [(ngModel)]="element.meses" [ngModelOptions]="{standalone: true}" required>
+                </mat-form-field>
+              </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+
+            <!-- Dias -->
+            <ng-container matColumnDef="dias">
+              <th mat-header-cell *matHeaderCellDef>Dias</th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field floatLabel="never">
+                  <input [readonly]="readonlyTable" min="1" max="29" class="form-control" matInput type="number" [value]="element.dias"
+                    [(ngModel)]="element.dias" [ngModelOptions]="{standalone: true}" required>
+                </mat-form-field>
+              </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+
+            <!-- Valor Unitario -->
+            <ng-container matColumnDef="valorUnitario">
+              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Valor Unitario</th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field floatLabel="never">
+                  <input [readonly]="readonlyTable" class="form-control" matInput type="number" [value]="element.valorUnitario"
+                    [(ngModel)]="element.valorUnitario" [ngModelOptions]="{standalone: true}" required>
+                </mat-form-field>
+              <td mat-footer-cell *matFooterCellDef class="footer">
+                Total
+              </td>
+            </ng-container>
+
+            <!-- Valor Total -->
+            <ng-container matColumnDef="valorTotal">
+              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Valor Total</th>
+              <td mat-cell *matCellDef="let element; let rowIndex = index">
+                <mat-form-field floatLabel="never">
+                  <!-- <label>{{element.valorUnitario * element.cantidad | currency}}</label> -->
+                  <input [readonly]="readonlyTable" min="0" class="form-control" matInput type="number" [value]="getTotal(element, rowIndex)"
+                    [(ngModel)]="element.valorTotal" [ngModelOptions]="{standalone: true}" required readonly>
+                </mat-form-field>
+              </td>
+              <td mat-footer-cell *matFooterCellDef class="footer">
+                <p>{{getValorTotal() | currency}}</p>
+              </td>
+            </ng-container>
+
+
+            <!-- Actividades -->
+            <ng-container matColumnDef="actividades">
+              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Actividades</th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field floatLabel="never">
+                  <mat-select [disabled]="readonlyTable" placeholder="Actividades" class="form-control" [(ngModel)]="element.actividades"
+                    [ngModelOptions]="{standalone: true}" [value]="selectedActividades"
+                    (selectionChange)="onChange($event.value)" required multiple>
+                    <mat-option *ngFor="let actividad of actividades" [value]="actividad.index">
+                      {{actividad.index + " - " + actividad.Meta}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <!-- Observaciones -->
+            <ng-container matColumnDef="observaciones">
+              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Observaciones</th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field floatLabel="never">
+                  <textarea [readonly]="readonlyObs" class="form-control" matInput placeholder="Observaciones" [value]="element.observaciones"
+                    [(ngModel)]="element.observaciones" [ngModelOptions]="{standalone: true}" required ></textarea>
+                </mat-form-field>
+              </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+
+            <!-- Acciones -->
+            <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">
+                <button [disabled]="readonlyTable" class="material-icons" matTooltip="Agregar elemento" matTooltipPosition="right" mat-icon-button
+                  (click)="addContratista()">
+                  <mat-icon>add_box</mat-icon>
+                </button>
+              </th>
+              <td mat-cell *matCellDef="let element; let rowIndex = index">
+                <button [disabled]="readonlyTable" class="material-icons-delete" matTooltip="Eliminar elemento" matTooltipPosition="right"
+                  mat-icon-button (click)="deleteContratista(rowIndex)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+
+
+            <!-- Headers-->
+            <ng-container matColumnDef="TiempoContrato">
+              <th id="col-combinado" mat-header-cell *matHeaderCellDef [style.text-align]="center" [attr.colspan]="2">
+                Tiempo de Contrato</th>
+            </ng-container>
+
+            <ng-container matColumnDef="DescripcionNecesidadP">
+              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Descripcion de Necesidad</th>
+            </ng-container>
+
+            <ng-container matColumnDef="PerfilP">
+              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Perfil</th>
+            </ng-container>
+
+            <ng-container matColumnDef="CantidadP">
+              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Cantidad</th>
+            </ng-container>
+
+            <ng-container matColumnDef="ValorUnitarioP">
+              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Valor Unitario</th>
+            </ng-container>
+
+            <ng-container matColumnDef="ValorTotalP">
+              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Valor Total</th>
+            </ng-container>
+
+            <ng-container matColumnDef="ActividadesP">
+              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Actividades</th>
+            </ng-container>
+
+            <ng-container matColumnDef="ObservacionesP">
+              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Observaciones</th>
+            </ng-container>
+
+            <ng-container matColumnDef="AccionesP">
+              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">
+                <button class="material-icons" matTooltip="Agregar elemento" matTooltipPosition="right" mat-icon-button
+                  (click)="addContratista()">
+                  <mat-icon>add_box</mat-icon>
+                </button>
+              </th>
+            </ng-container>
+
+
+            <tr mat-header-row
+              *matHeaderRowDef="displayedHeaders"
+              class="example-second-header-row">
+            </tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+
+
+          </table>
+        </div>
+        <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" aria-label="Select page of users"></mat-paginator>
+
       </ng-container>
-  
-  
-    <!-- Dias -->
-    <ng-container matColumnDef="dias">
-        <th  mat-header-cell *matHeaderCellDef>Dias</th>
-        <td mat-cell *matCellDef="let element">
-          <mat-form-field floatLabel="never">
-            <input  min="1" max="29" class="form-control" matInput  type="number" [value]="element.dias" [(ngModel)]="element.dias" [ngModelOptions]="{standalone: true}" required>
-          </mat-form-field>
-        </td>
-        <td mat-footer-cell *matFooterCellDef></td>
-    </ng-container>
-  
-  
-      <!-- Valor Unitario -->
-      <ng-container matColumnDef="valorUnitario">
-        <th   mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Valor Unitario</th>
-        <td mat-cell *matCellDef="let element">
-          <mat-form-field floatLabel="never">
-            <input  class="form-control" matInput type="number"  [value]="element.valorUnitario" [(ngModel)]="element.valorUnitario" [ngModelOptions]="{standalone: true}" required >
-          </mat-form-field>
-        <td mat-footer-cell *matFooterCellDef class="footer">
-          Total
-        </td>
-    </ng-container>
-  
-      <!-- Valor Total -->
-     <ng-container matColumnDef="valorTotal">
-        <th  mat-header-cell *matHeaderCellDef  [ngStyle]="{'display': 'none'}">Valor Total</th>
-        <td mat-cell *matCellDef="let element; let rowIndex = index">
-          <mat-form-field floatLabel="never">
-            <!-- <label>{{element.valorUnitario * element.cantidad | currency}}</label> -->
-            <input  min="0" class="form-control" matInput  type="number" [value]="getTotal(element, rowIndex)" [(ngModel)]="element.valorTotal" [ngModelOptions]="{standalone: true}" required readonly>
-          </mat-form-field>
-        </td>
-        <td mat-footer-cell *matFooterCellDef class="footer">
-          <p>{{getValorTotal() | currency}}</p>
-        </td>
-    </ng-container>
-        
-  
-     <!-- Actividades -->
-    <ng-container matColumnDef="actividades">
-        <th mat-header-cell *matHeaderCellDef  [ngStyle]="{'display': 'none'}">Actividades</th>
-        <td mat-cell *matCellDef="let element">
-          <mat-form-field floatLabel="never">
-            <mat-select placeholder="Actividades" class="form-control" [(ngModel)]="element.actividades" [ngModelOptions]="{standalone: true}" [value]="selectedActividades" (selectionChange)="onChange($event.value)" required multiple>
-              <mat-option *ngFor="let actividad of actividades" [value]="actividad.index">
-                {{actividad.index + " - " + actividad.Meta}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </td>
-        <td mat-footer-cell *matFooterCellDef></td>
-    </ng-container>
-  
-  
-       <!-- Acciones -->
-    <ng-container matColumnDef="acciones">
-      <th mat-header-cell *matHeaderCellDef  [ngStyle]="{'display': 'none'}">
-        <button class="material-icons" matTooltip="Agregar elemento" matTooltipPosition="right" mat-icon-button (click)="addContratista()"><mat-icon>add_box</mat-icon></button>
-      </th>
-      <td mat-cell *matCellDef="let element; let rowIndex = index">
-          <button class="material-icons-delete" matTooltip="Eliminar elemento" matTooltipPosition="right" mat-icon-button (click)="deleteContratista(rowIndex)"><mat-icon>delete_outline</mat-icon></button>
-      </td>
-      <td mat-footer-cell *matFooterCellDef></td>
-    </ng-container>
-        
-        
-        
-        <!-- Headers-->
-        <ng-container matColumnDef="TiempoContrato">
-            <th id="col-combinado"  mat-header-cell *matHeaderCellDef [style.text-align]="center" [attr.colspan]="2">Tiempo de Contrato</th>
-        </ng-container>
-      
-        <ng-container matColumnDef="DescripcionNecesidadP">
-          <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Descripcion de Necesidad</th>
-        </ng-container>
-      
-        <ng-container matColumnDef="PerfilP">
-          <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Perfil</th>
-        </ng-container>
-      
-        <ng-container matColumnDef="CantidadP">
-          <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Cantidad</th>
-        </ng-container>
-      
-        <ng-container matColumnDef="ValorUnitarioP">
-          <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Valor Unitario</th>
-        </ng-container>
-      
-        <ng-container matColumnDef="ValorTotalP">
-          <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Valor Total</th>
-        </ng-container>
-      
-        <ng-container matColumnDef="ActividadesP">
-          <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Actividades</th>
-        </ng-container>
-        
-        <ng-container matColumnDef="AccionesP">
-          <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">
-            <button class="material-icons" matTooltip="Agregar elemento" matTooltipPosition="right" mat-icon-button (click)="addContratista()"><mat-icon>add_box</mat-icon></button>
-          </th>
-        </ng-container>
-      
-  
-        <tr mat-header-row *matHeaderRowDef="['DescripcionNecesidadP','PerfilP','CantidadP','TiempoContrato','ValorUnitarioP','ValorTotalP','ActividadesP','AccionesP']"
-        class="example-second-header-row">
-        </tr>
-        <tr mat-header-row *matHeaderRowDef="displayedColumns" ></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
-  
-          
-      </table>
-      </div>
-      <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" aria-label="Select page of users"></mat-paginator>
-  
-    </ng-container>
-  </form>
+    </form>
   </mat-card-content>
   <mat-card-footer style="text-align: center;">
     <ng-container>
-      <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="ocultarContratistas()">Cerrar</button>
-      <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"  (click)="guardarContratistas()">Guardar</button>
+      <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
+        (click)="ocultarContratistas()">Cerrar</button>
+      <button disabled="!readonlyTable" mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
+        (click)="guardarContratistas()">Guardar</button>
     </ng-container>
   </mat-card-footer>
 </mat-card>
