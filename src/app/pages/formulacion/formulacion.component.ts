@@ -1,17 +1,18 @@
 import { Component, ViewChild, OnInit, DoCheck } from '@angular/core';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatSort} from '@angular/material/sort';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { FormArray, FormBuilder, FormGroup, FormControl, Validators, AbstractControl, ControlContainer } from '@angular/forms';
 import { RequestManager } from '../services/requestManager';
 import { environment } from '../../../environments/environment';
-import {MatTableDataSource} from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ArbolComponent } from '../plan/arbol/arbol.component';
 import { element } from 'protractor';
 import { stringify } from 'querystring';
 import { timeStamp } from 'console';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import { request } from 'http';
 
 @Component({
   selector: 'app-formulacion',
@@ -30,7 +31,7 @@ export class FormulacionComponent implements OnInit {
   unidadSelected: boolean;
   vigenciaSelected: boolean;
   addActividad: boolean;
-  identContratistas : boolean;
+  identContratistas: boolean;
   plan: any;
   planAux: any;
   unidad: any;
@@ -51,7 +52,7 @@ export class FormulacionComponent implements OnInit {
   idPadre: string;
   planesDesarrollo: any[];
   planDSelected: boolean;
-  dataArmonizacion : string[] = [];
+  dataArmonizacion: string[] = [];
   estadoPlan: string;
   versionPlan: string;
   versiones: any[];
@@ -59,7 +60,9 @@ export class FormulacionComponent implements OnInit {
   readonlyObs: boolean;
   hiddenObs: boolean;
   readOnlyAll: boolean;
-
+  ponderacionCompleta: boolean;
+  ponderacionActividades: string;
+  
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   constructor(
@@ -79,7 +82,7 @@ export class FormulacionComponent implements OnInit {
     this.identContratistas = false;
     this.identDocentes = false;
     this.dataT = false;
-   }
+  }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
   //columnsToDisplay: string[] = this.displayedColumns.slice();
@@ -100,14 +103,14 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
-  loadUnidades(){
+  loadUnidades() {
     this.request.get(environment.OIKOS_SERVICE, `dependencia?limit=0`).subscribe((data: any) => {
-      if (data){
+      if (data) {
         this.unidades = data;
       }
-    },(error) => {
+    }, (error) => {
       Swal.fire({
-        title: 'Error en la operación', 
+        title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
         icon: 'warning',
         showConfirmButton: false,
@@ -116,14 +119,14 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
-  loadPeriodos(){
+  loadPeriodos() {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG`).subscribe((data: any) => {
-      if (data){
+      if (data) {
         this.vigencias = data.Data;
       }
-    },(error) => {
+    }, (error) => {
       Swal.fire({
-        title: 'Error en la operación', 
+        title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
         icon: 'warning',
         showConfirmButton: false,
@@ -132,15 +135,15 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
-  loadPlanes(){
+  loadPlanes() {
     this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
-      if (data){
+      if (data) {
         this.planes = data.Data;
         this.planes = this.filterPlanes(this.planes);
       }
-    },(error) => {
+    }, (error) => {
       Swal.fire({
-        title: 'Error en la operación', 
+        title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
         icon: 'warning',
         showConfirmButton: false,
@@ -158,25 +161,25 @@ export class FormulacionComponent implements OnInit {
   }
 
   submit() {
-    if (!this.banderaEdit){ // ADD NUEVA ACTIVIDAD
-      if (this.dataArmonizacion.length != 0){
-                    
+    if (!this.banderaEdit) { // ADD NUEVA ACTIVIDAD
+      if (this.dataArmonizacion.length != 0) {
+
         var formValue = this.form.value;
         var actividad = {
           armo: this.dataArmonizacion.toString(),
           entrada: formValue
         }
         //console.log(actividad)
-        this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data : any) => {
-          if (data){
+        this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data: any) => {
+          if (data) {
             Swal.fire({
-            title: 'Actividad agregada', 
-            //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
-            text: 'La actividad se ha registrado satisfactoriamente',
-            icon: 'success'
+              title: 'Actividad agregada',
+              //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+              text: 'La actividad se ha registrado satisfactoriamente',
+              icon: 'success'
             }).then((result) => {
-            if (result.value) {
-              this.loadData()
+              if (result.value) {
+                this.loadData()
                 this.form.reset();
                 this.addActividad = false;
                 this.dataArmonizacion = [];
@@ -186,9 +189,9 @@ export class FormulacionComponent implements OnInit {
             })
           }
         })
-      }else{
+      } else {
         Swal.fire({
-          title: 'Por favor complete la armonización para continuar', 
+          title: 'Por favor complete la armonización para continuar',
           text: `No se encontraron datos registrados`,
           icon: 'warning',
           showConfirmButton: false,
@@ -197,18 +200,18 @@ export class FormulacionComponent implements OnInit {
       }
 
     } else { // EDIT ACTIVIDAD
-      if (this.dataArmonizacion.length != 0){
+      if (this.dataArmonizacion.length != 0) {
         var aux = this.dataArmonizacion.toString()
         var formValue = this.form.value;
         var actividad = {
           entrada: formValue,
-          armo : aux
-        } 
+          armo: aux
+        }
         //console.log(actividad)
-        this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id+`/`+this.rowActividad).subscribe((data: any) => {
-          if (data){
+        this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id + `/` + this.rowActividad).subscribe((data: any) => {
+          if (data) {
             Swal.fire({
-              title: 'Información de actividad actualizada', 
+              title: 'Información de actividad actualizada',
               //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
               text: 'La actividad se ha actualizado satisfactoriamente',
               icon: 'success'
@@ -221,11 +224,11 @@ export class FormulacionComponent implements OnInit {
                 this.tipoPlanId = '';
               }
             })
-          } 
+          }
         })
-      }else{
+      } else {
         Swal.fire({
-          title: 'Por favor complete la armonización para continuar', 
+          title: 'Por favor complete la armonización para continuar',
           text: `No se encontraron datos registrados`,
           icon: 'warning',
           showConfirmButton: false,
@@ -237,7 +240,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   getErrorMessage(campo: FormControl) {
-    if (campo.hasError('required', )) {
+    if (campo.hasError('required',)) {
       return 'Campo requerido';
     } else {
       return 'Introduzca un valor válido';
@@ -247,10 +250,10 @@ export class FormulacionComponent implements OnInit {
   filterPlanes(data) {
     var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
     return dataAux.filter(e => e.activo == true);
-  }  
+  }
 
-  onChangeU(unidad){
-    if (unidad == undefined){
+  onChangeU(unidad) {
+    if (unidad == undefined) {
       this.unidadSelected = false;
     } else {
       this.unidadSelected = true;
@@ -261,21 +264,21 @@ export class FormulacionComponent implements OnInit {
       this.banderaIdentDocentes = this.mostrarIdentDocente(unidad.DependenciaTipoDependencia);
       this.estadoPlan = "";
       this.versionPlan = "";
-      if (this.vigenciaSelected && this.planSelected){
+      if (this.vigenciaSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
       }
     }
   }
 
-  mostrarIdentDocente(tipoDependencias : any[]):boolean {
-    for(let element of tipoDependencias){
-      if(element.TipoDependenciaId.Id === 2 || element.DependenciaId.Id === 67) return true
+  mostrarIdentDocente(tipoDependencias: any[]): boolean {
+    for (let element of tipoDependencias) {
+      if (element.TipoDependenciaId.Id === 2 || element.DependenciaId.Id === 67) return true
       else return false
     }
   }
 
-  onChangeV(vigencia){
-    if (vigencia == undefined){
+  onChangeV(vigencia) {
+    if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
       this.vigenciaSelected = true;
@@ -285,14 +288,14 @@ export class FormulacionComponent implements OnInit {
       this.identContratistas = false;
       this.estadoPlan = "";
       this.versionPlan = "";
-      if (this.unidadSelected && this.planSelected){
+      if (this.unidadSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
       }
     }
   }
 
-  onChangeP(plan){
-    if (plan == undefined){
+  onChangeP(plan) {
+    if (plan == undefined) {
       this.planSelected = false;
     } else {
       this.planAux = plan;
@@ -307,18 +310,18 @@ export class FormulacionComponent implements OnInit {
   }
 
   onChangeSelect(opcion) {
-    
+
   }
 
-  onChangePD(planD){
-    if (planD == undefined){
+  onChangePD(planD) {
+    if (planD == undefined) {
     } else {
       this.idPadre = planD._id
       this.tipoPlanId = planD.tipo_plan_id
     }
   }
 
-  onChangeVersion(version){
+  onChangeVersion(version) {
     this.plan = version;
     this.versionPlan = this.plan.numero;
     this.controlVersion = new FormControl(this.plan);
@@ -331,18 +334,18 @@ export class FormulacionComponent implements OnInit {
 
   rol: string;
 
-  visualizeObs(){
+  visualizeObs() {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')){
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
-    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')){
+    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
     }
-    if (this.rol == 'JEFE_DEPENDENCIA'){
-      if (this.estadoPlan == 'En formulación'){
-        if (this.versiones.length == 1){
+    if (this.rol == 'JEFE_DEPENDENCIA') {
+      if (this.estadoPlan == 'En formulación') {
+        if (this.versiones.length == 1) {
           this.hiddenObs = true;
-        } else if (this.versiones.length > 1 && this.banderaEdit && this.addActividad){
+        } else if (this.versiones.length > 1 && this.banderaEdit && this.addActividad) {
           this.hiddenObs = false;
         } else if (this.versiones.length > 1 && !this.banderaEdit && this.addActividad) {
           this.hiddenObs = true;
@@ -350,35 +353,35 @@ export class FormulacionComponent implements OnInit {
         this.readonlyObs = true;
         this.readOnlyAll = false;
       }
-      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal'){
+      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readOnlyAll = true;
         this.hiddenObs = false;
       }
-      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval'){
+      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readOnlyAll = true;
         this.hiddenObs = true;
       }
     }
 
-    if (this.rol == 'PLANEACION'){ 
-      if (this.estadoPlan == 'En formulación'){
+    if (this.rol == 'PLANEACION') {
+      if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readOnlyAll = true;
         this.hiddenObs = false;
       }
-      if (this.estadoPlan == 'En revisión'){
+      if (this.estadoPlan == 'En revisión') {
         this.readOnlyAll = true;
         this.readonlyObs = false;
         this.hiddenObs = false;
       }
-      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal'){
+      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readOnlyAll = true;
         this.readonlyObs = true;
         this.hiddenObs = false;
       }
-      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado'){
+      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readOnlyAll = true;
         this.hiddenObs = true;
@@ -386,37 +389,37 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
-  getEstado(){
-    this.request.get(environment.PLANES_CRUD, `estado-plan/`+this.plan.estado_plan_id).subscribe((data: any) => {
-      if (data){
+  getEstado() {
+    this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.plan.estado_plan_id).subscribe((data: any) => {
+      if (data) {
         this.estadoPlan = data.Data.nombre;
         this.visualizeObs();
       }
     }),
-    (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        icon: 'error',
-        text: `${JSON.stringify(error)}`,
-        showConfirmButton: false,
-        timer: 2500
-      })
-    }
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
   getVersiones(planB) {
-    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/`+this.unidad.Id+`/`+this.vigencia.Id+
-      `/`+planB.nombre).subscribe((data: any) => {
-        if (data){
+    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.unidad.Id + `/` + this.vigencia.Id +
+      `/` + planB.nombre).subscribe((data: any) => {
+        if (data) {
           this.versiones = data;
           //console.log(data)
-          for (var i in this.versiones){
+          for (var i in this.versiones) {
             var obj = this.versiones[i];
-            var num = +i+1;
+            var num = +i + 1;
             obj["numero"] = num.toString();
           }
           var len = this.versiones.length;
-          var pos = +len-1;
+          var pos = +len - 1;
           //console.log(this.versiones)
           this.plan = this.versiones[pos];
           this.planAsignado = true;
@@ -426,57 +429,57 @@ export class FormulacionComponent implements OnInit {
           this.versionPlan = this.plan.numero;
           this.getEstado();
         }
-    }),
-    (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        icon: 'error',
-        text: `${JSON.stringify(error)}`,
-        showConfirmButton: false,
-        timer: 2500
-      })
-    }
+      }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
-  busquedaPlanes(planB){
-    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:`+this.unidad.Id+`,vigencia:`+
-    this.vigencia.Id+`,formato:false,nombre:`+planB.nombre).subscribe((data: any) => {
-      if (data.Data.length > 0){
-        this.getVersiones(planB);
-      } else if (data.Data.length == 0) {
-        Swal.fire({
-          title: 'Formulación nuevo plan', 
-          html:'No existe plan <b>'+planB.nombre+'</b> <br>' +
-              'para la dependencia <b>'+this.unidad.Nombre+'</b> y la <br>' +
-              'vigencia <b>'+this.vigencia.Nombre+'</b><br></br>'+
+  busquedaPlanes(planB) {
+    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
+      this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe((data: any) => {
+        if (data.Data.length > 0) {
+          this.getVersiones(planB);
+        } else if (data.Data.length == 0) {
+          Swal.fire({
+            title: 'Formulación nuevo plan',
+            html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
+              'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
+              'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
               '<i>Deberá formular el plan</i>',
-          // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}. 
-          // Deberá formular un nuevo plan`,
+            // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}. 
+            // Deberá formular un nuevo plan`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 7000
+          })
+          this.clonar = true;
+          this.plan = planB;
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
           icon: 'warning',
           showConfirmButton: false,
-          timer: 7000
+          timer: 2500
         })
-        this.clonar = true;
-        this.plan = planB;
-      }
-    },(error) => {
-      Swal.fire({
-        title: 'Error en la operación', 
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
       })
-    })
   }
 
-  loadData(){
+  loadData() {
     this.ajustarData();
   }
 
-  ajustarData(){
-    this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/`+this.plan._id+`?order=asc&sortby=index`).subscribe((data: any) => {
-      if (data.Data.data_source != null){
+  ajustarData() {
+    this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
+      if (data.Data.data_source != null) {
         this.dataSource = new MatTableDataSource(data.Data.data_source);
         this.cambiarValor("activo", true, "Activo", this.dataSource.data)
         this.cambiarValor("activo", false, "Inactivo", this.dataSource.data)
@@ -485,10 +488,10 @@ export class FormulacionComponent implements OnInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         this.dataT = true;
-      } else if (data.Data.data_source == null){
+      } else if (data.Data.data_source == null) {
         this.dataT = false;
         Swal.fire({
-          title: 'Atención en la operación', 
+          title: 'Atención en la operación',
           text: `No hay actividades registradas para el plan`,
           icon: 'warning',
           showConfirmButton: false,
@@ -497,7 +500,7 @@ export class FormulacionComponent implements OnInit {
       }
     }, (error) => {
       Swal.fire({
-        title: 'Error en la operación', 
+        title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
         icon: 'warning',
         showConfirmButton: false,
@@ -506,17 +509,17 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
-  cargaFormato(plan){
+  cargaFormato(plan) {
     Swal.fire({
       title: 'Cargando formato',
       timerProgressBar: true,
       showConfirmButton: false,
-        willOpen: () => {
-          Swal.showLoading();
-        },
+      willOpen: () => {
+        Swal.showLoading();
+      },
     })
     this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
-      if (data){
+      if (data) {
         Swal.close();
         this.estado = plan.estado_plan_id;
         this.steps = data[0]
@@ -525,7 +528,7 @@ export class FormulacionComponent implements OnInit {
       }
     }, (error) => {
       Swal.fire({
-        title: 'Error en la operación', 
+        title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
         icon: 'warning',
         showConfirmButton: false,
@@ -535,7 +538,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   editar(fila): void {
-    if (fila.activo == 'Inactivo'){
+    if (fila.activo == 'Inactivo') {
       Swal.fire({
         title: 'Actividad inactiva',
         text: `No puede editar una actividad en estado inactivo`,
@@ -544,7 +547,7 @@ export class FormulacionComponent implements OnInit {
         timer: 3500
       });
     } else {
-      if (this.planesDesarrollo == undefined){
+      if (this.planesDesarrollo == undefined) {
         this.cargarPlanesDesarrollo()
       }
       this.addActividad = true;
@@ -555,12 +558,12 @@ export class FormulacionComponent implements OnInit {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
-          willOpen: () => {
-            Swal.showLoading();
-          },
+        willOpen: () => {
+          Swal.showLoading();
+        },
       })
-      this.request.get(environment.PLANES_MID, `formulacion/get_plan/`+this.plan._id+`/`+fila.index).subscribe((data: any) => {
-        if (data){
+      this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.plan._id + `/` + fila.index).subscribe((data: any) => {
+        if (data) {
           Swal.close();
           this.estado = this.plan.estado_plan_id;
           this.steps = data.Data[0]
@@ -568,12 +571,12 @@ export class FormulacionComponent implements OnInit {
           this.form = this.formBuilder.group(this.json);
           var auxAmonizacion = data.Data[2][0]
           var strArmonizacion = auxAmonizacion.armo
-          var len  = (strArmonizacion.split(",").length)
+          var len = (strArmonizacion.split(",").length)
           this.dataArmonizacion = strArmonizacion.split(",", len)
         }
       }, (error) => {
         Swal.fire({
-          title: 'Error en la operación', 
+          title: 'Error en la operación',
           text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
           icon: 'warning',
           showConfirmButton: false,
@@ -583,8 +586,8 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
-  inhabilitar(fila): void{
-    if (fila.activo == 'Inactivo'){
+  inhabilitar(fila): void {
+    if (fila.activo == 'Inactivo') {
       Swal.fire({
         title: 'Actividad ya inactiva',
         text: `La actividad ya se encuentra en estado inactivo`,
@@ -597,7 +600,7 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
-  inactivar(fila): void{
+  inactivar(fila): void {
     Swal.fire({
       title: 'Inhabilitar actividad',
       text: `¿Está seguro de inhabilitar esta actividad?`,
@@ -605,19 +608,19 @@ export class FormulacionComponent implements OnInit {
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
     }).then((result) => {
-        if (result.isConfirmed) {
-          this.request.put(environment.PLANES_MID, `formulacion/delete_actividad`, `null`, this.plan._id+`/`+fila.index).subscribe((data: any) => {
-            if(data){
-              Swal.fire({
-                title: 'Cambio realizado', 
-                icon: 'success',
-              }).then((result) => {
-                if (result.value) {
-                  this.loadData()
-                }
-              })
-            }
-          }),
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `formulacion/delete_actividad`, `null`, this.plan._id + `/` + fila.index).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Cambio realizado',
+              icon: 'success',
+            }).then((result) => {
+              if (result.value) {
+                this.loadData()
+              }
+            })
+          }
+        }),
           (error) => {
             Swal.fire({
               title: 'Error en la operación',
@@ -627,19 +630,19 @@ export class FormulacionComponent implements OnInit {
               timer: 2500
             })
           }
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          Swal.fire({
-            title: 'Cambio cancelado', 
-            icon: 'error',
-            showConfirmButton: false,
-            timer: 2500
-          })
-        }
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cambio cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
     })
   }
 
   agregarActividad() {
-    if(this.tipoPlanId === undefined && this.idPadre === undefined){
+    if (this.tipoPlanId === undefined && this.idPadre === undefined) {
       this.cargarPlanesDesarrollo();
     }
     this.cargaFormato(this.plan);
@@ -649,11 +652,11 @@ export class FormulacionComponent implements OnInit {
     this.dataArmonizacion = []
   }
 
-  identificarContratistas(){
-    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:`+this.plan._id+`,tipo_identificacion_id:6184b3e6f6fc97850127bb68`).subscribe((data: any) => {
-      if (data.Data.length == 0){
-        var str1 = 'Identificación de Contratistas '+this.plan.nombre
-        var str2 = 'Identificación de Contratistas '+this.plan.nombre+' '+this.unidad.Nombre
+  identificarContratistas() {
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan._id + `,tipo_identificacion_id:6184b3e6f6fc97850127bb68`).subscribe((data: any) => {
+      if (data.Data.length == 0) {
+        var str1 = 'Identificación de Contratistas ' + this.plan.nombre
+        var str2 = 'Identificación de Contratistas ' + this.plan.nombre + ' ' + this.unidad.Nombre
         let datoIdenti = {
           "nombre": String(str1),
           "descripcion": String(str2),
@@ -663,11 +666,11 @@ export class FormulacionComponent implements OnInit {
           "activo": true
         }
         this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
-          if (dataP){
+          if (dataP) {
             this.identContratistas = true;
           } else {
             Swal.fire({
-              title: 'Error al crear identificación. Intente de nuevo', 
+              title: 'Error al crear identificación. Intente de nuevo',
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500
@@ -680,11 +683,11 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
-  identificarRecursos(){
-    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:`+this.plan._id+`,tipo_identificacion_id:617b6630f6fc97b776279afa`).subscribe((data: any) => {
-      if (data.Data.length == 0){
-        var str1 = 'Identificación de Recursos '+this.plan.nombre
-        var str2 = 'Identificación de Recursos '+this.plan.nombre+' '+this.unidad.Nombre
+  identificarRecursos() {
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan._id + `,tipo_identificacion_id:617b6630f6fc97b776279afa`).subscribe((data: any) => {
+      if (data.Data.length == 0) {
+        var str1 = 'Identificación de Recursos ' + this.plan.nombre
+        var str2 = 'Identificación de Recursos ' + this.plan.nombre + ' ' + this.unidad.Nombre
         let datoIdenti = {
           "nombre": String(str1),
           "descripcion": String(str2),
@@ -694,11 +697,11 @@ export class FormulacionComponent implements OnInit {
           "activo": true
         }
         this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
-          if (dataP){
+          if (dataP) {
             this.identRecursos = true;
           } else {
             Swal.fire({
-              title: 'Error al crear identificación. Intente de nuevo', 
+              title: 'Error al crear identificación. Intente de nuevo',
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500
@@ -711,7 +714,7 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
-  identificarDocentes(){
+  identificarDocentes() {
     // this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:`+this.plan._id+`,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
     //   if (data.Data.length == 0){
     //     var str1 = 'Identificación de Docentes '+this.plan.nombre
@@ -743,128 +746,170 @@ export class FormulacionComponent implements OnInit {
     this.identDocentes = true;
   }
 
-  cargarPlanesDesarrollo(){
+  cargarPlanesDesarrollo() {
     this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
-      if(data){
+      if (data) {
         this.planesDesarrollo = data.Data
       }
     })
   }
 
-  receiveMessage(event){
-    if (event.bandera == 'armonizar'){
+  receiveMessage(event) {
+    if (event.bandera == 'armonizar') {
       var uid_n = event.fila.level;
       var uid = event.fila.id; // id del nivel a editar
-      if (!event.fila.expandable){
-        if (uid != this.dataArmonizacion.find(id => id === uid)){
+      if (!event.fila.expandable) {
+        if (uid != this.dataArmonizacion.find(id => id === uid)) {
           this.dataArmonizacion.push(uid)
-        }else{
+        } else {
           const index = this.dataArmonizacion.indexOf(uid, 0);
           if (index > -1) {
             this.dataArmonizacion.splice(index, 1);
           }
         }
       }
-    } 
+    }
   }
 
   culminarPlan() {
     // Revisar si tiene actividades (!)
-    Swal.fire({
-      title: 'Envío de Plan',
-      text: `¿Está seguro de enviar plan para revisión?`,
-      showCancelButton: true,
-      confirmButtonText: `Si`,
-      cancelButtonText: `No`,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        let mod ={
-          estado_plan_id: "614d3aeb01c7a245952fabff"
-        }
-        // this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
-        // this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data:any) =>{
-        //   if(data){
-        //     Swal.fire({
-        //       title: 'Plan enviado', 
-        //       icon: 'success',
-        //     }).then((result) => {
-        //       if (result.value) {
-        //         this.loadData()
-        //         this.addActividad = false;
-        //       }
-        //     })
-        //   }
-        // })
+    this.getPoderacionActividades().then( () => {
+      if (this.ponderacionCompleta != true) {
         Swal.fire({
-          title: 'Envío realizado (SIN CAMBIOS)', 
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 2500
+          icon: 'error',
+          title: 'Ponderación Incorrecta',
+          html: this.ponderacionActividades
         })
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-            Swal.fire({
-              title: 'Envío cancelado', 
-              icon: 'error',
-              showConfirmButton: false,
-              timer: 2500
-            })
-          }
-        }),
-        (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            icon: 'error',
-            text: `${JSON.stringify(error)}`,
-            showConfirmButton: false,
-            timer: 2500
-          })
+      }else{
+        Swal.fire({
+          icon: 'success',
+          title: 'Plan culminado',
+        })
+      }
+    })
+
+    // Swal.fire({void
+    //   confirmButtonText: `Si`,
+    //   cancelButtonText: `No`,
+    // }).then((result) => {
+    //   if (result.isConfirmed) {
+    //     let mod ={
+    //       estado_plan_id: "614d3aeb01c7a245952fabff"
+    //     }
+    //     // this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
+    //     // this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data:any) =>{
+    //     //   if(data){
+    //     //     Swal.fire({
+    //     //       title: 'Plan enviado', 
+    //     //       icon: 'success',
+    //     //     }).then((result) => {
+    //     //       if (result.value) {
+    //     //         this.loadData()
+    //     //         this.addActividad = false;
+    //     //       }
+    //     //     })
+    //     //   }
+    //     // })
+    //     Swal.fire({
+    //       title: 'Envío realizado (SIN CAMBIOS)', 
+    //       icon: 'success',
+    //       showConfirmButton: false,
+    //       timer: 2500
+    //     })
+    //   } else if (result.dismiss === Swal.DismissReason.cancel) {
+    //         Swal.fire({
+    //           title: 'Envío cancelado', 
+    //           icon: 'error',
+    //           showConfirmButton: false,
+    //           timer: 2500
+    //         })
+    //       }
+    //     }),
+    //     (error) => {
+    //       Swal.fire({
+    //         title: 'Error en la operación',
+    //         icon: 'error',
+    //         text: `${JSON.stringify(error)}`,
+    //         showConfirmButton: false,
+    //         timer: 2500
+    //       })
+    //     }
+  }
+
+  getPoderacionActividades(): Promise<string>{
+    let message : string = '';
+    let resolveRef;
+    let rejectRef;
+
+    let dataPromise: Promise<string> = new Promise((resolve, reject) => {
+        resolveRef = resolve;
+        rejectRef = reject;
+    });
+    this.request.get(environment.PRUEBA, `formulacion/ponderacion_actividades/` + this.plan._id).subscribe((data: any) => {
+      if (data) {
+        let aux : object = data
+        let keys : string[];
+
+        keys = Object.keys(aux)
+        for(let key of keys){
+          message = message + key + ' : ' + aux[key] + "<br/>"
         }
+        if (data.Total === 100) {
+          this.ponderacionCompleta = true
+        } else {
+          this.ponderacionCompleta = false
+        }
+        this.ponderacionActividades = message
+        resolveRef(message)
+      }
+    })
+    return dataPromise
   }
 
   cambiarValor(valorABuscar, valorViejo, valorNuevo, dataS) {
-    dataS.forEach(function(elemento) {
+    dataS.forEach(function (elemento) {
       elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
     })
   }
 
-  formularPlan(){
+  formularPlan() {
     let parametros = {
       "dependencia_id": String(this.unidad.Id),
       "vigencia": String(this.vigencia.Id)
     }
-    this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/`+this.plan._id, parametros).subscribe((data: any) => {
-      if (data){
-          let upd = {
-            estado_plan_id:"614d3ad301c7a200482fabfd"
+    this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/` + this.plan._id, parametros).subscribe((data: any) => {
+      if (data) {
+        let upd = {
+          estado_plan_id: "614d3ad301c7a200482fabfd"
+        }
+        this.request.put(environment.PLANES_CRUD, `plan`, upd, data.Data._id).subscribe((dataPut: any) => {
+          if (dataPut) {
+            this.plan = dataPut.Data;
+            Swal.fire({
+              title: 'Formulación nuevo plan',
+              text: `Plan creado satisfactoriamente`,
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 4000
+            })
+            // this.clonar = false;
+            // this.planAsignado = true;
+            // //CARGA TABLA
+            // this.loadData();
+            this.getVersiones(this.plan);
           }
-          this.request.put(environment.PLANES_CRUD, `plan`, upd, data.Data._id).subscribe((dataPut: any) => {
-            if(dataPut){
-              this.plan = dataPut.Data;
-              Swal.fire({
-                title: 'Formulación nuevo plan', 
-                text: `Plan creado satisfactoriamente`,
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 4000
-              })
-              // this.clonar = false;
-              // this.planAsignado = true;
-              // //CARGA TABLA
-              // this.loadData();
-              this.getVersiones(this.plan);
-            }
-          })
+        })
       }
     }),
-    (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        icon: 'error',
-        text: `${JSON.stringify(error)}`,
-        showConfirmButton: false,
-        timer: 2500
-      })
-    }
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
   ocultar() {
@@ -879,28 +924,28 @@ export class FormulacionComponent implements OnInit {
         this.addActividad = false;
         this.dataArmonizacion = []
         Swal.fire({
-          title: 'Registro cancelado', 
+          title: 'Registro cancelado',
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
         })
       } else if (result.dismiss === Swal.DismissReason.cancel) {
-        
+
       }
     }),
-    (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        icon: 'error',
-        text: `${JSON.stringify(error)}`,
-        showConfirmButton: false,
-        timer: 2500
-      })
-    }
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
-  messageIdentificacion(event){
-    if (event.accion == 'ocultar'){
+  messageIdentificacion(event) {
+    if (event.accion == 'ocultar') {
       Swal.fire({
         title: `Identificación de ${event.identi}`,
         text: `¿Desea cerrar la identificación de ${event.identi}?`,
@@ -909,21 +954,21 @@ export class FormulacionComponent implements OnInit {
         cancelButtonText: `No`,
       }).then((result) => {
         if (result.isConfirmed) {
-          if (event.identi == 'contratistas'){
+          if (event.identi == 'contratistas') {
             this.identContratistas = false;
-          } else if (event.identi == 'recursos'){
+          } else if (event.identi == 'recursos') {
             this.identRecursos = false;
-          } else if (event.identi == 'docentes'){
+          } else if (event.identi == 'docentes') {
             this.identDocentes = false;
           }
           Swal.fire({
-            title: 'Cierre exitoso.', 
+            title: 'Cierre exitoso.',
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500
           })
         } else if (result.dismiss === Swal.DismissReason.cancel) {
-          
+
         }
       }),
         (error) => {
@@ -935,12 +980,12 @@ export class FormulacionComponent implements OnInit {
             timer: 2500
           })
         }
-    } else if (event.accion == 'guardar'){
-      if (event.identi == 'contratistas'){
+    } else if (event.accion == 'guardar') {
+      if (event.identi == 'contratistas') {
         this.identContratistas = false;
-      } else if (event.identi == 'recursos'){
+      } else if (event.identi == 'recursos') {
         this.identRecursos = false;
-      } else if (event.identi == 'docentes'){
+      } else if (event.identi == 'docentes') {
         this.identDocentes = false;
       }
     }
