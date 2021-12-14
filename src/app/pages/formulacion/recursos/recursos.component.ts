@@ -84,7 +84,7 @@ export class RecursosComponent implements OnInit {
   }
 
   visualizarColumnas(): string[] {
-    if (this.estadoPlan == 'Pre Aval' || this.versiones.length > 4) {
+    if (this.estadoPlan == 'Pre Aval' || this.verificarVersiones()) {
       this.readonlyTable = true;
     }
 
@@ -95,6 +95,7 @@ export class RecursosComponent implements OnInit {
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
+        this.readonlyTable = true;
         return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones', 'acciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
@@ -127,9 +128,17 @@ export class RecursosComponent implements OnInit {
     }
   }
 
-
+  verificarVersiones(): boolean {
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
+    if (preAval.length != 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   loadRubros() {
+
     this.request.get(environment.PLANES_MID, `formulacion/get_rubros`).subscribe((data: any) => {
       this.rubros = data.Data
     })

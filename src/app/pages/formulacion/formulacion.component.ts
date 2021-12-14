@@ -845,7 +845,7 @@ export class FormulacionComponent implements OnInit {
         resolveRef = resolve;
         rejectRef = reject;
     });
-    this.request.get(environment.PRUEBA, `formulacion/ponderacion_actividades/` + this.plan._id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formulacion/ponderacion_actividades/` + this.plan._id).subscribe((data: any) => {
       if (data) {
         let aux : object = data
         let keys : string[];
