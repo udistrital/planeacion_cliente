@@ -129,8 +129,8 @@
               <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Observaciones</th>
               <td mat-cell *matCellDef="let element">
                 <mat-form-field floatLabel="never">
-                  <textarea [readonly]="readonlyObs" class="form-control" matInput placeholder="Observaciones" [value]="element.observaciones"
-                    [(ngModel)]="element.observaciones" [ngModelOptions]="{standalone: true}" required ></textarea>
+                  <textarea [readonly]="readonlyObs"  class="form-control" matInput placeholder="Observaciones" [value]="element.observaciones"
+                    [(ngModel)]="element.observaciones" [ngModelOptions]="{standalone: true}" ></textarea>
                 </mat-form-field>
               </td>
               <td mat-footer-cell *matFooterCellDef></td>
