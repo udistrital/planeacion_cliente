@@ -329,33 +329,39 @@
         </button>
       </ng-container>
       <ng-container *ngIsGranted="['PLANEACION']">
+        <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3aeb01c7a245952fabff'" mat-raised-button
+          color="primary" (click)="iniciarRevision()" [disabled]="!dataT">
+          Iniciar Revisión
+        </button>
+      </ng-container>
+      <ng-container *ngIsGranted="['PLANEACION']">
         <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b0301c7a2a44e2fac01'" mat-raised-button
-          color="primary" [disabled]="!dataT">
+          color="primary" (click)="enviarRevision()" [disabled]="!dataT">
           Enviar Revisión
         </button>
       </ng-container>
       <ng-container *ngIsGranted="['JEFE_DEPENDENCIA']">
         <button class="btn-formulacion"
           *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03' || plan.estado_plan_id === '615335c501c7a213a12fb2a3'"
-          mat-raised-button color="primary" [disabled]="!dataT">
+          mat-raised-button color="primary" (click)="realizarAjustes()" [disabled]="!dataT">
           Realizar Ajustes
         </button>
       </ng-container>
       <ng-container *ngIsGranted="['PLANEACION']">
         <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03'" mat-raised-button
-          color="primary" [disabled]="!dataT">
+          color="primary" (click)="preAval()" [disabled]="!dataT">
           Dar Pre-Aval
         </button>
       </ng-container>
       <ng-container *ngIsGranted="['PLANEACION']">
         <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b4401c7a222052fac05'" mat-raised-button
-          color="primary" [disabled]="!dataT">
+          color="primary" (click)="realizarAjustes()" [disabled]="!dataT">
           Remitir Ajuste Presupuestal
         </button>
       </ng-container>
       <ng-container *ngIsGranted="['PLANEACION']">
         <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b4401c7a222052fac05'" mat-raised-button
-          color="primary" [disabled]="!dataT">
+          color="primary" (click)="avalar()" [disabled]="!dataT">
           Dar Aval
         </button>
       </ng-container>

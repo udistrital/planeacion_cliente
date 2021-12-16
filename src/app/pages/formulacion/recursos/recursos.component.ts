@@ -8,6 +8,7 @@ import { FormArray, FormBuilder, FormGroup, NgForm, FormControl, Validators, Abs
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import { localeData } from 'moment';
+import { read } from 'fs';
 
 @Component({
   selector: 'app-recursos',
@@ -59,7 +60,6 @@ export class RecursosComponent implements OnInit {
       if (data.Data != null) {
         this.Plan = data.Data;
         this.getEstado();
-
       }
     })
   }
@@ -91,6 +91,7 @@ export class RecursosComponent implements OnInit {
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
+        this.readonlyTable = false;
         return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
@@ -138,9 +139,17 @@ export class RecursosComponent implements OnInit {
   }
 
   loadRubros() {
-
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.PLANES_MID, `formulacion/get_rubros`).subscribe((data: any) => {
-      this.rubros = data.Data
+      this.rubros = data.Data;
+      Swal.close();
     })
 
   }
@@ -178,13 +187,24 @@ export class RecursosComponent implements OnInit {
   }
 
   addElement() {
-    this.dataSource.data.unshift({
-      codigo: '',
-      Nombre: '',
-      valor: 0,
-      descripcion: '',
-      actividades: ''
-    });
+    if (this.rol == 'PLANEACION'){
+      this.dataSource.data.unshift({
+        codigo: '',
+        Nombre: '',
+        valor: 0,
+        descripcion: '',
+        actividades: '',
+        observaciones: ''
+      });
+    }else{
+      this.dataSource.data.unshift({
+        codigo: '',
+        Nombre: '',
+        valor: 0,
+        descripcion: '',
+        actividades: ''
+      });
+    }
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
