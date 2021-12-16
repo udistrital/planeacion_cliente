@@ -280,10 +280,6 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
-  onChange(event) {
-    //console.log(event)
-  }
-
   onSelected(event, rowIndex) {
     if (event.value == undefined) {
       this.dataSource.data[rowIndex].valorUnitario = '';
@@ -297,6 +293,9 @@ export class ContratistasComponent implements OnInit {
       })
 
     }
+  }
+
+  onChange(event) {
   }
 
   ocultarContratistas() {

@@ -220,8 +220,8 @@
     <ng-container>
       <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
         (click)="ocultarContratistas()">Cerrar</button>
-      <button disabled="!readonlyTable" mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
-        (click)="guardarContratistas()">Guardar</button>
+      <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
+        (click)="guardarContratistas()" [disabled]="readonlyTable">Guardar</button>
     </ng-container>
   </mat-card-footer>
 </mat-card>
