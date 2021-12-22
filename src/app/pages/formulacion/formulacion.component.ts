@@ -54,6 +54,7 @@ export class FormulacionComponent implements OnInit {
   planDSelected: boolean;
   dataArmonizacion: string[] = [];
   estadoPlan: string;
+  iconEstado: string;
   versionPlan: string;
   versiones: any[];
   controlVersion = new FormControl();
@@ -263,6 +264,7 @@ export class FormulacionComponent implements OnInit {
       this.identContratistas = false;
       this.banderaIdentDocentes = this.mostrarIdentDocente(unidad.DependenciaTipoDependencia);
       this.estadoPlan = "";
+      this.iconEstado = "";
       this.versionPlan = "";
       if (this.vigenciaSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
@@ -287,6 +289,7 @@ export class FormulacionComponent implements OnInit {
       this.identRecursos = false;
       this.identContratistas = false;
       this.estadoPlan = "";
+      this.iconEstado = "";
       this.versionPlan = "";
       if (this.unidadSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
@@ -304,6 +307,7 @@ export class FormulacionComponent implements OnInit {
       this.identRecursos = false;
       this.identContratistas = false;
       this.estadoPlan = "";
+      this.iconEstado = "";
       this.versionPlan = "";
       this.busquedaPlanes(plan);
     }
@@ -393,6 +397,7 @@ export class FormulacionComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.plan.estado_plan_id).subscribe((data: any) => {
       if (data) {
         this.estadoPlan = data.Data.nombre;
+        this.getIconEstado();
         this.visualizeObs();
       }
     }),
@@ -405,6 +410,24 @@ export class FormulacionComponent implements OnInit {
           timer: 2500
         })
       }
+  }
+
+  getIconEstado(){
+    if (this.plan.estado_plan_id == '614d3ad301c7a200482fabfd'){
+      this.iconEstado = "create";
+    }else if (this.plan.estado_plan_id == '614d3aeb01c7a245952fabff'){
+      this.iconEstado = "assignment_turned_in";
+    }else if (this.plan.estado_plan_id == '614d3b0301c7a2a44e2fac01'){
+      this.iconEstado = "pageview";
+    }else if (this.plan.estado_plan_id == '614d3b1e01c7a265372fac03'){
+      this.iconEstado = "assignment_return";
+    }else if (this.plan.estado_plan_id == '614d3b4401c7a222052fac05'){
+      this.iconEstado = "done";
+    }else if (this.plan.estado_plan_id == '6153355601c7a2365b2fb2a1'){
+      this.iconEstado = "done_all"
+    }else if (this.plan.estado_plan_id == '615335c501c7a213a12fb2a3'){
+      this.iconEstado = "build";
+    }
   }
 
   getVersiones(planB) {
