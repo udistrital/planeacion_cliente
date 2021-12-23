@@ -262,7 +262,7 @@ export class FormulacionComponent implements OnInit {
       this.addActividad = false;
       this.identRecursos = false;
       this.identContratistas = false;
-      this.banderaIdentDocentes = this.mostrarIdentDocente(unidad.DependenciaTipoDependencia);
+      this.banderaIdentDocentes = true;
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
@@ -271,7 +271,7 @@ export class FormulacionComponent implements OnInit {
       }
     }
   }
-
+  // this.mostrarIdentDocente(unidad.DependenciaTipoDependencia)
   mostrarIdentDocente(tipoDependencias: any[]): boolean {
     for (let element of tipoDependencias) {
       if (element.TipoDependenciaId.Id === 2 || element.DependenciaId.Id === 67) return true

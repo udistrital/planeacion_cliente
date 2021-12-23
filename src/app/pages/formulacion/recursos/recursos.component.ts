@@ -84,14 +84,10 @@ export class RecursosComponent implements OnInit {
   }
 
   visualizarColumnas(): string[] {
-    if (this.estadoPlan == 'Pre Aval' || this.verificarVersiones()) {
-      this.readonlyTable = true;
-    }
-
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
-        this.readonlyTable = false;
+        this.readonlyTable = this.verificarVersiones();
         return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
@@ -101,6 +97,9 @@ export class RecursosComponent implements OnInit {
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
+        this.readonlyTable = true;
+        console.log("deberia entrar aca");
+        console.log(this.readonlyTable);
         return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
       }
     }

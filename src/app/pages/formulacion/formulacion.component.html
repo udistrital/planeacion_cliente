@@ -386,7 +386,7 @@
   </app-recursos>
 </ng-container>
 <ng-container class="card-oas" *ngIf="!clonar && planAsignado && identDocentes">
-  <app-docentes [dataSourceActividades]="dataSource" [dataTabla]="identDocentess" [plan]="plan._id"
-    (acciones)="messageIdentificacion($event)">
+  <app-docentes [dataSourceActividades]="dataSource" [dataTabla]="identDocentess" [plan]="plan._id" [rol]="rol"
+  [versiones]="versiones" (acciones)="messageIdentificacion($event)">
   </app-docentes>
 </ng-container>
