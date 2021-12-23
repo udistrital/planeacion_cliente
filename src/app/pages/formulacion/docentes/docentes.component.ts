@@ -149,7 +149,6 @@ export class DocentesComponent implements OnInit {
   loadPlan() {
     this.request.get(environment.PLANES_CRUD, `plan/` + this.plan).subscribe((data: any) => {
       if (data.Data != null) {
-        console.log("error? load plan");
         this.Plan = data.Data;
         this.getEstado();
       }
@@ -157,7 +156,6 @@ export class DocentesComponent implements OnInit {
   }
 
   getEstado() {
-    console.log("error?get estado");
     this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.Plan.estado_plan_id).subscribe((data: any) => {
       if (data) {
         this.estadoPlan = data.Data.nombre;
@@ -178,7 +176,6 @@ export class DocentesComponent implements OnInit {
   }
 
   visualizarColumnas(): string[] {
-    console.log("error?vc");
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
@@ -197,8 +194,6 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        console.log("deberia entrar aca");
-        console.log(this.readonlyTable);
         return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
@@ -1125,7 +1120,6 @@ export class DocentesComponent implements OnInit {
 
   inicializarTabla() {
     if (this.rol == 'PLANEACION') {
-      console.log("entra a planeacion")
       this.dataTableMTO = [
         {
           docente: "Auxiliar MTO",
@@ -1707,12 +1701,10 @@ export class DocentesComponent implements OnInit {
 
 
 
-    console.log("error aui seguro");
     this.dataSourceMTO.data = this.dataTableMTO;
     this.dataSourceTCO.data = this.dataTableTCO;
     this.dataSourcePrestacional.data = this.dataTablePrestacional;
     this.dataSourceHonorarios.data = this.dataTableHonorarios;
-    console.log("error aui seguro");
     this.steps = [
       {
         "nombre": "Docentes Ocasionales de Medio Tiempo (MTO)",
