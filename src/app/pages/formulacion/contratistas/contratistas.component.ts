@@ -71,7 +71,7 @@ export class ContratistasComponent implements OnInit {
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
-        this.readonlyTable = false;
+        this.readonlyTable = this.verificarVersiones();
         return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'acciones',];
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
@@ -140,6 +140,17 @@ export class ContratistasComponent implements OnInit {
       }
     }
   }
+
+
+  verificarVersiones(): boolean {
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
+    if (preAval.length != 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 
 
   getEstado() {
