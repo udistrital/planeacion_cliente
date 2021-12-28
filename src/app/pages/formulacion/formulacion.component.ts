@@ -105,9 +105,9 @@ export class FormulacionComponent implements OnInit {
   }
 
   loadUnidades() {
-    this.request.get(environment.OIKOS_SERVICE, `dependencia?limit=0`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
       if (data) {
-        this.unidades = data;
+        this.unidades = data.Data;
       }
     }, (error) => {
       Swal.fire({
