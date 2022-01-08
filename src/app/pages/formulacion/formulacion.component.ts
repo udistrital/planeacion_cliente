@@ -12,7 +12,6 @@ import { element } from 'protractor';
 import { stringify } from 'querystring';
 import { timeStamp } from 'console';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import { request } from 'http';
 
 @Component({
   selector: 'app-formulacion',
@@ -738,35 +737,35 @@ export class FormulacionComponent implements OnInit {
   }
 
   identificarDocentes() {
-    // this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:`+this.plan._id+`,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
-    //   if (data.Data.length == 0){
-    //     var str1 = 'Identificación de Docentes '+this.plan.nombre
-    //     var str2 = 'Identificación de Docentes '+this.plan.nombre+' '+this.unidad.Nombre
-    //     let datoIdenti = {
-    //       "nombre": String(str1),
-    //       "descripcion": String(str2),
-    //       "plan_id": String(this.plan._id),
-    //       "dato": "{}",
-    //       "tipo_identificacion_id": "61897518f6fc97091727c3c3",
-    //       "activo": true
-    //     }
-    //     this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
-    //       if (dataP){
-    //         this.identDocentes = true;
-    //       } else {
-    //         Swal.fire({
-    //           title: 'Error al crear identificación. Intente de nuevo', 
-    //           icon: 'warning',
-    //           showConfirmButton: false,
-    //           timer: 2500
-    //         })
-    //       }
-    //     })
-    //   } else {
-    //     this.identDocentes = true;
-    //   }
-    // })
-    this.identDocentes = true;
+    
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:`+this.plan._id+`,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
+      if (data.Data.length == 0){
+        var str1 = 'Identificación de Docentes '+this.plan.nombre
+        var str2 = 'Identificación de Docentes '+this.plan.nombre+' '+this.unidad.Nombre
+        let datoIdenti = {
+          "nombre": String(str1),
+          "descripcion": String(str2),
+          "plan_id": String(this.plan._id),
+          "dato": "{}",
+          "tipo_identificacion_id": "61897518f6fc97091727c3c3",
+          "activo": false
+        }
+        this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
+          if (dataP){
+            this.identDocentes = true;
+          } else {
+            Swal.fire({
+              title: 'Error al crear identificación. Intente de nuevo', 
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+        })
+      } else {
+        this.identDocentes = true;
+      }
+    })
   }
 
   cargarPlanesDesarrollo() {

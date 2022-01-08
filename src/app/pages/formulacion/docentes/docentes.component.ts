@@ -5,6 +5,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { FormControl, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-docentes',
@@ -49,11 +51,6 @@ export class DocentesComponent implements OnInit {
   valorSueldoTCO: number;
   valorSueldoPrestacional: number;
   valorSueldoHonorarios: number;
-
-  valorPrimaServiciosMTO: number;
-  valorPrimaServiciosTCO: number;
-  valorPrimaServiciosPrestacional: number;
-  valorPrimaServiciosHonorarios: number;
 
   valorPrimaNavidadMTO: number;
   valorPrimaNavidadTCO: number;
@@ -112,7 +109,6 @@ export class DocentesComponent implements OnInit {
 
   totalCantidad: number;
   totalSueldo: number;
-  totalPrimaServicios: number;
   totalPrimaNavidad: number;
   totalPrimaVacaciones: number;
   totalPensionesPublicas: number;
@@ -124,6 +120,32 @@ export class DocentesComponent implements OnInit {
   totalRiesgoPrivados: number;
   totalIcfb: number;
   totalTotal: number;
+  data: any;
+
+  banderaSumasPensiones: boolean = false;
+
+  //valores desagregado
+  titularMTO: any;
+  titularTCO: any;
+  titularPrestacional: any;
+  titularHonorarios: any;
+
+  auxiliarMTO: any;
+  auxiliarTCO: any;
+  auxiliarPrestacional: any;
+  auxiliarHonorarios: any;
+
+  asistenteMTO: any;
+  asistenteTCO: any;
+  asistentePrestacional: any;
+  asistenteHonorarios: any;
+
+  asociadoMTO: any;
+  asociadoTCO: any;
+  asociadoPrestacional: any;
+  asociadoHonorarios: any;
+
+  //
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -138,12 +160,124 @@ export class DocentesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadDesagregado();
     this.loadPlan();
-    this.dataSource = new MatTableDataSource<any>();
-    this.dataSourceMTO = new MatTableDataSource<any>();
-    this.dataSourceTCO = new MatTableDataSource<any>();
-    this.dataSourcePrestacional = new MatTableDataSource<any>();
-    this.dataSourceHonorarios = new MatTableDataSource<any>();
+    this.loadTabla();
+  }
+
+
+
+  loadTabla() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    if (this.dataTabla) {
+      this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
+        if (data) {
+
+          let identificacion = data.Data[0];
+          if (identificacion.activo === false) {
+            this.dataSource = new MatTableDataSource<any>();
+            this.dataSourceMTO = new MatTableDataSource<any>();
+            this.dataSourceTCO = new MatTableDataSource<any>();
+            this.dataSourcePrestacional = new MatTableDataSource<any>();
+            this.dataSourceHonorarios = new MatTableDataSource<any>();
+            this.dataSourceMTO.data = [];
+            this.inicializarTabla();
+            let datoIdenti = {
+              "activo": true
+            }
+            Swal.close()
+            this.request.put(environment.PLANES_CRUD, `identificacion`, datoIdenti, identificacion._id).subscribe((dataP: any) => {
+              Swal.fire({
+                title: 'Identificación Docente Creada',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 3500
+              })
+            })
+
+          } else {
+            this.dataSource = new MatTableDataSource<any>();
+            this.dataSourceMTO = new MatTableDataSource<any>();
+            this.dataSourceTCO = new MatTableDataSource<any>();
+            this.dataSourcePrestacional = new MatTableDataSource<any>();
+            this.dataSourceHonorarios = new MatTableDataSource<any>();
+            this.getData().then(() => {
+              this.dataSourceTCO.data = this.data.tco;
+              this.dataSourceMTO.data = this.data.mto;
+              this.dataSourcePrestacional.data = this.data.prestacional;
+              this.dataSourceHonorarios.data = this.data.honorarios;
+
+              this.steps = [
+                {
+                  "nombre": "Docentes Ocasionales de Medio Tiempo (MTO)",
+                  "descripcion": "Recuerde que según el árticulo 01 del Acuerdo 008/2001 del Consejo Superior Universitario, el número máximo de Docentes MTO a contratar es 25",
+                  "footer": "Total Recursos Medio Tiempo Ocasional",
+                  "tipo": "MTO",
+                  "maxHoras": 20,
+                  "minHoras": 16,
+                  "data": this.dataSourceMTO
+                },
+                {
+                  "nombre": "Docentes Ocasionales de  Tiempo Completo (TCO)",
+                  "descripcion": "NA",
+                  "footer": "Total Recursos Tiempo Completo Ocasional",
+                  "tipo": 'TCO',
+                  "maxHoras": 40,
+                  "minHoras": 24,
+                  "data": this.dataSourceTCO
+                },
+                {
+                  "nombre": "Docentes Hora Cátedra Prestacional",
+                  "descripcion": "NA",
+                  "footer": "Total Recursos Hora Cátedra prestacional",
+                  "tipo": "Prestacional",
+                  "maxHoras": 16,
+                  "minHoras": 2,
+                  "data": this.dataSourcePrestacional
+                },
+                {
+                  "nombre": "Docentes Hora Cátedra por Honorarios",
+                  "descripcion": "NA",
+                  "footer": "Total Recursos Hora Cátedra por Honorarios",
+                  "tipo": "Honorarios",
+                  "maxHoras": 8,
+                  "minHoras": 4,
+                  "data": this.dataSourceHonorarios
+                }
+              ];
+              Swal.close();
+            })
+
+          }
+        }
+      })
+    }
+  }
+
+  getData(): Promise<any> {
+    let message: any;
+    let resolveRef;
+    let rejectRef;
+
+    let dataPromise: Promise<any> = new Promise((resolve, reject) => {
+      resolveRef = resolve;
+      rejectRef = reject;
+    });
+    this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/` + this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
+      if (data) {
+        let aux: object = data.Data;
+        this.data = aux;
+        resolveRef(message)
+      }
+    })
+    return dataPromise
   }
 
   loadPlan() {
@@ -160,8 +294,6 @@ export class DocentesComponent implements OnInit {
       if (data) {
         this.estadoPlan = data.Data.nombre;
         this.displayedColumns = this.visualizarColumnas();
-        this.inicializarTabla();
-
       }
     }),
       (error) => {
@@ -180,21 +312,21 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = this.verificarVersiones();
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
@@ -204,28 +336,28 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
@@ -241,6 +373,8 @@ export class DocentesComponent implements OnInit {
     }
   }
 
+
+
   submit(data) {
 
   }
@@ -253,6 +387,753 @@ export class DocentesComponent implements OnInit {
     this.activedStep = step + 1;
   }
 
+  loadDesagregado() {
+    let bodyMTO = [
+      {
+        "Vigencia": 2021,
+        "Dedicacion": "MTO",
+        "Categoria": "Titular",
+        "NivelAcademico": "PREGRADO"
+      },
+      {
+        "Vigencia": 2021,
+        "Dedicacion": "MTO",
+        "Categoria": "Auxiliar",
+        "NivelAcademico": "PREGRADO"
+      },
+      {
+        "Vigencia": 2021,
+        "Dedicacion": "MTO",
+        "Categoria": "Asistente",
+        "NivelAcademico": "PREGRADO"
+      },
+      {
+        "Vigencia": 2021,
+        "Dedicacion": "MTO",
+        "Categoria": "Asociado",
+        "NivelAcademico": "PREGRADO"
+      }
+    ]
+    let bodyTCO = [{
+      "Vigencia": 2021,
+      "Dedicacion": "TCO",
+      "Categoria": "Titular",
+      "NivelAcademico": "PREGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "TCO",
+      "Categoria": "Auxiliar",
+      "NivelAcademico": "PREGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "TCO",
+      "Categoria": "Asistente",
+      "NivelAcademico": "PREGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "TCO",
+      "Categoria": "Asociado",
+      "NivelAcademico": "PREGRADO"
+    }
+    ]
+    let bodyPrestacional = [{
+      "Vigencia": 2021,
+      "Dedicacion": "HCP",
+      "Categoria": "Titular",
+      "NivelAcademico": "PREGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCP",
+      "Categoria": "Auxiliar",
+      "NivelAcademico": "PREGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCP",
+      "Categoria": "Asistente",
+      "NivelAcademico": "PREGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCP",
+      "Categoria": "Asociado",
+      "NivelAcademico": "PREGRADO"
+    }
+    ]
+    let bodyHonorarios = [{
+      "Vigencia": 2021,
+      "Dedicacion": "HCH",
+      "Categoria": "Titular",
+      "NivelAcademico": "PREGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCH",
+      "Categoria": "Auxiliar",
+      "NivelAcademico": "PREGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCH",
+      "Categoria": "Asistente",
+      "NivelAcademico": "PREGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCH",
+      "Categoria": "Asociado",
+      "NivelAcademico": "PREGRADO"
+    }
+    ]
+    this.request.post("http://pruebasapi2.intranetoas.udistrital.edu.co:8529/v1/", "services/desagregado_planeacion", bodyMTO).subscribe((data: any) => {
+      if (data) {
+        this.titularMTO = data.Data[0];
+        this.auxiliarMTO = data.Data[1];
+        this.asistenteMTO = data.Data[2];
+        this.asociadoMTO = data.Data[3];
+      }
+    })
+
+    this.request.post("http://pruebasapi2.intranetoas.udistrital.edu.co:8529/v1/", "services/desagregado_planeacion", bodyTCO).subscribe((data: any) => {
+      if (data) {
+        this.titularTCO = data.Data[0];
+        this.auxiliarTCO = data.Data[1];
+        this.asistenteTCO = data.Data[2];
+        this.asociadoTCO = data.Data[3];
+      }
+    })
+
+    this.request.post("http://pruebasapi2.intranetoas.udistrital.edu.co:8529/v1/", "services/desagregado_planeacion", bodyPrestacional).subscribe((data: any) => {
+      if (data) {
+        this.titularPrestacional = data.Data[0];
+        this.auxiliarPrestacional = data.Data[1];
+        this.asistentePrestacional = data.Data[2];
+        this.asociadoPrestacional = data.Data[3];
+      }
+    })
+
+    this.request.post("http://pruebasapi2.intranetoas.udistrital.edu.co:8529/v1/", "services/desagregado_planeacion", bodyHonorarios).subscribe((data: any) => {
+      if (data) {
+        this.titularHonorarios = data.Data[0];
+        this.auxiliarHonorarios = data.Data[1];
+        this.asistenteHonorarios = data.Data[2];
+        this.asociadoHonorarios = data.Data[3];
+      }
+    })
+  }
+
+  // Operacion con desagregado
+
+  getSueldoBasico(tipo, rowIndex, element) {
+    if (tipo == 'MTO') {
+      if (element.docente == 'Titular MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } else if (element.docente = 'Asistente MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } else if (element.docente = 'Asociado MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } else if (element.docente = 'Auxiliar MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'TCO') {
+      if (element.docente == 'Titular TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } if (element.docente = 'Asistente TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } if (element.docente = 'Asociado TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } if (element.docente = 'Auxiliar TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Prestacional') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Honorarios') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularHonorarios.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceHonorarios.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteHonorarios.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceHonorarios.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoHonorarios.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceHonorarios.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarHonorarios.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceHonorarios.data[rowIndex].sueldoBasico = valor;
+        return valor;
+      }
+    }
+  }
+
+  getInteresesCesantias(tipo, rowIndex, element) {
+    if (tipo == 'MTO') {
+      if (element.docente == 'Titular MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Asistente MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Asociado MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Auxiliar MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'TCO') {
+      if (element.docente == 'Titular TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } if (element.docente = 'Asistente TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } if (element.docente = 'Asociado TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } if (element.docente = 'Auxiliar TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Prestacional') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Honorarios') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularHonorarios.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceHonorarios.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteHonorarios.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceHonorarios.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoHonorarios.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceHonorarios.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarHonorarios.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceHonorarios.data[rowIndex].interesesCesantias = valor;
+        return valor;
+      }
+    }
+  }
+
+  getPrimaNavidad(tipo, rowIndex, element) {
+    if (tipo == 'MTO') {
+      if (element.docente == 'Titular MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].primaNavidad = valor;
+        return valor;
+      } else if (element.docente = 'Asistente MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].primaNavidad = valor;
+        return valor;
+      } else if (element.docente = 'Asociado MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].primaNavidad = valor;
+        return valor;
+      } else if (element.docente = 'Auxiliar MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].primaNavidad = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'TCO') {
+      if (element.docente == 'Titular TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].primaNavidad = valor;
+        return valor;
+      } if (element.docente = 'Asistente TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].primaNavidad = valor;
+        return valor;
+      } if (element.docente = 'Asociado TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].primaNavidad = valor;
+        return valor;
+      } if (element.docente = 'Auxiliar TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].primaNavidad = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Prestacional') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].primaNavidad = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].primaNavidad = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].primaNavidad = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].primaNavidad = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Honorarios') {
+      return 'N/A';
+    }
+  }
+
+
+  getPrimaVacaciones(tipo, rowIndex, element) {
+    if (tipo == 'MTO') {
+      if (element.docente == 'Titular MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      } else if (element.docente = 'Asistente MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      } else if (element.docente = 'Asociado MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      } else if (element.docente = 'Auxiliar MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'TCO') {
+      if (element.docente == 'Titular TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      } if (element.docente = 'Asistente TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      } if (element.docente = 'Asociado TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      } if (element.docente = 'Auxiliar TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Prestacional') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].primaVacaciones = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Honorarios') {
+      return 'N/A';
+    }
+  }
+
+
+  getTotalAportesPensiones(tipo, rowIndex, element) {
+
+    if (tipo == 'MTO') {
+
+      if (element.docente == 'Titular MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      } else if (element.docente = 'Asistente MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      } else if (element.docente = 'Asociado MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      } else if (element.docente = 'Auxiliar MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'TCO') {
+      if (element.docente == 'Titular TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      } if (element.docente = 'Asistente TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      } if (element.docente = 'Asociado TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      } if (element.docente = 'Auxiliar TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Prestacional') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.pension) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesPensiones = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Honorarios') {
+      return 'N/A';
+    }
+  }
+
+  getTotalAportesSalud(tipo, rowIndex, element) {
+    if (tipo == 'MTO') {
+      if (element.docente == 'Titular MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      } else if (element.docente = 'Asistente MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      } else if (element.docente = 'Asociado MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      } else if (element.docente = 'Auxiliar MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'TCO') {
+      if (element.docente == 'Titular TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      } if (element.docente = 'Asistente TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      } if (element.docente = 'Asociado TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      } if (element.docente = 'Auxiliar TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Prestacional') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.salud) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].aportesSaludPrivada = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Honorarios') {
+      return 'N/A';
+    }
+  }
+
+  getTotalAportesCesantias(tipo, rowIndex, element) {
+    if (tipo == 'MTO') {
+      if (element.docente == 'Titular MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Asistente MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Asociado MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Auxiliar MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'TCO') {
+      if (element.docente == 'Titular TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      } if (element.docente = 'Asistente TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      } if (element.docente = 'Asociado TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      } if (element.docente = 'Auxiliar TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Prestacional') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesCesantias = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Honorarios') {
+      return 'N/A';
+    }
+  }
+
+  getTotalAportesRiesgos(tipo, rowIndex, element) {
+    if (tipo == 'MTO') {
+      if (element.docente == 'Titular MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      } else if (element.docente = 'Asistente MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      } else if (element.docente = 'Asociado MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      } else if (element.docente = 'Auxiliar MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'TCO') {
+      if (element.docente == 'Titular TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      } if (element.docente = 'Asistente TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      } if (element.docente = 'Asociado TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      } if (element.docente = 'Auxiliar TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Prestacional') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.arl) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].totalAportesRiesgos = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Honorarios') {
+      return 'N/A';
+    }
+  }
+
+  getAportesICBF(tipo, rowIndex, element) {
+    if (tipo == 'MTO') {
+      if (element.docente == 'Titular MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].aportesICBF = valor;
+        return valor;
+      } else if (element.docente = 'Asistente MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].aportesICBF = valor;
+        return valor;
+      } else if (element.docente = 'Asociado MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].aportesICBF = valor;
+        return valor;
+      } else if (element.docente = 'Auxiliar MTO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceMTO.data[rowIndex].aportesICBF = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'TCO') {
+      if (element.docente == 'Titular TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].aportesICBF = valor;
+        return valor;
+      } if (element.docente = 'Asistente TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].aportesICBF = valor;
+        return valor;
+      } if (element.docente = 'Asociado TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].aportesICBF = valor;
+        return valor;
+      } if (element.docente = 'Auxiliar TCO') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourceTCO.data[rowIndex].aportesICBF = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Prestacional') {
+      if (element.docente == 'Hora Catedra Titular') {
+        let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].aportesICBF = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asistente') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].aportesICBF = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Asociado') {
+        let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].aportesICBF = valor;
+        return valor;
+      } else if (element.docente = 'Hora Catedra Auxiliar') {
+        let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.icbf) / 5) * 30) * element.cantidad).toFixed(2))
+        this.dataSourcePrestacional.data[rowIndex].aportesICBF = valor;
+        return valor;
+      }
+    }
+    if (tipo == 'Honorarios') {
+      return 'N/A';
+    }
+  }
+  //////////////
+
+
+  // Funciones para valores totales de la tabla ///
   getValorTotal(tipo) {
     if (tipo == 'MTO') {
       if (this.dataSourceMTO.data.length !== 0) {
@@ -406,57 +1287,6 @@ export class DocentesComponent implements OnInit {
     }
   }
 
-  getValorPrimaServicios(tipo) {
-    if (tipo == 'MTO') {
-      if (this.dataSourceMTO.data.length !== 0) {
-        this.valorPrimaServiciosMTO = this.dataSourceMTO.data.map(t => t.primaServicios).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorPrimaServiciosMTO >> 0.00) {
-          return this.valorPrimaServiciosMTO;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
-    }
-    if (tipo == 'TCO') {
-      if (this.dataSourceTCO.data.length !== 0) {
-        this.valorPrimaServiciosTCO = this.dataSourceTCO.data.map(t => t.primaServicios).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorPrimaServiciosTCO >> 0.00) {
-          return this.valorPrimaServiciosTCO;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
-    }
-    if (tipo == 'Prestacional') {
-      if (this.dataSourcePrestacional.data.length !== 0) {
-        this.valorPrimaServiciosPrestacional = this.dataSourcePrestacional.data.map(t => t.primaServicios).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorPrimaServiciosPrestacional >> 0.00) {
-          return this.valorPrimaServiciosPrestacional;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
-    }
-    if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorPrimaServiciosHonorarios = this.dataSourceHonorarios.data.map(t => t.primaServicios).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorPrimaServiciosHonorarios >> 0.00) {
-          return this.valorPrimaServiciosHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
-    }
-  }
-
   getValorPrimaNavidad(tipo) {
     if (tipo == 'MTO') {
       if (this.dataSourceMTO.data.length !== 0) {
@@ -495,16 +1325,7 @@ export class DocentesComponent implements OnInit {
       }
     }
     if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorPrimaNavidadHonorarios = this.dataSourceHonorarios.data.map(t => t.primaNavidad).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorPrimaNavidadHonorarios >> 0.00) {
-          return this.valorPrimaNavidadHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
+      return 0;
     }
   }
 
@@ -546,16 +1367,7 @@ export class DocentesComponent implements OnInit {
       }
     }
     if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorPrimaVacacionesHonorarios = this.dataSourceHonorarios.data.map(t => t.primaVacaciones).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorPrimaVacacionesHonorarios >> 0.00) {
-          return this.valorPrimaVacacionesHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
+      return 0;
     }
   }
 
@@ -597,16 +1409,7 @@ export class DocentesComponent implements OnInit {
       }
     }
     if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorPensionesPublicasHonorarios = this.dataSourceHonorarios.data.map(t => t.aportesPensionesPublicas).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorPensionesPublicasHonorarios >> 0.00) {
-          return this.valorPensionesPublicasHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
+      return 0;
     }
   }
 
@@ -648,16 +1451,7 @@ export class DocentesComponent implements OnInit {
       }
     }
     if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorPensionesPrivadasHonorarios = this.dataSourceHonorarios.data.map(t => t.aportesPensionesPrivadas).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorPensionesPrivadasHonorarios >> 0.00) {
-          return this.valorPensionesPrivadasHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
+      return 0;
     }
   }
 
@@ -699,16 +1493,7 @@ export class DocentesComponent implements OnInit {
       }
     }
     if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorSaludPrivadaHonorarios = this.dataSourceHonorarios.data.map(t => t.aportesSaludPrivada).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorSaludPrivadaHonorarios >> 0.00) {
-          return this.valorSaludPrivadaHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
+      return 0;
     }
   }
 
@@ -750,16 +1535,7 @@ export class DocentesComponent implements OnInit {
       }
     }
     if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorCesantiasPublicosHonorarios = this.dataSourceHonorarios.data.map(t => t.aportesCesantiasPublicos).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorCesantiasPublicosHonorarios >> 0.00) {
-          return this.valorCesantiasPublicosHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
+      return 0;
     }
   }
 
@@ -801,16 +1577,7 @@ export class DocentesComponent implements OnInit {
       }
     }
     if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorCesantiasPrivadosHonorarios = this.dataSourceHonorarios.data.map(t => t.aportesCesantiasPrivados).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorCesantiasPrivadosHonorarios >> 0.00) {
-          return this.valorCesantiasPrivadosHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
+      return 0;
     }
   }
 
@@ -852,16 +1619,7 @@ export class DocentesComponent implements OnInit {
       }
     }
     if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorRiesgoPublicosHonorarios = this.dataSourceHonorarios.data.map(t => t.aportesRiesgoPublicos).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorRiesgoPublicosHonorarios >> 0.00) {
-          return this.valorRiesgoPublicosHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
+      return 0;
     }
   }
 
@@ -903,16 +1661,7 @@ export class DocentesComponent implements OnInit {
       }
     }
     if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorRiesgoPrivadosHonorarios = this.dataSourceHonorarios.data.map(t => t.aportesRiesgoPrivados).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorRiesgoPrivadosHonorarios >> 0.00) {
-          return this.valorRiesgoPrivadosHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
+      return 0;
     }
   }
 
@@ -954,16 +1703,7 @@ export class DocentesComponent implements OnInit {
       }
     }
     if (tipo == 'Honorarios') {
-      if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorICBFHonorarios = this.dataSourceHonorarios.data.map(t => t.aportesICBF).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-        if (this.valorICBFHonorarios >> 0.00) {
-          return this.valorICBFHonorarios;
-        } else {
-          return '0';
-        }
-      } else {
-        return '0';
-      }
+      return 0;
     }
   }
 
@@ -971,15 +1711,14 @@ export class DocentesComponent implements OnInit {
   getTotal(element, rowIndex, tipo): number {
     if (tipo == 'MTO') {
       if (this.dataSourceMTO.data.length !== 0) {
-        this.valorMTO = parseFloat((element.sueldoBasico + element.primaServicios + element.primaNavidad + element.primaVacaciones + element.aportesPensionesPublicas +
-          element.aportesPensionesPrivadas + element.aportesSaludPrivada + element.aportesCesantiasPublicos + element.aportesCesantiasPrivados +
-          element.aportesRiesgoPublicos + element.aportesRiesgoPrivados + element.aportesICBF).toFixed(2))
+        this.valorMTO = parseFloat((element.sueldoBasico + element.primaNavidad + element.primaVacaciones + element.totalAportesPensiones + element.aportesSaludPrivada + element.totalAportesCesantias +
+          element.totalAportesRiesgos + element.aportesICBF).toFixed(2))
         if (this.valorMTO >> 0.00) {
           this.dataSourceMTO.data[rowIndex].total = this.valorMTO;
           return this.valorMTO;
         } else {
           this.dataSourceMTO.data[rowIndex].total = this.valorMTO;
-          return 0;
+          return 0
         }
       } else {
         return 0;
@@ -987,7 +1726,7 @@ export class DocentesComponent implements OnInit {
     }
     if (tipo == 'TCO') {
       if (this.dataSourceTCO.data.length !== 0) {
-        this.valorTCO = parseFloat((element.sueldoBasico + element.primaServicios + element.primaNavidad + element.primaVacaciones + element.aportesPensionesPublicas +
+        this.valorTCO = parseFloat((element.sueldoBasico + element.primaNavidad + element.primaVacaciones + element.aportesPensionesPublicas +
           element.aportesPensionesPrivadas + element.aportesSaludPrivada + element.aportesCesantiasPublicos + element.aportesCesantiasPrivados +
           element.aportesRiesgoPublicos + element.aportesRiesgoPrivados + element.aportesICBF).toFixed(2))
         if (this.valorTCO >> 0.00) {
@@ -1003,7 +1742,7 @@ export class DocentesComponent implements OnInit {
     }
     if (tipo == 'Prestacional') {
       if (this.dataSourcePrestacional.data.length !== 0) {
-        this.valorPrestacional = parseFloat((element.sueldoBasico + element.primaServicios + element.primaNavidad + element.primaVacaciones + element.aportesPensionesPublicas +
+        this.valorPrestacional = parseFloat((element.sueldoBasico + element.primaNavidad + element.primaVacaciones + element.aportesPensionesPublicas +
           element.aportesPensionesPrivadas + element.aportesSaludPrivada + element.aportesCesantiasPublicos + element.aportesCesantiasPrivados +
           element.aportesRiesgoPublicos + element.aportesRiesgoPrivados + element.aportesICBF).toFixed(2))
         if (this.valorPrestacional >> 0.00) {
@@ -1019,9 +1758,7 @@ export class DocentesComponent implements OnInit {
     }
     if (tipo == 'Honorarios') {
       if (this.dataSourceHonorarios.data.length !== 0) {
-        this.valorHonorarios = parseFloat((element.sueldoBasico + element.primaServicios + element.primaNavidad + element.primaVacaciones + element.aportesPensionesPublicas +
-          element.aportesPensionesPrivadas + element.aportesSaludPrivada + element.aportesCesantiasPublicos + element.aportesCesantiasPrivados +
-          element.aportesRiesgoPublicos + element.aportesRiesgoPrivados + element.aportesICBF).toFixed(2))
+        this.valorHonorarios = parseFloat((element.sueldoBasico).toFixed(2))
         if (this.valorHonorarios >> 0.00) {
           this.dataSourceHonorarios.data[rowIndex].total = this.valorHonorarios;
           return this.valorHonorarios;
@@ -1036,18 +1773,88 @@ export class DocentesComponent implements OnInit {
   }
 
   guardarRecursos() {
-    this.accionBoton = 'guardar';
-    this.tipoIdenti = 'docentes';
-    let data = this.dataSource.data;
-    let accion = this.accionBoton;
-    let identi = this.tipoIdenti;
-    Swal.fire({
-      title: 'Guardado exitoso',
-      icon: 'success',
-      showConfirmButton: false,
-      timer: 3500
-    })
-    this.acciones.emit({ data, accion, identi });
+
+    if (this.verificarSumasPensiones()) {
+      let arreglo: string[] = [];
+      this.accionBoton = 'guardar';
+      this.tipoIdenti = 'docentes';
+      let accion = this.accionBoton;
+      let identi = this.tipoIdenti;
+      var identificaciones: any;
+      let data = this.dataSourceMTO.data;
+  
+      for (var i in data) {
+        var obj = data[i];
+        obj["activo"] = true;
+        var num = +i + 1;
+        obj["index"] = num.toString();
+      }
+      let dataMtoS = JSON.stringify(Object.assign({}, data));
+  
+      data = this.dataSourceTCO.data
+      for (var i in data) {
+        var obj = data[i];
+        obj["activo"] = true;
+        var num = +i + 1;
+        obj["index"] = num.toString();
+      }
+      let dataTcoS = JSON.stringify(Object.assign({}, data));
+  
+  
+      data = this.dataSourcePrestacional.data
+      for (var i in data) {
+        var obj = data[i];
+        obj["activo"] = true;
+        var num = +i + 1;
+        obj["index"] = num.toString();
+      }
+      let dataPrestacionalS = JSON.stringify(Object.assign({}, data));
+  
+  
+      data = this.dataSourceHonorarios.data
+      for (var i in data) {
+        var obj = data[i];
+        obj["activo"] = true;
+        var num = +i + 1;
+        obj["index"] = num.toString();
+      }
+      let dataHonorariosS = JSON.stringify(Object.assign({}, data));
+      identificaciones = {
+        "mto": dataMtoS,
+        "tco": dataTcoS,
+        "prestacional": dataPrestacionalS,
+        "honorarios": dataHonorariosS
+      }
+      let aux = JSON.stringify(Object.assign({}, identificaciones));
+  
+      this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, aux, this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
+        if (data) {
+          Swal.fire({
+            title: 'Guardado exitoso',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 3500
+          })
+          this.acciones.emit({ aux, accion, identi });
+        }
+      })
+      Swal.fire({
+        title: 'Guardado exitoso',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 3500
+      })
+      this.acciones.emit({ data, accion, identi });
+    } else {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `Por favor verifique los datos ingresados en pensiones, cesantias  y riesgos.`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 3500
+      })
+    }
+
   }
 
   ocultarRecursos() {
@@ -1068,48 +1875,44 @@ export class DocentesComponent implements OnInit {
       this.totalSueldo = parseFloat((this.valorSueldoMTO + this.valorSueldoTCO + this.valorSueldoPrestacional + this.valorSueldoHonorarios).toFixed(2))
       return this.totalSueldo
     }
-    if (tipo == 'primaServicios') {
-      this.totalPrimaServicios = parseFloat((this.valorPrimaServiciosMTO + this.valorPrimaServiciosTCO + this.valorPrimaServiciosPrestacional + this.valorPrimaServiciosHonorarios).toFixed(2))
-      return this.totalPrimaServicios
-    }
     if (tipo == 'primaNavidad') {
-      this.totalPrimaNavidad = parseFloat((this.valorPrimaNavidadMTO + this.valorPrimaNavidadTCO + this.valorPrimaNavidadPrestacional + this.valorPrimaNavidadHonorarios).toFixed(2))
+      this.totalPrimaNavidad = parseFloat((this.valorPrimaNavidadMTO + this.valorPrimaNavidadTCO + this.valorPrimaNavidadPrestacional).toFixed(2))
       return this.totalPrimaNavidad
     }
     if (tipo == 'primaVacaciones') {
-      this.totalPrimaVacaciones = parseFloat((this.valorPrimaVacacionesMTO + this.valorPrimaVacacionesTCO + this.valorPrimaVacacionesPrestacional + this.valorPrimaVacacionesHonorarios).toFixed(2))
+      this.totalPrimaVacaciones = parseFloat((this.valorPrimaVacacionesMTO + this.valorPrimaVacacionesTCO + this.valorPrimaVacacionesPrestacional).toFixed(2))
       return this.totalPrimaVacaciones
     }
     if (tipo == 'pensionesPublicas') {
-      this.totalPensionesPublicas = parseFloat((this.valorPensionesPublicasMTO + this.valorPensionesPublicasTCO + this.valorPensionesPublicasPrestacional + this.valorPensionesPublicasHonorarios).toFixed(2))
+      this.totalPensionesPublicas = parseFloat((this.valorPensionesPublicasMTO + this.valorPensionesPublicasTCO + this.valorPensionesPublicasPrestacional).toFixed(2))
       return this.totalPensionesPublicas
     }
     if (tipo == 'pensionesPrivadas') {
-      this.totalPensionesPrivadas = parseFloat((this.valorPensionesPrivadasMTO + this.valorPensionesPrivadasTCO + this.valorPensionesPrivadasPrestacional + this.valorPensionesPrivadasHonorarios).toFixed(2))
+      this.totalPensionesPrivadas = parseFloat((this.valorPensionesPrivadasMTO + this.valorPensionesPrivadasTCO + this.valorPensionesPrivadasPrestacional).toFixed(2))
       return this.totalPensionesPrivadas
     }
     if (tipo == 'saludPrivada') {
-      this.totalSaludPrivada = parseFloat((this.valorSaludPrivadaMTO + this.valorSaludPrivadaTCO + this.valorSaludPrivadaPrestacional + this.valorSaludPrivadaHonorarios).toFixed(2))
+      this.totalSaludPrivada = parseFloat((this.valorSaludPrivadaMTO + this.valorSaludPrivadaTCO + this.valorSaludPrivadaPrestacional).toFixed(2))
       return this.totalSaludPrivada
     }
     if (tipo == 'cesantiasPublicos') {
-      this.totalCesantiasPublicos = parseFloat((this.valorCesantiasPublicosMTO + this.valorCesantiasPublicosTCO + this.valorCesantiasPublicosPrestacional + this.valorCesantiasPublicosHonorarios).toFixed(2))
+      this.totalCesantiasPublicos = parseFloat((this.valorCesantiasPublicosMTO + this.valorCesantiasPublicosTCO + this.valorCesantiasPublicosPrestacional).toFixed(2))
       return this.totalCesantiasPublicos
     }
     if (tipo == 'cesantiasPrivados') {
-      this.totalCesantiasPrivados = parseFloat((this.valorCesantiasPrivadosMTO + this.valorCesantiasPrivadosTCO + this.valorCesantiasPrivadosPrestacional + this.valorCesantiasPrivadosHonorarios).toFixed(2))
+      this.totalCesantiasPrivados = parseFloat((this.valorCesantiasPrivadosMTO + this.valorCesantiasPrivadosTCO + this.valorCesantiasPrivadosPrestacional).toFixed(2))
       return this.totalCesantiasPrivados
     }
     if (tipo == 'riesgoPublico') {
-      this.totalRiesgoPublicos = parseFloat((this.valorRiesgoPublicosMTO + this.valorRiesgoPublicosTCO + this.valorRiesgoPublicosPrestacional + this.valorRiesgoPublicosHonorarios).toFixed(2))
+      this.totalRiesgoPublicos = parseFloat((this.valorRiesgoPublicosMTO + this.valorRiesgoPublicosTCO + this.valorRiesgoPublicosPrestacional).toFixed(2))
       return this.totalRiesgoPublicos
     }
     if (tipo == 'riesgoPrivado') {
-      this.totalRiesgoPrivados = parseFloat((this.valorSaludPrivadaMTO + this.valorSaludPrivadaTCO + this.valorSaludPrivadaPrestacional + this.valorSaludPrivadaHonorarios).toFixed(2))
+      this.totalRiesgoPrivados = parseFloat((this.valorSaludPrivadaMTO + this.valorSaludPrivadaTCO + this.valorSaludPrivadaPrestacional).toFixed(2))
       return this.totalRiesgoPrivados
     }
     if (tipo == 'icbf') {
-      this.totalIcfb = parseFloat((this.valorICBFMTO + this.valorICBFTCO + this.valorICBFPrestacional + this.valorICBFHonorarios).toFixed(2))
+      this.totalIcfb = parseFloat((this.valorICBFMTO + this.valorICBFTCO + this.valorICBFPrestacional).toFixed(2))
       return this.totalIcfb
     }
     if (tipo == 'total') {
@@ -1118,599 +1921,416 @@ export class DocentesComponent implements OnInit {
     }
   }
 
-  inicializarTabla() {
-    if (this.rol == 'PLANEACION') {
-      this.dataTableMTO = [
-        {
-          docente: "Auxiliar MTO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Asistente MTO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Asociado MTO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Titular MTO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-      ]
-      this.dataTableTCO = [
-        {
-          docente: "Auxiliar TCO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Asistente TCO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Asociado TCO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Titular TCO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-      ]
-      this.dataTablePrestacional = [
-        {
-          docente: "Hora Catedra Auxiliar",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Hora Catedra Asistente",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Hora Catedra Asociado",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Hora Catedra Titular",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-      ]
-      this.dataTableHonorarios = [
-        {
-          docente: "Hora Catedra Auxiliar",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Hora Catedra Asistente",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Hora Catedra Asociado",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-        {
-          docente: "Hora Catedra Titular",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0,
-          observaciones: ''
-        },
-      ]
-    } else {
-      this.dataTableMTO = [
-        {
-          docente: "Auxiliar MTO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Asistente MTO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Asociado MTO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Titular MTO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-      ]
-      this.dataTableTCO = [
-        {
-          docente: "Auxiliar TCO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Asistente TCO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Asociado TCO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Titular TCO",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-      ]
-      this.dataTablePrestacional = [
-        {
-          docente: "Hora Catedra Auxiliar",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Hora Catedra Asistente",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Hora Catedra Asociado",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Hora Catedra Titular",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-      ]
-      this.dataTableHonorarios = [
-        {
-          docente: "Hora Catedra Auxiliar",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Hora Catedra Asistente",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Hora Catedra Asociado",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-        {
-          docente: "Hora Catedra Titular",
-          cantidad: 0,
-          sueldoBasico: 0,
-          primaServicios: 0,
-          primaNavidad: 0,
-          primaVacaciones: 0,
-          aportesPensionesPublicas: 0,
-          aportesPensionesPrivadas: 0,
-          aportesSaludPrivada: 0,
-          aportesCesantiasPublicos: 0,
-          aportesCesantiasPrivados: 0,
-          aportesRiesgoPublicos: 0,
-          aportesRiesgoPrivados: 0,
-          aportesICBF: 0,
-          total: 0
-        },
-      ]
+  verificarSumasPensiones(): boolean {
+    for (let i = 0; i < 4; i++) {
+      if (Number((this.dataSourceMTO.data[i].aportesPensionesPublicas).toFixed(0)) + Number((this.dataSourceMTO.data[i].aportesPensionesPrivadas).toFixed(0)) != Number((this.dataSourceMTO.data[i].totalAportesPensiones).toFixed(0))) {
+        return false
+      }
     }
+    for (let i = 0; i < 4; i++) {
+      if (Number((this.dataSourceTCO.data[i].aportesPensionesPublicas).toFixed(0)) + Number((this.dataSourceTCO.data[i].aportesPensionesPrivadas).toFixed(0)) != Number((this.dataSourceTCO.data[i].totalAportesPensiones).toFixed(0))) {
+        return false
+      }
+    }
+    for (let i = 0; i < 4; i++) {
+      if (Number((this.dataSourcePrestacional.data[i].aportesPensionesPublicas).toFixed(0)) + Number((this.dataSourcePrestacional.data[i].aportesPensionesPrivadas).toFixed(0)) != Number((this.dataSourcePrestacional.data[i].totalAportesPensiones).toFixed(0))) {
+        return false
+      }
+    }
+    return true;
+  }
+
+  verificarSumasCesantias(): boolean {
+    for (let i = 0; i < 4; i++) {
+      if (Number((this.dataSourceMTO.data[i].aportesCesantiasPublicos).toFixed(0)) + Number((this.dataSourceMTO.data[i].aportesCesantiasPrivados).toFixed(0)) != Number((this.dataSourceMTO.data[i].totalAportesCesantias).toFixed(0))) {
+        return false
+      }
+    }
+    for (let i = 0; i < 4; i++) {
+      if (Number((this.dataSourceTCO.data[i].aportesCesantiasPublicos).toFixed(0)) + Number((this.dataSourceTCO.data[i].aportesPensionesPrivadas).toFixed(0)) != Number((this.dataSourceTCO.data[i].totalAportesCesantias).toFixed(0))) {
+          return false
+      }
+    }
+    for (let i = 0; i < 4; i++) {
+      if (Number((this.dataSourcePrestacional.data[i].aportesCesantiasPublicos).toFixed(0)) + Number((this.dataSourcePrestacional.data[i].aportesCesantiasPrivados).toFixed(0)) != Number((this.dataSourcePrestacional.data[i].totalAportesCesantias).toFixed(0))) {
+        return false
+      }
+    }
+    return true;
+  }
+
+  verificarSumasRiesgos(): boolean {
+    for (let i = 0; i < 4; i++) {
+      if (Number((this.dataSourceMTO.data[i].aportesRiesgoPublicos).toFixed(0)) + Number((this.dataSourceMTO.data[i].aportesRiesgoPrivados).toFixed(0)) != Number((this.dataSourceMTO.data[i].totalAportesRiesgos).toFixed(0))) {
+        return false
+      }
+    }
+    for (let i = 0; i < 4; i++) {
+      if (Number((this.dataSourceTCO.data[i].aportesRiesgoPublicos).toFixed(0)) + Number((this.dataSourceTCO.data[i].aportesRiesgoPrivados).toFixed(0)) != Number((this.dataSourceTCO.data[i].totalAportesRiesgos).toFixed(0))) {
+          return false
+      }
+    }
+    for (let i = 0; i < 4; i++) {
+      if (Number((this.dataSourcePrestacional.data[i].aportesRiesgoPublicos).toFixed(0)) + Number((this.dataSourcePrestacional.data[i].aportesRiesgoPrivados).toFixed(0)) != Number((this.dataSourcePrestacional.data[i].totalAportesRiesgos).toFixed(0))) {
+        return false
+      }
+    }
+    return true;
+  }
+
+  inicializarTabla() {
+   this.dataSourceMTO.data = [
+      {
+        docente: "Auxiliar MTO",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesSaludPrivada: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+      {
+        docente: "Asistente MTO",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+      {
+        docente: "Asociado MTO",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+      {
+        docente: "Titular MTO",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesSaludPrivada: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+    ]
+    this.dataSourceTCO.data = [
+      {
+        docente: "Auxiliar TCO",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesSaludPrivada: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+      {
+        docente: "Asistente TCO",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesSaludPrivada: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+      {
+        docente: "Asociado TCO",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesSaludPrivada: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+      {
+        docente: "Titular TCO",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesSaludPrivada: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+    ]
+    this.dataSourcePrestacional.data = [
+      {
+        docente: "Hora Catedra Auxiliar",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesSaludPrivada: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+      {
+        docente: "Hora Catedra Asistente",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesSaludPrivada: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+      {
+        docente: "Hora Catedra Asociado",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesSaludPrivada: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+      {
+        docente: "Hora Catedra Titular",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 0,
+        primaNavidad: 0,
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 0,
+        aportesSaludPrivada: 0,
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 0,
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 0,
+        aportesICBF: 0,
+        total: 0
+      },
+    ]
+    this.dataSourceHonorarios.data = [
+      {
+        docente: "Hora Catedra Auxiliar",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 'N/A',
+        primaNavidad: 'N/A',
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 'N/A',
+        aportesSaludPrivada: 'N/A',
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 'N/A',
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 'N/A',
+        aportesICBF: 'N/A',
+        total: 0
+      },
+      {
+        docente: "Hora Catedra Asistente",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 'N/A',
+        primaNavidad: 'N/A',
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 'N/A',
+        aportesSaludPrivada: 'N/A',
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 'N/A',
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 'N/A',
+        aportesICBF: 'N/A',
+        total: 0
+      },
+      {
+        docente: "Hora Catedra Asociado",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 'N/A',
+        primaNavidad: 'N/A',
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 'N/A',
+        aportesSaludPrivada: 'N/A',
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 'N/A',
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 'N/A',
+        aportesICBF: 'N/A',
+        total: 0
+      },
+      {
+        docente: "Hora Catedra Titular",
+        cantidad: 0,
+        sueldoBasico: 0,
+        cantidadHoras: 0,
+        interesesCesantias: 'N/A',
+        primaNavidad: 'N/A',
+        primaVacaciones: 0,
+        aportesPensionesPublicas: 0,
+        aportesPensionesPrivadas: 0,
+        totalAportesPensiones: 'N/A',
+        aportesSaludPrivada: 'N/A',
+        aportesCesantiasPublicos: 0,
+        aportesCesantiasPrivados: 0,
+        totalAportesCesantias: 'N/A',
+        aportesRiesgoPublicos: 0,
+        aportesRiesgoPrivados: 0,
+        totalAportesRiesgos: 'N/A',
+        aportesICBF: 'N/A',
+        total: 0
+      },
+    ]
 
 
-
-    this.dataSourceMTO.data = this.dataTableMTO;
-    this.dataSourceTCO.data = this.dataTableTCO;
-    this.dataSourcePrestacional.data = this.dataTablePrestacional;
-    this.dataSourceHonorarios.data = this.dataTableHonorarios;
     this.steps = [
       {
         "nombre": "Docentes Ocasionales de Medio Tiempo (MTO)",
         "descripcion": "Recuerde que según el árticulo 01 del Acuerdo 008/2001 del Consejo Superior Universitario, el número máximo de Docentes MTO a contratar es 25",
         "footer": "Total Recursos Medio Tiempo Ocasional",
         "tipo": "MTO",
+        "maxHoras": 20,
+        "minHoras": 16,
         "data": this.dataSourceMTO
       },
       {
@@ -1718,6 +2338,8 @@ export class DocentesComponent implements OnInit {
         "descripcion": "NA",
         "footer": "Total Recursos Tiempo Completo Ocasional",
         "tipo": 'TCO',
+        "maxHoras": 40,
+        "minHoras": 24,
         "data": this.dataSourceTCO
       },
       {
@@ -1725,6 +2347,8 @@ export class DocentesComponent implements OnInit {
         "descripcion": "NA",
         "footer": "Total Recursos Hora Cátedra prestacional",
         "tipo": "Prestacional",
+        "maxHoras": 16,
+        "minHoras": 2,
         "data": this.dataSourcePrestacional
       },
       {
@@ -1732,8 +2356,12 @@ export class DocentesComponent implements OnInit {
         "descripcion": "NA",
         "footer": "Total Recursos Hora Cátedra por Honorarios",
         "tipo": "Honorarios",
+        "maxHoras": 8,
+        "minHoras": 4,
         "data": this.dataSourceHonorarios
       }
     ]
+
+
   }
 }
