@@ -6,10 +6,10 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialo
 
 @Component({
   selector: 'app-seguimiento',
-  templateUrl: './seguimiento.component.html',
-  styleUrls: ['./seguimiento.component.scss']
+  templateUrl: './generar-trimestre.component.html',
+  styleUrls: ['./generar-trimestre.component.scss']
 })
-export class SeguimientoComponent implements OnInit {
+export class GenerarTrimestreComponent implements OnInit {
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
 

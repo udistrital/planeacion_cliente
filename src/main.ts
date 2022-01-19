@@ -18,7 +18,10 @@ const menu = [
     Nombre: "Plan de Acción", Icono: "assignment", Url: null, Opciones: [
       { Nombre: "Consulta Planes de Acción", Icono: "search", Url: "pages/plan/consultar-plan", TipoOpcion: "Menú", Opciones: null },
       { Nombre: "Formulación Plan de Acción Anual", Icono: "forward", Url: "pages/formulacion", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Seguimiento Plan de Acción Anual", Icono: "find_in_page", Url: "pages/seguimiento", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Seguimiento Plan de Acción Anual", Icono: "find_in_page", Url: "pages/seguimiento/listar-plan-accion-anual", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Seguimiento Plan de Acción Anual temp 2", Icono: "find_in_page", Url: "pages/seguimiento/gestion-seguimiento", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Seguimiento Plan de Acción Anual temp 3", Icono: "find_in_page", Url: "pages/seguimiento/reportar-periodo", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Seguimiento Plan de Acción Anual temp 4", Icono: "find_in_page", Url: "pages/seguimiento/generar-trimestre", TipoOpcion: "Menú", Opciones: null },
       { Nombre: "Evaluación Plan de Acción Anual", Icono: "done_all", Url: "pages/evaluacion", TipoOpcion: "Menú", Opciones: null },
     ]
   },

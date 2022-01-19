@@ -38,7 +38,10 @@ import { ListarPlanComponent } from './plan/listar-plan/listar-plan.component';
 import { ConstruirPlanComponent } from './plan/construir-plan/construir-plan.component';
 import { ConsultarPlanComponent } from './plan/consultar-plan/consultar-plan.component';
 import { EvaluacionComponent } from './evaluacion/evaluacion.component';
-import { SeguimientoComponent } from './seguimiento/seguimiento.component';
+import { SeguimientoComponentList } from './seguimiento/listar-plan-accion-anual/seguimiento.component';
+import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/gestion-seguimiento.component';
+import { ReportarPeriodoComponent } from './seguimiento/reportar-periodo/reportar-periodo.component';
+import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/generar-trimestre.component';
 import { ArbolComponent } from './plan/arbol/arbol.component';
 import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agregar-dialog.component';
 import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
@@ -59,7 +62,10 @@ const pagesComponents = [
   ConstruirPlanComponent,
   ConsultarPlanComponent,
   EvaluacionComponent,
-  SeguimientoComponent,
+  SeguimientoComponentList,
+  SeguimientoComponentGestion,
+  ReportarPeriodoComponent,
+  GenerarTrimestreComponent,
   FormulacionComponent,
   AgregarDialogComponent,
   EditarDialogComponent,
@@ -92,7 +98,10 @@ const materialModules = [
     ConstruirPlanComponent,
     ConsultarPlanComponent,
     EvaluacionComponent,
-    SeguimientoComponent,
+    SeguimientoComponentList,
+    SeguimientoComponentGestion,
+    ReportarPeriodoComponent,
+    GenerarTrimestreComponent,
     ArbolComponent,
     AgregarDialogComponent,
     EditarDialogComponent,
