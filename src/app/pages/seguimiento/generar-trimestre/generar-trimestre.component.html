@@ -1,73 +1,38 @@
-<p>seguimiento works seguimiento generar trimestre!</p>
 <mat-card class="card-oas">
     <mat-card-header>
-        <mat-card-title>Seguimiento planes de acción</mat-card-title>
+        <mat-card-title>Reporte trimestre I</mat-card-title>
     </mat-card-header>
     <mat-card-content>
         <br>
         <div class="container-border">
-            <h1>Planes de acción anual</h1>
-            <mat-form-field appearance="standard" [style.width.%]="50">
-                <mat-label>Búsqueda</mat-label>
-                <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Plan" #input>
-            </mat-form-field>
-            <div class="mat-elevation-z8">
-                <table mat-table [dataSource]="dataSource" matSort>
-                    <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-                        <td mat-cell *matCellDef="let row"></td>
-                    </ng-container>
-                    <ng-container matColumnDef="unidad">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Unidad Académica y / o Administrativa </th>
-                        <td mat-cell *matCellDef="let row">  </td>
-                    </ng-container>
-                    <ng-container matColumnDef="estado">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado </th>
-                        <td mat-cell *matCellDef="let row">  </td>
-                    </ng-container>
-                    <ng-container matColumnDef="vigencia">
-                        <th mat-header-cell *matHeaderCellDef> Vigencia </th>
-                        <td mat-cell *matCellDef="let row" class="td-align-right">
-                            <button mat-icon-button (click)="editar(row)"><mat-icon>edit</mat-icon></button>
-                            <button mat-icon-button (click)="inactivar(row)"><mat-icon>delete_outline</mat-icon></button>
-                    </td>
-                    </ng-container>
-                    <ng-container matColumnDef="periodo">
-                        <th mat-header-cell *matHeaderCellDef> Periodo </th>
-                        <td mat-cell *matCellDef="let row" class="td-align-right">
-                            <button mat-icon-button (click)="editar(row)"><mat-icon>edit</mat-icon></button>
-                            <button mat-icon-button (click)="inactivar(row)"><mat-icon>delete_outline</mat-icon></button>
-                    </td>
-                    </ng-container>
-                    <ng-container matColumnDef="seguimiento">
-                        <th mat-header-cell *matHeaderCellDef> Seguimiento </th>
-                        <td mat-cell *matCellDef="let row" class="td-align-right">
-                            <button mat-icon-button (click)="editar(row)"><mat-icon>edit</mat-icon></button>
-                            <button mat-icon-button (click)="inactivar(row)"><mat-icon>delete_outline</mat-icon></button>
-                    </td>
-                    </ng-container>
-                    <ng-container matColumnDef="observaciones">
-                        <th mat-header-cell *matHeaderCellDef> Observaciones </th>
-                        <td mat-cell *matCellDef="let row" class="td-align-right">
-                            <button mat-icon-button (click)="editar(row)"><mat-icon>edit</mat-icon></button>
-                            <button mat-icon-button (click)="inactivar(row)"><mat-icon>delete_outline</mat-icon></button>
-                    </td>
-                    </ng-container>
-                    <ng-container matColumnDef="enviar">
-                        <th mat-header-cell *matHeaderCellDef class="header-align-right"> Enviar </th>
-                        <td mat-cell *matCellDef="let row" class="td-align-right">
-                            <button mat-icon-button (click)="editar(row)"><mat-icon>edit</mat-icon></button>
-                            <button mat-icon-button (click)="inactivar(row)"><mat-icon>delete_outline</mat-icon></button>
-                    </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                    <tr class="mat-row" *matNoDataRow>
-                        <td class="mat-cell" colspan="4">No se han encontrado resultados para la búsqueda "{{input.value}}"</td>
-                    </tr>
-                </table>
-                <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
-              </div>
+            <h1>Avance del indicador</h1>
+            <div class="container-button">
+                <textarea class="align-avance1" disabled>Avance en el periodo</textarea>
+                <textarea class="align-avance2" disabled>Avance acumulado</textarea>
+            </div>
+            <div class="container-button">
+                <textarea class="align-avance1-text" id="periodo" placeholder="%"></textarea>
+                <textarea class="align-avance2-text" id="acumulado" placeholder="%"></textarea>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="container-border">
+            <h1>Descripción cualitativa trimestre</h1>
+            <mat-label id="desc-input-label">Producto </mat-label>
+            <textarea class="width-text-trimestre" id="Producto" placeholder="Producto"></textarea>
+            <mat-label id="desc-input-label">Evidencia </mat-label>
+            <textarea class="width-text-trimestre" id="Evidencia" placeholder="Evidencia"></textarea>
+            <mat-label id="desc-input-label">Logros </mat-label>
+            <textarea class="width-text-trimestre" id="Logros" placeholder="Logros"></textarea>
+            <mat-label id="desc-input-label">Dificultades </mat-label>
+            <textarea class="width-text-trimestre" id="Dificultades" placeholder="Dificultades"></textarea>
+            <mat-label id="desc-input-label">Observaciones </mat-label>
+            <textarea class="width-text-trimestre" id="Observaciones" placeholder="Observaciones"></textarea>
+        </div>
+        <div class="container-button">
+            <button class="background-button align-button1">Guardar</button>
+            <button class="background-button align-button2">Regresar</button>
         </div>
     </mat-card-content>
 </mat-card>

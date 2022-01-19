@@ -35,7 +35,16 @@ th {
     background:white;
     position: relative;
 }
-.mat-elevation-z8 input{
+.unidad{
+  width: 60%;
+  border: solid 1px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  outline: none;
+  // color: var(--primary);
+}
+.plan{
   width: 70%;
   border: solid 1px;
   border-top: none;
@@ -46,4 +55,65 @@ th {
 }
 .mat-elevation-z8{
   padding: 12px;
+}
+
+.text-area{
+  margin-bottom: 10px;
+  width: 98%;
+  text-align: center;
+}
+
+.width-label{
+  width: 29%;
+  margin: 0% 1% 0% 1%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 20px;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+}
+.width-text{
+  width: 29%;
+  margin: 0% 1% 1% 1%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  outline: none;
+}
+.background-button{
+  background-color: var(--primary);
+  border: 1px solid var(--primary);
+  color: white;
+  border-radius: 8px 8px 8px 8px;
+  width: 29%;
+  height: 40px;
+  align-items: center;
+  padding: 1%;
+}
+.align-button1{
+  position: absolute;
+  margin: 2% 2% 2% 19%;
+}
+.align-button2{
+  position: absolute;
+  margin: 2% 0% 2% 52%;
+}
+.container-button{
+  width: 100%;
+  height: 80px;
+}
+.state{
+  width: 100px;
+  text-align: center;
+  border: 1px solid var(--primary);
+  padding: 1%;
+  border-radius: 15px 15px 15px 15px;
+  position: absolute;
+  margin-left: 4%;
 }
