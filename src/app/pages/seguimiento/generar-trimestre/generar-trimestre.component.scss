@@ -51,18 +51,22 @@ th {
   height: 20px;
   padding: 1%;
 }
-.width-button-generate{
+.width-button-archivo{
+  position: absolute;
   width: 26%;
   margin: 0% 0% 0% 1%;
-  color: var(--primary);
+  color: white;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
   text-align: center;
-  height: 46px;
+  height: 75px;
   border: 2px solid var(--primary);
   padding: 1%;
   border-radius: 8px 8px 8px 8px;
-  background-color: white;
+  background-color: var(--primary);
+}
+.label-evidencia{
+  width: 100%;
 }
 .width-text{
   width: 29%;
@@ -86,6 +90,9 @@ th {
   border: 2px solid var(--primary);
   padding: 1%;
   border-radius: 8px 8px 8px 8px;
+}
+.evidencia{
+  width: 70% !important;
 }
 .width-label{
   width: 15%;
