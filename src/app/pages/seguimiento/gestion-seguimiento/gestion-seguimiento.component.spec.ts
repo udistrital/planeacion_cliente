@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SeguimientoComponent } from './seguimiento.component';
+import { SeguimientoComponentGestion } from './gestion-seguimiento.component';
 
-describe('SeguimientoComponent', () => {
-  let component: SeguimientoComponent;
-  let fixture: ComponentFixture<SeguimientoComponent>;
+describe('SeguimientoComponentGestion', () => {
+  let component: SeguimientoComponentGestion;
+  let fixture: ComponentFixture<SeguimientoComponentGestion>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SeguimientoComponent ]
+      declarations: [ SeguimientoComponentGestion ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SeguimientoComponent);
+    fixture = TestBed.createComponent(SeguimientoComponentGestion);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
