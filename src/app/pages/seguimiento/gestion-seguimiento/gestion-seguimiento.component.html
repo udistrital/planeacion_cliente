@@ -1,0 +1,55 @@
+<mat-card class="card-oas">
+    <mat-card-header>
+        <mat-card-title>Seguimiento planes de acción</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <br>
+        <div class="container-border">
+            <h1>Información básica plan de acción</h1>
+            <div class="mat-elevation-z8">
+                <mat-label id="desc-input-label">Unidad académico y/o administrativa: </mat-label>
+                <input class="unidad" type="text" matInput formControlName="unidad-academico" required>
+                <textarea class="state" matInput formControlName="texto-actividad" placeholder="Estado"></textarea>
+                <br>
+                <br>
+                <mat-label id="desc-input-label">Plan de acción ID: </mat-label>
+                <input class="plan" type="text" matInput formControlName="plan-accion" required>
+            </div>
+        </div>
+        <br>
+        <div class="container-border">
+            <h1>Información del plan</h1>
+            <div class="mat-elevation-z8">
+                <mat-label id="desc-input-label">Actividad general: </mat-label>
+                <mat-select required>
+                    <mat-option>--</mat-option>
+                    <mat-option >
+                    </mat-option>
+                </mat-select>
+                <br>
+                <br>
+                <textarea class="text-area container-border" matInput formControlName="texto-actividad" placeholder="Texto de la actividad"></textarea>
+                <br>
+                <div class="container-border">
+                    <textarea class="width-label" disabled>Lineamiento</textarea>
+                    <textarea class="width-label" disabled>Meta estratégica</textarea>
+                    <textarea class="width-label" disabled>Estrategia</textarea>
+                    <textarea class="width-text" id="lineamiento" placeholder="Texto de lineamiento"></textarea>
+                    <textarea class="width-text" id="meta-estrategica" placeholder="Texto de meta estratégica"></textarea>
+                    <textarea class="width-text" id="estrategia" placeholder="Texto de estrategia"></textarea>
+                    <br>
+                    <textarea class="width-label" disabled>Indicador asociado</textarea>
+                    <textarea class="width-label" disabled>Meta</textarea>
+                    <textarea class="width-label" disabled>Tareas</textarea>
+                    <textarea class="width-text" id="lineamiento" placeholder="Variables del indicador"></textarea>
+                    <textarea class="width-text" id="meta-estrategica" placeholder="Porcentaje, numero"></textarea>
+                    <textarea class="width-text" id="estrategia" placeholder="Porcentaje, numero"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="container-button">
+            <button class="background-button align-button1"><a style="color: white;" href="#pages/seguimiento/reportar-periodo">Reportar periodo</a></button>
+            <button class="background-button align-button2">Guardar reporte</button>
+        </div>
+    </mat-card-content>
+</mat-card>
