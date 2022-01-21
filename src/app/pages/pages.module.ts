@@ -39,6 +39,9 @@ import { ConstruirPlanComponent } from './plan/construir-plan/construir-plan.com
 import { ConsultarPlanComponent } from './plan/consultar-plan/consultar-plan.component';
 import { EvaluacionComponent } from './evaluacion/evaluacion.component';
 import { SeguimientoComponent } from './seguimiento/seguimiento.component';
+import { ConsolidadoComponent } from './reportes/reporte-consolidado/consolidado.component';
+import { PlanAnualComponent } from './reportes/reporte-plan-anual/plan-anual.component';
+import { PlanUnidadComponent } from './reportes/reporte-plan-unidad/plan-unidad.component';
 import { ArbolComponent } from './plan/arbol/arbol.component';
 import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agregar-dialog.component';
 import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
@@ -60,6 +63,9 @@ const pagesComponents = [
   ConsultarPlanComponent,
   EvaluacionComponent,
   SeguimientoComponent,
+  ConsolidadoComponent,
+  PlanAnualComponent,
+  PlanUnidadComponent,
   FormulacionComponent,
   AgregarDialogComponent,
   EditarDialogComponent,
@@ -93,6 +99,9 @@ const materialModules = [
     ConsultarPlanComponent,
     EvaluacionComponent,
     SeguimientoComponent,
+    ConsolidadoComponent,
+    PlanAnualComponent,
+    PlanUnidadComponent,
     ArbolComponent,
     AgregarDialogComponent,
     EditarDialogComponent,

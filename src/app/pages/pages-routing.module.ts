@@ -7,6 +7,9 @@ import { CrearPlanComponent } from './plan/crear-plan/crear-plan.component';
 import { ListarPlanComponent } from './plan/listar-plan/listar-plan.component';
 import { ConstruirPlanComponent } from './plan/construir-plan/construir-plan.component';
 import { ConsultarPlanComponent } from './plan/consultar-plan/consultar-plan.component';
+import { ConsolidadoComponent } from './reportes/reporte-consolidado/consolidado.component';
+import { PlanAnualComponent } from './reportes/reporte-plan-anual/plan-anual.component';
+import { PlanUnidadComponent } from './reportes/reporte-plan-unidad/plan-unidad.component';
 import { EvaluacionComponent } from './evaluacion/evaluacion.component';
 import { SeguimientoComponent } from './seguimiento/seguimiento.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
@@ -46,6 +49,24 @@ const routes: Routes = [{
         {
           path: 'construir-plan',
           component: ConstruirPlanComponent,
+        }
+      ]
+    },
+    {
+      path: 'reportes',
+      component: PagesComponent,
+      children: [
+        {
+          path: 'reporte-consolidado',
+          component: ConsolidadoComponent,
+        },
+        {
+          path: 'reporte-plan-anual',
+          component: PlanAnualComponent,
+        },
+        {
+          path: 'reporte-plan-unidad',
+          component: PlanUnidadComponent,
         }
       ]
     },
