@@ -50,6 +50,9 @@ import { ContratistasComponent } from './formulacion/contratistas/contratistas.c
 import { RecursosComponent } from './formulacion/recursos/recursos.component';
 import { DocentesComponent } from './formulacion/docentes/docentes.component';
 import { NgIsGrantedDirective } from './directives/ng-is-granted.directive';
+import { ConsolidadoComponent } from './reportes/reporte-consolidado/consolidado.component';
+import { PlanAnualComponent } from './reportes/reporte-plan-anual/plan-anual.component';
+import { PlanUnidadComponent } from './reportes/reporte-plan-unidad/plan-unidad.component';
 
 
 
@@ -70,6 +73,9 @@ const pagesComponents = [
   AgregarDialogComponent,
   EditarDialogComponent,
   ArbolComponent
+  ConsolidadoComponent,
+  PlanAnualComponent,
+  PlanUnidadComponent,
 ];
 
 const materialModules = [
@@ -109,6 +115,9 @@ const materialModules = [
     ContratistasComponent,
     RecursosComponent,
     DocentesComponent,
+    ConsolidadoComponent,
+    PlanAnualComponent,
+    PlanUnidadComponent,
   ],
   imports: [
     HttpClientModule,
