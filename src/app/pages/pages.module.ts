@@ -72,7 +72,7 @@ const pagesComponents = [
   FormulacionComponent,
   AgregarDialogComponent,
   EditarDialogComponent,
-  ArbolComponent
+  ArbolComponent,
   ConsolidadoComponent,
   PlanAnualComponent,
   PlanUnidadComponent,
