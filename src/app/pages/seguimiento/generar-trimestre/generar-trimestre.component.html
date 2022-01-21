@@ -1,0 +1,41 @@
+<mat-card class="card-oas">
+    <mat-card-header>
+        <mat-card-title>Reporte trimestre I</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <br>
+        <div class="container-border">
+            <h1>Avance del indicador</h1>
+            <div class="container-button">
+                <textarea class="align-avance1" disabled>Avance en el periodo</textarea>
+                <textarea class="align-avance2" disabled>Avance acumulado</textarea>
+            </div>
+            <div class="container-button">
+                <textarea class="align-avance1-text" id="periodo" placeholder="%"></textarea>
+                <textarea class="align-avance2-text" id="acumulado" placeholder="%"></textarea>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="container-border">
+            <h1>Descripción cualitativa trimestre</h1>
+            <mat-label id="desc-input-label">Producto </mat-label>
+            <textarea class="width-text-trimestre" id="Producto" placeholder="Producto"></textarea>
+            <mat-label id="desc-input-label label-evidencia">Evidencia </mat-label>
+            <div>
+                <textarea class="width-text-trimestre evidencia" id="Evidencia" placeholder="Evidencia"></textarea>
+                <button class="width-button-archivo">Adjuntar archivo</button>
+            </div>
+            <mat-label id="desc-input-label">Logros </mat-label>
+            <textarea class="width-text-trimestre" id="Logros" placeholder="Logros"></textarea>
+            <mat-label id="desc-input-label">Dificultades </mat-label>
+            <textarea class="width-text-trimestre" id="Dificultades" placeholder="Dificultades"></textarea>
+            <mat-label id="desc-input-label">Observaciones </mat-label>
+            <textarea class="width-text-trimestre" id="Observaciones" placeholder="Observaciones"></textarea>
+        </div>
+        <div class="container-button">
+            <button class="background-button align-button1">Guardar</button>
+            <button class="background-button align-button2">Regresar</button>
+        </div>
+    </mat-card-content>
+</mat-card>

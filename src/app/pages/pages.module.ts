@@ -69,13 +69,13 @@ const pagesComponents = [
   SeguimientoComponentGestion,
   ReportarPeriodoComponent,
   GenerarTrimestreComponent,
-  ConsolidadoComponent,
-  PlanAnualComponent,
-  PlanUnidadComponent,
   FormulacionComponent,
   AgregarDialogComponent,
   EditarDialogComponent,
   ArbolComponent
+  ConsolidadoComponent,
+  PlanAnualComponent,
+  PlanUnidadComponent,
 ];
 
 const materialModules = [
@@ -108,9 +108,6 @@ const materialModules = [
     SeguimientoComponentGestion,
     ReportarPeriodoComponent,
     GenerarTrimestreComponent,
-    ConsolidadoComponent,
-    PlanAnualComponent,
-    PlanUnidadComponent,
     ArbolComponent,
     AgregarDialogComponent,
     EditarDialogComponent,
@@ -118,6 +115,9 @@ const materialModules = [
     ContratistasComponent,
     RecursosComponent,
     DocentesComponent,
+    ConsolidadoComponent,
+    PlanAnualComponent,
+    PlanUnidadComponent,
   ],
   imports: [
     HttpClientModule,
