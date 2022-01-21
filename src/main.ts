@@ -28,6 +28,11 @@ const menu = [
     { Nombre: "Seguimiento Proyectos de Inversión", Icono: "find_in_page", Url: "pages/seguimiento", TipoOpcion: "Menú", Opciones: null },
     { Nombre: "Evaluación Proyectos de Inversión", Icono: "done_all", Url: "pages/evaluacion", TipoOpcion: "Menú", Opciones: null },
   ]},
+  { Nombre: "Reportes", Icono: "library_books", Url: null, Opciones: [
+    { Nombre: "Reporte plan de acción por unidad", Icono: "poll", Url: "pages/reportes/reporte-plan-unidad", TipoOpcion: "Menú", Opciones: null },
+    { Nombre: "Reporte plan de acción anual", Icono: "poll", Url: "pages/reportes/reporte-plan-anual", TipoOpcion: "Menú", Opciones: null },
+    { Nombre: "Reporte consolidado presupuestal", Icono: "poll", Url: "pages/reportes/reporte-consolidado", TipoOpcion: "Menú", Opciones: null },
+  ]},
   { Nombre: "Programación Presupuestal", Icono: "account_balance_wallet", Url: null, Opciones: null },
 ];
 
