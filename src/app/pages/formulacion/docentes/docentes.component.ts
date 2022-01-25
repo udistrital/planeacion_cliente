@@ -490,7 +490,7 @@ export class DocentesComponent implements OnInit {
       "NivelAcademico": "PREGRADO"
     }
     ]
-    this.request.post("http://pruebasapi2.intranetoas.udistrital.edu.co:8529/v1/", "services/desagregado_planeacion", bodyMTO).subscribe((data: any) => {
+    this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyMTO).subscribe((data: any) => {
       if (data) {
         this.titularMTO = data.Data[0];
         this.auxiliarMTO = data.Data[1];
@@ -499,7 +499,7 @@ export class DocentesComponent implements OnInit {
       }
     })
 
-    this.request.post("http://pruebasapi2.intranetoas.udistrital.edu.co:8529/v1/", "services/desagregado_planeacion", bodyTCO).subscribe((data: any) => {
+    this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyTCO).subscribe((data: any) => {
       if (data) {
         this.titularTCO = data.Data[0];
         this.auxiliarTCO = data.Data[1];
@@ -508,7 +508,7 @@ export class DocentesComponent implements OnInit {
       }
     })
 
-    this.request.post("http://pruebasapi2.intranetoas.udistrital.edu.co:8529/v1/", "services/desagregado_planeacion", bodyPrestacional).subscribe((data: any) => {
+    this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyPrestacional).subscribe((data: any) => {
       if (data) {
         this.titularPrestacional = data.Data[0];
         this.auxiliarPrestacional = data.Data[1];
@@ -517,7 +517,7 @@ export class DocentesComponent implements OnInit {
       }
     })
 
-    this.request.post("http://pruebasapi2.intranetoas.udistrital.edu.co:8529/v1/", "services/desagregado_planeacion", bodyHonorarios).subscribe((data: any) => {
+    this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyHonorarios).subscribe((data: any) => {
       if (data) {
         this.titularHonorarios = data.Data[0];
         this.auxiliarHonorarios = data.Data[1];
