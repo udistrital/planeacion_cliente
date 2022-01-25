@@ -28,6 +28,7 @@ export class DocentesComponent implements OnInit {
   dataTablePrestacional: any[];
   dataTableHonorarios: any[];
   dataAvailable: boolean = false;
+  banderaCerrar : boolean = false;
 
   accionBoton: string;
   tipoIdenti: string;
@@ -179,7 +180,6 @@ export class DocentesComponent implements OnInit {
     if (this.dataTabla) {
       this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
         if (data) {
-
           let identificacion = data.Data[0];
           if (identificacion.activo === false) {
             this.dataSource = new MatTableDataSource<any>();
@@ -189,6 +189,7 @@ export class DocentesComponent implements OnInit {
             this.dataSourceHonorarios = new MatTableDataSource<any>();
             this.dataSourceMTO.data = [];
             this.inicializarTabla();
+            this.banderaCerrar = true;
             let datoIdenti = {
               "activo": true
             }
@@ -312,21 +313,21 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = this.verificarVersiones();
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad','cantidadHoras', 'sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'cantidadHoras','sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad','cantidadHoras', 'sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
@@ -336,28 +337,28 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad','cantidadHoras', 'sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'cantidadHoras','sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'cantidadHoras','sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'sueldoBasico', 'cantidadHoras', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad','cantidadHoras', 'sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
@@ -534,15 +535,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } else if (element.docente = 'Asistente MTO') {
+      } else if (element.docente == 'Asistente MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } else if (element.docente = 'Asociado MTO') {
+      } else if (element.docente == 'Asociado MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } else if (element.docente = 'Auxiliar MTO') {
+      } else if (element.docente == 'Auxiliar MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].sueldoBasico = valor;
         return valor;
@@ -553,15 +554,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } if (element.docente = 'Asistente TCO') {
+      } if (element.docente == 'Asistente TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } if (element.docente = 'Asociado TCO') {
+      } if (element.docente == 'Asociado TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } if (element.docente = 'Auxiliar TCO') {
+      } if (element.docente == 'Auxiliar TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].sueldoBasico = valor;
         return valor;
@@ -572,15 +573,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].sueldoBasico = valor;
         return valor;
@@ -591,15 +592,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularHonorarios.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceHonorarios.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteHonorarios.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceHonorarios.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoHonorarios.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceHonorarios.data[rowIndex].sueldoBasico = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarHonorarios.salarioBasico) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceHonorarios.data[rowIndex].sueldoBasico = valor;
         return valor;
@@ -613,15 +614,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Asistente MTO') {
+      } else if (element.docente == 'Asistente MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Asociado MTO') {
+      } else if (element.docente == 'Asociado MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Auxiliar MTO') {
+      } else if (element.docente == 'Auxiliar MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].interesesCesantias = valor;
         return valor;
@@ -632,15 +633,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } if (element.docente = 'Asistente TCO') {
+      } if (element.docente == 'Asistente TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } if (element.docente = 'Asociado TCO') {
+      } if (element.docente == 'Asociado TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } if (element.docente = 'Auxiliar TCO') {
+      } if (element.docente == 'Auxiliar TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].interesesCesantias = valor;
         return valor;
@@ -651,15 +652,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].interesesCesantias = valor;
         return valor;
@@ -670,15 +671,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularHonorarios.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceHonorarios.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteHonorarios.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceHonorarios.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoHonorarios.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceHonorarios.data[rowIndex].interesesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarHonorarios.interesCesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceHonorarios.data[rowIndex].interesesCesantias = valor;
         return valor;
@@ -692,15 +693,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].primaNavidad = valor;
         return valor;
-      } else if (element.docente = 'Asistente MTO') {
+      } else if (element.docente == 'Asistente MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].primaNavidad = valor;
         return valor;
-      } else if (element.docente = 'Asociado MTO') {
+      } else if (element.docente == 'Asociado MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].primaNavidad = valor;
         return valor;
-      } else if (element.docente = 'Auxiliar MTO') {
+      } else if (element.docente == 'Auxiliar MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].primaNavidad = valor;
         return valor;
@@ -711,15 +712,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].primaNavidad = valor;
         return valor;
-      } if (element.docente = 'Asistente TCO') {
+      } if (element.docente == 'Asistente TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].primaNavidad = valor;
         return valor;
-      } if (element.docente = 'Asociado TCO') {
+      } if (element.docente == 'Asociado TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].primaNavidad = valor;
         return valor;
-      } if (element.docente = 'Auxiliar TCO') {
+      } if (element.docente == 'Auxiliar TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].primaNavidad = valor;
         return valor;
@@ -730,15 +731,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].primaNavidad = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].primaNavidad = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].primaNavidad = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.primaNavidad) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].primaNavidad = valor;
         return valor;
@@ -756,15 +757,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].primaVacaciones = valor;
         return valor;
-      } else if (element.docente = 'Asistente MTO') {
+      } else if (element.docente == 'Asistente MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].primaVacaciones = valor;
         return valor;
-      } else if (element.docente = 'Asociado MTO') {
+      } else if (element.docente == 'Asociado MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].primaVacaciones = valor;
         return valor;
-      } else if (element.docente = 'Auxiliar MTO') {
+      } else if (element.docente == 'Auxiliar MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].primaVacaciones = valor;
         return valor;
@@ -775,15 +776,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].primaVacaciones = valor;
         return valor;
-      } if (element.docente = 'Asistente TCO') {
+      } if (element.docente == 'Asistente TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].primaVacaciones = valor;
         return valor;
-      } if (element.docente = 'Asociado TCO') {
+      } if (element.docente == 'Asociado TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].primaVacaciones = valor;
         return valor;
-      } if (element.docente = 'Auxiliar TCO') {
+      } if (element.docente == 'Auxiliar TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].primaVacaciones = valor;
         return valor;
@@ -794,15 +795,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].primaVacaciones = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].primaVacaciones = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].primaVacaciones = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.primaVacaciones) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].primaVacaciones = valor;
         return valor;
@@ -822,15 +823,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesPensiones = valor;
         return valor;
-      } else if (element.docente = 'Asistente MTO') {
+      } else if (element.docente == 'Asistente MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesPensiones = valor;
         return valor;
-      } else if (element.docente = 'Asociado MTO') {
+      } else if (element.docente == 'Asociado MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesPensiones = valor;
         return valor;
-      } else if (element.docente = 'Auxiliar MTO') {
+      } else if (element.docente == 'Auxiliar MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesPensiones = valor;
         return valor;
@@ -841,15 +842,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesPensiones = valor;
         return valor;
-      } if (element.docente = 'Asistente TCO') {
+      } if (element.docente == 'Asistente TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesPensiones = valor;
         return valor;
-      } if (element.docente = 'Asociado TCO') {
+      } if (element.docente == 'Asociado TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesPensiones = valor;
         return valor;
-      } if (element.docente = 'Auxiliar TCO') {
+      } if (element.docente == 'Auxiliar TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesPensiones = valor;
         return valor;
@@ -860,15 +861,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesPensiones = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesPensiones = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesPensiones = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.pension) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesPensiones = valor;
         return valor;
@@ -885,15 +886,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
-      } else if (element.docente = 'Asistente MTO') {
+      } else if (element.docente == 'Asistente MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
-      } else if (element.docente = 'Asociado MTO') {
+      } else if (element.docente == 'Asociado MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
-      } else if (element.docente = 'Auxiliar MTO') {
+      } else if (element.docente == 'Auxiliar MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
@@ -904,15 +905,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
-      } if (element.docente = 'Asistente TCO') {
+      } if (element.docente == 'Asistente TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
-      } if (element.docente = 'Asociado TCO') {
+      } if (element.docente == 'Asociado TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
-      } if (element.docente = 'Auxiliar TCO') {
+      } if (element.docente == 'Auxiliar TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
@@ -923,15 +924,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.salud) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].aportesSaludPrivada = valor;
         return valor;
@@ -948,15 +949,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Asistente MTO') {
+      } else if (element.docente == 'Asistente MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Asociado MTO') {
+      } else if (element.docente == 'Asociado MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Auxiliar MTO') {
+      } else if (element.docente == 'Auxiliar MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesCesantias = valor;
         return valor;
@@ -967,15 +968,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesCesantias = valor;
         return valor;
-      } if (element.docente = 'Asistente TCO') {
+      } if (element.docente == 'Asistente TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesCesantias = valor;
         return valor;
-      } if (element.docente = 'Asociado TCO') {
+      } if (element.docente == 'Asociado TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesCesantias = valor;
         return valor;
-      } if (element.docente = 'Auxiliar TCO') {
+      } if (element.docente == 'Auxiliar TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesCesantias = valor;
         return valor;
@@ -986,15 +987,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesCesantias = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.cesantias) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesCesantias = valor;
         return valor;
@@ -1011,15 +1012,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
-      } else if (element.docente = 'Asistente MTO') {
+      } else if (element.docente == 'Asistente MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
-      } else if (element.docente = 'Asociado MTO') {
+      } else if (element.docente == 'Asociado MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
-      } else if (element.docente = 'Auxiliar MTO') {
+      } else if (element.docente == 'Auxiliar MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
@@ -1030,15 +1031,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
-      } if (element.docente = 'Asistente TCO') {
+      } if (element.docente == 'Asistente TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
-      } if (element.docente = 'Asociado TCO') {
+      } if (element.docente == 'Asociado TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
-      } if (element.docente = 'Auxiliar TCO') {
+      } if (element.docente == 'Auxiliar TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
@@ -1049,15 +1050,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.arl) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].totalAportesRiesgos = valor;
         return valor;
@@ -1074,15 +1075,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularMTO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].aportesICBF = valor;
         return valor;
-      } else if (element.docente = 'Asistente MTO') {
+      } else if (element.docente == 'Asistente MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteMTO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].aportesICBF = valor;
         return valor;
-      } else if (element.docente = 'Asociado MTO') {
+      } else if (element.docente == 'Asociado MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoMTO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].aportesICBF = valor;
         return valor;
-      } else if (element.docente = 'Auxiliar MTO') {
+      } else if (element.docente == 'Auxiliar MTO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarMTO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceMTO.data[rowIndex].aportesICBF = valor;
         return valor;
@@ -1093,15 +1094,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularTCO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].aportesICBF = valor;
         return valor;
-      } if (element.docente = 'Asistente TCO') {
+      } if (element.docente == 'Asistente TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistenteTCO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].aportesICBF = valor;
         return valor;
-      } if (element.docente = 'Asociado TCO') {
+      } if (element.docente == 'Asociado TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoTCO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].aportesICBF = valor;
         return valor;
-      } if (element.docente = 'Auxiliar TCO') {
+      } if (element.docente == 'Auxiliar TCO') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarTCO.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourceTCO.data[rowIndex].aportesICBF = valor;
         return valor;
@@ -1112,15 +1113,15 @@ export class DocentesComponent implements OnInit {
         let valor = parseFloat(((((element.cantidadHoras * this.titularPrestacional.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].aportesICBF = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asistente') {
+      } else if (element.docente == 'Hora Catedra Asistente') {
         let valor = parseFloat(((((element.cantidadHoras * this.asistentePrestacional.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].aportesICBF = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Asociado') {
+      } else if (element.docente == 'Hora Catedra Asociado') {
         let valor = parseFloat(((((element.cantidadHoras * this.asociadoPrestacional.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].aportesICBF = valor;
         return valor;
-      } else if (element.docente = 'Hora Catedra Auxiliar') {
+      } else if (element.docente == 'Hora Catedra Auxiliar') {
         let valor = parseFloat(((((element.cantidadHoras * this.auxiliarPrestacional.icbf) / 5) * 30) * element.cantidad).toFixed(2))
         this.dataSourcePrestacional.data[rowIndex].aportesICBF = valor;
         return valor;
