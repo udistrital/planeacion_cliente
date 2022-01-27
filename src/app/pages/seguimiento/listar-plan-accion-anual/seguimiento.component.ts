@@ -3,6 +3,7 @@ import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+// import data from './data.json';
 
 @Component({
   selector: 'app-seguimiento',
@@ -11,11 +12,18 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialo
 })
 export class SeguimientoComponentList implements OnInit {
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
+  displayedColumnsPL: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento'];
   dataSource: MatTableDataSource<any>;
 
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  // dataTest: any = data;
+
+  gestion(){
+    window.location.href = '#pages/seguimiento/gestion-seguimiento';
   }
 
   applyFilter(event: Event) {

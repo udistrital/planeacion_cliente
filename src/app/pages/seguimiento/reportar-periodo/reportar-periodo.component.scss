@@ -68,7 +68,6 @@ th {
   text-align: center;
   height: 46px;
   border: 2px solid var(--primary);
-  padding: 1%;
   border-radius: 8px 8px 8px 8px;
   background-color: white;
 }
@@ -153,14 +152,9 @@ th {
   outline: none;
 }
 .background-button{
-  background-color: var(--primary);
-  border: 1px solid var(--primary);
-  color: white;
   border-radius: 8px 8px 8px 8px;
   width: 29%;
   height: 40px;
-  align-items: center;
-  padding: 1%;
 }
 .align-button1{
   position: absolute;

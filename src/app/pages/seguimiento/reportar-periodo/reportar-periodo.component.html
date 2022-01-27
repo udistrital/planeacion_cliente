@@ -48,8 +48,8 @@
                 <mat-option >
                 </mat-option>
             </mat-select>
-            <button class="width-button-generate" *ngIsGranted="['JEFE_DEPENDENCIA']"> <a href="#pages/seguimiento/generar-trimestre">Generar</a></button>
-            <button class="width-button-generate" *ngIsGranted="['PLANEACION']"> <a href="#pages/seguimiento/generar-trimestre">Revisar</a></button>
+            <button class="width-button-generate" mat-raised-button (click)="trimestre()" *ngIsGranted="['JEFE_DEPENDENCIA']"> Generar</button>
+            <button class="width-button-generate" mat-raised-button (click)="trimestre()" *ngIsGranted="['PLANEACION']"> Revisar</button>
         </div>
         <br>
         <br>
@@ -66,8 +66,8 @@
             <button class="btn-gestion-rep" mat-raised-button color="primary">Seleccionar estado</button>
         </div>
         <div class="container-button">
-            <button class="background-button align-button1">Guardar</button>
-            <button class="background-button align-button2">Regresar</button>
+            <button class="background-button align-button1" mat-raised-button color="primary">Guardar</button>
+            <button class="background-button align-button2" mat-raised-button color="primary">Regresar</button>
         </div>
     </mat-card-content>
 </mat-card>

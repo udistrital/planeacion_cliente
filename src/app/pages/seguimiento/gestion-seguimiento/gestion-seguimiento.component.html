@@ -73,10 +73,8 @@
                     <ng-container matColumnDef="gestion">
                         <th mat-header-cell *matHeaderCellDef> Gestión </th>
                         <td mat-cell *matCellDef="let row" class="td-align-right">
-                            <button mat-icon-button>
-                                <a href="#pages/seguimiento/reportar-periodo">
+                            <button mat-icon-button (click)="reportar()">
                                     <mat-icon>search</mat-icon>
-                                </a>
                             </button>
                         </td>
                     </ng-container> 
@@ -90,8 +88,8 @@
               </div>
         </div>
         <div class="container-button" *ngIsGranted="['JEFE_DEPENDENCIA']">
-            <button class="background-button align-button1"><a style="color: white;" href="#pages/seguimiento/reportar-periodo">Reportar periodo</a></button>
-            <button class="background-button align-button2">Guardar reporte</button>
+            <button class="background-button align-button1" mat-raised-button color="primary" (click)="reportar()">Reportar periodo</button>
+            <button class="background-button align-button2" mat-raised-button color="primary">Guardar reporte</button>
         </div>
         <div class="align-button-gestion" *ngIsGranted="['PLANEACION']">
             <button class="btn-gestion-seg" mat-raised-button color="primary">Regresar</button>

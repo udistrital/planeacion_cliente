@@ -39,7 +39,7 @@
             <textarea class="width-text-trimestre" id="Observaciones" placeholder="Observaciones"></textarea>
         </div>
         <br>
-        <div class="container-border">
+        <div class="container-border" *ngIsGranted="['PLANEACION']">
             <h1>Observaciones planeacion</h1>
             <br>
             <div *ngIsGranted="['PLANEACION']" class="container-border-comentarios">
@@ -63,8 +63,8 @@
             </button> -->
         </div>
         <div class="container-button">
-            <button class="background-button align-button1">Guardar</button>
-            <button class="background-button align-button2">Regresar</button>
+            <button class="background-button align-button1" mat-raised-button color="primary">Guardar</button>
+            <button class="background-button align-button2" mat-raised-button color="primary">Regresar</button>
         </div>
     </mat-card-content>
 </mat-card>

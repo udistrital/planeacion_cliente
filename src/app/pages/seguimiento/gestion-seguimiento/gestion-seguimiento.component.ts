@@ -18,6 +18,10 @@ export class SeguimientoComponentGestion implements OnInit {
   ngOnInit(): void {
   }
 
+  reportar(){
+    window.location.href = '#pages/seguimiento/reportar-periodo';
+  }
+
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
