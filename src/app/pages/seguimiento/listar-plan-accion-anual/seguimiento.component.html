@@ -42,12 +42,14 @@
                             <button mat-icon-button > <a href="#pages/seguimiento/gestion-seguimiento"> <mat-icon>edit</mat-icon></a></button>
                     </td>
                     </ng-container>
+                    <!-- <ng-container *ngIsGranted="['JEFE_DEPENDENCIA']" matColumnDef="observaciones"> -->
                     <ng-container matColumnDef="observaciones">
                         <th mat-header-cell *matHeaderCellDef> Observaciones </th>
                         <td mat-cell *matCellDef="let row" class="td-align-right">
                             <button mat-icon-button><mat-icon>search</mat-icon></button>
                     </td>
                     </ng-container>
+                    <!-- <ng-container *ngIsGranted="['JEFE_DEPENDENCIA']" matColumnDef="enviar"> -->
                     <ng-container matColumnDef="enviar">
                         <th mat-header-cell *matHeaderCellDef class="header-align-right"> Enviar </th>
                         <td mat-cell *matCellDef="let row" class="td-align-right">

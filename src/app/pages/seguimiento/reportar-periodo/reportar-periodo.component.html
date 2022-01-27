@@ -1,18 +1,55 @@
 <mat-card class="card-oas">
-    <mat-card-header>
+    <mat-card-header *ngIsGranted="['JEFE_DEPENDENCIA']">
         <mat-card-title>Reportar</mat-card-title>
+    </mat-card-header>
+    <mat-card-header *ngIsGranted="['PLANEACION']">
+        <mat-card-title>Reporte trimestral</mat-card-title>
     </mat-card-header>
     <mat-card-content>
         <br>
+        <div class="container-border" *ngIsGranted="['PLANEACION']">
+            <h1>Información del plan</h1>
+            <div class="mat-elevation-z8">
+                <mat-label id="desc-input-label">Actividad general: </mat-label>
+                <mat-select required>
+                    <mat-option>--</mat-option>
+                    <mat-option >
+                    </mat-option>
+                </mat-select>
+                <br>
+                <br>
+                <textarea class="text-area-informacion container-border" matInput formControlName="texto-actividad" placeholder="Texto de la actividad"></textarea>
+                <br>
+                <div class="container-border">
+                    <textarea class="width-label-informacion" disabled>Lineamiento</textarea>
+                    <textarea class="width-label-informacion" disabled>Meta estratégica</textarea>
+                    <textarea class="width-label-informacion" disabled>Estrategia</textarea>
+                    <textarea class="width-text-informacion" id="lineamiento" placeholder="Texto de lineamiento"></textarea>
+                    <textarea class="width-text-informacion" id="meta-estrategica" placeholder="Texto de meta estratégica"></textarea>
+                    <textarea class="width-text-informacion" id="estrategia" placeholder="Texto de estrategia"></textarea>
+                    <br>
+                    <textarea class="width-label-informacion" disabled>Indicador asociado</textarea>
+                    <textarea class="width-label-informacion" disabled>Meta</textarea>
+                    <textarea class="width-label-informacion" disabled>Tareas</textarea>
+                    <textarea class="width-text-informacion" id="lineamiento" placeholder="Variables del indicador"></textarea>
+                    <textarea class="width-text-informacion" id="meta-estrategica" placeholder="Porcentaje, numero"></textarea>
+                    <textarea class="width-text-informacion" id="estrategia" placeholder="Porcentaje, numero"></textarea>
+                </div>
+            </div>
+        </div>
+        <br>
         <div class="container-border">
-            <h1>Reporte trimestral actividad X</h1>
-            <textarea class="text-area container-border" matInput formControlName="texto-actividad" disabled>Seleccione el periodo a reportar</textarea>
+            <h1 *ngIsGranted="['JEFE_DEPENDENCIA']" >Reporte trimestral actividad X</h1>
+            <h1 *ngIsGranted="['PLANEACION']" >Reporte trimestral</h1>
+            <textarea *ngIsGranted="['JEFE_DEPENDENCIA']" class="text-area container-border" matInput formControlName="texto-actividad" disabled>Seleccione el periodo a reportar</textarea>
+            <textarea *ngIsGranted="['PLANEACION']" class="text-area container-border" matInput formControlName="texto-actividad" disabled>Seleccione el periodo a revisar</textarea>
             <mat-select class="select-trimestre" placeholder="Trimestre" required>
                 <mat-option>--</mat-option>
                 <mat-option >
                 </mat-option>
             </mat-select>
-            <button class="width-button-generate"> <a href="#pages/seguimiento/generar-trimestre">Generar</a></button>
+            <button class="width-button-generate" *ngIsGranted="['JEFE_DEPENDENCIA']"> <a href="#pages/seguimiento/generar-trimestre">Generar</a></button>
+            <button class="width-button-generate" *ngIsGranted="['PLANEACION']"> <a href="#pages/seguimiento/generar-trimestre">Revisar</a></button>
         </div>
         <br>
         <br>
@@ -24,6 +61,9 @@
             <textarea class="width-text-trimestre" id="trimestre" placeholder="Trimestre I"></textarea>
             <textarea class="width-text" id="avance-periodo" placeholder="Valor %"></textarea>
             <textarea class="width-text" id="avance-acumulado" placeholder="Valor %"></textarea>
+        </div>
+        <div class="align-button-rep" *ngIsGranted="['PLANEACION']">
+            <button class="btn-gestion-rep" mat-raised-button color="primary">Seleccionar estado</button>
         </div>
         <div class="container-button">
             <button class="background-button align-button1">Guardar</button>

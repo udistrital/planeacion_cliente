@@ -12,10 +12,22 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialo
 export class GenerarTrimestreComponent implements OnInit {
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
+  selectedFiles: any;
 
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  selectFile(event) {
+    this.selectedFiles = event.target.files;
+    if (this.selectedFiles.length == 0){
+      return this.selectedFiles = false;
+    }
+  }
+
+  evidencias(){
+    window.location.href = '#/pages/seguimiento/app-evidencias';
   }
 
   applyFilter(event: Event) {

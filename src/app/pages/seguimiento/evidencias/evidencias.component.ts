@@ -5,18 +5,30 @@ import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-seguimiento',
-  templateUrl: './gestion-seguimiento.component.html',
-  styleUrls: ['./gestion-seguimiento.component.scss']
+  selector: 'app-evidencias',
+  templateUrl: './evidencias.component.html',
+  styleUrls: ['./evidencias.component.scss']
 })
-export class SeguimientoComponentGestion implements OnInit {
-  displayedColumns: string[] = ['id', 'actividad', 'estado', 'fecha', 'gestion'];
+export class Evidencias implements OnInit {
+  displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
+  selectedFiles: any;
 
   constructor() { }
 
   ngOnInit(): void {
   }
+
+  selectFile(event) {
+    this.selectedFiles = event.target.files;
+    if (this.selectedFiles.length == 0){
+      return this.selectedFiles = false;
+    }
+  }
+
+  // evidencias(){
+  //   window.location.href = '#/pages/seguimiento/gestion-seguimiento';
+  // }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;

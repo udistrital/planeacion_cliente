@@ -24,7 +24,12 @@
             <mat-label id="desc-input-label label-evidencia">Evidencia </mat-label>
             <div>
                 <textarea class="width-text-trimestre evidencia" id="Evidencia" placeholder="Evidencia"></textarea>
-                <button class="width-button-archivo">Adjuntar archivo</button>
+                <button *ngIsGranted="['JEFE_DEPENDENCIA']" class="width-button-archivo" mat-raised-button (click)="subirArchivo()">
+                    <label>Adjuntar archivo</label>
+                </button>
+                <button *ngIsGranted="['PLANEACION']" class="width-button-archivo" mat-raised-button (click)="evidencias()">
+                    <mat-icon >search</mat-icon>
+                </button>
             </div>
             <mat-label id="desc-input-label">Logros </mat-label>
             <textarea class="width-text-trimestre" id="Logros" placeholder="Logros"></textarea>
@@ -32,6 +37,30 @@
             <textarea class="width-text-trimestre" id="Dificultades" placeholder="Dificultades"></textarea>
             <mat-label id="desc-input-label">Observaciones </mat-label>
             <textarea class="width-text-trimestre" id="Observaciones" placeholder="Observaciones"></textarea>
+        </div>
+        <br>
+        <div class="container-border">
+            <h1>Observaciones planeacion</h1>
+            <br>
+            <div *ngIsGranted="['PLANEACION']" class="container-border-comentarios">
+                <h1>Comentarios</h1>
+                <textarea class="width-text-trimestre boder-text" id="Observaciones" placeholder="Comentarios"></textarea>
+                <button *ngIsGranted="['PLANEACION']" class="width-button-soporte" mat-raised-button>
+                    <label>Adjuntar soporte <mat-icon >attach_file</mat-icon></label>
+                </button>
+            </div>
+            <br>
+            <mat-label class="margin-label" id="desc-input-label">Quien da la respueta: </mat-label>
+            <input class="plan-generar" type="text" matInput formControlName="plan-accion" required>
+            <mat-label class="margin-label" id="desc-input-label">Rol: </mat-label>
+            <input class="plan-generar" type="text" matInput formControlName="plan-accion" required>
+            <br>
+            <div class="align-button-enviar">
+                <button class="btn-gestion-seg" mat-raised-button color="primary">Enviar</button>
+            </div>
+            <!-- <button *ngIsGranted="['PLANEACION']" class="width-button-soporte" mat-raised-button>
+                <label>Adjuntar soporte <mat-icon >attach_file</mat-icon></label>
+            </button> -->
         </div>
         <div class="container-button">
             <button class="background-button align-button1">Guardar</button>

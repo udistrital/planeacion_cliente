@@ -19,6 +19,7 @@ const menu = [
       { Nombre: "Consulta Planes de Acción", Icono: "search", Url: "pages/plan/consultar-plan", TipoOpcion: "Menú", Opciones: null },
       { Nombre: "Formulación Plan de Acción Anual", Icono: "forward", Url: "pages/formulacion", TipoOpcion: "Menú", Opciones: null },
       { Nombre: "Seguimiento Plan de Acción Anual", Icono: "find_in_page", Url: "pages/seguimiento/listar-plan-accion-anual", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Seguimiento Plan de Acción Anual 1", Icono: "find_in_page", Url: "pages/seguimiento/evidencias", TipoOpcion: "Menú", Opciones: null },
       { Nombre: "Evaluación Plan de Acción Anual", Icono: "done_all", Url: "pages/evaluacion", TipoOpcion: "Menú", Opciones: null },
     ]
   },
