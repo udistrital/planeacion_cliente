@@ -18,6 +18,10 @@ export class ReportarPeriodoComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  trimestre(){
+    window.location.href = '#/pages/seguimiento/generar-trimestre';
+  }
+
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();

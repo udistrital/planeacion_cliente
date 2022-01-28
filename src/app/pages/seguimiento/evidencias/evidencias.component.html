@@ -1,0 +1,27 @@
+<mat-card class="card-oas">
+    <mat-card-header>
+        <mat-card-title>Evidencias</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <div *ngIsGranted="['PLANEACION']" class="container-border-listado">
+            <h1>Listado adjuntos</h1>
+            <textarea class="width-text-trimestre boder-text" id="Observaciones" placeholder="Comentarios"></textarea>
+        </div>
+        <div *ngIsGranted="['PLANEACION']" class="container-border-acciones" style="align-items: left;">
+            <h1>Acciones</h1>
+            <button *ngIsGranted="['PLANEACION']" class="width-button-soporte" mat-raised-button>
+                <mat-icon>print</mat-icon>
+            </button>
+            <button *ngIsGranted="['PLANEACION']" class="width-button-soporte" mat-raised-button>
+                <mat-icon >file_download</mat-icon>
+            </button>
+        </div>
+        <br>
+        <div class="align-button-enviar">
+            <button class="btn-gestion-seg" mat-raised-button color="primary">Aceptar</button>
+        </div>
+        <!-- <button *ngIsGranted="['PLANEACION']" class="width-button-soporte" mat-raised-button>
+            <label>Adjuntar soporte <mat-icon >attach_file</mat-icon></label>
+        </button> -->
+    </mat-card-content>
+</mat-card>
