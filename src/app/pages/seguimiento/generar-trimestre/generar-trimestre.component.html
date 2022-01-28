@@ -42,11 +42,12 @@
         <div class="container-border" *ngIsGranted="['PLANEACION']">
             <h1>Observaciones planeacion</h1>
             <br>
-            <div *ngIsGranted="['PLANEACION']" class="container-border-comentarios">
+            <div  class="container-border-comentarios">
                 <h1>Comentarios</h1>
                 <textarea class="width-text-trimestre boder-text" id="Observaciones" placeholder="Comentarios"></textarea>
-                <button *ngIsGranted="['PLANEACION']" class="width-button-soporte" mat-raised-button>
-                    <label>Adjuntar soporte <mat-icon >attach_file</mat-icon></label>
+                <button class="width-button-soporte" mat-raised-button>
+                    <mat-icon >attach_file</mat-icon>
+                    <label>Adjuntar soporte </label>
                 </button>
             </div>
             <br>
@@ -58,9 +59,6 @@
             <div class="align-button-enviar">
                 <button class="btn-gestion-seg" mat-raised-button color="primary">Enviar</button>
             </div>
-            <!-- <button *ngIsGranted="['PLANEACION']" class="width-button-soporte" mat-raised-button>
-                <label>Adjuntar soporte <mat-icon >attach_file</mat-icon></label>
-            </button> -->
         </div>
         <div class="container-button">
             <button class="background-button align-button1" mat-raised-button color="primary">Guardar</button>

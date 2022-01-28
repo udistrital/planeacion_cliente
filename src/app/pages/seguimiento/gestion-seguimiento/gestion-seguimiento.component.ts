@@ -19,7 +19,7 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   reportar(){
-    window.location.href = '#pages/seguimiento/reportar-periodo';
+    window.location.href = '#/pages/seguimiento/reportar-periodo';
   }
 
   applyFilter(event: Event) {
