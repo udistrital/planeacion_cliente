@@ -87,14 +87,9 @@ th {
   outline: none;
 }
 .background-button{
-  background-color: var(--primary);
-  border: 1px solid var(--primary);
-  color: white;
   border-radius: 8px 8px 8px 8px;
   width: 29%;
   height: 40px;
-  align-items: center;
-  padding: 1%;
 }
 .align-button1{
   position: absolute;
@@ -109,11 +104,25 @@ th {
   height: 80px;
 }
 .state{
-  width: 100px;
+  width: 8%;
+    text-align: center;
+    border: 1px solid var(--primary);
+    padding: 0.5%;
+    border-radius: 15px 15px 15px 15px;
+    position: absolute;
+    margin-left: 4%;
+    top: 11%;
+}
+.btn-gestion-seg{
+  display: inline-block ;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
   text-align: center;
-  border: 1px solid var(--primary);
-  padding: 1%;
-  border-radius: 15px 15px 15px 15px;
-  position: absolute;
-  margin-left: 4%;
+}
+.align-button-gestion{
+  text-align: center;
+}
+textarea {
+  resize: none;
 }

@@ -10,12 +10,16 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialo
   styleUrls: ['./gestion-seguimiento.component.scss']
 })
 export class SeguimientoComponentGestion implements OnInit {
-  displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
+  displayedColumns: string[] = ['id', 'actividad', 'estado', 'fecha', 'gestion'];
   dataSource: MatTableDataSource<any>;
 
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  reportar(){
+    window.location.href = '#/pages/seguimiento/reportar-periodo';
   }
 
   applyFilter(event: Event) {
