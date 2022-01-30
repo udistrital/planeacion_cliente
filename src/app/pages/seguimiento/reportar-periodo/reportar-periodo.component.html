@@ -1,13 +1,13 @@
 <mat-card class="card-oas">
-    <mat-card-header *ngIsGranted="['JEFE_DEPENDENCIA']">
+    <mat-card-header *ngIf="rol=='JEFE_DEPENDENCIA'">
         <mat-card-title>Reportar</mat-card-title>
     </mat-card-header>
-    <mat-card-header *ngIsGranted="['PLANEACION']">
+    <mat-card-header *ngIf="rol=='PLANEACION'">
         <mat-card-title>Reporte trimestral</mat-card-title>
     </mat-card-header>
     <mat-card-content>
         <br>
-        <div class="container-border" *ngIsGranted="['PLANEACION']">
+        <div class="container-border" *ngIf="rol=='PLANEACION'">
             <h1>Información del plan</h1>
             <div class="mat-elevation-z8">
                 <mat-label id="desc-input-label">Actividad general: </mat-label>
@@ -39,17 +39,17 @@
         </div>
         <br>
         <div class="container-border">
-            <h1 *ngIsGranted="['JEFE_DEPENDENCIA']" >Reporte trimestral actividad X</h1>
-            <h1 *ngIsGranted="['PLANEACION']" >Reporte trimestral</h1>
-            <textarea *ngIsGranted="['JEFE_DEPENDENCIA']" class="text-area container-border" matInput formControlName="texto-actividad" disabled>Seleccione el periodo a reportar</textarea>
-            <textarea *ngIsGranted="['PLANEACION']" class="text-area container-border" matInput formControlName="texto-actividad" disabled>Seleccione el periodo a revisar</textarea>
+            <h1 *ngIf="rol=='JEFE_DEPENDENCIA'" >Reporte trimestral actividad X</h1>
+            <h1 *ngIf="rol=='PLANEACION'" >Reporte trimestral</h1>
+            <textarea *ngIf="rol=='JEFE_DEPENDENCIA'" class="text-area container-border" matInput formControlName="texto-actividad" disabled>Seleccione el periodo a reportar</textarea>
+            <textarea *ngIf="rol=='PLANEACION'" class="text-area container-border" matInput formControlName="texto-actividad" disabled>Seleccione el periodo a revisar</textarea>
             <mat-select class="select-trimestre" placeholder="Trimestre" required>
                 <mat-option>--</mat-option>
                 <mat-option >
                 </mat-option>
             </mat-select>
-            <button class="width-button-generate" mat-raised-button (click)="trimestre()" *ngIsGranted="['JEFE_DEPENDENCIA']"> Generar</button>
-            <button class="width-button-generate" mat-raised-button (click)="trimestre()" *ngIsGranted="['PLANEACION']"> Revisar</button>
+            <button class="width-button-generate" mat-raised-button (click)="trimestre()" *ngIf="rol=='JEFE_DEPENDENCIA'"> Generar</button>
+            <button class="width-button-generate" mat-raised-button (click)="trimestre()" *ngIf="rol=='PLANEACION'"> Revisar</button>
         </div>
         <br>
         <br>
@@ -62,7 +62,7 @@
             <textarea class="width-text" id="avance-periodo" placeholder="Valor %"></textarea>
             <textarea class="width-text" id="avance-acumulado" placeholder="Valor %"></textarea>
         </div>
-        <div class="align-button-rep" *ngIsGranted="['PLANEACION']">
+        <div class="align-button-rep" *ngIf="rol=='PLANEACION'">
             <button class="btn-gestion-rep" mat-raised-button color="primary">Seleccionar estado</button>
         </div>
         <div class="container-button">
