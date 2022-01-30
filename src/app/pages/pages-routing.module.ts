@@ -16,6 +16,7 @@ import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/g
 import { ReportarPeriodoComponent } from './seguimiento/reportar-periodo/reportar-periodo.component';
 import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/generar-trimestre.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
+import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
 
 const routes: Routes = [{
   path: '',
@@ -52,6 +53,10 @@ const routes: Routes = [{
         {
           path: 'construir-plan',
           component: ConstruirPlanComponent,
+        },
+        {
+          path: 'habilitar-reporte',
+          component: HabilitarReporteComponent,
         }
       ]
     },
