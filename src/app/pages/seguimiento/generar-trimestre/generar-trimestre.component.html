@@ -24,10 +24,10 @@
             <mat-label id="desc-input-label label-evidencia">Evidencia </mat-label>
             <div>
                 <textarea class="width-text-trimestre evidencia" id="Evidencia" placeholder="Evidencia"></textarea>
-                <button *ngIsGranted="['JEFE_DEPENDENCIA']" class="width-button-archivo" mat-raised-button (click)="subirArchivo()">
+                <button *ngIf="rol=='JEFE_DEPENDENCIA'" class="width-button-archivo" mat-raised-button (click)="subirArchivo()">
                     <label>Adjuntar archivo</label>
                 </button>
-                <button *ngIsGranted="['PLANEACION']" class="width-button-archivo" mat-raised-button (click)="evidencias()">
+                <button *ngIf="rol=='PLANEACION'" class="width-button-archivo" mat-raised-button (click)="evidencias()">
                     <mat-icon >search</mat-icon>
                 </button>
             </div>
@@ -39,7 +39,7 @@
             <textarea class="width-text-trimestre" id="Observaciones" placeholder="Observaciones"></textarea>
         </div>
         <br>
-        <div class="container-border" *ngIsGranted="['PLANEACION']">
+        <div class="container-border" *ngIf="rol=='PLANEACION'">
             <h1>Observaciones planeacion</h1>
             <br>
             <div  class="container-border-comentarios">

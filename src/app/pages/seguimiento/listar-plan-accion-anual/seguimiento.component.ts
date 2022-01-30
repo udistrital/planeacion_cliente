@@ -5,6 +5,7 @@ import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 import datosTest from 'src/assets/json/data.json';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 @Component({
   selector: 'app-seguimiento',
@@ -17,10 +18,24 @@ export class SeguimientoComponentList implements OnInit {
   dataSource: MatTableDataSource<any>;
 
   testDatos: any = datosTest;
+  rol: string;
 
-  constructor() { }
+  constructor(
+    private autenticationService: ImplicitAutenticationService
+  ) { }
 
   ngOnInit(): void {
+    console.log(this.testDatos)
+    this.getRol();
+  }
+  
+  getRol(){
+    let roles: any = this.autenticationService.getRole();
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+      this.rol = 'JEFE_DEPENDENCIA'
+    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION'
+    }
   }
 
   gestion(){
