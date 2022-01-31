@@ -1,0 +1,45 @@
+<!-- SELECCIÓN MENÚ PRINCIPAL -->
+<mat-card class="card-oas">
+    <mat-card-header>
+        <mat-card-title>Módulo para la gestión de reportes</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <ng-container>
+            <mat-form-field appearance="fill" [style.width.%]="100">
+                <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
+                <mat-select (selectionChange)="onChangeV($event.value)">
+                    <mat-option>--</mat-option>
+                    <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
+                        {{vigencia.Nombre}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </ng-container>
+        <ng-container *ngIf="vigenciaSelected">
+            <mat-form-field appearance="fill" [style.width.%]="100">
+                <mat-label id="tipo-input-label">Seleccione el período</mat-label>
+                <mat-select (selectionChange)="onChangeP($event.value)">
+                    <mat-option>--</mat-option>
+                    <mat-option *ngFor="let periodo of periodos" [value]="periodo">
+                        {{periodo.ParametroId.Nombre}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </ng-container>
+    </mat-card-content>
+    <mat-card-footer *ngIf="!reporteHabilitado && periodoSelected" style="text-align: center;">
+        <ng-container>
+          <button mat-raised-button color="primary" (click)="habilitarReportes()">
+            Habilitar Reportes
+          </button>
+        </ng-container>
+        <br><br>
+      </mat-card-footer>
+
+</mat-card>
+<br><br>
+<mat-card class="notice" *ngIf="reporteHabilitado && periodoSelected" >
+    <p>Señor usuario, los reportes para el {{periodo.ParametroId.Nombre}} de la vigencia {{vigencia.Nombre}} ya
+        se encuentran habilitados.</p>
+</mat-card>
+
