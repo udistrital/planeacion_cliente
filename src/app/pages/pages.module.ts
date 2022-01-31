@@ -54,6 +54,7 @@ import { NgIsGrantedDirective } from './directives/ng-is-granted.directive';
 import { ConsolidadoComponent } from './reportes/reporte-consolidado/consolidado.component';
 import { PlanAnualComponent } from './reportes/reporte-plan-anual/plan-anual.component';
 import { PlanUnidadComponent } from './reportes/reporte-plan-unidad/plan-unidad.component';
+import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
 
 
 
@@ -121,6 +122,7 @@ const materialModules = [
     ConsolidadoComponent,
     PlanAnualComponent,
     PlanUnidadComponent,
+    HabilitarReporteComponent,
   ],
   imports: [
     HttpClientModule,
