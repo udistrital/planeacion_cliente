@@ -1,34 +1,34 @@
-table {
-    width: 100%;
-  }
-
-th {
-    color: white;
-    text-align: center;
-}
-
-.td-align-right{
-  text-align: right;
-  justify-content: flex-end;
-}
-
-.header-align-right{
-  display: flex;
-  padding: 21px 0;
-  justify-content: flex-end;
-}
-
-.container-border{
+.container-border-listado{
   border: 1px solid var(--primary);
   // border-top: 0px;
   padding: 1%;
   border-radius: 15px 15px 15px 15px;
-}
-.mat-elevation-z8{
-  padding: 12px;
+  width: 70%;
 }
 
-.container-border h1{
+.container-border-listado h1{
+  width: 99%;
+  color: var(--primary);
+  font-size:16px;
+  margin-top:-28px;
+  margin-left:7px;
+  padding-left: 8px;
+  background:white;
+  position: relative;
+}
+
+.container-border-acciones{
+  border: 1px solid var(--primary);
+  // border-top: 0px;
+  padding: 1%;
+  border-radius: 15px 15px 15px 15px;
+  width: 23%;
+  position: absolute;
+  right: 1%;
+  top: 18%;
+}
+
+.container-border-acciones h1{
   width: 99%;
   color: var(--primary);
   font-size:16px;
@@ -47,11 +47,6 @@ th {
   font-size: 15px;
   height: 20px;
 }
-.text-area-informacion{
-  margin-bottom: 10px;
-  width: 98%;
-  text-align: center;
-}
 .select-trimestre{
   border: 1px solid var(--primary);
   width: 70%;
@@ -59,17 +54,34 @@ th {
   height: 20px;
   padding: 1%;
 }
-.width-button-generate{
+.width-button-archivo{
+  position: absolute;
   width: 26%;
   margin: 0% 0% 0% 1%;
-  color: var(--primary);
+  color: white;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
   text-align: center;
-  height: 46px;
+  height: 75px;
   border: 2px solid var(--primary);
+  padding: 1%;
   border-radius: 8px 8px 8px 8px;
-  background-color: white;
+  background-color: var(--primary);
+}
+.width-button-soporte{
+    color: white;
+    text-align: center;
+    height: 75px;
+    border: 2px solid var(--primary);
+    padding: 1%;
+    border-radius: 8px 8px 8px 8px;
+    background-color: var(--primary);
+    align-items: center;
+    width: 60%;
+    margin: 2% 1% 1% 20%;
+}
+.label-evidencia{
+  width: 100%;
 }
 .width-text{
   width: 29%;
@@ -94,6 +106,9 @@ th {
   padding: 1%;
   border-radius: 8px 8px 8px 8px;
 }
+.evidencia{
+  width: 70% !important;
+}
 .width-label{
   width: 15%;
   margin: 0% 0% 0% 1%;
@@ -117,32 +132,10 @@ th {
   border-radius: 8px 8px 8px 8px;
   outline: none;
 }
-.width-label-informacion{
-  width: 29%;
-  margin: 0% 1% 0% 1%;
-  color: var(--primary);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
-  text-align: center;
-  height: 20px;
-  border: 2px solid var(--primary);
-  padding: 1%;
-  border-radius: 8px 8px 8px 8px;
-}
-.width-text-informacion{
-  width: 29%;
-  margin: 0% 1% 1% 1%;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
-  text-align: center;
-  border: 2px solid var(--primary);
-  padding: 1%;
-  border-radius: 8px 8px 8px 8px;
-  outline: none;
-}
 .width-text-trimestre{
-  width: 60%;
-  margin: 0% 0% 0% 1%;
+  margin-bottom: 2%;
+  margin-top: 4px;
+  width: 98%;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
   text-align: center;
@@ -150,34 +143,25 @@ th {
   padding: 1%;
   border-radius: 8px 8px 8px 8px;
   outline: none;
-}
-.background-button{
-  border-radius: 8px 8px 8px 8px;
-  width: 29%;
-  height: 40px;
-}
-.align-button1{
-  position: absolute;
-  margin: 2% 2% 2% 19%;
-}
-.align-button2{
-  position: absolute;
-  margin: 2% 0% 2% 52%;
-}
-.container-button{
-  width: 100%;
-  height: 80px;
-}
-.btn-gestion-rep{
-  display: inline-block ;
-  margin-top: 20px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-}
-.align-button-rep{
-  text-align: center;
 }
 textarea {
   resize: none;
+}
+.boder-text{
+  border: none;
+}
+.plan-generar{
+  width: 40%;
+  border: solid 1px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  outline: none;
+}
+.margin-label {
+  margin-left: 2%;
+}
+.align-button-enviar{
+  margin-top: 2%;
+  text-align: center;
 }

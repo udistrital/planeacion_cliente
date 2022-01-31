@@ -10,52 +10,58 @@
                 <mat-label>Búsqueda</mat-label>
                 <input matInput  #input>
             </mat-form-field>
-            <div class="mat-elevation-z8">
-                <table mat-table [dataSource]="dataSource" matSort>
-                    <ng-container matColumnDef="id">
+            <div class="mat-elevation-z8" >
+                <table mat-table [dataSource]="testDatos" matSort>
+                    <ng-container matColumnDef="id" >
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-                        <td mat-cell *matCellDef="let row">test</td>
+                        <td mat-cell *matCellDef="let row">{{row.id}}</td>
                     </ng-container>
                     <ng-container matColumnDef="unidad">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Unidad Académica y / o Administrativa </th>
-                        <td mat-cell *matCellDef="let row"> test </td>
+                        <td mat-cell *matCellDef="let row"> {{row.unidad}} </td>
                     </ng-container>
                     <ng-container matColumnDef="estado">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado </th>
-                        <td mat-cell *matCellDef="let row"> test </td>
+                        <td mat-cell *matCellDef="let row"> {{row.estado}} </td>
                     </ng-container>
                     <ng-container matColumnDef="vigencia">
                         <th mat-header-cell *matHeaderCellDef> Vigencia </th>
-                        <td mat-cell *matCellDef="let row" class="td-align-right">
-                            test
+                        <td mat-cell *matCellDef="let row">
+                            {{row.vigencia}}
                     </td>
                     </ng-container>
                     <ng-container matColumnDef="periodo">
                         <th mat-header-cell *matHeaderCellDef> Periodo </th>
-                        <td mat-cell *matCellDef="let row" class="td-align-right">
-                            test
+                        <td mat-cell *matCellDef="let row">
+                            {{row.periodo}}
                     </td>
                     </ng-container>
                     <ng-container matColumnDef="seguimiento">
                         <th mat-header-cell *matHeaderCellDef> Seguimiento </th>
-                        <td mat-cell *matCellDef="let row" class="td-align-right">
-                            <button mat-icon-button > <a href="#pages/seguimiento/gestion-seguimiento"> <mat-icon>edit</mat-icon></a></button>
+                        <td mat-cell *matCellDef="let row">
+                            <button mat-icon-button (click)="gestion()"> <mat-icon>edit</mat-icon></button>
                     </td>
                     </ng-container>
-                    <ng-container matColumnDef="observaciones">
+                    <ng-container *ngIf="rol=='JEFE_DEPENDENCIA'" matColumnDef="observaciones">
                         <th mat-header-cell *matHeaderCellDef> Observaciones </th>
-                        <td mat-cell *matCellDef="let row" class="td-align-right">
+                        <td mat-cell *matCellDef="let row">
                             <button mat-icon-button><mat-icon>search</mat-icon></button>
                     </td>
                     </ng-container>
-                    <ng-container matColumnDef="enviar">
+                    <ng-container *ngIf="rol=='JEFE_DEPENDENCIA'" matColumnDef="enviar">
                         <th mat-header-cell *matHeaderCellDef class="header-align-right"> Enviar </th>
                         <td mat-cell *matCellDef="let row" class="td-align-right">
                             <button mat-icon-button><mat-icon>send</mat-icon></button>
                     </td>
                     </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    <div *ngIf="rol=='JEFE_DEPENDENCIA'">
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </div>
+                    <div *ngIf="rol=='PLANEACION'">
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsPL"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsPL;"></tr>
+                    </div>
                     <tr class="mat-row" *matNoDataRow>
                         <td class="mat-cell" colspan="4"></td>
                     </tr>
