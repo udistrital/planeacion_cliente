@@ -30,10 +30,6 @@ const routes: Routes = [{
       path: 'informacion_basica',
       component: InformacionBasicaComponent,
     },
-    // {
-    //   path: 'caracterizacion',
-    //   component: PreexistenciaComponent,
-    // },
     {
       path: 'plan',
       component: PagesComponent,
@@ -91,7 +87,7 @@ const routes: Routes = [{
           component: SeguimientoComponentList,
         },
         {
-          path: 'gestion-seguimiento',
+          path: 'gestion-seguimiento/:plan_id',
           component: SeguimientoComponentGestion,
         },
         {
@@ -115,8 +111,10 @@ const routes: Routes = [{
     
 }]
 
+
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class PagesRoutingModule { }
+export class PagesRoutingModule { 
+}
