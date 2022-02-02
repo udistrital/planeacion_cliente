@@ -24,7 +24,12 @@
             <mat-label id="desc-input-label label-evidencia">Evidencia </mat-label>
             <div>
                 <textarea class="width-text-trimestre evidencia" id="Evidencia" placeholder="Evidencia"></textarea>
-                <button class="width-button-archivo">Adjuntar archivo</button>
+                <button *ngIf="rol=='JEFE_DEPENDENCIA'" class="width-button-archivo" mat-raised-button (click)="subirArchivo()">
+                    <label>Adjuntar archivo</label>
+                </button>
+                <button *ngIf="rol=='PLANEACION'" class="width-button-archivo" mat-raised-button (click)="evidencias()">
+                    <mat-icon >search</mat-icon>
+                </button>
             </div>
             <mat-label id="desc-input-label">Logros </mat-label>
             <textarea class="width-text-trimestre" id="Logros" placeholder="Logros"></textarea>
@@ -33,9 +38,31 @@
             <mat-label id="desc-input-label">Observaciones </mat-label>
             <textarea class="width-text-trimestre" id="Observaciones" placeholder="Observaciones"></textarea>
         </div>
+        <br>
+        <div class="container-border" *ngIf="rol=='PLANEACION'">
+            <h1>Observaciones planeacion</h1>
+            <br>
+            <div  class="container-border-comentarios">
+                <h1>Comentarios</h1>
+                <textarea class="width-text-trimestre boder-text" id="Observaciones" placeholder="Comentarios"></textarea>
+                <button class="width-button-soporte" mat-raised-button>
+                    <mat-icon >attach_file</mat-icon>
+                    <label>Adjuntar soporte </label>
+                </button>
+            </div>
+            <br>
+            <mat-label class="margin-label" id="desc-input-label">Quien da la respueta: </mat-label>
+            <input class="plan-generar" type="text" matInput formControlName="plan-accion" required>
+            <mat-label class="margin-label" id="desc-input-label">Rol: </mat-label>
+            <input class="plan-generar" type="text" matInput formControlName="plan-accion" required>
+            <br>
+            <div class="align-button-enviar">
+                <button class="btn-gestion-seg" mat-raised-button color="primary">Enviar</button>
+            </div>
+        </div>
         <div class="container-button">
-            <button class="background-button align-button1">Guardar</button>
-            <button class="background-button align-button2">Regresar</button>
+            <button class="background-button align-button1" mat-raised-button color="primary">Guardar</button>
+            <button class="background-button align-button2" mat-raised-button color="primary">Regresar</button>
         </div>
     </mat-card-content>
 </mat-card>

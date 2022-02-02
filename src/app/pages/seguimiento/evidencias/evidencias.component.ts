@@ -6,16 +6,16 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialo
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 @Component({
-  selector: 'app-seguimiento',
-  templateUrl: './generar-trimestre.component.html',
-  styleUrls: ['./generar-trimestre.component.scss']
+  selector: 'app-evidencias',
+  templateUrl: './evidencias.component.html',
+  styleUrls: ['./evidencias.component.scss']
 })
-export class GenerarTrimestreComponent implements OnInit {
+export class Evidencias implements OnInit {
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
   selectedFiles: any;
-
   rol: string;
+
 
   constructor(
     private autenticationService: ImplicitAutenticationService
@@ -41,9 +41,9 @@ export class GenerarTrimestreComponent implements OnInit {
     }
   }
 
-  evidencias(){
-    window.location.href = '#/pages/seguimiento/app-evidencias';
-  }
+  // evidencias(){
+  //   window.location.href = '#/pages/seguimiento/gestion-seguimiento';
+  // }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;

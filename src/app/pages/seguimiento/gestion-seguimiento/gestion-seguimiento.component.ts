@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 @Component({
   selector: 'app-seguimiento',
@@ -15,7 +16,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./gestion-seguimiento.component.scss']
 })
 export class SeguimientoComponentGestion implements OnInit {
-  displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
+  displayedColumns: string[] = ['id', 'actividad', 'estado', 'fecha', 'gestion'];
   dataSource: MatTableDataSource<any>;
   plan_id: string;
   unidad: any;
@@ -24,12 +25,13 @@ export class SeguimientoComponentGestion implements OnInit {
   actividadesGenerales : any[];
   formGestionSeguimiento: FormGroup;
 
-
+  rol: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private request : RequestManager
+    private request : RequestManager,
+    private autenticationService: ImplicitAutenticationService
 
   ) {
     activatedRoute.params.subscribe(prm => {
@@ -45,6 +47,17 @@ export class SeguimientoComponentGestion implements OnInit {
       plan: ['', Validators.required],
       actividad: ['', Validators.required],
     });
+    this.getRol();
+  }
+
+
+  getRol(){
+    let roles: any = this.autenticationService.getRole();
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+      this.rol = 'JEFE_DEPENDENCIA'
+    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION'
+    }
   }
 
 

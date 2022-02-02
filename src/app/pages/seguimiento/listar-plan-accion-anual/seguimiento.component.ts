@@ -8,6 +8,9 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 
+import datosTest from 'src/assets/json/data.json';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+
 @Component({
   selector: 'app-seguimiento',
   templateUrl: './seguimiento.component.html',
@@ -15,22 +18,45 @@ import { Router } from '@angular/router';
 })
 export class SeguimientoComponentList implements OnInit {
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
+  displayedColumnsPL: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento'];
   dataSource: MatTableDataSource<any>;
   planes: any[];
   unidades : any[];
   unidadSelected: boolean;
   unidad: any;
+  testDatos: any = datosTest;
+  rol: string;
 
   constructor(
     public dialog: MatDialog,
     private request: RequestManager,
     private router: Router,
+    private autenticationService: ImplicitAutenticationService
   ) {
     this.loadUnidades();
     this.dataSource = new MatTableDataSource<any>();
   }
 
   ngOnInit(): void {
+    console.log(this.testDatos)
+    this.getRol();
+  }
+  
+  getRol(){
+    let roles: any = this.autenticationService.getRole();
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+      this.rol = 'JEFE_DEPENDENCIA'
+    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION'
+    }
+  }
+
+  gestion(){
+    window.location.href = '#/pages/seguimiento/gestion-seguimiento';
+  }
+
+  traerDatos(){
+    console.log('si entra en traer datos');
   }
 
   applyFilter(event: Event) {
@@ -192,6 +218,7 @@ export class SeguimientoComponentList implements OnInit {
   }
 
   gestionSeguimiento(plan_id){
+    console.log(plan_id)
     this.router.navigate(['pages/seguimiento/gestion-seguimiento/' + plan_id])
   }
 
