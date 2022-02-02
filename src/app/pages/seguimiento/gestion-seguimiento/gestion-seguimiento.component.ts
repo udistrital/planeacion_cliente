@@ -112,7 +112,7 @@ export class SeguimientoComponentGestion implements OnInit {
   } 
 
   loadActividades(){
-    this.request.get(environment.PRUEBA, `seguimiento/get_actividades/`+ this.plan_id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/`+ this.plan_id).subscribe((data: any) => {
       if (data) {
         this.actividadesGenerales = data.Data;
       }
