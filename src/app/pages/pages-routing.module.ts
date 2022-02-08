@@ -93,7 +93,7 @@ const routes: Routes = [{
           component: SeguimientoComponentGestion,
         },
         {
-          path: 'reportar-periodo',
+          path: 'reportar-periodo/:plan_id/:index',
           component: ReportarPeriodoComponent,
         },
         {

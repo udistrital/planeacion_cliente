@@ -17,15 +17,16 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
   styleUrls: ['./seguimiento.component.scss']
 })
 export class SeguimientoComponentList implements OnInit {
-  displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
-  displayedColumnsPL: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento'];
+  displayedColumns: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
+  displayedColumnsPL: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento'];
   dataSource: MatTableDataSource<any>;
   planes: any[];
-  unidades : any[];
+  unidades: any[];
   unidadSelected: boolean;
   unidad: any;
   testDatos: any = datosTest;
   rol: string;
+  periodoHabilitado : boolean;
 
   constructor(
     public dialog: MatDialog,
@@ -33,16 +34,16 @@ export class SeguimientoComponentList implements OnInit {
     private router: Router,
     private autenticationService: ImplicitAutenticationService
   ) {
+    this.unidadSelected = false;
     this.loadUnidades();
     this.dataSource = new MatTableDataSource<any>();
   }
 
   ngOnInit(): void {
-    console.log(this.testDatos)
     this.getRol();
   }
-  
-  getRol(){
+
+  getRol() {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
@@ -51,12 +52,12 @@ export class SeguimientoComponentList implements OnInit {
     }
   }
 
-  gestion(){
+  gestion() {
     window.location.href = '#/pages/seguimiento/gestion-seguimiento';
   }
 
-  traerDatos(){
-    console.log('si entra en traer datos');
+  traerDatos() {
+    //console.log('si entra en traer datos');
   }
 
   applyFilter(event: Event) {
@@ -91,7 +92,6 @@ export class SeguimientoComponentList implements OnInit {
     } else {
       this.unidadSelected = true;
       this.unidad = unidad;
-      console.log(unidad)
       this.dataSource.data = [];
       this.loadPlanes();
     }
@@ -99,17 +99,17 @@ export class SeguimientoComponentList implements OnInit {
 
 
   loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,dependencia_id:`+ this.unidad.Id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,dependencia_id:` + this.unidad.Id).subscribe((data: any) => {
       if (data) {
-        if (data.Data.length != 0){
+        if (data.Data.length != 0) {
           this.planes = data.Data;
-          console.log(this.planes);
           this.getUnidades();
           this.getEstados();
           this.getVigencias();
           this.getPeriodos();
           this.dataSource.data = this.planes;
-        }else{
+        } else {
+          this.unidadSelected = false;
           Swal.fire({
             title: 'No se encontraron planes',
             icon: 'error',
@@ -117,7 +117,6 @@ export class SeguimientoComponentList implements OnInit {
             showConfirmButton: false,
             timer: 2500
           })
-          console.log(this.dataSource.data)
         }
 
       }
@@ -198,9 +197,24 @@ export class SeguimientoComponentList implements OnInit {
       this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planes[i]._id + `,activo:true`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
-            let seguimiento: any = data.Data;
-            this.planes[i].periodo = seguimiento.Nombre;
+            let seguimiento: any = data.Data[data.Data.length - 1];
+            this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + seguimiento.periodo_id).subscribe((data: any) => {
+              if (data) {
+                let aux = data.Data[0]
+                this.planes[i].periodo = aux.ParametroId.Nombre;
+                this.periodoHabilitado = true;
+              }
+            }, (error) => {
+              Swal.fire({ 
+                title: 'Error en la operación',
+                text: 'No se encontraron datos registrados',
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            })
           } else {
+            this.periodoHabilitado = false;
             this.planes[i].periodo = "No disponible";
           }
         }
@@ -217,8 +231,7 @@ export class SeguimientoComponentList implements OnInit {
     }
   }
 
-  gestionSeguimiento(plan_id){
-    console.log(plan_id)
+  gestionSeguimiento(plan_id) {
     this.router.navigate(['pages/seguimiento/gestion-seguimiento/' + plan_id])
   }
 

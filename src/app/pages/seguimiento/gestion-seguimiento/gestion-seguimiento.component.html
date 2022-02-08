@@ -21,7 +21,7 @@
             <div class="container-border">
                 <h1>Información del plan</h1>
                 <div class="mat-elevation-z8">
-                    <mat-label id="desc-input-label">Actividad general: </mat-label>
+                    <mat-label id="tipo-input-label">Actividad general: </mat-label>
                     <mat-select required (selectionChange)="onChangeA($event.value)">
                         <mat-option>--</mat-option>
                         <mat-option *ngFor="let actividad of actividadesGenerales" [value]="actividad">
@@ -37,17 +37,38 @@
                         <textarea class="width-label" disabled>Lineamiento</textarea>
                         <textarea class="width-label" disabled>Meta estratégica</textarea>
                         <textarea class="width-label" disabled>Estrategia</textarea>
-                        <textarea class="width-text" id="lineamiento" placeholder="Texto de lineamiento"></textarea>
-                        <textarea class="width-text" id="meta-estrategica"
-                            placeholder="Texto de meta estratégica"></textarea>
-                        <textarea class="width-text" id="estrategia" placeholder="Texto de estrategia"></textarea>
+                        <textarea class="width-text" id="lineamiento" formControlName="lineamiento"
+                            placeholder="Texto de lineamiento" readonly>
+                        </textarea>
+                        <textarea class="width-text" id="meta-estrategica" formControlName="meta_estrategica"
+                            placeholder="Texto de meta estratégica">
+                        </textarea>
+                        <textarea class="width-text" id="estrategia" formControlName="estrategia"
+                            placeholder="Texto de estrategia">
+                        </textarea>
                         <br>
                         <textarea class="width-label" disabled>Indicador asociado</textarea>
                         <textarea class="width-label" disabled>Meta</textarea>
                         <textarea class="width-label" disabled>Tareas</textarea>
-                        <textarea class="width-text" id="lineamiento" placeholder="Variables del indicador"></textarea>
-                        <textarea class="width-text" id="meta-estrategica" placeholder="Porcentaje, numero"></textarea>
-                        <textarea class="width-text" id="estrategia" placeholder="Porcentaje, numero"></textarea>
+                        <ul class="width-list">
+                            <li *ngFor="let indicador of indicadores">
+                                <textarea id="lineamiento" placeholder="Texto del indicador" readonly>{{indicador.dato}}
+                                    </textarea>
+                            </li>
+                        </ul>
+                        <ul class="width-list">
+                            <li *ngFor="let meta of metas">
+                                <textarea id="meta" placeholder="Porcentaje, numero" readonly>{{meta.dato}}
+                                </textarea>
+                            </li>
+                        </ul>
+                        <ul class="width-list">
+                            <textarea id="estrategia" formControlName="tarea"
+                            placeholder="Porcentaje, numero" readonly>
+                        </textarea>
+                        </ul>
+ 
+
                     </div>
                 </div>
             </div>
@@ -93,7 +114,7 @@
                 </div>
             </div>
             <div class="container-button" *ngIf="rol=='JEFE_DEPENDENCIA'">
-                <button class="background-button align-button1" mat-raised-button color="primary"
+                <button [disabled]="indexActividad === ''" class="background-button align-button1" mat-raised-button color="primary"
                     (click)="reportar()">Reportar periodo</button>
                 <button class="background-button align-button2" mat-raised-button color="primary">Guardar
                     reporte</button>
