@@ -149,7 +149,6 @@ export class SeguimientoComponentGestion implements OnInit {
   } 
 
   onChangeA(event){
-    console.log(event)
     if(event != undefined){
       this.formGestionSeguimiento.get('actividad').setValue(event.dato);
       this.loadDataActividad(event.index);
@@ -166,7 +165,7 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   loadDataActividad(index){
-    this.request.get(environment.PRUEBA, `seguimiento/get_data/`+ this.plan_id + `/`+ index ).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_data/`+ this.plan_id + `/`+ index ).subscribe((data: any) => {
       if (data) {
         this.dataActividad = data.Data
         this.formGestionSeguimiento.get('lineamiento').setValue(this.dataActividad.lineamiento);
@@ -191,7 +190,6 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   reportar(){
-    console.log("reportar")
     this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.plan_id + '/'+ this.indexActividad]);
   }
 }
