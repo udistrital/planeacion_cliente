@@ -1240,7 +1240,7 @@ export class FormulacionComponent implements OnInit {
                 this.loadData();
                 this.addActividad = false;
                 let aux = {}
-                this.request.post(environment.PRUEBA, `seguimiento/crear_reportes/`+ this.plan._id + `/61f236f525e40c582a0840d0`, this.plan).subscribe((data:any) =>{
+                this.request.post(environment.PLANES_MID, `seguimiento/crear_reportes/`+ this.plan._id + `/61f236f525e40c582a0840d0`, this.plan).subscribe((data:any) =>{
                   if (!data){
                     Swal.fire({
                       title: 'Error en la operación',
