@@ -39,13 +39,14 @@
         </div>
         <br>
         <div class="container-border">
-            <h1 *ngIf="rol=='JEFE_DEPENDENCIA'" >Reporte trimestral actividad X</h1>
+            <h1 *ngIf="rol=='JEFE_DEPENDENCIA'" >Reporte trimestral actividad {{indexActividad}}</h1>
             <h1 *ngIf="rol=='PLANEACION'" >Reporte trimestral</h1>
             <textarea *ngIf="rol=='JEFE_DEPENDENCIA'" class="text-area container-border" matInput formControlName="texto-actividad" disabled>Seleccione el periodo a reportar</textarea>
             <textarea *ngIf="rol=='PLANEACION'" class="text-area container-border" matInput formControlName="texto-actividad" disabled>Seleccione el periodo a revisar</textarea>
             <mat-select class="select-trimestre" placeholder="Trimestre" required>
                 <mat-option>--</mat-option>
-                <mat-option >
+                <mat-option *ngFor="let trimestre of trimestres" [value]="trimestre">
+                    {{trimestre.Nombre}}
                 </mat-option>
             </mat-select>
             <button class="width-button-generate" mat-raised-button (click)="trimestre()" *ngIf="rol=='JEFE_DEPENDENCIA'"> Generar</button>
