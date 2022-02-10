@@ -1,5 +1,3 @@
-<p>evaluacion works!</p>
-
 <mat-card class="card-oas">
   <mat-card-header>
     <mat-card-title>Evaluación planes de acción anuales</mat-card-title>
@@ -30,7 +28,7 @@
 
   <div *ngIf="bandera === true">
     <mat-card-header>
-      <mat-card-title>Evaluación planes de acción anuales {{idPadre.nombre}}</mat-card-title>
+      <mat-card-title>Evaluación planes de acción anuales</mat-card-title>
     </mat-card-header>
     <table mat-table [dataSource]="testDatos" matSort>
       <ng-container matColumnDef="id" >
@@ -75,27 +73,18 @@
     <table mat-table [dataSource]="testDatos" matSort>
       <ng-container matColumnDef="avance" >
           <th class="ng-container" mat-header-cell *matHeaderCellDef mat-sort-header> % Avance general </th>
-          <!-- <td mat-cell *matCellDef="let row">{{row.id}}</td> -->
       </ng-container>
-      <!-- <ng-container matColumnDef="avance2" >
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> </th>
-        <td mat-cell *matCellDef="let row">{{row.id}}</td>
-      </ng-container> -->
       <ng-container matColumnDef="sumaT1">
           <th id="sum1" class="background-sum" mat-header-cell *matHeaderCellDef > {{sumaT1}}% </th>
-          <!-- <td mat-cell *matCellDef="let row"> {{row.unidad}} </td> -->
       </ng-container>
       <ng-container matColumnDef="sumaT2">
           <th class="background-sum" mat-header-cell *matHeaderCellDef> {{sumaT2}}% </th>
-          <!-- <td mat-cell *matCellDef="let row"> {{row.estado}} </td> -->
       </ng-container>
       <ng-container matColumnDef="sumaT3">
           <th class="background-sum" mat-header-cell *matHeaderCellDef> {{sumaT3}}% </th>
-          <!-- <td mat-cell *matCellDef="let row"> {{row.vigencia}} </td> -->
       </ng-container>
       <ng-container matColumnDef="sumaT4">
           <th class="background-sum" mat-header-cell *matHeaderCellDef> {{sumaT4}}% </th>
-          <!-- <td mat-cell *matCellDef="let row"> {{row.periodo}} </td> -->
       </ng-container>
       <div>
           <tr mat-header-row *matHeaderRowDef="displayedColumnsSum"></tr>
