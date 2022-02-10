@@ -4,6 +4,7 @@ import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-seguimiento',
@@ -18,7 +19,8 @@ export class GenerarTrimestreComponent implements OnInit {
   rol: string;
 
   constructor(
-    private autenticationService: ImplicitAutenticationService
+    private autenticationService: ImplicitAutenticationService,
+    private _location: Location
   ) { }
 
   ngOnInit(): void {
@@ -32,6 +34,10 @@ export class GenerarTrimestreComponent implements OnInit {
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
     }
+  }
+
+  backClicked() {
+    this._location.back();
   }
 
   selectFile(event) {
