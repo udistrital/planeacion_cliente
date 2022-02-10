@@ -9,6 +9,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-seguimiento',
@@ -29,6 +30,7 @@ export class ReportarPeriodoComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private request : RequestManager,
+    private _location: Location
   ) { 
     this.activatedRoute.params.subscribe(prm => {
       this.plan_id = prm['plan_id'];
@@ -51,6 +53,10 @@ export class ReportarPeriodoComponent implements OnInit {
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
     }
+  }
+
+  backClicked() {
+    this._location.back();
   }
 
   trimestre(){

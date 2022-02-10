@@ -9,6 +9,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-seguimiento',
@@ -36,7 +37,7 @@ export class SeguimientoComponentGestion implements OnInit {
     private request : RequestManager,
     private autenticationService: ImplicitAutenticationService,
     private router: Router,
-
+    private _location: Location
   ) {
     activatedRoute.params.subscribe(prm => {
       this.plan_id = prm['plan_id'];
@@ -68,6 +69,9 @@ export class SeguimientoComponentGestion implements OnInit {
     }
   }
 
+  backClicked() {
+    this._location.back();
+  }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
