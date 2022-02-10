@@ -1,3 +1,10 @@
+table {
+  width: 100%;
+}
+th {
+  color: white;
+  text-align: center;
+}
 .selectorPlanStyle{
     width: 75%;
     padding-right: 5%;
@@ -7,4 +14,13 @@
 }
 .align-button-ingresar{
   text-align: center;
+}
+.background-sum{
+  color: black;
+  background-color: white;
+  border: 1px solid var(--primary);
+  text-align: center;
+}
+.ng-container{
+  width: 32%;
 }
