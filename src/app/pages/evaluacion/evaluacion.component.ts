@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import datosTest from 'src/assets/json/evaluacion.json';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import * as internal from 'stream';
+import { runInThisContext } from 'vm';
 
 
 @Component({
@@ -28,6 +29,7 @@ export class EvaluacionComponent implements OnInit {
   sumaT2: number;
   sumaT3: number;
   sumaT4: number;
+  ponderacion: number;
 
 
   testDatos: any = datosTest;
@@ -91,20 +93,31 @@ export class EvaluacionComponent implements OnInit {
   }
 
   sumPercent(){
-    // console.log(this.testDatos.length);
+    this.ponderacion = 0;
+    for(let ponder of this.testDatos){
+      let ponderacionunidad = parseFloat(ponder.ponderacion);
+      this.ponderacion = this.ponderacion + ponderacionunidad;
+    }
+    this.sumaT1 = 0;
+    this.sumaT2 = 0;
+    this.sumaT3 = 0;
+    this.sumaT4 = 0;
 
     for (let ponderacion of this.testDatos){
-      let ponder = parseInt(ponderacion.ponderacion);
-      let T1 = parseInt(ponderacion.trimestre1);
-      let T2 = parseInt(ponderacion.trimestre2);
-      let T3 = parseInt(ponderacion.trimestre3);
-      let T4 = parseInt(ponderacion.trimestre4);
-      this.sumaT1 = (ponder*(T1/100));
-      this.sumaT2 = (ponder*(T2/100));
-      this.sumaT3 = (ponder*(T3/100));
-      this.sumaT4 = (ponder*(T4/100));
+      let ponder = parseFloat(ponderacion.ponderacion);
+      let T1 = parseFloat(ponderacion.trimestre1);
+      let T2 = parseFloat(ponderacion.trimestre2);
+      let T3 = parseFloat(ponderacion.trimestre3);
+      let T4 = parseFloat(ponderacion.trimestre4);
+      let suma1 = ((ponder*(T1))/this.ponderacion);
+      let suma2 = ((ponder*(T2))/this.ponderacion);
+      let suma3 = ((ponder*(T3))/this.ponderacion);
+      let suma4 = ((ponder*(T4))/this.ponderacion);
 
-      console.log(this.sumaT1[2]);
+      this.sumaT1 = this.sumaT1 + suma1;
+      this.sumaT2 = this.sumaT2 + suma2;
+      this.sumaT3 = this.sumaT3 + suma3;
+      this.sumaT4 = this.sumaT4 + suma4;
     }
   }
 
