@@ -1,34 +1,34 @@
 [
     {
         "numero": "1",
-        "ponderacion": "100",
+        "ponderacion": "20",
         "trimestre1": "20",
-        "trimestre2": "30",
-        "trimestre3": "25",
-        "trimestre4": "25"
+        "trimestre2": "50",
+        "trimestre3": "75",
+        "trimestre4": "100"
     },
     {
         "numero": "2",
-        "ponderacion": "50",
+        "ponderacion": "30",
         "trimestre1": "25",
-        "trimestre2": "35",
-        "trimestre3": "20",
-        "trimestre4": "20"
+        "trimestre2": "60",
+        "trimestre3": "80",
+        "trimestre4": "100"
     },
     {
         "numero": "3",
-        "ponderacion": "100",
+        "ponderacion": "25",
         "trimestre1": "15",
-        "trimestre2": "30",
-        "trimestre3": "35",
-        "trimestre4": "20"
+        "trimestre2": "45",
+        "trimestre3": "80",
+        "trimestre4": "100"
     },
     {
         "numero": "4",
-        "ponderacion": "130",
+        "ponderacion": "25",
         "trimestre1": "20",
-        "trimestre2": "30",
-        "trimestre3": "25",
-        "trimestre4": "25"
+        "trimestre2": "50",
+        "trimestre3": "75",
+        "trimestre4": "100"
     }
 ]
