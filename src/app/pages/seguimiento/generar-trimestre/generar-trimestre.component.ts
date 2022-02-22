@@ -295,7 +295,6 @@ export class GenerarTrimestreComponent implements OnInit {
         }
         let body: any[] = [];
         body.push(bodyPost);
-        console.log(body)
         this.request.post(environment.GESTOR_DOCUMENTAL_MID, `document/upload`, body).subscribe((data: any) => {
           if (data) {
             console.log(data);
