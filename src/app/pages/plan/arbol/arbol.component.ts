@@ -11,6 +11,7 @@ import {
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 interface Subgrupo {
   activo: string;
@@ -45,8 +46,9 @@ export class ArbolComponent implements OnInit {
   displayedColumnsView: string[] = ['nombre', 'descripcion', 'activo'];
   mostrar: boolean = false;
   planActual: string;
-  icon : string
-  idIcon : string
+  icon : string;
+  idIcon : string;
+  rol : string;
 
   private transformer = (node: Subgrupo, level: number) => {
     if (this.armonizacion){
@@ -98,7 +100,16 @@ export class ArbolComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
-  ) {}
+    private autenticationService: ImplicitAutenticationService
+
+  ) {
+    let roles: any = this.autenticationService.getRole();
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+      this.rol = 'JEFE_DEPENDENCIA'
+    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION'
+    }
+  }
 
   getErrorMessage(campo: FormControl) {
     if (campo.hasError('required', )) {

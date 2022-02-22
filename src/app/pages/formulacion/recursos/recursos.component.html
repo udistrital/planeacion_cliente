@@ -77,7 +77,7 @@
                                     [value]="selectedActividades" placeholder="Actividades"
                                     (selectionChange)="onChange($event.value)" required multiple>
                                     <mat-option *ngFor="let actividad of actividades" [value]="actividad.index">
-                                        {{actividad.index + " - " +actividad.Meta}}
+                                        {{"Actividad No. " + actividad.index}}
                                     </mat-option>
                                 </mat-select>
                             </mat-form-field>
@@ -99,7 +99,7 @@
                     <!-- Actions -->
                     <ng-container matColumnDef="acciones">
                         <th mat-header-cell *matHeaderCellDef>
-                            <button  class="material-icons" matTooltip="Agregar elemento"
+                            <button   [disabled]="readonlyTable" class="material-icons" matTooltip="Agregar elemento"
                                 matTooltipPosition="right" mat-icon-button (click)="addElement()">
                                 <mat-icon>add_box</mat-icon>
                             </button>
@@ -130,7 +130,7 @@
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
                 (click)="ocultarRecursos()">Cerrar</button>
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit"
-                class="col-3 mt-2 mb-3" (click)="guardarRecursos()">Guardar</button>
+                class="col-3 mt-2 mb-3" (click)="guardarRecursos()" [disabled]="readonlyTable">Guardar</button>
         </ng-container>
     </mat-card-footer>
 </mat-card>

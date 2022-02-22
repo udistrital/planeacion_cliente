@@ -4,8 +4,8 @@ import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
@@ -24,26 +24,30 @@ export class ReportarPeriodoComponent implements OnInit {
   indexActividad : string;
   formReportarPeriodo: FormGroup;
   trimestres : any[]= [];
+  trimestreSelected: boolean;
+  trimestre : any;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private request : RequestManager,
+    private router : Router,
     private _location: Location
   ) { 
     this.activatedRoute.params.subscribe(prm => {
       this.plan_id = prm['plan_id'];
       this.indexActividad = prm['index'];
     });
-    this.activatedRoute.params.subscribe(prm => {
-    });
     this.getRol();
     this.loadSeguimiento();
+    this.trimestreSelected = false;
   }
 
   ngOnInit(): void {
- 
+    this.formReportarPeriodo = this.formBuilder.group({
+      trimestre: ['', Validators.required]
+    });
   }
 
   getRol(){
@@ -55,6 +59,13 @@ export class ReportarPeriodoComponent implements OnInit {
     }
   }
 
+
+  generarTrimestre(){
+    let auxTrimestre = this.trimestres[this.trimestres.length -1];
+    console.log(this.trimestre)
+    this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.plan_id +  '/'+ this.indexActividad + '/' + this.trimestre.Id])
+  }
+  
   backClicked() {
     this._location.back();
   }
@@ -92,8 +103,9 @@ export class ReportarPeriodoComponent implements OnInit {
   loadTrimestre(periodo_id){
     this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:`+ periodo_id).subscribe((data: any) => {
       if (data) {
-        let trimestre = data.Data[data.Data.length-1]
-        this.trimestres.push(trimestre.ParametroId)
+        this.trimestre = data.Data[data.Data.length-1]
+        console.log(data)
+        this.trimestres.push(this.trimestre.ParametroId);
       }
     }, (error) => {
       Swal.fire({
@@ -104,5 +116,14 @@ export class ReportarPeriodoComponent implements OnInit {
         timer: 2500
       })
     })
+  }
+
+  onChangeT(trimestre){
+    if(trimestre == undefined){
+      this.trimestreSelected = false;
+      this.trimestre = undefined;
+    }else{
+      this.trimestreSelected = true;
+    }
   }
 }

@@ -116,7 +116,7 @@
                     [ngModelOptions]="{standalone: true}" [value]="selectedActividades"
                     (selectionChange)="onChange($event.value)" required multiple>
                     <mat-option *ngFor="let actividad of actividades" [value]="actividad.index">
-                      {{actividad.index + " - " + actividad.Meta}}
+                      {{"Actividad No. " + actividad.index}}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -192,7 +192,7 @@
 
             <ng-container matColumnDef="AccionesP">
               <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">
-                <button class="material-icons" matTooltip="Agregar elemento" matTooltipPosition="right" mat-icon-button
+                <button  [disabled]="readonlyTable" class="material-icons" matTooltip="Agregar elemento" matTooltipPosition="right" mat-icon-button
                   (click)="addContratista()">
                   <mat-icon>add_box</mat-icon>
                 </button>
@@ -221,7 +221,7 @@
       <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
         (click)="ocultarContratistas()">Cerrar</button>
       <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
-        (click)="guardarContratistas()" >Guardar</button>
+        (click)="guardarContratistas()" [disabled]="readonlyTable">Guardar</button>
     </ng-container>
   </mat-card-footer>
 </mat-card>
