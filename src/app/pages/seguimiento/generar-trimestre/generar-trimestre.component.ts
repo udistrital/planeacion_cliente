@@ -178,7 +178,7 @@ export class GenerarTrimestreComponent implements OnInit {
   }
 
   loadInidicadores(){
-    this.request.get(environment.PRUEBA, `seguimiento/get_indicadores/`+ this.planId).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/`+ this.planId).subscribe((data: any) => {
       if (data) {
         this.indicadores = data.Data;
       }
@@ -210,7 +210,7 @@ export class GenerarTrimestreComponent implements OnInit {
 
 
   loadData(){
-    this.request.get(environment.PRUEBA, `seguimiento/get_seguimiento/`+ this.planId+ `/`+ this.indexActividad +`/`+this.trimestreId).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_seguimiento/`+ this.planId+ `/`+ this.indexActividad +`/`+this.trimestreId).subscribe((data: any) => {
       if (data.Data != '') {
         this.seguimiento = data.Data;
         // this.formGenerarTrimestre.get('avancePeriodo').setValue(this.seguimiento.avancePeriodo);
@@ -244,7 +244,7 @@ export class GenerarTrimestreComponent implements OnInit {
 
 
 
-    this.request.post(environment.PRUEBA, `seguimiento/guardar_seguimiento/`+ this.planId + `/` + this.indexActividad + `/` + this.trimestreId, this.seguimiento).subscribe((data: any) => {
+    this.request.post(environment.PLANES_MID, `seguimiento/guardar_seguimiento/`+ this.planId + `/` + this.indexActividad + `/` + this.trimestreId, this.seguimiento).subscribe((data: any) => {
       if (data) {
         Swal.fire({
           title: 'Información de seguimiento actualizada',
