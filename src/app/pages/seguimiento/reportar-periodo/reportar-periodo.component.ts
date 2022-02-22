@@ -70,9 +70,9 @@ export class ReportarPeriodoComponent implements OnInit {
     this._location.back();
   }
 
-  trimestre(){
-    window.location.href = '#/pages/seguimiento/generar-trimestre';
-  }
+  // trimestre(){
+  //   window.location.href = '#/pages/seguimiento/generar-trimestre';
+  // }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
