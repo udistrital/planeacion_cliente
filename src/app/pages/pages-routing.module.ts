@@ -97,7 +97,7 @@ const routes: Routes = [{
           component: ReportarPeriodoComponent,
         },
         {
-          path: 'generar-trimestre',
+          path: 'generar-trimestre/:plan_id/:index/:trimestre_id',
           component: GenerarTrimestreComponent,
         },
         {

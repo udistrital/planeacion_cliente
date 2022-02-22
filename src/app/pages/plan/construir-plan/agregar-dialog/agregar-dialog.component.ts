@@ -45,9 +45,7 @@ export class AgregarDialogComponent implements OnInit {
       bandera: ['', Validators.required],
       opciones: ['', Validators.required]
     });
-    if (this.data.nivel == 1){
-      this.formAgregar.get('bandera').setValue('false')
-    }if (this.opt == false){
+  if (this.opt == false){
       this.formAgregar.get('opciones').disable();
     }
   }

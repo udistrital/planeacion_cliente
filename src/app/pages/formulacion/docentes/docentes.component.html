@@ -501,9 +501,9 @@
     <mat-card-footer style="text-align: center;">
         <ng-container>
             <button mat-raised-button style="margin: 10px;" color="primary"  type="submit" class="col-3 mt-2 mb-3"
-                (click)="ocultarRecursos()" [disabled]="banderaCerrar" >Cerrar</button>
+                (click)="ocultarRecursos()">Cerrar</button>
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                (click)="guardarRecursos()">Guardar</button>
+                (click)="guardarRecursos()" [disabled]="readonlyTable">Guardar</button>
         </ng-container>
     </mat-card-footer>
 </mat-card>

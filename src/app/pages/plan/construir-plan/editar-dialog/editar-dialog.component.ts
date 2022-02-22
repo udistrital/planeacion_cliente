@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject, AfterContentChecked, DoCheck } from '@angular/core';
 import { FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import { MatRadioChange } from '@angular/material/radio';
 
 @Component({
   selector: 'app-editar-dialog',
@@ -25,6 +26,8 @@ export class EditarDialogComponent implements OnInit {
   vRequired : boolean;
   vOpciones : boolean;
   vFormato : boolean;
+  vParametros : boolean;
+  vBandera : boolean;
 
   tipos: tipoDato[] = [
     {value: 'numeric', viewValue:'Numérico'},
@@ -66,6 +69,8 @@ export class EditarDialogComponent implements OnInit {
       this.banderaTablaS = String(data.sub.banderaTabla);
       this.nivel = data.nivel;
       this.opt = false;
+      this.vParametros = false;
+      this.vBandera = false;
     }
 
   ngOnInit(): void {
@@ -74,6 +79,7 @@ export class EditarDialogComponent implements OnInit {
       nombre: [this.nombre, Validators.required],
       activo: [this.activoS, Validators.required],
       formato: [this.formatoS,  Validators.required],
+      parametro: ['', Validators.required],
       tipoDato: [this.tipoDato, Validators.required],
       requerido: [this.required, Validators.required],
       banderaTabla: [this.banderaTablaS, Validators.required],
@@ -114,23 +120,38 @@ export class EditarDialogComponent implements OnInit {
       this.vTipo = false
       this.vFormato = true
       this.opt = false
+      this.vParametros = false
+      this.vBandera = false;
+      this.formEditar.get('parametro').disable();
       this.formEditar.get('tipoDato').disable();
       this.formEditar.get('opciones').disable();
     }else if(this.data.ban == "nivel"){
       this.vTipo = true
       this.vFormato = false
       this.opt = false
+      this.vBandera = true
       this.formEditar.get('tipoDato').enable();
       if (this.tipoDato == 'select'){
         this.opt = true;
+        this.vParametros = true;
+        this.formEditar.get('parametro').setValue("true");
         this.formEditar.get('opciones').enable();
-      } else {
+        this.formEditar.get('tipoDato').enable();
+        this.formEditar.get('requerido').enable();
+        
+      } else if (this.tipoDato == 'input' || this.tipoDato == 'numeric'){
         this.opt = false;
+        this.vParametros = true;
+        this.formEditar.get('parametro').setValue("true");
+        this.formEditar.get('tipoDato').enable();
+        this.formEditar.get('requerido').enable();
         this.formEditar.get('opciones').disable();
       }
     }
     if(this.tipoDato == "undefined" || this.tipoDato == undefined){
-      this.vTipo = false
+      this.vTipo = true;
+      this.vParametros = false;
+      this.formEditar.get('parametro').setValue("false");
       this.formEditar.get('tipoDato').disable();
       this.formEditar.get('requerido').disable();
       this.formEditar.get('opciones').disable();
@@ -140,6 +161,23 @@ export class EditarDialogComponent implements OnInit {
     }
     if (this.nivel > 1){
       this.formEditar.get('banderaTabla').setValue(this.visibleBandera.value);
+    }
+  }
+
+
+  verificarNivel(event: MatRadioChange){
+    if(event.value == "false"){
+      this.vParametros = false;
+      this.formEditar.get('tipoDato').disable();
+      this.formEditar.get('requerido').disable();
+      this.formEditar.get('opciones').disable();
+    }else if (event.value == "true"){
+      this.vParametros = true;
+      this.formEditar.get('tipoDato').enable();
+      this.formEditar.get('requerido').enable();
+      if (this.opt){
+        this.formEditar.get('opciones').enable();
+      }
     }
   }
 
