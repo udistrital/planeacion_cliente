@@ -120,7 +120,7 @@
                     reporte</button>
             </div>
             <div class="align-button-gestion" *ngIf="rol=='PLANEACION'">
-                <button class="btn-gestion-seg" mat-raised-button color="primary">Regresar</button>
+                <button class="btn-gestion-seg" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
             </div>
         </form>
     </mat-card-content>

@@ -9,6 +9,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-seguimiento',
@@ -31,7 +32,8 @@ export class ReportarPeriodoComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private request : RequestManager,
-    private router : Router
+    private router : Router,
+    private _location: Location
   ) { 
     this.activatedRoute.params.subscribe(prm => {
       this.plan_id = prm['plan_id'];
@@ -57,10 +59,19 @@ export class ReportarPeriodoComponent implements OnInit {
     }
   }
 
+
   generarTrimestre(){
     let auxTrimestre = this.trimestres[this.trimestres.length -1];
     console.log(this.trimestre)
     this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.plan_id +  '/'+ this.indexActividad + '/' + this.trimestre.Id])
+  }
+  
+  backClicked() {
+    this._location.back();
+  }
+
+  trimestre(){
+    window.location.href = '#/pages/seguimiento/generar-trimestre';
   }
 
   applyFilter(event: Event) {

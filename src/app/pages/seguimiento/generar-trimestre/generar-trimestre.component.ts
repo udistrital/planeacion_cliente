@@ -10,6 +10,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { element } from 'protractor';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-seguimiento',
@@ -39,6 +40,7 @@ export class GenerarTrimestreComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private request: RequestManager,
+    private _location: Location,
     private router: Router) {
     this.activatedRoute.params.subscribe(prm => {
       this.planId = prm['plan_id'];
@@ -51,6 +53,7 @@ export class GenerarTrimestreComponent implements OnInit {
     this.indicadorSelected = false;
 
   }
+
 
   ngOnInit(): void {
     this.formGenerarTrimestre = this.formBuilder.group({
@@ -75,6 +78,9 @@ export class GenerarTrimestreComponent implements OnInit {
   }
 
 
+  backClicked() {
+    this._location.back();
+  }
 
   selectFile(event) {
     this.selectedFiles = event.target.files;
