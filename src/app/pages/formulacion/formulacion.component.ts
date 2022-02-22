@@ -54,6 +54,7 @@ export class FormulacionComponent implements OnInit {
   dataArmonizacion: string[] = [];
   estadoPlan: string;
   iconEstado: string;
+  iconEditar: string;
   versionPlan: string;
   versiones: any[];
   controlVersion = new FormControl();
@@ -82,6 +83,12 @@ export class FormulacionComponent implements OnInit {
     this.identContratistas = false;
     this.identDocentes = false;
     this.dataT = false;
+    let roles: any = this.autenticationService.getRole();
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+      this.rol = 'JEFE_DEPENDENCIA'
+    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION'
+    }
   }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -261,7 +268,7 @@ export class FormulacionComponent implements OnInit {
       this.addActividad = false;
       this.identRecursos = false;
       this.identContratistas = false;
-      this.banderaIdentDocentes = true;
+      this.banderaIdentDocentes = this.mostrarIdentDocente(unidad);
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
@@ -271,11 +278,9 @@ export class FormulacionComponent implements OnInit {
     }
   }
   // this.mostrarIdentDocente(unidad.DependenciaTipoDependencia)
-  mostrarIdentDocente(tipoDependencias: any[]): boolean {
-    for (let element of tipoDependencias) {
-      if (element.TipoDependenciaId.Id === 2 || element.DependenciaId.Id === 67) return true
+  mostrarIdentDocente(unidad: any): boolean {
+      if (unidad.Id === 67 || unidad.TipoDependencia.Id === 2) return true
       else return false
-    }
   }
 
   onChangeV(vigencia) {
@@ -338,12 +343,7 @@ export class FormulacionComponent implements OnInit {
   rol: string;
 
   visualizeObs() {
-    let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
-      this.rol = 'JEFE_DEPENDENCIA'
-    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
-      this.rol = 'PLANEACION'
-    }
+
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         if (this.versiones.length == 1) {
@@ -497,9 +497,15 @@ export class FormulacionComponent implements OnInit {
 
   loadData() {
     this.ajustarData();
+
   }
 
   ajustarData() {
+    if (this.rol == 'PLANEACION'){
+      this.iconEditar = 'search'
+    }else if (this.rol == 'JEFE_DEPENDENCIA'){
+      this.iconEditar = 'edit'
+    }
     this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
       if (data.Data.data_source != null) {
         this.dataSource = new MatTableDataSource(data.Data.data_source);
@@ -510,6 +516,7 @@ export class FormulacionComponent implements OnInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         this.dataT = true;
+        
       } else if (data.Data.data_source == null) {
         this.dataT = false;
         Swal.fire({
@@ -1249,8 +1256,6 @@ export class FormulacionComponent implements OnInit {
                       showConfirmButton: false,
                       timer: 2500
                     })
-                  }else{
-                    console.log(data)
                   }
                 })
               }

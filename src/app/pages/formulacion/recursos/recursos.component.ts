@@ -98,8 +98,6 @@ export class RecursosComponent implements OnInit {
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        console.log("deberia entrar aca");
-        console.log(this.readonlyTable);
         return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
       }
     }

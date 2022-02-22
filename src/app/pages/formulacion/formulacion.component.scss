@@ -59,6 +59,12 @@ th {
   align-content: center;
   vertical-align: middle;
   padding: 10px;
+  font-size: 15px;
+  margin-top: 2%;
+  margin-right: 5%;
+  color: var(--primary);
+  border-radius: 8px;
+  border-color: var(--primary);
 }
 
 .container{
@@ -79,4 +85,8 @@ th {
   margin-right: auto;
   background-color: lightyellow;
   font-style: oblique;
+}
+
+.icon-estado{
+  font-size: 40px;
 }

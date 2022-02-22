@@ -201,6 +201,7 @@ export class DocentesComponent implements OnInit {
                 showConfirmButton: false,
                 timer: 3500
               })
+              this.guardarRecursos();
             })
 
           } else {
@@ -1836,16 +1837,11 @@ export class DocentesComponent implements OnInit {
             showConfirmButton: false,
             timer: 3500
           })
-          this.acciones.emit({ aux, accion, identi });
+          if (!this.banderaCerrar){
+            this.acciones.emit({ aux, accion, identi });
+          }
         }
       })
-      Swal.fire({
-        title: 'Guardado exitoso',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: 3500
-      })
-      this.acciones.emit({ data, accion, identi });
     } else {
       Swal.fire({
         title: 'Error en la operación',
