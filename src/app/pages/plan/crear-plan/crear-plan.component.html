@@ -2,6 +2,11 @@
         <mat-card-header>
             <mat-card-title>Definir Proyecto / Plan</mat-card-title>
         </mat-card-header>
+        <mat-card-content>
+            <u class="textGuide">
+                En esta sección usted podrá agregar características de base al documento o formato
+            </u>
+        </mat-card-content>
         <form [formGroup]="formCrearPlan" (ngSubmit)="createPlan()">
             <mat-card-content>
                 <mat-grid-list [appOasGridCols]="{xs: 1, sm: 2, md: 2, lg: 2, xl: 4}" rowHeight="170px" gutterSize="25px">
@@ -55,6 +60,11 @@
                             </mat-radio-group>
                     </mat-grid-tile>  
                 </mat-grid-list>
+            </mat-card-content>
+            <mat-card-content>
+                <u class="textGuide">
+                    Active el siquiente botón cuando desee guardar la información ingresada
+                </u>
             </mat-card-content>
             <mat-card-actions>
                 <div style="margin: 1rem;">

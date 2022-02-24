@@ -2,6 +2,11 @@
   <mat-card-header>
     <mat-card-title>Agregar Nivel {{data.nivel}}</mat-card-title>
   </mat-card-header>
+  <mat-card-content>
+    <u class="textGuide">
+      En esta sección usted podrá agregar las características principales para el NIVEL {{data.nivel}}
+    </u>
+  </mat-card-content>
   <form [formGroup]="formAgregar">
     <mat-card-content>
       <mat-form-field appearance="fill" [style.width.%]="100">
