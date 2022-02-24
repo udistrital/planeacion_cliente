@@ -334,9 +334,12 @@
       </mat-card-content>
     </mat-card>
     <br><br>
-    <u class="textGuide">
+    <u class="textGuide" *ngIsGranted="['JEFE_DEPENDENCIA']">
       Dando clic al botón "Culminar plan" usted da por culminada esta etapa y se enviara la información para revisión por la oficina de planeación, y no podrá realizar modificaciones hasta que sea retornado con observaciones
     </u>
+    <!-- <u class="textGuide" *ngIsGranted="['PLANEACION']">
+      Para iniciar el ajuste del plan por favor seleccione el botón REALIZAR AJUSTE, ubicado en la parte inferior de esta sección
+    </u> -->
   </mat-card-content>
   <!-- AGREGAR ACTIVIDAD / IDENTIFICACIÓN / CULMINAR PLAN -->
   <mat-card-footer style="text-align: center;">
