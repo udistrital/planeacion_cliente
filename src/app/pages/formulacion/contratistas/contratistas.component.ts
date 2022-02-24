@@ -74,7 +74,7 @@ export class ContratistasComponent implements OnInit {
         this.readonlyObs = true;
         this.readonlyTable = this.verificarVersiones();
         this.mostrarObservaciones = this.verificarObservaciones();
-        if (this.mostrarObservaciones && !this.readonlyTable){
+        if (this.mostrarObservaciones){
           return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'observaciones', 'acciones',];
         }else{
           return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'acciones',];
