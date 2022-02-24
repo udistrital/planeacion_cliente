@@ -3,6 +3,10 @@
         <mat-card-title>Identificación de recursos</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+        <u class="textGuide">
+            A continuación usted encontrará los campos necesarios para identificar las necesidades de personal CPS que requiere la dependencia para ejecutar el Plan
+        </u>
+        <br><br>
         <form #myForm="ngForm" (ngSubmit)="submit(myForm)">
             <ng-container>
                 <mat-form-field appearance="standard" [style.width.%]="50">
@@ -126,6 +130,11 @@
         </form>
     </mat-card-content>
     <mat-card-footer style="text-align: center;">
+        <mat-card-content>
+            <u class="textGuide">
+                Para guardar los cambios de clic en guardar de lo contrario seleccione cerrar
+            </u>
+        </mat-card-content>
         <ng-container>
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
                 (click)="ocultarRecursos()">Cerrar</button>

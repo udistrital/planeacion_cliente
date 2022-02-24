@@ -4,6 +4,13 @@
     <mat-card-title>Formulación de Planes</mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    <u class="textGuide">
+      En esta sección usted podrá FORMULAR los planes creados en el módulo construcción, para continuar seleccione las opciones que se encuentran enseguida
+    </u>
+    <!-- <mat-card>
+      <p>lo que sea</p>
+      <mat-divider inset></mat-divider>
+    </mat-card> -->
     <ng-container>
       <mat-form-field appearance="fill" [style.width.%]="100">
         <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
@@ -39,6 +46,11 @@
     </ng-container>
   </mat-card-content>
   <mat-card-footer *ngIf="clonar" style="text-align: center;">
+    <mat-card-content>
+      <u class="textGuide">
+        Seleccione el siguiente botón para iniciar con la formulación
+      </u>
+    </mat-card-content>
     <ng-container>
       <button mat-raised-button color="primary" (click)="formularPlan()">
         Formular plan
@@ -55,6 +67,9 @@
     <mat-card-title *ngIf="plan != undefined">Formulación {{plan.nombre}}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    <u class="textGuide">
+      A continuación usted deberá diligenciar la información necesaria para realizar una completa formulación de su PLAN DE ACCIÓN
+    </u>
     <ng-container>
       <div class="container">
         <div class="flex">
@@ -130,6 +145,15 @@
     <br><br>
     <!-- ARMONIZACIÓN -->
     <mat-card class="card-oas-int" *ngIf="!clonar && planAsignado && addActividad">
+      <mat-card-header>
+        <mat-card-title *ngIf="plan != undefined">ACTIVIDADES DEL PLAN DE ACCIÓN</mat-card-title>
+      </mat-card-header>
+      <mad-card-content>
+        <u class="textGuide">
+          A continuación usted encontrara las herramientas necesarias para agregar las actividades del PLAN DE ACCIÓN correspondiente
+        </u>
+      </mad-card-content>
+      <br>
       <mat-card-header>
         <mat-card-title *ngIf="plan != undefined">Armonización {{plan.nombre}}</mat-card-title>
       </mat-card-header>
@@ -288,6 +312,9 @@
               </mat-accordion>
               <br><br>
               <div>
+                <u class="textGuide" *ngIf="last" [disabled]="!form.valid" style="text-align: center;">
+                  Para guardar los cambios realizados de clic en el botón guardar, de lo contrario de clic en cancelar
+                </u>
                 <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="index !== 0"
                   matStepperPrevious (click)="prevStep(index)">Volver</button>
                 <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" *ngIf="!last"
@@ -306,6 +333,10 @@
         </form>
       </mat-card-content>
     </mat-card>
+    <br><br>
+    <u class="textGuide">
+      Dando clic al botón "Culminar plan" usted da por culminada esta etapa y se enviara la información para revisión por la oficina de planeación, y no podrá realizar modificaciones hasta que sea retornado con observaciones
+    </u>
   </mat-card-content>
   <!-- AGREGAR ACTIVIDAD / IDENTIFICACIÓN / CULMINAR PLAN -->
   <mat-card-footer style="text-align: center;">
