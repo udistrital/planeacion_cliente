@@ -28,7 +28,7 @@ export class DocentesComponent implements OnInit {
   dataTablePrestacional: any[];
   dataTableHonorarios: any[];
   dataAvailable: boolean = false;
-  banderaCerrar : boolean = false;
+  banderaCerrar: boolean = false;
 
   accionBoton: string;
   tipoIdenti: string;
@@ -36,7 +36,7 @@ export class DocentesComponent implements OnInit {
   estadoPlan: string;
   readonlyObs: boolean;
   readonlyTable: boolean = false;
-
+  mostrarObservaciones: boolean;
 
   totalMTO: number;
   totalTCO: number;
@@ -314,21 +314,29 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = this.verificarVersiones();
-        return ['docente', 'cantidad','cantidadHoras', 'sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
-          'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
-          'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
+        this.mostrarObservaciones = this.verificarObservaciones();
+        if (this.mostrarObservaciones) {
+          return ['docente', 'cantidad', 'cantidadHoras', 'sueldoBasico', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+            'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
+            'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total', 'observaciones'];
+        } else {
+          return ['docente', 'cantidad', 'cantidadHoras', 'sueldoBasico', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+            'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
+            'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
+        }
+
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'cantidadHoras','sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'cantidadHoras', 'sueldoBasico', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad','cantidadHoras', 'sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'cantidadHoras', 'sueldoBasico', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
@@ -338,28 +346,28 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad','cantidadHoras', 'sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'cantidadHoras', 'sueldoBasico', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'cantidadHoras','sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'cantidadHoras', 'sueldoBasico', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad', 'cantidadHoras','sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'cantidadHoras', 'sueldoBasico', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente', 'cantidad','cantidadHoras', 'sueldoBasico',  'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
+        return ['docente', 'cantidad', 'cantidadHoras', 'sueldoBasico', 'interesesCesantias', 'primaNavidad', 'primaVacaciones', 'aportesPensionesPublicas',
           'aportesPensionesPrivadas', 'totalAportesPensiones', 'aportesSaludPrivada', 'aportesCesantiasPublicos', 'aportesCesantiasPrivados', 'totalAportesCesantias', 'aportesRiesgoPublicos',
           'aportesRiesgoPrivados', 'totalAportesRiesgos', 'aportesICBF', 'total'];
       }
@@ -375,7 +383,14 @@ export class DocentesComponent implements OnInit {
     }
   }
 
-
+  verificarObservaciones(): boolean {
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b1e01c7a265372fac03'));
+    if (preAval.length != 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   submit(data) {
 
@@ -1784,7 +1799,7 @@ export class DocentesComponent implements OnInit {
       let identi = this.tipoIdenti;
       var identificaciones: any;
       let data = this.dataSourceMTO.data;
-  
+
       for (var i in data) {
         var obj = data[i];
         obj["activo"] = true;
@@ -1792,7 +1807,7 @@ export class DocentesComponent implements OnInit {
         obj["index"] = num.toString();
       }
       let dataMtoS = JSON.stringify(Object.assign({}, data));
-  
+
       data = this.dataSourceTCO.data
       for (var i in data) {
         var obj = data[i];
@@ -1801,8 +1816,8 @@ export class DocentesComponent implements OnInit {
         obj["index"] = num.toString();
       }
       let dataTcoS = JSON.stringify(Object.assign({}, data));
-  
-  
+
+
       data = this.dataSourcePrestacional.data
       for (var i in data) {
         var obj = data[i];
@@ -1811,8 +1826,8 @@ export class DocentesComponent implements OnInit {
         obj["index"] = num.toString();
       }
       let dataPrestacionalS = JSON.stringify(Object.assign({}, data));
-  
-  
+
+
       data = this.dataSourceHonorarios.data
       for (var i in data) {
         var obj = data[i];
@@ -1828,7 +1843,7 @@ export class DocentesComponent implements OnInit {
         "honorarios": dataHonorariosS
       }
       let aux = JSON.stringify(Object.assign({}, identificaciones));
-  
+
       this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, aux, this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
         if (data) {
           Swal.fire({
@@ -1837,7 +1852,7 @@ export class DocentesComponent implements OnInit {
             showConfirmButton: false,
             timer: 3500
           })
-          if (!this.banderaCerrar){
+          if (!this.banderaCerrar) {
             this.acciones.emit({ aux, accion, identi });
           }
         }
@@ -1945,7 +1960,7 @@ export class DocentesComponent implements OnInit {
     }
     for (let i = 0; i < 4; i++) {
       if (Number((this.dataSourceTCO.data[i].aportesCesantiasPublicos).toFixed(0)) + Number((this.dataSourceTCO.data[i].aportesPensionesPrivadas).toFixed(0)) != Number((this.dataSourceTCO.data[i].totalAportesCesantias).toFixed(0))) {
-          return false
+        return false
       }
     }
     for (let i = 0; i < 4; i++) {
@@ -1964,7 +1979,7 @@ export class DocentesComponent implements OnInit {
     }
     for (let i = 0; i < 4; i++) {
       if (Number((this.dataSourceTCO.data[i].aportesRiesgoPublicos).toFixed(0)) + Number((this.dataSourceTCO.data[i].aportesRiesgoPrivados).toFixed(0)) != Number((this.dataSourceTCO.data[i].totalAportesRiesgos).toFixed(0))) {
-          return false
+        return false
       }
     }
     for (let i = 0; i < 4; i++) {
@@ -1976,7 +1991,7 @@ export class DocentesComponent implements OnInit {
   }
 
   inicializarTabla() {
-   this.dataSourceMTO.data = [
+    this.dataSourceMTO.data = [
       {
         docente: "Auxiliar MTO",
         cantidad: 0,

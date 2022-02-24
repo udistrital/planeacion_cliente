@@ -31,7 +31,7 @@ export class RecursosComponent implements OnInit {
   estadoPlan: string;
   readonlyObs: boolean;
   readonlyTable: boolean = false;
-
+  mostrarObservaciones : boolean = false ;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -88,7 +88,12 @@ export class RecursosComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = this.verificarVersiones();
-        return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
+        this.mostrarObservaciones = this.verificarObservaciones();
+        if (this.mostrarObservaciones && !this.readonlyTable){
+          return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones','acciones', ];
+        }else{
+          return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones', 'acciones'];
+        }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
@@ -128,6 +133,15 @@ export class RecursosComponent implements OnInit {
 
   verificarVersiones(): boolean {
     let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
+    if (preAval.length != 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  verificarObservaciones(): boolean {
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b1e01c7a265372fac03'));
     if (preAval.length != 0) {
       return true;
     } else {
