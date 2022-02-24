@@ -18,7 +18,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatInputModule } from '@angular/material/input';
 import { ROUTES } from '@angular/router';
-import { MenuService } from './@core/data/menu.service';
 
 @NgModule({
   declarations: [
@@ -41,7 +40,7 @@ import { MenuService } from './@core/data/menu.service';
     MatButtonModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
-  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }, MenuService  ],
+  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy } ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   bootstrap: [AppComponent],
   
