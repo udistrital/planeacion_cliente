@@ -76,3 +76,15 @@ overflow-x: auto;
     vertical-align: middle;
 }
 }
+.textGuide{
+  background-color: #ffff;
+  border: 1px solid var(--primary);
+  border-radius: 15px 15px 15px 15px;
+  box-shadow: var(--primary) 3px 4px 0;
+  color: #0a0a0a;
+  display: inline-block;
+  font-size: .95em;
+  padding: 1%;
+  text-decoration: none;
+  margin-bottom: 1%;
+}
