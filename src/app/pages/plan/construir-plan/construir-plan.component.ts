@@ -337,16 +337,27 @@ export class ConstruirPlanComponent implements OnInit {
     } else if (event.bandera == 'agregar'){
       this.uid_n = event.fila.level + 2; // el nuevo nivel
       this.uid = event.fila.id; // será el padre del nuevo nivel
-      if (event.fila.activo == true || event.fila.activo == 'activo' || event.fila.activo == 'Activo'){
+      if ((event.fila.activo == true || event.fila.activo == 'activo' || event.fila.activo == 'Activo') && this.uid_n < 4){
         this.openDialogAgregar();
       } else {
-        Swal.fire({
-          title: '¡Error en la creación!', 
-          text: 'No es posible agregar un nuevo nivel sobre un nivel inactivo',
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 3200
-        })
+        if (this.uid_n >= 4){
+          Swal.fire({
+            title: '¡Error en la creación!', 
+            text: 'No es posible agregar un nuevo nivel, por favor comuniquese con el administrador del sistema',
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 3500
+          })
+        }else{
+          Swal.fire({
+            title: '¡Error en la creación!', 
+            text: 'No es posible agregar un nuevo nivel sobre un nivel inactivo',
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 3200
+          })
+        }
+
       }
 
     }
