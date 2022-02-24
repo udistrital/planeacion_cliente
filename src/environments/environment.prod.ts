@@ -4,8 +4,8 @@ export const environment = {
   autenticacion: true,
   notificaciones: false,
   menuApps: false,
-  appname: 'planeacion',
-  appMenu: 'planeacion',
+  appname: 'PLANEACION',
+  appMenu: 'PLANEACION',
   NUXEO: {
     PATH: 'https://documental.udistrital.edu.co/nuxeo/',
   },

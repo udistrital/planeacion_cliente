@@ -36,6 +36,7 @@ export class ContratistasComponent implements OnInit {
   Plan: any;
   readonlyObs: boolean;
   readonlyTable: boolean = false;
+  mostrarObservaciones : boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -72,7 +73,12 @@ export class ContratistasComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = this.verificarVersiones();
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'acciones',];
+        this.mostrarObservaciones = this.verificarObservaciones();
+        if (this.mostrarObservaciones && !this.readonlyTable){
+          return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'observaciones', 'acciones',];
+        }else{
+          return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'acciones',];
+        }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
@@ -113,7 +119,11 @@ export class ContratistasComponent implements OnInit {
   visualizarHeaders(): string[] {
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
+        if (this.mostrarObservaciones && !this.readonlyTable){
+          return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
+        }else{
+          return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
+        }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
@@ -144,6 +154,14 @@ export class ContratistasComponent implements OnInit {
 
   verificarVersiones(): boolean {
     let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
+    if (preAval.length != 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  verificarObservaciones(): boolean {
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b1e01c7a265372fac03'));
     if (preAval.length != 0) {
       return true;
     } else {

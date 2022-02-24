@@ -4,7 +4,7 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
-const menu = [
+ const menu = [
   { Nombre: "Inicio", Icono: "home", Url: "pages", Opciones: null },
   {
     Nombre: "Construcción", Icono: "build", Url: null, Opciones: [
@@ -37,7 +37,7 @@ const menu = [
   { Nombre: "Programación Presupuestal", Icono: "account_balance_wallet", Url: null, Opciones: null },
 ];
 
-localStorage.setItem('menu', btoa(JSON.stringify(menu)));
+ localStorage.setItem('menu', btoa(JSON.stringify(menu)));
 
 
 if (environment.production) {
