@@ -5,7 +5,6 @@ import Swal from 'sweetalert2';
 import { RequestManager } from './services/requestManager';
 import { UserService } from './services/userService';
 import { DatosIdentificacion } from '../@core/models/datos_identificacion';
-import { MenuService } from '../@core/data/menu.service';
 import { ImplicitAutenticationService } from '../@core/utils/implicit_autentication.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
