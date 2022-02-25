@@ -30,6 +30,11 @@
     <mat-card-header>
       <mat-card-title>Evaluación planes de acción anuales</mat-card-title>
     </mat-card-header>
+    <mat-card-content>
+      <br>
+      <p class="nombre-unidad">Nombre de la unidad: {{unidad.Nombre}}</p>
+      <br>
+    </mat-card-content>
     <table mat-table [dataSource]="testDatos" matSort>
       <ng-container matColumnDef="id" >
           <th mat-header-cell *matHeaderCellDef mat-sort-header> N° </th>

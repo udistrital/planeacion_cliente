@@ -64,6 +64,7 @@ export class EvaluacionComponent implements OnInit {
   }
 
   onChangeU(unidad) {
+    this.bandera = false;
     if (unidad == undefined) {
       this.unidadSelected = false;
     } else {
@@ -73,6 +74,7 @@ export class EvaluacionComponent implements OnInit {
   }
 
   onChangeV(vigencia) {
+    this.bandera = false;
     if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
