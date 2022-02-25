@@ -30,7 +30,12 @@ export class EvaluacionComponent implements OnInit {
   sumaT3: number;
   sumaT4: number;
   ponderacion: number;
-
+  vigencias: any[];
+  unidades: any[];
+  unidadSelected: boolean;
+  unidad: any;
+  vigenciaSelected: boolean;
+  vigencia: any;
 
   testDatos: any = datosTest;
   rol: string;
@@ -41,6 +46,10 @@ export class EvaluacionComponent implements OnInit {
     private _location: Location
   ) { 
     this.loadPlanes(); 
+    this.loadPeriodos();
+    this.loadUnidades();
+    this.unidadSelected = false;
+    this.vigenciaSelected = false;
   }
 
   onChange(plan){
@@ -51,6 +60,24 @@ export class EvaluacionComponent implements OnInit {
       this.tipoPlanId = plan.tipo_plan_id;
       let nombrePlan = document.getElementById('test');
       this.idPadre = plan._id; // id plan
+    }
+  }
+
+  onChangeU(unidad) {
+    if (unidad == undefined) {
+      this.unidadSelected = false;
+    } else {
+      this.unidadSelected = true;
+      this.unidad = unidad;
+    }
+  }
+
+  onChangeV(vigencia) {
+    if (vigencia == undefined) {
+      this.vigenciaSelected = false;
+    } else {
+      this.vigenciaSelected = true;
+      this.vigencia = vigencia;
     }
   }
 
@@ -69,6 +96,38 @@ export class EvaluacionComponent implements OnInit {
 
   ingresarEvaluacion(){
     this.bandera = true;
+  }
+
+  loadPeriodos() {
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG`).subscribe((data: any) => {
+      if (data) {
+        this.vigencias = data.Data;
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  loadUnidades() {
+    this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
+      if (data) {
+        this.unidades = data.Data;
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   loadPlanes(){
