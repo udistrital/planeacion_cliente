@@ -26,6 +26,15 @@ export class ReportarPeriodoComponent implements OnInit {
   trimestres : any[]= [];
   trimestreSelected: boolean;
   trimestre : any;
+  listIndicadores: any = {};
+  generalDatar : any = {};
+  trimestreId : string;
+  avanceAcumuladoResumen : any;
+  avancePeriodoResumen : any;
+  objetoPeriodoRes : any = [];
+  objetoAcumuladoRes : any = [];
+  periodoRes : any;
+  acumuladoRes : any;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -38,6 +47,7 @@ export class ReportarPeriodoComponent implements OnInit {
     this.activatedRoute.params.subscribe(prm => {
       this.plan_id = prm['plan_id'];
       this.indexActividad = prm['index'];
+      // this.trimestreId = prm['trimestre_id'];
     });
     this.getRol();
     this.loadSeguimiento();
@@ -45,8 +55,11 @@ export class ReportarPeriodoComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadResumen()
     this.formReportarPeriodo = this.formBuilder.group({
-      trimestre: ['', Validators.required]
+      trimestre: ['', Validators.required],
+      avancePeriodo: ['', Validators.required],
+      avanceAcumulado: ['', Validators.required]
     });
   }
 
@@ -106,6 +119,91 @@ export class ReportarPeriodoComponent implements OnInit {
         this.trimestre = data.Data[data.Data.length-1]
         console.log(data)
         this.trimestres.push(this.trimestre.ParametroId);
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  loadResumen(){
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:`+ this.plan_id).subscribe((data: any) => {
+      if (data.Data.length != 0) {
+        let seguimientor = data.Data[data.Data.length-1]
+        this.trimestreId = seguimientor.periodo_id;
+
+        this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/`+ this.plan_id).subscribe((data: any) => {
+          if (data) {
+            this.listIndicadores = data.Data;
+            this.avanceAcumuladoResumen = 0;
+            this.avancePeriodoResumen = 0;
+            // var pruebita;
+            for(let indicador of this.listIndicadores){
+              let reg = / /g;
+              let primerDatoAcumu = indicador.nombre;
+              let datoIdentir = {
+                "plan_id": this.plan_id,
+                "periodo_id": this.trimestreId,
+                "index": this.indexActividad,
+                "Nombre_del_indicador": primerDatoAcumu.replace(reg, '_'),
+                "avancePeriodo": "2"
+              }
+              this.request.post(environment.PLANES_MID, `seguimiento/get_avance/`, datoIdentir).subscribe((dataPr: any) => {
+                if (dataPr) {
+                  this.generalDatar = dataPr.Data;
+                  this.avanceAcumuladoResumen = this.avanceAcumuladoResumen + parseFloat(this.generalDatar.avanceAcumuladoPrev);
+                  this.avancePeriodoResumen = this.avancePeriodoResumen + parseFloat(this.generalDatar.avancePeriodoPrev);
+                  if (this.listIndicadores.length == 1){
+                    this.formReportarPeriodo.get('avanceAcumulado').setValue(this.avanceAcumuladoResumen+"%");
+                    this.formReportarPeriodo.get('avancePeriodo').setValue(this.avancePeriodoResumen+"%");
+                  }else if (this.listIndicadores.length == 2){
+                    var objetoPeriodoResumen = [
+                      this.avancePeriodoResumen
+                    ]
+                    this.objetoPeriodoRes.push(objetoPeriodoResumen);
+                    this.periodoRes = (this.objetoPeriodoRes[1])/2;
+                    var objetoAcumuladoResumen = [
+                      this.avanceAcumuladoResumen
+                    ]
+                    this.objetoAcumuladoRes.push(objetoAcumuladoResumen);
+                    this.acumuladoRes = (this.objetoAcumuladoRes[1])/2;
+                    this.formReportarPeriodo.get('avancePeriodo').setValue(this.periodoRes+"%");
+                    this.formReportarPeriodo.get('avanceAcumulado').setValue(this.acumuladoRes+"%");
+                  }else {
+                    Swal.fire({
+                      title: 'Error al cargar el resumen avance. Intente de nuevo',
+                      icon: 'warning',
+                      showConfirmButton: false,
+                      timer: 2500
+                    })
+                  }
+                  
+                } else {
+                  Swal.fire({
+                    title: 'Error al crear identificación. Intente de nuevo',
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    timer: 2500
+                  })
+                }
+              })
+            }
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        })
+
       }
     }, (error) => {
       Swal.fire({
