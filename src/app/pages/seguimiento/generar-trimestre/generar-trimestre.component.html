@@ -7,21 +7,7 @@
         <form [formGroup]="formGenerarTrimestre">
             <div class="container-border">
                 <h1>Avance del indicador</h1>
-                <div class="container-button">
-                    <textarea class="align-avance1" disabled>Avance en el periodo</textarea>
-                    <textarea class="align-avance2" disabled>Avance acumulado</textarea>
-                </div>
-                <div class="container-button2">
-                    <textarea class="align-avance1-text" id="periodo" placeholder="%"
-                        formControlName="avancePeriodo"></textarea>
-                    <textarea class="align-avance2-text" id="acumulado" placeholder="%"
-                        formControlName="avanceAcumulado"></textarea>
-                </div>
-            </div>
-            <br>
-            <br>
-            <div class="container-border">
-                <h1>Descripción cualitativa trimestre</h1>
+                <br>
                 <ng-container>
                     <mat-form-field appearance="fill" [style.width.%]="100">
                         <mat-label id="tipo-input-label">Seleccione el indicador</mat-label>
@@ -33,6 +19,21 @@
                         </mat-select>
                     </mat-form-field>
                 </ng-container>
+                <div class="container-button">
+                    <textarea class="align-avance1" disabled>Avance en el periodo</textarea>
+                    <textarea class="align-avance2" disabled>Avance acumulado</textarea>
+                </div>
+                <div class="container-button2">
+                    <textarea class="align-avance1-text" id="periodo" placeholder="%" (change)="generarAvance()"
+                        formControlName="avancePeriodo" [(ngModel)]='textoDeInput' [readonly]="!indicadorSelected"></textarea>
+                    <textarea class="align-avance2-text" id="acumulado" placeholder="%"
+                        formControlName="avanceAcumulado" disabled></textarea>
+                </div>
+            </div>
+            <br>
+            <br>
+            <div class="container-border">
+                <h1>Descripción cualitativa trimestre</h1>
                 <br>
                 <br>
                 <br>
