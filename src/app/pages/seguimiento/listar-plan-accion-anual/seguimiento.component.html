@@ -3,7 +3,7 @@
         <mat-card-title>Seguimiento planes de acción</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <ng-container>
+        <ng-container *ngIf="rol=='JEFE_DEPENDENCIA'">
             <mat-form-field appearance="fill" [style.width.%]="100">
                 <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
                 <mat-select (selectionChange)="onChangeU($event.value)">
@@ -14,7 +14,18 @@
                 </mat-select>
             </mat-form-field>
         </ng-container>
-        <div *ngIf="unidadSelected" class="mat-elevation-z8">
+        <ng-container *ngIf="rol=='PLANEACION'">
+            <mat-form-field appearance="fill" [style.width.%]="100">
+                <mat-label id="tipo-input-label">Seleccione la vigencia</mat-label>
+                <mat-select (selectionChange)="onChangeV($event.value)">
+                    <mat-option>--</mat-option>
+                    <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
+                        {{vigencia.Nombre}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </ng-container>
+        <div *ngIf="unidadSelected || vigenciaSelected" class="mat-elevation-z8">
             <table mat-table [dataSource]="dataSource" matSort>
                 <ng-container matColumnDef="unidad">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Unidad Académica y / o Administrativa </th>

@@ -18,7 +18,7 @@
                 </div>
             </div>
             <br>
-            <div class="container-border">
+            <div class="container-border" *ngIf="rol=='JEFE_DEPENDENCIA'">
                 <h1>Información del plan</h1>
                 <div class="mat-elevation-z8">
                     <mat-label id="tipo-input-label">Actividad general: </mat-label>
@@ -56,18 +56,15 @@
                                     </textarea>
                             </li>
                         </ul>
-                        <ul class="width-list">
+                        <ul class="width-list-meta">
                             <li *ngFor="let meta of metas">
                                 <textarea id="meta" placeholder="Porcentaje, numero" readonly>{{meta.dato}}
                                 </textarea>
                             </li>
                         </ul>
-                        <ul class="width-list">
-                            <textarea id="estrategia" formControlName="tarea"
-                            placeholder="Porcentaje, numero" readonly>
+                        <textarea class="width-text-tarea"  id="estrategia" formControlName="tarea" placeholder="Porcentaje, numero" readonly>
                         </textarea>
-                        </ul>
- 
+
 
                     </div>
                 </div>
@@ -75,30 +72,25 @@
             <br>
             <div class="container-border" *ngIf="rol=='PLANEACION'">
                 <h1>Listado actividades</h1>
+                <label>Ultima Edicion: </label>
                 <div class="mat-elevation-z8">
-                    <table mat-table [dataSource]="gestionJson" matSort>
+                    <table mat-table [dataSource]="dataSource" matSort>
                         <ng-container matColumnDef="id">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header> ID actividad </th>
-                            <td mat-cell *matCellDef="let row">{{row.id}}</td>
+                            <td mat-cell *matCellDef="let row">{{row.index}}</td>
                         </ng-container>
                         <ng-container matColumnDef="actividad">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header> Actividad </th>
-                            <td mat-cell *matCellDef="let row"> {{row.actividad}} </td>
+                            <td mat-cell *matCellDef="let row"> {{row.dato}} </td>
                         </ng-container>
                         <ng-container matColumnDef="estado">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado </th>
-                            <td mat-cell *matCellDef="let row"> {{row.estado}} </td>
-                        </ng-container>
-                        <ng-container matColumnDef="fecha">
-                            <th mat-header-cell *matHeaderCellDef> Fecha edición </th>
-                            <td mat-cell *matCellDef="let row" class="td-align-right">
-                                {{row.fecha}}
-                            </td>
+                            <td mat-cell *matCellDef="let row"> {{row.activo}} </td>
                         </ng-container>
                         <ng-container matColumnDef="gestion">
                             <th mat-header-cell *matHeaderCellDef> Gestión </th>
                             <td mat-cell *matCellDef="let row" class="td-align-right">
-                                <button mat-icon-button (click)="reportar()">
+                                <button mat-icon-button (click)="revisar(row)">
                                     <mat-icon>search</mat-icon>
                                 </button>
                             </td>
@@ -114,13 +106,14 @@
                 </div>
             </div>
             <div class="container-button" *ngIf="rol=='JEFE_DEPENDENCIA'">
-                <button [disabled]="indexActividad === ''" class="background-button align-button1" mat-raised-button color="primary"
-                    (click)="reportar()">Reportar periodo</button>
+                <button [disabled]="indexActividad === ''" class="background-button align-button1" mat-raised-button
+                    color="primary" (click)="reportar()">Reportar periodo</button>
                 <button class="background-button align-button2" mat-raised-button color="primary">Guardar
                     reporte</button>
             </div>
             <div class="align-button-gestion" *ngIf="rol=='PLANEACION'">
-                <button class="btn-gestion-seg" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
+                <button class="btn-gestion-seg" mat-raised-button color="primary"
+                    (click)="backClicked()">Regresar</button>
             </div>
         </form>
     </mat-card-content>

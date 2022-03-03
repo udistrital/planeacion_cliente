@@ -22,6 +22,7 @@ import { ROUTES } from '@angular/router';
 @NgModule({
   declarations: [
     AppComponent,
+    
   ],
   imports: [
     CommonModule,
