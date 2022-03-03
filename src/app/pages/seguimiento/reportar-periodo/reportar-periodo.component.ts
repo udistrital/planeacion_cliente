@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatSort} from '@angular/material/sort';
-import {MatTableDataSource} from '@angular/material/table';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
-import {Location} from '@angular/common';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-seguimiento',
@@ -20,37 +20,52 @@ export class ReportarPeriodoComponent implements OnInit {
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
   rol: string;
-  plan_id: string;
-  indexActividad : string;
+  planId: string;
+  indexActividad: string;
   formReportarPeriodo: FormGroup;
-  trimestres : any[]= [];
+  dataActividad: any;
+  indicadores: any[] = [{ index: 1, dato: '', activo: false }];
+  metas: any[] = [{ index: 1, dato: '', activo: false }];
+  trimestres: any[] = [];
   trimestreSelected: boolean;
-  trimestre : any;
+  trimestre: any;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private request : RequestManager,
-    private router : Router,
+    private request: RequestManager,
+    private router: Router,
     private _location: Location
-  ) { 
+  ) {
     this.activatedRoute.params.subscribe(prm => {
-      this.plan_id = prm['plan_id'];
+      this.planId = prm['plan_id'];
       this.indexActividad = prm['index'];
     });
     this.getRol();
     this.loadSeguimiento();
     this.trimestreSelected = false;
+    if (this.rol == 'PLANEACION') {
+      this.loadDataActividad();
+    }
   }
 
   ngOnInit(): void {
     this.formReportarPeriodo = this.formBuilder.group({
-      trimestre: ['', Validators.required]
+      trimestre: ['', Validators.required],
+      unidad: ['', Validators.required],
+      estado: ['', Validators.required],
+      plan: ['', Validators.required],
+      actividad: ['', Validators.required],
+      lineamiento: ['', Validators.required],
+      meta_estrategica: ['', Validators.required],
+      estrategia: ['', Validators.required],
+      tarea: ['', Validators.required],
     });
+
   }
 
-  getRol(){
+  getRol() {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
@@ -60,12 +75,11 @@ export class ReportarPeriodoComponent implements OnInit {
   }
 
 
-  generarTrimestre(){
-    let auxTrimestre = this.trimestres[this.trimestres.length -1];
-    console.log(this.trimestre)
-    this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.plan_id +  '/'+ this.indexActividad + '/' + this.trimestre.Id])
+  generarTrimestre() {
+    let auxTrimestre = this.trimestres[this.trimestres.length - 1];
+    this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + this.indexActividad + '/' + this.trimestre.Id])
   }
-  
+
   backClicked() {
     this._location.back();
   }
@@ -83,10 +97,10 @@ export class ReportarPeriodoComponent implements OnInit {
     }
   }
 
-  loadSeguimiento(){
-    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:`+ this.plan_id).subscribe((data: any) => {
+  loadSeguimiento() {
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId).subscribe((data: any) => {
       if (data.Data.length != 0) {
-        let seguimiento = data.Data[data.Data.length-1]
+        let seguimiento = data.Data[data.Data.length - 1]
         this.loadTrimestre(seguimiento.periodo_id);
       }
     }, (error) => {
@@ -100,10 +114,10 @@ export class ReportarPeriodoComponent implements OnInit {
     })
   }
 
-  loadTrimestre(periodo_id){
-    this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:`+ periodo_id).subscribe((data: any) => {
+  loadTrimestre(periodo_id) {
+    this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + periodo_id).subscribe((data: any) => {
       if (data) {
-        this.trimestre = data.Data[data.Data.length-1]
+        this.trimestre = data.Data[data.Data.length - 1]
         console.log(data)
         this.trimestres.push(this.trimestre.ParametroId);
       }
@@ -118,12 +132,38 @@ export class ReportarPeriodoComponent implements OnInit {
     })
   }
 
-  onChangeT(trimestre){
-    if(trimestre == undefined){
+  onChangeT(trimestre) {
+    if (trimestre == undefined) {
       this.trimestreSelected = false;
       this.trimestre = undefined;
-    }else{
+    } else {
       this.trimestreSelected = true;
     }
+  }
+
+  loadDataActividad() {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_data/` + this.planId + `/` + this.indexActividad).subscribe((data: any) => {
+      if (data) {
+        this.dataActividad = data.Data
+        console.log(data.Data)
+        this.formReportarPeriodo.get('actividad').setValue(this.dataActividad.actividad);
+        this.formReportarPeriodo.get('lineamiento').setValue(this.dataActividad.lineamiento);
+        this.formReportarPeriodo.get('meta_estrategica').setValue(this.dataActividad.meta_estrategica);
+        this.formReportarPeriodo.get('estrategia').setValue(this.dataActividad.estrategia);
+        this.indicadores = [];
+        this.indicadores = this.dataActividad.indicador;
+        this.metas = [];
+        this.metas = this.dataActividad.meta;
+        this.formReportarPeriodo.get('tarea').setValue(this.dataActividad.tarea);
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 }

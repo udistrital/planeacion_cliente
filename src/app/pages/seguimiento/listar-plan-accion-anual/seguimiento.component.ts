@@ -24,6 +24,9 @@ export class SeguimientoComponentList implements OnInit {
   unidades: any[];
   unidadSelected: boolean;
   unidad: any;
+  vigencias : any[];
+  vigenciaSelected : boolean;
+  vigencia: any;
   testDatos: any = datosTest;
   rol: string;
   periodoHabilitado : boolean;
@@ -35,12 +38,16 @@ export class SeguimientoComponentList implements OnInit {
     private autenticationService: ImplicitAutenticationService
   ) {
     this.unidadSelected = false;
-    this.loadUnidades();
+    this.getRol();
+    if(this.rol != undefined && this.rol=='PLANEACION'){
+      this.loadPeriodos();
+    }else if(this.rol != undefined && this.rol=='JEFE_DEPENDENCIA'){
+      this.loadUnidades();
+    }
     this.dataSource = new MatTableDataSource<any>();
   }
 
   ngOnInit(): void {
-    this.getRol();
   }
 
   getRol() {
@@ -85,6 +92,22 @@ export class SeguimientoComponentList implements OnInit {
     })
   }
 
+  loadPeriodos() {
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG`).subscribe((data: any) => {
+      if (data) {
+        this.vigencias = data.Data;
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
   onChangeU(unidad) {
     if (unidad == undefined) {
       this.unidadSelected = false;
@@ -93,43 +116,91 @@ export class SeguimientoComponentList implements OnInit {
       this.unidadSelected = true;
       this.unidad = unidad;
       this.dataSource.data = [];
-      this.loadPlanes();
+      this.loadPlanes("unidad");
+    }
+  }
+
+  onChangeV(vigencia) {
+    if (vigencia == undefined) {
+      this.vigenciaSelected = false;
+    } else {
+      console.log(vigencia);
+      this.vigenciaSelected = true;
+      this.vigencia = vigencia;
+      this.dataSource.data = [];
+      this.loadPlanes("vigencia");
     }
   }
 
 
-  loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,dependencia_id:` + this.unidad.Id).subscribe((data: any) => {
-      if (data) {
-        if (data.Data.length != 0) {
-          this.planes = data.Data;
-          this.getUnidades();
-          this.getEstados();
-          this.getVigencias();
-          this.getPeriodos();
-          this.dataSource.data = this.planes;
-        } else {
-          this.unidadSelected = false;
-          Swal.fire({
-            title: 'No se encontraron planes',
-            icon: 'error',
-            text: `No se encontraron planes para realizar el seguimiento`,
-            showConfirmButton: false,
-            timer: 2500
-          })
+  loadPlanes(tipo) {
+    if (tipo == "unidad"){
+      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,dependencia_id:` + this.unidad.Id).subscribe((data: any) => {
+        if (data) {
+          if (data.Data.length != 0) {
+            this.planes = data.Data;
+            this.getUnidades();
+            this.getEstados();
+            this.getVigencias();
+            this.getPeriodos();
+            this.dataSource.data = this.planes;
+            console.log(this.planes)
+          } else {
+            this.unidadSelected = false;
+            Swal.fire({
+              title: 'No se encontraron planes',
+              icon: 'error',
+              text: `No se encontraron planes para realizar el seguimiento`,
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+  
         }
-
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+  
       })
+    }else if(tipo == 'vigencia'){
+      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia` + this.vigencia.Id).subscribe((data: any) => {
+        if (data) {
+          if (data.Data.length != 0) {
+            this.planes = data.Data;
+            this.getUnidades();
+            this.getEstados();
+            this.getVigencias();
+            this.getPeriodos();
+            this.dataSource.data = this.planes;
+          } else {
+            this.unidadSelected = false;
+            Swal.fire({
+              title: 'No se encontraron planes',
+              icon: 'error',
+              text: `No se encontraron planes para realizar el seguimiento`,
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+  
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+  
+      })
+    }
 
-    })
   }
 
   getUnidades() {

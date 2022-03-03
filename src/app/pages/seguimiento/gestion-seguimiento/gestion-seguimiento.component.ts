@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import {Location} from '@angular/common';
+import { DataSource } from '@angular/cdk/collections';
 
 @Component({
   selector: 'app-seguimiento',
@@ -17,15 +18,15 @@ import {Location} from '@angular/common';
   styleUrls: ['./gestion-seguimiento.component.scss']
 })
 export class SeguimientoComponentGestion implements OnInit {
-  displayedColumns: string[] = ['id', 'actividad', 'estado', 'fecha', 'gestion'];
+  displayedColumns: string[] = ['id', 'actividad', 'estado', 'gestion'];
   dataSource: MatTableDataSource<any>;
-  plan_id: string;
+  planId: string;
   unidad: any;
   plan: any;
   estado : any;
   actividadesGenerales : any[];
   formGestionSeguimiento: FormGroup;
-  dataActividad : any
+  dataActividad : any;
   rol: string;
   indicadores : any[] = [{index: 1, dato:'', activo:false}];
   metas : any[] = [{index: 1, dato:'', activo:false}];
@@ -40,9 +41,11 @@ export class SeguimientoComponentGestion implements OnInit {
     private _location: Location
   ) {
     activatedRoute.params.subscribe(prm => {
-      this.plan_id = prm['plan_id'];
+      this.planId = prm['plan_id'];
     });
     this.loadDataPlan();
+    this.dataSource = new MatTableDataSource<any>();
+
   }
 
   ngOnInit(): void {
@@ -83,7 +86,7 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   loadDataPlan(){
-    this.request.get(environment.PLANES_CRUD, `plan?query=_id:`+ this.plan_id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=_id:`+ this.planId).subscribe((data: any) => {
       if (data) {
         this.plan = data.Data[0];
         this.loadEstado(this.plan.estado_plan_id);
@@ -137,9 +140,14 @@ export class SeguimientoComponentGestion implements OnInit {
   } 
 
   loadActividades(){
-    this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/`+ this.plan_id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/`+ this.planId).subscribe((data: any) => {
       if (data) {
-        this.actividadesGenerales = data.Data;
+        if (this.rol== 'JEFE_DEPENDENCIA'){
+          this.actividadesGenerales = data.Data;
+        }else if(this.rol == 'PLANEACION'){
+          this.dataSource = data.Data;
+          console.log(data.Data)
+        }
       }
     }, (error) => {
       Swal.fire({
@@ -169,7 +177,7 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   loadDataActividad(index){
-    this.request.get(environment.PLANES_MID, `seguimiento/get_data/`+ this.plan_id + `/`+ index ).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_data/`+ this.planId + `/`+ index ).subscribe((data: any) => {
       if (data) {
         this.dataActividad = data.Data
         this.formGestionSeguimiento.get('lineamiento').setValue(this.dataActividad.lineamiento);
@@ -194,6 +202,11 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   reportar(){
-    this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.plan_id + '/'+ this.indexActividad]);
+    this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/'+ this.indexActividad]);
+  }
+
+  revisar(row){
+    console.log(row)
+    this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/'+ row.index]);
   }
 }
