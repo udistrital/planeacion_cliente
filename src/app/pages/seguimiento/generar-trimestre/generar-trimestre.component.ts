@@ -37,9 +37,6 @@ export class GenerarTrimestreComponent implements OnInit {
   documentoSeleccionado: File = null;
   trimestre: string = '';
   auxDocumentos: string[] = [];
-  seguimiento : any = {};
-  indicadorActivo : string;
-  documentoSeleccionado : File = null;
   generalData : any = {};
   generalDatar : any = {};
   listIndicadores: any = {};
