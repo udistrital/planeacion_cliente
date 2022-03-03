@@ -6,85 +6,105 @@
         <mat-card-title>Reporte trimestral</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <form [formGroup]="formReportarPeriodo">
         <br>
-        <div class="container-border" *ngIf="rol=='PLANEACION'">
-            <h1>Información del plan</h1>
-            <div class="mat-elevation-z8">
-                <mat-label id="desc-input-label">Actividad general: </mat-label>
-                <mat-select required>
-                    <mat-option>--</mat-option>
-                    <mat-option>
-                    </mat-option>
-                </mat-select>
-                <br>
-                <br>
-                <textarea class="text-area-informacion container-border" matInput 
-                    placeholder="Texto de la actividad"></textarea>
-                <br>
-                <div class="container-border">
-                    <textarea class="width-label-informacion" disabled>Lineamiento</textarea>
-                    <textarea class="width-label-informacion" disabled>Meta estratégica</textarea>
-                    <textarea class="width-label-informacion" disabled>Estrategia</textarea>
-                    <textarea class="width-text-informacion" id="lineamiento"
-                        placeholder="Texto de lineamiento"></textarea>
-                    <textarea class="width-text-informacion" id="meta-estrategica"
-                        placeholder="Texto de meta estratégica"></textarea>
-                    <textarea class="width-text-informacion" id="estrategia"
-                        placeholder="Texto de estrategia"></textarea>
+        <form [formGroup]="formReportarPeriodo">
+            <div class="container-border" *ngIf="rol=='PLANEACION'">
+                <h1>Información del plan</h1>
+                <div class="mat-elevation-z8">
+                    <mat-label id="tipo-input-label">Actividad general:
+                        <mat-label>
+                            {{indexActividad}}
+                        </mat-label>
+                    </mat-label>
+                    <mat-select *ngIf="rol=='JEFE_DEPENDENCIA'" required (selectionChange)="onChangeA($event.value)">
+                        <mat-option>--</mat-option>
+                        <mat-option *ngFor="let actividad of actividadesGenerales" [value]="actividad">
+                            Actividad General {{actividad.index}}
+                        </mat-option>
+                    </mat-select>
                     <br>
-                    <textarea class="width-label-informacion" disabled>Indicador asociado</textarea>
-                    <textarea class="width-label-informacion" disabled>Meta</textarea>
-                    <textarea class="width-label-informacion" disabled>Tareas</textarea>
-                    <textarea class="width-text-informacion" id="lineamiento"
-                        placeholder="Variables del indicador"></textarea>
-                    <textarea class="width-text-informacion" id="meta-estrategica"
-                        placeholder="Porcentaje, numero"></textarea>
-                    <textarea class="width-text-informacion" id="estrategia"
-                        placeholder="Porcentaje, numero"></textarea>
+                    <br>
+                    <textarea class="text-area container-border" matInput formControlName="actividad"
+                        placeholder="Texto de la actividad" readonly></textarea>
+                    <br>
+                    <div class="container-border">
+                        <textarea class="width-label" disabled>Lineamiento</textarea>
+                        <textarea class="width-label" disabled>Meta estratégica</textarea>
+                        <textarea class="width-label" disabled>Estrategia</textarea>
+                        <textarea class="width-text" id="lineamiento" formControlName="lineamiento"
+                            placeholder="Texto de lineamiento" readonly>
+                        </textarea>
+                        <textarea class="width-text" id="meta-estrategica" formControlName="meta_estrategica"
+                            placeholder="Texto de meta estratégica">
+                        </textarea>
+                        <textarea class="width-text" id="estrategia" formControlName="estrategia"
+                            placeholder="Texto de estrategia">
+                        </textarea>
+                        <br>
+                        <textarea class="width-label" disabled>Indicador asociado</textarea>
+                        <textarea class="width-label" disabled>Meta</textarea>
+                        <textarea class="width-label" disabled>Tareas</textarea>
+                        <ul class="width-list">
+                            <li *ngFor="let indicador of indicadores; let index">
+                                <textarea  id="indicador" placeholder="Texto del indicador" readonly>{{indicador.dato}}
+                                </textarea>
+                            </li>
+                        </ul>
+                        <ul class="width-list-meta">
+                            <li *ngFor="let meta of metas">
+                                <textarea id="meta" placeholder="Porcentaje, numero" readonly>{{meta.dato}}
+                            </textarea>
+                            </li>
+                        </ul>
+
+                        <textarea class="width-text-tarea" id="estrategia" formControlName="tarea"
+                            placeholder="Porcentaje, numero" readonly>
+                        </textarea>
+                    </div>
                 </div>
             </div>
-        </div>
-        <br>
-        <div class="container-border">
-            <h1 *ngIf="rol=='JEFE_DEPENDENCIA'">Reporte trimestral actividad {{indexActividad}}</h1>
-            <h1 *ngIf="rol=='PLANEACION'">Reporte trimestral</h1>
-            <textarea *ngIf="rol=='JEFE_DEPENDENCIA'" class="text-area container-border" matInput
-                disabled>Seleccione el periodo a reportar</textarea>
-            <textarea *ngIf="rol=='PLANEACION'" class="text-area container-border" matInput
-                disabled>Seleccione el periodo a revisar</textarea>
-            <mat-select class="select-trimestre" placeholder="Trimestre" (selectionChange)="onChangeT($event.value)" required>
-                <mat-option>--</mat-option>
-                <mat-option *ngFor="let trimestre of trimestres" [value]="trimestre">
-                    {{trimestre.Nombre}}
-                </mat-option>
-            </mat-select>
-            <button class="width-button-generate" mat-raised-button (click)="generarTrimestre()"
-                *ngIf="rol=='JEFE_DEPENDENCIA'" [disabled]="!trimestreSelected"> Generar</button>
-            <button class="width-button-generate" mat-raised-button (click)="trimestre()" *ngIf="rol=='PLANEACION'">
-                Revisar</button>
-        </div>
-        <br>
-        <br>
-        <div class="container-border">
- 
+            <br>
+            <div class="container-border">
+                <h1 *ngIf="rol=='JEFE_DEPENDENCIA'">Reporte trimestral actividad {{indexActividad}}</h1>
+                <h1 *ngIf="rol=='PLANEACION'">Reporte trimestral</h1>
+                <textarea *ngIf="rol=='JEFE_DEPENDENCIA'" class="text-area container-border" matInput
+                    disabled>Seleccione el periodo a reportar</textarea>
+                <textarea *ngIf="rol=='PLANEACION'" class="text-area container-border" matInput
+                    disabled>Seleccione el periodo a revisar</textarea>
+                <mat-select class="select-trimestre" placeholder="Trimestre" (selectionChange)="onChangeT($event.value)"
+                    required>
+                    <mat-option>--</mat-option>
+                    <mat-option *ngFor="let trimestre of trimestres" [value]="trimestre">
+                        {{trimestre.Nombre}}
+                    </mat-option>
+                </mat-select>
+                <button class="width-button-generate" mat-raised-button (click)="generarTrimestre()"
+                    *ngIf="rol=='JEFE_DEPENDENCIA'" [disabled]="!trimestreSelected"> Generar</button>
+                <button class="width-button-generate" mat-raised-button (click)="generarTrimestre()" *ngIf="rol=='PLANEACION'">
+                    Revisar</button>
+            </div>
+            <br>
+            <br>
+            <div class="container-border">
+
                 <h1>Resumen por avance por trimestre</h1>
                 <textarea class="width-label-trimestre" disabled>Trimestre</textarea>
-                <textarea class="width-label" disabled>Avance periodo</textarea>
-                <textarea class="width-label" disabled>Avance acumulado</textarea>
+                <textarea class="width-label-avance" disabled>Avance periodo</textarea>
+                <textarea class="width-label-avance" disabled>Avance acumulado</textarea>
                 <textarea class="width-text-trimestre" id="trimestre" formControlName="trimestre"
                     placeholder="Trimestre I"></textarea>
                 <textarea class="width-text" id="avance-periodo" placeholder="Valor %" formControlName="avancePeriodo" disabled></textarea>
                 <textarea class="width-text" id="avance-acumulado" placeholder="Valor %" formControlName="avanceAcumulado" disabled></textarea>
 
-        </div>
-        <div class="align-button-rep" *ngIf="rol=='PLANEACION'">
-            <button class="btn-gestion-rep" mat-raised-button color="primary">Seleccionar estado</button>
-        </div>
-        <div class="container-button">
-            <button class="background-button align-button1" mat-raised-button color="primary">Guardar</button>
-            <button class="background-button align-button2" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-        </div>
+            </div>
+            <div class="align-button-rep" *ngIf="rol=='PLANEACION'">
+                <button class="btn-gestion-rep" mat-raised-button color="primary">Seleccionar estado</button>
+            </div>
+            <div class="container-button">
+                <button class="background-button align-button1" mat-raised-button color="primary">Guardar</button>
+                <button class="background-button align-button2" mat-raised-button color="primary"
+                    (click)="backClicked()">Regresar</button>
+            </div>
         </form>
     </mat-card-content>
 </mat-card>
