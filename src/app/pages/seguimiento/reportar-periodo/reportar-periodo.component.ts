@@ -148,12 +148,12 @@ export class ReportarPeriodoComponent implements OnInit {
 
 
   loadResumen(){
-    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:`+ this.plan_id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:`+ this.planId).subscribe((data: any) => {
       if (data.Data.length != 0) {
         let seguimientor = data.Data[data.Data.length-1]
         this.trimestreId = seguimientor.periodo_id;
 
-        this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/`+ this.plan_id).subscribe((data: any) => {
+        this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/`+ this.planId).subscribe((data: any) => {
           if (data) {
             this.listIndicadores = data.Data;
             this.avanceAcumuladoResumen = 0;
@@ -163,7 +163,7 @@ export class ReportarPeriodoComponent implements OnInit {
               let reg = / /g;
               let primerDatoAcumu = indicador.nombre;
               let datoIdentir = {
-                "plan_id": this.plan_id,
+                "plan_id": this.planId,
                 "periodo_id": this.trimestreId,
                 "index": this.indexActividad,
                 "Nombre_del_indicador": primerDatoAcumu.replace(reg, '_'),
