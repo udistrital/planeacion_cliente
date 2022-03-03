@@ -37,6 +37,13 @@ export class GenerarTrimestreComponent implements OnInit {
   documentoSeleccionado: File = null;
   trimestre: string = '';
   auxDocumentos: string[] = [];
+  seguimiento : any = {};
+  indicadorActivo : string;
+  documentoSeleccionado : File = null;
+  generalData : any = {};
+  generalDatar : any = {};
+  listIndicadores: any = {};
+  textoDeInput: string = null
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -206,9 +213,70 @@ export class GenerarTrimestreComponent implements OnInit {
 
   }
 
-  loadInidicadores() {
+  generarAvance(){
+    this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/`+ this.planId).subscribe((data: any) => {
+      if (data) {
+        this.listIndicadores = data.Data;
+        let testSuma = 0;
+        for(let indicador of this.listIndicadores){
+          let reg = / /g;
+          let primerDatoAcumu = indicador.nombre;
+          let datoIdentir = {
+            "plan_id": this.planId,
+            "periodo_id": this.trimestreId,
+            "index": this.indexActividad,
+            "Nombre_del_indicador": primerDatoAcumu.replace(reg, '_'),
+            "avancePeriodo": "2"
+          }
+          this.request.post(environment.PLANES_MID, `seguimiento/get_avance/`, datoIdentir).subscribe((dataPr: any) => {
+            if (dataPr) {
+              this.generalDatar = dataPr.Data;
+              testSuma = testSuma + parseFloat(this.generalDatar.avanceAcumuladoPrev)
+            } else {
+              Swal.fire({
+                title: 'Error al crear identificación. Intente de nuevo',
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
+          })
+        }
+      }
+      let datoIdenti = {
+        "plan_id": this.planId,
+        "periodo_id": this.trimestreId,
+        "index": this.indexActividad,
+        "Nombre_del_indicador": this.indicadorActivo,
+        "avancePeriodo": this.formGenerarTrimestre.get('avancePeriodo').value
+      }
+      this.request.post(environment.PLANES_MID, `seguimiento/get_avance/`, datoIdenti).subscribe((dataP: any) => {
+        if (dataP) {
+          this.generalData = dataP.Data;
+          this.formGenerarTrimestre.get('avanceAcumulado').setValue(this.generalData.avanceAcumulado);
+        } else {
+          Swal.fire({
+            title: 'Error al crear identificación. Intente de nuevo',
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+      })
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
 
-    this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/` + this.planId).subscribe((data: any) => {
+  }
+
+  loadInidicadores(){
+    this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/`+ this.planId).subscribe((data: any) => {
       if (data) {
         this.indicadores = data.Data;
       }

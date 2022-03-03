@@ -93,8 +93,8 @@
                 <textarea class="width-label-avance" disabled>Avance acumulado</textarea>
                 <textarea class="width-text-trimestre" id="trimestre" formControlName="trimestre"
                     placeholder="Trimestre I"></textarea>
-                <textarea class="width-text-avance" id="avance-periodo" placeholder="Valor %"></textarea>
-                <textarea class="width-text-avance" id="avance-acumulado" placeholder="Valor %"></textarea>
+                <textarea class="width-text" id="avance-periodo" placeholder="Valor %" formControlName="avancePeriodo" disabled></textarea>
+                <textarea class="width-text" id="avance-acumulado" placeholder="Valor %" formControlName="avanceAcumulado" disabled></textarea>
 
             </div>
             <div class="align-button-rep" *ngIf="rol=='PLANEACION'">
