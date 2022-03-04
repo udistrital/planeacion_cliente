@@ -6,9 +6,6 @@ export const environment = {
     menuApps: true,
     appname: 'PLANEACION',
     appMenu: 'PLANEACION',
-    NUXEO: {
-      PATH: 'https://documental.udistrital.edu.co/nuxeo/',
-  },
     SINTOMAS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/sintomas_crud/v1/',
     TERCEROS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/terceros_crud/v1/',
     //SERVICES PLANEACIÓN
