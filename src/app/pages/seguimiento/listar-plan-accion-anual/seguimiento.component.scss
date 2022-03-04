@@ -1,0 +1,41 @@
+table {
+    width: 100%;
+  }
+
+th {
+    color: white;
+    text-align: center;
+}
+
+.td-align-right{
+  text-align: right;
+  justify-content: flex-end;
+}
+
+.header-align-right{
+  display: flex;
+  padding: 21px 0;
+  justify-content: flex-end;
+}
+
+.container-border{
+    border: 1px solid var(--primary);
+    // border-top: 0px;
+    padding: 1%;
+    border-radius: 15px 15px 15px 15px;
+}
+
+.container-border h1{
+    width: 99%;
+    color: var(--primary);
+    font-size:16px;
+    margin-top:-28px;
+    margin-left:7px;
+    padding-left: 8px;
+    background:white;
+    position: relative;
+}
+
+textarea {
+  resize: none;
+}

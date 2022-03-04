@@ -1,0 +1,361 @@
+table {
+  width: 100%;
+}
+
+th {
+  color: white;
+  text-align: center;
+}
+
+.td-align-right{
+text-align: right;
+justify-content: flex-end;
+}
+
+.header-align-right{
+display: flex;
+padding: 21px 0;
+justify-content: flex-end;
+}
+
+.container-border{
+  border: 1px solid var(--primary);
+  // border-top: 0px;
+  padding: 1%;
+  border-radius: 15px 15px 15px 15px;
+  height: auto;
+}
+
+.container-border h1{
+  width: 99%;
+  color: var(--primary);
+  font-size:16px;
+  margin-top:-28px;
+  margin-left:7px;
+  padding-left: 8px;
+  background:white;
+  position: relative;
+}
+.unidad{
+width: 60%;
+border: solid 1px;
+border-top: none;
+border-left: none;
+border-right: none;
+outline: none;
+// color: var(--primary);
+}
+.plan{
+width: 70%;
+border: solid 1px;
+border-top: none;
+border-left: none;
+border-right: none;
+outline: none;
+// color: var(--primary);
+}
+.mat-elevation-z8{
+padding: 12px;
+}
+
+.text-area{
+margin-bottom: 10px;
+width: 98%;
+text-align: center;
+}
+
+.width-label{
+width: 29%;
+margin: 0% 1% 0% 1%;
+color: var(--primary);
+font-family: Arial, Helvetica, sans-serif;
+font-size: 15px;
+text-align: center;
+height: 20px;
+border: 2px solid var(--primary);
+padding: 1%;
+border-radius: 8px 8px 8px 8px;
+}
+.width-text{
+width: 29%;
+margin: 0% 1% 1% 1%;
+font-family: Arial, Helvetica, sans-serif;
+font-size: 15px;
+text-align: center;
+border: 2px solid var(--primary);
+padding: 1%;
+border-radius: 8px 8px 8px 8px;
+outline: none;
+}
+
+.width-text-tarea{
+  width: 29%;
+  margin-left: 2%;
+  margin-bottom: 1.7%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  outline: none;
+  }
+
+
+.width-list{
+width: 31%;
+margin-left: 1%;
+margin-top: 0%;
+font-family: Arial, Helvetica, sans-serif;
+font-size: 15px;
+padding:0%;
+border: 0px solid var(--primary);
+outline: none;
+display: inline-block;
+height: auto;
+}
+
+.width-list-meta{
+  width: 31%;
+  margin-left: 2.5%;
+  margin-top: 0%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  padding:0%;
+  border: 0px solid var(--primary);
+  outline: none;
+  display: inline-block;
+  height: auto;
+  }
+
+
+.width-list textarea{
+width: 98%;
+margin-left: 0%;
+font-family: Arial, Helvetica, sans-serif;
+font-size: 15px;
+text-align: center;
+border: 2px solid var(--primary);
+padding: 0% 1% 1% 1%;
+border-radius: 8px 8px 8px 8px;
+outline: none;
+}
+
+.width-list-meta textarea{
+  width: 98%;
+  margin-left: 0%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  padding: 0% 1% 1% 1%;
+  border-radius: 8px 8px 8px 8px;
+  outline: none;
+  }
+
+.li{
+margin: 0% 0% 0% 0%;
+padding: 0px;
+width: 100%;
+}
+
+
+
+.background-button{
+border-radius: 8px 8px 8px 8px;
+width: 29%;
+height: 40px;
+}
+.align-button1{
+position: absolute;
+margin: 2% 2% 2% 19%;
+}
+.align-button2{
+position: absolute;
+margin: 2% 0% 2% 52%;
+}
+.container-button{
+width: 100%;
+height: 80px;
+}
+.state{
+width: 8%;
+  text-align: center;
+  border: 1px solid var(--primary);
+  padding: 0.5%;
+  border-radius: 15px 15px 15px 15px;
+  position: absolute;
+  margin-left: 4%;
+  top: 11%;
+}
+.btn-gestion-seg{
+display: inline-block ;
+margin-top: 20px;
+margin-left: auto;
+margin-right: auto;
+text-align: center;
+}
+.align-button-gestion{
+text-align: center;
+}
+textarea {
+resize: none;
+}
+
+.background-button{
+  border-radius: 8px 8px 8px 8px;
+  width: 29%;
+  height: 40px;
+}
+.align-button1{
+  position: absolute;
+  margin: 2% 2% 2% 19%;
+}
+.align-button2{
+  position: absolute;
+  margin: 2% 0% 2% 52%;
+}
+.container-button{
+  width: 100%;
+  height: 80px;
+}
+.btn-gestion-rep{
+  display: inline-block ;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+.align-button-rep{
+  text-align: center;
+}
+textarea {
+  resize: none;
+}
+
+.text-area-informacion{
+  margin-bottom: 10px;
+  width: 98%;
+  text-align: center;
+}
+.select-trimestre{
+  border: 1px solid var(--primary);
+  width: 70%;
+  border-radius: 8px 8px 8px 8px;
+  height: 20px;
+  padding: 1%;
+}
+.width-button-generate{
+  width: 26%;
+  margin: 0% 0% 0% 1%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 46px;
+  border: 2px solid var(--primary);
+  border-radius: 8px 8px 8px 8px;
+  background-color: white;
+}
+
+.width-label-trimestre{
+  width: 60%;
+  margin: 0% 0% 0% 1%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 20px;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+}
+
+
+.width-label-avance{
+  width: 15%;
+  margin: 0% 0% 0% 1%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 20px;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+}
+
+
+.width-label-informacion{
+  width: 29%;
+  margin: 0% 1% 0% 1%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 20px;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+}
+.width-text-informacion{
+  width: 29%;
+  margin: 0% 1% 1% 1%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  outline: none;
+}
+.width-text-trimestre{
+  width: 60%;
+  margin: 0% 0% 0% 1%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  outline: none;
+}
+
+.width-text-avance{
+  width: 15%;
+  margin: 0% 0% 0% 1%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  outline: none;
+}
+.background-button{
+  border-radius: 8px 8px 8px 8px;
+  width: 29%;
+  height: 40px;
+}
+.align-button1{
+  position: absolute;
+  margin: 2% 2% 2% 19%;
+}
+.align-button2{
+  position: absolute;
+  margin: 2% 0% 2% 52%;
+}
+.container-button{
+  width: 100%;
+  height: 80px;
+}
+.btn-gestion-rep{
+  display: inline-block ;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+.align-button-rep{
+  text-align: center;
+}

@@ -1,0 +1,22 @@
+<mat-card class="card-oas">
+    <mat-card-header>
+      <mat-card-title>Consultar Proyecto / Plan</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <u class="textGuide">
+        En esta sección usted podrá visualizar los planes construidos y sus características, solo lectura
+      </u>
+    </mat-card-content>
+    <mat-card-content>
+      <mat-form-field appearance="fill" [style.width.%]="100">
+        <mat-label id="tipo-input-label">Seleccionar Proyecto / Plan</mat-label>
+          <mat-select (selectionChange)="onChange($event.value)">
+            <mat-option>--</mat-option>
+            <mat-option *ngFor="let plan of planes" [value]="plan">
+              {{plan.nombre}}
+            </mat-option>
+          </mat-select>
+      </mat-form-field>
+      <app-arbol *ngIf="tipoPlanId !== undefined" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre" [consulta]="true"></app-arbol>
+    </mat-card-content>
+  </mat-card>

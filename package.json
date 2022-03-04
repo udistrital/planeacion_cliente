@@ -1,5 +1,5 @@
 {
-  "name": "alternancia-cliente",
+  "name": "planeacion-cliente",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -26,14 +26,16 @@
     "@angular/platform-browser-dynamic": "~11.2.1",
     "@angular/router": "~11.2.1",
     "@angular/service-worker": "~11.2.1",
-    "angular2-qrscanner": "^1.0.7",
+    "@popperjs/core": "^2.9.3",
+    "jquery": "^3.6.0",
+    "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "ng-qrcode": "^4.1.0",
     "ng2-completer": "^9.0.1",
     "ng2-smart-table": "^1.7.2",
-    "ngx-qr": "^1.1.13",
+    "ngx-material-file-input": "^2.1.1",
     "rxjs": "~6.6.0",
     "sweetalert2": "^10.15.5",
+    "ts-md5": "^1.2.10",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"
   },

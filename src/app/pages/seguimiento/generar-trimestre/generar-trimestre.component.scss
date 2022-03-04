@@ -1,0 +1,331 @@
+table {
+  width: 100%;
+}
+
+th {
+  color: white;
+  text-align: center;
+}
+
+.td-align-right{
+  text-align: right;
+  justify-content: flex-end;
+}
+
+.header-align-right{
+  display: flex;
+  padding: 21px 0;
+  justify-content: flex-end;
+}
+
+.container-border{
+  border: 1px solid var(--primary);
+  // border-top: 0px;
+  padding: 1%;
+  border-radius: 15px 15px 15px 15px;
+}
+
+.container-border-comentarios{
+  border: 1px solid var(--primary);
+  // border-top: 0px;
+  padding: 1%;
+  border-radius: 15px 15px 15px 15px;
+  width: 80%;
+}
+
+.container-border-comentarios h1{
+  width: 99%;
+  color: var(--primary);
+  font-size:16px;
+  margin-top:-28px;
+  margin-left:7px;
+  padding-left: 8px;
+  background:white;
+  position: relative;
+}
+
+.container-border h1{
+  width: 99%;
+  color: var(--primary);
+  font-size:16px;
+  margin-top:-28px;
+  margin-left:7px;
+  padding-left: 8px;
+  background:white;
+  position: relative;
+}
+.text-area{
+  margin-bottom: 10px;
+  width: 98%;
+  text-align: center;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  height: 20px;
+}
+.select-trimestre{
+  border: 1px solid var(--primary);
+  width: 70%;
+  border-radius: 8px 8px 8px 8px;
+  height: 20px;
+  padding: 1%;
+}
+.width-button-archivo{
+  position: absolute;
+  width: 26%;
+  margin: 0% 0% 0% 1%;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 40px;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  background-color: var(--primary);
+}
+.width-button-soporte{
+  position: absolute;
+  width: 17%;
+  margin: 0% 0% 0% 1.5%;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  text-align: center;
+  height: 75px;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  background-color: var(--primary);
+  align-items: center;
+}
+.label-evidencia{
+  width: 100%;
+}
+.width-text{
+  width: 29%;
+  margin: 0% 1% 1% 1%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  outline: none;
+}
+.width-label-trimestre{
+  width: 60%;
+  margin: 0% 0% 0% 1%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 20px;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+}
+.evidencia{
+  width: 65% !important;
+}
+.width-label{
+  width: 15%;
+  margin: 0% 0% 0% 1%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 20px;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+}
+
+.table-evidencia{
+  width: 60%;
+}
+.width-text{
+  width: 15%;
+  margin: 0% 0% 0% 1%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  outline: none;
+}
+.width-text-trimestre{
+  margin-bottom: 2%;
+  margin-top: 4px;
+  width: 98%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  outline: none;
+}
+
+.width-text-documento{
+  margin-bottom: 2%;
+  margin-top: 4px;
+  width: 88%;
+  height: 15px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+  outline: none;
+  overflow:hidden;
+}
+.background-button{
+  border-radius: 8px 8px 8px 8px;
+  width: 29%;
+  height: 40px;
+}
+.align-button1{
+  position: absolute;
+  margin: 2% 2% 2% 19%;
+}
+.align-button2{
+  position: absolute;
+  margin: 2% 0% 2% 52%;
+}
+.container-button{
+  width: 100%;
+  height: 80px;
+  margin-bottom: 1%;
+}
+.container-button2{
+  width: 100%;
+  height: 50px;
+  margin-bottom: 1%;
+  margin-top: 2%;
+}
+.align-avance1{
+  width: 29%;
+  border: 1px solid var(--primary);
+  position: absolute;
+  margin: 2% 2% 2% 19%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 20px;
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+}
+.align-avance2{
+  width: 29%;
+  border: 1px solid var(--primary);
+  position: absolute;
+  margin: 2% 0% 2% 52%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 20px;
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+}
+.align-avance1-text{
+  width: 29%;
+  border: 1px solid var(--primary);
+  position: absolute;
+  margin: 0% 2% 2% 19%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 20px;
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+}
+.align-avance2-text{
+  width: 29%;
+  border: 1px solid var(--primary);
+  position: absolute;
+  margin: 0% 0% 2% 52%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 20px;
+  padding: 1%;
+  border-radius: 8px 8px 8px 8px;
+}
+textarea {
+  resize: none;
+}
+.boder-text{
+  border: none;
+  width: 40%;
+  border: solid 1px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  outline: none;
+}
+.margin-label {
+  margin-left: 2%;
+}
+.align-button-enviar{
+  margin-top: 2%;
+  text-align: center;
+}
+
+.width-button-generate{
+  width: 26%;
+  margin: 0% 0% 0% 1%;
+  color: var(--primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  height: 46px;
+  border: 2px solid var(--primary);
+  border-radius: 8px 8px 8px 8px;
+  background-color: white;
+  margin-left: 74%;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.width-label-upload{
+  border: 2px solid var(--primary);
+  border-radius: 8px 8px 8px 8px;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  margin-left: 90%;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: center;
+  color: var(--primary);
+  padding-bottom: 15px;
+}
+
+.upload-input-container{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-align: left;
+  color: black;
+  display: inline-block;
+}
+
+.icon-documento{
+  margin-left: 20px;
+}
+
+.mat-icon{
+  margin-bottom: 110px;
+  margin-left: 0px;
+  color: var(--primary);
+}

@@ -5,6 +5,8 @@ import Swal from 'sweetalert2';
 import { RequestManager } from './services/requestManager';
 import { UserService } from './services/userService';
 import { DatosIdentificacion } from '../@core/models/datos_identificacion';
+import { ImplicitAutenticationService } from '../@core/utils/implicit_autentication.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-pages',
@@ -18,11 +20,12 @@ export class PagesComponent implements OnInit {
   userData: any;
   environment: any;
   loadingRouter: boolean;
-  terceroName: string = '';
- 
 
-  constructor(    private router: Router, private userService:UserService,
-    private request: RequestManager ) {
+
+  constructor(    
+    private router: Router, 
+
+  ) {
     this.environment = environment;
     router.events.subscribe((event) => {
       if (event instanceof RouteConfigLoadStart) {
@@ -44,31 +47,14 @@ export class PagesComponent implements OnInit {
       }
     });
   }
+
+  
+
   ngOnInit(): void {
-    Swal.fire({
-      html: `
-      <h3 class="title-term-conditional">Importante !</h3>
-      <p class="text-term-condional">Actualmente esta aplicación se encuentra en construcción</p>
-      <h4 class="subtitle-term-conditional">Fases: </h4>
-      <ul class="important-list">
-        <li><div class="item-list-important"> <span class="material-icons md-30 success">assignment_turned_in</span> Caracterización. </div> </li>
-        <li><div class="item-list-important"> <span class="material-icons md-30 success">assignment_turned_in</span> Análisis. </div> </li>
-        <li><div class="item-list-important"> <span class="material-icons md-30 success">assignment_turned_in</span> Control de acceso. </div> </li>
-        <li><div class="item-list-important"> <span class="material-icons md-30 pending">pending_actions</span> Registro de síntomas. </div> </li>
-      </ul>
-      `,
-    })
     this.loaded = true;
 
-    this.userService.user$.subscribe((data: any)=> {
-      if(data?data.userService?data.userService.documento?true:false:false:false) {
-        this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion?query=Numero:`+ data.userService.documento)
-        .subscribe((datosIdentificacion: DatosIdentificacion)=> {
-          let tercero = datosIdentificacion[0].TerceroId;
-          this.terceroName = tercero?tercero.NombreCompleto?tercero.NombreCompleto:'':'';
-          this.userService.updateTercero(tercero);
-        })
-      }
-    })
+
   }
+
+ 
 }

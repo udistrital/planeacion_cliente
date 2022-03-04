@@ -1,0 +1,106 @@
+table {
+    width: 100%;
+}
+
+th {
+    color: white;
+    text-align: center;
+}
+
+.td-align-right{
+  text-align: right;
+  justify-content: flex-end;
+}
+
+.header-align-right{
+  display: flex;
+  padding: 21px 0;
+  justify-content: flex-end;
+}
+
+.btn-formulacion{
+  display: inline-block ;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+
+}
+
+.mat-raised-button{
+  display: block !important;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#box {
+  border: 3px solid;
+}
+
+.container {
+  width: 200px;
+  vertical-align: middle;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+.flex {
+  display: flex;
+  vertical-align: middle;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.sameRow {
+  border: 3px solid black;
+  justify-content: center;
+  text-align: center;
+  align-content: center;
+  vertical-align: middle;
+  padding: 10px;
+  font-size: 15px;
+  margin-top: 2%;
+  margin-right: 5%;
+  color: var(--primary);
+  border-radius: 8px;
+  border-color: var(--primary);
+}
+
+.container{
+  display: block !important;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+.notice{
+  display:  block !important;
+  width: fit-content;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 30px;
+  margin-right: auto;
+  background-color: lightyellow;
+  font-style: oblique;
+}
+
+.icon-estado{
+  font-size: 40px;
+}
+
+.textGuide{
+  background-color: #ffff;
+  border: 1px solid var(--primary);
+  border-radius: 15px 15px 15px 15px;
+  box-shadow: var(--primary) 3px 4px 0;
+  color: #0a0a0a;
+  display: inline-block;
+  font-size: 1.1em;
+  padding: 1%;
+  text-decoration: none;
+  margin-bottom: 1%;
+  width: 97%;  
+}

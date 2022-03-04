@@ -2,6 +2,14 @@
 @import url("https://pruebasassets.portaloas.udistrital.edu.co/gaia-style.css");
 @import url("https://pruebasassets.portaloas.udistrital.edu.co/oas.css");
 @import "~@angular/material/theming";
+// @import 'bootstrap/dist/css/bootstrap-grid.min.css';
+
+// @import "~bootstrap/scss/functions";
+// @import "~bootstrap/scss/variables";
+// @import "~bootstrap/scss/mixins";
+// @import "~bootstrap/scss/reboot";
+// @import "~bootstrap/scss/grid"; // add the grid
+
 // @import '~ngx-toastr/toastr';
 
 
@@ -52,6 +60,8 @@ b {
     color: var(--primary)
 }
 
+
+
 .example-month-picker.mat-calendar {
     height: 250px !important;
     .mat-calendar-table {
@@ -80,7 +90,15 @@ table tbody tr td:nth-child(n + 2) {
 }
 
 .card-oas {
-    width:calc(100vw - 60px)
+    width:calc(100vw - 60px);
+}
+
+.card-oas-int {
+    width:calc(98vw - 60px);
+}
+
+.card-dialog{
+    width:calc(75vw - 60px);
 }
 
 mat-label {

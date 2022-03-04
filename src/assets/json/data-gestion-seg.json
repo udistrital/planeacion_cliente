@@ -1,0 +1,14 @@
+[
+    {
+        "id": "1",
+        "actividad": "test",
+        "estado": "activo",
+        "fecha": "01/01/2000"
+    },
+    {
+        "id": "2",
+        "actividad": "test",
+        "estado": "activo",
+        "fecha": "01/01/2000"
+    }
+]
