@@ -174,6 +174,18 @@ export class ReportarPeriodoComponent implements OnInit {
                   this.generalDatar = dataPr.Data;
                   this.avanceAcumuladoResumen = this.avanceAcumuladoResumen + parseFloat(this.generalDatar.avanceAcumuladoPrev);
                   this.avancePeriodoResumen = this.avancePeriodoResumen + parseFloat(this.generalDatar.avancePeriodoPrev);
+                  if (this.generalDatar.nombrePeriodo == "T1"){
+                    this.formReportarPeriodo.get('trimestre').setValue("Trimestre Uno");
+                  }
+                  if (this.generalDatar.nombrePeriodo == "T2"){
+                    this.formReportarPeriodo.get('trimestre').setValue("Trimestre Dos");
+                  }
+                  if (this.generalDatar.nombrePeriodo == "T3"){
+                    this.formReportarPeriodo.get('trimestre').setValue("Trimestre Tres");
+                  }
+                  if (this.generalDatar.nombrePeriodo == "T4"){
+                    this.formReportarPeriodo.get('trimestre').setValue("Trimestre Cuatro");
+                  }
                   if (this.listIndicadores.length == 1){
                     this.formReportarPeriodo.get('avanceAcumulado').setValue(this.avanceAcumuladoResumen+"%");
                     this.formReportarPeriodo.get('avancePeriodo').setValue(this.avancePeriodoResumen+"%");
