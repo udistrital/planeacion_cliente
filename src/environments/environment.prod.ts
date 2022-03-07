@@ -23,12 +23,12 @@ export const environment = {
   NOTIFICACION_SERVICE: 'wss://pruebasapi.portaloas.udistrital.edu.co:8116/ws',
   TOKEN: {
     AUTORIZATION_URL: 'https://autenticacion.portaloas.udistrital.edu.co/oauth2/authorize',
-    CLIENTE_ID: 'uNb7k8hXSICJqmZzPqrKE6sDM6Ea',
+    CLIENTE_ID: '1IPIIJhKm_PVOPPR80Gnzjvg6Roa',
     RESPONSE_TYPE: 'id_token token',
     SCOPE: 'openid email',
-    REDIRECT_URL: 'https://pruebasplaneacion.portaloas.udistrital.edu.co',
+    REDIRECT_URL: 'https://planeacion.portaloas.udistrital.edu.co',
     SIGN_OUT_URL: 'https://autenticacion.portaloas.udistrital.edu.co/oidc/logout',
-    SIGN_OUT_REDIRECT_URL: 'https://pruebasplaneacion.portaloas.udistrital.edu.co',
+    SIGN_OUT_REDIRECT_URL: 'https://planeacion.portaloas.udistrital.edu.co',
     AUTENTICACION_MID: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/autenticacion_mid/v1/token/userRol',
   },
 };
