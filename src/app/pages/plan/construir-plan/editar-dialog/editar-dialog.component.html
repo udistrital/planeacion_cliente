@@ -22,6 +22,18 @@
           {{getErrorMessage(formEditar.get('descripcion'))}}
         </mat-error>
       </mat-form-field>
+      <ng-container *ngIf="vTipoPlan">
+        <mat-form-field [style.width.%]="40">
+          <mat-label id="tipo-input-label">Tipo</mat-label>
+          <mat-select formControlName="tipo_plan_id" (selectionChange)="select($event.value)" required>
+            <mat-option>--</mat-option>
+            <mat-option *ngFor="let tipo of tiposPlanes" [value]="tipo._id">
+              {{tipo.nombre}}
+            </mat-option>
+          </mat-select>
+          <mat-hint>Seleccione el tipo de proyecto o plan</mat-hint>
+        </mat-form-field>
+      </ng-container>
       <ng-container *ngIf="data">
         <mat-label id="tipo-radio-group-label">Estado</mat-label>
         <mat-radio-group formControlName="activo" class="example-radio-group"
@@ -30,15 +42,6 @@
           <mat-radio-button class="example-radio-button" value="false">Inactivo</mat-radio-button>
         </mat-radio-group>
       </ng-container>
-      <ng-container *ngIf="vBandera">
-        <mat-label id="tipo-radio-group-label">Campo en tabla resumen</mat-label>
-        <mat-radio-group formControlName="banderaTabla" class="example-radio-group"
-          aria-labelledby="example-radio-group-label" required>
-          <mat-radio-button class="example-radio-button" value="true">Sí</mat-radio-button>
-          <mat-radio-button class="example-radio-button" value="false">No</mat-radio-button>
-        </mat-radio-group>
-      </ng-container>
-
       <ng-container *ngIf="vFormato">
         <mat-label id="tipo-radio-group-label">Formato</mat-label>
         <mat-radio-group formControlName="formato" class="example-radio-group"
@@ -54,6 +57,14 @@
           <mat-radio-button class="example-radio-button" value="true">Sí</mat-radio-button>
           <mat-radio-button class="example-radio-button" value="false">No</mat-radio-button>
         </mat-radio-group>
+        <ng-container *ngIf="vBandera">
+          <mat-label id="tipo-radio-group-label">Campo en tabla resumen</mat-label>
+          <mat-radio-group formControlName="banderaTabla" class="example-radio-group"
+            aria-labelledby="example-radio-group-label" (change)="verificarBandera($event.value)" required>
+            <mat-radio-button class="example-radio-button" value="true">Sí</mat-radio-button>
+            <mat-radio-button class="example-radio-button" value="false">No</mat-radio-button>
+          </mat-radio-group>
+        </ng-container>
         <ng-container *ngIf="vParametros">
           <mat-form-field appearance="fill" [style.width.%]="30">
             <mat-label>Tipo de dato </mat-label>
@@ -80,7 +91,7 @@
           </ng-container>
           <mat-label class="requerido-radio-group-label">Obligatorio:</mat-label>
           <mat-radio-group formControlName="requerido" class="requerido-radio-group"
-            aria-labelledby="example-radio-group-label" required>
+            aria-labelledby="example-radio-group-label" (change)="verificarObligatorio($event.value)" required>
             <mat-radio-button class="requerido-radio-button" value="true">Sí</mat-radio-button>
             <mat-radio-button class="requerido-radio-button" value="false">No</mat-radio-button>
           </mat-radio-group>

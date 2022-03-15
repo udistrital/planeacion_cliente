@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
 import { MatRadioChange } from '@angular/material/radio';
+import Swal from 'sweetalert2';
 @Component({
   selector: 'app-agregar-dialog',
   templateUrl: './agregar-dialog.component.html',
@@ -22,6 +23,7 @@ export class AgregarDialogComponent implements OnInit {
     visible: false,
   };
   opt: boolean;
+  vBandera: boolean;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -72,13 +74,16 @@ export class AgregarDialogComponent implements OnInit {
     }
   }
 
+
   verificarNivel(event: MatRadioChange){
+    this.verificarBandera(this.formAgregar.get('bandera').value);
     if(event.value == "false"){
       this.control = {
         value: '',
         disabled: true,
         visible: false,
       }
+      this.vBandera = true;
       this.formAgregar.get('tipoDato').disable();
       this.formAgregar.get('requerido').disable();
       this.formAgregar.get('opciones').disable();
@@ -88,12 +93,47 @@ export class AgregarDialogComponent implements OnInit {
         disabled: false,
         visible: true,
       }
+      this.vBandera = true;
       this.formAgregar.get('tipoDato').enable();
       this.formAgregar.get('requerido').enable();
       if (this.opt){
         this.formAgregar.get('opciones').enable();
       }
     }
+  }
+
+
+  verificarBandera(event) {
+    this.verificarObligatorio( this.formAgregar.get('requerido').value);
+    if (event == "true") {
+      if (this.formAgregar.get('parametro').value === "false") {
+        this.formAgregar.get('bandera').setValue("false");
+        Swal.fire({
+          title: 'Atención',
+          text: 'Para que el nivel sea un campo en la tabla resumen debe tener parametros',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 3500
+        })
+      }
+    }
+
+  }
+
+  verificarObligatorio(event) {
+    if (event == "false") {
+      if (this.formAgregar.get('bandera').value === "true") {
+        this.formAgregar.get('requerido').setValue("true");
+        Swal.fire({
+          title: 'Atención',
+          text: 'Para que un nivel pueda estar en la tabla resumen debe ser obligatorio',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 3500
+        })
+      }
+    }
+
   }
 }
 

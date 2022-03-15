@@ -72,20 +72,20 @@
             <br>
             <div class="container-border" *ngIf="rol=='PLANEACION'">
                 <h1>Listado actividades</h1>
-                <label>Ultima Edicion: </label>
+                <label>Última Edicion: {{fechaModificacion}}</label>
                 <div class="mat-elevation-z8">
                     <table mat-table [dataSource]="dataSource" matSort>
-                        <ng-container matColumnDef="id">
+                        <ng-container matColumnDef="index">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header> ID actividad </th>
                             <td mat-cell *matCellDef="let row">{{row.index}}</td>
                         </ng-container>
-                        <ng-container matColumnDef="actividad">
+                        <ng-container matColumnDef="dato">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header> Actividad </th>
-                            <td mat-cell *matCellDef="let row"> {{row.dato}} </td>
+                            <td mat-cell *matCellDef="let row">{{row.dato}}</td>
                         </ng-container>
-                        <ng-container matColumnDef="estado">
+                        <ng-container matColumnDef="activo">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado </th>
-                            <td mat-cell *matCellDef="let row"> {{row.activo}} </td>
+                            <td mat-cell *matCellDef="let row">{{row.activo}}</td>
                         </ng-container>
                         <ng-container matColumnDef="gestion">
                             <th mat-header-cell *matHeaderCellDef> Gestión </th>

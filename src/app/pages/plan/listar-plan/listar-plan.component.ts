@@ -40,6 +40,8 @@ export class ListarPlanComponent implements OnInit {
   }
 
   openDialogEditar(sub, subDetalle): void {
+    console.log(sub)
+    console.log(subDetalle)
     const dialogRef = this.dialog.open(EditarDialogComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
@@ -51,6 +53,7 @@ export class ListarPlanComponent implements OnInit {
         return undefined;
       } else {
         this.putData(result, 'editar');
+        console.log(result);
       }
     });
   }
