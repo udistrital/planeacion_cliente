@@ -18,7 +18,7 @@ import { DataSource } from '@angular/cdk/collections';
   styleUrls: ['./gestion-seguimiento.component.scss']
 })
 export class SeguimientoComponentGestion implements OnInit {
-  displayedColumns: string[] = ['id', 'actividad', 'estado', 'gestion'];
+  displayedColumns: string[] = ['index', 'dato', 'activo', 'gestion'];
   dataSource: MatTableDataSource<any>;
   planId: string;
   unidad: any;
@@ -31,6 +31,8 @@ export class SeguimientoComponentGestion implements OnInit {
   indicadores : any[] = [{index: 1, dato:'', activo:false}];
   metas : any[] = [{index: 1, dato:'', activo:false}];
   indexActividad : string = '';
+  fechaModificacion : string = '';
+  seguimiento : any;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -71,6 +73,22 @@ export class SeguimientoComponentGestion implements OnInit {
       this.rol = 'PLANEACION'
     }
   }
+
+  // getSeguimiento() {
+  //   this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planId + `,periodo_id:` + this.trimestreId).subscribe((data: any) => {
+  //     if (data.Data) {
+  //       this.seguimiento= data.Data[0];
+  //     }
+  //   }, (error) => {
+  //     Swal.fire({
+  //       title: 'Error en la operación',
+  //       text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+  //       icon: 'warning',
+  //       showConfirmButton: false,
+  //       timer: 2500
+  //     })
+  //   })
+  // }
 
   backClicked() {
     this._location.back();
@@ -145,8 +163,9 @@ export class SeguimientoComponentGestion implements OnInit {
         if (this.rol== 'JEFE_DEPENDENCIA'){
           this.actividadesGenerales = data.Data;
         }else if(this.rol == 'PLANEACION'){
-          this.dataSource = data.Data;
-          console.log(data.Data)
+          this.dataSource.data = data.Data;
+          this.cambiarValor("activo", true, "Activo", this.dataSource.data)
+          this.cambiarValor("activo", false, "Inactivo", this.dataSource.data)
         }
       }
     }, (error) => {
@@ -159,6 +178,12 @@ export class SeguimientoComponentGestion implements OnInit {
       })
     })
   } 
+
+  cambiarValor(valorABuscar, valorViejo, valorNuevo, dataS) {
+    dataS.forEach(function (elemento) {
+      elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
+    })
+  }
 
   onChangeA(event){
     if(event != undefined){
@@ -206,7 +231,6 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   revisar(row){
-    console.log(row)
     this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/'+ row.index]);
   }
 }

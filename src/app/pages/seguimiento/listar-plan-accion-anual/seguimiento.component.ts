@@ -124,7 +124,6 @@ export class SeguimientoComponentList implements OnInit {
     if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
-      console.log(vigencia);
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
       this.dataSource.data = [];
@@ -144,7 +143,6 @@ export class SeguimientoComponentList implements OnInit {
             this.getVigencias();
             this.getPeriodos();
             this.dataSource.data = this.planes;
-            console.log(this.planes)
           } else {
             this.unidadSelected = false;
             Swal.fire({

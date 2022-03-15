@@ -450,6 +450,8 @@ export class FormulacionComponent implements OnInit {
           this.controlVersion = new FormControl(this.plan);
           this.versionPlan = this.plan.numero;
           this.getEstado();
+          console.log(this.plan);
+
         }
       }),
       (error) => {
@@ -506,7 +508,7 @@ export class FormulacionComponent implements OnInit {
     }else if (this.rol == 'JEFE_DEPENDENCIA'){
       this.iconEditar = 'edit'
     }
-    this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
+    this.request.get(environment.PRUEBA, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
       if (data.Data.data_source != null) {
         this.dataSource = new MatTableDataSource(data.Data.data_source);
         this.cambiarValor("activo", true, "Activo", this.dataSource.data)
@@ -516,7 +518,6 @@ export class FormulacionComponent implements OnInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         this.dataT = true;
-        
       } else if (data.Data.data_source == null) {
         this.dataT = false;
         Swal.fire({
