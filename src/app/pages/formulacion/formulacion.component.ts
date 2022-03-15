@@ -508,7 +508,7 @@ export class FormulacionComponent implements OnInit {
     }else if (this.rol == 'JEFE_DEPENDENCIA'){
       this.iconEditar = 'edit'
     }
-    this.request.get(environment.PRUEBA, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
       if (data.Data.data_source != null) {
         this.dataSource = new MatTableDataSource(data.Data.data_source);
         this.cambiarValor("activo", true, "Activo", this.dataSource.data)
