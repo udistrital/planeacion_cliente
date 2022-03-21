@@ -148,7 +148,7 @@ export class GenerarTrimestreComponent implements OnInit {
       if (data.Data) {
         this.seguimientoCompleto = data.Data[0];
         this.getEstado();
-      }
+       }
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
