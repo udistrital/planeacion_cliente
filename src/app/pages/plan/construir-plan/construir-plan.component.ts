@@ -378,6 +378,10 @@ export class ConstruirPlanComponent implements OnInit {
         this.planes = this.planes.concat(data.Data);
         this.planes = this.filterActivos(this.planes);
       })
+      this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b`).subscribe((data : any)=>{
+        this.planes = this.planes.concat(data.Data);
+        this.planes = this.filterActivos(this.planes);
+      })
     },(error) => {
       Swal.fire({
         title: 'Error en la operación', 
