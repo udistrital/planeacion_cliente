@@ -11,6 +11,7 @@ import { environment } from 'src/environments/environment';
 import { request } from 'http';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { read } from 'fs';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-contratistas',
@@ -37,6 +38,9 @@ export class ContratistasComponent implements OnInit {
   readonlyObs: boolean;
   readonlyTable: boolean = false;
   mostrarObservaciones : boolean;
+  name = 'Angular';
+  formattedAmount;
+  amount;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -48,7 +52,8 @@ export class ContratistasComponent implements OnInit {
   @Output() acciones = new EventEmitter<any>();
   constructor(
     private request: RequestManager,
-    private autenticationService: ImplicitAutenticationService
+    private autenticationService: ImplicitAutenticationService,
+    private currencyPipe:CurrencyPipe
   ) { }
 
   ngOnInit(): void {
@@ -67,6 +72,14 @@ export class ContratistasComponent implements OnInit {
       }
     })
   }
+
+  transformAmount(element){
+    console.log(element)
+    this.formattedAmount = this.currencyPipe.transform(this.formattedAmount, '$');
+    element.target.value = this.formattedAmount;
+    console.log(element.valorUnitario)
+    console.log(element.target.value)
+}
 
   visualizarColumnas(): string[] {
     if (this.rol == 'JEFE_DEPENDENCIA') {

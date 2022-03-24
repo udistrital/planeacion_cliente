@@ -4,7 +4,13 @@ table {
 
 th {
     color: white;
-    text-align: center;
+    text-align: center !important;
+
+}
+
+.td-align-left{
+    text-align: justify !important;
+    vertical-align: middle !important;
 }
 
 .td-align-right{
@@ -18,19 +24,14 @@ th {
   justify-content: flex-end;
 }
 
-.btn-formulacion{
-  display: inline-block ;
-  margin-top: 20px;
-  margin-left: auto;
-  margin-right: auto;
 
-}
 
 .mat-raised-button{
-  display: block !important;
-  margin-top: 20px;
-  margin-left: auto;
-  margin-right: auto;
+  text-align: center !important;
+  margin: 1%;
+  width: 20%;
+  align-self: center;
+  display: inline;
 }
 
 #box {
@@ -108,3 +109,18 @@ th {
 .select-armo{
   margin-top: 2%;
 }
+
+.mat-row:nth-child(even){
+  background-color:#E7D6D6;
+}
+      
+.mat-row:nth-child(odd){
+  background-color: white;
+}
+
+.input-search{
+  width: 99%;
+  height: 30px;
+  border-radius: 5px 5px 5px 5px;
+}
+

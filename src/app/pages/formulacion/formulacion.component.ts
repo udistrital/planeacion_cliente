@@ -25,6 +25,7 @@ export class FormulacionComponent implements OnInit {
   form: FormGroup;
   planes: any[];
   unidades: any[];
+  auxUnidades : any[];
   vigencias: any[];
   planSelected: boolean;
   planAsignado: boolean;
@@ -126,6 +127,7 @@ export class FormulacionComponent implements OnInit {
     this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
       if (data) {
         this.unidades = data.Data;
+        this.auxUnidades = data.Data;
       }
     }, (error) => {
       Swal.fire({
@@ -169,6 +171,21 @@ export class FormulacionComponent implements OnInit {
         timer: 2500
       })
     })
+  }
+
+  onKey(value){
+    if (value === ""){
+      this.auxUnidades = this.unidades;
+    }else{
+      this.auxUnidades = this.search(value);
+    }
+  }
+
+  search(value){
+    let filter = value.toLowerCase();
+    if (this.unidades != undefined){
+      return this.unidades.filter(option => option.Nombre.toLowerCase().startsWith(filter));
+    }
   }
 
   prevStep(step) {

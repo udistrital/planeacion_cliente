@@ -89,3 +89,11 @@ overflow-x: auto;
   margin-bottom: 1%;
   width: 97%; 
 }
+
+textarea{
+  resize: none;
+  text-align: justify;
+  white-space: pre-line;
+  -moz-text-align-last: left;
+  text-align-last: left;
+}
