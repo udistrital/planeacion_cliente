@@ -87,8 +87,8 @@
               <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Valor Unitario</th>
               <td mat-cell *matCellDef="let element">
                 <mat-form-field floatLabel="never">
-                  <input [readonly]="readonlyTable" class="form-control" matInput type="number" [value]="element.valorUnitario"
-                    [(ngModel)]="element.valorUnitario" [ngModelOptions]="{standalone: true}" required>
+                  <input [readonly]="readonlyTable"  class="form-control"  type="text" matInput  [value]="element.valorUnitario"
+                    [(ngModel)]="element.valorUnitario" [ngModelOptions]="{standalone: true}"   required>
                 </mat-form-field>
               <td mat-footer-cell *matFooterCellDef class="footer">
                 Total
@@ -101,8 +101,8 @@
               <td mat-cell *matCellDef="let element; let rowIndex = index">
                 <mat-form-field floatLabel="never">
                   <!-- <label>{{element.valorUnitario * element.cantidad | currency}}</label> -->
-                  <input [readonly]="readonlyTable" min="0" class="form-control" matInput type="number" [value]="getTotal(element, rowIndex)"
-                    [(ngModel)]="element.valorTotal" [ngModelOptions]="{standalone: true}" required readonly>
+                  <input [readonly]="readonlyTable" min="0" class="form-control"  type="text" matInput [value]="getTotal(element, rowIndex)"
+                    [(ngModel)]="element.valorTotal" [ngModelOptions]="{standalone: true}"   required readonly>
                 </mat-form-field>
               </td>
               <td mat-footer-cell *matFooterCellDef class="footer">

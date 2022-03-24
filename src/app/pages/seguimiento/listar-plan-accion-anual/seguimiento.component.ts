@@ -22,6 +22,7 @@ export class SeguimientoComponentList implements OnInit {
   dataSource: MatTableDataSource<any>;
   planes: any[];
   unidades: any[];
+  auxUnidades : any[];
   unidadSelected: boolean;
   unidad: any;
   vigencias : any[];
@@ -80,6 +81,7 @@ export class SeguimientoComponentList implements OnInit {
     this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
       if (data) {
         this.unidades = data.Data;
+        this.auxUnidades = data.Data;
       }
     }, (error) => {
       Swal.fire({
@@ -91,6 +93,22 @@ export class SeguimientoComponentList implements OnInit {
       })
     })
   }
+
+  onKey(value){
+    if (value === ""){
+      this.auxUnidades = this.unidades;
+    }else{
+      this.auxUnidades = this.search(value);
+    }
+  }
+
+  search(value){
+    let filter = value.toLowerCase();
+    if (this.unidades != undefined){
+      return this.unidades.filter(option => option.Nombre.toLowerCase().startsWith(filter));
+    }
+  }
+
 
   loadPeriodos() {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG`).subscribe((data: any) => {
