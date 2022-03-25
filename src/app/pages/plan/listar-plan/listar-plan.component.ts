@@ -164,6 +164,7 @@ export class ListarPlanComponent implements OnInit {
   }
 
   loadData(){
+    console.log(this.planes)
     this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
