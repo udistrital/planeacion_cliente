@@ -20,6 +20,7 @@ import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-re
 import { Evidencias } from './seguimiento/evidencias/evidencias.component';
 import { ConstruccionModulComponent } from './construccion-modul/construccion-modul.component';
 import { PUIComponent } from './pui/pui.component';
+import { PedComponent } from './ped/ped.component';
 
 
 const routes: Routes = [{
@@ -89,6 +90,10 @@ const routes: Routes = [{
     {
       path: 'pui',
       component: PUIComponent,
+    },
+    {
+      path: 'ped',
+      component: PedComponent,
     },
     {
       path: 'seguimiento',

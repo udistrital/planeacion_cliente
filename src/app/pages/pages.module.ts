@@ -58,6 +58,8 @@ import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-re
 import { VisualizarDocumentoDialogComponent } from './seguimiento/generar-trimestre/visualizar-documento-dialog/visualizar-documento-dialog.component';
 import { ConstruccionModulComponent } from './construccion-modul/construccion-modul.component';
 import { PUIComponent } from './pui/pui.component';
+import { PedComponent } from './ped/ped.component';
+import { ConsultarDialogPedComponent } from './ped/consultar-dialog-ped/consultar-dialog-ped.component';
 
 
 
@@ -129,6 +131,8 @@ const materialModules = [
     VisualizarDocumentoDialogComponent,
     ConstruccionModulComponent,
     PUIComponent,
+    PedComponent,
+    ConsultarDialogPedComponent,
   ],
   imports: [
     HttpClientModule,

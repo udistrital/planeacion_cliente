@@ -3,17 +3,18 @@ import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import { EditarDialogComponent } from '../construir-plan/editar-dialog/editar-dialog.component';
-import { RequestManager } from '../../services/requestManager';
-import { environment } from '../../../../environments/environment'
+import { EditarDialogComponent } from '../plan/construir-plan/editar-dialog/editar-dialog.component';
+import { ConsultarDialogPedComponent } from '../ped/consultar-dialog-ped/consultar-dialog-ped.component';
+import { RequestManager } from '../services/requestManager';
+import { environment } from '../../../environments/environment'
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-listar-plan',
-  templateUrl: './listar-plan.component.html',
-  styleUrls: ['./listar-plan.component.scss']
+  selector: 'app-ped',
+  templateUrl: './ped.component.html',
+  styleUrls: ['./ped.component.scss']
 })
-export class ListarPlanComponent implements OnInit {
+export class PedComponent implements OnInit {
 
   displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'actions'];
   dataSource: MatTableDataSource<any>;
@@ -43,6 +44,25 @@ export class ListarPlanComponent implements OnInit {
     console.log(sub)
     console.log(subDetalle)
     const dialogRef = this.dialog.open(EditarDialogComponent, {
+      width: 'calc(80vw - 60px)',
+      height: 'calc(40vw - 60px)',
+      data: {ban: 'plan', sub, subDetalle}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result == undefined){
+        return undefined;
+      } else {
+        this.putData(result, 'editar');
+        console.log(result);
+      }
+    });
+  }
+
+  openDialogConsultar(sub, subDetalle): void {
+    console.log(sub)
+    console.log(subDetalle)
+    const dialogRef = this.dialog.open(ConsultarDialogPedComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
       data: {ban: 'plan', sub, subDetalle}
@@ -165,7 +185,7 @@ export class ListarPlanComponent implements OnInit {
 
   loadData(){
     console.log(this.planes)
-    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:616513b91634adfaffed52bf,activo:true`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.ajustarData();
@@ -213,6 +233,29 @@ export class ListarPlanComponent implements OnInit {
     } 
   }
 
+  consultar(fila): void{
+    this.uid = fila._id;
+    this.request.get(environment.PLANES_CRUD, `plan/`+this.uid).subscribe((data: any) => {
+      if(data){
+        this.plan = data.Data;
+        let subgrupoDetalle={
+          type: "",
+          required: false
+        }
+        this.openDialogConsultar(this.plan, subgrupoDetalle);  
+      }
+    }),
+    (error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: 'No se encontraron datos registrados',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    } 
+  }
+
   inactivar(fila):void{
     this.uid = fila._id;
     if (fila.activo == 'Activo'){
@@ -244,4 +287,5 @@ export class ListarPlanComponent implements OnInit {
   ngOnInit(): void {
   
   }
+
 }
