@@ -56,6 +56,8 @@ import { PlanAnualComponent } from './reportes/reporte-plan-anual/plan-anual.com
 import { PlanUnidadComponent } from './reportes/reporte-plan-unidad/plan-unidad.component';
 import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
 import { VisualizarDocumentoDialogComponent } from './seguimiento/generar-trimestre/visualizar-documento-dialog/visualizar-documento-dialog.component';
+import { ConstruccionModulComponent } from './construccion-modul/construccion-modul.component';
+import { PUIComponent } from './pui/pui.component';
 
 
 
@@ -125,6 +127,8 @@ const materialModules = [
     PlanUnidadComponent,
     HabilitarReporteComponent,
     VisualizarDocumentoDialogComponent,
+    ConstruccionModulComponent,
+    PUIComponent,
   ],
   imports: [
     HttpClientModule,

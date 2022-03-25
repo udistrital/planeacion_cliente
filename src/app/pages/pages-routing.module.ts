@@ -18,6 +18,8 @@ import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/gener
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
 import { Evidencias } from './seguimiento/evidencias/evidencias.component';
+import { ConstruccionModulComponent } from './construccion-modul/construccion-modul.component';
+import { PUIComponent } from './pui/pui.component';
 
 
 const routes: Routes = [{
@@ -79,6 +81,14 @@ const routes: Routes = [{
     {
       path: 'evaluacion',
       component: EvaluacionComponent,
+    },
+    {
+      path: 'construccion-modul',
+      component: ConstruccionModulComponent,
+    },
+    {
+      path: 'pui',
+      component: PUIComponent,
     },
     {
       path: 'seguimiento',
