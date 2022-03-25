@@ -17,34 +17,34 @@ import { environment } from './environments/environment';
   },
   {
     Nombre: "Proyecto universitario institucional", Icono: "wysiwyg", Url: null, Opciones: [
-      { Nombre: "Consultar PUI", Icono: 'view_list', Url: "pages/pui", TipoOpcion: "Menú", Opciones: null }
+      { Nombre: "Consultar PUI", Url: "pages/pui", TipoOpcion: "Menú", Opciones: null }
     ]
   },
   {
     Nombre: "Plan estratégico de desarrollo", Icono: "wysiwyg", Url: null, Opciones: [
-      { Nombre: "Consultar PED", Icono: 'view_list', Url: "pages/ped", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Seguimiento PED", Icono: 'view_list', Url: "pages/pui", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Evaluación PED", Icono: 'view_list', Url: "pages/pui", TipoOpcion: "Menú", Opciones: null }
+      { Nombre: "Consultar PED", Url: "pages/ped/ped", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Seguimiento PED", Url: "pages/ped/seguimiento-ped", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Evaluación PED", Url: "pages/ped/evaluacion-ped", TipoOpcion: "Menú", Opciones: null }
     ]
   },
   {
     Nombre: "Plan maestro de espacios educativos", Icono: "wysiwyg", Url: null, Opciones: [
-      { Nombre: "Consultar PMEE", Icono: 'view_list', Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Seguimiento PMEE", Icono: 'view_list', Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Evaluación PMEE", Icono: 'view_list', Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null }
+      { Nombre: "Consultar PMEE", Url: "pages/pmee/construccion-pmee", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Seguimiento PMEE", Url: "pages/pmee/seguimiento-pmee", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Evaluación PMEE", Url: "pages/pmee/evaluacion-pmee", TipoOpcion: "Menú", Opciones: null }
     ]
   },
   {
     Nombre: "Plan indicativo", Icono: "wysiwyg", Url: null, Opciones: [
-      { Nombre: "Consultar PI", Icono: 'view_list', Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Seguimiento PI", Icono: 'view_list', Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Evaluación PI", Icono: 'view_list', Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null }
+      { Nombre: "Consultar PI", Url: "pages/pi/consultar-pi", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Seguimiento PI", Url: "pages/pi/seguimiento-pi", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Evaluación PI", Url: "pages/pi/evaluacion-pi", TipoOpcion: "Menú", Opciones: null }
     ]
   },
   {
     Nombre: "Plan operativo anual", Icono: "wysiwyg", Url: null, Opciones: [
-      { Nombre: "Consultar POA", Icono: 'view_list', Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Evaluación POA", Icono: 'view_list', Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null }
+      { Nombre: "Consultar POA", Url: "pages/poa/consultar-poa", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Evaluación POA", Url: "pages/poa/evaluacion-poa", TipoOpcion: "Menú", Opciones: null }
     ]
   },
   {
@@ -60,27 +60,27 @@ import { environment } from './environments/environment';
   },
   { 
     Nombre: "Banco de Proyectos", Icono: "account_balance", Url: null, Opciones: [
-      { Nombre: "Proyectos de inversón MACRO", Icono: "view_list", Url: "pages/plan/consultar-plan", TipoOpcion: "Menú", Opciones: [
-          { Nombre: "Consulta Proyectos de Inversión Inscritos", Icono: "search", Url: "pages/plan/consultar-plan", TipoOpcion: "Menú", Opciones: null },
-          { Nombre: "Formulación Proyecto de Inversión", Icono: "forward", Url: "pages/formulacion", TipoOpcion: "Menú", Opciones: null },
-          { Nombre: "Seguimiento Proyectos de Inversión", Icono: "find_in_page", Url: "pages/seguimiento", TipoOpcion: "Menú", Opciones: null },
-          { Nombre: "Evaluación Proyectos de Inversión", Icono: "done_all", Url: "pages/evaluacion", TipoOpcion: "Menú", Opciones: null },
-          { Nombre: "Generación de reportes", Icono: "view_list", Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null }
+      { Nombre: "Proyectos de inversón MACRO", Icono: "view_list", Url: null, TipoOpcion: "Menú", Opciones: [
+          { Nombre: "Consulta Proyectos de Inversión Inscritos", Icono: "search", Url: "pages/proyectos-macro/consultar-proyecto", TipoOpcion: "Menú", Opciones: null },
+          { Nombre: "Formulación Proyecto de Inversión", Icono: "forward", Url: "pages/proyectos-macro/formular-proyecto", TipoOpcion: "Menú", Opciones: null },
+          { Nombre: "Seguimiento Proyectos de Inversión", Icono: "find_in_page", Url: "pages/proyectos-macro/seguimiento-proyecto", TipoOpcion: "Menú", Opciones: null },
+          { Nombre: "Evaluación Proyectos de Inversión", Icono: "done_all", Url: "pages/proyectos-macro/evaluacion-proyecto", TipoOpcion: "Menú", Opciones: null },
+          { Nombre: "Generación de reportes", Icono: "view_list", Url: "pages/proyectos-macro/reporte-proyecto", TipoOpcion: "Menú", Opciones: null }
       ] },
-      { Nombre: "Banco de iniciativas de inversión institucionales", Icono: "view_list", Url: "pages/plan/consultar-plan", TipoOpcion: "Menú", Opciones: [
-          { Nombre: "Consulta Proyectos de Inversión Inscritos", Icono: "search", Url: "pages/plan/consultar-plan", TipoOpcion: "Menú", Opciones: null },
-          { Nombre: "Formulación SubProyecto de Inversión", Icono: "forward", Url: "pages/formulacion", TipoOpcion: "Menú", Opciones: null },
-          { Nombre: "Seguimiento SubProyectos de Inversión", Icono: "find_in_page", Url: "pages/seguimiento", TipoOpcion: "Menú", Opciones: null },
-          { Nombre: "Evaluación SubProyectos de Inversión", Icono: "done_all", Url: "pages/evaluacion", TipoOpcion: "Menú", Opciones: null },
-          { Nombre: "Generación de reportes", Icono: "view_list", Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null }
+      { Nombre: "Banco de iniciativas de inversión institucionales", Icono: "view_list", Url: null, TipoOpcion: "Menú", Opciones: [
+          { Nombre: "Consulta Proyectos de Inversión Inscritos", Icono: "search", Url: "pages/banco-inicaitivas/consultar-subproyecto", TipoOpcion: "Menú", Opciones: null },
+          { Nombre: "Formulación SubProyecto de Inversión", Icono: "forward", Url: "pages/banco-inicaitivas/formular-subproyecto", TipoOpcion: "Menú", Opciones: null },
+          { Nombre: "Seguimiento SubProyectos de Inversión", Icono: "find_in_page", Url: "pages/banco-inicaitivas/seguimiento-subproyecto", TipoOpcion: "Menú", Opciones: null },
+          { Nombre: "Evaluación SubProyectos de Inversión", Icono: "done_all", Url: "pages/banco-inicaitivas/evaluacion-subproyecto", TipoOpcion: "Menú", Opciones: null },
+          { Nombre: "Generación de reportes", Icono: "view_list", Url: "pages/banco-inicaitivas/reporte-subproyecto", TipoOpcion: "Menú", Opciones: null }
       ] },
-      { Nombre: "Proyectos otros fondos", Icono: "view_list", Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null }
+      { Nombre: "Proyectos otros fondos", Icono: "view_list", Url: "pages/proyecto-otro", TipoOpcion: "Menú", Opciones: null }
     ]
   },
   { Nombre: "Programación Presupuestal", Icono: "account_balance_wallet", Url: null, Opciones: [
     { Nombre: "Apropiación presupuestal inicial", Icono: "library_books", Url: null, Opciones: [
-      { Nombre: "Reportes de necesidades de funcionamiento", Icono: "poll", Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Reportes de necesidades de inversión", Icono: "poll", Url: "pages/construccion-modul", TipoOpcion: "Menú", Opciones: null }
+      { Nombre: "Reportes de necesidades de funcionamiento", Icono: null, Url: "pages/apropiacion-presupuestal/reporte-funcionamiento", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Reportes de necesidades de inversión", Icono: "poll", Url: "pages/apropiacion-presupuestal/reporte-inversion", TipoOpcion: "Menú", Opciones: null }
     ]}
   ] },
   // { Nombre: "Reportes", Icono: "library_books", Url: null, Opciones: [

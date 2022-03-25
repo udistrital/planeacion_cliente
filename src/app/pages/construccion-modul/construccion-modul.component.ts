@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-construccion-modul',
@@ -6,6 +6,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./construccion-modul.component.scss']
 })
 export class ConstruccionModulComponent implements OnInit {
+
+  @Input() nombreComponent: string;
 
   constructor() { }
 
