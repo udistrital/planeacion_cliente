@@ -1,6 +1,6 @@
     <mat-card class="card-dialog">
         <mat-card-header>
-            <mat-card-title>Definir Proyecto / Plan</mat-card-title>
+            <mat-card-title>Definir Plan / Proyecto</mat-card-title>
         </mat-card-header>
         <mat-card-content>
             <u class="textGuide">
@@ -53,7 +53,8 @@
                         </mat-radio-group>
                     </mat-grid-tile>
                     <mat-grid-tile *ngIf="banderaFormato == true && nombrePlan != 'Proyecto Universitario Institucional'">
-                            <mat-label id="tipo-radio-group-label">Formato</mat-label>
+                           <mat-label id="tipo-radio-group-label">Establecer como plantilla</mat-label>
+
                             <mat-radio-group formControlName="radioFormato" class="example-radio-group" aria-labelledby="example-radio-group-label"  required>
                             <mat-radio-button class="example-radio-button" value="true">Sí</mat-radio-button>
                             <mat-radio-button class="example-radio-button" value="false">No</mat-radio-button>

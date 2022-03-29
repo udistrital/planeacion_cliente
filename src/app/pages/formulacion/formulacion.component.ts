@@ -49,6 +49,8 @@ export class FormulacionComponent implements OnInit {
   identDocentes: boolean;
   banderaIdentDocentes: boolean;
 
+
+
   tipoPlanId: string;
   idPadre: string;
   tipoPlanIndicativo: string;
@@ -732,8 +734,6 @@ export class FormulacionComponent implements OnInit {
     if (this.tipoPlanIndicativo === undefined && this.idPlanIndicativo === undefined){
       this.cargarPlanesIndicativos();
     }
-    this.onChangePD(this.planesDesarrollo[0]);
-    this.onChangePI(this.planesIndicativos[0]);
     this.cargaFormato(this.plan);
     this.addActividad = true;
     this.banderaEdit = false;
@@ -839,8 +839,8 @@ export class FormulacionComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
       if (data) {
         this.planesDesarrollo = data.Data;
-        // this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
-        this.onChangePD(this.planesDesarrollo[0])
+        this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
+        this.onChangePD(this.planesDesarrollo[0]);
       }
     })
   }
@@ -849,8 +849,8 @@ export class FormulacionComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b`).subscribe((data: any) => {
       if (data) {
         this.planesIndicativos = data.Data;
-        // this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
-        this.onChangePI(this.planesIndicativos[0])
+        this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
+        this.onChangePI(this.planesIndicativos[0]);
 
       }
     })
