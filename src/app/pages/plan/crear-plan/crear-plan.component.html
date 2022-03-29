@@ -1,4 +1,4 @@
-    <mat-card class="card-oas">
+    <mat-card class="card-dialog">
         <mat-card-header>
             <mat-card-title>Definir Plan / Proyecto</mat-card-title>
         </mat-card-header>
@@ -45,20 +45,39 @@
                             </mat-error>
                         </mat-form-field>
                     </mat-grid-tile>
-                    <mat-grid-tile>
+                    <mat-grid-tile *ngIf="nombrePlan != 'Proyecto Universitario Institucional'">
                         <mat-label id="tipo-radio-group-label">Estado</mat-label>
                         <mat-radio-group formControlName="radioEstado" class="example-radio-group" aria-labelledby="example-radio-group-label" required>
                             <mat-radio-button class="example-radio-button" value="true">Activo</mat-radio-button>
                             <mat-radio-button class="example-radio-button" value="false">Inactivo</mat-radio-button>
                         </mat-radio-group>
                     </mat-grid-tile>
-                    <mat-grid-tile *ngIf="banderaFormato">
-                            <mat-label id="tipo-radio-group-label">Establecer como plantilla</mat-label>
+                    <mat-grid-tile *ngIf="banderaFormato == true && nombrePlan != 'Proyecto Universitario Institucional'">
+                           <mat-label id="tipo-radio-group-label">Establecer como plantilla</mat-label>
+
                             <mat-radio-group formControlName="radioFormato" class="example-radio-group" aria-labelledby="example-radio-group-label"  required>
                             <mat-radio-button class="example-radio-button" value="true">Sí</mat-radio-button>
                             <mat-radio-button class="example-radio-button" value="false">No</mat-radio-button>
                             </mat-radio-group>
-                    </mat-grid-tile>  
+                    </mat-grid-tile>
+                    <!-- <div *ngIf="nombrePlan == 'Proyecto Universitario Institucional'">
+                        <p>holii</p>
+                    </div> -->
+                    <mat-grid-tile *ngIf="nombrePlan == 'Proyecto Universitario Institucional'">
+                        <mat-form-field appearance="fill" [style.width.%]="200">
+                            <mat-label id="tipo-input-label">Vigencia</mat-label>
+                            <mat-select formControlName="tipo" (selectionChange)="select($event.value)" required>
+                                <mat-option>--</mat-option>
+                            </mat-select>
+                            <mat-hint>Seleccione la vigencia</mat-hint>
+                        </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile *ngIf="nombrePlan == 'Proyecto Universitario Institucional'">
+                        <button class="upload-button" mat-button appearance="fill" [style.width.%]="200">
+                            <mat-icon>file_upload</mat-icon>
+                            Adjuntar documento
+                        </button>
+                    </mat-grid-tile>
                 </mat-grid-list>
             </mat-card-content>
             <mat-card-content>

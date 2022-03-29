@@ -5,8 +5,9 @@ import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { EditarDialogComponent } from '../construir-plan/editar-dialog/editar-dialog.component';
 import { RequestManager } from '../../services/requestManager';
-import { environment } from '../../../../environments/environment'
+import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-listar-plan',
@@ -15,10 +16,12 @@ import Swal from 'sweetalert2';
 })
 export class ListarPlanComponent implements OnInit {
 
-  displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'actions'];
+  displayedColumns: string[] = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
   dataSource: MatTableDataSource<any>;
   uid: number; // id del objeto
   planes: any[];
+  // tipoPlan: any[];
+  // nombreTipoPlan:any;
   plan: any;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -26,6 +29,7 @@ export class ListarPlanComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private request: RequestManager,
+    private router: Router,
   ) {
     this.loadData();
   }
@@ -163,10 +167,34 @@ export class ListarPlanComponent implements OnInit {
     })
   }
 
+  consultarPlan(plan_id, nombrePlan, tipo_plan_id) {
+    console.log('pages/plan/consultar-plan/' + plan_id+ '/' + nombrePlan + '/' + tipo_plan_id);
+    this.router.navigate(['pages/plan/consultar-plan/' + plan_id+ '/' + nombrePlan + '/' + tipo_plan_id]);
+  }
+
   loadData(){
-    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
+    console.log(this.planes)
+
+        // this.request.get(environment.PLANES_CRUD, `tipo-plan?query=_id:${data.Data.tipo_plan_id}`).subscribe((dat: any) => {
+        //   if (dat){
+        //     this.tipoPlan = dat.Data;
+        //     this.nombreTipoPlan = dat.Data.nombre
+        //     this.ajustarData();
+        //   }
+        // },(error) => {
+        //   Swal.fire({
+        //     title: 'Error en la operación', 
+        //     text: 'No se encontraron datos registrados',
+        //     icon: 'warning',
+        //     showConfirmButton: false,
+        //     timer: 2500
+        //   })
+    
+        // })
+        // this.nombreTipoPlan = this.tipoPlan.nombre
         this.ajustarData();
       }
     },(error) => {

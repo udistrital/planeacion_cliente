@@ -56,6 +56,34 @@ import { PlanAnualComponent } from './reportes/reporte-plan-anual/plan-anual.com
 import { PlanUnidadComponent } from './reportes/reporte-plan-unidad/plan-unidad.component';
 import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
 import { VisualizarDocumentoDialogComponent } from './seguimiento/generar-trimestre/visualizar-documento-dialog/visualizar-documento-dialog.component';
+import { ConstruccionModulComponent } from './construccion-modul/construccion-modul.component';
+import { PUIComponent } from './pui/pui.component';
+import { PedComponent } from './ped/ped.component';
+import { ConsultarDialogPedComponent } from './ped/consultar-dialog-ped/consultar-dialog-ped.component';
+import { ConsultarPIComponent } from './plan-indicativo/consultar-pi/consultar-pi.component';
+import { SeguimientoPedComponent } from './ped/seguimiento-ped/seguimiento-ped.component';
+import { EvaluacionPedComponent } from './ped/evaluacion-ped/evaluacion-ped.component';
+import { ConstruccionPmeeComponent } from './pmee/construccion-pmee/construccion-pmee.component';
+import { SeguimientoPmeeComponent } from './pmee/seguimiento-pmee/seguimiento-pmee.component';
+import { EvaluacionPmeeComponent } from './pmee/evaluacion-pmee/evaluacion-pmee.component';
+import { SeguimientoPIComponent } from './plan-indicativo/seguimiento-pi/seguimiento-pi.component';
+import { EvaluacionPIComponent } from './plan-indicativo/evaluacion-pi/evaluacion-pi.component';
+import { ConsultarPOAComponent } from './plan-operativo-anual/consultar-poa/consultar-poa.component';
+import { EvaluacionPOAComponent } from './plan-operativo-anual/evaluacion-poa/evaluacion-poa.component';
+import { ConsultarProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/consultar-proyecto-inversion/consultar-proyecto-inversion.component';
+import { FormularProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/formular-proyecto-inversion/formular-proyecto-inversion.component';
+import { SeguimientoProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/seguimiento-proyecto-inversion/seguimiento-proyecto-inversion.component';
+import { EvaluacionProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/evaluacion-proyecto-inversion/evaluacion-proyecto-inversion.component';
+import { ReportesProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/reportes-proyecto-inversion/reportes-proyecto-inversion.component';
+import { ConsultarSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/consultar-sub-proyecto-inversion/consultar-sub-proyecto-inversion.component';
+import { FormularSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/formular-sub-proyecto-inversion/formular-sub-proyecto-inversion.component';
+import { SeguimientoSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/seguimiento-sub-proyecto-inversion/seguimiento-sub-proyecto-inversion.component';
+import { EvaluacionSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/evaluacion-sub-proyecto-inversion/evaluacion-sub-proyecto-inversion.component';
+import { ReportesSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/reportes-sub-proyecto-inversion/reportes-sub-proyecto-inversion.component';
+import { ProyectosOtrosFondosComponent } from './banco-de-proyectos/proyectos-otros-fondos/proyectos-otros-fondos.component';
+import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/reporte-funcionamiento/reporte-funcionamiento.component';
+import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
+import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/construir-plan-proyecto.component';
 
 
 
@@ -125,6 +153,34 @@ const materialModules = [
     PlanUnidadComponent,
     HabilitarReporteComponent,
     VisualizarDocumentoDialogComponent,
+    ConstruccionModulComponent,
+    PUIComponent,
+    PedComponent,
+    ConsultarDialogPedComponent,
+    ConsultarPIComponent,
+    SeguimientoPedComponent,
+    EvaluacionPedComponent,
+    ConstruccionPmeeComponent,
+    SeguimientoPmeeComponent,
+    EvaluacionPmeeComponent,
+    SeguimientoPIComponent,
+    EvaluacionPIComponent,
+    ConsultarPOAComponent,
+    EvaluacionPOAComponent,
+    ConsultarProyectoInversionComponent,
+    FormularProyectoInversionComponent,
+    SeguimientoProyectoInversionComponent,
+    EvaluacionProyectoInversionComponent,
+    ReportesProyectoInversionComponent,
+    ConsultarSubProyectoInversionComponent,
+    FormularSubProyectoInversionComponent,
+    SeguimientoSubProyectoInversionComponent,
+    EvaluacionSubProyectoInversionComponent,
+    ReportesSubProyectoInversionComponent,
+    ProyectosOtrosFondosComponent,
+    ReporteFuncionamientoComponent,
+    ReporteInversionComponent,
+    ConstruirPlanProyectoComponent,
   ],
   imports: [
     HttpClientModule,

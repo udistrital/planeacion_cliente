@@ -17,6 +17,7 @@ export class CrearPlanComponent implements OnInit {
   formCrearPlan: FormGroup;
   tipos: any[]
   tipoPlan: any;
+  nombrePlan: any;
   banderaFormato : boolean = false;
   constructor(
     private request: RequestManager,
@@ -84,6 +85,8 @@ export class CrearPlanComponent implements OnInit {
   select(tipo){
     this.tipoPlan = tipo;
     if(tipo._id !== "611af8464a34b3599e3799a2"){ // diferente de proyecto
+      console.log(tipo.nombre)
+      this.nombrePlan = tipo.nombre;
       this.banderaFormato = true
       this.formCrearPlan.get('radioFormato').enable();
     }else{
