@@ -83,6 +83,7 @@ import { ReportesSubProyectoInversionComponent } from './banco-de-proyectos/banc
 import { ProyectosOtrosFondosComponent } from './banco-de-proyectos/proyectos-otros-fondos/proyectos-otros-fondos.component';
 import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/reporte-funcionamiento/reporte-funcionamiento.component';
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
+import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/construir-plan-proyecto.component';
 
 
 
@@ -179,6 +180,7 @@ const materialModules = [
     ProyectosOtrosFondosComponent,
     ReporteFuncionamientoComponent,
     ReporteInversionComponent,
+    ConstruirPlanProyectoComponent,
   ],
   imports: [
     HttpClientModule,

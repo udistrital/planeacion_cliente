@@ -42,6 +42,7 @@ import { SeguimientoSubProyectoInversionComponent } from './banco-de-proyectos/b
 import { EvaluacionSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/evaluacion-sub-proyecto-inversion/evaluacion-sub-proyecto-inversion.component';
 import { ReportesSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/reportes-sub-proyecto-inversion/reportes-sub-proyecto-inversion.component';
 import { ProyectosOtrosFondosComponent } from './banco-de-proyectos/proyectos-otros-fondos/proyectos-otros-fondos.component';
+import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/construir-plan-proyecto.component';
 
 import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/reporte-funcionamiento/reporte-funcionamiento.component';
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
@@ -71,12 +72,16 @@ const routes: Routes = [{
           component: ListarPlanComponent,
         },
         {
-          path: 'consultar-plan',
+          path: 'consultar-plan/:plan_id/:nombrePlan/:tipo_plan_id',
           component: ConsultarPlanComponent,
         }, 
         {
-          path: 'construir-plan',
+          path: 'construir-plan/:plan_id/:nombrePlan/:tipo_plan_id',
           component: ConstruirPlanComponent,
+        },
+        {
+          path: 'construir-plan-proyecto',
+          component: ConstruirPlanProyectoComponent,
         },
         {
           path: 'habilitar-reporte',

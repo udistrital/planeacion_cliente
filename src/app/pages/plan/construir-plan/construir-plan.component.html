@@ -9,22 +9,22 @@
   </mat-card-content>
   <mat-card-content>
     <mat-form-field appearance="fill" [style.width.%]="100">
-      <mat-label id="tipo-input-label">Seleccionar Proyecto / Plan</mat-label>
-        <mat-select (selectionChange)="onChange($event.value)">
-          <mat-option>--</mat-option>
-          <mat-option *ngFor="let plan of planes" [value]="plan">
+      <mat-label id="tipo-input-label">{{nombrePlan}}</mat-label>
+        <mat-select>
+          <mat-option>{{nombrePlan}}</mat-option>
+          <!-- <mat-option *ngFor="let plan of planes" [value]="plan">
             {{plan.nombre}}
-          </mat-option>
+          </mat-option> -->
         </mat-select>
     </mat-form-field>
     <br> <br>
-    <u class="textGuide" *ngIf="tipoPlanId !== undefined">
+    <u class="textGuide">
       En la siguiente tabla usted podrá encontrar los elementos creados identificados por NIVELES
     </u>
     <br> <br>
-    <app-arbol *ngIf="tipoPlanId !== undefined" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre" [consulta]="false" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
+    <app-arbol [tipoPlanId]="tipo_plan_id" [idPlan]="planId" [consulta]="false" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
   </mat-card-content>
-  <mat-card-footer *ngIf="tipoPlanId != '611af8464a34b3599e3799a2' && tipoPlanId != undefined" style="text-align: center;">
+  <mat-card-footer *ngIf="tipo_plan_id != '611af8464a34b3599e3799a2' && tipo_plan_id != undefined" style="text-align: center;">
     <ng-container>
       <button mat-raised-button color="primary" (click)="agregarSub(1)">
         Agregar Nivel
@@ -32,4 +32,11 @@
     </ng-container>
     <br><br>
   </mat-card-footer>
+  <mat-card-actions>
+    <div style="margin: 1rem;">
+        <button mat-raised-button color="primary" (click)="volver()" class="col-3 mt-2 mb-3">
+            Regresar
+        </button>
+    </div>
+</mat-card-actions>
 </mat-card>

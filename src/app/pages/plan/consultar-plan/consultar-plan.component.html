@@ -9,14 +9,21 @@
     </mat-card-content>
     <mat-card-content>
       <mat-form-field appearance="fill" [style.width.%]="100">
-        <mat-label id="tipo-input-label">Seleccionar Proyecto / Plan</mat-label>
-          <mat-select (selectionChange)="onChange($event.value)">
-            <mat-option>--</mat-option>
-            <mat-option *ngFor="let plan of planes" [value]="plan">
+        <mat-label id="tipo-input-label">{{nombrePlan}}</mat-label>
+          <mat-select>
+            <mat-option>{{nombrePlan}}</mat-option>
+            <!-- <mat-option *ngFor="let plan of planes" [value]="plan">
               {{plan.nombre}}
-            </mat-option>
+            </mat-option> -->
           </mat-select>
       </mat-form-field>
-      <app-arbol *ngIf="tipoPlanId !== undefined" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre" [consulta]="true"></app-arbol>
+      <app-arbol [tipoPlanId]="tipo_plan_id" [idPlan]="planId" [consulta]="true"></app-arbol>
     </mat-card-content>
+    <mat-card-actions>
+      <div style="margin: 1rem;">
+          <button mat-raised-button color="primary" (click)="volver()" class="col-3 mt-2 mb-3">
+              Regresar
+          </button>
+      </div>
+  </mat-card-actions>
   </mat-card>

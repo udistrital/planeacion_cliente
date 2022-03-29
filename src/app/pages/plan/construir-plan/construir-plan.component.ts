@@ -6,6 +6,7 @@ import { EditarDialogComponent } from './editar-dialog/editar-dialog.component';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-construir-plan',
@@ -15,9 +16,10 @@ import Swal from 'sweetalert2';
 export class ConstruirPlanComponent implements OnInit {
   
   formConstruirPlan: FormGroup;
-  tipoPlanId: string; // id tipo plan
+  tipo_plan_id: string; // id tipo plan
+  nombrePlan : string;
   nivel: number; // nivel objeto
-  idPadre: string; // id padre del objeto
+  planId: string; // id padre del objeto
   uid: string; // id objeto
   uid_n: number; // nuevo nivel
   planes: any[];
@@ -28,9 +30,15 @@ export class ConstruirPlanComponent implements OnInit {
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
     private request: RequestManager,
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
   ) { 
-    this.idPadre = '';
-    this.loadPlanes(); 
+    activatedRoute.params.subscribe(prm => {
+      this.planId = prm['plan_id'];
+      this.nombrePlan = prm['nombrePlan'];
+      this.tipo_plan_id = prm['tipo_plan_id'];
+    });
+    // this.loadPlanes(); 
   }
 
   openDialogAgregar(): void {
@@ -54,7 +62,7 @@ export class ConstruirPlanComponent implements OnInit {
       var dataSub = {
         nombre: res.nombre,
         descripcion: res.descripcion,
-        padre: this.idPadre,
+        padre: this.planId,
         activo: JSON.parse(res.activo),
         bandera_tabla: JSON.parse(res.bandera)
       } 
@@ -257,14 +265,14 @@ export class ConstruirPlanComponent implements OnInit {
     }
   }
 
-  onChange(plan){
-    if (plan == undefined){
-      this.tipoPlanId = undefined;
-    } else {
-      this.tipoPlanId = plan.tipo_plan_id;
-      this.idPadre = plan._id; // id plan
-    }
-  }
+  // onChange(plan){
+  //   if (plan == undefined){
+  //     this.tipoPlanId = undefined;
+  //   } else {
+  //     this.tipoPlanId = plan.tipo_plan_id;
+  //     this.idPadre = plan._id; // id plan
+  //   }
+  // }
 
    receiveMessage(event){
     if (event.bandera == 'editar'){
@@ -395,6 +403,10 @@ export class ConstruirPlanComponent implements OnInit {
 
   filterActivos(data) {
     return data.filter(e => e.activo == true);
+  }
+
+  volver(){
+    this.router.navigate(['pages/plan/construir-plan-proyecto']);
   }
 
   ngOnInit(): void {
