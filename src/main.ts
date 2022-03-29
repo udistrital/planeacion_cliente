@@ -7,12 +7,10 @@ import { environment } from './environments/environment';
  const menu = [
   { Nombre: "Inicio", Icono: "home", Url: "pages", Opciones: null },
   {
-    Nombre: "Construcción", Icono: "build", Url: null, Opciones: [
-      { Nombre: "Listar", Icono: 'view_list', Url: "pages/plan/listar-plan", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Definir", Icono: 'add_circle', Url: "pages/plan/crear-plan", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Construir", Icono: 'input', Url: "pages/plan/construir-plan", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Consultar", Icono: 'search', Url: "pages/plan/consultar-plan", TipoOpcion: "Menú", Opciones: null },
-      { Nombre: "Gestión de Reportes", Icono: 'find_in_page', Url: "pages/plan/habilitar-reporte", TipoOpcion: "Menú", Opciones: null }
+    Nombre: "Construcción", Icono: "wysiwyg", Url: null, Opciones: [
+      { Nombre: "Administrar sistema", Icono: null, Url: "pages/plan/habilitar-reporte", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Consultar Planes/Proyectos", Icono: null, Url: "pages/plan/listar-plan", TipoOpcion: "Menú", Opciones: null },
+      { Nombre: "Construir Plan/Proyecto", Icono: null, Url: "pages/plan/construir-plan-proyecto", TipoOpcion: "Menú", Opciones: null },
     ]
   },
   {

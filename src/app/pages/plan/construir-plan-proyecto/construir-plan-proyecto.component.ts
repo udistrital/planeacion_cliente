@@ -8,13 +8,14 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
+import {CrearPlanComponent} from '../crear-plan/crear-plan.component'
 
 @Component({
-  selector: 'app-listar-plan',
-  templateUrl: './listar-plan.component.html',
-  styleUrls: ['./listar-plan.component.scss']
+  selector: 'app-construir-plan-proyecto',
+  templateUrl: './construir-plan-proyecto.component.html',
+  styleUrls: ['./construir-plan-proyecto.component.scss']
 })
-export class ListarPlanComponent implements OnInit {
+export class ConstruirPlanProyectoComponent implements OnInit {
 
   displayedColumns: string[] = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
   dataSource: MatTableDataSource<any>;
@@ -167,9 +168,9 @@ export class ListarPlanComponent implements OnInit {
     })
   }
 
-  consultarPlan(plan_id, nombrePlan, tipo_plan_id) {
-    console.log('pages/plan/consultar-plan/' + plan_id+ '/' + nombrePlan + '/' + tipo_plan_id);
-    this.router.navigate(['pages/plan/consultar-plan/' + plan_id+ '/' + nombrePlan + '/' + tipo_plan_id]);
+  construirPlan(plan_id, nombrePlan, tipo_plan_id) {
+    // console.log('pages/plan/consultar-plan/' + plan_id+ '/' + nombrePlan + '/' + tipo_plan_id);
+    this.router.navigate(['pages/plan/construir-plan/' + plan_id+ '/' + nombrePlan + '/' + tipo_plan_id]);
   }
 
   loadData(){
@@ -177,24 +178,6 @@ export class ListarPlanComponent implements OnInit {
       if (data){
         this.planes = data.Data;
     console.log(this.planes)
-
-        // this.request.get(environment.PLANES_CRUD, `tipo-plan?query=_id:${data.Data.tipo_plan_id}`).subscribe((dat: any) => {
-        //   if (dat){
-        //     this.tipoPlan = dat.Data;
-        //     this.nombreTipoPlan = dat.Data.nombre
-        //     this.ajustarData();
-        //   }
-        // },(error) => {
-        //   Swal.fire({
-        //     title: 'Error en la operación', 
-        //     text: 'No se encontraron datos registrados',
-        //     icon: 'warning',
-        //     showConfirmButton: false,
-        //     timer: 2500
-        //   })
-    
-        // })
-        // this.nombreTipoPlan = this.tipoPlan.nombre
         this.ajustarData();
       }
     },(error) => {
@@ -268,7 +251,25 @@ export class ListarPlanComponent implements OnInit {
     })
   }
 
+  definir(): void {
+    const dialogRef = this.dialog.open(CrearPlanComponent, {
+      width: 'calc(80vw - 60px)',
+      height: 'calc(40vw - 60px)',
+      // data: {ban: 'plan', sub, subDetalle}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result == undefined){
+        return undefined;
+      } else {
+        this.putData(result, 'editar');
+        console.log(result);
+      }
+    });
+  }
+
   ngOnInit(): void {
   
   }
+
 }
