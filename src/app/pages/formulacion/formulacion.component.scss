@@ -1,5 +1,6 @@
 table {
     width: 100%;
+    margin-bottom: 2%;
 }
 
 th {
@@ -8,9 +9,13 @@ th {
 
 }
 
+td{
+  text-align: justify;
+}
+
 .td-align-left{
-    text-align: justify !important;
-    vertical-align: middle !important;
+  text-align: center;
+  vertical-align: middle !important;
 }
 
 .td-align-right{
@@ -33,6 +38,13 @@ th {
   align-self: center;
   display: inline;
 }
+
+.btn-formato{
+  align-content: center;
+  display: flex;
+}
+
+
 
 #box {
   border: 3px solid;
@@ -106,9 +118,6 @@ th {
   width: 97%;  
 }
 
-.select-armo{
-  margin-top: 2%;
-}
 
 .mat-row:nth-child(even){
   background-color:#E7D6D6;
