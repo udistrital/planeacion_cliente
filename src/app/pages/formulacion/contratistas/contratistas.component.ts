@@ -11,7 +11,7 @@ import { environment } from 'src/environments/environment';
 import { request } from 'http';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { read } from 'fs';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, formatCurrency, getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-contratistas',
@@ -37,10 +37,9 @@ export class ContratistasComponent implements OnInit {
   Plan: any;
   readonlyObs: boolean;
   readonlyTable: boolean = false;
-  mostrarObservaciones : boolean;
+  mostrarObservaciones: boolean;
   name = 'Angular';
-  formattedAmount;
-  amount;
+  porcentajeIncremento: string;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -53,7 +52,7 @@ export class ContratistasComponent implements OnInit {
   constructor(
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
-    private currencyPipe:CurrencyPipe
+    private currencyPipe: CurrencyPipe
   ) { }
 
   ngOnInit(): void {
@@ -73,13 +72,18 @@ export class ContratistasComponent implements OnInit {
     })
   }
 
-  transformAmount(element){
-    console.log(element)
-    this.formattedAmount = this.currencyPipe.transform(this.formattedAmount, '$');
-    element.target.value = this.formattedAmount;
-    console.log(element.valorUnitario)
-    console.log(element.target.value)
-}
+  updateValue(element, rowIndex) {
+    let val = parseFloat(element.valorUnitario);
+    if (Number.isNaN(val)) {
+      let auxVal = element.valorUnitario.replace(/\$|,/g, '')
+      let aux2 = parseFloat(auxVal);
+      this.dataSource.data[rowIndex].valorUnitario = formatCurrency(aux2, 'en-US', getCurrencySymbol('USD', 'wide'));
+      this.getTotal(element, rowIndex)
+    } else {
+      this.dataSource.data[rowIndex].valorUnitario = formatCurrency(val, 'en-US', getCurrencySymbol('USD', 'wide'));
+      this.getTotal(element, rowIndex)
+    }
+  }
 
   visualizarColumnas(): string[] {
     if (this.rol == 'JEFE_DEPENDENCIA') {
@@ -87,21 +91,21 @@ export class ContratistasComponent implements OnInit {
         this.readonlyObs = true;
         this.readonlyTable = this.verificarVersiones();
         this.mostrarObservaciones = this.verificarObservaciones();
-        if (this.mostrarObservaciones){
-          return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'observaciones', 'acciones',];
-        }else{
-          return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'acciones',];
+        if (this.mostrarObservaciones) {
+          return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones', 'acciones',];
+        } else {
+          return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'acciones',];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'observaciones', 'acciones',];
+        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones', 'acciones',];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyTable = true;
         this.readonlyObs = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'acciones',];
+        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'acciones',];
       }
     }
 
@@ -109,22 +113,22 @@ export class ContratistasComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'acciones',];
+        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'acciones',];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'observaciones', 'acciones',];
+        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones', 'acciones',];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'observaciones', 'acciones',];
+        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones', 'acciones',];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorTotal', 'actividades', 'acciones',];
+        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'acciones',];
       }
     }
   }
@@ -132,34 +136,34 @@ export class ContratistasComponent implements OnInit {
   visualizarHeaders(): string[] {
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
-        if (this.mostrarObservaciones && !this.readonlyTable){
-          return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
-        }else{
-          return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
+        if (this.mostrarObservaciones && !this.readonlyTable) {
+          return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
+        } else {
+          return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP','ValorUnitarioIncP' , 'ValorTotalP','ValorTotalIncP', 'ActividadesP', 'AccionesP'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
+        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
+        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP','ValorUnitarioIncP' , 'ValorTotalP','ValorTotalP', 'ActividadesP', 'AccionesP'];
       }
     }
 
     if (this.rol == 'PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
+        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP','ValorUnitarioIncP' , 'ValorTotalP','ValorTotalP', 'ActividadesP', 'AccionesP'];
       }
       if (this.estadoPlan == 'En revisión') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
+        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
+        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
+        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP','ValorUnitarioIncP' , 'ValorTotalP','ValorTotalP', 'ActividadesP', 'AccionesP'];
       }
     }
   }
@@ -207,7 +211,8 @@ export class ContratistasComponent implements OnInit {
     if (this.dataTabla) {
       this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/` + this.plan + `/6184b3e6f6fc97850127bb68`).subscribe((dataG: any) => {
         if (dataG.Data != null) {
-          this.dataSource.data = dataG.Data
+          this.dataSource.data = dataG.Data;
+          this.validarIncremento();
         }
       })
     }
@@ -238,9 +243,20 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
+  validarIncremento(){
+    let strValUnitario = this.dataSource.data[0].valorUnitario.replace(/\$|,/g, '');
+    let strValUnitarioInc = this.dataSource.data[0].valorUnitarioInc.replace(/\$|,/g, '');
+    this.porcentajeIncremento = ((((parseFloat(strValUnitarioInc) - parseInt(strValUnitario))/ parseInt(strValUnitario))*100).toFixed(2));
+  }
+
   getValorTotal() {
     if (this.dataSource.data.length !== 0) {
-      this.total = this.dataSource.data.map(t => t.valorTotal).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
+      let acc = 0;
+      for (let element of this.dataSource.data){
+        let strValTotal = element.valorTotal.replace(/\$|,/g, '');
+        acc = acc + parseFloat(strValTotal)
+      }
+      this.total = acc;
       if (this.total >> 0.00) {
         return this.total;
       } else {
@@ -251,10 +267,54 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
-  getTotal(element, rowIndex): number {
-    let valor = parseFloat(((element.valorUnitario * element.meses + (element.dias * (element.valorUnitario / 30))) * element.cantidad).toFixed(2))
-    this.dataSource.data[rowIndex].valorTotal = valor;
-    return valor
+
+  getValorTotalInc() {
+    if (this.dataSource.data.length !== 0) {
+      let acc = 0;
+      for (let element of this.dataSource.data){
+        let strValTotalInc = element.valorTotalInc.replace(/\$|,/g, '');
+        acc = acc + parseFloat(strValTotalInc)
+      }
+      this.total = acc;
+      if (this.total >> 0.00) {
+        return this.total;
+      } else {
+        return '0';
+      }
+    } else {
+      return '0';
+    }
+  }
+
+  getTotal(element, rowIndex) {
+    let strValUnitario = element.valorUnitario.replace(/\$|,/g, '')
+    let aux = parseInt(strValUnitario, 10);
+    let valor = parseFloat(((aux * element.meses + (element.dias * (aux / 30))) * element.cantidad).toFixed(2))
+    this.dataSource.data[rowIndex].valorTotal = formatCurrency(valor, 'en-US', getCurrencySymbol('USD', 'wide'));
+    this.getIncremento();
+  }
+
+  getIncremento(){
+    if (this.porcentajeIncremento==''){
+      for (let element of this.dataSource.data){
+        this.dataSource.data[parseInt(element.index)-1].valorUnitarioInc = element.valorUnitario;
+        this.dataSource.data[parseInt(element.index)-1].valorTotalInc = element.valorTotal;
+      }
+    }
+    else{
+      let incremento = parseInt(this.porcentajeIncremento, 10);
+      for (let element of this.dataSource.data){
+        let strValUnitario = element.valorUnitario.replace(/\$|,/g, '');
+        let strValTotal = element.valorTotal.replace(/\$|,/g, '');
+  
+        let valorUnitarioInc = parseFloat((((incremento/100)* parseInt(strValUnitario))+parseInt(strValUnitario)).toFixed(2));
+        let valorTotalInc = parseFloat((((incremento/100)* parseInt(strValTotal))+ parseInt(strValTotal)).toFixed(2));
+        this.dataSource.data[parseInt(element.index)-1].valorUnitarioInc = formatCurrency(valorUnitarioInc, 'en-US', getCurrencySymbol('USD', 'wide'));
+        this.dataSource.data[parseInt(element.index)-1].valorTotalInc = formatCurrency(valorTotalInc, 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+  
+    }
+
   }
 
   addContratista() {
@@ -266,7 +326,9 @@ export class ContratistasComponent implements OnInit {
         meses: 0,
         dias: 0,
         valorUnitario: 0,
+        valorUnitarioInc: 0,
         valorTotal: 0,
+        valorTotalInc: 0,
         observaciones: '',
         actividades: ''
       });
@@ -280,7 +342,9 @@ export class ContratistasComponent implements OnInit {
         meses: 0,
         dias: 0,
         valorUnitario: 0,
+        valorUnitarioInc: 0,
         valorTotal: 0,
+        valorTotalInc: 0,
         actividades: ''
       });
       this.dataSource.paginator = this.paginator;

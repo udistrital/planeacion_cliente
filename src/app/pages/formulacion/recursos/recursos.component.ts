@@ -9,6 +9,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import { localeData } from 'moment';
 import { read } from 'fs';
+import { formatCurrency, getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-recursos',
@@ -183,6 +184,18 @@ export class RecursosComponent implements OnInit {
       this.dataSource.paginator.firstPage();
     }
   }
+
+  updateValue(element, rowIndex) {
+    let val = parseInt(element.valor,10);
+    if (Number.isNaN(val)) {
+      let auxVal = element.valor.replace(/\$|,/g, '')
+      let aux2 = parseInt(auxVal,10);
+      this.dataSource.data[rowIndex].valor = formatCurrency(aux2, 'en-US', getCurrencySymbol('USD', 'wide'));
+    }else{  
+      this.dataSource.data[rowIndex].valor = formatCurrency(val, 'en-US', getCurrencySymbol('USD', 'wide'));
+    }
+}
+
 
   getValorTotal() {
     if (this.dataSource.data.length !== 0) {

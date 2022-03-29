@@ -46,10 +46,10 @@
                     <!-- Valor -->
                     <ng-container matColumnDef="valor">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Valor </th>
-                        <td mat-cell *matCellDef="let element">
+                        <td mat-cell *matCellDef="let element; let rowIndex = index">
                             <mat-form-field floatLabel="never">
-                                <input [readonly]="readonlyTable" min="0" type="number" class="form-control" matInput
-                                    placeholder="Valor" [value]="element.valor" [(ngModel)]="element.valor"
+                                <input [readonly]="readonlyTable" min="0" type="text" class="form-control" matInput
+                                    placeholder="Valor" [value]="element.valor" [(ngModel)]="element.valor" (change)="updateValue(element, rowIndex)"
                                     [ngModelOptions]="{standalone: true}" required>
                             </mat-form-field>
                         </td>
