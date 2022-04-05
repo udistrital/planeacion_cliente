@@ -139,7 +139,7 @@ export class ContratistasComponent implements OnInit {
         if (this.mostrarObservaciones && !this.readonlyTable) {
           return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
         } else {
-          return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP','ValorUnitarioIncP' , 'ValorTotalP','ValorTotalIncP', 'ActividadesP', 'AccionesP'];
+          return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'AccionesP'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
@@ -148,13 +148,13 @@ export class ContratistasComponent implements OnInit {
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP','ValorUnitarioIncP' , 'ValorTotalP','ValorTotalP', 'ActividadesP', 'AccionesP'];
+        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
       }
     }
 
     if (this.rol == 'PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP','ValorUnitarioIncP' , 'ValorTotalP','ValorTotalP', 'ActividadesP', 'AccionesP'];
+        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
       }
       if (this.estadoPlan == 'En revisión') {
         return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
@@ -163,7 +163,7 @@ export class ContratistasComponent implements OnInit {
         return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP','ValorUnitarioIncP' , 'ValorTotalP','ValorTotalP', 'ActividadesP', 'AccionesP'];
+        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
       }
     }
   }
@@ -243,17 +243,18 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
-  validarIncremento(){
-    let strValUnitario = this.dataSource.data[0].valorUnitario.replace(/\$|,/g, '');
-    let strValUnitarioInc = this.dataSource.data[0].valorUnitarioInc.replace(/\$|,/g, '');
-    this.porcentajeIncremento = ((((parseFloat(strValUnitarioInc) - parseInt(strValUnitario))/ parseInt(strValUnitario))*100).toFixed(2));
+  validarIncremento() {
+    let strValUnitario = (this.dataSource.data[0].valorUnitario.toString()).replace(/\$|,/g, '');
+    let strValUnitarioInc = (this.dataSource.data[0].valorUnitarioInc.toString()).replace(/\$|,/g, '');
+    this.porcentajeIncremento = ((((parseFloat(strValUnitarioInc) - parseInt(strValUnitario)) / parseInt(strValUnitario)) * 100).toFixed(2));
   }
 
   getValorTotal() {
     if (this.dataSource.data.length !== 0) {
       let acc = 0;
-      for (let element of this.dataSource.data){
-        let strValTotal = element.valorTotal.replace(/\$|,/g, '');
+      for (let i = 0; i < this.dataSource.data.length; i++) {
+        let aux = this.dataSource.data[i].valorTotal.toString();
+        let strValTotal = aux.replace(/\$|,/g, '');
         acc = acc + parseFloat(strValTotal)
       }
       this.total = acc;
@@ -271,8 +272,9 @@ export class ContratistasComponent implements OnInit {
   getValorTotalInc() {
     if (this.dataSource.data.length !== 0) {
       let acc = 0;
-      for (let element of this.dataSource.data){
-        let strValTotalInc = element.valorTotalInc.replace(/\$|,/g, '');
+      for (let i = 0; i < this.dataSource.data.length; i++) {
+        let aux = this.dataSource.data[i].valorTotalInc.toString();
+        let strValTotalInc = aux.replace(/\$|,/g, '');
         acc = acc + parseFloat(strValTotalInc)
       }
       this.total = acc;
@@ -291,31 +293,48 @@ export class ContratistasComponent implements OnInit {
     let aux = parseInt(strValUnitario, 10);
     let valor = parseFloat(((aux * element.meses + (element.dias * (aux / 30))) * element.cantidad).toFixed(2))
     this.dataSource.data[rowIndex].valorTotal = formatCurrency(valor, 'en-US', getCurrencySymbol('USD', 'wide'));
-    this.getIncremento();
+    this.getIncremento(element, rowIndex);
   }
 
-  getIncremento(){
-    if (this.porcentajeIncremento==''){
-      for (let element of this.dataSource.data){
-        this.dataSource.data[parseInt(element.index)-1].valorUnitarioInc = element.valorUnitario;
-        this.dataSource.data[parseInt(element.index)-1].valorTotalInc = element.valorTotal;
-      }
+  getIncremento(element, rowIndex) {
+    if (this.porcentajeIncremento == '' || this.porcentajeIncremento == undefined) {
+        this.dataSource.data[rowIndex].valorUnitarioInc = this.dataSource.data[rowIndex].valorUnitario;
+        this.dataSource.data[rowIndex].valorTotalInc = this.dataSource.data[rowIndex].valorTotal;
     }
-    else{
+    else {
       let incremento = parseInt(this.porcentajeIncremento, 10);
-      for (let element of this.dataSource.data){
         let strValUnitario = element.valorUnitario.replace(/\$|,/g, '');
         let strValTotal = element.valorTotal.replace(/\$|,/g, '');
-  
-        let valorUnitarioInc = parseFloat((((incremento/100)* parseInt(strValUnitario))+parseInt(strValUnitario)).toFixed(2));
-        let valorTotalInc = parseFloat((((incremento/100)* parseInt(strValTotal))+ parseInt(strValTotal)).toFixed(2));
-        this.dataSource.data[parseInt(element.index)-1].valorUnitarioInc = formatCurrency(valorUnitarioInc, 'en-US', getCurrencySymbol('USD', 'wide'));
-        this.dataSource.data[parseInt(element.index)-1].valorTotalInc = formatCurrency(valorTotalInc, 'en-US', getCurrencySymbol('USD', 'wide'));
-      }
-  
+        let valorUnitarioInc = parseFloat((((incremento / 100) * parseInt(strValUnitario)) + parseInt(strValUnitario)).toFixed(2));
+        let valorTotalInc = parseFloat((((incremento / 100) * parseInt(strValTotal)) + parseInt(strValTotal)).toFixed(2));
+        this.dataSource.data[rowIndex].valorUnitarioInc = formatCurrency(valorUnitarioInc, 'en-US', getCurrencySymbol('USD', 'wide'));
+        this.dataSource.data[rowIndex].valorTotalInc = formatCurrency(valorTotalInc, 'en-US', getCurrencySymbol('USD', 'wide'));
     }
 
   }
+
+  actualizarIncremento() {
+    if (this.porcentajeIncremento == '' || this.porcentajeIncremento == undefined) {
+      for (let i = 0; i < this.dataSource.data.length; i++) {
+        this.dataSource.data[i].valorUnitarioInc = this.dataSource.data[i].valorUnitario;
+        this.dataSource.data[i].valorTotalInc = this.dataSource.data[i].valorTotal;
+      }
+    }
+    else {
+      let incremento = parseInt(this.porcentajeIncremento, 10);
+      for (let i = 0; i < this.dataSource.data.length; i++) {
+        let strValUnitario = this.dataSource.data[i].valorUnitario.replace(/\$|,/g, '');
+        let strValTotal = this.dataSource.data[i].valorTotal.replace(/\$|,/g, '');
+        let valorUnitarioInc = parseFloat((((incremento / 100) * parseInt(strValUnitario)) + parseInt(strValUnitario)).toFixed(2));
+        let valorTotalInc = parseFloat((((incremento / 100) * parseInt(strValTotal)) + parseInt(strValTotal)).toFixed(2));
+        this.dataSource.data[i].valorUnitarioInc = formatCurrency(valorUnitarioInc, 'en-US', getCurrencySymbol('USD', 'wide'));
+        this.dataSource.data[i].valorTotalInc = formatCurrency(valorTotalInc, 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+
+    }
+
+  }
+
 
   addContratista() {
     if (this.rol === 'PLANEACION') {
@@ -394,7 +413,8 @@ export class ContratistasComponent implements OnInit {
         if (data) {
           let elemento = data.Data
           let valor = JSON.parse(elemento[0].Valor);
-          this.dataSource.data[rowIndex].valorUnitario = valor.ValorMensual;
+
+          this.dataSource.data[rowIndex].valorUnitario = formatCurrency(valor.ValorMensual, 'en-US', getCurrencySymbol('USD', 'wide'));
         }
       })
 

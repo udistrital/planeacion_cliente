@@ -14,7 +14,7 @@
       <label class="label-inc">Incremento:
         <mat-form-field floatLabel="never">
           <input [readonly]="readonlyTable" min="0" type="number" matInput class="form-control" 
-            (change)="getIncremento()" [(ngModel)]="porcentajeIncremento" [ngModelOptions]="{standalone: true}"  placeholder="%" required>
+            (change)="actualizarIncremento()" [(ngModel)]="porcentajeIncremento" [ngModelOptions]="{standalone: true}"  placeholder="%" required>
         </mat-form-field>
 
       </label>
@@ -103,7 +103,7 @@
                 <mat-form-field floatLabel="never">
                   <input [readonly]="readonlyTable" class="form-control" type="text" matInput
                     [value]="element.valorUnitario" (change)="updateValue(element, rowIndex)"
-                    [(ngModel)]="element.valorUnitario" [ngModelOptions]="{standalone: true}" required>
+                    [(ngModel)]="element.valorUnitario" [ngModelOptions]="{standalone: true}" required disabled>
                 </mat-form-field>
               <td mat-footer-cell *matFooterCellDef class="footer">
                 Total
@@ -117,7 +117,7 @@
                 <mat-form-field floatLabel="never">
                   <input [readonly]="readonlyTable" class="form-control" type="text" matInput
                     [value]="element.valorUnitarioInc" (change)="updateValueInc(element, rowIndex)"
-                    [(ngModel)]="element.valorUnitarioInc" [ngModelOptions]="{standalone: true}" required>
+                    [(ngModel)]="element.valorUnitarioInc" [ngModelOptions]="{standalone: true}" required  disabled>
                 </mat-form-field>
               <td mat-footer-cell *matFooterCellDef class="footer"></td>
             </ng-container>
@@ -130,7 +130,7 @@
                   <!-- <label>{{element.valorUnitario * element.cantidad | currency}}</label> -->
                   <input [readonly]="readonlyTable" min="0" class="form-control" type="text" matInput
                     [value]="element.valorTotal" [(ngModel)]="element.valorTotal" [ngModelOptions]="{standalone: true}"
-                    required readonly>
+                    required readonly disabled>
                 </mat-form-field>
               </td>
               <td mat-footer-cell *matFooterCellDef class="footer">
@@ -146,7 +146,7 @@
                   <!-- <label>{{element.valorUnitario * element.cantidad | currency}}</label> -->
                   <input [readonly]="readonlyTable" min="0" class="form-control" type="text" matInput
                     [value]="element.valorTotalInc" [(ngModel)]="element.valorTotalInc"
-                    [ngModelOptions]="{standalone: true}" required readonly>
+                    [ngModelOptions]="{standalone: true}" required readonly disabled>
                 </mat-form-field>
               </td>
               <td mat-footer-cell *matFooterCellDef class="footer">

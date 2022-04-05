@@ -21,7 +21,6 @@ import { DomSanitizer } from '@angular/platform-browser';
     const url = this.header + data;
 
     this.file = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    console.log(url)
   }
 
   ngOnInit(): void {

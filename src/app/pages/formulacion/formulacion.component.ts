@@ -13,6 +13,7 @@ import { stringify } from 'querystring';
 import { timeStamp } from 'console';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { flatMap } from 'rxjs/operators';
+import { UserService } from '../services/userService';
 
 @Component({
   selector: 'app-formulacion',
@@ -24,8 +25,8 @@ export class FormulacionComponent implements OnInit {
   activedStep = 0;
   form: FormGroup;
   planes: any[];
-  unidades: any[];
-  auxUnidades : any[];
+  unidades: any[] = [];
+  auxUnidades : any[] = [];
   vigencias: any[];
   planSelected: boolean;
   planAsignado: boolean;
@@ -73,16 +74,18 @@ export class FormulacionComponent implements OnInit {
   ponderacionActividades: string;
 
   formArmonizacion : FormGroup;
+  formSelect : FormGroup;
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
-    private autenticationService: ImplicitAutenticationService
+    private autenticationService: ImplicitAutenticationService,
+    private userService: UserService
   ) {
     this.loadPlanes();
     this.loadPeriodos();
-    this.loadUnidades();
     this.addActividad = false;
     this.planSelected = false;
     this.unidadSelected = false;
@@ -95,8 +98,10 @@ export class FormulacionComponent implements OnInit {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
+      this.validarUnidad();
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
+      this.loadUnidades();
     }
  
   }
@@ -113,6 +118,12 @@ export class FormulacionComponent implements OnInit {
       selectPED: ['',],
       selectPI: ['',]
     });
+
+    this.formSelect = this.formBuilder.group({
+      selectUnidad: ['',],
+      selectVigencia: ['',],
+      selectPlan: ['',]
+    });
    }
 
 
@@ -123,6 +134,32 @@ export class FormulacionComponent implements OnInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  validarUnidad(){
+    this.userService.user$.subscribe((data) => {
+      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
+        .subscribe((datosInfoTercero: any) => {
+          this.request.get(environment.PRUEBA, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
+          .subscribe((vinculacion: any) => {
+            this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:`+ vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
+              if (dataUnidad) {
+                //this.onChangeU(dataUnidad)
+                let unidad = dataUnidad[0]["DependenciaId"]
+                unidad["TipoDependencia"]= dataUnidad[0]["TipoDependenciaId"]["Id"]
+                console.log("entra aca?")
+       
+                this.unidades.push(unidad);
+                this.auxUnidades.push(unidad);
+                this.formSelect.get('selectUnidad').setValue(unidad);
+                this.onChangeU(unidad);
+
+              }
+            })
+          })
+        })
+
+    })
   }
 
   loadUnidades() {

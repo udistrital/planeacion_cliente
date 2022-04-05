@@ -199,8 +199,13 @@ export class RecursosComponent implements OnInit {
 
   getValorTotal() {
     if (this.dataSource.data.length !== 0) {
-      this.total = this.dataSource.data.map(t => t.valor).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-      if (this.total >> 0.00) {
+      let acc = 0;
+      for (let i = 0; i < this.dataSource.data.length; i++) {
+        let aux = this.dataSource.data[i].valor.toString();
+        let strValTotal = aux.replace(/\$|,/g, '');
+        acc = acc + parseFloat(strValTotal)
+      }
+      this.total = acc;      if (this.total >> 0.00) {
         return this.total;
       } else {
         return '0';
