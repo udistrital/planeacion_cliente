@@ -76,11 +76,10 @@ export class SeguimientoComponentList implements OnInit {
     this.userService.user$.subscribe((data) => {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
-          this.request.get(environment.PRUEBA, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
+          this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
           .subscribe((vinculacion: any) => {
             this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:`+ vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
               if (dataUnidad) {
-                //this.onChangeU(dataUnidad)
                 let unidad = dataUnidad[0]["DependenciaId"]
                 unidad["TipoDependencia"]= dataUnidad[0]["TipoDependenciaId"]["Id"]
                 console.log("entra aca?")
