@@ -13,6 +13,7 @@ import { stringify } from 'querystring';
 import { timeStamp } from 'console';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { flatMap } from 'rxjs/operators';
+import { UserService } from '../services/userService';
 
 @Component({
   selector: 'app-formulacion',
@@ -24,8 +25,8 @@ export class FormulacionComponent implements OnInit {
   activedStep = 0;
   form: FormGroup;
   planes: any[];
-  unidades: any[];
-  auxUnidades : any[];
+  unidades: any[] = [];
+  auxUnidades : any[] = [];
   vigencias: any[];
   planSelected: boolean;
   planAsignado: boolean;
@@ -71,18 +72,21 @@ export class FormulacionComponent implements OnInit {
   readOnlyAll: boolean;
   ponderacionCompleta: boolean;
   ponderacionActividades: string;
+  moduloVisible: boolean;
 
   formArmonizacion : FormGroup;
+  formSelect : FormGroup;
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
-    private autenticationService: ImplicitAutenticationService
+    private autenticationService: ImplicitAutenticationService,
+    private userService: UserService
   ) {
     this.loadPlanes();
     this.loadPeriodos();
-    this.loadUnidades();
     this.addActividad = false;
     this.planSelected = false;
     this.unidadSelected = false;
@@ -92,11 +96,14 @@ export class FormulacionComponent implements OnInit {
     this.identContratistas = false;
     this.identDocentes = false;
     this.dataT = false;
+    this.moduloVisible = false;
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
+      this.validarUnidad();
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
+      this.loadUnidades();
     }
  
   }
@@ -113,6 +120,12 @@ export class FormulacionComponent implements OnInit {
       selectPED: ['',],
       selectPI: ['',]
     });
+
+    this.formSelect = this.formBuilder.group({
+      selectUnidad: ['',],
+      selectVigencia: ['',],
+      selectPlan: ['',]
+    });
    }
 
 
@@ -123,6 +136,41 @@ export class FormulacionComponent implements OnInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  validarUnidad(){
+    this.userService.user$.subscribe((data) => {
+      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
+        .subscribe((datosInfoTercero: any) => {
+          this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
+          .subscribe((vinculacion: any) => {
+            if (vinculacion["Data"] != ""){
+              this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:`+ vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
+                if (dataUnidad) {
+                  let unidad = dataUnidad[0]["DependenciaId"]
+                  unidad["TipoDependencia"]= dataUnidad[0]["TipoDependenciaId"]["Id"]
+                  this.moduloVisible = true;
+                  this.unidades.push(unidad);
+                  this.auxUnidades.push(unidad);
+                  this.formSelect.get('selectUnidad').setValue(unidad);
+                  this.onChangeU(unidad);
+  
+                }
+              })
+            }else{
+              this.moduloVisible = false;
+              Swal.fire({
+                title: 'Error en la operación',
+                text: `No cuenta con los permisos requeridos para acceder a este módulo`,
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 4000
+              })
+            }
+          })
+        })
+
+    })
   }
 
   loadUnidades() {
