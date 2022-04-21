@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { Data } from '@angular/router';
 import { report } from 'process';
 import { environment } from 'src/environments/environment';
@@ -13,18 +14,24 @@ import { RequestManager } from '../../services/requestManager';
 export class HabilitarReporteComponent implements OnInit {
 
   vigenciaSelected: boolean;
-  periodoSelected: boolean;
+  tipoSelected: boolean;
   reporteHabilitado: boolean;
   vigencias: any[];
   periodos: any[];
   vigencia: any;
+  tipo: string;
   periodo: any;
+  periodo1 : Date[];
+  periodo2 : Date[];
+  periodo3 : Date[];
+  periodo4 : Date[];
+  periodoFormulacion = [Date, Date];
+
   constructor(
     private request: RequestManager
   ) {
     this.loadVigencias();
     this.vigenciaSelected = false;
-    this.periodoSelected = false;
   }
 
   ngOnInit(): void {
@@ -47,23 +54,7 @@ export class HabilitarReporteComponent implements OnInit {
     })
   }
 
-  loadPeriodos() {
-    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
-      if (data) {
-        if (data.Data[0].ParametroId){
-          this.periodos = data.Data;
-        }
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
-  }
+
 
   onChangeV(vigencia) {
     if (vigencia == undefined) {
@@ -71,79 +62,70 @@ export class HabilitarReporteComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
-      if (this.vigenciaSelected) {
-        this.loadPeriodos();
-      }
     }
   }
 
-  onChangeP(periodo) {
-    if (periodo == undefined) {
-      this.periodoSelected = false;
+  onChange(tipo) {
+    if (tipo == undefined) {
+      this.tipoSelected = false;
     } else {
-      this.periodoSelected = true;
-      this.periodo = periodo;
-      if (this.vigenciaSelected && this.periodoSelected) {
-        this.verificarReporte();
-      }
+      this.tipoSelected = true;
+      this.tipo = tipo;
+      console.log(tipo)
     }
   }
 
-  verificarReporte() {
-    this.request.get(environment.PLANES_CRUD, `seguimiento?query=periodo_id:` + this.periodo.Id + `,activo:true`).subscribe((data: any) => {
-      if (data) {
-        if (data.Data.length != 0) {
-          this.reporteHabilitado = true;
-        } else {
-          this.reporteHabilitado = false;
-        }
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
+  onChangeFF(index : number, event: MatDatepickerInputEvent<Date>){
+    console.log(index + " "+ event)
+    if (index == 1){
+      console.log(event.value)
+    }
   }
 
-  habilitarReportes() {
-    Swal.fire({
-      title: 'Habilitar Reportes',
-      text: `¿Desea habilitar los reportes para el ` + this.periodo.ParametroId.Nombre + ` de la vigencia ` + this.vigencia.Nombre + ` ?`,
-      showCancelButton: true,
-      confirmButtonText: `Sí`,
-      cancelButtonText: `No`,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        let aux = {}
-        this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes` , aux,  this.periodo.Id).subscribe((data: any) => {
-          if (data) {
-            this.reporteHabilitado = true
+
+  guardar() {
+    if (this.tipo == 'formulacion'){
+      Swal.fire({
+        title: 'Habilitar Fechas',
+        text: `¿Desea habilitar la formulación de planes para la vigencia ` + this.vigencia.Nombre + ` ?`,
+        showCancelButton: true,
+        confirmButtonText: `Sí`,
+        cancelButtonText: `No`,
+      }).then((result) => {
+        if (result.isConfirmed) {
+
+          let aux = {}
+          this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes` , aux,  this.periodo.Id).subscribe((data: any) => {
+            if (data) {
+              this.reporteHabilitado = true
+          }
+          }, (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          })
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
         }
-        }, (error) => {
+      }),
+        (error) => {
           Swal.fire({
             title: 'Error en la operación',
-            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-            icon: 'warning',
+            icon: 'error',
+            text: `${JSON.stringify(error)}`,
             showConfirmButton: false,
             timer: 2500
           })
-        })
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-      }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+        }
+    }
+
+  }
+
+  limpiar(){
+    console.log("limpiar")
   }
 
 

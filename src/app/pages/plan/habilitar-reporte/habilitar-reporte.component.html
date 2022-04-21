@@ -1,10 +1,10 @@
 <!-- SELECCIÓN MENÚ PRINCIPAL -->
 <mat-card class="card-oas">
     <mat-card-header>
-        <mat-card-title>Módulo para la gestión de reportes</mat-card-title>
+        <mat-card-title>Definición de fechas para los procesos de formulación y seguimiento</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <ng-container>
+        <div class="container-border">
             <mat-form-field appearance="fill" [style.width.%]="100">
                 <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
                 <mat-select (selectionChange)="onChangeV($event.value)">
@@ -14,32 +14,125 @@
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-        </ng-container>
-        <ng-container *ngIf="vigenciaSelected">
             <mat-form-field appearance="fill" [style.width.%]="100">
-                <mat-label id="tipo-input-label">Seleccione el período</mat-label>
-                <mat-select (selectionChange)="onChangeP($event.value)">
-                    <mat-option>--</mat-option>
-                    <mat-option *ngFor="let periodo of periodos" [value]="periodo">
-                        {{periodo.ParametroId.Nombre}}
-                    </mat-option>
+                <mat-label id="tipo-input-label">Formulación / Seguimiento</mat-label>
+                <mat-select (selectionChange)="onChange($event.value)">
+                    <mat-option value="formulacion">Formulación</mat-option>
+                    <mat-option value="seguimiento">Seguimiento</mat-option>
                 </mat-select>
             </mat-form-field>
+        </div>
+        <ng-container *ngIf="tipo=='seguimiento' && vigenciaSelected">
+            <div class="container-border">
+                <h4>Período 1</h4>
+                <mat-label class="label-fecha">Desde: </mat-label>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label>Seleccione una fecha</mat-label>
+                    <input matInput [matDatepicker]="picker1">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                    <mat-datepicker #picker1></mat-datepicker>
+                </mat-form-field>
+                <mat-label class="label-fecha">Hasta: </mat-label>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label>Seleccione una fecha</mat-label>
+                    <input matInput [matDatepicker]="picker2">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                    <mat-datepicker #picker2></mat-datepicker>
+                </mat-form-field>
+            </div>
+            <div class="container-border">
+                <h4>Período 2</h4>
+                <mat-label class="label-fecha">Desde: </mat-label>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label>Seleccione una fecha</mat-label>
+                    <input matInput [matDatepicker]="picker3">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+                    <mat-datepicker #picker3></mat-datepicker>
+                </mat-form-field>
+                <mat-label class="label-fecha">Hasta: </mat-label>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label>Seleccione una fecha</mat-label>
+                    <input matInput [matDatepicker]="picker4">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
+                    <mat-datepicker #picker4></mat-datepicker>
+                </mat-form-field>
+            </div>
+            <div class="container-border">
+                <h4>Período 3</h4>
+                <mat-label class="label-fecha">Desde: </mat-label>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label>Seleccione una fecha</mat-label>
+                    <input matInput [matDatepicker]="picker5">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker5"></mat-datepicker-toggle>
+                    <mat-datepicker #picker5></mat-datepicker>
+                </mat-form-field>
+                <mat-label class="label-fecha">Hasta: </mat-label>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label>Seleccione una fecha</mat-label>
+                    <input matInput [matDatepicker]="picker6">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker6"></mat-datepicker-toggle>
+                    <mat-datepicker #picker6></mat-datepicker>
+                </mat-form-field>
+            </div>
+            <div class="container-border">
+                <h4>Período 4</h4>
+                <mat-label class="label-fecha">Desde: </mat-label>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label>Seleccione una fecha</mat-label>
+                    <input matInput [matDatepicker]="picker7">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker7"></mat-datepicker-toggle>
+                    <mat-datepicker #picker7></mat-datepicker>
+                </mat-form-field>
+                <mat-label class="label-fecha">Hasta: </mat-label>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label>Seleccione una fecha</mat-label>
+                    <input matInput [matDatepicker]="picker8">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker8"></mat-datepicker-toggle>
+                    <mat-datepicker #picker8></mat-datepicker>
+                </mat-form-field>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="tipo=='formulacion' && vigenciaSelected">
+            <div class="container-border-for">
+                <h4>Período de Formulación</h4>
+                <mat-label class="label-fecha">Desde: </mat-label>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label>Seleccione una fecha</mat-label>
+                    <input matInput [matDatepicker]="picker9" (dateChange)="onChangeFF(1, $event)">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker9"></mat-datepicker-toggle>
+                    <mat-datepicker #picker9></mat-datepicker>
+                </mat-form-field>
+                <mat-label class="label-fecha">Hasta: </mat-label>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label>Seleccione una fecha</mat-label>
+                    <input matInput [matDatepicker]="picker10">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matSuffix [for]="picker10"></mat-datepicker-toggle>
+                    <mat-datepicker #picker10></mat-datepicker>
+                </mat-form-field>
+            </div>
         </ng-container>
     </mat-card-content>
-    <mat-card-footer *ngIf="!reporteHabilitado && periodoSelected" style="text-align: center;">
-        <ng-container>
-          <button mat-raised-button color="primary" (click)="habilitarReportes()">
-            Habilitar Reportes
-          </button>
-        </ng-container>
-        <br><br>
-      </mat-card-footer>
-
+    <mat-card-footer *ngIf="!reporteHabilitado && tipoSelected" style="text-align: center;">
+        <button mat-raised-button color="primary" (click)="guardar()">
+            Guardar
+        </button>
+        <button mat-raised-button color="primary" (click)="limpiar()">
+            Limpiar
+        </button>
+    </mat-card-footer>
 </mat-card>
 <br><br>
-<mat-card class="notice" *ngIf="reporteHabilitado && periodoSelected" >
+<mat-card class="notice" *ngIf="reporteHabilitado && tipoSelected">
     <p>Señor usuario, los reportes para el {{periodo.ParametroId.Nombre}} de la vigencia {{vigencia.Nombre}} ya
         se encuentran habilitados.</p>
 </mat-card>
-
