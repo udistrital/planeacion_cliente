@@ -176,8 +176,7 @@ export class ListarPlanComponent implements OnInit {
     this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
-    console.log(this.planes)
-
+        console.log(this.planes)
         // this.request.get(environment.PLANES_CRUD, `tipo-plan?query=_id:${data.Data.tipo_plan_id}`).subscribe((dat: any) => {
         //   if (dat){
         //     this.tipoPlan = dat.Data;

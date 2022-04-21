@@ -72,8 +72,8 @@
                         <button class="icon-documento" mat-icon-button (click)="revisarDocumento('documento')">
                             <mat-icon>search</mat-icon>
                         </button>
-                        <button class="icon-documento" mat-icon-button (click)="eliminarDocumento()" [disabled]="readonlyFormulario"
-                            *ngIf="rol=='JEFE_DEPENDENCIA'">
+                        <button class="icon-documento" mat-icon-button (click)="eliminarDocumento()"
+                            [disabled]="readonlyFormulario" *ngIf="rol=='JEFE_DEPENDENCIA'">
                             <mat-icon>delete_outline</mat-icon>
                         </button>
                     </ng-container>
@@ -95,7 +95,8 @@
                     formControlName="observaciones" required
                     [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
                 <button class="width-button-generate" mat-raised-button (click)="guardarDataIndicador()"
-                    *ngIf="rol=='JEFE_DEPENDENCIA'" [disabled]="!formGenerarTrimestre.valid || readonlyFormulario"> Validar Indicador</button>
+                    *ngIf="rol=='JEFE_DEPENDENCIA'" [disabled]="!formGenerarTrimestre.valid || readonlyFormulario">
+                    Validar Indicador</button>
             </div>
             <br>
             <div class="container-border" *ngIf="mostrarObservaciones">
@@ -131,8 +132,8 @@
                 <input class="plan-generar" type="text" matInput  required> -->
                 <br>
                 <div *ngIf="rol=='PLANEACION'" class="align-button-enviar">
-                    <button class="width-button-generate" (click)="guardarDataIndicador()" mat-raised-button color="primary"
-                        [disabled]="!indicadorSelected">Validar Indicador</button>
+                    <button class="width-button-generate" (click)="guardarDataIndicador()" mat-raised-button
+                        color="primary" [disabled]="!indicadorSelected">Validar Indicador</button>
                 </div>
             </div>
             <div class="container-button">
@@ -142,20 +143,22 @@
                     (click)="backClicked()">Regresar</button>
             </div>
             <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoSeguimiento==='En Reporte'">
-                <button  class="background-button" mat-raised-button color="primary"
-                   (click)="generarReporte()">Generar Reporte</button>
+                <button class="background-button" mat-raised-button color="primary" (click)="generarReporte()">Generar
+                    Reporte</button>
             </div>
-            <div class="align-button-enviar" *ngIf="rol=='PLANEACION' && (estadoSeguimiento==='Generado' || estadoSeguimiento==='Ajustado')">
-                <button class="background-button" mat-raised-button color="primary"
-                (click)="enviarObservacion()">Enviar Observación</button>
+            <div class="align-button-enviar"
+                *ngIf="rol=='PLANEACION' && (estadoSeguimiento==='Generado' || estadoSeguimiento==='Ajustado')">
+                <button class="background-button" mat-raised-button color="primary" (click)="enviarObservacion()">Enviar
+                    Observación</button>
             </div>
-            <div  class="align-button-enviar" *ngIf="rol=='PLANEACION' && (estadoSeguimiento==='Generado' ||estadoSeguimiento==='Ajustado')">
-                <button class="background-button" mat-raised-button color="primary"
-                    (click)="aprobarReporte()">Aprobar Reporte</button>
+            <div class="align-button-enviar"
+                *ngIf="rol=='PLANEACION' && (estadoSeguimiento==='Generado' ||estadoSeguimiento==='Ajustado')">
+                <button class="background-button" mat-raised-button color="primary" (click)="aprobarReporte()">Aprobar
+                    Reporte</button>
             </div>
             <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoSeguimiento==='Observación'">
-                <button class="background-button" mat-raised-button color="primary"
-                   (click)="ajustarReporte()">Reenviar Reporte</button>
+                <button class="background-button" mat-raised-button color="primary" (click)="ajustarReporte()">Reenviar
+                    Reporte</button>
             </div>
         </form>
     </mat-card-content>

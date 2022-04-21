@@ -44,6 +44,52 @@
     margin-bottom: 1%;
     width: 97%;
 }
+
+
+
 .upload-button{
     color: var(--primary);
 }
+
+input[type="file"] {
+    display: none;
+  }
+
+.width-label-upload{
+    width: 85%;
+    border: 2px solid var(--primary);
+    border-radius: 8px 8px 8px 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    margin: 8% 0% 2% 2%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    text-align: center;
+    color: var(--primary);
+    padding-bottom: 15px;
+    position: absolute;
+    top: -25px;
+  }
+
+  .icon-documento{
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    border-radius: 8px 8px 8px 8px;
+    margin-left: 10px;
+    position: relative;
+    top: -5px;
+  }
+  
+  .width-text-documento{
+    display: inline-block;
+    margin: 2% 0% 2% 4%;
+    width: 60%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    text-align: center;
+    border: 2px solid var(--primary);
+    padding: 1%;
+    border-radius: 8px 8px 8px 8px;
+    outline: none;
+    overflow:hidden;
+  }
