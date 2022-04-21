@@ -601,16 +601,6 @@ export class GenerarTrimestreComponent implements OnInit {
         });
       }
     }
-
-
-
-    // dialogRef.afterClosed().subscribe(result => {
-    //   if (result == undefined){
-    //     return undefined;
-    //   } else {
-    //     this.postData(result);
-    //   }
-    // });
   }
 
 
