@@ -26,7 +26,7 @@ export class FormulacionComponent implements OnInit {
   form: FormGroup;
   planes: any[];
   unidades: any[] = [];
-  auxUnidades : any[] = [];
+  auxUnidades: any[] = [];
   vigencias: any[];
   planSelected: boolean;
   planAsignado: boolean;
@@ -60,7 +60,7 @@ export class FormulacionComponent implements OnInit {
   planesIndicativos: any[];
   planDSelected: boolean;
   dataArmonizacionPED: string[] = [];
-  dataArmonizacionPI : string [] = [];
+  dataArmonizacionPI: string[] = [];
   estadoPlan: string;
   iconEstado: string;
   iconEditar: string;
@@ -74,8 +74,8 @@ export class FormulacionComponent implements OnInit {
   ponderacionActividades: string;
   moduloVisible: boolean;
 
-  formArmonizacion : FormGroup;
-  formSelect : FormGroup;
+  formArmonizacion: FormGroup;
+  formSelect: FormGroup;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -100,12 +100,12 @@ export class FormulacionComponent implements OnInit {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
-      this.validarUnidad();
+      this.verificarFechas();
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
       this.loadUnidades();
     }
- 
+
   }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -126,48 +126,81 @@ export class FormulacionComponent implements OnInit {
       selectVigencia: ['',],
       selectPlan: ['',]
     });
-   }
+  }
 
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
   }
 
-  validarUnidad(){
+   verificarFechas(){
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
+      if (data) {
+        let seguimientoFormulacion = data.Data[0];
+        let auxFecha = new Date();
+        let auxFechaCol = auxFecha.toLocaleString('en-US', {timeZone: 'America/Mexico_City'})
+        let strFechaHoy = new Date(auxFechaCol).toISOString();
+        let fechaHoy = new Date(strFechaHoy);
+        let fechaInicio = new Date(seguimientoFormulacion["fecha_inicio"]);
+        let fechaFin = new Date(seguimientoFormulacion["fecha_fin"]);
+        if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin){
+          this.validarUnidad();
+        }else{
+          this.moduloVisible = false;
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
+            icon: 'warning',
+            showConfirmButton: true,
+            timer: 10000
+          })
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+   }
+
+  validarUnidad() {
     this.userService.user$.subscribe((data) => {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
-          .subscribe((vinculacion: any) => {
-            if (vinculacion["Data"] != ""){
-              this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:`+ vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
-                if (dataUnidad) {
-                  let unidad = dataUnidad[0]["DependenciaId"]
-                  unidad["TipoDependencia"]= dataUnidad[0]["TipoDependenciaId"]["Id"]
-                  this.moduloVisible = true;
-                  this.unidades.push(unidad);
-                  this.auxUnidades.push(unidad);
-                  this.formSelect.get('selectUnidad').setValue(unidad);
-                  this.onChangeU(unidad);
-  
-                }
-              })
-            }else{
-              this.moduloVisible = false;
-              Swal.fire({
-                title: 'Error en la operación',
-                text: `No cuenta con los permisos requeridos para acceder a este módulo`,
-                icon: 'warning',
-                showConfirmButton: false,
-                timer: 4000
-              })
-            }
-          })
+            .subscribe((vinculacion: any) => {
+              if (vinculacion["Data"] != "") {
+                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
+                  if (dataUnidad) {
+                    let unidad = dataUnidad[0]["DependenciaId"]
+                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+                    this.moduloVisible = true;
+                    this.unidades.push(unidad);
+                    this.auxUnidades.push(unidad);
+                    this.formSelect.get('selectUnidad').setValue(unidad);
+                    this.onChangeU(unidad);
+
+                  }
+                })
+              } else {
+                this.moduloVisible = false;
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No cuenta con los permisos requeridos para acceder a este módulo`,
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 4000
+                })
+              }
+            })
         })
 
     })
@@ -223,17 +256,17 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
-  onKey(value){
-    if (value === ""){
+  onKey(value) {
+    if (value === "") {
       this.auxUnidades = this.unidades;
-    }else{
+    } else {
       this.auxUnidades = this.search(value);
     }
   }
 
-  search(value){
+  search(value) {
     let filter = value.toLowerCase();
-    if (this.unidades != undefined){
+    if (this.unidades != undefined) {
       return this.unidades.filter(option => option.Nombre.toLowerCase().startsWith(filter));
     }
   }
@@ -357,6 +390,8 @@ export class FormulacionComponent implements OnInit {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
+      console.log(this.mostrarIdentDocente(unidad))
+
       if (this.vigenciaSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
       }
@@ -416,13 +451,13 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
-  onChangePI(planI){
+  onChangePI(planI) {
     if (planI == undefined) {
       this.idPlanIndicativo = undefined;
       this.tipoPlanIndicativo = undefined;
     } else {
       this.idPlanIndicativo = planI._id;
-      this.tipoPlanIndicativo= planI.tipo_plan_id;
+      this.tipoPlanIndicativo = planI.tipo_plan_id;
     }
   }
 
@@ -676,7 +711,7 @@ export class FormulacionComponent implements OnInit {
       if (this.planesDesarrollo == undefined) {
         this.cargarPlanesDesarrollo();
       }
-      if(this.planesIndicativos == undefined){
+      if (this.planesIndicativos == undefined) {
         this.cargarPlanesIndicativos();
       }
       this.addActividad = true;
@@ -706,7 +741,7 @@ export class FormulacionComponent implements OnInit {
           this.dataArmonizacionPED = strArmonizacion.split(",", len)
           let strArmonizacion2 = auxAmonizacion.armoPI
           let len2 = (strArmonizacion2.split(",").length)
-          this.dataArmonizacionPI = strArmonizacion2.split(",", len2)          
+          this.dataArmonizacionPI = strArmonizacion2.split(",", len2)
         }
       }, (error) => {
         Swal.fire({
@@ -779,7 +814,7 @@ export class FormulacionComponent implements OnInit {
     if (this.tipoPlanId === undefined && this.idPadre === undefined) {
       this.cargarPlanesDesarrollo();
     }
-    if (this.tipoPlanIndicativo === undefined && this.idPlanIndicativo === undefined){
+    if (this.tipoPlanIndicativo === undefined && this.idPlanIndicativo === undefined) {
       this.cargarPlanesIndicativos();
     }
     this.cargaFormato(this.plan);
@@ -916,7 +951,7 @@ export class FormulacionComponent implements OnInit {
           this.dataArmonizacionPED.splice(index, 1);
         }
       }
-    } 
+    }
   }
 
   receiveMessagePI(event) {

@@ -8,7 +8,7 @@ import { InformacionBasicaComponent } from './informacion-basica/informacion-bas
 import { HttpClientModule } from '@angular/common/http';
 import { RequestManager } from './services/requestManager';
 
-import { MatTableModule } from '@angular/material/table' 
+import { MatTableModule } from '@angular/material/table'
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,16 +19,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatStepperModule } from '@angular/material/stepper';
-import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS,} from '@angular/material-moment-adapter';
+import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateModule, MatMomentDateModule, } from '@angular/material-moment-adapter';
 import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OasGridColsDirective } from './directives/oas-grid-cols.directive';
-import {MatDialogModule} from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import {MatSortModule} from '@angular/material/sort';
+import { MatSortModule } from '@angular/material/sort';
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { UtilService } from './services/utilService';
@@ -125,7 +125,21 @@ const materialModules = [
   MatButtonModule,
   MatStepperModule,
   MatRadioModule,
+  MatMomentDateModule
 ];
+
+const MY_FORMATS = {
+  parse: {
+    dateInput: 'DD.MM.YYYY',
+  },
+  display: {
+    dateInput: 'DD.MM.YYYY',
+    monthYearLabel: 'MM YYYY',
+    dateA11yLabel: 'DD.MM.YYYY',
+    monthYearA11yLabel: 'MM YYYY',
+  },
+};
+
 @NgModule({
   declarations: [
     ...pagesComponents,
@@ -207,7 +221,8 @@ const materialModules = [
     MatDatepickerModule,
     { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
     { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },
-    { provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS}
+    { provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS },
+    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true} }
   ]
 })
 export class PagesModule { }
