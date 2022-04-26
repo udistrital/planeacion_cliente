@@ -9,7 +9,7 @@ th {
 
 th.mat-header-cell, td.mat-cell {
   text-align: center;
-  padding: 0 !important;
+  padding: 5px 5px 5px 0;
   color:white;
 }
 
@@ -88,6 +88,10 @@ overflow-x: auto;
   text-decoration: none;
   margin-bottom: 1%;
   width: 97%; 
+}
+
+.mat-raised-button{
+  margin: 0% 2% 0% 0%;
 }
 
 textarea{
