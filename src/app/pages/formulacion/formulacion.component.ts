@@ -100,7 +100,7 @@ export class FormulacionComponent implements OnInit {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
-      this.validarUnidad();
+      this.verificarFechas();
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
       this.loadUnidades();
@@ -132,11 +132,44 @@ export class FormulacionComponent implements OnInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
   }
+
+   verificarFechas(){
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
+      if (data) {
+        let seguimientoFormulacion = data.Data[0];
+        let auxFecha = new Date();
+        let auxFechaCol = auxFecha.toLocaleString('en-US', {timeZone: 'America/Mexico_City'})
+        let strFechaHoy = new Date(auxFechaCol).toISOString();
+        let fechaHoy = new Date(strFechaHoy);
+        let fechaInicio = new Date(seguimientoFormulacion["fecha_inicio"]);
+        let fechaFin = new Date(seguimientoFormulacion["fecha_fin"]);
+        if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin){
+          this.validarUnidad();
+        }else{
+          this.moduloVisible = false;
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
+            icon: 'warning',
+            showConfirmButton: true,
+            timer: 10000
+          })
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+   }
 
   validarUnidad() {
     this.userService.user$.subscribe((data) => {
@@ -366,7 +399,6 @@ export class FormulacionComponent implements OnInit {
   }
   // this.mostrarIdentDocente(unidad.DependenciaTipoDependencia)
   mostrarIdentDocente(unidad: any): boolean {
-    console.log(unidad)
     if (unidad.Id === 67 || unidad.TipoDependencia === 2) return true
     else return false
   }
