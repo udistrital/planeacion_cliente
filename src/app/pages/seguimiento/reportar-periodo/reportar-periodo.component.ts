@@ -28,16 +28,16 @@ export class ReportarPeriodoComponent implements OnInit {
   metas: any[] = [{ index: 1, dato: '', activo: false }];
   trimestres: any[] = [];
   trimestreSelected: boolean;
-  trimestre : any;
+  trimestre: any;
   listIndicadores: any = {};
-  generalDatar : any = {};
-  trimestreId : string;
-  avanceAcumuladoResumen : any;
-  avancePeriodoResumen : any;
-  objetoPeriodoRes : any = [];
-  objetoAcumuladoRes : any = [];
-  periodoRes : any;
-  acumuladoRes : any;
+  generalDatar: any = {};
+  trimestreId: string;
+  avanceAcumuladoResumen: any;
+  avancePeriodoResumen: any;
+  objetoPeriodoRes: any = [];
+  objetoAcumuladoRes: any = [];
+  periodoRes: any;
+  acumuladoRes: any;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -90,8 +90,38 @@ export class ReportarPeriodoComponent implements OnInit {
 
 
   generarTrimestre() {
-    let auxTrimestre = this.trimestres[this.trimestres.length - 1];
-    this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + this.indexActividad + '/' + this.trimestre.Id])
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId + `,periodo_id:` + this.trimestre.Id).subscribe((data: any) => {
+      if (data.Data.length != 0) {
+        let seguimiento = data.Data[0];
+        let auxFecha = new Date();
+        let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
+        let strFechaHoy = new Date(auxFechaCol).toISOString();
+        let fechaHoy = new Date(strFechaHoy);
+        let fechaInicio = new Date(seguimiento["fecha_inicio"]);
+        let fechaFin = new Date(seguimiento["fecha_fin"]);
+        if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
+          let auxTrimestre = this.trimestres[this.trimestres.length - 1];
+          this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + this.indexActividad + '/' + this.trimestre.Id])
+        } else {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `Está intentando acceder al seguimiento por fuera de las fechas establecidas`,
+            icon: 'warning',
+            showConfirmButton: true,
+            timer: 10000
+          })
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+
   }
 
   backClicked() {
@@ -132,7 +162,6 @@ export class ReportarPeriodoComponent implements OnInit {
     this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + periodo_id).subscribe((data: any) => {
       if (data) {
         this.trimestre = data.Data[data.Data.length - 1]
-        console.log(data)
         this.trimestres.push(this.trimestre.ParametroId);
       }
     }, (error) => {
@@ -147,19 +176,19 @@ export class ReportarPeriodoComponent implements OnInit {
   }
 
 
-  loadResumen(){
-    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:`+ this.planId).subscribe((data: any) => {
+  loadResumen() {
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId).subscribe((data: any) => {
       if (data.Data.length != 0) {
-        let seguimientor = data.Data[data.Data.length-1]
+        let seguimientor = data.Data[data.Data.length - 1]
         this.trimestreId = seguimientor.periodo_id;
 
-        this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/`+ this.planId).subscribe((data: any) => {
+        this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/` + this.planId).subscribe((data: any) => {
           if (data) {
             this.listIndicadores = data.Data;
             this.avanceAcumuladoResumen = 0;
             this.avancePeriodoResumen = 0;
             // var pruebita;
-            for(let indicador of this.listIndicadores){
+            for (let indicador of this.listIndicadores) {
               let reg = / /g;
               let primerDatoAcumu = indicador.nombre;
               let datoIdentir = {
@@ -174,35 +203,35 @@ export class ReportarPeriodoComponent implements OnInit {
                   this.generalDatar = dataPr.Data;
                   this.avanceAcumuladoResumen = this.avanceAcumuladoResumen + parseFloat(this.generalDatar.avanceAcumuladoPrev);
                   this.avancePeriodoResumen = this.avancePeriodoResumen + parseFloat(this.generalDatar.avancePeriodoPrev);
-                  if (this.generalDatar.nombrePeriodo == "T1"){
+                  if (this.generalDatar.nombrePeriodo == "T1") {
                     this.formReportarPeriodo.get('trimestre').setValue("Trimestre Uno");
                   }
-                  if (this.generalDatar.nombrePeriodo == "T2"){
+                  if (this.generalDatar.nombrePeriodo == "T2") {
                     this.formReportarPeriodo.get('trimestre').setValue("Trimestre Dos");
                   }
-                  if (this.generalDatar.nombrePeriodo == "T3"){
+                  if (this.generalDatar.nombrePeriodo == "T3") {
                     this.formReportarPeriodo.get('trimestre').setValue("Trimestre Tres");
                   }
-                  if (this.generalDatar.nombrePeriodo == "T4"){
+                  if (this.generalDatar.nombrePeriodo == "T4") {
                     this.formReportarPeriodo.get('trimestre').setValue("Trimestre Cuatro");
                   }
-                  if (this.listIndicadores.length == 1){
-                    this.formReportarPeriodo.get('avanceAcumulado').setValue(this.avanceAcumuladoResumen+"%");
-                    this.formReportarPeriodo.get('avancePeriodo').setValue(this.avancePeriodoResumen+"%");
-                  }else if (this.listIndicadores.length == 2){
+                  if (this.listIndicadores.length == 1) {
+                    this.formReportarPeriodo.get('avanceAcumulado').setValue(this.avanceAcumuladoResumen + "%");
+                    this.formReportarPeriodo.get('avancePeriodo').setValue(this.avancePeriodoResumen + "%");
+                  } else if (this.listIndicadores.length == 2) {
                     var objetoPeriodoResumen = [
                       this.avancePeriodoResumen
                     ]
                     this.objetoPeriodoRes.push(objetoPeriodoResumen);
-                    this.periodoRes = (this.objetoPeriodoRes[1])/2;
+                    this.periodoRes = (this.objetoPeriodoRes[1]) / 2;
                     var objetoAcumuladoResumen = [
                       this.avanceAcumuladoResumen
                     ]
                     this.objetoAcumuladoRes.push(objetoAcumuladoResumen);
-                    this.acumuladoRes = (this.objetoAcumuladoRes[1])/2;
-                    this.formReportarPeriodo.get('avancePeriodo').setValue(this.periodoRes+"%");
-                    this.formReportarPeriodo.get('avanceAcumulado').setValue(this.acumuladoRes+"%");
-                  }else {
+                    this.acumuladoRes = (this.objetoAcumuladoRes[1]) / 2;
+                    this.formReportarPeriodo.get('avancePeriodo').setValue(this.periodoRes + "%");
+                    this.formReportarPeriodo.get('avanceAcumulado').setValue(this.acumuladoRes + "%");
+                  } else {
                     Swal.fire({
                       title: 'Error al cargar el resumen avance. Intente de nuevo',
                       icon: 'warning',
@@ -210,7 +239,7 @@ export class ReportarPeriodoComponent implements OnInit {
                       timer: 2500
                     })
                   }
-                  
+
                 } else {
                   Swal.fire({
                     title: 'Error al crear identificación. Intente de nuevo',
@@ -244,8 +273,8 @@ export class ReportarPeriodoComponent implements OnInit {
     })
   }
 
-  onChangeT(trimestre){
-    if(trimestre == undefined){
+  onChangeT(trimestre) {
+    if (trimestre == undefined) {
       this.trimestreSelected = false;
       this.trimestre = undefined;
     } else {
