@@ -164,7 +164,7 @@ export class HabilitarReporteComponent implements OnInit {
   }
 
   loadTrimestres() {
-    this.request.get(environment.PRUEBA, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
       if (data) {
         if (data.Data != "") {
           this.periodos = data.Data;
@@ -312,7 +312,7 @@ export class HabilitarReporteComponent implements OnInit {
         "fecha_inicio": this.formFechas.get('fecha1').value.toISOString(),
         "fecha_fin": this.formFechas.get('fecha2').value.toISOString()
       }
-      this.request.put(environment.PRUEBA, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
+      this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
@@ -328,7 +328,7 @@ export class HabilitarReporteComponent implements OnInit {
         "fecha_inicio": this.formFechas.get('fecha3').value.toISOString(),
         "fecha_fin": this.formFechas.get('fecha4').value.toISOString()
       }
-      this.request.put(environment.PRUEBA, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
+      this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
@@ -343,7 +343,7 @@ export class HabilitarReporteComponent implements OnInit {
         "fecha_inicio": this.formFechas.get('fecha5').value.toISOString(),
         "fecha_fin": this.formFechas.get('fecha6').value.toISOString()
       }
-      this.request.put(environment.PRUEBA, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
+      this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
@@ -358,7 +358,7 @@ export class HabilitarReporteComponent implements OnInit {
         "fecha_inicio": this.formFechas.get('fecha7').value.toISOString(),
         "fecha_fin": this.formFechas.get('fecha8').value.toISOString()
       }
-      this.request.put(environment.PRUEBA, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
+      this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
