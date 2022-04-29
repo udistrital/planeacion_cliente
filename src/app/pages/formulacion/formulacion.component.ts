@@ -402,7 +402,7 @@ export class FormulacionComponent implements OnInit {
   }
   // this.mostrarIdentDocente(unidad.DependenciaTipoDependencia)
   mostrarIdentDocente(unidad: any): boolean {
-    if (unidad.Id === 67 || unidad.TipoDependencia === 2 || unidad.TipoDependencia === 4) {
+    if (unidad.Id === 67 || unidad.TipoDependencia === 2) {
       return true
     }
     else return false
