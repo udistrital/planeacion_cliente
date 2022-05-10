@@ -381,8 +381,8 @@
   <!-- AGREGAR ACTIVIDAD / IDENTIFICACIÓN / CULMINAR PLAN -->
   <mat-card-footer style="text-align: center;">
     <ng-container>
-      <button mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad"
-        *ngIsGranted="['JEFE_DEPENDENCIA']">
+      <button mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad">
+  <!-- *ngIsGranted="['JEFE_DEPENDENCIA']"> -->
         Agregar actividad
       </button>
       <button mat-raised-button color="primary" (click)="identificarContratistas()" [disabled]="!dataT">

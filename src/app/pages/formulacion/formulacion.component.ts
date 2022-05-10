@@ -14,6 +14,7 @@ import { timeStamp } from 'console';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { flatMap } from 'rxjs/operators';
 import { UserService } from '../services/userService';
+import { UnsubscriptionError } from 'rxjs';
 
 @Component({
   selector: 'app-formulacion',
@@ -215,6 +216,7 @@ export class FormulacionComponent implements OnInit {
       if (data) {
         this.unidades = data.Data;
         this.auxUnidades = data.Data;
+        this.moduloVisible = true;
       }
     }, (error) => {
       Swal.fire({
@@ -394,7 +396,6 @@ export class FormulacionComponent implements OnInit {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
-
       if (this.vigenciaSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
       }
@@ -402,7 +403,7 @@ export class FormulacionComponent implements OnInit {
   }
   // this.mostrarIdentDocente(unidad.DependenciaTipoDependencia)
   mostrarIdentDocente(unidad: any): boolean {
-    if (unidad.Id === 67 || unidad.TipoDependencia === 2) {
+    if (unidad.Id === 67 || unidad.TipoDependencia.Id === 2 || unidad.TipoDependencia === 2) {
       return true
     }
     else return false
