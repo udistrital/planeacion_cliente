@@ -290,7 +290,7 @@ export class DocentesComponent implements OnInit {
       resolveRef = resolve;
       rejectRef = reject;
     });
-    this.request.get(environment.PRUEBA, `formulacion/get_all_identificacion/` + this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/` + this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
       if (data) {
         let aux: object = data.Data;
         this.data = aux;
