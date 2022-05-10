@@ -7,16 +7,13 @@ th {
   text-align: center;
 }
 
+
 th.mat-header-cell, td.mat-cell {
   text-align: center;
   padding: 5px 5px 5px 0;
   color:white;
 }
 
-.td-align-right{
-text-align: right;
-justify-content: flex-end;
-}
 
 .header-align-right{
 display: flex;
@@ -24,13 +21,10 @@ padding: 21px 0;
 justify-content: flex-end;
 }
 
-th {
-color: white;
-text-align: center;
-}
 
 ::ng-deep input.mat-input-element {
 color: #000000;
+text-align: center;
 }
 
 
@@ -100,4 +94,24 @@ textarea{
   white-space: pre-line;
   -moz-text-align-last: left;
   text-align-last: left;
+}
+
+.mat-row:nth-child(even){
+  background-color:#E7D6D6;
+}
+      
+.mat-row:nth-child(odd){
+  background-color: white;
+}
+
+.header2{
+  background-color: var(--color900);
+}
+
+.header3{
+  background-color: var(--color800);
+}
+
+.header4{
+  background-color: var(--color700);
 }

@@ -8,6 +8,7 @@ import { environment } from '../../../../environments/environment';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { FormControl, Validators } from '@angular/forms';
 import { isNumeric } from 'rxjs/internal-compatibility';
+import { formatCurrency, getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-docentes',
@@ -130,6 +131,11 @@ export class DocentesComponent implements OnInit {
   titularTCO: any;
   titularPrestacional: any;
   titularHonorarios: any;
+  titularPrestacionalPOS: any;
+  titularHonorariosPOS: any;
+  titularUDPrestacionalPOS: any;
+  titularUDHonorariosPOS: any;
+
 
   auxiliarMTO: any;
   auxiliarTCO: any;
@@ -140,16 +146,30 @@ export class DocentesComponent implements OnInit {
   asistenteTCO: any;
   asistentePrestacional: any;
   asistenteHonorarios: any;
+  asistentePrestacionalPOS: any;
+  asistenteHonorariosPOS: any;
+  asistenteUDPrestacionalPOS: any;
+  asistenteUDHonorariosPOS: any;
 
   asociadoMTO: any;
   asociadoTCO: any;
   asociadoPrestacional: any;
   asociadoHonorarios: any;
+  asociadoPrestacionalPOS: any;
+  asociadoHonorariosPOS: any;
+  asociadoUDPrestacionalPOS: any;
+  asociadoUDHonorariosPOS: any;
+
+
 
   //
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginatorRHF: MatPaginator;
+  @ViewChild(MatPaginator) paginatorRHVPRE: MatPaginator;
+  @ViewChild(MatPaginator) paginatorRHVPOS: MatPaginator;
+  @ViewChild(MatSort) sortRHF: MatSort;
+  @ViewChild(MatSort) sortRHVPRE: MatSort;
+  @ViewChild(MatSort) sortRHVPOS: MatSort;
   @Input() dataTabla: boolean;
   @Input() plan: string;
   @Input() rol: string;
@@ -161,11 +181,11 @@ export class DocentesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadDesagregado();
+    this.loadPlan();
     this.dataSourceRHF = new MatTableDataSource<any>();
     this.dataSourceRHVPRE = new MatTableDataSource<any>();
     this.dataSourceRHVPOS = new MatTableDataSource<any>();
-    this.loadDesagregado();
-    this.loadPlan();
     this.loadTabla();
   }
 
@@ -183,61 +203,82 @@ export class DocentesComponent implements OnInit {
     if (this.dataTabla) {
       this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
         if (data) {
+          this.steps = [
+            {
+              "nombre": "Recurso horas fijas",
+              "descripcion": "Pregrado",
+              "tipo": "RHF",
+              "nivel": "Pregrado",
+              "data": this.dataSourceRHF,
+              "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Completo" }],
+              "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
+            },
+            {
+              "nombre": "Recurso horas variable",
+              "descripcion": "Pregrado",
+              "tipo": 'RHVPRE',
+              "nivel": "Pregrado",
+              "data": this.dataSourceRHVPRE,
+              "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
+              "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
+            },
+            {
+              "nombre": "Recurso horas variable",
+              "descripcion": "Posgrado",
+              "tipo": "RHVPOS",
+              "nivel": "Posgrado",
+              "data": this.dataSourceRHVPOS,
+              "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
+              "categorias": [{ "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }, { "nombre": "Asistente UD" }, { "nombre": "Asociado UD" }, { "nombre": "Titular UD" }]
+            }
+          ];
           let identificacion = data.Data[0];
           if (identificacion.activo === false) {
-            this.inicializarTabla();
             this.banderaCerrar = true;
-            let datoIdenti = {
-              "activo": true
-            }
-            Swal.close()
-            this.request.put(environment.PLANES_CRUD, `identificacion`, datoIdenti, identificacion._id).subscribe((dataP: any) => {
-              Swal.fire({
-                title: 'Identificación Docente Creada',
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 3500
-              })
-              this.guardarRecursos();
-            })
-
+            Swal.close();
           } else {
+            this.getData().then(() => {
+              this.dataSourceRHF.data = this.data.rhf;
+              this.dataSourceRHVPOS.data = this.data.rhv_pos;
+              this.dataSourceRHVPRE.data = this.data.rhv_pre;
 
-
-            this.steps = [
-              {
-                "nombre": "Recurso horas fijas",
-                "descripcion": "Pregrado",
-                "tipo": "RHF",
-                "nivel": "Pregrado",
-                "data": this.dataSourceRHF,
-                "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Compĺeto" }],
-                "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
-              },
-              {
-                "nombre": "Recurso horas variable",
-                "descripcion": "Pregrado",
-                "tipo": 'RHVPRE',
-                "nivel": "Pregrado",
-                "data": this.dataSourceRHVPRE,
-                "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Compĺeto" }],
-                "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
-              },
-              {
-                "nombre": "Recurso horas variable",
-                "descripcion": "Posgrado",
-                "tipo": "RHVPOS",
-                "nivel": "Posgrado",
-                "data": this.dataSourceRHVPOS,
-                "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Compĺeto" }],
-                "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
-              }
-            ];
+              this.steps = [
+                {
+                  "nombre": "Recurso horas fijas",
+                  "descripcion": "Pregrado",
+                  "tipo": "RHF",
+                  "nivel": "Pregrado",
+                  "data": this.dataSourceRHF,
+                  "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Completo" }],
+                  "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
+                },
+                {
+                  "nombre": "Recurso horas variable",
+                  "descripcion": "Pregrado",
+                  "tipo": 'RHVPRE',
+                  "nivel": "Pregrado",
+                  "data": this.dataSourceRHVPRE,
+                  "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
+                  "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
+                },
+                {
+                  "nombre": "Recurso horas variable",
+                  "descripcion": "Posgrado",
+                  "tipo": "RHVPOS",
+                  "nivel": "Posgrado",
+                  "data": this.dataSourceRHVPOS,
+                  "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
+                  "categorias": [{ "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }, { "nombre": "Asistente UD" }, { "nombre": "Asociado UD" }, { "nombre": "Titular UD" }]
+                }
+              ];
+            })
             Swal.close();
           }
         }
       })
     }
+
+
   }
 
   getData(): Promise<any> {
@@ -272,7 +313,7 @@ export class DocentesComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.Plan.estado_plan_id).subscribe((data: any) => {
       if (data) {
         this.estadoPlan = data.Data.nombre;
-        this.displayedColumns = ['nivel', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'totalPensiones', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'acciones'];
+        this.displayedColumns = this.visualizarColumnas();
       }
     }),
       (error) => {
@@ -293,21 +334,21 @@ export class DocentesComponent implements OnInit {
         this.readonlyTable = this.verificarVersiones();
         this.mostrarObservaciones = this.verificarObservaciones();
         if (this.mostrarObservaciones) {
-          return ['docente'];
+          return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
         } else {
-          return ['docente'];
+          return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
         }
 
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente'];
+        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente'];
+        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
       }
     }
 
@@ -315,22 +356,22 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente'];
+        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['docente'];
+        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente'];
+        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['docente'];
+        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
       }
     }
   }
@@ -462,7 +503,86 @@ export class DocentesComponent implements OnInit {
       "Categoria": "Asociado",
       "NivelAcademico": "PREGRADO"
     }
-    ]
+    ];
+    let bodyPrestacionalPOS = [{
+      "Vigencia": 2021,
+      "Dedicacion": "HCP",
+      "Categoria": "Titular",
+      "NivelAcademico": "POSGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCP",
+      "Categoria": "Asistente",
+      "NivelAcademico": "POSGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCP",
+      "Categoria": "Asociado",
+      "NivelAcademico": "POSGRADO"
+    }, {
+      "Vigencia": 2021,
+      "Dedicacion": "HCP",
+      "Categoria": "Titular",
+      "NivelAcademico": "POSGRADO",
+      "EsDePlanta": true
+
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCP",
+      "Categoria": "Asistente",
+      "NivelAcademico": "POSGRADO",
+      "EsDePlanta": true
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCP",
+      "Categoria": "Asociado",
+      "NivelAcademico": "POSGRADO",
+      "EsDePlanta": true
+    }
+    ];
+    let bodyHonorariosPOS = [{
+      "Vigencia": 2021,
+      "Dedicacion": "HCH",
+      "Categoria": "Titular",
+      "NivelAcademico": "POSGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCH",
+      "Categoria": "Asistente",
+      "NivelAcademico": "POSGRADO"
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCH",
+      "Categoria": "Asociado",
+      "NivelAcademico": "POSGRADO"
+    }, {
+      "Vigencia": 2021,
+      "Dedicacion": "HCH",
+      "Categoria": "Titular",
+      "NivelAcademico": "POSGRADO",
+      "EsDePlanta": true
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCH",
+      "Categoria": "Asistente",
+      "NivelAcademico": "POSGRADO",
+      "EsDePlanta": true
+    },
+    {
+      "Vigencia": 2021,
+      "Dedicacion": "HCH",
+      "Categoria": "Asociado",
+      "NivelAcademico": "POSGRADO",
+      "EsDePlanta": true
+    },
+    ];
     this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyMTO).subscribe((data: any) => {
       if (data) {
         this.titularMTO = data.Data[0];
@@ -498,6 +618,28 @@ export class DocentesComponent implements OnInit {
         this.asociadoHonorarios = data.Data[3];
       }
     })
+
+    this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyHonorariosPOS).subscribe((data: any) => {
+      if (data) {
+        this.titularHonorariosPOS = data.Data[0];
+        this.asistenteHonorariosPOS = data.Data[1];
+        this.asociadoHonorariosPOS = data.Data[2];
+        this.titularUDHonorariosPOS = data.Data[3];
+        this.asistenteUDHonorariosPOS = data.Data[4];
+        this.asociadoUDHonorariosPOS = data.Data[5];
+      }
+    })
+
+    this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyPrestacionalPOS).subscribe((data: any) => {
+      if (data) {
+        this.titularPrestacionalPOS = data.Data[0];
+        this.asistentePrestacionalPOS = data.Data[1];
+        this.asociadoPrestacionalPOS = data.Data[2];
+        this.titularUDPrestacionalPOS = data.Data[3];
+        this.asistenteUDPrestacionalPOS = data.Data[4];
+        this.asociadoUDPrestacionalPOS = data.Data[5];
+      }
+    })
   }
 
   addElement(tipo) {
@@ -506,10 +648,10 @@ export class DocentesComponent implements OnInit {
         nivel: 'Pregrado',
         tipo: '',
         categoria: '',
-        semanas: '',
-        horas: '',
-        totalHoras: '',
-        meses: '',
+        semanas: 0,
+        horas: 0,
+        totalHoras: 0,
+        meses: 0,
         sueldoBasico: '',
         sueldoMensual: '',
         primaServicios: '',
@@ -530,17 +672,17 @@ export class DocentesComponent implements OnInit {
         icbf: '',
         total: ''
       });
-      this.dataSourceRHF.paginator = this.paginator;
-      this.dataSourceRHF.sort = this.sort;
+      this.dataSourceRHF.paginator = this.paginatorRHF;
+      this.dataSourceRHF.sort = this.sortRHF;
     } else if (tipo == 'RHVPRE') {
       this.dataSourceRHVPRE.data.unshift({
         nivel: 'Pregrado',
         tipo: '',
         categoria: '',
-        semanas: '',
-        horas: '',
-        totalHoras: '',
-        meses: '',
+        semanas: 0,
+        horas: 0,
+        totalHoras: 0,
+        meses: 0,
         sueldoBasico: '',
         sueldoMensual: '',
         privaServicios: '',
@@ -561,17 +703,17 @@ export class DocentesComponent implements OnInit {
         icbf: '',
         total: ''
       });
-      this.dataSourceRHVPRE.paginator = this.paginator;
-      this.dataSourceRHVPRE.sort = this.sort;
+      this.dataSourceRHVPRE.paginator = this.paginatorRHVPRE;
+      this.dataSourceRHVPRE.sort = this.sortRHVPRE;
     } else if (tipo == 'RHVPOS') {
       this.dataSourceRHVPOS.data.unshift({
         nivel: 'Posgrado',
         tipo: '',
         categoria: '',
-        semanas: '',
-        horas: '',
-        totalHoras: '',
-        meses: '',
+        semanas: 0,
+        horas: 0,
+        totalHoras: 0,
+        meses: 0,
         sueldoBasico: '',
         sueldoMensual: '',
         privaServicios: '',
@@ -592,8 +734,8 @@ export class DocentesComponent implements OnInit {
         icbf: '',
         total: ''
       });
-      this.dataSourceRHVPOS.paginator = this.paginator;
-      this.dataSourceRHVPOS.sort = this.sort;
+      this.dataSourceRHVPOS.paginator = this.paginatorRHVPOS;
+      this.dataSourceRHVPOS.sort = this.sortRHVPOS;
     }
   }
 
@@ -627,7 +769,7 @@ export class DocentesComponent implements OnInit {
         const data = this.dataSourceRHF.data;
         indices.sort((a, b) => b - a);
         for (let i = 0; i < indices.length; i++) {
-          data.splice((this.paginator.pageIndex * this.paginator.pageSize) + indices[i], 1);
+          data.splice((this.paginatorRHF.pageIndex * this.paginatorRHF.pageSize) + indices[i], 1);
         }
         this.dataSourceRHF.data = data;
       }
@@ -637,7 +779,7 @@ export class DocentesComponent implements OnInit {
         const data = this.dataSourceRHVPRE.data;
         indices.sort((a, b) => b - a);
         for (let i = 0; i < indices.length; i++) {
-          data.splice((this.paginator.pageIndex * this.paginator.pageSize) + indices[i], 1);
+          data.splice((this.paginatorRHVPRE.pageIndex * this.paginatorRHVPRE.pageSize) + indices[i], 1);
         }
         this.dataSourceRHVPRE.data = data;
       }
@@ -647,7 +789,7 @@ export class DocentesComponent implements OnInit {
         const data = this.dataSourceRHVPOS.data;
         indices.sort((a, b) => b - a);
         for (let i = 0; i < indices.length; i++) {
-          data.splice((this.paginator.pageIndex * this.paginator.pageSize) + indices[i], 1);
+          data.splice((this.paginatorRHVPOS.pageIndex * this.paginatorRHVPOS.pageSize) + indices[i], 1);
         }
         this.dataSourceRHVPOS.data = data;
       }
@@ -656,627 +798,1326 @@ export class DocentesComponent implements OnInit {
   }
 
 
-  onSelected(event, rowIndex, tipo) {
+  onChangeTipo(element, rowIndex, tipo) {
     if (tipo === 'RHF') {
-      if (event == undefined) {
-        this.dataSourceRHF.data[rowIndex].tipo = '';
-      } else {
-        console.log(event.value)
-        this.dataSourceRHF.data[rowIndex].tipo = event.value;
-      }
-    } else if (tipo == 'RHVPRE') {
-      if (event == undefined) {
-        this.dataSourceRHVPRE.data[rowIndex].tipo = '';
-      } else {
-
-        this.dataSourceRHVPRE.data[rowIndex].tipo = event.value;
-      }
-    } else if (tipo == 'RHVPOS') {
-      if (event == undefined) {
-        this.dataSourceRHVPOS.data[rowIndex].tipo = '';
-      } else {
-        this.dataSourceRHVPOS.data[rowIndex].tipo = event.value;
+      if (element.tipo === "Medio Tiempo") {
+        this.dataSourceRHF.data[rowIndex].horas = 20;
+      } else if (element.tipo === "Tiempo Completo") {
+        this.dataSourceRHF.data[rowIndex].horas = 40;
       }
     }
   }
 
-  onSelectedCategoria(event, rowIndex, tipo) {
-    if (tipo === 'RHF') {
-      if (event == undefined) {
-        this.dataSourceRHF.data[rowIndex].categoria = '';
-      } else {
-        this.dataSourceRHF.data[rowIndex].categoria = event.value;
+  onChangeHoras(element, rowIndex, tipo) {
+    if (tipo === "RHF") {
+      if (element.tipo === "Medio Tiempo") {
+        this.dataSourceRHF.data[rowIndex].horas = 20;
+      } else if (element.tipo === "Tiempo Completo") {
+        this.dataSourceRHF.data[rowIndex].horas = 40;
       }
-    } else if (tipo == 'RHVPRE') {
-      if (event == undefined) {
-        this.dataSourceRHVPRE.data[rowIndex].categoria = '';
-      } else {
+    }
+    if (tipo === "RHVPRE") {
+      if (element.tipo === "H. Catedra Honorarios") {
+        if (element.horas < 1)
+          this.dataSourceRHVPRE.data[rowIndex].horas = 1;
+        else if (element.horas > 8)
+          this.dataSourceRHVPRE.data[rowIndex].horas = 8;
+      } else if (element.tipo === "H. Catedra Prestacional") {
+        if (element.horas < 1)
+          this.dataSourceRHVPRE.data[rowIndex].horas = 1;
+        else if (element.horas > 16)
+          this.dataSourceRHVPRE.data[rowIndex].horas = 16;
+      }
+    }
+    if (tipo === "RHVPOS") {
+      if (element.tipo === "H. Catedra Honorarios") {
+        if (element.horas < 1)
+          this.dataSourceRHVPOS.data[rowIndex].horas = 1;
+        else if (element.horas > 8)
+          this.dataSourceRHVPOS.data[rowIndex].horas = 8;
+      } else if (element.tipo === "H. Catedra Prestacional") {
+        if (element.horas < 1)
+          this.dataSourceRHVPOS.data[rowIndex].horas = 1;
+        else if (element.horas > 16)
+          this.dataSourceRHVPOS.data[rowIndex].horas = 16;
+      }
+    }
 
-        this.dataSourceRHVPRE.data[rowIndex].categoria = event.value;
+  }
+
+
+  totalHoras(element, rowIndex, tipo) {
+    if (element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        let totalHoras: number = parseInt(element.semanas) * parseInt(element.horas);
+        this.dataSourceRHF.data[rowIndex].totalHoras = totalHoras.toString();
       }
-    } else if (tipo == 'RHVPOS') {
-      if (event == undefined) {
-        this.dataSourceRHVPOS.data[rowIndex].categoria = '';
-      } else {
-        this.dataSourceRHVPOS.data[rowIndex].categoria = event.value;
+      if (tipo === "RHVPRE") {
+        let totalHoras: number = parseInt(element.semanas) * parseInt(element.horas);
+        this.dataSourceRHVPRE.data[rowIndex].totalHoras = totalHoras.toString();
+      }
+      if (tipo === "RHVPOS") {
+        let totalHoras: number = parseInt(element.semanas) * parseInt(element.horas);
+        this.dataSourceRHVPOS.data[rowIndex].totalHoras = totalHoras.toString();
       }
     }
   }
 
-  // Operacion con desagregado
-
-  // Funciones para valores totales de la tabla ///
-  getValorTotal(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.totalMTO = this.dataSourceMTO.data.map(t => t.total).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.totalMTO >> 0.00) {
-    //       return this.totalMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.totalTCO = this.dataSourceTCO.data.map(t => t.total).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.totalTCO >> 0.00) {
-    //       return this.totalTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.totalPrestacional = this.dataSourcePrestacional.data.map(t => t.total).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.totalPrestacional >> 0.00) {
-    //       return this.totalPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   if (this.dataSourceHonorarios.data.length !== 0) {
-    //     this.totalHonorarios = this.dataSourceHonorarios.data.map(t => t.total).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.totalHonorarios >> 0.00) {
-    //       return this.totalHonorarios;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
+  actualizarMeses(element, rowIndex, tipo) {
+    if (element.semanas != "") {
+      if (tipo === "RHF") {
+        let meses = (parseInt(element.semanas) / 4).toFixed(2);
+        this.dataSourceRHF.data[rowIndex].meses = meses.toString();
+      }
+      if (tipo === "RHVPRE") {
+        let meses = (parseInt(element.semanas) / 4).toFixed(2);
+        this.dataSourceRHVPRE.data[rowIndex].meses = meses.toString();
+      }
+      if (tipo === "RHVPOS") {
+        let meses = (parseInt(element.semanas) / 4).toFixed(2);
+        this.dataSourceRHVPOS.data[rowIndex].meses = meses.toString();
+      }
+    }
   }
 
-  getCantidad(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.cantidadMTO = this.dataSourceMTO.data.map(t => t.cantidad).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.cantidadMTO >> 0.00) {
-    //       return this.cantidadMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.cantidadTCO = this.dataSourceTCO.data.map(t => t.cantidad).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.cantidadTCO >> 0.00) {
-    //       return this.cantidadTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.cantidadPrestacional = this.dataSourcePrestacional.data.map(t => t.cantidad).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.cantidadPrestacional >> 0.00) {
-    //       return this.cantidadPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   if (this.dataSourceHonorarios.data.length !== 0) {
-    //     this.cantidadHonorarios = this.dataSourceHonorarios.data.map(t => t.cantidad).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.cantidadHonorarios >> 0.00) {
-    //       return this.cantidadHonorarios;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
+  actualizarSueldoBasico(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let sueldoBasico = ((this.auxiliarMTO.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let sueldoBasico = ((this.asistenteMTO.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let sueldoBasico = ((this.asociadoMTO.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let sueldoBasico = ((this.titularMTO.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let sueldoBasico = ((this.auxiliarTCO.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let sueldoBasico = ((this.asistenteTCO.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let sueldoBasico = ((this.asociadoTCO.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let sueldoBasico = ((this.titularTCO.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          if (element.categoria === "Auxiliar") {
+            let sueldoBasico = ((this.auxiliarHonorarios.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let sueldoBasico = ((this.asistenteHonorarios.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let sueldoBasico = ((this.asociadoHonorarios.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let sueldoBasico = ((this.titularHonorarios.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let sueldoBasico = ((this.auxiliarPrestacional.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let sueldoBasico = ((this.asistentePrestacional.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let sueldoBasico = ((this.asociadoPrestacional.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let sueldoBasico = ((this.titularPrestacional.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          if (element.categoria === "Asistente") {
+            let sueldoBasico = ((this.asistenteHonorariosPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let sueldoBasico = ((this.asociadoHonorariosPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let sueldoBasico = ((this.titularHonorariosPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          //
+          if (element.categoria === "Asistente UD") {
+            let sueldoBasico = ((this.asistenteUDHonorariosPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let sueldoBasico = ((this.asociadoUDHonorariosPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let sueldoBasico = ((this.titularUDHonorariosPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let sueldoBasico = ((this.asistentePrestacionalPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let sueldoBasico = ((this.asociadoPrestacionalPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let sueldoBasico = ((this.titularPrestacionalPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let sueldoBasico = ((this.asistenteUDPrestacionalPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let sueldoBasico = ((this.asociadoUDPrestacionalPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let sueldoBasico = ((this.titularUDPrestacionalPOS.salarioBasico * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].sueldoBasico = formatCurrency(parseInt(sueldoBasico), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
   }
 
-  getValorSueldo(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorSueldoMTO = this.dataSourceMTO.data.map(t => t.sueldoBasico).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorSueldoMTO >> 0.00) {
-    //       return this.valorSueldoMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorSueldoTCO = this.dataSourceTCO.data.map(t => t.sueldoBasico).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorSueldoTCO >> 0.00) {
-    //       return this.valorSueldoTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorSueldoPrestacional = this.dataSourcePrestacional.data.map(t => t.sueldoBasico).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorSueldoPrestacional >> 0.00) {
-    //       return this.valorSueldoPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   if (this.dataSourceHonorarios.data.length !== 0) {
-    //     this.valorSueldoHonorarios = this.dataSourceHonorarios.data.map(t => t.sueldoBasico).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorSueldoHonorarios >> 0.00) {
-    //       return this.valorSueldoHonorarios;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
+  actualizarSueldoMensual(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        let sueldoBasico = parseInt(element.sueldoBasico.replace(/\$|,/g, ''));
+        let sueldoMensual = (sueldoBasico / element.meses).toFixed(0);
+        this.dataSourceRHF.data[rowIndex].sueldoMensual = formatCurrency(parseInt(sueldoMensual), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+      if (tipo === "RHVPRE") {
+        let sueldoBasico = parseInt(element.sueldoBasico.replace(/\$|,/g, ''));
+        let sueldoMensual = (sueldoBasico / element.meses).toFixed(0);
+        this.dataSourceRHVPRE.data[rowIndex].sueldoMensual = formatCurrency(parseInt(sueldoMensual), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+      if (tipo === "RHVPOS") {
+        let sueldoBasico = parseInt(element.sueldoBasico.replace(/\$|,/g, ''));
+        let sueldoMensual = (sueldoBasico / element.meses).toFixed(0);
+        this.dataSourceRHVPOS.data[rowIndex].sueldoMensual = formatCurrency(parseInt(sueldoMensual), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+    }
   }
 
-  getValorPrimaNavidad(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorPrimaNavidadMTO = this.dataSourceMTO.data.map(t => t.primaNavidad).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPrimaNavidadMTO >> 0.00) {
-    //       return this.valorPrimaNavidadMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorPrimaNavidadTCO = this.dataSourceTCO.data.map(t => t.primaNavidad).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPrimaNavidadTCO >> 0.00) {
-    //       return this.valorPrimaNavidadTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorPrimaNavidadPrestacional = this.dataSourcePrestacional.data.map(t => t.primaNavidad).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPrimaNavidadPrestacional >> 0.00) {
-    //       return this.valorPrimaNavidadPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   return 0;
-    // }
+  actualizarPrimaServicios(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let primaServicios = ((this.auxiliarMTO.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let primaServicios = ((this.asistenteMTO.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaServicios = ((this.asociadoMTO.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaServicios = ((this.titularMTO.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let primaServicios = ((this.auxiliarTCO.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let primaServicios = ((this.asistenteTCO.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaServicios = ((this.asociadoTCO.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaServicios = ((this.titularTCO.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPRE.data[rowIndex].primaServicios = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let primaServicios = ((this.auxiliarPrestacional.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let primaServicios = ((this.asistentePrestacional.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaServicios = ((this.asociadoPrestacional.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaServicios = ((this.titularPrestacional.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPOS.data[rowIndex].primaServicios = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let primaServicios = ((this.asistentePrestacionalPOS.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaServicios = ((this.asociadoPrestacionalPOS.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaServicios = ((this.titularPrestacionalPOS.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let primaServicios = ((this.asistenteUDPrestacionalPOS.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let primaServicios = ((this.asociadoUDPrestacionalPOS.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let primaServicios = ((this.titularUDPrestacionalPOS.prima_servicios * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
   }
 
-  getValorPrimaVacaciones(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorPrimaVacacionesMTO = this.dataSourceMTO.data.map(t => t.primaVacaciones).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPrimaVacacionesMTO >> 0.00) {
-    //       return this.valorPrimaVacacionesMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorPrimaVacacionesTCO = this.dataSourceTCO.data.map(t => t.primaVacaciones).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPrimaVacacionesTCO >> 0.00) {
-    //       return this.valorPrimaVacacionesTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorPrimaVacacionesPrestacional = this.dataSourcePrestacional.data.map(t => t.primaVacaciones).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPrimaVacacionesPrestacional >> 0.00) {
-    //       return this.valorPrimaVacacionesPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   return 0;
-    // }
+  actualizarPrimaNavidad(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let primaNavidad = ((this.auxiliarMTO.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let primaNavidad = ((this.asistenteMTO.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaNavidad = ((this.asociadoMTO.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaNavidad = ((this.titularMTO.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let primaNavidad = ((this.auxiliarTCO.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let primaNavidad = ((this.asistenteTCO.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaNavidad = ((this.asociadoTCO.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaNavidad = ((this.titularTCO.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPRE.data[rowIndex].primaNavidad = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let primaNavidad = ((this.auxiliarPrestacional.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let primaNavidad = ((this.asistentePrestacional.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaNavidad = ((this.asociadoPrestacional.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaNavidad = ((this.titularPrestacional.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPOS.data[rowIndex].primaNavidad = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let primaNavidad = ((this.asistentePrestacionalPOS.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaNavidad = ((this.asociadoPrestacionalPOS.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaNavidad = ((this.titularPrestacionalPOS.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let primaNavidad = ((this.asistenteUDPrestacionalPOS.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let primaNavidad = ((this.asociadoUDPrestacionalPOS.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let primaNavidad = ((this.titularUDPrestacionalPOS.primaNavidad * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaNavidad = formatCurrency(parseInt(primaNavidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
   }
 
-  getValorPensionesPublicas(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorPensionesPublicasMTO = this.dataSourceMTO.data.map(t => t.aportesPensionesPublicas).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPensionesPublicasMTO >> 0.00) {
-    //       return this.valorPensionesPublicasMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorPensionesPublicasTCO = this.dataSourceTCO.data.map(t => t.aportesPensionesPublicas).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPensionesPublicasTCO >> 0.00) {
-    //       return this.valorPensionesPublicasTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorPensionesPublicasPrestacional = this.dataSourcePrestacional.data.map(t => t.aportesPensionesPublicas).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPensionesPublicasPrestacional >> 0.00) {
-    //       return this.valorPensionesPublicasPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   return 0;
-    // }
+  actualizarPrimaVacaciones(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let primaVacaciones = ((this.auxiliarMTO.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let primaVacaciones = ((this.asistenteMTO.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaVacaciones = ((this.asociadoMTO.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaVacaciones = ((this.titularMTO.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let primaVacaciones = ((this.auxiliarTCO.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let primaVacaciones = ((this.asistenteTCO.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaVacaciones = ((this.asociadoTCO.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaVacaciones = ((this.titularTCO.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPRE.data[rowIndex].primaVacaciones = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let primaVacaciones = ((this.auxiliarPrestacional.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let primaVacaciones = ((this.asistentePrestacional.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaVacaciones = ((this.asociadoPrestacional.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaVacaciones = ((this.titularPrestacional.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPOS.data[rowIndex].primaVacaciones = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let primaVacaciones = ((this.asistentePrestacionalPOS.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let primaVacaciones = ((this.asociadoPrestacionalPOS.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let primaVacaciones = ((this.titularPrestacionalPOS.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let primaVacaciones = ((this.asistenteUDPrestacionalPOS.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let primaVacaciones = ((this.asociadoUDPrestacionalPOS.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let primaVacaciones = ((this.titularUDPrestacionalPOS.primaVacaciones * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].primaVacaciones = formatCurrency(parseInt(primaVacaciones), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
   }
 
-  getValorPensionesPrivadas(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorPensionesPrivadasMTO = this.dataSourceMTO.data.map(t => t.aportesPensionesPrivadas).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPensionesPrivadasMTO >> 0.00) {
-    //       return this.valorPensionesPrivadasMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorPensionesPrivadasTCO = this.dataSourceTCO.data.map(t => t.aportesPensionesPrivadas).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPensionesPrivadasTCO >> 0.00) {
-    //       return this.valorPensionesPrivadasTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorPensionesPrivadasPrestacional = this.dataSourcePrestacional.data.map(t => t.aportesPensionesPrivadas).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorPensionesPrivadasPrestacional >> 0.00) {
-    //       return this.valorPensionesPrivadasPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   return 0;
-    // }
+  actualizarBonificacion(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "" && element.meses > 12) {
+      if (tipo === "RHF") {
+        let sueldoBasico = parseInt(element.sueldoBasico.replace(/\$|,/g, ''));
+        let bonificacion = ((sueldoBasico * 0.35) / element.meses).toFixed(0);
+        this.dataSourceRHF.data[rowIndex].bonificacion = formatCurrency(parseInt(bonificacion), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+      if (tipo === "RHVPRE") {
+        let sueldoBasico = parseInt(element.sueldoBasico.replace(/\$|,/g, ''));
+        let bonificacion = ((sueldoBasico * 0.35) / element.meses).toFixed(0);
+        this.dataSourceRHVPRE.data[rowIndex].bonificacion = formatCurrency(parseInt(bonificacion), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+      if (tipo === "RHVPOS") {
+        let sueldoBasico = parseInt(element.sueldoBasico.replace(/\$|,/g, ''));
+        let bonificacion = ((sueldoBasico * 0.35) / element.meses).toFixed(0);
+        this.dataSourceRHVPOS.data[rowIndex].bonificacion = formatCurrency(parseInt(bonificacion), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+    }
   }
 
-  getValorSaludPrivada(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorSaludPrivadaMTO = this.dataSourceMTO.data.map(t => t.aportesSaludPrivada).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorSaludPrivadaMTO >> 0.00) {
-    //       return this.valorSaludPrivadaMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorSaludPrivadaTCO = this.dataSourceTCO.data.map(t => t.aportesSaludPrivada).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorSaludPrivadaTCO >> 0.00) {
-    //       return this.valorSaludPrivadaTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorSaludPrivadaPrestacional = this.dataSourcePrestacional.data.map(t => t.aportesSaludPrivada).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorSaludPrivadaPrestacional >> 0.00) {
-    //       return this.valorSaludPrivadaPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   return 0;
-    // }
+  actualizarInteresesCesantias(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let interesesCesantias = ((this.auxiliarMTO.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let interesesCesantias = ((this.asistenteMTO.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let interesesCesantias = ((this.asociadoMTO.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let interesesCesantias = ((this.titularMTO.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let interesesCesantias = ((this.auxiliarTCO.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let interesesCesantias = ((this.asistenteTCO.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let interesesCesantias = ((this.asociadoTCO.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let interesesCesantias = ((this.titularTCO.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPRE.data[rowIndex].interesesCesantias = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let interesesCesantias = ((this.auxiliarPrestacional.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let interesesCesantias = ((this.asistentePrestacional.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let interesesCesantias = ((this.asociadoPrestacional.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let interesesCesantias = ((this.titularPrestacional.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPOS.data[rowIndex].interesesCesantias = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let interesesCesantias = ((this.asistentePrestacionalPOS.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let interesesCesantias = ((this.asociadoPrestacionalPOS.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let interesesCesantias = ((this.titularPrestacionalPOS.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let interesesCesantias = ((this.asistenteUDPrestacionalPOS.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let interesesCesantias = ((this.asociadoUDPrestacionalPOS.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let interesesCesantias = ((this.titularUDPrestacionalPOS.interesCesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].interesesCesantias = formatCurrency(parseInt(interesesCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
   }
 
-  getValorCesantiasPublicos(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorCesantiasPublicosMTO = this.dataSourceMTO.data.map(t => t.aportesCesantiasPublicos).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorCesantiasPublicosMTO >> 0.00) {
-    //       return this.valorCesantiasPublicosMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorCesantiasPublicosTCO = this.dataSourceTCO.data.map(t => t.aportesCesantiasPublicos).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorCesantiasPublicosTCO >> 0.00) {
-    //       return this.valorCesantiasPublicosTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorCesantiasPublicosPrestacional = this.dataSourcePrestacional.data.map(t => t.aportesCesantiasPublicos).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorCesantiasPublicosPrestacional >> 0.00) {
-    //       return this.valorCesantiasPublicosPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   return 0;
-    // }
+  actualizarCesantias(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let cesantias = ((this.auxiliarMTO.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let cesantias = ((this.asistenteMTO.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let cesantias = ((this.asociadoMTO.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let cesantias = ((this.titularMTO.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let cesantias = ((this.auxiliarTCO.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let cesantias = ((this.asistenteTCO.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let cesantias = ((this.asociadoTCO.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let cesantias = ((this.titularTCO.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPRE.data[rowIndex].cesantias = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let cesantias = ((this.auxiliarPrestacional.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let cesantias = ((this.asistentePrestacional.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let cesantias = ((this.asociadoPrestacional.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let cesantias = ((this.titularPrestacional.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPOS.data[rowIndex].cesantias = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let cesantias = ((this.asistentePrestacionalPOS.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let cesantias = ((this.asociadoPrestacionalPOS.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let cesantias = ((this.titularPrestacionalPOS.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let cesantias = ((this.asistenteUDPrestacionalPOS.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let cesantias = ((this.asociadoUDPrestacionalPOS.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let cesantias = ((this.titularUDPrestacionalPOS.cesantias * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].cesantias = formatCurrency(parseInt(cesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
   }
 
-  getValorCesantiasPrivados(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorCesantiasPrivadosMTO = this.dataSourceMTO.data.map(t => t.aportesCesantiasPrivados).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorCesantiasPrivadosMTO >> 0.00) {
-    //       return this.valorCesantiasPrivadosMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorCesantiasPrivadosTCO = this.dataSourceTCO.data.map(t => t.aportesCesantiasPrivados).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorCesantiasPrivadosTCO >> 0.00) {
-    //       return this.valorCesantiasPrivadosTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorCesantiasPrivadosPrestacional = this.dataSourcePrestacional.data.map(t => t.aportesCesantiasPrivados).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorCesantiasPrivadosPrestacional >> 0.00) {
-    //       return this.valorCesantiasPrivadosPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   return 0;
-    // }
+  actualizarTotalCesantias(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        let interesesCesantias = parseInt(element.interesesCesantias.replace(/\$|,/g, ''));
+        let cesantias = parseInt(element.cesantias.replace(/\$|,/g, ''));
+        let totalCesantias = (interesesCesantias + cesantias).toFixed(0);
+        this.dataSourceRHF.data[rowIndex].totalCesantias = formatCurrency(parseInt(totalCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+      if (tipo === "RHVPRE") {
+        let interesesCesantias = parseInt(element.interesesCesantias.replace(/\$|,/g, ''));
+        let cesantias = parseInt(element.cesantias.replace(/\$|,/g, ''));
+        let totalCesantias = (interesesCesantias + cesantias).toFixed(0);
+        this.dataSourceRHVPRE.data[rowIndex].totalCesantias = formatCurrency(parseInt(totalCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+      if (tipo === "RHVPOS") {
+        let interesesCesantias = parseInt(element.interesesCesantias.replace(/\$|,/g, ''));
+        let cesantias = parseInt(element.cesantias.replace(/\$|,/g, ''));
+        let totalCesantias = (interesesCesantias + cesantias).toFixed(0);
+        this.dataSourceRHVPOS.data[rowIndex].totalCesantias = formatCurrency(parseInt(totalCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+    }
   }
 
-  getValorRiesgoPublicos(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorRiesgoPublicosMTO = this.dataSourceMTO.data.map(t => t.aportesRiesgoPublicos).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorRiesgoPublicosMTO >> 0.00) {
-    //       return this.valorRiesgoPublicosMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorRiesgoPublicosTCO = this.dataSourceTCO.data.map(t => t.aportesRiesgoPublicos).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorRiesgoPublicosTCO >> 0.00) {
-    //       return this.valorRiesgoPublicosTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorRiesgoPublicosPrestacional = this.dataSourcePrestacional.data.map(t => t.aportesRiesgoPublicos).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorRiesgoPublicosPrestacional >> 0.00) {
-    //       return this.valorRiesgoPublicosPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   return 0;
-    // }
+  actualizarSalud(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let salud = ((this.auxiliarMTO.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let salud = ((this.asistenteMTO.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let salud = ((this.asociadoMTO.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let salud = ((this.titularMTO.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let salud = ((this.auxiliarTCO.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let salud = ((this.asistenteTCO.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let salud = ((this.asociadoTCO.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let salud = ((this.titularTCO.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPRE.data[rowIndex].totalSalud = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let salud = ((this.auxiliarPrestacional.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let salud = ((this.asistentePrestacional.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let salud = ((this.asociadoPrestacional.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let salud = ((this.titularPrestacional.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPOS.data[rowIndex].totalSalud = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let salud = ((this.asistentePrestacionalPOS.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let salud = ((this.asociadoPrestacionalPOS.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let salud = ((this.titularPrestacionalPOS.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let salud = ((this.asistenteUDPrestacionalPOS.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let salud = ((this.asociadoUDPrestacionalPOS.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let salud = ((this.titularUDPrestacionalPOS.salud * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
   }
 
-  getValorRiesgoPrivados(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorRiesgoPrivadosMTO = this.dataSourceMTO.data.map(t => t.aportesRiesgoPrivados).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorRiesgoPrivadosMTO >> 0.00) {
-    //       return this.valorRiesgoPrivadosMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorRiesgoPrivadosTCO = this.dataSourceTCO.data.map(t => t.aportesRiesgoPrivados).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorRiesgoPrivadosTCO >> 0.00) {
-    //       return this.valorRiesgoPrivadosTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorRiesgoPrivadosPrestacional = this.dataSourcePrestacional.data.map(t => t.aportesRiesgoPrivados).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorRiesgoPrivadosPrestacional >> 0.00) {
-    //       return this.valorRiesgoPrivadosPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   return 0;
-    // }
+  actualizarTotalPension(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let pension = ((this.auxiliarMTO.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let pension = ((this.asistenteMTO.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let pension = ((this.asociadoMTO.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let pension = ((this.titularMTO.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let pension = ((this.auxiliarTCO.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let pension = ((this.asistenteTCO.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let pension = ((this.asociadoTCO.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let pension = ((this.titularTCO.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPRE.data[rowIndex].totalPensiones = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let pension = ((this.auxiliarPrestacional.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let pension = ((this.asistentePrestacional.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let pension = ((this.asociadoPrestacional.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let pension = ((this.titularPrestacional.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPOS.data[rowIndex].totalPensiones = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let pension = ((this.asistentePrestacionalPOS.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let pension = ((this.asociadoPrestacionalPOS.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let pension = ((this.titularPrestacionalPOS.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let pension = ((this.asistenteUDPrestacionalPOS.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let pension = ((this.asociadoUDPrestacionalPOS.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let pension = ((this.titularUDPrestacionalPOS.pension * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalPensiones = formatCurrency(parseInt(pension), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
   }
 
-  getValorICBF(tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorICBFMTO = this.dataSourceMTO.data.map(t => t.aportesICBF).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorICBFMTO >> 0.00) {
-    //       return this.valorICBFMTO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorICBFTCO = this.dataSourceTCO.data.map(t => t.aportesICBF).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorICBFTCO >> 0.00) {
-    //       return this.valorICBFTCO;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorICBFPrestacional = this.dataSourcePrestacional.data.map(t => t.aportesICBF).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-    //     if (this.valorICBFPrestacional >> 0.00) {
-    //       return this.valorICBFPrestacional;
-    //     } else {
-    //       return '0';
-    //     }
-    //   } else {
-    //     return '0';
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   return 0;
-    // }
+  actualizarTotalArl(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let arl = ((this.auxiliarMTO.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let arl = ((this.asistenteMTO.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let arl = ((this.asociadoMTO.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let arl = ((this.titularMTO.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let arl = ((this.auxiliarTCO.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let arl = ((this.asistenteTCO.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let arl = ((this.asociadoTCO.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let arl = ((this.titularTCO.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPRE.data[rowIndex].totalArl = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let arl = ((this.auxiliarPrestacional.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let arl = ((this.asistentePrestacional.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let arl = ((this.asociadoPrestacional.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let arl = ((this.titularPrestacional.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPOS.data[rowIndex].totalArl = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let arl = ((this.asistentePrestacionalPOS.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let arl = ((this.asociadoPrestacionalPOS.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let arl = ((this.titularPrestacionalPOS.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let arl = ((this.asistenteUDPrestacionalPOS.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let arl = ((this.asociadoUDPrestacionalPOS.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let arl = ((this.titularUDPrestacionalPOS.arl * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].totalArl = formatCurrency(parseInt(arl), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
+  }
+
+  actualizarCaja(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let caja = ((this.auxiliarMTO.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let caja = ((this.asistenteMTO.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let caja = ((this.asociadoMTO.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let caja = ((this.titularMTO.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let caja = ((this.auxiliarTCO.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let caja = ((this.asistenteTCO.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let caja = ((this.asociadoTCO.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let caja = ((this.titularTCO.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPRE.data[rowIndex].caja = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let caja = ((this.auxiliarPrestacional.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let caja = ((this.asistentePrestacional.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let caja = ((this.asociadoPrestacional.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let caja = ((this.titularPrestacional.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPOS.data[rowIndex].caja = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let caja = ((this.asistentePrestacionalPOS.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let caja = ((this.asociadoPrestacionalPOS.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let caja = ((this.titularPrestacionalPOS.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let caja = ((this.asistenteUDPrestacionalPOS.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let caja = ((this.asociadoUDPrestacionalPOS.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let caja = ((this.titularUDPrestacionalPOS.caja * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].caja = formatCurrency(parseInt(caja), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
+  }
+
+  actualizarIcbf(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        if (element.tipo === "Medio Tiempo") {
+          if (element.categoria === "Auxiliar") {
+            let icbf = ((this.auxiliarMTO.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let icbf = ((this.asistenteMTO.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let icbf = ((this.asociadoMTO.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let icbf = ((this.titularMTO.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+
+        } else if (element.tipo === "Tiempo Completo") {
+          if (element.categoria === "Auxiliar") {
+            let icbf = ((this.auxiliarTCO.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let icbf = ((this.asistenteTCO.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let icbf = ((this.asociadoTCO.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let icbf = ((this.titularTCO.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHF.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPRE") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPRE.data[rowIndex].icbf = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Auxiliar") {
+            let icbf = ((this.auxiliarPrestacional.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente") {
+            let icbf = ((this.asistentePrestacional.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let icbf = ((this.asociadoPrestacional.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let icbf = ((this.titularPrestacional.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPRE.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+      if (tipo === "RHVPOS") {
+        if (element.tipo === "H. Catedra Honorarios") {
+          this.dataSourceRHVPOS.data[rowIndex].icbf = "N/A";
+
+        } else if (element.tipo === "H. Catedra Prestacional") {
+          if (element.categoria === "Asistente") {
+            let icbf = ((this.asistentePrestacionalPOS.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado") {
+            let icbf = ((this.asociadoPrestacionalPOS.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular") {
+            let icbf = ((this.titularPrestacionalPOS.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asistente UD") {
+            let icbf = ((this.asistenteUDPrestacionalPOS.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Asociado UD") {
+            let icbf = ((this.asociadoUDPrestacionalPOS.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (element.categoria === "Titular UD") {
+            let icbf = ((this.titularUDPrestacionalPOS.icbf * element.horas) * element.semanas).toFixed(0);
+            this.dataSourceRHVPOS.data[rowIndex].icbf = formatCurrency(parseInt(icbf), 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        }
+      }
+    }
+  }
+
+  actualizarTotalRecurso(element, rowIndex, tipo) {
+    if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
+      if (tipo === "RHF") {
+        let sueldoBasico = parseInt(element.sueldoBasico.replace(/\$|,/g, ''));
+        let primaServicios = parseInt(element.primaServicios.replace(/\$|,/g, ''));
+        let primaNavidad = parseInt(element.primaNavidad.replace(/\$|,/g, ''));
+        let primaVacaciones = parseInt(element.primaVacaciones.replace(/\$|,/g, ''));
+        let bonificacion;
+        if (element.bonificacion != "") {
+          bonificacion = parseInt(element.bonificacion.replace(/\$|,/g, ''));
+        } else {
+          bonificacion = 0;
+        }
+        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
+        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, ''));
+        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, ''));
+        let caja = parseInt(element.caja.replace(/\$|,/g, ''));
+        let icbf = parseInt(element.icbf.replace(/\$|,/g, ''));
+
+        let total = (sueldoBasico + primaServicios + primaNavidad + primaVacaciones + bonificacion + totalCesantias + totalSalud + totalArl + caja + icbf).toFixed(0);
+        this.dataSourceRHF.data[rowIndex].total = formatCurrency(parseInt(total), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+      if (tipo === "RHVPRE") {
+        let total;
+        let sueldoBasico = parseInt(element.sueldoBasico.replace(/\$|,/g, ''));
+        let primaServicios = parseInt(element.primaServicios.replace(/\$|,/g, ''));
+        let primaNavidad = parseInt(element.primaNavidad.replace(/\$|,/g, ''));
+        let primaVacaciones = parseInt(element.primaVacaciones.replace(/\$|,/g, ''));
+        let bonificacion;
+        if (element.bonificacion != "") {
+          bonificacion = parseInt(element.bonificacion.replace(/\$|,/g, ''));
+        } else {
+          bonificacion = 0;
+        }
+        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
+        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, ''));
+        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, ''));
+        let caja = parseInt(element.caja.replace(/\$|,/g, ''));
+        let icbf = parseInt(element.icbf.replace(/\$|,/g, ''));
+        if (element.tipo === "H. Catedra Honorarios")
+          total = (sueldoBasico).toFixed(0)
+        else
+          total = (sueldoBasico + primaServicios + primaNavidad + primaVacaciones + bonificacion + totalCesantias + totalSalud + totalArl + caja + icbf).toFixed(0);
+        this.dataSourceRHVPRE.data[rowIndex].total = formatCurrency(parseInt(total), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+      if (tipo === "RHVPOS") {
+        let total;
+        let sueldoBasico = parseInt(element.sueldoBasico.replace(/\$|,/g, ''));
+        let primaServicios = parseInt(element.primaServicios.replace(/\$|,/g, ''));
+        let primaNavidad = parseInt(element.primaNavidad.replace(/\$|,/g, ''));
+        let primaVacaciones = parseInt(element.primaVacaciones.replace(/\$|,/g, ''));
+        let bonificacion;
+        if (element.bonificacion != "") {
+          bonificacion = parseInt(element.bonificacion.replace(/\$|,/g, ''));
+        } else {
+          bonificacion = 0;
+        }
+        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
+        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, ''));
+        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, ''));
+        let caja = parseInt(element.caja.replace(/\$|,/g, ''));
+        let icbf = parseInt(element.icbf.replace(/\$|,/g, ''));
+        if (element.tipo === "H. Catedra Honorarios")
+          total = (sueldoBasico).toFixed(0)
+        else
+          total = (sueldoBasico + primaServicios + primaNavidad + primaVacaciones + bonificacion + totalCesantias + totalSalud + totalArl + caja + icbf).toFixed(0);
+        this.dataSourceRHVPOS.data[rowIndex].total = formatCurrency(parseInt(total), 'en-US', getCurrencySymbol('USD', 'wide'));
+      }
+    }
   }
 
   //Total por registro
@@ -1345,7 +2186,63 @@ export class DocentesComponent implements OnInit {
   }
 
   guardarRecursos() {
+    let arreglo: string[] = [];
+    this.accionBoton = 'guardar';
+    this.tipoIdenti = 'docentes';
+    let accion = this.accionBoton;
+    let identi = this.tipoIdenti;
+    var identificaciones: any;
+    let data = this.dataSourceRHF.data;
 
+    for (var i in data) {
+      var obj = data[i];
+      obj["activo"] = true;
+      var num = +i + 1;
+      obj["index"] = num.toString();
+    }
+    let dataStrRHF = JSON.stringify(Object.assign({}, data));
+
+    data = this.dataSourceRHVPRE.data
+    for (var i in data) {
+      var obj = data[i];
+      obj["activo"] = true;
+      var num = +i + 1;
+      obj["in|dex"] = num.toString();
+    }
+    let dataStrRHVPRE = JSON.stringify(Object.assign({}, data));
+
+
+    data = this.dataSourceRHVPOS.data
+    for (var i in data) {
+      var obj = data[i];
+      obj["activo"] = true;
+      var num = +i + 1;
+      obj["index"] = num.toString();
+    }
+    let dataStrRHVPOS = JSON.stringify(Object.assign({}, data));
+
+
+
+    identificaciones = {
+      "rhf": dataStrRHF,
+      "rhv_pre": dataStrRHVPRE,
+      "rhv_pos": dataStrRHVPOS,
+
+    }
+    let aux = JSON.stringify(Object.assign({}, identificaciones));
+    this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, aux, this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
+      if (data) {
+        Swal.fire({
+          title: 'Guardado exitoso',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 3500
+        })
+        if (!this.banderaCerrar) {
+          this.acciones.emit({ aux, accion, identi });
+        }
+      }
+    })
 
   }
 
@@ -1358,53 +2255,4 @@ export class DocentesComponent implements OnInit {
     this.acciones.emit({ data, accion, identi });
   }
 
-  sumasTotales(tipo) {
-
-  }
-
-  verificarSumasPensiones() {
-
-  }
-
-  verificarSumasCesantias() {
-
-  }
-
-  verificarSumasRiesgos() {
-
-  }
-
-  inicializarTabla() {
-    this.steps = [
-      {
-        "nombre": "Recurso horas fijas",
-        "descripcion": "Pregrado",
-        "tipo": "RHF",
-        "nivel": "Pregrado",
-        "data": this.dataSourceRHF,
-        "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Compĺeto" }],
-        "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
-      },
-      {
-        "nombre": "Recurso horas variable",
-        "descripcion": "Pregrado",
-        "tipo": 'RHVPRE',
-        "nivel": "Pregrado",
-        "data": this.dataSourceRHVPRE,
-        "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Compĺeto" }],
-        "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
-      },
-      {
-        "nombre": "Recurso horas variable",
-        "descripcion": "Posgrado",
-        "tipo": "RHVPOS",
-        "nivel": "Posgrado",
-        "data": this.dataSourceRHVPOS,
-        "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Compĺeto" }],
-        "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
-      }
-    ];
-
-
-  }
 }
