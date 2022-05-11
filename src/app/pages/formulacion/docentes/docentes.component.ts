@@ -341,7 +341,6 @@ export class DocentesComponent implements OnInit {
   }
 
   visualizarColumnas(): string[] {
-    this.rol = 'JEFE_DEPENDENCIA';
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
