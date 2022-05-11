@@ -203,44 +203,57 @@ export class DocentesComponent implements OnInit {
     if (this.dataTabla) {
       this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
         if (data) {
-          this.steps = [
-            {
-              "nombre": "Recurso horas fijas",
-              "descripcion": "Pregrado",
-              "tipo": "RHF",
-              "nivel": "Pregrado",
-              "data": this.dataSourceRHF,
-              "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Completo" }],
-              "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
-            },
-            {
-              "nombre": "Recurso horas variable",
-              "descripcion": "Pregrado",
-              "tipo": 'RHVPRE',
-              "nivel": "Pregrado",
-              "data": this.dataSourceRHVPRE,
-              "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
-              "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
-            },
-            {
-              "nombre": "Recurso horas variable",
-              "descripcion": "Posgrado",
-              "tipo": "RHVPOS",
-              "nivel": "Posgrado",
-              "data": this.dataSourceRHVPOS,
-              "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
-              "categorias": [{ "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }, { "nombre": "Asistente UD" }, { "nombre": "Asociado UD" }, { "nombre": "Titular UD" }]
-            }
-          ];
+          
           let identificacion = data.Data[0];
           if (identificacion.activo === false) {
-            this.banderaCerrar = true;
+            this.dataSourceRHF.data =[];
+            this.dataSourceRHVPRE.data =[];
+            this.dataSourceRHVPOS.data =[];
+            this.steps = [
+              {
+                "nombre": "Recurso horas fijas",
+                "descripcion": "Pregrado",
+                "tipo": "RHF",
+                "nivel": "Pregrado",
+                "data": this.dataSourceRHF,
+                "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Completo" }],
+                "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
+              },
+              {
+                "nombre": "Recurso horas variable",
+                "descripcion": "Pregrado",
+                "tipo": 'RHVPRE',
+                "nivel": "Pregrado",
+                "data": this.dataSourceRHVPRE,
+                "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
+                "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
+              },
+              {
+                "nombre": "Recurso horas variable",
+                "descripcion": "Posgrado",
+                "tipo": "RHVPOS",
+                "nivel": "Posgrado",
+                "data": this.dataSourceRHVPOS,
+                "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
+                "categorias": [{ "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }, { "nombre": "Asistente UD" }, { "nombre": "Asociado UD" }, { "nombre": "Titular UD" }]
+              }
+            ];
             Swal.close();
+            let datoIdenti = {
+              "activo": true
+            }
+            Swal.close()
+            this.request.put(environment.PLANES_CRUD, `identificacion`, datoIdenti, identificacion._id).subscribe();
           } else {
             this.getData().then(() => {
-              this.dataSourceRHF.data = this.data.rhf;
-              this.dataSourceRHVPOS.data = this.data.rhv_pos;
-              this.dataSourceRHVPRE.data = this.data.rhv_pre;
+              if (this.data != ""){
+                if (this.data.rhf != "{}")
+                this.dataSourceRHF.data = this.data.rhf;
+                if (this.data.rhv_pre != "{}")
+                this.dataSourceRHVPOS.data = this.data.rhv_pos;
+                if (this.data.rhv_pos != "{}")
+                this.dataSourceRHVPRE.data = this.data.rhv_pre;
+              }
 
               this.steps = [
                 {
@@ -290,7 +303,7 @@ export class DocentesComponent implements OnInit {
       resolveRef = resolve;
       rejectRef = reject;
     });
-    this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/` + this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
+    this.request.get(environment.PRUEBA, `formulacion/get_all_identificacion/` + this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
       if (data) {
         let aux: object = data.Data;
         this.data = aux;
@@ -328,6 +341,7 @@ export class DocentesComponent implements OnInit {
   }
 
   visualizarColumnas(): string[] {
+    this.rol = 'JEFE_DEPENDENCIA';
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
