@@ -203,12 +203,12 @@ export class DocentesComponent implements OnInit {
     if (this.dataTabla) {
       this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
         if (data) {
-          
+
           let identificacion = data.Data[0];
           if (identificacion.activo === false) {
-            this.dataSourceRHF.data =[];
-            this.dataSourceRHVPRE.data =[];
-            this.dataSourceRHVPOS.data =[];
+            this.dataSourceRHF.data = [];
+            this.dataSourceRHVPRE.data = [];
+            this.dataSourceRHVPOS.data = [];
             this.steps = [
               {
                 "nombre": "Recurso horas fijas",
@@ -246,13 +246,13 @@ export class DocentesComponent implements OnInit {
             this.request.put(environment.PLANES_CRUD, `identificacion`, datoIdenti, identificacion._id).subscribe();
           } else {
             this.getData().then(() => {
-              if (this.data != ""){
+              if (this.data != "") {
                 if (this.data.rhf != "{}")
-                this.dataSourceRHF.data = this.data.rhf;
+                  this.dataSourceRHF.data = this.data.rhf;
                 if (this.data.rhv_pre != "{}")
-                this.dataSourceRHVPOS.data = this.data.rhv_pos;
+                  this.dataSourceRHVPOS.data = this.data.rhv_pos;
                 if (this.data.rhv_pos != "{}")
-                this.dataSourceRHVPRE.data = this.data.rhv_pre;
+                  this.dataSourceRHVPRE.data = this.data.rhv_pre;
               }
 
               this.steps = [
@@ -670,7 +670,7 @@ export class DocentesComponent implements OnInit {
         primaServicios: '',
         primaNavidad: '',
         primaVacaciones: '',
-        bonificacion: '',
+        bonificacion: 'N/A',
         cesantiasPublico: '',
         cesantiasPrivado: '',
         interesesCesantias: '',
@@ -701,7 +701,7 @@ export class DocentesComponent implements OnInit {
         privaServicios: '',
         primaNavidad: '',
         primaVacaciones: '',
-        bonificacion: '',
+        bonificacion: 'N/A',
         cesantiasPublico: '',
         cesantiasPrivado: '',
         interesesCesantias: '',
@@ -732,7 +732,7 @@ export class DocentesComponent implements OnInit {
         privaServicios: '',
         primaNavidad: '',
         primaVacaciones: '',
-        bonificacion: '',
+        bonificacion: 'N/A',
         cesantiasPublico: '',
         cesantiasPrivado: '',
         interesesCesantias: '',
@@ -2267,5 +2267,116 @@ export class DocentesComponent implements OnInit {
     let identi = this.tipoIdenti;
     this.acciones.emit({ data, accion, identi });
   }
+
+  verificarCesantias(element, rowIndex, tipo) {
+
+
+
+    if (element.cesantiasPrivado != "" && element.cesantiasPublico != "") {
+      let cesantiasPublico = parseInt(element.cesantiasPublico.replace(/\$|,/g, ''));
+      let cesantiasPrivado = parseInt(element.cesantiasPrivado.replace(/\$|,/g, ''));
+      let cesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
+      if (cesantiasPublico + cesantiasPrivado == cesantias) {
+        this.banderaCerrar = false;
+        if (tipo === "RHF") {
+          this.dataSourceRHF.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHF.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (tipo === "RHVPRE") {
+          this.dataSourceRHVPRE.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHVPRE.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (tipo === "RHVPOS") {
+          this.dataSourceRHVPOS.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHVPOS.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+      } else {
+        if (tipo === "RHF") {
+          this.dataSourceRHF.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHF.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (tipo === "RHVPRE") {
+          this.dataSourceRHVPRE.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHVPRE.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (tipo === "RHVPOS") {
+          this.dataSourceRHVPOS.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHVPOS.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        this.banderaCerrar = true;
+        Swal.fire({
+          icon: 'warning',
+          title: 'Por favor verifique los campos de cesantias',
+          showConfirmButton: true,
+          timer: 2500,
+        })
+      }
+    } else {
+
+      Swal.fire({
+        position: 'top-end',
+        icon: 'warning',
+        title: 'Por favor complete los campos de cesantias',
+        showConfirmButton: false,
+        timer: 2500,
+      })
+    }
+  }
+
+  verificarPensiones(element, rowIndex, tipo) {
+
+    if (element.pensionesPrivado != "" && element.pensionesPublico != "") {
+      let pensionesPublico = parseInt(element.pensionesPublico.replace(/\$|,/g, ''));
+      let pensionesPrivado = parseInt(element.pensionesPrivado.replace(/\$|,/g, ''));
+      let cesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
+      if (pensionesPublico + pensionesPrivado == cesantias) {
+        this.banderaCerrar = false;
+        if (tipo === "RHF") {
+          this.dataSourceRHF.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHF.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (tipo === "RHVPRE") {
+          this.dataSourceRHVPRE.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHVPRE.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (tipo === "RHVPOS") {
+          this.dataSourceRHVPOS.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHVPOS.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+      } else {
+        if (tipo === "RHF") {
+          this.dataSourceRHF.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHF.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (tipo === "RHVPRE") {
+          this.dataSourceRHVPRE.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHVPRE.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (tipo === "RHVPOS") {
+          this.dataSourceRHVPOS.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHVPOS.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        this.banderaCerrar = true;
+        Swal.fire({
+          icon: 'warning',
+          title: 'Por favor verifique los campos de pensiones',
+          showConfirmButton: true,
+          timer: 2500,
+        })
+      }
+    } else {
+
+      Swal.fire({
+        position: 'top-end',
+        icon: 'warning',
+        title: 'Por favor complete los campos de pensiones',
+        showConfirmButton: false,
+        timer: 2500,
+      })
+    }
+  }
+
+
+  
 
 }
