@@ -516,16 +516,19 @@ export class FormulacionComponent implements OnInit {
         this.readOnlyAll = true;
         this.readonlyObs = false;
         this.hiddenObs = false;
+
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readOnlyAll = true;
         this.readonlyObs = true;
         this.hiddenObs = false;
+
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readOnlyAll = true;
         this.hiddenObs = true;
+
       }
     }
   }

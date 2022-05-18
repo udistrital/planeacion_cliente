@@ -70,8 +70,9 @@ export class CrearPlanComponent implements OnInit {
               }).then((result) => {
                 if (result.value) {
                   this.dialogRef.close();
-                  this.router.navigate(['pages/plan/listar-plan']);
-                }
+                  this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                    this.router.navigate(['pages/plan/construir-plan-proyecto']);
+                  });                }
               })
             }
           }),
@@ -103,7 +104,9 @@ export class CrearPlanComponent implements OnInit {
             }).then((result) => {
               if (result.value) {
                 this.dialogRef.close();
-                this.router.navigate(['pages/plan/listar-plan']);
+                this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                  this.router.navigate(['pages/plan/construir-plan-proyecto']);
+                });
               }
             })
           }

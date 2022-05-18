@@ -3,7 +3,7 @@
   <mat-card-header>
     <mat-card-title>Formulación de Planes</mat-card-title>
   </mat-card-header>
-  <mat-card-content  >
+  <mat-card-content>
     <form [formGroup]="formSelect">
       <u class="textGuide">
         En esta sección usted podrá FORMULAR los planes creados en el módulo construcción, para continuar seleccione las
@@ -16,7 +16,7 @@
       <ng-container>
         <mat-form-field appearance="fill" [style.width.%]="100">
           <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
-          <mat-select (selectionChange)="onChangeU($event.value)"  formControlName="selectUnidad">
+          <mat-select (selectionChange)="onChangeU($event.value)" formControlName="selectUnidad">
             <input (keyup)="onKey($event.target.value)" class="input-search"
               placeholder="Escriba el nombre de la unidad que desea seleccionar">
             <mat-option>--</mat-option>
@@ -381,8 +381,8 @@
   <!-- AGREGAR ACTIVIDAD / IDENTIFICACIÓN / CULMINAR PLAN -->
   <mat-card-footer style="text-align: center;">
     <ng-container>
-      <button mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad">
-  <!-- *ngIsGranted="['JEFE_DEPENDENCIA']"> -->
+      <button mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad || estadoPlan != 'En formulación'"
+        *ngIsGranted="['JEFE_DEPENDENCIA']">
         Agregar actividad
       </button>
       <button mat-raised-button color="primary" (click)="identificarContratistas()" [disabled]="!dataT">
