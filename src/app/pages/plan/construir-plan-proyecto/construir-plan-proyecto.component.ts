@@ -45,8 +45,6 @@ export class ConstruirPlanProyectoComponent implements OnInit {
   }
 
   openDialogEditar(sub, subDetalle): void {
-    console.log(sub)
-    console.log(subDetalle)
     const dialogRef = this.dialog.open(EditarDialogComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
@@ -58,7 +56,6 @@ export class ConstruirPlanProyectoComponent implements OnInit {
         return undefined;
       } else {
         this.putData(result, 'editar');
-        console.log(result);
       }
     });
   }
@@ -137,7 +134,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
       cancelButtonText: `No`,
     }).then((result) => {
         if (result.isConfirmed) {
-          this.request.delete(environment.PLANES_MID, `arbol`, this.uid).subscribe((data: any) => {
+          this.request.delete(environment.PRUEBA, `arbol/desactivar_plan/`, this.uid).subscribe((data: any) => {
             if(data){
               Swal.fire({
                 title: 'Cambio realizado', 
@@ -169,7 +166,6 @@ export class ConstruirPlanProyectoComponent implements OnInit {
   }
 
   construirPlan(plan_id, nombrePlan, tipo_plan_id) {
-    // console.log('pages/plan/consultar-plan/' + plan_id+ '/' + nombrePlan + '/' + tipo_plan_id);
     this.router.navigate(['pages/plan/construir-plan/' + plan_id+ '/' + nombrePlan + '/' + tipo_plan_id]);
   }
 
@@ -177,7 +173,6 @@ export class ConstruirPlanProyectoComponent implements OnInit {
     this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
-    console.log(this.planes)
         this.ajustarData();
       }
     },(error) => {
@@ -263,7 +258,6 @@ export class ConstruirPlanProyectoComponent implements OnInit {
         return undefined;
       } else {
         this.putData(result, 'editar');
-        console.log(result);
       }
     });
   }
