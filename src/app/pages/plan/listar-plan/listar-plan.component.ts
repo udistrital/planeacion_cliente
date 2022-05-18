@@ -64,9 +64,9 @@ export class ListarPlanComponent implements OnInit {
       this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
         if (data) {
           if (res.activo == "true") {
-            this.request.put(environment.PRUEBA, `arbol/activar_plan`, res, this.uid).subscribe();
+            this.request.put(environment.PLANES_MID, `arbol/activar_plan`, res, this.uid).subscribe();
           } else {
-            this.request.delete(environment.PRUEBA, `arbol/desactivar_plan`, this.uid).subscribe();
+            this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan`, this.uid).subscribe();
           }
           Swal.fire({
             title: 'Actualización correcta',
@@ -138,7 +138,7 @@ export class ListarPlanComponent implements OnInit {
       cancelButtonText: `No`,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.delete(environment.PRUEBA, `arbol/desactivar_plan`, this.uid).subscribe((data: any) => {
+        this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan`, this.uid).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Cambio realizado',

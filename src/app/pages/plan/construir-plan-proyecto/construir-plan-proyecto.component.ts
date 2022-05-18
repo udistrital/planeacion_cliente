@@ -134,7 +134,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
       cancelButtonText: `No`,
     }).then((result) => {
         if (result.isConfirmed) {
-          this.request.delete(environment.PRUEBA, `arbol/desactivar_plan/`, this.uid).subscribe((data: any) => {
+          this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan/`, this.uid).subscribe((data: any) => {
             if(data){
               Swal.fire({
                 title: 'Cambio realizado', 
