@@ -211,8 +211,7 @@ export class DocentesComponent implements OnInit {
             this.dataSourceRHVPOS.data = [];
             this.steps = [
               {
-                "nombre": "Recurso horas fijas",
-                "descripcion": "Pregrado",
+                "nombre": "Recurso horas fijas - Pregrado",
                 "tipo": "RHF",
                 "nivel": "Pregrado",
                 "data": this.dataSourceRHF,
@@ -220,8 +219,7 @@ export class DocentesComponent implements OnInit {
                 "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
               },
               {
-                "nombre": "Recurso horas variable",
-                "descripcion": "Pregrado",
+                "nombre": "Recurso horas variable - Pregrado",
                 "tipo": 'RHVPRE',
                 "nivel": "Pregrado",
                 "data": this.dataSourceRHVPRE,
@@ -229,8 +227,7 @@ export class DocentesComponent implements OnInit {
                 "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
               },
               {
-                "nombre": "Recurso horas variable",
-                "descripcion": "Posgrado",
+                "nombre": "Recurso horas variable - Posgrado",
                 "tipo": "RHVPOS",
                 "nivel": "Posgrado",
                 "data": this.dataSourceRHVPOS,
@@ -254,11 +251,9 @@ export class DocentesComponent implements OnInit {
                 if (this.data.rhv_pos != "{}")
                   this.dataSourceRHVPRE.data = this.data.rhv_pre;
               }
-
               this.steps = [
                 {
-                  "nombre": "Recurso horas fijas",
-                  "descripcion": "Pregrado",
+                  "nombre": "Recurso horas fijas - Pregrado",
                   "tipo": "RHF",
                   "nivel": "Pregrado",
                   "data": this.dataSourceRHF,
@@ -266,8 +261,7 @@ export class DocentesComponent implements OnInit {
                   "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
                 },
                 {
-                  "nombre": "Recurso horas variable",
-                  "descripcion": "Pregrado",
+                  "nombre": "Recurso horas variable - Pregrado",
                   "tipo": 'RHVPRE',
                   "nivel": "Pregrado",
                   "data": this.dataSourceRHVPRE,
@@ -275,8 +269,7 @@ export class DocentesComponent implements OnInit {
                   "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
                 },
                 {
-                  "nombre": "Recurso horas variable",
-                  "descripcion": "Posgrado",
+                  "nombre": "Recurso horas variable - Posgrado",
                   "tipo": "RHVPOS",
                   "nivel": "Posgrado",
                   "data": this.dataSourceRHVPOS,
@@ -1500,7 +1493,8 @@ export class DocentesComponent implements OnInit {
       if (tipo === "RHVPRE") {
         if (element.tipo === "H. Catedra Honorarios") {
           this.dataSourceRHVPRE.data[rowIndex].cesantias = "N/A";
-
+          this.dataSourceRHVPRE.data[rowIndex].cesantiasPrivado = "N/A";
+          this.dataSourceRHVPRE.data[rowIndex].cesantiasPublico = "N/A";
         } else if (element.tipo === "H. Catedra Prestacional") {
           if (element.categoria === "Auxiliar") {
             let cesantias = ((this.auxiliarPrestacional.cesantias * element.horas) * element.semanas).toFixed(0);
@@ -1523,7 +1517,8 @@ export class DocentesComponent implements OnInit {
       if (tipo === "RHVPOS") {
         if (element.tipo === "H. Catedra Honorarios") {
           this.dataSourceRHVPOS.data[rowIndex].cesantias = "N/A";
-
+          this.dataSourceRHVPOS.data[rowIndex].cesantiasPrivado = "N/A";
+          this.dataSourceRHVPOS.data[rowIndex].cesantiasPublico = "N/A";
         } else if (element.tipo === "H. Catedra Prestacional") {
           if (element.categoria === "Asistente") {
             let cesantias = ((this.asistentePrestacionalPOS.cesantias * element.horas) * element.semanas).toFixed(0);
@@ -1563,16 +1558,24 @@ export class DocentesComponent implements OnInit {
         this.dataSourceRHF.data[rowIndex].totalCesantias = formatCurrency(parseInt(totalCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
       }
       if (tipo === "RHVPRE") {
-        let interesesCesantias = parseInt(element.interesesCesantias.replace(/\$|,/g, ''));
-        let cesantias = parseInt(element.cesantias.replace(/\$|,/g, ''));
-        let totalCesantias = (interesesCesantias + cesantias).toFixed(0);
-        this.dataSourceRHVPRE.data[rowIndex].totalCesantias = formatCurrency(parseInt(totalCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+        if (element.tipo != "H. Catedra Honorarios") {
+          let interesesCesantias = parseInt(element.interesesCesantias.replace(/\$|,/g, ''));
+          let cesantias = parseInt(element.cesantias.replace(/\$|,/g, ''));
+          let totalCesantias = (interesesCesantias + cesantias).toFixed(0);
+          this.dataSourceRHVPRE.data[rowIndex].totalCesantias = formatCurrency(parseInt(totalCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+        }else{
+          this.dataSourceRHVPRE.data[rowIndex].totalCesantias = "N/A";
+        }
       }
       if (tipo === "RHVPOS") {
-        let interesesCesantias = parseInt(element.interesesCesantias.replace(/\$|,/g, ''));
-        let cesantias = parseInt(element.cesantias.replace(/\$|,/g, ''));
-        let totalCesantias = (interesesCesantias + cesantias).toFixed(0);
-        this.dataSourceRHVPOS.data[rowIndex].totalCesantias = formatCurrency(parseInt(totalCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+        if (element.tipo != "H. Catedra Honorarios") {
+          let interesesCesantias = parseInt(element.interesesCesantias.replace(/\$|,/g, ''));
+          let cesantias = parseInt(element.cesantias.replace(/\$|,/g, ''));
+          let totalCesantias = (interesesCesantias + cesantias).toFixed(0);
+          this.dataSourceRHVPOS.data[rowIndex].totalCesantias = formatCurrency(parseInt(totalCesantias), 'en-US', getCurrencySymbol('USD', 'wide'));
+        }else{
+          this.dataSourceRHVPOS.data[rowIndex].totalCesantias = "N/A";
+        }
       }
     }
   }
@@ -1717,7 +1720,8 @@ export class DocentesComponent implements OnInit {
       if (tipo === "RHVPRE") {
         if (element.tipo === "H. Catedra Honorarios") {
           this.dataSourceRHVPRE.data[rowIndex].totalPensiones = "N/A";
-
+          this.dataSourceRHVPRE.data[rowIndex].pensionesPrivado = "N/A";
+          this.dataSourceRHVPRE.data[rowIndex].pensionesPublico = "N/A";
         } else if (element.tipo === "H. Catedra Prestacional") {
           if (element.categoria === "Auxiliar") {
             let pension = ((this.auxiliarPrestacional.pension * element.horas) * element.semanas).toFixed(0);
@@ -1740,7 +1744,8 @@ export class DocentesComponent implements OnInit {
       if (tipo === "RHVPOS") {
         if (element.tipo === "H. Catedra Honorarios") {
           this.dataSourceRHVPOS.data[rowIndex].totalPensiones = "N/A";
-
+          this.dataSourceRHVPOS.data[rowIndex].pensionesPrivado = "N/A";
+          this.dataSourceRHVPOS.data[rowIndex].pensionesPublico = "N/A";
         } else if (element.tipo === "H. Catedra Prestacional") {
           if (element.categoria === "Asistente") {
             let pension = ((this.asistentePrestacionalPOS.pension * element.horas) * element.semanas).toFixed(0);
@@ -2269,15 +2274,11 @@ export class DocentesComponent implements OnInit {
   }
 
   verificarCesantias(element, rowIndex, tipo) {
-
-
-
-    if (element.cesantiasPrivado != "" && element.cesantiasPublico != "") {
-      let cesantiasPublico = parseInt(element.cesantiasPublico.replace(/\$|,/g, ''));
-      let cesantiasPrivado = parseInt(element.cesantiasPrivado.replace(/\$|,/g, ''));
-      let cesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
-      if (cesantiasPublico + cesantiasPrivado == cesantias) {
-        this.banderaCerrar = false;
+    if (element.tipo != "H. Catedra Honorarios")
+      if (element.cesantiasPrivado != "" && element.cesantiasPublico != "") {
+        let cesantiasPublico = parseInt(element.cesantiasPublico.replace(/\$|,/g, ''));
+        let cesantiasPrivado = parseInt(element.cesantiasPrivado.replace(/\$|,/g, ''));
+        let cesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
         if (tipo === "RHF") {
           this.dataSourceRHF.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
           this.dataSourceRHF.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
@@ -2289,94 +2290,84 @@ export class DocentesComponent implements OnInit {
         if (tipo === "RHVPOS") {
           this.dataSourceRHVPOS.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
           this.dataSourceRHVPOS.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (cesantiasPublico + cesantiasPrivado == cesantias) {
+          this.banderaCerrar = false;
+
+        } else {
+          this.banderaCerrar = true;
+          Swal.fire({
+            icon: 'warning',
+            title: 'Por favor verifique los campos de cesantias',
+            showConfirmButton: true,
+            timer: 2500,
+          })
         }
       } else {
-        if (tipo === "RHF") {
-          this.dataSourceRHF.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-          this.dataSourceRHF.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-        }
-        if (tipo === "RHVPRE") {
-          this.dataSourceRHVPRE.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-          this.dataSourceRHVPRE.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-        }
-        if (tipo === "RHVPOS") {
-          this.dataSourceRHVPOS.data[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-          this.dataSourceRHVPOS.data[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-        }
-        this.banderaCerrar = true;
         Swal.fire({
+          position: 'top-end',
           icon: 'warning',
-          title: 'Por favor verifique los campos de cesantias',
-          showConfirmButton: true,
+          title: 'Por favor complete los campos de cesantias',
+          showConfirmButton: false,
           timer: 2500,
         })
       }
-    } else {
-
-      Swal.fire({
-        position: 'top-end',
-        icon: 'warning',
-        title: 'Por favor complete los campos de cesantias',
-        showConfirmButton: false,
-        timer: 2500,
-      })
-    }
   }
 
   verificarPensiones(element, rowIndex, tipo) {
-
-    if (element.pensionesPrivado != "" && element.pensionesPublico != "") {
-      let pensionesPublico = parseInt(element.pensionesPublico.replace(/\$|,/g, ''));
-      let pensionesPrivado = parseInt(element.pensionesPrivado.replace(/\$|,/g, ''));
-      let cesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
-      if (pensionesPublico + pensionesPrivado == cesantias) {
-        this.banderaCerrar = false;
-        if (tipo === "RHF") {
-          this.dataSourceRHF.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-          this.dataSourceRHF.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-        }
-        if (tipo === "RHVPRE") {
-          this.dataSourceRHVPRE.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-          this.dataSourceRHVPRE.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-        }
-        if (tipo === "RHVPOS") {
-          this.dataSourceRHVPOS.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-          this.dataSourceRHVPOS.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+    if (element.tipo != "H. Catedra Honorarios")
+      if (element.pensionesPrivado != "" && element.pensionesPublico != "") {
+        let pensionesPublico = parseInt(element.pensionesPublico.replace(/\$|,/g, ''));
+        let pensionesPrivado = parseInt(element.pensionesPrivado.replace(/\$|,/g, ''));
+        let cesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
+        if (pensionesPublico + pensionesPrivado == cesantias) {
+          this.banderaCerrar = false;
+          if (tipo === "RHF") {
+            this.dataSourceRHF.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+            this.dataSourceRHF.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (tipo === "RHVPRE") {
+            this.dataSourceRHVPRE.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+            this.dataSourceRHVPRE.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (tipo === "RHVPOS") {
+            this.dataSourceRHVPOS.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+            this.dataSourceRHVPOS.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+        } else {
+          if (tipo === "RHF") {
+            this.dataSourceRHF.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+            this.dataSourceRHF.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (tipo === "RHVPRE") {
+            this.dataSourceRHVPRE.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+            this.dataSourceRHVPRE.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          if (tipo === "RHVPOS") {
+            this.dataSourceRHVPOS.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+            this.dataSourceRHVPOS.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+          }
+          this.banderaCerrar = true;
+          Swal.fire({
+            icon: 'warning',
+            title: 'Por favor verifique los campos de pensiones',
+            showConfirmButton: true,
+            timer: 2500,
+          })
         }
       } else {
-        if (tipo === "RHF") {
-          this.dataSourceRHF.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-          this.dataSourceRHF.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-        }
-        if (tipo === "RHVPRE") {
-          this.dataSourceRHVPRE.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-          this.dataSourceRHVPRE.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-        }
-        if (tipo === "RHVPOS") {
-          this.dataSourceRHVPOS.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-          this.dataSourceRHVPOS.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-        }
-        this.banderaCerrar = true;
+
         Swal.fire({
+          position: 'top-end',
           icon: 'warning',
-          title: 'Por favor verifique los campos de pensiones',
-          showConfirmButton: true,
+          title: 'Por favor complete los campos de pensiones',
+          showConfirmButton: false,
           timer: 2500,
         })
       }
-    } else {
-
-      Swal.fire({
-        position: 'top-end',
-        icon: 'warning',
-        title: 'Por favor complete los campos de pensiones',
-        showConfirmButton: false,
-        timer: 2500,
-      })
-    }
   }
 
 
-  
+
 
 }
