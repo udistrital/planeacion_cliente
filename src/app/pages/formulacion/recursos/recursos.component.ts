@@ -93,7 +93,7 @@ export class RecursosComponent implements OnInit {
         if (this.mostrarObservaciones && !this.readonlyTable){
           return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones','acciones', ];
         }else{
-          return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones', 'acciones'];
+          return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {

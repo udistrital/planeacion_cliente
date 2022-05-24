@@ -591,7 +591,6 @@ export class FormulacionComponent implements OnInit {
           this.controlVersion = new FormControl(this.plan);
           this.versionPlan = this.plan.numero;
           this.getEstado();
-
         }
       }),
       (error) => {
@@ -735,7 +734,7 @@ export class FormulacionComponent implements OnInit {
           Swal.showLoading();
         },
       })
-      this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.plan._id + `/` + fila.index).subscribe((data: any) => {
+      this.request.get(environment.PRUEBA, `formulacion/get_plan/` + this.plan._id + `/` + fila.index).subscribe((data: any) => {
         if (data) {
           Swal.close();
           this.onChangePD(this.planesDesarrollo[0]);
