@@ -591,7 +591,6 @@ export class FormulacionComponent implements OnInit {
           this.controlVersion = new FormControl(this.plan);
           this.versionPlan = this.plan.numero;
           this.getEstado();
-
         }
       }),
       (error) => {
