@@ -58,6 +58,14 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   postData(res) {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     if (this.uid_n == 1) {
       var dataSub = {
         nombre: res.nombre,
@@ -128,6 +136,7 @@ export class ConstruirPlanComponent implements OnInit {
           }).then((result) => {
             if (result.value) {
               this.eventChange.emit(true);
+              Swal.close();
             }
           })
         }

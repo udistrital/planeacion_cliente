@@ -2097,7 +2097,7 @@ export class DocentesComponent implements OnInit {
         let primaNavidad = parseInt(element.primaNavidad.replace(/\$|,/g, ''));
         let primaVacaciones = parseInt(element.primaVacaciones.replace(/\$|,/g, ''));
         let bonificacion;
-        if (element.bonificacion != "") {
+        if (element.bonificacion != "" && element.bonificacion != "N/A") {
           bonificacion = parseInt(element.bonificacion.replace(/\$|,/g, ''));
         } else {
           bonificacion = 0;
@@ -2120,7 +2120,7 @@ export class DocentesComponent implements OnInit {
         let primaNavidad = parseInt(element.primaNavidad.replace(/\$|,/g, ''));
         let primaVacaciones = parseInt(element.primaVacaciones.replace(/\$|,/g, ''));
         let bonificacion;
-        if (element.bonificacion != "") {
+        if (element.bonificacion != "" && element.bonificacion != "N/A") {
           bonificacion = parseInt(element.bonificacion.replace(/\$|,/g, ''));
         } else {
           bonificacion = 0;
@@ -2137,71 +2137,6 @@ export class DocentesComponent implements OnInit {
         this.dataSourceRHVPOS.data[rowIndex].total = formatCurrency(parseInt(total), 'en-US', getCurrencySymbol('USD', 'wide'));
       }
     }
-  }
-
-  //Total por registro
-  getTotal(element, rowIndex, tipo) {
-    // if (tipo == 'MTO') {
-    //   if (this.dataSourceMTO.data.length !== 0) {
-    //     this.valorMTO = parseFloat((element.sueldoBasico + element.primaNavidad + element.primaVacaciones + element.totalAportesPensiones + element.aportesSaludPrivada + element.totalAportesCesantias +
-    //       element.totalAportesRiesgos + element.aportesICBF).toFixed(2))
-    //     if (this.valorMTO >> 0.00) {
-    //       this.dataSourceMTO.data[rowIndex].total = this.valorMTO;
-    //       return this.valorMTO;
-    //     } else {
-    //       this.dataSourceMTO.data[rowIndex].total = this.valorMTO;
-    //       return 0
-    //     }
-    //   } else {
-    //     return 0;
-    //   }
-    // }
-    // if (tipo == 'TCO') {
-    //   if (this.dataSourceTCO.data.length !== 0) {
-    //     this.valorTCO = parseFloat((element.sueldoBasico + element.primaNavidad + element.primaVacaciones + element.aportesPensionesPublicas +
-    //       element.aportesPensionesPrivadas + element.aportesSaludPrivada + element.aportesCesantiasPublicos + element.aportesCesantiasPrivados +
-    //       element.aportesRiesgoPublicos + element.aportesRiesgoPrivados + element.aportesICBF).toFixed(2))
-    //     if (this.valorTCO >> 0.00) {
-    //       this.dataSourceTCO.data[rowIndex].total = this.valorTCO;
-    //       return this.valorTCO;
-    //     } else {
-    //       this.dataSourceTCO.data[rowIndex].total = this.valorTCO;
-    //       return 0;
-    //     }
-    //   } else {
-    //     return 0;
-    //   }
-    // }
-    // if (tipo == 'Prestacional') {
-    //   if (this.dataSourcePrestacional.data.length !== 0) {
-    //     this.valorPrestacional = parseFloat((element.sueldoBasico + element.primaNavidad + element.primaVacaciones + element.aportesPensionesPublicas +
-    //       element.aportesPensionesPrivadas + element.aportesSaludPrivada + element.aportesCesantiasPublicos + element.aportesCesantiasPrivados +
-    //       element.aportesRiesgoPublicos + element.aportesRiesgoPrivados + element.aportesICBF).toFixed(2))
-    //     if (this.valorPrestacional >> 0.00) {
-    //       this.dataSourcePrestacional.data[rowIndex].total = this.valorPrestacional;
-    //       return this.valorPrestacional;
-    //     } else {
-    //       this.dataSourcePrestacional.data[rowIndex].total = this.valorPrestacional;
-    //       return 0;
-    //     }
-    //   } else {
-    //     return 0;
-    //   }
-    // }
-    // if (tipo == 'Honorarios') {
-    //   if (this.dataSourceHonorarios.data.length !== 0) {
-    //     this.valorHonorarios = parseFloat((element.sueldoBasico).toFixed(2))
-    //     if (this.valorHonorarios >> 0.00) {
-    //       this.dataSourceHonorarios.data[rowIndex].total = this.valorHonorarios;
-    //       return this.valorHonorarios;
-    //     } else {
-    //       this.dataSourceHonorarios.data[rowIndex].total = this.valorHonorarios;
-    //       return 0;
-    //     }
-    //   } else {
-    //     return 0;
-    //   }
-    // }
   }
 
   guardarRecursos() {
@@ -2294,7 +2229,6 @@ export class DocentesComponent implements OnInit {
         }
         if (cesantiasPublico + cesantiasPrivado == cesantias) {
           this.banderaCerrar = false;
-
         } else {
           this.banderaCerrar = true;
           Swal.fire({
@@ -2320,34 +2254,22 @@ export class DocentesComponent implements OnInit {
       if (element.pensionesPrivado != "" && element.pensionesPublico != "") {
         let pensionesPublico = parseInt(element.pensionesPublico.replace(/\$|,/g, ''));
         let pensionesPrivado = parseInt(element.pensionesPrivado.replace(/\$|,/g, ''));
-        let cesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
-        if (pensionesPublico + pensionesPrivado == cesantias) {
+        let pensiones = parseInt(element.totalPensiones.replace(/\$|,/g, ''));
+        if (tipo === "RHF") {
+          this.dataSourceRHF.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHF.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (tipo === "RHVPRE") {
+          this.dataSourceRHVPRE.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHVPRE.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (tipo === "RHVPOS") {
+          this.dataSourceRHVPOS.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+          this.dataSourceRHVPOS.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        }
+        if (pensionesPublico + pensionesPrivado == pensiones) {
           this.banderaCerrar = false;
-          if (tipo === "RHF") {
-            this.dataSourceRHF.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-            this.dataSourceRHF.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (tipo === "RHVPRE") {
-            this.dataSourceRHVPRE.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-            this.dataSourceRHVPRE.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (tipo === "RHVPOS") {
-            this.dataSourceRHVPOS.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-            this.dataSourceRHVPOS.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
         } else {
-          if (tipo === "RHF") {
-            this.dataSourceRHF.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-            this.dataSourceRHF.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (tipo === "RHVPRE") {
-            this.dataSourceRHVPRE.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-            this.dataSourceRHVPRE.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (tipo === "RHVPOS") {
-            this.dataSourceRHVPOS.data[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-            this.dataSourceRHVPOS.data[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
           this.banderaCerrar = true;
           Swal.fire({
             icon: 'warning',
@@ -2357,7 +2279,6 @@ export class DocentesComponent implements OnInit {
           })
         }
       } else {
-
         Swal.fire({
           position: 'top-end',
           icon: 'warning',
