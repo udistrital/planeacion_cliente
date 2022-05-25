@@ -197,7 +197,7 @@
                 <span class="header-align-right"> Armonizar </span>   
             </th>
             <td mat-cell *matCellDef="let row" class="mat-column-actions">
-                 <button mat-icon-button (click)="armonizar(row, 'armonizar')" [disabled]="rol === 'PLANEACION'"><mat-icon >{{row.icon}}</mat-icon></button>
+                 <button mat-icon-button (click)="armonizar(row, 'armonizar')" [disabled]="rol === 'PLANEACION' || estado  != 'En formulación'"><mat-icon >{{row.icon}}</mat-icon></button>
             </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

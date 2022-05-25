@@ -829,7 +829,8 @@ export class FormulacionComponent implements OnInit {
     this.addActividad = true;
     this.banderaEdit = false;
     this.visualizeObs();
-    this.dataArmonizacionPED = []
+    this.dataArmonizacionPED = [];
+    this.dataArmonizacionPI = [];
   }
 
   identificarContratistas() {
@@ -1032,7 +1033,8 @@ export class FormulacionComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.addActividad = false;
-        this.dataArmonizacionPED = []
+        this.dataArmonizacionPED = [];
+        this.dataArmonizacionPI = [];
         Swal.fire({
           title: 'Registro cancelado',
           icon: 'warning',

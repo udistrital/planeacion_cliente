@@ -179,7 +179,7 @@
               </mat-select>
             </mat-form-field>
             <app-arbol *ngIf="tipoPlanId !== undefined && tipoPlanId != ''" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre"
-              [dataArmonizacion]="dataArmonizacionPED" [consulta]="false" [armonizacionPED]="true"
+              [dataArmonizacion]="dataArmonizacionPED" [consulta]="false" [armonizacionPED]="true" [estado]="estadoPlan"
               [armonizacionPI]="false" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
           </ng-container>
           <!-- ARMONIZACION PLAN INDICATIVO -->
@@ -198,7 +198,7 @@
             </mat-form-field>
             <app-arbol *ngIf="tipoPlanIndicativo !== undefined && tipoPlanIndicativo !== ''"
               [tipoPlanId]="tipoPlanIndicativo" [idPlan]="idPlanIndicativo" [dataArmonizacion]="dataArmonizacionPI"
-              [consulta]="false" [armonizacionPED]="false" [armonizacionPI]="true" (grupo)="receiveMessagePI($event)"
+              [consulta]="false" [armonizacionPED]="false" [armonizacionPI]="true" [estado]="estadoPlan" (grupo)="receiveMessagePI($event)"
               [updateSignal]="eventChange"></app-arbol>
           </ng-container>
         </form>
@@ -458,7 +458,7 @@
   </app-recursos>
 </ng-container>
 <ng-container class="card-oas" *ngIf="!clonar && planAsignado && identDocentes">
-  <app-docentes [dataSourceActividades]="dataSource" [dataTabla]="identDocentes" [plan]="plan._id" [rol]="rol" [vigencia]="vigencia"
+  <app-docentes [dataSourceActividades]="dataSource" [dataTabla]="identDocentes" [plan]="plan._id" [rol]="rol" [vigencia]="vigencia" 
     [versiones]="versiones" (acciones)="messageIdentificacion($event)">
   </app-docentes>
 </ng-container>
