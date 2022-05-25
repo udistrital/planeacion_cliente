@@ -137,13 +137,23 @@ export class ArbolComponent implements OnInit {
 
   loadArbolMid() {
     this.mostrar = false;
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.PLANES_MID, `arbol/` + this.idPlan).subscribe((data: any) => {
       this.mostrar = true;
       if (data !== null) {
         this.dataSource.data = data;
+        Swal.close();
       } else {
         this.mostrar = false;
         this.dataSource.data = [];
+        Swal.close();
       }
       if (this.armonizacionPED || this.armonizacionPI) {
         this.expandNodes()
