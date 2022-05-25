@@ -136,6 +136,7 @@ export class ArbolComponent implements OnInit {
   }
 
   loadArbolMid() {
+    console.log(this.idPlan)
     this.mostrar = false;
     Swal.fire({
       title: 'Cargando información',
@@ -147,8 +148,8 @@ export class ArbolComponent implements OnInit {
     })
     this.request.get(environment.PLANES_MID, `arbol/` + this.idPlan).subscribe((data: any) => {
       this.mostrar = true;
-      if (data !== null) {
-        this.dataSource.data = data;
+      if (data.Data != "") {
+        this.dataSource.data = data.Data;
         Swal.close();
       } else {
         this.mostrar = false;
