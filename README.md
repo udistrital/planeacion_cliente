@@ -8,6 +8,7 @@ Cliente del Sistema de Planeación. Contiene las características, funcionalidad
 * [Angular 11.2.2](https://angular.io/)
 * [Node 14.17.3](https://nodejs.org/es/)
 
+
 ### Variables de Entorno
 ```shell
 # En Pipeline
