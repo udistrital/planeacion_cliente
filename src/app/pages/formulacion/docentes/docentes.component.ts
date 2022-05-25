@@ -19,6 +19,7 @@ export class DocentesComponent implements OnInit {
 
   steps: any[];
   displayedColumns: string[];
+  displayedHeaders: string[];
   activedStep = 0;
   dataSourceRHF: MatTableDataSource<any>;
   dataSourceRHVPRE: MatTableDataSource<any>;
@@ -321,6 +322,7 @@ export class DocentesComponent implements OnInit {
       if (data) {
         this.estadoPlan = data.Data.nombre;
         this.displayedColumns = this.visualizarColumnas();
+        this.displayedHeaders = this.visualizarHeaders();
       }
     }),
       (error) => {
@@ -379,6 +381,55 @@ export class DocentesComponent implements OnInit {
         this.readonlyObs = true;
         this.readonlyTable = true;
         return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
+      }
+    }
+  }
+
+  visualizarHeaders(): string[] {
+    if (this.rol == 'JEFE_DEPENDENCIA') {
+      if (this.estadoPlan == 'En formulación') {
+        this.readonlyObs = true;
+        this.readonlyTable = this.verificarVersiones();
+        this.mostrarObservaciones = this.verificarObservaciones();
+        if (this.mostrarObservaciones) {
+          return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
+        } else {
+          return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
+        }
+
+      }
+      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
+        this.readonlyObs = true;
+        this.readonlyTable = true;
+        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
+      }
+      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
+        this.readonlyObs = true;
+        this.readonlyTable = true;
+        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
+      }
+    }
+
+    if (this.rol == 'PLANEACION') {
+      if (this.estadoPlan == 'En formulación') {
+        this.readonlyObs = true;
+        this.readonlyTable = true;
+        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
+      }
+      if (this.estadoPlan == 'En revisión') {
+        this.readonlyObs = false;
+        this.readonlyTable = true;
+        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
+      }
+      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
+        this.readonlyObs = true;
+        this.readonlyTable = true;
+        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
+      }
+      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
+        this.readonlyObs = true;
+        this.readonlyTable = true;
+        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
       }
     }
   }

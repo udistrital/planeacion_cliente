@@ -134,6 +134,7 @@ export class CrearPlanComponent implements OnInit {
     } else {
       this.nombrePlan = tipo.nombre;
       this.banderaFormato = false;
+      this.formCrearPlan.get('vigencia').enable();
       this.formCrearPlan.get('radioFormato').disable();
       this.loadPeriodos();
     }

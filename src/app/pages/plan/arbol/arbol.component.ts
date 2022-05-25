@@ -96,6 +96,7 @@ export class ArbolComponent implements OnInit {
   @Input() armonizacionPED: boolean;
   @Input() armonizacionPI: boolean;
   @Input() dataArmonizacion: any[];
+  @Input() estado: string;
   @Input() updateSignal: Observable<String[]>;
   @Output() grupo = new EventEmitter<any>();
   constructor(
@@ -225,7 +226,6 @@ export class ArbolComponent implements OnInit {
       infoControl: ['', Validators.required],
       requiredfile: ['', Validators.required]
     });
-
     this.planActual = '';
   }
 }
