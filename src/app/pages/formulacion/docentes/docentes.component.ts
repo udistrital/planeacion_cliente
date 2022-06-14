@@ -437,7 +437,7 @@ export class DocentesComponent implements OnInit {
   verificarVersiones(): boolean {
     let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
     if (preAval.length != 0) {
-      return false;
+      return true;
     } else {
       return false;
     }
