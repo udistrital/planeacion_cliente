@@ -51,9 +51,7 @@ import { ContratistasComponent } from './formulacion/contratistas/contratistas.c
 import { RecursosComponent } from './formulacion/recursos/recursos.component';
 import { DocentesComponent } from './formulacion/docentes/docentes.component';
 import { NgIsGrantedDirective } from './directives/ng-is-granted.directive';
-import { ConsolidadoComponent } from './reportes/reporte-consolidado/consolidado.component';
 import { PlanAnualComponent } from './reportes/reporte-plan-anual/plan-anual.component';
-import { PlanUnidadComponent } from './reportes/reporte-plan-unidad/plan-unidad.component';
 import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
 import { VisualizarDocumentoDialogComponent } from './seguimiento/generar-trimestre/visualizar-documento-dialog/visualizar-documento-dialog.component';
 import { ConstruccionModulComponent } from './construccion-modul/construccion-modul.component';
@@ -105,9 +103,7 @@ const pagesComponents = [
   AgregarDialogComponent,
   EditarDialogComponent,
   ArbolComponent,
-  ConsolidadoComponent,
   PlanAnualComponent,
-  PlanUnidadComponent,
 ];
 
 const materialModules = [
@@ -162,9 +158,7 @@ const MY_FORMATS = {
     ContratistasComponent,
     RecursosComponent,
     DocentesComponent,
-    ConsolidadoComponent,
     PlanAnualComponent,
-    PlanUnidadComponent,
     HabilitarReporteComponent,
     VisualizarDocumentoDialogComponent,
     ConstruccionModulComponent,
