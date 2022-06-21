@@ -18,12 +18,14 @@ import { formatCurrency, getCurrencySymbol } from '@angular/common';
 export class DocentesComponent implements OnInit {
 
   steps: any[];
+  rubros: any[];
   displayedColumns: string[];
   displayedHeaders: string[];
   activedStep = 0;
   dataSourceRHF: MatTableDataSource<any>;
   dataSourceRHVPRE: MatTableDataSource<any>;
   dataSourceRHVPOS: MatTableDataSource<any>;
+  dataSourceRubros: MatTableDataSource<any>;
 
   dataTableMTO: any[];
   dataTableTCO: any[];
@@ -179,7 +181,7 @@ export class DocentesComponent implements OnInit {
 
     @Output() acciones = new EventEmitter<any>();
   constructor(private request: RequestManager) {
-
+    this.loadRubros();
   }
 
   ngOnInit(): void {
@@ -188,12 +190,12 @@ export class DocentesComponent implements OnInit {
     this.dataSourceRHF = new MatTableDataSource<any>();
     this.dataSourceRHVPRE = new MatTableDataSource<any>();
     this.dataSourceRHVPOS = new MatTableDataSource<any>();
+    this.dataSourceRubros = new MatTableDataSource<any>();
     this.loadTabla();
   }
 
-
-
-  loadTabla() {
+  loadRubros() {
+    console.log(this.loadRubros)
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
@@ -202,10 +204,73 @@ export class DocentesComponent implements OnInit {
         Swal.showLoading();
       },
     })
+    this.request.get(environment.PLANES_MID, `formulacion/get_rubros`).subscribe((data: any) => {
+      this.rubros = data.Data;
+      console.log(this.rubros)
+      Swal.close();
+    })
+
+  }
+
+  loadTabla() {
     if (this.dataTabla) {
+      this.dataSourceRubros.data =  [
+        {
+          "categoria": "Prima de Servicios",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Prima de navidad",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Prima de vacaciones",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Bonificación por servicios",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Intereses cesantías",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte cesantías público",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte cesantías privado",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte salud",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Fondo pensiones público",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Fondo pensiones privado",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte ARL",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte CCF",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte ICBF",
+          "rubro": "" 
+        }];
+      console.log(this.dataSourceRubros)
       this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
         if (data) {
-
+          console.log("entra en falso")
           let identificacion = data.Data[0];
           if (identificacion.activo === false) {
             this.dataSourceRHF.data = [];
@@ -235,15 +300,19 @@ export class DocentesComponent implements OnInit {
                 "data": this.dataSourceRHVPOS,
                 "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
                 "categorias": [{ "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }, { "nombre": "Asistente UD" }, { "nombre": "Asociado UD" }, { "nombre": "Titular UD" }]
+              },
+              {
+                "nombre": "Selección de rubros",
+                "tipo": "rubros",
+                "data": this.dataSourceRubros,
               }
             ];
-            Swal.close();
             let datoIdenti = {
               "activo": true
             }
-            Swal.close()
             this.request.put(environment.PLANES_CRUD, `identificacion`, datoIdenti, identificacion._id).subscribe();
           } else {
+            this.dataSourceRubros.data = dataRubros;
             this.getData().then(() => {
               if (this.data != "") {
                 if (this.data.rhf != "{}")
@@ -277,10 +346,14 @@ export class DocentesComponent implements OnInit {
                   "data": this.dataSourceRHVPOS,
                   "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
                   "categorias": [{ "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }, { "nombre": "Asistente UD" }, { "nombre": "Asociado UD" }, { "nombre": "Titular UD" }]
+                },
+                {
+                  "nombre": "Selección de rubros",
+                  "tipo": "rubros",
+                  "data": this.dataSourceRubros,
                 }
               ];
             })
-            Swal.close();
           }
         }
       })
@@ -437,7 +510,7 @@ export class DocentesComponent implements OnInit {
   verificarVersiones(): boolean {
     let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
     if (preAval.length != 0) {
-      return false;
+      return true;
     } else {
       return false;
     }
@@ -647,6 +720,7 @@ export class DocentesComponent implements OnInit {
         this.auxiliarMTO = data.Data[1];
         this.asistenteMTO = data.Data[2];
         this.asociadoMTO = data.Data[3];
+        console.log(data)
       }
     })
 
@@ -2212,7 +2286,7 @@ export class DocentesComponent implements OnInit {
       var obj = data[i];
       obj["activo"] = true;
       var num = +i + 1;
-      obj["in|dex"] = num.toString();
+      obj["index"] = num.toString();
     }
     let dataStrRHVPRE = JSON.stringify(Object.assign({}, data));
 
@@ -2224,16 +2298,19 @@ export class DocentesComponent implements OnInit {
       var num = +i + 1;
       obj["index"] = num.toString();
     }
+    console.log(data)
     let dataStrRHVPOS = JSON.stringify(Object.assign({}, data));
 
-
+    console.log(this.dataSourceRubros.data)
+    let dataRubros = JSON.stringify(Object.assign({}, this.dataSourceRubros.data))
 
     identificaciones = {
       "rhf": dataStrRHF,
       "rhv_pre": dataStrRHVPRE,
       "rhv_pos": dataStrRHVPOS,
-
+      "rubros": dataRubros
     }
+    console.log(identificaciones)
     let aux = JSON.stringify(Object.assign({}, identificaciones));
     this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, aux, this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
       if (data) {
@@ -2344,3 +2421,57 @@ export class DocentesComponent implements OnInit {
 
 
 }
+
+var dataRubros : any[] = [
+  {
+    "categoria": "Prima de Servicios",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Prima de navidad",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Prima de vacaciones",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Bonificación por servicios",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Intereses cesantías",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Aporte cesantías público",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Aporte cesantías privado",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Aporte salud",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Fondo pensiones público",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Fondo pensiones privado",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Aporte ARL",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Aporte CCF",
+    "rubro": "" 
+  },
+  {
+    "categoria": "Aporte ICBF",
+    "rubro": "" 
+  }];

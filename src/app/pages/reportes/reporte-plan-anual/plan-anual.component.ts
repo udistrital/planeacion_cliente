@@ -1,4 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatTableDataSource } from '@angular/material/table';
+import { info } from 'console';
+import { range } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import { environment } from 'src/environments/environment';
+import Swal from 'sweetalert2';
+import { RequestManager } from '../../services/requestManager';
+import { UserService } from '../../services/userService';
 
 @Component({
   selector: 'app-plan-anual',
@@ -7,9 +17,321 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PlanAnualComponent implements OnInit {
 
-  constructor() { }
+  form: FormGroup;
+  vigencias: any[];
+  unidades: any[];
+  auxUnidades: any[];
+  unidadVisible: boolean;
+  tablaVisible: boolean;
+  reporte: any;
+  dataSource: MatTableDataSource<any>;
+  displayedColumns: string[];
+  rol : string;
+  moduloVisible : boolean;
+  estados: any[];
 
-  ngOnInit(): void {
+  constructor(
+    private formBuilder: FormBuilder,
+    private request: RequestManager,
+    private autenticationService: ImplicitAutenticationService,
+    private userService: UserService
+  ) {
+    this.loadVigencias();
+    this.loadEstados();
+    this.unidadVisible = true;
+    this.tablaVisible = false;
+    this.estados = [];
+    this.dataSource = new MatTableDataSource<any>();
+    let roles: any = this.autenticationService.getRole();
+    this.displayedColumns = ['vigencia', 'unidad', 'tipoPlan', 'estado', 'acciones'];
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+      console.log("entgra jefe dependencia")
+      this.rol = 'JEFE_DEPENDENCIA';  
+      this.validarUnidad();    
+    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION'
+      this.loadUnidades();
+    }
   }
 
+  ngOnInit(): void {
+    this.form = this.formBuilder.group({
+      vigencia: ['', Validators.required],
+      tipoReporte: ['', Validators.required],
+      categoria: ['', Validators.required],
+      unidad: ['', Validators.required],
+      estado:['', Validators.required],
+    });
+  }
+
+  validarUnidad() {
+    console.log("valida unidad")
+    this.userService.user$.subscribe((data) => {
+      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
+        .subscribe((datosInfoTercero: any) => {
+          console.log("data tercero")
+
+          console.log(datosInfoTercero)
+          this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
+            .subscribe((vinculacion: any) => {
+              console.log(vinculacion)
+              if (vinculacion["Data"] != "") {
+                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
+                  if (dataUnidad) {
+                    console.log(dataUnidad)
+                    this.unidades = [];
+                    this.auxUnidades = [];
+                    let unidad = dataUnidad[0]["DependenciaId"]
+                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+                    console.log(unidad)
+                    this.unidades.push(unidad);
+                    this.auxUnidades.push(unidad);
+                    this.form.get('unidad').setValue(unidad);
+                    this.moduloVisible = true;
+                    this.form.get('categoria').setValue("necesidades");
+                    this.form.get('tipoReporte').setValue("unidad");
+                    this.form.get('categoria').disable();
+                    this.form.get('tipoReporte').disable();
+                  }
+                })
+              } else {
+                this.moduloVisible = false;
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No cuenta con los permisos requeridos para acceder a este módulo`,
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 4000
+                })
+              }
+            })
+        })
+
+    })
+  }
+
+  loadVigencias() {
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG`).subscribe((data: any) => {
+      if (data) {
+        this.vigencias = data.Data;
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  loadUnidades() {
+    this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
+      if (data) {
+        this.unidades = data.Data;
+        this.auxUnidades = data.Data;
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  loadEstados(){
+    this.request.get(environment.PLANES_CRUD, `estado-plan/614d3b4401c7a222052fac05`).subscribe((data: any) => {
+      if (data) {
+        this.estados.push(data.Data)
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+
+    this.request.get(environment.PLANES_CRUD, `estado-plan/6153355601c7a2365b2fb2a1`).subscribe((data: any) => {
+      if (data) {
+        this.estados.push(data.Data)
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  onKey(value) {
+    if (value === "") {
+      this.auxUnidades = this.unidades;
+    } else {
+      this.auxUnidades = this.search(value);
+    }
+  }
+
+  search(value) {
+    let filter = value.toLowerCase();
+    if (this.unidades != undefined) {
+      return this.unidades.filter(option => option.Nombre.toLowerCase().startsWith(filter));
+    }
+  }
+
+
+  onChangeT(tipo) {
+    console.log(tipo)
+    if (tipo === 'unidad') {
+      this.form.get('unidad').enable();
+      this.unidadVisible = true;
+    } else if (tipo === 'general') {
+      this.form.get('unidad').setValue(null);
+      this.form.get('unidad').disable();
+      this.unidadVisible = false;
+    }
+  }
+ 
+  generar() {
+    let unidad = this.form.get('unidad').value;
+    let vigencia = this.form.get('vigencia').value;
+    let tipoReporte = this.form.get('tipoReporte').value;
+    let categoria = this.form.get('categoria').value;
+    let estado = this.form.get('estado').value;
+    Swal.fire({
+      title: 'Generando Reporte',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    if (categoria === 'planAccion') {
+      if (tipoReporte === 'unidad') {
+        let body = {
+          unidad_id: (unidad.Id).toString(),
+          tipo_plan_id: "61639b8c1634adf976ed4b4c",
+          estado_plan_id: estado,
+          vigencia: (vigencia.Id).toString()
+        }
+        console.log(body)
+
+        this.request.post(environment.PLANES_MID, `reportes/plan_anual`, body).subscribe((data: any) => {
+          if (data) {
+            let auxEstado = this.estados.find(element => element._id === estado);
+            this.reporte = body;
+            this.reporte["excel"] = data.Data.excelB64;
+            this.reporte["nombre_unidad"] = data.Data.generalData[0].nombreUnidad;
+            this.reporte["vigencia"] = vigencia.Nombre
+            this.reporte["tipo_plan"] = "Plan de acción de funcionamiento"
+            this.reporte["estado_plan"] = auxEstado.nombre
+            this.tablaVisible = true;
+            this.dataSource.data.unshift(this.reporte);
+            console.log(this.reporte)
+            Swal.close();
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        })
+      } else if (tipoReporte === 'general') {
+        let body = {
+          tipo_plan_id: "61639b8c1634adf976ed4b4c",
+          estado_plan_id: estado,
+          vigencia: (vigencia.Id).toString()
+        }
+        console.log(body)
+
+        this.request.post(environment.PLANES_MID, `reportes/plan_anual_general`, body).subscribe((data: any) => {
+          if (data) {
+            this.dataSource.data = [];
+            let infoReportes : any[] = data.Data.generalData;
+            console.log("entra aca=")
+            for (let i = 0 ; i< infoReportes.length; i++){
+              infoReportes[i]["excel"] = data.Data["excelB64"];
+              infoReportes[i]["vigencia"] = vigencia["Nombre"]
+              if (i == infoReportes.length -1 ){
+                this.dataSource.data = infoReportes
+                this.tablaVisible = true
+                Swal.close();
+                console.log(this.dataSource.data)
+              }
+            }
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        })
+      }
+    }
+
+  }
+
+
+  descargarReporte(reporte) {
+    console.log(reporte)
+    let blob = this.base64ToBlob(reporte.excel);
+    let url = window.URL.createObjectURL(blob);
+    var anchor = document.createElement("a");
+    anchor.download = "Reporte.xlsx";
+    anchor.href = url;
+    anchor.click();
+  }
+
+  public base64ToBlob(b64Data, sliceSize = 512) {
+    let byteCharacters = atob(b64Data); //data.file there
+    let byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      let slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      let byteNumbers = new Array(slice.length);
+      for (var i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      let byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+    return new Blob(byteArrays, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+
+   consultarVigencia(infoReportes : any[]){
+    console.log(infoReportes)
+    for (let i = 0 ; i< infoReportes.length; i++){
+      this.request.get(environment.PARAMETROS_SERVICE, `periodo/` + infoReportes[i]["vigencia"]).subscribe((data: any) => {
+        if (data) {
+          let vigencia: any = data.Data;
+          console.log(vigencia)
+
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
+
+    }
+  }
 }
