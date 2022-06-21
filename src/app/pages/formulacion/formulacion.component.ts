@@ -574,8 +574,9 @@ export class FormulacionComponent implements OnInit {
   }
 
   getVersiones(planB) {
+    let aux = planB.nombre.replace(/ /g, "%20");
     this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.unidad.Id + `/` + this.vigencia.Id +
-      `/` + planB.nombre).subscribe((data: any) => {
+      `/` +aux).subscribe((data: any) => {
         if (data) {
           this.versiones = data;
           //console.log(data)
