@@ -1,9 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnInit, ViewChild, AfterViewInit, OnChanges, ElementRef } from '@angular/core';
-import { ControlValueAccessor, FormBuilder, FormGroup,FormControl,Validators, AbstractControl } from '@angular/forms';
+import { ControlValueAccessor, FormBuilder, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import {MatPaginator} from '@angular/material/paginator';
-import {Observable} from 'rxjs'
-import {MatSort} from '@angular/material/sort';
+import { MatPaginator } from '@angular/material/paginator';
+import { Observable } from 'rxjs'
+import { MatSort } from '@angular/material/sort';
 import {
   MatTreeFlatDataSource,
   MatTreeFlattener
@@ -46,14 +46,14 @@ export class ArbolComponent implements OnInit {
   displayedColumnsView: string[] = ['nombre', 'descripcion', 'activo'];
   mostrar: boolean = false;
   planActual: string;
-  icon : string;
-  idIcon : string;
-  rol : string;
+  icon: string;
+  idIcon: string;
+  rol: string;
 
   private transformer = (node: Subgrupo, level: number) => {
-    if (this.armonizacion){
+    if (this.armonizacionPED || this.armonizacionPI) {
       return {
-        expandable: !!node.children && node.children.length > 0 && level < 2,
+        expandable: !!node.children && node.children.length > 0,
         activo: node.activo,
         nombre: node.nombre,
         descripcion: node.descripcion,
@@ -61,7 +61,7 @@ export class ArbolComponent implements OnInit {
         level: level,
         icon: this.iconArmonizacion(node.id)
       };
-    }else{
+    } else {
       return {
         expandable: !!node.children && node.children.length > 0,
         activo: node.activo,
@@ -93,8 +93,10 @@ export class ArbolComponent implements OnInit {
   @Input() tipoPlanId: string;
   @Input() idPlan: string;
   @Input() consulta: boolean;
-  @Input() armonizacion: boolean;
-  @Input() dataArmonizacion : any [];
+  @Input() armonizacionPED: boolean;
+  @Input() armonizacionPI: boolean;
+  @Input() dataArmonizacion: any[];
+  @Input() estado: string;
   @Input() updateSignal: Observable<String[]>;
   @Output() grupo = new EventEmitter<any>();
   constructor(
@@ -112,103 +114,118 @@ export class ArbolComponent implements OnInit {
   }
 
   getErrorMessage(campo: FormControl) {
-    if (campo.hasError('required', )) {
+    if (campo.hasError('required',)) {
       return 'Campo requerido';
     } else {
       return 'Introduzca un valor válido';
     }
   }
 
-  ngOnChanges(changes){
-    if (this.tipoPlanId !== '611af8464a34b3599e3799a2'){
-      if (this.idPlan !== this.planActual){
+  ngOnChanges(changes) {
+    if (this.tipoPlanId !== '611af8464a34b3599e3799a2') {
+      if (this.idPlan !== this.planActual) {
         this.loadArbolMid();
         this.planActual = this.idPlan;
       }
     }
-    if (changes['updateSignal'] && this.updateSignal){
+    if (changes['updateSignal'] && this.updateSignal) {
       this.updateSignal.subscribe(() => {
         this.loadArbolMid();
       });
     }
   }
 
-  loadArbolMid(){
+  loadArbolMid() {
+    console.log(this.idPlan)
     this.mostrar = false;
-    this.request.get(environment.PLANES_MID, `arbol/`+this.idPlan).subscribe((data: any) => {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    this.request.get(environment.PLANES_MID, `arbol/` + this.idPlan).subscribe((data: any) => {
       this.mostrar = true;
-      if (data !== null){
-        this.dataSource.data = data;
+      if (data.Data != "") {
+        this.dataSource.data = data.Data;
+        Swal.close();
       } else {
         this.mostrar = false;
         this.dataSource.data = [];
+        Swal.close();
       }
-      if (this.armonizacion){
+      if (this.armonizacionPED || this.armonizacionPI) {
         this.expandNodes()
       }
     }
-    ,(error) => {
-      Swal.fire({
-        title: 'Error en la operación', 
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    }
+      , (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
     )
   }
 
   selectFile(event) {
     this.selectedFiles = event.target.files;
-    if (this.selectedFiles.length == 0){
+    if (this.selectedFiles.length == 0) {
       return this.selectedFiles = false;
     }
   }
 
 
-  editar(fila, bandera){
-    this.grupo.emit({fila, bandera})
+  editar(fila, bandera) {
+    this.grupo.emit({ fila, bandera })
   }
 
-  agregar(fila, bandera){
-    this.grupo.emit({fila, bandera})
+  agregar(fila, bandera) {
+    this.grupo.emit({ fila, bandera })
   }
 
-  armonizar(fila, bandera){
-    this.changeIcon(fila)
-    this.grupo.emit({fila, bandera})
+  armonizar(fila, bandera) {
+    if (this.armonizacionPED){
+      this.changeIcon(fila)
+      this.grupo.emit({ fila, bandera, plan: "PED" })
+    }else if (this.armonizacionPI){
+      this.changeIcon(fila)
+      this.grupo.emit({ fila, bandera, plan: "PI" })
+    }
+
   }
 
-  iconArmonizacion(id):string{
-    if(this.dataArmonizacion.length != 0){
+  iconArmonizacion(id): string {
+    if (this.dataArmonizacion.length != 0) {
       const found = this.dataArmonizacion.find(element => element === id);
-      if(id === found){
+      if (id === found) {
         return 'done'
-      }else{
+      } else {
         return 'compare_arrows'
-      }      
-    }else{
+      }
+    } else {
       return 'compare_arrows'
     }
   }
 
-  changeIcon(fila){
-    if (!fila.expandable){
-      if (fila.icon == 'compare_arrows'){
-        fila.icon = 'done'
-      }else{
-        fila.icon = 'compare_arrows'
-      }
+  changeIcon(fila) {
+    if (fila.icon == 'compare_arrows') {
+      fila.icon = 'done'
+    } else {
+      fila.icon = 'compare_arrows'
     }
   }
 
-  expandNodes(){
-    for (let nodo of this.dataArmonizacion){
+  expandNodes() {
+    for (let nodo of this.dataArmonizacion) {
       let found = this.treeControl.dataNodes.find(element => element.id == nodo)
       let index = this.treeControl.dataNodes.indexOf(found)
-      this.treeControl.expand(this.treeControl.dataNodes[index-2])
-      this.treeControl.expand(this.treeControl.dataNodes[index-1])
+      this.treeControl.expand(this.treeControl.dataNodes[index - 2])
+      this.treeControl.expand(this.treeControl.dataNodes[index - 1])
       this.treeControl.expand(this.treeControl.dataNodes[index])
     }
   }
@@ -216,12 +233,10 @@ export class ArbolComponent implements OnInit {
   hasChild = (_: number, node: Nodo) => node.expandable;
 
   ngOnInit(): void {
-
     this.formConstruirPUI = this.formBuilder.group({
       infoControl: ['', Validators.required],
       requiredfile: ['', Validators.required]
     });
-    
     this.planActual = '';
   }
 }

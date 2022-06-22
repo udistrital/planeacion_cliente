@@ -1,3 +1,7 @@
+.mat-card{
+  background-color: #F1F5F8;
+}
+
 table {
     width: 100%;
   }
@@ -7,11 +11,14 @@ th {
     text-align: center;
 }
 
+
 th.mat-header-cell, td.mat-cell {
     text-align: center;
     padding: 0 !important;
     color:white;
 }
+
+
 
 .td-align-right{
   text-align: right;
@@ -24,10 +31,7 @@ th.mat-header-cell, td.mat-cell {
   justify-content: flex-end;
 }
 
-th {
-  color: white;
-  text-align: center;
-}
+
 
 ::ng-deep input.mat-input-element {
   color: #000000;
@@ -90,3 +94,22 @@ th {
   margin-bottom: 1%;
   width: 97%; 
 }
+
+textarea{
+  resize: none;
+  text-align: justify;
+  white-space: pre-line;
+  -moz-text-align-last: left;
+  text-align-last: left;
+}
+
+input{
+  text-align: center;
+}
+
+.label-inc{
+  border: 1px solid var(--primary);
+  padding: 1%;
+  border-radius: 10px 10px 10px 10px;
+}
+

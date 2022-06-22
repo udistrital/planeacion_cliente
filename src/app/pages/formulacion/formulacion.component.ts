@@ -12,6 +12,10 @@ import { element } from 'protractor';
 import { stringify } from 'querystring';
 import { timeStamp } from 'console';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import { flatMap } from 'rxjs/operators';
+import { UserService } from '../services/userService';
+import { UnsubscriptionError } from 'rxjs';
+import { ftruncate } from 'fs';
 
 @Component({
   selector: 'app-formulacion',
@@ -23,7 +27,8 @@ export class FormulacionComponent implements OnInit {
   activedStep = 0;
   form: FormGroup;
   planes: any[];
-  unidades: any[];
+  unidades: any[] = [];
+  auxUnidades: any[] = [];
   vigencias: any[];
   planSelected: boolean;
   planAsignado: boolean;
@@ -47,11 +52,17 @@ export class FormulacionComponent implements OnInit {
   identDocentes: boolean;
   banderaIdentDocentes: boolean;
 
+
+
   tipoPlanId: string;
   idPadre: string;
+  tipoPlanIndicativo: string;
+  idPlanIndicativo: string;
   planesDesarrollo: any[];
+  planesIndicativos: any[];
   planDSelected: boolean;
-  dataArmonizacion: string[] = [];
+  dataArmonizacionPED: string[] = [];
+  dataArmonizacionPI: string[] = [];
   estadoPlan: string;
   iconEstado: string;
   iconEditar: string;
@@ -63,17 +74,21 @@ export class FormulacionComponent implements OnInit {
   readOnlyAll: boolean;
   ponderacionCompleta: boolean;
   ponderacionActividades: string;
+  moduloVisible: boolean;
+
+  formArmonizacion: FormGroup;
+  formSelect: FormGroup;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
-    private autenticationService: ImplicitAutenticationService
+    private autenticationService: ImplicitAutenticationService,
+    private userService: UserService
   ) {
     this.loadPlanes();
     this.loadPeriodos();
-    this.loadUnidades();
     this.addActividad = false;
     this.planSelected = false;
     this.unidadSelected = false;
@@ -83,12 +98,16 @@ export class FormulacionComponent implements OnInit {
     this.identContratistas = false;
     this.identDocentes = false;
     this.dataT = false;
+    this.moduloVisible = false;
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
+      this.verificarFechas();
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
+      this.loadUnidades();
     }
+
   }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -98,22 +117,108 @@ export class FormulacionComponent implements OnInit {
   columnsToDisplay: string[]
   dataSource: MatTableDataSource<any>;
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.formArmonizacion = this.formBuilder.group({
+      selectPED: ['',],
+      selectPI: ['',]
+    });
+
+    this.formSelect = this.formBuilder.group({
+      selectUnidad: ['',],
+      selectVigencia: ['',],
+      selectPlan: ['',]
+    });
+  }
 
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  verificarFechas() {
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
+      if (data) {
+        let seguimientoFormulacion = data.Data[0];
+        let auxFecha = new Date();
+        let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
+        let strFechaHoy = new Date(auxFechaCol).toISOString();
+        let fechaHoy = new Date(strFechaHoy);
+        let fechaInicio = new Date(seguimientoFormulacion["fecha_inicio"]);
+        let fechaFin = new Date(seguimientoFormulacion["fecha_fin"]);
+        if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
+          this.validarUnidad();
+        } else {
+          this.moduloVisible = false;
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
+            icon: 'warning',
+            showConfirmButton: true,
+            timer: 10000
+          })
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  validarUnidad() {
+    this.userService.user$.subscribe((data) => {
+      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
+        .subscribe((datosInfoTercero: any) => {
+          console.log(datosInfoTercero)
+          this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
+            .subscribe((vinculacion: any) => {
+              if (vinculacion["Data"] != "") {
+                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
+                  if (dataUnidad) {
+                    let unidad = dataUnidad[0]["DependenciaId"]
+                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+                    for (let i = 0; i < dataUnidad.length; i++) {
+                      if (dataUnidad[i]["TipoDependenciaId"]["Id"] === 2) {
+                        unidad["TipoDependencia"] = dataUnidad[i]["TipoDependenciaId"]["Id"]
+                      }
+                    }
+                    this.unidades.push(unidad);
+                    this.auxUnidades.push(unidad);
+                    this.formSelect.get('selectUnidad').setValue(unidad);
+                    this.onChangeU(unidad);
+                    this.moduloVisible = true;
+                  }
+                })
+              } else {
+                this.moduloVisible = false;
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No cuenta con los permisos requeridos para acceder a este módulo`,
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 4000
+                })
+              }
+            })
+        })
+
+    })
   }
 
   loadUnidades() {
     this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
       if (data) {
         this.unidades = data.Data;
+        this.auxUnidades = data.Data;
+        this.moduloVisible = true;
       }
     }, (error) => {
       Swal.fire({
@@ -159,6 +264,21 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
+  onKey(value) {
+    if (value === "") {
+      this.auxUnidades = this.unidades;
+    } else {
+      this.auxUnidades = this.search(value);
+    }
+  }
+
+  search(value) {
+    let filter = value.toLowerCase();
+    if (this.unidades != undefined) {
+      return this.unidades.filter(option => option.Nombre.toLowerCase().startsWith(filter));
+    }
+  }
+
   prevStep(step) {
     this.activedStep = step - 1;
   }
@@ -169,14 +289,14 @@ export class FormulacionComponent implements OnInit {
 
   submit() {
     if (!this.banderaEdit) { // ADD NUEVA ACTIVIDAD
-      if (this.dataArmonizacion.length != 0) {
+      if (this.dataArmonizacionPED.length != 0) {
 
         var formValue = this.form.value;
         var actividad = {
-          armo: this.dataArmonizacion.toString(),
+          armo: this.dataArmonizacionPED.toString(),
+          armoPI: this.dataArmonizacionPI.toString(),
           entrada: formValue
         }
-        //console.log(actividad)
         this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -189,9 +309,12 @@ export class FormulacionComponent implements OnInit {
                 this.loadData()
                 this.form.reset();
                 this.addActividad = false;
-                this.dataArmonizacion = [];
-                this.idPadre = '';
-                this.tipoPlanId = '';
+                this.dataArmonizacionPED = [];
+                this.dataArmonizacionPI = [];
+                this.idPadre = undefined;
+                this.tipoPlanId = undefined;
+                this.tipoPlanIndicativo = undefined;
+                this.idPlanIndicativo = undefined;
               }
             })
           }
@@ -207,14 +330,15 @@ export class FormulacionComponent implements OnInit {
       }
 
     } else { // EDIT ACTIVIDAD
-      if (this.dataArmonizacion.length != 0) {
-        var aux = this.dataArmonizacion.toString()
+      if (this.dataArmonizacionPED.length != 0) {
+        var aux = this.dataArmonizacionPED.toString();
+        let aux2 = this.dataArmonizacionPI.toString();
         var formValue = this.form.value;
         var actividad = {
           entrada: formValue,
-          armo: aux
+          armo: aux,
+          armoPI: aux2
         }
-        //console.log(actividad)
         this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id + `/` + this.rowActividad).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -227,8 +351,10 @@ export class FormulacionComponent implements OnInit {
                 this.form.reset();
                 this.addActividad = false;
                 this.loadData();
-                this.idPadre = '';
-                this.tipoPlanId = '';
+                this.idPadre = undefined;
+                this.tipoPlanId = undefined;
+                this.idPlanIndicativo = undefined;
+                this.tipoPlanIndicativo = undefined;
               }
             })
           }
@@ -272,6 +398,7 @@ export class FormulacionComponent implements OnInit {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
+      console.log(unidad)
       if (this.vigenciaSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
       }
@@ -279,8 +406,10 @@ export class FormulacionComponent implements OnInit {
   }
   // this.mostrarIdentDocente(unidad.DependenciaTipoDependencia)
   mostrarIdentDocente(unidad: any): boolean {
-      if (unidad.Id === 67 || unidad.TipoDependencia.Id === 2) return true
-      else return false
+    if (unidad.Id === 67 || unidad.TipoDependencia.Id === 2 || unidad.TipoDependencia === 2) {
+      return true
+    }
+    else return false
   }
 
   onChangeV(vigencia) {
@@ -323,9 +452,21 @@ export class FormulacionComponent implements OnInit {
 
   onChangePD(planD) {
     if (planD == undefined) {
+      this.idPadre = undefined;
+      this.tipoPlanId = undefined;
     } else {
-      this.idPadre = planD._id
-      this.tipoPlanId = planD.tipo_plan_id
+      this.idPadre = planD._id;
+      this.tipoPlanId = planD.tipo_plan_id;
+    }
+  }
+
+  onChangePI(planI) {
+    if (planI == undefined) {
+      this.idPlanIndicativo = undefined;
+      this.tipoPlanIndicativo = undefined;
+    } else {
+      this.idPlanIndicativo = planI._id;
+      this.tipoPlanIndicativo = planI.tipo_plan_id;
     }
   }
 
@@ -378,16 +519,19 @@ export class FormulacionComponent implements OnInit {
         this.readOnlyAll = true;
         this.readonlyObs = false;
         this.hiddenObs = false;
+
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readOnlyAll = true;
         this.readonlyObs = true;
         this.hiddenObs = false;
+
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readOnlyAll = true;
         this.hiddenObs = true;
+
       }
     }
   }
@@ -411,27 +555,28 @@ export class FormulacionComponent implements OnInit {
       }
   }
 
-  getIconEstado(){
-    if (this.plan.estado_plan_id == '614d3ad301c7a200482fabfd'){
+  getIconEstado() {
+    if (this.plan.estado_plan_id == '614d3ad301c7a200482fabfd') {
       this.iconEstado = "create";
-    }else if (this.plan.estado_plan_id == '614d3aeb01c7a245952fabff'){
+    } else if (this.plan.estado_plan_id == '614d3aeb01c7a245952fabff') {
       this.iconEstado = "assignment_turned_in";
-    }else if (this.plan.estado_plan_id == '614d3b0301c7a2a44e2fac01'){
+    } else if (this.plan.estado_plan_id == '614d3b0301c7a2a44e2fac01') {
       this.iconEstado = "pageview";
-    }else if (this.plan.estado_plan_id == '614d3b1e01c7a265372fac03'){
+    } else if (this.plan.estado_plan_id == '614d3b1e01c7a265372fac03') {
       this.iconEstado = "assignment_return";
-    }else if (this.plan.estado_plan_id == '614d3b4401c7a222052fac05'){
+    } else if (this.plan.estado_plan_id == '614d3b4401c7a222052fac05') {
       this.iconEstado = "done";
-    }else if (this.plan.estado_plan_id == '6153355601c7a2365b2fb2a1'){
+    } else if (this.plan.estado_plan_id == '6153355601c7a2365b2fb2a1') {
       this.iconEstado = "done_all"
-    }else if (this.plan.estado_plan_id == '615335c501c7a213a12fb2a3'){
+    } else if (this.plan.estado_plan_id == '615335c501c7a213a12fb2a3') {
       this.iconEstado = "build";
     }
   }
 
   getVersiones(planB) {
+    let aux = planB.nombre.replace(/ /g, "%20");
     this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.unidad.Id + `/` + this.vigencia.Id +
-      `/` + planB.nombre).subscribe((data: any) => {
+      `/` +aux).subscribe((data: any) => {
         if (data) {
           this.versiones = data;
           //console.log(data)
@@ -501,11 +646,12 @@ export class FormulacionComponent implements OnInit {
   }
 
   ajustarData() {
-    if (this.rol == 'PLANEACION'){
+    if (this.rol == 'PLANEACION') {
       this.iconEditar = 'search'
-    }else if (this.rol == 'JEFE_DEPENDENCIA'){
+    } else if (this.rol == 'JEFE_DEPENDENCIA') {
       this.iconEditar = 'edit'
     }
+    console.log(this.plan)
     this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
       if (data.Data.data_source != null) {
         this.dataSource = new MatTableDataSource(data.Data.data_source);
@@ -516,7 +662,6 @@ export class FormulacionComponent implements OnInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         this.dataT = true;
-        
       } else if (data.Data.data_source == null) {
         this.dataT = false;
         Swal.fire({
@@ -577,7 +722,10 @@ export class FormulacionComponent implements OnInit {
       });
     } else {
       if (this.planesDesarrollo == undefined) {
-        this.cargarPlanesDesarrollo()
+        this.cargarPlanesDesarrollo();
+      }
+      if (this.planesIndicativos == undefined) {
+        this.cargarPlanesIndicativos();
       }
       this.addActividad = true;
       this.banderaEdit = true;
@@ -594,14 +742,19 @@ export class FormulacionComponent implements OnInit {
       this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.plan._id + `/` + fila.index).subscribe((data: any) => {
         if (data) {
           Swal.close();
+          this.onChangePD(this.planesDesarrollo[0]);
+          this.onChangePI(this.planesIndicativos[0]);
           this.estado = this.plan.estado_plan_id;
           this.steps = data.Data[0]
           this.json = data.Data[1][0]
           this.form = this.formBuilder.group(this.json);
-          var auxAmonizacion = data.Data[2][0]
-          var strArmonizacion = auxAmonizacion.armo
-          var len = (strArmonizacion.split(",").length)
-          this.dataArmonizacion = strArmonizacion.split(",", len)
+          let auxAmonizacion = data.Data[2][0]
+          let strArmonizacion = auxAmonizacion.armo
+          let len = (strArmonizacion.split(",").length)
+          this.dataArmonizacionPED = strArmonizacion.split(",", len)
+          let strArmonizacion2 = auxAmonizacion.armoPI
+          let len2 = (strArmonizacion2.split(",").length)
+          this.dataArmonizacionPI = strArmonizacion2.split(",", len2)
         }
       }, (error) => {
         Swal.fire({
@@ -674,11 +827,15 @@ export class FormulacionComponent implements OnInit {
     if (this.tipoPlanId === undefined && this.idPadre === undefined) {
       this.cargarPlanesDesarrollo();
     }
+    if (this.tipoPlanIndicativo === undefined && this.idPlanIndicativo === undefined) {
+      this.cargarPlanesIndicativos();
+    }
     this.cargaFormato(this.plan);
     this.addActividad = true;
     this.banderaEdit = false;
     this.visualizeObs();
-    this.dataArmonizacion = []
+    this.dataArmonizacionPED = [];
+    this.dataArmonizacionPI = [];
   }
 
   identificarContratistas() {
@@ -744,11 +901,11 @@ export class FormulacionComponent implements OnInit {
   }
 
   identificarDocentes() {
-    
-    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:`+this.plan._id+`,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
-      if (data.Data.length == 0){
-        var str1 = 'Identificación de Docentes '+this.plan.nombre
-        var str2 = 'Identificación de Docentes '+this.plan.nombre+' '+this.unidad.Nombre
+
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan._id + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
+      if (data.Data.length == 0) {
+        var str1 = 'Identificación de Docentes ' + this.plan.nombre
+        var str2 = 'Identificación de Docentes ' + this.plan.nombre + ' ' + this.unidad.Nombre
         let datoIdenti = {
           "nombre": String(str1),
           "descripcion": String(str2),
@@ -758,11 +915,11 @@ export class FormulacionComponent implements OnInit {
           "activo": false
         }
         this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
-          if (dataP){
+          if (dataP) {
             this.identDocentes = true;
           } else {
             Swal.fire({
-              title: 'Error al crear identificación. Intente de nuevo', 
+              title: 'Error al crear identificación. Intente de nuevo',
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500
@@ -776,30 +933,55 @@ export class FormulacionComponent implements OnInit {
   }
 
   cargarPlanesDesarrollo() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
       if (data) {
-        this.planesDesarrollo = data.Data
+        this.planesDesarrollo = data.Data;
+        this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
+        this.onChangePD(this.planesDesarrollo[0]);
+      }
+    })
+  }
+
+  cargarPlanesIndicativos() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b`).subscribe((data: any) => {
+      if (data) {
+        this.planesIndicativos = data.Data;
+        this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
+        this.onChangePI(this.planesIndicativos[0]);
+
       }
     })
   }
 
   receiveMessage(event) {
-    if (event.bandera == 'armonizar') {
+    if (event.bandera === 'armonizar') {
       var uid_n = event.fila.level;
       var uid = event.fila.id; // id del nivel a editar
-      if (!event.fila.expandable) {
-        if (uid != this.dataArmonizacion.find(id => id === uid)) {
-          this.dataArmonizacion.push(uid)
-        } else {
-          const index = this.dataArmonizacion.indexOf(uid, 0);
-          if (index > -1) {
-            this.dataArmonizacion.splice(index, 1);
-          }
+      if (uid != this.dataArmonizacionPED.find(id => id === uid)) {
+        this.dataArmonizacionPED.push(uid)
+      } else {
+        const index = this.dataArmonizacionPED.indexOf(uid, 0);
+        if (index > -1) {
+          this.dataArmonizacionPED.splice(index, 1);
         }
       }
     }
   }
 
+  receiveMessagePI(event) {
+    if (event.bandera === 'armonizar') {
+      var uid_n = event.fila.level;
+      var uid = event.fila.id; // id del nivel a editar
+      if (uid != this.dataArmonizacionPI.find(id => id === uid)) {
+        this.dataArmonizacionPI.push(uid)
+      } else {
+        const index = this.dataArmonizacionPI.indexOf(uid, 0);
+        if (index > -1) {
+          this.dataArmonizacionPI.splice(index, 1);
+        }
+      }
+    }
+  }
   cambiarValor(valorABuscar, valorViejo, valorNuevo, dataS) {
     dataS.forEach(function (elemento) {
       elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
@@ -856,7 +1038,8 @@ export class FormulacionComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.addActividad = false;
-        this.dataArmonizacion = []
+        this.dataArmonizacionPED = [];
+        this.dataArmonizacionPI = [];
         Swal.fire({
           title: 'Registro cancelado',
           icon: 'warning',
@@ -948,10 +1131,10 @@ export class FormulacionComponent implements OnInit {
               estado_plan_id: "614d3aeb01c7a245952fabff"
             }
             this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
-            this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data:any) =>{
-              if(data){
+            this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+              if (data) {
                 Swal.fire({
-                  title: 'Plan enviado', 
+                  title: 'Plan enviado',
                   icon: 'success',
                 }).then((result) => {
                   if (result.value) {
@@ -1029,10 +1212,10 @@ export class FormulacionComponent implements OnInit {
           estado_plan_id: "614d3b0301c7a2a44e2fac01"
         }
         this.plan.estado_plan_id = "614d3b0301c7a2a44e2fac01"
-        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data:any) =>{
-          if(data){
+        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+          if (data) {
             Swal.fire({
-              title: 'Plan En Revisión', 
+              title: 'Plan En Revisión',
               icon: 'success',
             }).then((result) => {
               if (result.value) {
@@ -1083,10 +1266,10 @@ export class FormulacionComponent implements OnInit {
           estado_plan_id: "614d3b1e01c7a265372fac03"
         }
         this.plan.estado_plan_id = "614d3b1e01c7a265372fac03"
-        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data:any) =>{
-          if(data){
+        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+          if (data) {
             Swal.fire({
-              title: 'Plan En Revisión', 
+              title: 'Plan En Revisión',
               icon: 'success',
             }).then((result) => {
               if (result.value) {
@@ -1117,7 +1300,7 @@ export class FormulacionComponent implements OnInit {
       }
   }
 
-  realizarAjustes(){
+  realizarAjustes() {
     Swal.fire({
       title: 'Realizar Ajustes',
       text: `¿Desea realizar ajustes a el Plan?`,
@@ -1127,7 +1310,7 @@ export class FormulacionComponent implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/`+this.plan._id, this.plan).subscribe((data: any) => {
+        this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
           if (data) {
             this.getVersiones(data.Data);
             Swal.fire({
@@ -1181,10 +1364,10 @@ export class FormulacionComponent implements OnInit {
           estado_plan_id: "614d3b4401c7a222052fac05"
         }
         this.plan.estado_plan_id = "614d3b4401c7a222052fac05"
-        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data:any) =>{
-          if(data){
+        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+          if (data) {
             Swal.fire({
-              title: 'Plan pre avalado', 
+              title: 'Plan pre avalado',
               icon: 'success',
             }).then((result) => {
               if (result.value) {
@@ -1236,10 +1419,10 @@ export class FormulacionComponent implements OnInit {
           estado_plan_id: "6153355601c7a2365b2fb2a1"
         }
         this.plan.estado_plan_id = "6153355601c7a2365b2fb2a1"
-        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data:any) =>{
-          if(data){
+        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+          if (data) {
             Swal.fire({
-              title: 'Plan Avalado', 
+              title: 'Plan Avalado',
               icon: 'success',
             }).then((result) => {
               if (result.value) {
@@ -1247,8 +1430,8 @@ export class FormulacionComponent implements OnInit {
                 this.loadData();
                 this.addActividad = false;
                 let aux = {}
-                this.request.post(environment.PLANES_MID, `seguimiento/crear_reportes/`+ this.plan._id + `/61f236f525e40c582a0840d0`, this.plan).subscribe((data:any) =>{
-                  if (!data){
+                this.request.post(environment.PLANES_MID, `seguimiento/crear_reportes/` + this.plan._id + `/61f236f525e40c582a0840d0`, this.plan).subscribe((data: any) => {
+                  if (!data) {
                     Swal.fire({
                       title: 'Error en la operación',
                       icon: 'error',

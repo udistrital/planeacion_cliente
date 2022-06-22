@@ -10,6 +10,8 @@ import { Router } from '@angular/router';
 
 import datosTest from 'src/assets/json/data.json';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { UserService } from '../../services/userService';
 
 @Component({
   selector: 'app-seguimiento',
@@ -21,7 +23,8 @@ export class SeguimientoComponentList implements OnInit {
   displayedColumnsPL: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento'];
   dataSource: MatTableDataSource<any>;
   planes: any[];
-  unidades: any[];
+  unidades: any[] = [];
+  auxUnidades : any[]= [];
   unidadSelected: boolean;
   unidad: any;
   vigencias : any[];
@@ -30,24 +33,34 @@ export class SeguimientoComponentList implements OnInit {
   testDatos: any = datosTest;
   rol: string;
   periodoHabilitado : boolean;
+  formSelect : FormGroup;
+
 
   constructor(
     public dialog: MatDialog,
     private request: RequestManager,
     private router: Router,
-    private autenticationService: ImplicitAutenticationService
+    private autenticationService: ImplicitAutenticationService,
+    private userService: UserService,
+    private formBuilder: FormBuilder,
+
+
   ) {
     this.unidadSelected = false;
     this.getRol();
     if(this.rol != undefined && this.rol=='PLANEACION'){
       this.loadPeriodos();
     }else if(this.rol != undefined && this.rol=='JEFE_DEPENDENCIA'){
-      this.loadUnidades();
+      this.validarUnidad();
     }
     this.dataSource = new MatTableDataSource<any>();
   }
 
   ngOnInit(): void {
+    this.formSelect = this.formBuilder.group({
+      selectUnidad: ['',],
+  
+    });
   }
 
   getRol() {
@@ -57,6 +70,31 @@ export class SeguimientoComponentList implements OnInit {
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
     }
+  }
+
+  validarUnidad(){
+    this.userService.user$.subscribe((data) => {
+      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
+        .subscribe((datosInfoTercero: any) => {
+          this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
+          .subscribe((vinculacion: any) => {
+            this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:`+ vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
+              if (dataUnidad) {
+                let unidad = dataUnidad[0]["DependenciaId"]
+                unidad["TipoDependencia"]= dataUnidad[0]["TipoDependenciaId"]["Id"]
+                console.log("entra aca?")
+       
+                this.unidades.push(unidad);
+                this.auxUnidades.push(unidad);
+                this.formSelect.get('selectUnidad').setValue(unidad);
+                this.onChangeU(unidad);
+
+              }
+            })
+          })
+        })
+
+    })
   }
 
   gestion() {
@@ -80,6 +118,7 @@ export class SeguimientoComponentList implements OnInit {
     this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
       if (data) {
         this.unidades = data.Data;
+        this.auxUnidades = data.Data;
       }
     }, (error) => {
       Swal.fire({
@@ -91,6 +130,22 @@ export class SeguimientoComponentList implements OnInit {
       })
     })
   }
+
+  onKey(value){
+    if (value === ""){
+      this.auxUnidades = this.unidades;
+    }else{
+      this.auxUnidades = this.search(value);
+    }
+  }
+
+  search(value){
+    let filter = value.toLowerCase();
+    if (this.unidades != undefined){
+      return this.unidades.filter(option => option.Nombre.toLowerCase().startsWith(filter));
+    }
+  }
+
 
   loadPeriodos() {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG`).subscribe((data: any) => {
@@ -124,7 +179,6 @@ export class SeguimientoComponentList implements OnInit {
     if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
-      console.log(vigencia);
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
       this.dataSource.data = [];
@@ -144,7 +198,6 @@ export class SeguimientoComponentList implements OnInit {
             this.getVigencias();
             this.getPeriodos();
             this.dataSource.data = this.planes;
-            console.log(this.planes)
           } else {
             this.unidadSelected = false;
             Swal.fire({

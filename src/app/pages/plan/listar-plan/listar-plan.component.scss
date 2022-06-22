@@ -1,11 +1,17 @@
+.mat-card{
+  background-color: #F1F5F8;
+}
+
+
 table {
     width: 100%;
   }
 
 th {
     color: white;
-    text-align: center;
+    text-align: center !important;
 }
+
 
 .td-align-right{
   text-align: right;
@@ -30,4 +36,13 @@ th {
   text-decoration: none;
   margin-bottom: 1%;
   width: 97%;
+}
+
+
+.mat-row:nth-child(even){
+  background-color:#E7D6D6;
+}
+      
+.mat-row:nth-child(odd){
+  background-color: white;
 }

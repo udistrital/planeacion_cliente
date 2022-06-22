@@ -4,6 +4,16 @@
     </mat-card-header>
     <mat-card-content>
         <br>
+
+        <ng-container>
+            <div class="container-estado">
+                <div class="sameRow">Estado del seguimiento:
+                    {{estadoSeguimiento}}
+                    <br>
+                    <mat-icon class="icon-estado">search</mat-icon>
+                </div>
+            </div>
+        </ng-container>
         <form [formGroup]="formGenerarTrimestre">
             <div class="container-border">
                 <h1>Avance del indicador</h1>
@@ -25,24 +35,23 @@
                 </div>
                 <div class="container-button2">
                     <textarea class="align-avance1-text" id="periodo" placeholder="%" (change)="generarAvance()"
-                        formControlName="avancePeriodo" [(ngModel)]='textoDeInput' [readonly]="!indicadorSelected"></textarea>
+                        formControlName="avancePeriodo" [(ngModel)]='textoDeInput'
+                        [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
                     <textarea class="align-avance2-text" id="acumulado" placeholder="%"
-                        formControlName="avanceAcumulado" disabled></textarea>
+                        formControlName="avanceAcumulado" readonly></textarea>
                 </div>
             </div>
-            <br>
             <br>
             <div class="container-border">
                 <h1>Descripción cualitativa trimestre</h1>
                 <br>
-                <br>
-                <br>
                 <mat-label id="desc-input-label">Producto </mat-label>
                 <textarea class="width-text-trimestre" id="Producto" placeholder="Producto" formControlName="producto"
-                    required [readonly]="!indicadorSelected || rol=='PLANEACION'" ></textarea>
+                    required [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
                 <mat-label id="desc-input-label label-evidencia">Evidencia </mat-label>
                 <textarea class="width-text-trimestre" id="Evidencia" placeholder="Evidencia"
-                    formControlName="evidencia" required [readonly]="!indicadorSelected || rol=='PLANEACION'"></textarea>
+                    formControlName="evidencia" required
+                    [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
                 <mat-label id="desc-input-label">Soportes</mat-label><br>
                 <ng-container>
                     <mat-form-field appearance="fill" [style.width.%]="100">
@@ -54,57 +63,77 @@
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <label  *ngIf="rol=='JEFE_DEPENDENCIA'" class="width-label-upload">
+                </ng-container>
+                <ng-container>
+                    <ng-container *ngIf="documentoSeleccionado != undefined">
+                        <textarea class="width-text-documento" id="documento-seleccionado"
+                            placeholder="Documento Seleccionado" readonly>{{documentoSeleccionado.name}}
+                    </textarea>
+                        <button class="icon-documento" mat-icon-button (click)="revisarDocumento('documento')">
+                            <mat-icon>search</mat-icon>
+                        </button>
+                        <button class="icon-documento" mat-icon-button (click)="eliminarDocumento()"
+                            [disabled]="readonlyFormulario" *ngIf="rol=='JEFE_DEPENDENCIA'">
+                            <mat-icon>delete_outline</mat-icon>
+                        </button>
+                    </ng-container>
+                    <mat-label *ngIf="rol=='JEFE_DEPENDENCIA'" class="width-label-upload">
                         <input type="file" (change)="onChangeDocumento($event.target)"><br>
                         Seleccione un archivo...
-                    </label>
-                </ng-container>
-                <ng-container *ngIf="documentoSeleccionado != undefined">
-                    <textarea class="width-text-documento" id="documento-seleccionado"
-                        placeholder="Documento Seleccionado" readonly>{{documentoSeleccionado.name}}
-                    </textarea>
-                    <button class="icon-documento" mat-icon-button (click)="revisarDocumento()">
-                        <mat-icon>search</mat-icon>
-                    </button>
-                    <button class="icon-documento" mat-icon-button (click)="eliminarDocumento()">
-                        <mat-icon>delete_outline</mat-icon>
-                    </button>
+                    </mat-label>
                 </ng-container>
                 <br>
                 <mat-label id="desc-input-label">Logros </mat-label>
                 <textarea class="width-text-trimestre" id="Logros" placeholder="Logros" formControlName="logros"
-                    required [readonly]="!indicadorSelected || rol=='PLANEACION'"></textarea>
+                    required [readonly]="!indicadorSelected ||readonlyFormulario"></textarea>
                 <mat-label id="desc-input-label">Dificultades </mat-label>
                 <textarea class="width-text-trimestre" id="Dificultades" placeholder="Dificultades"
-                    formControlName="dificultades" required [readonly]="!indicadorSelected || rol=='PLANEACION'"></textarea>
+                    formControlName="dificultades" required
+                    [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
                 <mat-label id="desc-input-label">Observaciones </mat-label>
                 <textarea class="width-text-trimestre" id="Observaciones" placeholder="Observaciones"
-                    formControlName="observaciones" required [readonly]="!indicadorSelected || rol=='PLANEACION'"></textarea>
-                <button  class="width-button-generate" mat-raised-button (click)="guardarDataIndicador()"
-                    *ngIf="rol=='JEFE_DEPENDENCIA'" [disabled]="!formGenerarTrimestre.valid"> Guardar
-                    Informacion</button>
+                    formControlName="observaciones" required
+                    [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                <button class="width-button-generate" mat-raised-button (click)="guardarDataIndicador()"
+                    *ngIf="rol=='JEFE_DEPENDENCIA'" [disabled]="!formGenerarTrimestre.valid || readonlyFormulario">
+                    Validar Indicador</button>
             </div>
             <br>
-            <div class="container-border" *ngIf="rol=='PLANEACION'">
+            <div class="container-border" *ngIf="mostrarObservaciones">
                 <h1>Observaciones planeacion</h1>
                 <br>
                 <div class="container-border-comentarios">
                     <h1>Comentarios</h1>
                     <textarea class="width-text-trimestre boder-text" id="Observaciones"
-                        placeholder="Comentarios"></textarea>
-                    <button class="width-button-soporte" mat-raised-button>
-                        <mat-icon>attach_file</mat-icon>
-                        <label>Adjuntar soporte </label>
-                    </button>
+                        formControlName="observacionesP" placeholder="Comentarios"
+                        [readonly]="readonlyObservacion || !indicadorSelected" (change)="getDataUser()"></textarea>
+                    <ng-container *ngIf="documentoPlaneacion != undefined">
+                        <textarea class="width-text-documento" id="documento-planeacion"
+                            placeholder="Documento Seleccionado" readonly>{{documentoPlaneacion.name}}
+                            </textarea>
+                        <button class="icon-documento" mat-icon-button (click)="revisarDocumento()">
+                            <mat-icon>search</mat-icon>
+                        </button>
+                        <button class="icon-documento" mat-icon-button *ngIf="rol=='PLANEACION'"
+                            (click)="eliminarDocumentoP('documentoP')">
+                            <mat-icon>delete_outline</mat-icon>
+                        </button>
+                    </ng-container>
+                    <label *ngIf="rol=='PLANEACION'" class="width-label-upload">
+                        <input type="file" (change)="onChangeDocumentoP($event.target)"
+                            [disabled]="!indicadorSelected"><br>
+                        Seleccione un archivo...
+                    </label>
                 </div>
                 <br>
                 <mat-label class="margin-label" id="desc-input-label">Quien da la respueta: </mat-label>
-                <input class="plan-generar" type="text" matInput  required>
-                <mat-label class="margin-label" id="desc-input-label">Rol: </mat-label>
-                <input class="plan-generar" type="text" matInput  required>
+                <input class="input-autor" type="text" matInput formControlName="autor" readonly>
+                <!-- <mat-label class="margin-label" id="desc-input-label">Rol: </mat-label>
+                <input class="plan-generar" type="text" matInput  required> -->
                 <br>
-                <div class="align-button-enviar">
-                    <button class="btn-gestion-seg" mat-raised-button color="primary">Enviar</button>
+                <div *ngIf="rol=='PLANEACION'" class="align-button-enviar">
+                    <button class="width-button-generate" (click)="guardarDataIndicador()" mat-raised-button
+                        color="primary" [disabled]="!indicadorSelected">Validar Indicador</button>
                 </div>
             </div>
             <div class="container-button">
@@ -112,6 +141,24 @@
                     [disabled]="!formGenerarTrimestre.valid" (click)="guardarSeguimiento()">Guardar</button>
                 <button class="background-button align-button2" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
+            </div>
+            <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoSeguimiento==='En Reporte'">
+                <button class="background-button" mat-raised-button color="primary" (click)="generarReporte()">Generar
+                    Reporte</button>
+            </div>
+            <div class="align-button-enviar"
+                *ngIf="rol=='PLANEACION' && (estadoSeguimiento==='Generado' || estadoSeguimiento==='Ajustado')">
+                <button class="background-button" mat-raised-button color="primary" (click)="enviarObservacion()">Enviar
+                    Observación</button>
+            </div>
+            <div class="align-button-enviar"
+                *ngIf="rol=='PLANEACION' && (estadoSeguimiento==='Generado' ||estadoSeguimiento==='Ajustado')">
+                <button class="background-button" mat-raised-button color="primary" (click)="aprobarReporte()">Aprobar
+                    Reporte</button>
+            </div>
+            <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoSeguimiento==='Observación'">
+                <button class="background-button" mat-raised-button color="primary" (click)="ajustarReporte()">Reenviar
+                    Reporte</button>
             </div>
         </form>
     </mat-card-content>

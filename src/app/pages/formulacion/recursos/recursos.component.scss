@@ -1,3 +1,8 @@
+.mat-card{
+  background-color: #F1F5F8;
+}
+
+
 table {
   width: 100%;
 }
@@ -89,4 +94,16 @@ overflow-x: auto;
   text-decoration: none;
   margin-bottom: 1%;
   width: 97%; 
+}
+
+textarea{
+  resize: none;
+  text-align: justify;
+  white-space: pre-line;
+  -moz-text-align-last: left;
+  text-align-last: left;
+}
+
+input{
+  text-align: center;
 }

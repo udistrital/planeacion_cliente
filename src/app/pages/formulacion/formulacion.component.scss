@@ -1,10 +1,26 @@
+.mat-card{
+  background-color: #F1F5F8;
+}
+
+
 table {
     width: 100%;
+    margin-bottom: 2%;
 }
 
 th {
     color: white;
-    text-align: center;
+    text-align: center !important;
+
+}
+
+td{
+  text-align: justify;
+}
+
+.td-align-left{
+  text-align: center;
+  vertical-align: middle !important;
 }
 
 .td-align-right{
@@ -18,20 +34,22 @@ th {
   justify-content: flex-end;
 }
 
-.btn-formulacion{
-  display: inline-block ;
-  margin-top: 20px;
-  margin-left: auto;
-  margin-right: auto;
 
-}
 
 .mat-raised-button{
-  display: block !important;
-  margin-top: 20px;
-  margin-left: auto;
-  margin-right: auto;
+  text-align: center !important;
+  margin: 1%;
+  width: 20%;
+  align-self: center;
+  display: inline;
 }
+
+.btn-formato{
+  align-content: center;
+  display: flex;
+}
+
+
 
 #box {
   border: 3px solid;
@@ -104,3 +122,19 @@ th {
   margin-bottom: 1%;
   width: 97%;  
 }
+
+
+.mat-row:nth-child(even){
+  background-color:#E7D6D6;
+}
+      
+.mat-row:nth-child(odd){
+  background-color: white;
+}
+
+.input-search{
+  width: 99%;
+  height: 30px;
+  border-radius: 5px 5px 5px 5px;
+}
+

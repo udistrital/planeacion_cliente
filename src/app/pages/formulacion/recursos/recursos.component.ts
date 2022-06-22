@@ -9,6 +9,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import { localeData } from 'moment';
 import { read } from 'fs';
+import { formatCurrency, getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-recursos',
@@ -92,7 +93,7 @@ export class RecursosComponent implements OnInit {
         if (this.mostrarObservaciones && !this.readonlyTable){
           return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones','acciones', ];
         }else{
-          return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones', 'acciones'];
+          return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
@@ -184,10 +185,27 @@ export class RecursosComponent implements OnInit {
     }
   }
 
+  updateValue(element, rowIndex) {
+    let val = parseInt(element.valor,10);
+    if (Number.isNaN(val)) {
+      let auxVal = element.valor.replace(/\$|,/g, '')
+      let aux2 = parseInt(auxVal,10);
+      this.dataSource.data[rowIndex].valor = formatCurrency(aux2, 'en-US', getCurrencySymbol('USD', 'wide'));
+    }else{  
+      this.dataSource.data[rowIndex].valor = formatCurrency(val, 'en-US', getCurrencySymbol('USD', 'wide'));
+    }
+}
+
+
   getValorTotal() {
     if (this.dataSource.data.length !== 0) {
-      this.total = this.dataSource.data.map(t => t.valor).reduce((acc, value) => parseFloat(acc) + parseFloat(value));
-      if (this.total >> 0.00) {
+      let acc = 0;
+      for (let i = 0; i < this.dataSource.data.length; i++) {
+        let aux = this.dataSource.data[i].valor.toString();
+        let strValTotal = aux.replace(/\$|,/g, '');
+        acc = acc + parseFloat(strValTotal)
+      }
+      this.total = acc;      if (this.total >> 0.00) {
         return this.total;
       } else {
         return '0';

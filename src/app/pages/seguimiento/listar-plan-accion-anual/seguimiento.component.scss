@@ -1,12 +1,20 @@
+.mat-card{
+  background-color: #F1F5F8;
+}
+
+
 table {
     width: 100%;
   }
 
 th {
     color: white;
-    text-align: center;
+    text-align: center !important;
 }
 
+td{
+  text-align: center;
+}
 .td-align-right{
   text-align: right;
   justify-content: flex-end;
@@ -39,3 +47,20 @@ th {
 textarea {
   resize: none;
 }
+
+.mat-row:nth-child(even){
+  background-color:#E7D6D6;
+}
+      
+.mat-row:nth-child(odd){
+  background-color: white;
+}
+
+.input-search{
+  width: 99%;
+  height: 30px;
+  border-radius: 5px 5px 5px 5px;
+}
+
+
+

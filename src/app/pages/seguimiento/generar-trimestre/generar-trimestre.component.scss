@@ -1,3 +1,8 @@
+.mat-card{
+  background-color: #F1F5F8;
+}
+
+
 table {
   width: 100%;
 }
@@ -19,6 +24,7 @@ th {
 }
 
 .container-border{
+  margin-top: 2%;
   border: 1px solid var(--primary);
   // border-top: 0px;
   padding: 1%;
@@ -171,7 +177,7 @@ th {
 .width-text-documento{
   margin-bottom: 2%;
   margin-top: 4px;
-  width: 88%;
+  width: 60%;
   height: 15px;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
@@ -186,6 +192,7 @@ th {
   border-radius: 8px 8px 8px 8px;
   width: 29%;
   height: 40px;
+  margin: 1%;
 }
 .align-button1{
   position: absolute;
@@ -302,14 +309,16 @@ input[type="file"] {
   display: inline-block;
   padding: 6px 12px;
   cursor: pointer;
-  margin-left: 90%;
-  margin-top: 5px;
+  margin-left: 2%;
+  margin-top: 2%;
   margin-bottom: 10px;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
   text-align: center;
   color: var(--primary);
   padding-bottom: 15px;
+  position: relative;
+  top: -25px;
 }
 
 .upload-input-container{
@@ -321,11 +330,45 @@ input[type="file"] {
 }
 
 .icon-documento{
+  border: 2px solid var(--primary);
+  border-radius: 8px 8px 8px 8px;
   margin-left: 20px;
+  position: relative;
+  top: -5px;
 }
 
 .mat-icon{
-  margin-bottom: 110px;
+  margin-bottom: 200%;
   margin-left: 0px;
   color: var(--primary);
+  padding-top: 5px;
+}
+
+.input-autor{
+  width: 80%;
+}
+
+
+.sameRow {
+  border: 3px solid black;
+  justify-content: center;
+  text-align: center;
+  align-content: center;
+  padding: 10px;
+  font-size: 15px;
+  color: var(--primary);
+  border-radius: 8px;
+  border-color: var(--primary);
+  height: 80px;
+  width: 100%;
+}
+
+.icon-estado{
+  font-size: 40px;
+}
+
+.container-estado{
+  display: block !important;
+  margin: auto;
+  width: 390px;
 }
