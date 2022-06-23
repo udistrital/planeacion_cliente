@@ -214,63 +214,8 @@ export class DocentesComponent implements OnInit {
 
   loadTabla() {
     if (this.dataTabla) {
-      this.dataSourceRubros.data =  [
-        {
-          "categoria": "Prima de Servicios",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Prima de navidad",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Prima de vacaciones",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Bonificación por servicios",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Intereses cesantías",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Aporte cesantías público",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Aporte cesantías privado",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Aporte salud",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Fondo pensiones público",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Fondo pensiones privado",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Aporte ARL",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Aporte CCF",
-          "rubro": "" 
-        },
-        {
-          "categoria": "Aporte ICBF",
-          "rubro": "" 
-        }];
-      console.log(this.dataSourceRubros)
       this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
         if (data) {
-          console.log("entra en falso")
           let identificacion = data.Data[0];
           if (identificacion.activo === false) {
             this.dataSourceRHF.data = [];
@@ -307,6 +252,59 @@ export class DocentesComponent implements OnInit {
                 "data": this.dataSourceRubros,
               }
             ];
+            this.dataSourceRubros.data =  [
+              {
+                "categoria": "Prima de Servicios",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Prima de navidad",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Prima de vacaciones",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Bonificación por servicios",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Intereses cesantías",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Aporte cesantías público",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Aporte cesantías privado",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Aporte salud",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Fondo pensiones público",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Fondo pensiones privado",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Aporte ARL",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Aporte CCF",
+                "rubro": "" 
+              },
+              {
+                "categoria": "Aporte ICBF",
+                "rubro": "" 
+              }];
             let datoIdenti = {
               "activo": true
             }
@@ -321,6 +319,9 @@ export class DocentesComponent implements OnInit {
                   this.dataSourceRHVPOS.data = this.data.rhv_pos;
                 if (this.data.rhv_pos != "{}")
                   this.dataSourceRHVPRE.data = this.data.rhv_pre;
+                if (this.data.rubros != "{}"){
+                  this.dataSourceRubros.data = this.data.rubros
+                }
               }
               this.steps = [
                 {
@@ -720,7 +721,6 @@ export class DocentesComponent implements OnInit {
         this.auxiliarMTO = data.Data[1];
         this.asistenteMTO = data.Data[2];
         this.asociadoMTO = data.Data[3];
-        console.log(data)
       }
     })
 
@@ -2298,11 +2298,16 @@ export class DocentesComponent implements OnInit {
       var num = +i + 1;
       obj["index"] = num.toString();
     }
-    console.log(data)
     let dataStrRHVPOS = JSON.stringify(Object.assign({}, data));
 
-    console.log(this.dataSourceRubros.data)
-    let dataRubros = JSON.stringify(Object.assign({}, this.dataSourceRubros.data))
+    data = this.dataSourceRubros.data
+    for (var i in data) {
+      var obj = data[i];
+      obj["activo"] = true;
+      var num = +i + 1;
+      obj["index"] = num.toString();
+    }
+    let dataRubros = JSON.stringify(Object.assign({}, data))
 
     identificaciones = {
       "rhf": dataStrRHF,
