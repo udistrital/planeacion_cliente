@@ -214,6 +214,60 @@ export class DocentesComponent implements OnInit {
 
   loadTabla() {
     if (this.dataTabla) {
+      
+      this.dataSourceRubros.data =  [
+        {
+          "categoria": "Prima de Servicios",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Prima de navidad",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Prima de vacaciones",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Bonificación por servicios",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Intereses cesantías",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte cesantías público",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte cesantías privado",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte salud",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Fondo pensiones público",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Fondo pensiones privado",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte ARL",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte CCF",
+          "rubro": "" 
+        },
+        {
+          "categoria": "Aporte ICBF",
+          "rubro": "" 
+        }];
       this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
         if (data) {
           let identificacion = data.Data[0];
@@ -252,59 +306,6 @@ export class DocentesComponent implements OnInit {
                 "data": this.dataSourceRubros,
               }
             ];
-            this.dataSourceRubros.data =  [
-              {
-                "categoria": "Prima de Servicios",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Prima de navidad",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Prima de vacaciones",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Bonificación por servicios",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Intereses cesantías",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Aporte cesantías público",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Aporte cesantías privado",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Aporte salud",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Fondo pensiones público",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Fondo pensiones privado",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Aporte ARL",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Aporte CCF",
-                "rubro": "" 
-              },
-              {
-                "categoria": "Aporte ICBF",
-                "rubro": "" 
-              }];
             let datoIdenti = {
               "activo": true
             }
