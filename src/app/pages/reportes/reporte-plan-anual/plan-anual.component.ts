@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
-import { info } from 'console';
-import { range } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
@@ -45,7 +42,6 @@ export class PlanAnualComponent implements OnInit {
     let roles: any = this.autenticationService.getRole();
     this.displayedColumns = ['vigencia', 'unidad', 'tipoPlan', 'estado', 'acciones'];
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
-      console.log("entgra jefe dependencia")
       this.rol = 'JEFE_DEPENDENCIA';  
       this.validarUnidad();    
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
@@ -65,30 +61,23 @@ export class PlanAnualComponent implements OnInit {
   }
 
   validarUnidad() {
-    console.log("valida unidad")
     this.userService.user$.subscribe((data) => {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
-          console.log("data tercero")
-
-          console.log(datosInfoTercero)
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
             .subscribe((vinculacion: any) => {
-              console.log(vinculacion)
               if (vinculacion["Data"] != "") {
                 this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
                   if (dataUnidad) {
-                    console.log(dataUnidad)
                     this.unidades = [];
                     this.auxUnidades = [];
                     let unidad = dataUnidad[0]["DependenciaId"]
                     unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
-                    console.log(unidad)
                     this.unidades.push(unidad);
                     this.auxUnidades.push(unidad);
                     this.form.get('unidad').setValue(unidad);
                     this.moduloVisible = true;
-                    this.form.get('categoria').setValue("necesidades");
+                    this.form.get('categoria').setValue("planAccion");
                     this.form.get('tipoReporte').setValue("unidad");
                     this.form.get('categoria').disable();
                     this.form.get('tipoReporte').disable();
@@ -190,7 +179,6 @@ export class PlanAnualComponent implements OnInit {
 
 
   onChangeT(tipo) {
-    console.log(tipo)
     if (tipo === 'unidad') {
       this.form.get('unidad').enable();
       this.unidadVisible = true;
@@ -223,21 +211,31 @@ export class PlanAnualComponent implements OnInit {
           estado_plan_id: estado,
           vigencia: (vigencia.Id).toString()
         }
-        console.log(body)
 
         this.request.post(environment.PLANES_MID, `reportes/plan_anual`, body).subscribe((data: any) => {
           if (data) {
-            let auxEstado = this.estados.find(element => element._id === estado);
-            this.reporte = body;
-            this.reporte["excel"] = data.Data.excelB64;
-            this.reporte["nombre_unidad"] = data.Data.generalData[0].nombreUnidad;
-            this.reporte["vigencia"] = vigencia.Nombre
-            this.reporte["tipo_plan"] = "Plan de acción de funcionamiento"
-            this.reporte["estado_plan"] = auxEstado.nombre
-            this.tablaVisible = true;
-            this.dataSource.data.unshift(this.reporte);
-            console.log(this.reporte)
-            Swal.close();
+            if (data.Data.generalData){
+              let auxEstado = this.estados.find(element => element._id === estado);
+              this.reporte = body;
+              this.reporte["excel"] = data.Data.excelB64;
+              this.reporte["nombre_unidad"] = data.Data.generalData[0].nombreUnidad;
+              this.reporte["vigencia"] = vigencia.Nombre
+              this.reporte["tipo_plan"] = "Plan de acción de funcionamiento"
+              this.reporte["estado_plan"] = auxEstado.nombre
+              this.tablaVisible = true;
+              this.dataSource.data.unshift(this.reporte);
+              Swal.close();
+            }else{
+              Swal.close();
+              Swal.fire({
+                title: 'Error en la operación',
+                text: `No se encontraron datos registrados para este reporte`,
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
+
           }
         }, (error) => {
           Swal.fire({
@@ -254,13 +252,11 @@ export class PlanAnualComponent implements OnInit {
           estado_plan_id: estado,
           vigencia: (vigencia.Id).toString()
         }
-        console.log(body)
 
         this.request.post(environment.PLANES_MID, `reportes/plan_anual_general`, body).subscribe((data: any) => {
           if (data) {
             this.dataSource.data = [];
             let infoReportes : any[] = data.Data.generalData;
-            console.log("entra aca=")
             for (let i = 0 ; i< infoReportes.length; i++){
               infoReportes[i]["excel"] = data.Data["excelB64"];
               infoReportes[i]["vigencia"] = vigencia["Nombre"]
@@ -268,7 +264,6 @@ export class PlanAnualComponent implements OnInit {
                 this.dataSource.data = infoReportes
                 this.tablaVisible = true
                 Swal.close();
-                console.log(this.dataSource.data)
               }
             }
           }
@@ -288,7 +283,6 @@ export class PlanAnualComponent implements OnInit {
 
 
   descargarReporte(reporte) {
-    console.log(reporte)
     let blob = this.base64ToBlob(reporte.excel);
     let url = window.URL.createObjectURL(blob);
     var anchor = document.createElement("a");
@@ -314,13 +308,10 @@ export class PlanAnualComponent implements OnInit {
   }
 
    consultarVigencia(infoReportes : any[]){
-    console.log(infoReportes)
     for (let i = 0 ; i< infoReportes.length; i++){
       this.request.get(environment.PARAMETROS_SERVICE, `periodo/` + infoReportes[i]["vigencia"]).subscribe((data: any) => {
         if (data) {
           let vigencia: any = data.Data;
-          console.log(vigencia)
-
         }
       }, (error) => {
         Swal.fire({
