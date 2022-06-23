@@ -177,7 +177,6 @@ export class FormulacionComponent implements OnInit {
     this.userService.user$.subscribe((data) => {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
-          console.log(datosInfoTercero)
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
             .subscribe((vinculacion: any) => {
               if (vinculacion["Data"] != "") {
@@ -398,7 +397,6 @@ export class FormulacionComponent implements OnInit {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
-      console.log(unidad)
       if (this.vigenciaSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
       }
@@ -579,7 +577,6 @@ export class FormulacionComponent implements OnInit {
       `/` +aux).subscribe((data: any) => {
         if (data) {
           this.versiones = data;
-          //console.log(data)
           for (var i in this.versiones) {
             var obj = this.versiones[i];
             var num = +i + 1;
@@ -587,7 +584,6 @@ export class FormulacionComponent implements OnInit {
           }
           var len = this.versiones.length;
           var pos = +len - 1;
-          //console.log(this.versiones)
           this.plan = this.versiones[pos];
           this.planAsignado = true;
           this.clonar = false;
@@ -651,7 +647,6 @@ export class FormulacionComponent implements OnInit {
     } else if (this.rol == 'JEFE_DEPENDENCIA') {
       this.iconEditar = 'edit'
     }
-    console.log(this.plan)
     this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
       if (data.Data.data_source != null) {
         this.dataSource = new MatTableDataSource(data.Data.data_source);
