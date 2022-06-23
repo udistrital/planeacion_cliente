@@ -232,7 +232,7 @@ export class CrearPlanComponent implements OnInit {
         let aux = new String(reader.result);
         documentoBase64 = aux.replace(header, "")
         bodyPost = {
-          IdTipoDocumento: 60,
+          IdTipoDocumento: 65,
           nombre: this.documento.name,
           metadatos: {
             dato_a: "Soporte Proyecto Universitario Institucional"
