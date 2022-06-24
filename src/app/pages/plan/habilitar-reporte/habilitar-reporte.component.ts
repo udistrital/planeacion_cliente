@@ -74,7 +74,6 @@ export class HabilitarReporteComponent implements OnInit {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
       this.loadTrimestres();
-
       if (this.tipoSelected)
         this.loadFechas();
     }
@@ -125,52 +124,74 @@ export class HabilitarReporteComponent implements OnInit {
         })
       })
     } else if (this.tipo === 'seguimiento') {
-
-      for (let i = 0; i < this.periodos.length; i++) {
-        this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + this.periodos[i].Id).subscribe((data: any) => {
-          if (data) {
-            let seguimiento = data.Data[0];
-            let fechaInicio = new Date(seguimiento["fecha_inicio"]);
-            let fechaFin = new Date(seguimiento["fecha_fin"]);
-
-            if (i == 0) {
-              this.formFechas.get('fecha1').setValue(fechaInicio);
-              this.formFechas.get('fecha2').setValue(fechaFin);
-            } else if (i == 1) {
-              this.formFechas.get('fecha3').setValue(fechaInicio);
-              this.formFechas.get('fecha4').setValue(fechaFin);
-            } else if (i == 2) {
-              this.formFechas.get('fecha5').setValue(fechaInicio);
-              this.formFechas.get('fecha6').setValue(fechaFin);
-            } else if (i == 3) {
-              this.formFechas.get('fecha7').setValue(fechaInicio);
-              this.formFechas.get('fecha8').setValue(fechaFin);
-              Swal.close();
+      if (this.periodos.length > 0){
+        for (let i = 0; i < this.periodos.length; i++) {
+          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + this.periodos[i].Id).subscribe((data: any) => {
+            if (data) {
+              let seguimiento = data.Data[0];
+              let fechaInicio = new Date(seguimiento["fecha_inicio"]);
+              let fechaFin = new Date(seguimiento["fecha_fin"]);
+  
+              if (i == 0) {
+                this.formFechas.get('fecha1').setValue(fechaInicio);
+                this.formFechas.get('fecha2').setValue(fechaFin);
+              } else if (i == 1) {
+                this.formFechas.get('fecha3').setValue(fechaInicio);
+                this.formFechas.get('fecha4').setValue(fechaFin);
+              } else if (i == 2) {
+                this.formFechas.get('fecha5').setValue(fechaInicio);
+                this.formFechas.get('fecha6').setValue(fechaFin);
+              } else if (i == 3) {
+                this.formFechas.get('fecha7').setValue(fechaInicio);
+                this.formFechas.get('fecha8').setValue(fechaFin);
+                Swal.close();
+              }
+  
             }
-
-          }
-        }, (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 2500
+          }, (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
           })
+        }
+      }else{
+        Swal.close();
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encuentran tirmestres habilitados para esta vigencia`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
         })
       }
+
 
     }
   }
 
   loadTrimestres() {
+    Swal.fire({
+      title: 'Cargando períodos',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
       if (data) {
         if (data.Data != "") {
           this.periodos = data.Data;
           this.guardarDisabled = false;
+          Swal.close();
         } else {
           this.guardarDisabled = true;
+          this.periodos = [];
+          Swal.close();
           Swal.fire({
             title: 'Error en la operación',
             text: `No se encontraron trimestres para esta vigencia`,

@@ -195,18 +195,17 @@ export class DocentesComponent implements OnInit {
   }
 
   loadRubros() {
-    console.log(this.loadRubros)
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
     })
     this.request.get(environment.PLANES_MID, `formulacion/get_rubros`).subscribe((data: any) => {
       this.rubros = data.Data;
-      console.log(this.rubros)
       Swal.close();
     })
 
@@ -320,7 +319,7 @@ export class DocentesComponent implements OnInit {
                   this.dataSourceRHVPOS.data = this.data.rhv_pos;
                 if (this.data.rhv_pos != "{}")
                   this.dataSourceRHVPRE.data = this.data.rhv_pre;
-                if (this.data.rubros != "{}"){
+                if (this.data.rubros != "{}" && this.data.rubros != null){
                   this.dataSourceRubros.data = this.data.rubros
                 }
               }
@@ -2278,7 +2277,6 @@ export class DocentesComponent implements OnInit {
       var obj = data[i];
       obj["activo"] = true;
       var num = +i + 1;
-      obj["index"] = num.toString();
     }
     let dataStrRHF = JSON.stringify(Object.assign({}, data));
 
@@ -2287,7 +2285,6 @@ export class DocentesComponent implements OnInit {
       var obj = data[i];
       obj["activo"] = true;
       var num = +i + 1;
-      obj["index"] = num.toString();
     }
     let dataStrRHVPRE = JSON.stringify(Object.assign({}, data));
 
@@ -2297,7 +2294,6 @@ export class DocentesComponent implements OnInit {
       var obj = data[i];
       obj["activo"] = true;
       var num = +i + 1;
-      obj["index"] = num.toString();
     }
     let dataStrRHVPOS = JSON.stringify(Object.assign({}, data));
 
@@ -2306,7 +2302,6 @@ export class DocentesComponent implements OnInit {
       var obj = data[i];
       obj["activo"] = true;
       var num = +i + 1;
-      obj["index"] = num.toString();
     }
     let dataRubros = JSON.stringify(Object.assign({}, data))
 
@@ -2316,7 +2311,6 @@ export class DocentesComponent implements OnInit {
       "rhv_pos": dataStrRHVPOS,
       "rubros": dataRubros
     }
-    console.log(identificaciones)
     let aux = JSON.stringify(Object.assign({}, identificaciones));
     this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, aux, this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
       if (data) {
