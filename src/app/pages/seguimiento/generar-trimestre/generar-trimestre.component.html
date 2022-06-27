@@ -1,192 +1,249 @@
 <mat-card class="card-oas">
     <mat-card-header>
         <div style="text-align:center;">
-            <mat-card-title>Reporte {{trimestre}}</mat-card-title>        
+            <mat-card-title>SEGUIMIENTO PLANES DE ACCIÓN</mat-card-title>
+            <mat-card-subtitle>Unidad Académico y/o administrativa {{unidad}}</mat-card-subtitle>
+            <br>
+            <mat-card-subtitle>
+                A continuación encontrará un listado de las actividades asociadas al Plan de Acción, a las cuales podrá realizar la revisión para el periodo respectivo.
+            </mat-card-subtitle>
         </div>
     </mat-card-header>
     <mat-card-content>
         <br>
-
-        <!-- <ng-container>
-            <div class="container-estado">
-                <div class="sameRow">Estado del seguimiento:
-                    {{estadoSeguimiento}}
-                    <br>
-                    <mat-icon class="icon-estado">search</mat-icon>
-                </div>
-            </div>
-        </ng-container> -->
         <form [formGroup]="formGenerarTrimestre">
-            <!-- <div class="container-border">
-                <h1>Avance del indicador</h1>
-                <br>
-                <ng-container>
-                    <mat-form-field appearance="fill" [style.width.%]="100">
-                        <mat-label id="tipo-input-label">Seleccione el indicador</mat-label>
-                        <mat-select formControlName="indicador" (selectionChange)="onChangeI($event.value)">
-                            <mat-option>--</mat-option>
-                            <mat-option *ngFor="let indicador of indicadores" [value]="indicador.nombre">
-                                {{indicador.nombre}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </ng-container>
-                <div class="container-button">
-                    <textarea class="align-avance1" disabled>Avance en el periodo</textarea>
-                    <textarea class="align-avance2" disabled>Avance acumulado</textarea>
-                </div>
-                <div class="container-button2">
-                    <textarea class="align-avance1-text" id="periodo" placeholder="%" (change)="generarAvance()"
-                        formControlName="avancePeriodo" [(ngModel)]='textoDeInput'
-                        [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
-                    <textarea class="align-avance2-text" id="acumulado" placeholder="%"
-                        formControlName="avanceAcumulado" readonly></textarea>
-                </div>
-            </div>
-            <br> -->
             <div class="container-border">
                 <h1 class="head-border">INFORMACIÓN DEL PLAN</h1>
-                <div class="contenedor">
-                    <div class="uno">                        
-                        <textarea class="title-area" [readonly]="true">Actividad general</textarea>
-                    </div>
-                    <div class="dos">                        
+                <mat-grid-list cols="6" rowHeight="35px" gutterSize="5px">
+                    <mat-grid-tile class="titulo">Actividad general</mat-grid-tile>
+                    <mat-grid-tile>
                         <textarea class="width-text-trimestre" [readonly]="true" placeholder="Actividad"></textarea>
-                    </div>
-                    <div class="tres">                        
-                        <textarea class="title-area" [readonly]="true">Descripción de la actividad</textarea>
-                    </div>
-                    <div class="cuatro">                        
-                        <textarea class="title-area" [readonly]="true">Prueba</textarea>
-                    </div>
-                    <div class="cinco">                        
-                        <textarea class="width-text-trimestre" [readonly]="true">Prueba</textarea>
-                    </div>
-                    <div class="seis">                        
-                        <textarea class="width-text-trimestre" [readonly]="true">Prueba</textarea>
-                    </div>
-                    <div class="siete">                        
-                        <textarea class="title-area" [readonly]="true">Prueba</textarea>
-                    </div>
-                    <div class="ocho">                        
-                        <textarea class="width-text-trimestre" [readonly]="true">Prueba</textarea>
-                    </div>
-                </div>
-                <div class="contenedor">
-                    <div class="nueve">
-                        <textarea class="title-area" [readonly]="true">Prueba</textarea>
-                    </div>
-                    <div class="diez">
-                        <textarea class="width-text-trimestre" [readonly]="true">Prueba</textarea>
-                    </div>
-                    <div class="tres">                        
-                        <textarea class="title-area" [readonly]="true">Prueba</textarea>
-                    </div>
-                    <div class="seis">                        
-                        <textarea class="width-text-trimestre" [readonly]="true">Prueba</textarea>
-                    </div>
-                </div>
-                <!-- <div class="row">
-                    <div class="col">
-                        <textarea class="title-area" [readonly]="true">Prueba</textarea>
-                    </div>
-                    <div class="col">
-                        <textarea class="width-text-trimestre" id="Producto" placeholder="Producto" formControlName="producto"
-                            required [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
-                    </div>
-                    <div class="main-col">
-                        <textarea class="title-area" [readonly]="true">Prueba</textarea>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-2">
-                        <div class="row">
-                            <div class="col">
-                                <textarea class="title-area" [readonly]="true">Prueba</textarea>
-                            </div>
-                            <div class="col">
-                                <textarea class="width-text-trimestre" [readonly]="true">Prueba</textarea>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <textarea class="title-area" [readonly]="true">Prueba</textarea>
-                            </div>
-                            <div class="col">
-                                <textarea class="width-text-trimestre" [readonly]="true">Prueba</textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="main-col">
-                        <textarea class="width-text-trimestre" [readonly]="true">Prueba</textarea>
-                    </div>
-                </div> -->
+                    </mat-grid-tile>
+                    <mat-grid-tile class="titulo" colspan="4">Descripción de la actividad</mat-grid-tile>
+                    <mat-grid-tile class="titulo">Ponderación</mat-grid-tile>
+                    <mat-grid-tile>
+                        <textarea class="width-text-trimestre" [readonly]="true" placeholder="%"></textarea>
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="4" rowspan="2">
+                        <textarea class="width-text-trimestre" [readonly]="true" placeholder="Descripción de la actividad general seleccionada"></textarea>
+                    </mat-grid-tile>
+                    <mat-grid-tile class="titulo">Periodo de ejecución</mat-grid-tile>
+                    <mat-grid-tile>
+                        <textarea class="width-text-trimestre" [readonly]="true" placeholder="Periodo"></textarea>
+                    </mat-grid-tile>
+                </mat-grid-list>
+
+                <mat-grid-list cols="6" rowHeight="35px" gutterSize="5px">
+                    <mat-grid-tile colspan="2" class="titulo">Productos asociados</mat-grid-tile>
+                    <mat-grid-tile class="titulo" colspan="4">Tareas asociadas</mat-grid-tile>
+                    <mat-grid-tile colspan="2" rowspan="2">
+                        <textarea class="width-text-trimestre" [readonly]="true"></textarea>
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="4" rowspan="2">
+                        <textarea class="width-text-trimestre" [readonly]="true" placeholder="Tareas asociadas a la actividad general"></textarea>
+                    </mat-grid-tile>
+                </mat-grid-list>
                 <div class="container-border">
                     <h1>COMPONENTE CUALITATIVO</h1>
                     <br>
-                    <mat-label class="desc-input-label">Reporte de avance del trimestre </mat-label>
-                    <textarea class="width-text-trimestre" id="reporte" placeholder="Reporte"
-                        formControlName="reporte" required
-                        [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
-                    <!-- <mat-card class="desc-input-label">
-                        Reporte de avance del trimestre
-                    </mat-card> -->
-                    <textarea class="width-text-trimestre" id="reporte" placeholder="Reporte"
-                        formControlName="reporte" required
-                        [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
-                    <mat-label class="desc-input-label">Producto </mat-label>
-                    <textarea class="width-text-trimestre" id="Producto" placeholder="Producto" formControlName="producto"
-                        required [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
-                    <mat-label id="desc-input-label label-evidencia">Evidencia </mat-label>
-                    <textarea class="width-text-trimestre" id="Evidencia" placeholder="Evidencia"
-                        formControlName="evidencia" required
-                        [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
-                    <mat-label class="desc-input-label">Soportes</mat-label><br>
-                    <ng-container>
-                        <mat-form-field appearance="fill" [style.width.%]="100">
-                            <mat-label id="tipo-input-label">Seleccione el documento</mat-label>
-                            <mat-select formControlName="documentos" (selectionChange)="onChangeD($event.value)">
-                                <mat-option>--</mat-option>
-                                <mat-option *ngFor="let documento of documentos" [value]="documento">
-                                    {{documento.name}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </ng-container>
-                    <ng-container>
-                        <ng-container *ngIf="documentoSeleccionado != undefined">
-                            <textarea class="width-text-documento" id="documento-seleccionado"
-                                placeholder="Documento Seleccionado" readonly>{{documentoSeleccionado.name}}
-                        </textarea>
-                            <button class="icon-documento" mat-icon-button (click)="revisarDocumento('documento')">
-                                <mat-icon>search</mat-icon>
-                            </button>
-                            <button class="icon-documento" mat-icon-button (click)="eliminarDocumento()"
-                                [disabled]="readonlyFormulario" *ngIf="rol=='JEFE_DEPENDENCIA'">
-                                <mat-icon>delete_outline</mat-icon>
-                            </button>
-                        </ng-container>
-                        <mat-label *ngIf="rol=='JEFE_DEPENDENCIA'" class="width-label-upload">
-                            <input type="file" (change)="onChangeDocumento($event.target)"><br>
-                            Seleccione un archivo...
-                        </mat-label>
-                    </ng-container>
-                    <br>
-                    <mat-label class="desc-input-label">Logros </mat-label>
-                    <textarea class="width-text-trimestre" id="Logros" placeholder="Logros" formControlName="logros"
-                        required [readonly]="!indicadorSelected ||readonlyFormulario"></textarea>
-                    <mat-label class="desc-input-label">Dificultades </mat-label>
-                    <textarea class="width-text-trimestre" id="Dificultades" placeholder="Dificultades"
-                        formControlName="dificultades" required
-                        [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
-                    <mat-label class="desc-input-label">Observaciones </mat-label>
-                    <textarea class="width-text-trimestre" id="Observaciones" placeholder="Observaciones"
-                        formControlName="observaciones" required
-                        [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                    <mat-card class="desc-input-label">
+                        <mat-card-header>Reporte de avance del trimestre</mat-card-header>
+                        <mat-card-content>
+                            <textarea class="width-text-trimestre" id="reporte" placeholder="Reporte"
+                            formControlName="reporte" required
+                            [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                        </mat-card-content>
+                    </mat-card>
+                    <mat-card class="desc-input-label">
+                        <mat-card-header>Productos intermedios</mat-card-header>
+                        <mat-card-content>
+                            <textarea class="width-text-trimestre" id="Producto" placeholder="Producto" formControlName="producto"
+                            required [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                        </mat-card-content>
+                    </mat-card>
+                    <mat-card class="desc-input-label">
+                        <mat-card-header>Evidencias</mat-card-header>
+                        <mat-card-content>
+                            <ng-container>
+                                <mat-form-field appearance="fill" [style.width.%]="100">
+                                    <mat-label id="tipo-input-label">Seleccione el documento</mat-label>
+                                    <mat-select formControlName="documentos" (selectionChange)="onChangeD($event.value)">
+                                        <mat-option>--</mat-option>
+                                        <mat-option *ngFor="let documento of documentos" [value]="documento">
+                                            {{documento.name}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </ng-container>
+                            <ng-container>
+                                <ng-container *ngIf="documentoSeleccionado != undefined">
+                                    <textarea class="width-text-documento" id="documento-seleccionado"
+                                        placeholder="Documento Seleccionado" readonly>{{documentoSeleccionado.name}}
+                                </textarea>
+                                    <button class="icon-documento" mat-icon-button (click)="revisarDocumento('documento')">
+                                        <mat-icon>search</mat-icon>
+                                    </button>
+                                    <button class="icon-documento" mat-icon-button (click)="eliminarDocumento()"
+                                        [disabled]="readonlyFormulario" *ngIf="rol=='JEFE_DEPENDENCIA'">
+                                        <mat-icon>delete_outline</mat-icon>
+                                    </button>
+                                </ng-container>
+                                <mat-label *ngIf="rol=='JEFE_DEPENDENCIA'" class="width-label-upload">
+                                    <input type="file" (change)="onChangeDocumento($event.target)"><br>
+                                    Seleccione un archivo...
+                                </mat-label>
+                            </ng-container>
+                        </mat-card-content>
+                    </mat-card>
+                    <mat-card class="desc-input-label">
+                        <mat-card-header>Dificultades</mat-card-header>
+                        <mat-card-content>
+                            <textarea class="width-text-trimestre" id="Dificultades" placeholder="Dificultades"
+                            formControlName="dificultades" required
+                            [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                        </mat-card-content>
+                    </mat-card>
+                    <mat-card class="desc-input-label">
+                        <mat-card-header>Observaciones</mat-card-header>
+                        <mat-card-content>
+                            <textarea class="width-text-trimestre" id="Observaciones" placeholder="Observaciones"
+                            formControlName="observaciones" required
+                            [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                        </mat-card-content>
+                    </mat-card>
                     <button class="width-button-generate" mat-raised-button (click)="guardarDataIndicador()"
                         *ngIf="rol=='JEFE_DEPENDENCIA'" [disabled]="!formGenerarTrimestre.valid || readonlyFormulario">
                         Validar Indicador</button>
                 </div>
+                <br>
+                <div class="container-border">
+                    <h1>COMPONENTE CUANTITATIVO</h1>
+                    <div class="mat-elevation-z8">
+                        <table mat-table [dataSource]="datosIndicadores">
+                      
+                          <!-- Name Column -->
+                          <ng-container matColumnDef="nombre">
+                            <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                            <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
+                          </ng-container>
+                      
+                          <!-- Weight Column -->
+                          <ng-container matColumnDef="formula">
+                            <th mat-header-cell *matHeaderCellDef> Formula </th>
+                            <td mat-cell *matCellDef="let element"> {{element.formula}} </td>
+                          </ng-container>
+                      
+                          <!-- Symbol Column -->
+                          <ng-container matColumnDef="meta">
+                            <th mat-header-cell *matHeaderCellDef> Meta </th>
+                            <td mat-cell *matCellDef="let element"> {{element.meta}} </td>
+                          </ng-container>
+                          
+                          <ng-container matColumnDef="reporteNumerador">
+                            <th mat-header-cell *matHeaderCellDef> Reporte numerador </th>
+                            <td mat-cell *matCellDef="let element"> {{element.reporteNumerador}} </td>
+                          </ng-container>
+                          
+                          <ng-container matColumnDef="reporteDenominador">
+                            <th mat-header-cell *matHeaderCellDef> Reporte denominador </th>
+                            <td mat-cell *matCellDef="let element"> {{element.reporteDenominador}} </td>
+                          </ng-container>
+                          
+                          <ng-container matColumnDef="detalleReporte">
+                            <th mat-header-cell *matHeaderCellDef> Detalle del reporte </th>
+                            <td mat-cell *matCellDef="let element"> {{element.detalleReporte}} </td>
+                          </ng-container>
+                          
+                          <ng-container matColumnDef="observaciones">
+                            <th mat-header-cell *matHeaderCellDef> Oservaciones Oficina Asesora de Planeación y Control </th>
+                            <td mat-cell *matCellDef="let element"> {{element.observaciones}} </td>
+                          </ng-container>
+                          
+                          <ng-container matColumnDef="header-row-general">
+                            <th mat-header-cell *matHeaderCellDef 
+                                [style.text-align]="center"
+                                [attr.colspan]="3"> 
+                              Indicadores asociados a la actividad general 
+                            </th>
+                          </ng-container>
+                          
+                          <ng-container matColumnDef="header-row-trimestre">
+                            <th mat-header-cell *matHeaderCellDef 
+                                [style.text-align]="center"
+                                [attr.colspan]="3"> 
+                              Reporte del indicador para el trimestre 
+                            </th>
+                          </ng-container>
+                          
+                          <ng-container matColumnDef="header-row-observaciones">
+                            <th mat-header-cell *matHeaderCellDef 
+                                [style.text-align]="center"
+                                [attr.colspan]="1"> 
+                               
+                            </th>
+                          </ng-container>
+                          
+                          <tr mat-header-row *matHeaderRowDef="['header-row-general', 'header-row-trimestre','header-row-observaciones']"></tr>
+                          <tr mat-header-row *matHeaderRowDef="columnasIndicadores"></tr>
+                          <tr mat-row *matRowDef="let row; columns: columnasIndicadores;"></tr>
+                        </table>
+                      
+                        <mat-paginator #MatPaginatorIndicadores
+                                       [pageSizeOptions]="[3,5]"
+                                       showFirstLastButtons 
+                                       aria-label="Selecciona la pagina de indicadores">
+                        </mat-paginator>
+                      </div>
+                      <br>
+                      <hr>
+                      <br>
+                      <div class="mat-elevation-z8">
+                        <table mat-table [dataSource]="datosResultados">
+                      
+                          <!-- Name Column -->
+                          <ng-container matColumnDef="indicador">
+                            <th mat-header-cell *matHeaderCellDef> Indicador del periodo </th>
+                            <td mat-cell *matCellDef="let element"> {{element.indicador}} </td>
+                          </ng-container>
+                      
+                          <!-- Weight Column -->
+                          <ng-container matColumnDef="indicadorAcumulado">
+                            <th mat-header-cell *matHeaderCellDef> Indicador acumulado </th>
+                            <td mat-cell *matCellDef="let element"> {{element.indicadorAcumulado}} </td>
+                          </ng-container>
+                      
+                          <!-- Symbol Column -->
+                          <ng-container matColumnDef="avanceAcumulado">
+                            <th mat-header-cell *matHeaderCellDef> Avance acumulado </th>
+                            <td mat-cell *matCellDef="let element"> {{element.avanceAcumulado}} </td>
+                          </ng-container>
+                          
+                          <ng-container matColumnDef="brechaExistente">
+                            <th mat-header-cell *matHeaderCellDef> Brecha existente </th>
+                            <td mat-cell *matCellDef="let element"> {{element.brechaExistente}} </td>
+                          </ng-container>
+                          
+                          <ng-container matColumnDef="header-row-general">
+                            <th mat-header-cell *matHeaderCellDef 
+                                [style.text-align]="center"
+                                [attr.colspan]="4"> 
+                              Resultados asociados al reporte del indicador
+                            </th>
+                          </ng-container>
+                          
+                          <tr mat-header-row *matHeaderRowDef="['header-row-general']"></tr>
+                          <tr mat-header-row *matHeaderRowDef="columnasResultados"></tr>
+                          <tr mat-row *matRowDef="let row; columns: columnasResultados;"></tr>
+                        </table>
+                      
+                        <mat-paginator #MatPaginatorResultados
+                                       [pageSizeOptions]="[3,5]"
+                                       showFirstLastButtons 
+                                       aria-label="Selecciona la pagina de resultados de indicadores">
+                        </mat-paginator>
+                      </div>
+                </div>
+
             </div>
             <br>
             <div class="container-border" *ngIf="mostrarObservaciones">
