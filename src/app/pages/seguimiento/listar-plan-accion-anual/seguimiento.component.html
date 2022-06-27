@@ -18,18 +18,7 @@
                     </mat-select>
                 </mat-form-field>
             </ng-container>
-            <ng-container *ngIf="rol=='PLANEACION'">
-                <mat-form-field appearance="fill" [style.width.%]="100">
-                    <mat-label id="tipo-input-label">Seleccione la vigencia</mat-label>
-                    <mat-select (selectionChange)="onChangeV($event.value)">
-                        <mat-option>--</mat-option>
-                        <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
-                            {{vigencia.Nombre}}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </ng-container>
-            <div *ngIf="unidadSelected || vigenciaSelected" class="mat-elevation-z8">
+            <div class="mat-elevation-z8">
                 <table mat-table [dataSource]="dataSource" matSort>
                     <ng-container matColumnDef="unidad">
                         <th mat-header-cell *matHeaderCellDef> Unidad Académica y / o Administrativa </th>
