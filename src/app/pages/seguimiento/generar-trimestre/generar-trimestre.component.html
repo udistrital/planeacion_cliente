@@ -187,18 +187,12 @@
                           <tr mat-header-row *matHeaderRowDef="columnasIndicadores"></tr>
                           <tr mat-row *matRowDef="let row; columns: columnasIndicadores;"></tr>
                         </table>
-                      
-                        <mat-paginator #MatPaginatorIndicadores
-                                       [pageSizeOptions]="[3,5]"
-                                       showFirstLastButtons 
-                                       aria-label="Selecciona la pagina de indicadores">
-                        </mat-paginator>
                       </div>
                       <br>
                       <hr>
                       <br>
-                      <div class="mat-elevation-z8">
-                        <table mat-table [dataSource]="datosResultados">
+                      <div class="mat-elevation-z8 table-container">
+                        <table mat-table  [dataSource]="datosResultados">
                       
                           <!-- Name Column -->
                           <ng-container matColumnDef="indicador">
@@ -235,12 +229,6 @@
                           <tr mat-header-row *matHeaderRowDef="columnasResultados"></tr>
                           <tr mat-row *matRowDef="let row; columns: columnasResultados;"></tr>
                         </table>
-                      
-                        <mat-paginator #MatPaginatorResultados
-                                       [pageSizeOptions]="[3,5]"
-                                       showFirstLastButtons 
-                                       aria-label="Selecciona la pagina de resultados de indicadores">
-                        </mat-paginator>
                       </div>
                 </div>
 
