@@ -60,7 +60,13 @@ b {
     color: var(--primary)
 }
 
-
+@media screen and (max-width: 570px) {
+    .mat-table {
+        overflow-x: scroll;
+        display: block;
+        width: 100%;
+      }
+}
 
 .example-month-picker.mat-calendar {
     height: 250px !important;
