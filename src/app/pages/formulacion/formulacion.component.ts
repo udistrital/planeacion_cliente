@@ -162,27 +162,14 @@ export class FormulacionComponent implements OnInit {
             })
           }
         }else{
-          let seguimientoFormulacion = data.Data[0];
-          let auxFecha = new Date();
-          let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
-          let strFechaHoy = new Date(auxFechaCol).toISOString();
-          let fechaHoy = new Date(strFechaHoy);
-          let fechaInicio = new Date(seguimientoFormulacion["fecha_inicio"]);
-          let fechaFin = new Date(seguimientoFormulacion["fecha_fin"]);
-          if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
-            this.validarUnidad();
-          } else {
-            this.moduloVisible = false;
-            Swal.fire({
-              title: 'Error en la operación',
-              text: `No se encuentran fechas establecidas para la formulación. Intente más tarde.`,
-              icon: 'warning',
-              showConfirmButton: true,
-              timer: 10000
-            })
-          }
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encuentran fechas establecidas para la formulación. Intente más tarde.`,
+            icon: 'warning',
+            showConfirmButton: true,
+            timer: 10000
+          })
         }
-
       }
     }, (error) => {
       Swal.fire({
