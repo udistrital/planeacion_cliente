@@ -100,13 +100,13 @@ export class FormulacionComponent implements OnInit {
     this.dataT = false;
     this.moduloVisible = false;
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
-      this.rol = 'JEFE_DEPENDENCIA'
-      this.verificarFechas();
-    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
+    if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
       this.loadUnidades();
-    }
+    }else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+      this.rol = 'JEFE_DEPENDENCIA'
+      this.verificarFechas();
+    } 
   }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -139,7 +139,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   verificarFechas() {
-    this.request.get(environment.PLANES_CRUD, `seguimiento?query=tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
       if (data) {
         if (data.Data.length != 0){
           let seguimientoFormulacion = data.Data[0];

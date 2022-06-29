@@ -105,14 +105,19 @@ export class HabilitarReporteComponent implements OnInit {
       },
     })
     if (this.tipo === 'formulacion') {
-      this.request.get(environment.PLANES_CRUD, `seguimiento?query=tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
+      this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
         if (data) {
-          let formulacionSeguimiento = data.Data[0];
-          let fechaInicio = new Date(formulacionSeguimiento["fecha_inicio"]);
-          let fechaFin = new Date(formulacionSeguimiento["fecha_fin"]);
-          this.formFechas.get('fecha9').setValue(fechaInicio);
-          this.formFechas.get('fecha10').setValue(fechaFin);
-          Swal.close();
+          if (data.Data.length != 0){
+            let formulacionSeguimiento = data.Data[0];
+            let fechaInicio = new Date(formulacionSeguimiento["fecha_inicio"]);
+            let fechaFin = new Date(formulacionSeguimiento["fecha_fin"]);
+            this.formFechas.get('fecha9').setValue(fechaInicio);
+            this.formFechas.get('fecha10').setValue(fechaFin);
+            Swal.close();
+          }else{
+            Swal.close();
+          }
+
         }
       }, (error) => {
         Swal.fire({
@@ -226,29 +231,63 @@ export class HabilitarReporteComponent implements OnInit {
       }).then((result) => {
         if (result.isConfirmed) {
           if (this.formFechas.get('fecha9').value != "" && this.formFechas.get('fecha10').value != "") {
-            this.request.get(environment.PLANES_CRUD, `seguimiento?query=tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
+            this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
               if (data) {
-                let seguimientoFormulacion = data.Data[0];
-                seguimientoFormulacion["fecha_inicio"] = this.formFechas.get('fecha9').value.toISOString();
-                seguimientoFormulacion["fecha_fin"] = this.formFechas.get('fecha10').value.toISOString();
-                this.request.put(environment.PLANES_CRUD, `seguimiento`, seguimientoFormulacion, seguimientoFormulacion["_id"]).subscribe((data: any) => {
-                  if (data) {
+                if (data.Data.length > 0){
+                  let seguimientoFormulacion = data.Data[0];
+                  seguimientoFormulacion["fecha_inicio"] = this.formFechas.get('fecha9').value.toISOString();
+                  seguimientoFormulacion["fecha_fin"] = this.formFechas.get('fecha10').value.toISOString();
+                  this.request.put(environment.PLANES_CRUD, `seguimiento`, seguimientoFormulacion, seguimientoFormulacion["_id"]).subscribe((data: any) => {
+                    if (data) {
+                      Swal.fire({
+                        title: 'Fechas Actualizadas',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2500
+                      })
+                    }
+                  }, (error) => {
                     Swal.fire({
-                      title: 'Fechas Actualizadas',
-                      icon: 'success',
+                      title: 'Error en la operación',
+                      text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+                      icon: 'warning',
                       showConfirmButton: false,
                       timer: 2500
                     })
-                  }
-                }, (error) => {
-                  Swal.fire({
-                    title: 'Error en la operación',
-                    text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-                    icon: 'warning',
-                    showConfirmButton: false,
-                    timer: 2500
                   })
-                })
+                }else{
+                  let seguimientoFormulacion = {
+                    nombre: "Seguimiento Formulación",
+                    descripcion: "Fechas para control de formulación",
+                    plan_id: "No aplica",
+                    dato: "{}",
+                    tipo_seguimiento_id: "6260e975ebe1e6498f7404ee",
+                    estado_seguimiento_id: "No aplica",
+                    periodo_id: "No aplica",
+                    activo: true, 
+                    fecha_inicio: this.formFechas.get('fecha9').value.toISOString() ,
+                    fecha_fin: this.formFechas.get('fecha10').value.toISOString()
+                  }
+                  this.request.post(environment.PLANES_CRUD, `seguimiento`, seguimientoFormulacion).subscribe((data: any) => {
+                    if (data) {
+                      Swal.fire({
+                        title: 'Fechas Actualizadas',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2500
+                      })
+                    }
+                  }, (error) => {
+                    Swal.fire({
+                      title: 'Error en la operación',
+                      text: `Por favor intente de nuevo`,
+                      icon: 'warning',
+                      showConfirmButton: false,
+                      timer: 2500
+                    })
+                  })
+
+                }
               }
             }, (error) => {
               Swal.fire({
