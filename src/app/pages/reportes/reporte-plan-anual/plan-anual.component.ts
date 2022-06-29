@@ -188,6 +188,21 @@ export class PlanAnualComponent implements OnInit {
       this.unidadVisible = false;
     }
   }
+
+  onChangeC(categoria) {
+    if (categoria === 'necesidades') {
+      this.form.get('tipoReporte').setValue('general');
+      this.form.get('tipoReporte').disable();
+      this.form.get('unidad').setValue(null);
+      this.form.get('unidad').disable();
+      this.unidadVisible = false;
+    } else{
+      this.form.get('tipoReporte').enable();
+      this.form.get('unidad').enable();
+      this.unidadVisible = true;
+
+    }
+  }
  
   generar() {
     let unidad = this.form.get('unidad').value;
@@ -240,7 +255,7 @@ export class PlanAnualComponent implements OnInit {
         }, (error) => {
           Swal.fire({
             title: 'Error en la operación',
-            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            text: `No se encontraron datos registrados`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500
@@ -270,13 +285,44 @@ export class PlanAnualComponent implements OnInit {
         }, (error) => {
           Swal.fire({
             title: 'Error en la operación',
-            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            text: `No se encontraron datos registrados`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500
           })
         })
       }
+    }else if (categoria === 'necesidades'){
+      console.log("necesidades")
+      let body = {
+        tipo_plan_id: "61639b8c1634adf976ed4b4c",
+        estado_plan_id: estado,
+        vigencia: (vigencia.Id).toString()
+      }
+
+      this.request.post(environment.PLANES_MID, `reportes/necesidades`, body).subscribe((data: any) => {
+        if (data) {
+          let auxEstado = this.estados.find(element => element._id === estado);
+          this.reporte = body;
+          this.reporte["excel"] = data.Data;
+          this.reporte["nombre_unidad"] = "General";
+          this.reporte["vigencia"] = vigencia.Nombre
+          this.reporte["tipo_plan"] = "Plan de acción de funcionamiento"
+          this.reporte["estado_plan"] = auxEstado.nombre
+          this.tablaVisible = true;
+          this.dataSource.data.unshift(this.reporte);
+          Swal.close();
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados para realizar el reporte`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
+
     }
 
   }

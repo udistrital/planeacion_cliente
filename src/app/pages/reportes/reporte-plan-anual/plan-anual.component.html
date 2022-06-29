@@ -24,8 +24,8 @@
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="fill" [style.width.%]="30">
-                    <mat-label id="tipo-input-label">Categoría</mat-label>
-                    <mat-select formControlName="categoria">
+                    <mat-label  id="tipo-input-label">Categoría</mat-label>
+                    <mat-select (selectionChange)="onChangeC($event.value)" formControlName="categoria">
                         <mat-option>...</mat-option>
                         <mat-option value="planAccion">Plan de acción</mat-option>
                         <mat-option value="necesidades">Necesidades</mat-option>
