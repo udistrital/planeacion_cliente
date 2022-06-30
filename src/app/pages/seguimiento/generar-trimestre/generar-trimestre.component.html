@@ -336,6 +336,19 @@
                           <tr mat-row *matRowDef="let row; columns: ['indicador','indicadorAcumulado', 'avanceAcumulado', 'brechaExistente'];"></tr>
                         </table>
                       </div>
+
+                      <br>
+
+                      <mat-card>
+                        <mat-card-header>Estado de la actividad</mat-card-header>
+                        <mat-card-content>
+                            <textarea class="width-text-trimestre" id="Estado" placeholder="Estado"
+                            formControlName="estadoActividad" required
+                            [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                        </mat-card-content>
+                      </mat-card>
+
+                      
                 </div>
 
             </div>
