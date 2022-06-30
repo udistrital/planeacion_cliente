@@ -1,7 +1,16 @@
 .mat-card{
   background-color: #F1F5F8;
+  overflow-x: scroll;
+  display: block;
 }
 
+th.mat-header-cell:last-of-type, td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type {
+  padding-right: 0px;
+}
+
+th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type {
+  padding-left: 0px;
+}
 
 table {
   width: 100%;
@@ -10,6 +19,10 @@ table {
 th {
   color: white;
   text-align: center;
+}
+
+.mat-table{
+  border-radius: 7px;
 }
 
 .head-border{
@@ -28,7 +41,7 @@ th {
 }
 
 .container-border{
-  margin-top: 2%;
+  margin-top: 2em;
   border: 1px solid var(--primary);
   // border-top: 0px;
   padding: 1%;
@@ -54,8 +67,29 @@ th {
   position: relative;
 }
 
+.subtitulo{
+  background: #D1D1D1;
+  border-radius: 8px;
+  padding: 1%;
+  color: black;
+}
+
+.tabla-indicadores{
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 7px;
+  div{
+    padding: 1%;
+    border: 2px solid #D1D1D1;
+    border-radius: 7px;
+    width: 33%;
+  }
+} 
+
 .container-border h1{
   width: 43%;
+  min-width: 133px;
   color: white;
   font-size:16px;
   margin-top:-28px;
@@ -63,7 +97,6 @@ th {
   padding-left: 8px;
   background:var(--primary);
   position: relative;
-  max-width: 300px;
   border-radius: 5px;
 }
 
@@ -93,18 +126,37 @@ td.mat-cell{
 
 th.mat-header-cell{
   border: 0.3px solid rgb(75, 23, 23);
+  font-weight: bold;
+}
 
+th.secundaria{
+  border: 0.3px solid var(--primary);
+  background: #cda8a8;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+th.descripcion{
+  border: 0.3px solid #949494;
+  background: #bdbdbd;
+  color: #474747;
+  padding: 2px;
 }
 
 .container-border mat-card mat-card-header{
-  width: 40%;
-  background: var(--primary);
-  color: white;
-  justify-content: left;
-  border-radius: 3px;
-  height: 100%;
-  font-family: Arial, Helvetica, sans-serif;
-  margin-left: 1%;
+    width: 40%;
+    background: #f8cecc;
+    color: var(--primary);
+    justify-content: left;
+    border-radius: 7px;
+    height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    margin-left: 1%;
+    font-size: 16px;
+    min-width: 200px;
+    border: 2px solid var(--primary);
+    padding: 1px;
 }
 
 .container-border mat-card .titulo-tile{

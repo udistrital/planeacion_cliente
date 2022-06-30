@@ -58,7 +58,11 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.data = [];
+    /* if (this.rol === 'PLANEACION'){ */
     this.loadPlanes("vigencia");
+    /* } else if (this.rol === 'JEFE_DEPENDENCIA'){
+      this.loadPlanes("unidad");
+    } */
   }
 
   ngOnInit(): void {

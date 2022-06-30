@@ -36,14 +36,12 @@ const ELEMENT_DATA: Indicador[] = [
   {nombre: 'Ind. 1', formula: "a", meta: 'as',reporteNumerador:'1',reporteDenominador:'2',detalleReporte:"det",observaciones:'No'},
   {nombre: 'Ind. 2', formula: "b", meta: 'ad',reporteNumerador:'1',reporteDenominador:'2',detalleReporte:"det",observaciones:'No'},
   {nombre: 'Ind. 3', formula: "c", meta: 'df',reporteNumerador:'1',reporteDenominador:'2',detalleReporte:"det",observaciones:'No'},
-  {nombre: 'Ind. 4', formula: "d", meta: 'er',reporteNumerador:'1',reporteDenominador:'2',detalleReporte:"det",observaciones:'No'},
 ];
 
 const ELEMENT_DATA2: ResultadosIndicador[] = [
   {indicador:'Ind. 1', indicadorAcumulado:'30', avanceAcumulado:'50', brechaExistente:'20'},
   {indicador:'Ind. 2', indicadorAcumulado:'30', avanceAcumulado:'50', brechaExistente:'20'},
   {indicador:'Ind. 3', indicadorAcumulado:'30', avanceAcumulado:'50', brechaExistente:'20'},
-  {indicador:'Ind. 4', indicadorAcumulado:'30', avanceAcumulado:'50', brechaExistente:'20'},
 ];
 
 @Component({
