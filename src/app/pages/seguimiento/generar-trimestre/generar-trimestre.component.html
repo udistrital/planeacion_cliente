@@ -141,6 +141,14 @@
                                   <td mat-cell *matCellDef="let element"> {{element.meta}} </td>
                                 </ng-container>
                           
+                                <ng-container matColumnDef="header-row-general">
+                                  <th mat-header-cell *matHeaderCellDef 
+                                      [style.text-align]="center"
+                                      [attr.colspan]="3"> 
+                                    Indicadores asociados a la actividad general
+                                  </th>
+                                </ng-container>
+                          
                                 <ng-container matColumnDef="header-row-nombre">
                                   <th mat-header-cell *matHeaderCellDef 
                                       [style.text-align]="center"
@@ -165,6 +173,7 @@
                                   </th>
                                 </ng-container>
 
+                                <tr mat-header-row *matHeaderRowDef="['header-row-general']"></tr>
                                 <tr mat-header-row *matHeaderRowDef="['header-row-nombre', 'header-row-formula','header-row-meta']"></tr>
                                 <tr mat-row *matRowDef="let row; columns: ['nombre','formula','meta'];"></tr>
 
@@ -186,6 +195,14 @@
                                 <ng-container matColumnDef="detalleReporte">
                                     <th mat-header-cell *matHeaderCellDef> Detalle del reporte </th>
                                     <td mat-cell *matCellDef="let element"> {{element.detalleReporte}} </td>
+                                </ng-container>
+                          
+                                <ng-container matColumnDef="header-row-general">
+                                  <th mat-header-cell *matHeaderCellDef 
+                                      [style.text-align]="center"
+                                      [attr.colspan]="3"> 
+                                    Indicadores asociados a la actividad general
+                                  </th>
                                 </ng-container>
                           
                                 <ng-container matColumnDef="header-row-numerador">
@@ -212,6 +229,7 @@
                                   </th>
                                 </ng-container>
 
+                                <tr mat-header-row *matHeaderRowDef="['header-row-general']"></tr>
                                 <tr mat-header-row *matHeaderRowDef="['header-row-numerador', 'header-row-denominador','header-row-detalle']"></tr>
                                 <tr mat-row *matRowDef="let row; columns: ['reporteNumerador','reporteDenominador','detalleReporte'];"></tr>
 
@@ -224,7 +242,15 @@
                                   <th mat-header-cell *matHeaderCellDef> Oservaciones Oficina Asesora de Planeación y Control </th>
                                   <td mat-cell *matCellDef="let element"> {{element.observaciones}} </td>
                                 </ng-container>
+                          
+                                <ng-container matColumnDef="header-row-general">
+                                  <th mat-header-cell *matHeaderCellDef 
+                                      [style.text-align]="center"> 
+                                    Observaciones Oficina Asesora de Planeación y Control
+                                  </th>
+                                </ng-container>
 
+                                <tr mat-header-row *matHeaderRowDef="['header-row-general']"></tr>
                                 <tr mat-row *matRowDef="let row; columns: ['observaciones'];"></tr>
 
                             </table>
