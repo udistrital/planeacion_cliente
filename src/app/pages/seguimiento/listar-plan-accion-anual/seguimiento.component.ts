@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -18,7 +18,7 @@ import { UserService } from '../../services/userService';
   templateUrl: './seguimiento.component.html',
   styleUrls: ['./seguimiento.component.scss']
 })
-export class SeguimientoComponentList implements OnInit {
+export class SeguimientoComponentList implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   displayedColumnsPL: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento'];
   dataSource: MatTableDataSource<any>;
@@ -54,6 +54,15 @@ export class SeguimientoComponentList implements OnInit {
       this.validarUnidad();
     }
     this.dataSource = new MatTableDataSource<any>();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.data = [];
+    /* if (this.rol === 'PLANEACION'){ */
+    this.loadPlanes("vigencia");
+    /* } else if (this.rol === 'JEFE_DEPENDENCIA'){
+      this.loadPlanes("unidad");
+    } */
   }
 
   ngOnInit(): void {
@@ -175,17 +184,6 @@ export class SeguimientoComponentList implements OnInit {
     }
   }
 
-  onChangeV(vigencia) {
-    if (vigencia == undefined) {
-      this.vigenciaSelected = false;
-    } else {
-      this.vigenciaSelected = true;
-      this.vigencia = vigencia;
-      this.dataSource.data = [];
-      this.loadPlanes("vigencia");
-    }
-  }
-
 
   loadPlanes(tipo) {
     if (tipo == "unidad"){
@@ -221,7 +219,7 @@ export class SeguimientoComponentList implements OnInit {
   
       })
     }else if(tipo == 'vigencia'){
-      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia` + this.vigencia.Id).subscribe((data: any) => {
+      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
             this.planes = data.Data;

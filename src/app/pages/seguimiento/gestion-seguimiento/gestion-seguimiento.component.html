@@ -18,7 +18,7 @@
                 </div>
             </div>
             <br>
-            <div class="container-border" *ngIf="rol=='JEFE_DEPENDENCIA'">
+            <!-- <div class="container-border" *ngIf="rol=='JEFE_DEPENDENCIA'">
                 <h1>Información del plan</h1>
                 <div class="mat-elevation-z8">
                     <mat-label id="tipo-input-label">Actividad general: </mat-label>
@@ -68,9 +68,10 @@
 
                     </div>
                 </div>
-            </div>
+            </div> 
+            <div class="container-border" *ngIf="rol=='PLANEACION'"> -->
             <br>
-            <div class="container-border" *ngIf="rol=='PLANEACION'">
+            <div class="container-border">
                 <h1>Listado actividades</h1>
                 <label>Última Edicion: {{fechaModificacion}}</label>
                 <div class="mat-elevation-z8">
@@ -89,7 +90,7 @@
                         </ng-container>
                         <ng-container matColumnDef="gestion">
                             <th mat-header-cell *matHeaderCellDef> Gestión </th>
-                            <td mat-cell *matCellDef="let row" class="td-align-right">
+                            <td mat-cell *matCellDef="let row" class="td-align-center">
                                 <button mat-icon-button (click)="revisar(row)">
                                     <mat-icon>search</mat-icon>
                                 </button>

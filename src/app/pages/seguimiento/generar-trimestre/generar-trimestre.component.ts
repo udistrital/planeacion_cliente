@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -14,15 +14,52 @@ import { Location } from '@angular/common';
 import { VisualizarDocumentoDialogComponent } from './visualizar-documento-dialog/visualizar-documento-dialog.component';
 import { UserService } from '../../services/userService';
 
+export interface Indicador {
+  nombre:string;
+  formula:string;
+  meta:string;
+  reporteNumerador:string;
+  reporteDenominador:string;
+  detalleReporte:string;
+  observaciones:string;
+}
+
+export interface ResultadosIndicador{
+  indicador:string;
+  indicadorAcumulado:string;
+  avanceAcumulado:string;
+  brechaExistente:string;
+}
+
+//Data de prueba para tabla de indicadores:
+const ELEMENT_DATA: Indicador[] = [
+  {nombre: 'Ind. 1', formula: "a", meta: 'as',reporteNumerador:'1',reporteDenominador:'2',detalleReporte:"det",observaciones:'No'},
+  {nombre: 'Ind. 2', formula: "b", meta: 'ad',reporteNumerador:'1',reporteDenominador:'2',detalleReporte:"det",observaciones:'No'},
+  {nombre: 'Ind. 3', formula: "c", meta: 'df',reporteNumerador:'1',reporteDenominador:'2',detalleReporte:"det",observaciones:'No'},
+];
+
+const ELEMENT_DATA2: ResultadosIndicador[] = [
+  {indicador:'Ind. 1', indicadorAcumulado:'30', avanceAcumulado:'50', brechaExistente:'20'},
+  {indicador:'Ind. 2', indicadorAcumulado:'30', avanceAcumulado:'50', brechaExistente:'20'},
+  {indicador:'Ind. 3', indicadorAcumulado:'30', avanceAcumulado:'50', brechaExistente:'20'},
+];
+
 @Component({
   selector: 'app-seguimiento',
   templateUrl: './generar-trimestre.component.html',
   styleUrls: ['./generar-trimestre.component.scss']
 })
-export class GenerarTrimestreComponent implements OnInit {
+export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
+  columnasIndicadores: string[] = ['nombre', 'formula', 'meta','reporteNumerador', 'reporteDenominador','detalleReporte', 'observaciones'];
+  datosIndicadores = new MatTableDataSource<Indicador>(ELEMENT_DATA);
+  columnasResultados: string[] = ['indicador','indicadorAcumulado', 'avanceAcumulado', 'brechaExistente'];
+  datosResultados = new MatTableDataSource<ResultadosIndicador>(ELEMENT_DATA2);
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
   selectedFiles: any;
+
+  @ViewChild('MatPaginatorIndicadores') paginatorIndicadores: MatPaginator;
+  @ViewChild('MatPaginatorResultados') paginatorResultados: MatPaginator;
 
   rol: string;
   planId: string;
@@ -49,7 +86,7 @@ export class GenerarTrimestreComponent implements OnInit {
   estados : any[];
   readonlyFormulario: boolean;
   readonlyObservacion: boolean;
-
+  unidad: string;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -70,8 +107,7 @@ export class GenerarTrimestreComponent implements OnInit {
     this.loadData();
     this.loadTrimestre();
     this.getSeguimiento();
-    this.loadEstados();
-    
+    this.loadEstados();    
   }
 
   ngOnInit(): void {
@@ -90,6 +126,11 @@ export class GenerarTrimestreComponent implements OnInit {
     });
     this.indicadorSelected = false;
     this.mostrarObservaciones = false;
+  }
+
+  ngAfterViewInit() {
+    this.datosIndicadores.paginator = this.paginatorIndicadores;
+    this.datosResultados.paginator = this.paginatorResultados;
   }
 
   getRol() {
