@@ -33,6 +33,8 @@ export class SeguimientoComponentGestion implements OnInit {
   indexActividad : string = '';
   fechaModificacion : string = '';
   seguimiento : any;
+  trimestre:any;
+  trimestres: any[] = [];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -231,6 +233,67 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   revisar(row){
-    this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/'+ row.index]);
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId).subscribe((data: any) => {
+      if (data.Data.length != 0) {
+        let seguimiento = data.Data[data.Data.length - 1]
+        this.loadTrimestre(seguimiento.periodo_id,row);
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+    /* this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/'+ row.index]); */
+  }
+
+  loadTrimestre(periodo_id,row) {
+    this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + periodo_id).subscribe((data: any) => {
+      if (data) {
+        this.trimestre = data.Data[data.Data.length - 1]
+        this.trimestres.push(this.trimestre.ParametroId);
+        this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId + `,periodo_id:` + this.trimestre.Id).subscribe((data: any) => {
+          if (data.Data.length != 0) {
+            let seguimiento = data.Data[0];
+            let auxFecha = new Date();
+            let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
+            let strFechaHoy = new Date(auxFechaCol).toISOString();
+            let fechaHoy = new Date(strFechaHoy);
+            let fechaInicio = new Date(seguimiento["fecha_inicio"]);
+            let fechaFin = new Date(seguimiento["fecha_fin"]);
+            if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
+              this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + row.index + '/' + this.trimestre.Id])
+            } else {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: `Está intentando acceder al seguimiento por fuera de las fechas establecidas`,
+                icon: 'warning',
+                showConfirmButton: true,
+                timer: 10000
+              })
+            }
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        })
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 }
