@@ -1115,51 +1115,66 @@ export class FormulacionComponent implements OnInit {
           html: this.ponderacionActividades
         })
       } else {
-        Swal.fire({
-          title: 'Culminar Plan',
-          text: `¿Está seguro de enviar este Plan Culminado?`,
-          icon: 'warning',
-          confirmButtonText: `Si`,
-          cancelButtonText: `No`,
-          showCancelButton: true
-        }).then((result) => {
-          if (result.isConfirmed) {
-            let mod = {
-              estado_plan_id: "614d3aeb01c7a245952fabff"
-            }
-            this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
-            this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
-              if (data) {
-                Swal.fire({
-                  title: 'Plan enviado',
-                  icon: 'success',
-                }).then((result) => {
-                  if (result.value) {
-                    this.busquedaPlanes(data.Data);
-                    this.loadData();
-                    this.addActividad = false;
+        this.request.get(environment.PRUEBA, `formulacion/verificar_identificaciones/` + this.plan._id).subscribe((data: any) => {
+          if (data) {
+            if (data.Data == true){
+              Swal.fire({
+                title: 'Culminar Plan',
+                text: `¿Está seguro de enviar este Plan Culminado?`,
+                icon: 'warning',
+                confirmButtonText: `Si`,
+                cancelButtonText: `No`,
+                showCancelButton: true
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  let mod = {
+                    estado_plan_id: "614d3aeb01c7a245952fabff"
                   }
-                })
-              }
-            })
-          } else if (result.dismiss === Swal.DismissReason.cancel) {
-            Swal.fire({
-              title: 'Envío cancelado',
-              icon: 'error',
-              showConfirmButton: false,
-              timer: 2500
-            })
+                  this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
+                  this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+                    if (data) {
+                      Swal.fire({
+                        title: 'Plan enviado',
+                        icon: 'success',
+                      }).then((result) => {
+                        if (result.value) {
+                          this.busquedaPlanes(data.Data);
+                          this.loadData();
+                          this.addActividad = false;
+                        }
+                      })
+                    }
+                  })
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                  Swal.fire({
+                    title: 'Envío cancelado',
+                    icon: 'error',
+                    showConfirmButton: false,
+                    timer: 2500
+                  })
+                }
+              }),
+                (error) => {
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    icon: 'error',
+                    text: `${JSON.stringify(error)}`,
+                    showConfirmButton: false,
+                    timer: 2500
+                  })
+                }
+            }else{
+              Swal.fire({
+                title: 'Error en la operación',
+                icon: 'error',
+                text: `Por favor complete las identificaciones para continuar`,
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
           }
-        }),
-          (error) => {
-            Swal.fire({
-              title: 'Error en la operación',
-              icon: 'error',
-              text: `${JSON.stringify(error)}`,
-              showConfirmButton: false,
-              timer: 2500
-            })
-          }
+        })
+
       }
     })
 
