@@ -26,12 +26,7 @@ export class DocentesComponent implements OnInit {
   dataSourceRHVPRE: MatTableDataSource<any>;
   dataSourceRHVPOS: MatTableDataSource<any>;
   dataSourceRubros: MatTableDataSource<any>;
-
-  dataTableMTO: any[];
-  dataTableTCO: any[];
-  dataTablePrestacional: any[];
-  dataTableHonorarios: any[];
-  dataAvailable: boolean = false;
+  vigenciaConsulta: any;
   banderaCerrar: boolean = false;
 
   accionBoton: string;
@@ -42,91 +37,7 @@ export class DocentesComponent implements OnInit {
   readonlyTable: boolean = false;
   mostrarObservaciones: boolean;
 
-  totalMTO: number;
-  totalTCO: number;
-  totalPrestacional: number;
-  totalHonorarios: number;
-
-  cantidadMTO: number;
-  cantidadTCO: number;
-  cantidadPrestacional: number;
-  cantidadHonorarios: number;
-
-  valorSueldoMTO: number;
-  valorSueldoTCO: number;
-  valorSueldoPrestacional: number;
-  valorSueldoHonorarios: number;
-
-  valorPrimaNavidadMTO: number;
-  valorPrimaNavidadTCO: number;
-  valorPrimaNavidadPrestacional: number;
-  valorPrimaNavidadHonorarios: number;
-
-  valorPrimaVacacionesMTO: number;
-  valorPrimaVacacionesTCO: number;
-  valorPrimaVacacionesPrestacional: number;
-  valorPrimaVacacionesHonorarios: number;
-
-  valorPensionesPublicasMTO: number;
-  valorPensionesPublicasTCO: number;
-  valorPensionesPublicasPrestacional: number;
-  valorPensionesPublicasHonorarios: number;
-
-  valorPensionesPrivadasMTO: number;
-  valorPensionesPrivadasTCO: number;
-  valorPensionesPrivadasPrestacional: number;
-  valorPensionesPrivadasHonorarios: number;
-
-  valorSaludPrivadaMTO: number;
-  valorSaludPrivadaTCO: number;
-  valorSaludPrivadaPrestacional: number;
-  valorSaludPrivadaHonorarios: number;
-
-  valorCesantiasPublicosMTO: number;
-  valorCesantiasPublicosTCO: number;
-  valorCesantiasPublicosPrestacional: number;
-  valorCesantiasPublicosHonorarios: number;
-
-  valorCesantiasPrivadosMTO: number;
-  valorCesantiasPrivadosTCO: number;
-  valorCesantiasPrivadosPrestacional: number;
-  valorCesantiasPrivadosHonorarios: number;
-
-  valorRiesgoPublicosMTO: number;
-  valorRiesgoPublicosTCO: number;
-  valorRiesgoPublicosPrestacional: number;
-  valorRiesgoPublicosHonorarios: number;
-
-  valorRiesgoPrivadosMTO: number;
-  valorRiesgoPrivadosTCO: number;
-  valorRiesgoPrivadosPrestacional: number;
-  valorRiesgoPrivadosHonorarios: number;
-
-  valorICBFMTO: number;
-  valorICBFTCO: number;
-  valorICBFPrestacional: number;
-  valorICBFHonorarios: number;
-
-  valorMTO: number;
-  valorTCO: number;
-  valorPrestacional: number;
-  valorHonorarios: number;
-
-  totalCantidad: number;
-  totalSueldo: number;
-  totalPrimaNavidad: number;
-  totalPrimaVacaciones: number;
-  totalPensionesPublicas: number;
-  totalPensionesPrivadas: number;
-  totalSaludPrivada: number;
-  totalCesantiasPublicos: number;
-  totalCesantiasPrivados: number;
-  totalRiesgoPublicos: number;
-  totalRiesgoPrivados: number;
-  totalIcfb: number;
-  totalTotal: number;
   data: any;
-
   banderaSumasPensiones: boolean = false;
 
   //valores desagregado
@@ -162,11 +73,7 @@ export class DocentesComponent implements OnInit {
   asociadoHonorariosPOS: any;
   asociadoUDPrestacionalPOS: any;
   asociadoUDHonorariosPOS: any;
-
-
-
   //
-
   @ViewChild(MatPaginator) paginatorRHF: MatPaginator;
   @ViewChild(MatPaginator) paginatorRHVPRE: MatPaginator;
   @ViewChild(MatPaginator) paginatorRHVPOS: MatPaginator;
@@ -178,19 +85,18 @@ export class DocentesComponent implements OnInit {
   @Input() rol: string;
   @Input() versiones: any[];
   @Input() vigencia: any;
-
     @Output() acciones = new EventEmitter<any>();
   constructor(private request: RequestManager) {
     this.loadRubros();
   }
 
   ngOnInit(): void {
-    this.loadDesagregado();
-    this.loadPlan();
     this.dataSourceRHF = new MatTableDataSource<any>();
     this.dataSourceRHVPRE = new MatTableDataSource<any>();
     this.dataSourceRHVPOS = new MatTableDataSource<any>();
     this.dataSourceRubros = new MatTableDataSource<any>();
+    this.loadPlan();
+    this.loadVigenciaConsulta();
     this.loadTabla();
   }
 
@@ -213,7 +119,6 @@ export class DocentesComponent implements OnInit {
 
   loadTabla() {
     if (this.dataTabla) {
-      
       this.dataSourceRubros.data =  [
         {
           "categoria": "Prima de Servicios",
@@ -382,6 +287,29 @@ export class DocentesComponent implements OnInit {
     return dataPromise
   }
 
+  loadVigenciaConsulta(){
+    let aux : number = + this.vigencia.Nombre;
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Nombre:`+(aux-1).toString()).subscribe((data: any) => {
+      if (data) {
+        let auxVigencia = data.Data[0];
+        if (auxVigencia.Id != null){
+          this.vigenciaConsulta = auxVigencia;
+          this.loadDesagregado();
+        }else{
+          this.readonlyTable = true;
+          Swal.fire({
+            title: 'Error en la operación',
+            icon: 'error',
+            text: `No se encuentran datos registrados para la vigencia actual`,
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+      }
+    })
+  }
+
+
   loadPlan() {
     this.request.get(environment.PLANES_CRUD, `plan/` + this.plan).subscribe((data: any) => {
       if (data.Data != null) {
@@ -414,7 +342,9 @@ export class DocentesComponent implements OnInit {
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
-        this.readonlyTable = this.verificarVersiones();
+        if (this.readonlyTable != true){ //Se tiene en cuenta vigencia para la consulta --  loadVigenciaConsulta()
+          this.readonlyTable = this.verificarVersiones();
+        }
         this.mostrarObservaciones = this.verificarObservaciones();
         if (this.mostrarObservaciones) {
           return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
@@ -537,124 +467,124 @@ export class DocentesComponent implements OnInit {
   loadDesagregado() {
     let bodyMTO = [
       {
-        "Vigencia": this.vigencia.Year,
+        "Vigencia": this.vigenciaConsulta.Year,
         "Dedicacion": "MTO",
         "Categoria": "Titular",
         "NivelAcademico": "PREGRADO"
       },
       {
-        "Vigencia": this.vigencia.Year,
+        "Vigencia": this.vigenciaConsulta.Year,
         "Dedicacion": "MTO",
         "Categoria": "Auxiliar",
         "NivelAcademico": "PREGRADO"
       },
       {
-        "Vigencia": this.vigencia.Year,
+        "Vigencia": this.vigenciaConsulta.Year,
         "Dedicacion": "MTO",
         "Categoria": "Asistente",
         "NivelAcademico": "PREGRADO"
       },
       {
-        "Vigencia": this.vigencia.Year,
+        "Vigencia": this.vigenciaConsulta.Year,
         "Dedicacion": "MTO",
         "Categoria": "Asociado",
         "NivelAcademico": "PREGRADO"
       }
     ]
     let bodyTCO = [{
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "TCO",
       "Categoria": "Titular",
       "NivelAcademico": "PREGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "TCO",
       "Categoria": "Auxiliar",
       "NivelAcademico": "PREGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "TCO",
       "Categoria": "Asistente",
       "NivelAcademico": "PREGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "TCO",
       "Categoria": "Asociado",
       "NivelAcademico": "PREGRADO"
     }
     ]
     let bodyPrestacional = [{
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCP",
       "Categoria": "Titular",
       "NivelAcademico": "PREGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCP",
       "Categoria": "Auxiliar",
       "NivelAcademico": "PREGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCP",
       "Categoria": "Asistente",
       "NivelAcademico": "PREGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCP",
       "Categoria": "Asociado",
       "NivelAcademico": "PREGRADO"
     }
     ]
     let bodyHonorarios = [{
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCH",
       "Categoria": "Titular",
       "NivelAcademico": "PREGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCH",
       "Categoria": "Auxiliar",
       "NivelAcademico": "PREGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCH",
       "Categoria": "Asistente",
       "NivelAcademico": "PREGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCH",
       "Categoria": "Asociado",
       "NivelAcademico": "PREGRADO"
     }
     ];
     let bodyPrestacionalPOS = [{
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCP",
       "Categoria": "Titular",
       "NivelAcademico": "POSGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCP",
       "Categoria": "Asistente",
       "NivelAcademico": "POSGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCP",
       "Categoria": "Asociado",
       "NivelAcademico": "POSGRADO"
     }, {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCP",
       "Categoria": "Titular",
       "NivelAcademico": "POSGRADO",
@@ -662,14 +592,14 @@ export class DocentesComponent implements OnInit {
 
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCP",
       "Categoria": "Asistente",
       "NivelAcademico": "POSGRADO",
       "EsDePlanta": true
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCP",
       "Categoria": "Asociado",
       "NivelAcademico": "POSGRADO",
@@ -677,38 +607,38 @@ export class DocentesComponent implements OnInit {
     }
     ];
     let bodyHonorariosPOS = [{
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCH",
       "Categoria": "Titular",
       "NivelAcademico": "POSGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCH",
       "Categoria": "Asistente",
       "NivelAcademico": "POSGRADO"
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCH",
       "Categoria": "Asociado",
       "NivelAcademico": "POSGRADO"
     }, {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCH",
       "Categoria": "Titular",
       "NivelAcademico": "POSGRADO",
       "EsDePlanta": true
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCH",
       "Categoria": "Asistente",
       "NivelAcademico": "POSGRADO",
       "EsDePlanta": true
     },
     {
-      "Vigencia": this.vigencia.Year,
+      "Vigencia": this.vigenciaConsulta.Year,
       "Dedicacion": "HCH",
       "Categoria": "Asociado",
       "NivelAcademico": "POSGRADO",
