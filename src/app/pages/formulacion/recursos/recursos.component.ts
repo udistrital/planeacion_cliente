@@ -91,20 +91,20 @@ export class RecursosComponent implements OnInit {
         this.readonlyTable = this.verificarVersiones();
         this.mostrarObservaciones = this.verificarObservaciones();
         if (this.mostrarObservaciones && !this.readonlyTable){
-          return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones','acciones', ];
+          return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
         }else{
-          return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
+          return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones', 'acciones'];
+        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
+        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
       }
     }
 
@@ -112,22 +112,22 @@ export class RecursosComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
+        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones', 'acciones'];
+        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones', 'acciones'];
+        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'acciones'];
+        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
       }
     }
   }
