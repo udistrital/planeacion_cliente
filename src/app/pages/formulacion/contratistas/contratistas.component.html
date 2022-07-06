@@ -11,13 +11,12 @@
 
 
     <form #myForm="ngForm" (ngSubmit)="submit(myForm)">
-      <label class="label-inc">Incremento:
+      <div class="label-inc">Incremento:
         <mat-form-field floatLabel="never">
           <input [readonly]="readonlyTable" min="0" type="number" matInput class="form-control" 
             (change)="actualizarIncremento()" [(ngModel)]="porcentajeIncremento" [ngModelOptions]="{standalone: true}"  placeholder="%" required>
         </mat-form-field>
-
-      </label>
+      </div>
 
       <ng-container>
         <div class="table-responsive">
