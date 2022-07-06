@@ -2,38 +2,6 @@
   background-color: #F1F5F8;
 }
 
-
-table {
-  width: 100%;
-}
-
-th {
-  color: white;
-  text-align: center;
-}
-
-th.mat-header-cell, td.mat-cell {
-  text-align: center;
-  padding: 0 !important;
-  color:white;
-}
-
-.td-align-right{
-text-align: right;
-justify-content: flex-end;
-}
-
-.header-align-right{
-display: flex;
-padding: 21px 0;
-justify-content: flex-end;
-}
-
-th {
-color: white;
-text-align: center;
-}
-
 ::ng-deep input.mat-input-element {
 color: #000000;
 }
@@ -51,10 +19,7 @@ color: #000000;
 text-align: center;
 }
 
-.table-responsive {
-display: block;
-width: 100%;
-overflow-x: auto;
+
 .mat-table {
     width: 100%;
     max-width: 100%;
@@ -63,13 +28,16 @@ overflow-x: auto;
     border-collapse: collapse;
     margin: 0px;
 }
-.mat-row,
-.mat-header-row {
-    display: table-row;
-    text-align: center;
+th.mat-header-cell{
+  text-align: center;
+  word-wrap: initial;
+  padding: 0px 5px;
+  width: auto;
+  overflow: hidden;
+  vertical-align: middle;
+  color: white;
 }
-.mat-cell,
-.mat-header-cell {
+td.mat-cell{
     text-align: center;
     word-wrap: initial;
     display: table-cell;
@@ -80,7 +48,7 @@ overflow-x: auto;
     overflow: hidden;
     vertical-align: middle;
 }
-}
+
 
 .textGuide{
   background-color: #ffff;
@@ -107,3 +75,4 @@ textarea{
 input{
   text-align: center;
 }
+
