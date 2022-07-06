@@ -38,8 +38,8 @@ export class ContratistasComponent implements OnInit {
   readonlyObs: boolean;
   readonlyTable: boolean = false;
   mostrarObservaciones: boolean;
-  name = 'Angular';
   porcentajeIncremento: string;
+  vigenciaConsulta: any;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -48,6 +48,7 @@ export class ContratistasComponent implements OnInit {
   @Input() plan: string;
   @Input() rol: string;
   @Input() versiones: any[];
+  @Input() vigencia: any;
   @Output() acciones = new EventEmitter<any>();
   constructor(
     private request: RequestManager,
@@ -61,6 +62,7 @@ export class ContratistasComponent implements OnInit {
     this.loadPerfiles();
     this.actividades = this.dataSourceActividades.data;
     this.loadTabla();
+    this.loadVigenciaConsulta();
   }
 
   loadPlan() {
@@ -68,6 +70,27 @@ export class ContratistasComponent implements OnInit {
       if (data.Data != null) {
         this.Plan = data.Data;
         this.getEstado();
+      }
+    })
+  }
+
+  loadVigenciaConsulta(){
+    let aux : number = + this.vigencia.Nombre;
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Nombre:`+(aux-1).toString()).subscribe((data: any) => {
+      if (data) {
+        let auxVigencia = data.Data[0];
+        if (auxVigencia.Id != null){
+          this.vigenciaConsulta = auxVigencia;
+        }else{
+          this.readonlyTable = true;
+          Swal.fire({
+            title: 'Error en la operación',
+            icon: 'error',
+            text: `No se encuentran datos registrados para la vigencia actual`,
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
       }
     })
   }
@@ -89,23 +112,25 @@ export class ContratistasComponent implements OnInit {
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
-        this.readonlyTable = this.verificarVersiones();
         this.mostrarObservaciones = this.verificarObservaciones();
+        if (this.readonlyTable != true){ //Se tiene en cuenta vigencia para la consulta --  loadVigenciaConsulta()
+          this.readonlyTable = this.verificarVersiones();
+        }
         if (this.mostrarObservaciones) {
-          return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones', 'acciones',];
+          return [ 'acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
         } else {
-          return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'acciones',];
+          return ['acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones', 'acciones',];
+        return [ 'acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyTable = true;
         this.readonlyObs = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'acciones',];
+        return ['acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
 
@@ -113,22 +138,22 @@ export class ContratistasComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'acciones',];
+        return ['acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones', 'acciones',];
+        return [ 'acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones', 'acciones',];
+        return [ 'acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'acciones',];
+        return ['acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
   }
@@ -137,33 +162,33 @@ export class ContratistasComponent implements OnInit {
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         if (this.mostrarObservaciones && !this.readonlyTable) {
-          return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
+          return ['AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
         } else {
-          return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'AccionesP'];
+          return [ 'AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
+        return ['AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
+        return [ 'AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
     }
 
     if (this.rol == 'PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
+        return [ 'AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
       if (this.estadoPlan == 'En revisión') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
+        return ['AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP', 'AccionesP'];
+        return ['AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
-        return ['DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalP', 'ActividadesP', 'AccionesP'];
+        return [ 'AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
     }
   }
@@ -409,12 +434,22 @@ export class ContratistasComponent implements OnInit {
     if (event.value == undefined) {
       this.dataSource.data[rowIndex].valorUnitario = '';
     } else {
-      this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=ParametroId:` + event.value).subscribe((data: any) => {
+      this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=ParametroId:` + event.value + `,PeriodoId:`+this.vigenciaConsulta.Id).subscribe((data: any) => {
         if (data) {
           let elemento = data.Data
-          let valor = JSON.parse(elemento[0].Valor);
-
-          this.dataSource.data[rowIndex].valorUnitario = formatCurrency(valor.ValorMensual, 'en-US', getCurrencySymbol('USD', 'wide'));
+          if (elemento[0].Valor != null){
+            let valor = JSON.parse(elemento[0].Valor);
+            this.dataSource.data[rowIndex].valorUnitario = formatCurrency(valor.ValorMensual, 'en-US', getCurrencySymbol('USD', 'wide'));
+          }else{
+            this.readonlyTable = true;
+            Swal.fire({
+              title: 'Error en la operación',
+              icon: 'error',
+              text: `No se encuentran datos registrados para la vigencia actual`,
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
         }
       })
 

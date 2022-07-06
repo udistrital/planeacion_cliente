@@ -1,21 +1,14 @@
 import { Component, ViewChild, OnInit, DoCheck } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { FormArray, FormBuilder, FormGroup, FormControl, Validators, AbstractControl, ControlContainer } from '@angular/forms';
+import {  FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { RequestManager } from '../services/requestManager';
 import { environment } from '../../../environments/environment';
 import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
-import { ArbolComponent } from '../plan/arbol/arbol.component';
-import { element } from 'protractor';
-import { stringify } from 'querystring';
-import { timeStamp } from 'console';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import { flatMap } from 'rxjs/operators';
 import { UserService } from '../services/userService';
-import { UnsubscriptionError } from 'rxjs';
-import { ftruncate } from 'fs';
+
 
 @Component({
   selector: 'app-formulacion',
@@ -51,8 +44,7 @@ export class FormulacionComponent implements OnInit {
   identRecursos: boolean;
   identDocentes: boolean;
   banderaIdentDocentes: boolean;
-
-
+  banderaUltimaVersion : boolean;
 
   tipoPlanId: string;
   idPadre: string;
@@ -75,6 +67,7 @@ export class FormulacionComponent implements OnInit {
   ponderacionCompleta: boolean;
   ponderacionActividades: string;
   moduloVisible: boolean;
+  rol: string;
 
   formArmonizacion: FormGroup;
   formSelect: FormGroup;
@@ -100,10 +93,10 @@ export class FormulacionComponent implements OnInit {
     this.dataT = false;
     this.moduloVisible = false;
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
+  if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
       this.loadUnidades();
-    }else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+  }else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
       this.verificarFechas();
     } 
@@ -478,6 +471,11 @@ export class FormulacionComponent implements OnInit {
   }
 
   onChangeVersion(version) {
+    if (version._id == this.versiones[this.versiones.length - 1]._id){
+      this.banderaUltimaVersion = true;
+    }else{
+      this.banderaUltimaVersion = false;
+    }
     this.plan = version;
     this.versionPlan = this.plan.numero;
     this.controlVersion = new FormControl(this.plan);
@@ -488,10 +486,8 @@ export class FormulacionComponent implements OnInit {
     this.addActividad = false;
   }
 
-  rol: string;
 
   visualizeObs() {
-
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         if (this.versiones.length == 1) {
@@ -515,7 +511,6 @@ export class FormulacionComponent implements OnInit {
         this.hiddenObs = true;
       }
     }
-
     if (this.rol == 'PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
@@ -526,19 +521,16 @@ export class FormulacionComponent implements OnInit {
         this.readOnlyAll = true;
         this.readonlyObs = false;
         this.hiddenObs = false;
-
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readOnlyAll = true;
         this.readonlyObs = true;
         this.hiddenObs = false;
-
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readOnlyAll = true;
         this.hiddenObs = true;
-
       }
     }
   }
@@ -596,6 +588,7 @@ export class FormulacionComponent implements OnInit {
           this.plan = this.versiones[pos];
           this.planAsignado = true;
           this.clonar = false;
+          this.banderaUltimaVersion = true;
           this.loadData();
           this.controlVersion = new FormControl(this.plan);
           this.versionPlan = this.plan.numero;
@@ -653,7 +646,7 @@ export class FormulacionComponent implements OnInit {
   ajustarData() {
     if (this.rol == 'PLANEACION') {
       this.iconEditar = 'search'
-    } else if (this.rol == 'JEFE_DEPENDENCIA') {
+    } else if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_PLANEACION') {
       this.iconEditar = 'edit'
     }
     this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
@@ -1122,51 +1115,66 @@ export class FormulacionComponent implements OnInit {
           html: this.ponderacionActividades
         })
       } else {
-        Swal.fire({
-          title: 'Culminar Plan',
-          text: `¿Está seguro de enviar este Plan Culminado?`,
-          icon: 'warning',
-          confirmButtonText: `Si`,
-          cancelButtonText: `No`,
-          showCancelButton: true
-        }).then((result) => {
-          if (result.isConfirmed) {
-            let mod = {
-              estado_plan_id: "614d3aeb01c7a245952fabff"
-            }
-            this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
-            this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
-              if (data) {
-                Swal.fire({
-                  title: 'Plan enviado',
-                  icon: 'success',
-                }).then((result) => {
-                  if (result.value) {
-                    this.busquedaPlanes(data.Data);
-                    this.loadData();
-                    this.addActividad = false;
+        this.request.get(environment.PRUEBA, `formulacion/verificar_identificaciones/` + this.plan._id).subscribe((data: any) => {
+          if (data) {
+            if (data.Data == true){
+              Swal.fire({
+                title: 'Culminar Plan',
+                text: `¿Está seguro de enviar este Plan Culminado?`,
+                icon: 'warning',
+                confirmButtonText: `Si`,
+                cancelButtonText: `No`,
+                showCancelButton: true
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  let mod = {
+                    estado_plan_id: "614d3aeb01c7a245952fabff"
                   }
-                })
-              }
-            })
-          } else if (result.dismiss === Swal.DismissReason.cancel) {
-            Swal.fire({
-              title: 'Envío cancelado',
-              icon: 'error',
-              showConfirmButton: false,
-              timer: 2500
-            })
+                  this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
+                  this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+                    if (data) {
+                      Swal.fire({
+                        title: 'Plan enviado',
+                        icon: 'success',
+                      }).then((result) => {
+                        if (result.value) {
+                          this.busquedaPlanes(data.Data);
+                          this.loadData();
+                          this.addActividad = false;
+                        }
+                      })
+                    }
+                  })
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                  Swal.fire({
+                    title: 'Envío cancelado',
+                    icon: 'error',
+                    showConfirmButton: false,
+                    timer: 2500
+                  })
+                }
+              }),
+                (error) => {
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    icon: 'error',
+                    text: `${JSON.stringify(error)}`,
+                    showConfirmButton: false,
+                    timer: 2500
+                  })
+                }
+            }else{
+              Swal.fire({
+                title: 'Error en la operación',
+                icon: 'error',
+                text: `Por favor complete las identificaciones para continuar`,
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
           }
-        }),
-          (error) => {
-            Swal.fire({
-              title: 'Error en la operación',
-              icon: 'error',
-              text: `${JSON.stringify(error)}`,
-              showConfirmButton: false,
-              timer: 2500
-            })
-          }
+        })
+
       }
     })
 
@@ -1273,7 +1281,7 @@ export class FormulacionComponent implements OnInit {
         this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
-              title: 'Plan En Revisión',
+              title: 'Revisión Enviada',
               icon: 'success',
             }).then((result) => {
               if (result.value) {
