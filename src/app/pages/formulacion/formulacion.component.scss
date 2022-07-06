@@ -11,7 +11,6 @@ table {
 th {
     color: white;
     text-align: center !important;
-
 }
 
 td{
@@ -24,14 +23,12 @@ td{
 }
 
 .td-align-right{
-  text-align: right;
-  justify-content: flex-end;
+  text-align: center;
 }
 
 .header-align-right{
-  display: flex;
   padding: 21px 0;
-  justify-content: flex-end;
+
 }
 
 
@@ -121,15 +118,6 @@ td{
   text-decoration: none;
   margin-bottom: 1%;
   width: 97%;  
-}
-
-
-.mat-row:nth-child(even){
-  background-color:#E7D6D6;
-}
-      
-.mat-row:nth-child(odd){
-  background-color: white;
 }
 
 .input-search{
