@@ -1115,7 +1115,7 @@ export class FormulacionComponent implements OnInit {
           html: this.ponderacionActividades
         })
       } else {
-        this.request.get(environment.PRUEBA, `formulacion/verificar_identificaciones/` + this.plan._id).subscribe((data: any) => {
+        this.request.get(environment.PLANES_MID, `formulacion/verificar_identificaciones/` + this.plan._id).subscribe((data: any) => {
           if (data) {
             if (data.Data == true){
               Swal.fire({
