@@ -41,7 +41,11 @@ export class PlanAnualComponent implements OnInit {
     this.dataSource = new MatTableDataSource<any>();
     let roles: any = this.autenticationService.getRole();
     this.displayedColumns = ['vigencia', 'unidad', 'tipoPlan', 'estado', 'acciones'];
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA') && roles.__zone_symbol__value.find(x => x == 'PLANEACION')){
+      this.rol = 'PLANEACION'
+      this.loadUnidades();
+    } 
+    else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';  
       this.validarUnidad();    
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
@@ -293,7 +297,6 @@ export class PlanAnualComponent implements OnInit {
         })
       }
     }else if (categoria === 'necesidades'){
-      console.log("necesidades")
       let body = {
         tipo_plan_id: "61639b8c1634adf976ed4b4c",
         estado_plan_id: estado,
