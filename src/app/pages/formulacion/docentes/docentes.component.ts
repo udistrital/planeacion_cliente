@@ -122,55 +122,68 @@ export class DocentesComponent implements OnInit {
       this.dataSourceRubros.data =  [
         {
           "categoria": "Prima de Servicios",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Prima de navidad",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Prima de vacaciones",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Bonificación por servicios",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Intereses cesantías",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Aporte cesantías público",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Aporte cesantías privado",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Aporte salud",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Fondo pensiones público",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Fondo pensiones privado",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Aporte ARL",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Aporte CCF",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         },
         {
           "categoria": "Aporte ICBF",
-          "rubro": "" 
+          "rubro": "" ,
+          "codigo": ""
         }];
       this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
         if (data) {
@@ -858,6 +871,15 @@ export class DocentesComponent implements OnInit {
     }
 
   }
+
+  onChangeRubro(event, rowIndex) {
+    if (event == undefined) {
+      this.dataSourceRubros.data[rowIndex].codigo = '';
+    } else {
+      this.dataSourceRubros.data[rowIndex].codigo = event.value;
+    }
+  }
+
 
 
   onChangeTipo(element, rowIndex, tipo) {

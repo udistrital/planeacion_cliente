@@ -136,7 +136,6 @@ export class ArbolComponent implements OnInit {
   }
 
   loadArbolMid() {
-    console.log(this.idPlan)
     this.mostrar = false;
     Swal.fire({
       title: 'Cargando información',
