@@ -94,7 +94,6 @@ export class FormulacionComponent implements OnInit {
     this.dataT = false;
     this.moduloVisible = false;
     let roles: any = this.autenticationService.getRole();
-    console.log(roles)
   if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
       this.loadUnidades();
@@ -184,7 +183,6 @@ export class FormulacionComponent implements OnInit {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
             .subscribe((vinculacion: any) => {
               if (vinculacion["Data"] != "") {
-                console.log(vinculacion)
                 this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
                   if (dataUnidad) {
                     let unidad = dataUnidad[0]["DependenciaId"]
@@ -393,7 +391,6 @@ export class FormulacionComponent implements OnInit {
     if (unidad == undefined) {
       this.unidadSelected = false;
     } else {
-      console.log(unidad)
       this.unidadSelected = true;
       this.unidad = unidad;
       this.addActividad = false;
