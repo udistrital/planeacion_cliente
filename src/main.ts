@@ -81,11 +81,11 @@ import { environment } from './environments/environment';
 //       { Nombre: "Reportes de necesidades de inversión", Icono: "poll", Url: "pages/apropiacion-presupuestal/reporte-inversion", TipoOpcion: "Menú", Opciones: null }
 //     ]}
 //   ] },
-//   // { Nombre: "Reportes", Icono: "library_books", Url: null, Opciones: [
-//   //   { Nombre: "Reporte plan de acción por unidad", Icono: "poll", Url: "pages/reportes/reporte-plan-unidad", TipoOpcion: "Menú", Opciones: null },
-//   //   { Nombre: "Reporte plan de acción anual", Icono: "poll", Url: "pages/reportes/reporte-plan-anual", TipoOpcion: "Menú", Opciones: null },
-//   //   { Nombre: "Reporte consolidado presupuestal", Icono: "poll", Url: "pages/reportes/reporte-consolidado", TipoOpcion: "Menú", Opciones: null },
-//   // ]},
+//   { Nombre: "Reportes", Icono: "library_books", Url: null, Opciones: [
+//     { Nombre: "Reporte plan de acción por unidad", Icono: "poll", Url: "pages/reportes/reporte-plan-unidad", TipoOpcion: "Menú", Opciones: null },
+//     { Nombre: "Reporte plan de acción anual", Icono: "poll", Url: "pages/reportes/reporte-plan-anual", TipoOpcion: "Menú", Opciones: null },
+//     { Nombre: "Reporte consolidado presupuestal", Icono: "poll", Url: "pages/reportes/reporte-consolidado", TipoOpcion: "Menú", Opciones: null },
+//   ]},
 // ];
 
 //  localStorage.setItem('menu', btoa(JSON.stringify(menu)));
