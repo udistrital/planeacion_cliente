@@ -41,8 +41,6 @@ export class PedComponent implements OnInit {
   }
 
   openDialogEditar(sub, subDetalle): void {
-    console.log(sub)
-    console.log(subDetalle)
     const dialogRef = this.dialog.open(EditarDialogComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
@@ -54,14 +52,11 @@ export class PedComponent implements OnInit {
         return undefined;
       } else {
         this.putData(result, 'editar');
-        console.log(result);
       }
     });
   }
 
   openDialogConsultar(sub, subDetalle): void {
-    console.log(sub)
-    console.log(subDetalle)
     const dialogRef = this.dialog.open(ConsultarDialogPedComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
@@ -73,7 +68,6 @@ export class PedComponent implements OnInit {
         return undefined;
       } else {
         this.putData(result, 'editar');
-        console.log(result);
       }
     });
   }
@@ -184,7 +178,6 @@ export class PedComponent implements OnInit {
   }
 
   loadData(){
-    console.log(this.planes)
     this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:616513b91634adfaffed52bf,activo:true`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;

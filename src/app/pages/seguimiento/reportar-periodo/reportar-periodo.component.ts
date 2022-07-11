@@ -286,7 +286,6 @@ export class ReportarPeriodoComponent implements OnInit {
     this.request.get(environment.PLANES_MID, `seguimiento/get_data/` + this.planId + `/` + this.indexActividad).subscribe((data: any) => {
       if (data) {
         this.dataActividad = data.Data
-        console.log(data.Data)
         this.formReportarPeriodo.get('actividad').setValue(this.dataActividad.actividad);
         this.formReportarPeriodo.get('lineamiento').setValue(this.dataActividad.lineamiento);
         this.formReportarPeriodo.get('meta_estrategica').setValue(this.dataActividad.meta_estrategica);

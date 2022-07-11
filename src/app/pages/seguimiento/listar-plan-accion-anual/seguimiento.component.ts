@@ -91,7 +91,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               if (dataUnidad) {
                 let unidad = dataUnidad[0]["DependenciaId"]
                 unidad["TipoDependencia"]= dataUnidad[0]["TipoDependenciaId"]["Id"]
-                console.log("entra aca?")
        
                 this.unidades.push(unidad);
                 this.auxUnidades.push(unidad);
