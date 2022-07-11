@@ -414,6 +414,5 @@ export class ConstruirPlanComponent implements OnInit {
     this.formConstruirPlan = this.formBuilder.group({
       planControl: ['', Validators.required],
     });
-    console.log(this.planId)
   }
 }

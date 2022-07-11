@@ -26,6 +26,7 @@ export class PlanAnualComponent implements OnInit {
   rol : string;
   moduloVisible : boolean;
   estados: any[];
+  planes: any[];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -35,6 +36,7 @@ export class PlanAnualComponent implements OnInit {
   ) {
     this.loadVigencias();
     this.loadEstados();
+    this.loadPlanes();
     this.unidadVisible = true;
     this.tablaVisible = false;
     this.estados = [];
@@ -61,6 +63,7 @@ export class PlanAnualComponent implements OnInit {
       categoria: ['', Validators.required],
       unidad: ['', Validators.required],
       estado:['', Validators.required],
+      plan:['', Validators.required],
     });
   }
 
@@ -166,6 +169,23 @@ export class PlanAnualComponent implements OnInit {
     })
   }
 
+  loadPlanes() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,formato:true`).subscribe((data: any) => {
+      if (data) {
+        this.planes = data.Data;
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+
   onKey(value) {
     if (value === "") {
       this.auxUnidades = this.unidades;
@@ -196,6 +216,7 @@ export class PlanAnualComponent implements OnInit {
   onChangeC(categoria) {
     if (categoria === 'necesidades') {
       this.form.get('tipoReporte').setValue('general');
+      this.form.get('tipoReporte').setValue(null);
       this.form.get('tipoReporte').disable();
       this.form.get('unidad').setValue(null);
       this.form.get('unidad').disable();
@@ -204,7 +225,6 @@ export class PlanAnualComponent implements OnInit {
       this.form.get('tipoReporte').enable();
       this.form.get('unidad').enable();
       this.unidadVisible = true;
-
     }
   }
  
@@ -214,6 +234,7 @@ export class PlanAnualComponent implements OnInit {
     let tipoReporte = this.form.get('tipoReporte').value;
     let categoria = this.form.get('categoria').value;
     let estado = this.form.get('estado').value;
+    let plan = this.form.get('plan').value;
     Swal.fire({
       title: 'Generando Reporte',
       timerProgressBar: true,
@@ -228,10 +249,10 @@ export class PlanAnualComponent implements OnInit {
           unidad_id: (unidad.Id).toString(),
           tipo_plan_id: "61639b8c1634adf976ed4b4c",
           estado_plan_id: estado,
-          vigencia: (vigencia.Id).toString()
+          vigencia: (vigencia.Id).toString(),
         }
 
-        this.request.post(environment.PLANES_MID, `reportes/plan_anual`, body).subscribe((data: any) => {
+        this.request.post(environment.PLANES_MID, `reportes/plan_anual/`+plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
           if (data) {
             if (data.Data.generalData){
               let auxEstado = this.estados.find(element => element._id === estado);
@@ -269,10 +290,11 @@ export class PlanAnualComponent implements OnInit {
         let body = {
           tipo_plan_id: "61639b8c1634adf976ed4b4c",
           estado_plan_id: estado,
-          vigencia: (vigencia.Id).toString()
+          vigencia: (vigencia.Id).toString(),
+          
         }
 
-        this.request.post(environment.PLANES_MID, `reportes/plan_anual_general`, body).subscribe((data: any) => {
+        this.request.post(environment.PLANES_MID, `reportes/plan_anual_general/`+ plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
           if (data) {
             this.dataSource.data = [];
             let infoReportes : any[] = data.Data.generalData;
@@ -300,10 +322,11 @@ export class PlanAnualComponent implements OnInit {
       let body = {
         tipo_plan_id: "61639b8c1634adf976ed4b4c",
         estado_plan_id: estado,
-        vigencia: (vigencia.Id).toString()
+        vigencia: (vigencia.Id).toString(),
+        
       }
 
-      this.request.post(environment.PLANES_MID, `reportes/necesidades`, body).subscribe((data: any) => {
+      this.request.post(environment.PLANES_MID, `reportes/necesidades/`+plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
         if (data) {
           let auxEstado = this.estados.find(element => element._id === estado);
           this.reporte = body;

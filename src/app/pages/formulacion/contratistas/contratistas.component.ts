@@ -492,8 +492,6 @@ export class ContratistasComponent implements OnInit {
       let dataS = JSON.stringify(Object.assign({}, data))
       this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, this.plan + `/6184b3e6f6fc97850127bb68`).subscribe((data: any) => {
         if (data) {
-          console.log(this.plan)
-          console.log(dataS)
           Swal.fire({
             title: 'Guardado exitoso',
             icon: 'success',
