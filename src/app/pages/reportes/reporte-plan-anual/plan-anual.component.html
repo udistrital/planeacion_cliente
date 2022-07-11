@@ -50,6 +50,15 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
+                <mat-form-field appearance="fill" [style.width.%]="30">
+                    <mat-label id="tipo-input-label">Plan</mat-label>
+                    <mat-select  formControlName="plan">
+                        <mat-option>--</mat-option>
+                        <mat-option *ngFor="let plan of planes" [value]="plan">
+                            {{plan.nombre}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <!-- <mat-form-field appearance="fill" [style.width.%]="30">
                     <mat-label id="tipo-input-label">Periodo</mat-label>
                     <mat-select  formControlName="periodo">
