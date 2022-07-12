@@ -255,6 +255,7 @@ export class PlanAnualComponent implements OnInit {
         this.request.post(environment.PLANES_MID, `reportes/plan_anual/`+plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
           if (data) {
             if (data.Data.generalData){
+              this.dataSource.data = [];
               let auxEstado = this.estados.find(element => element._id === estado);
               this.reporte = body;
               this.reporte["excel"] = data.Data.excelB64;
@@ -328,6 +329,7 @@ export class PlanAnualComponent implements OnInit {
 
       this.request.post(environment.PLANES_MID, `reportes/necesidades/`+plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
         if (data) {
+          this.dataSource.data = [];
           let auxEstado = this.estados.find(element => element._id === estado);
           this.reporte = body;
           this.reporte["excel"] = data.Data;
