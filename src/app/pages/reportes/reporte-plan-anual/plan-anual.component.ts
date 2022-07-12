@@ -43,16 +43,13 @@ export class PlanAnualComponent implements OnInit {
     this.dataSource = new MatTableDataSource<any>();
     let roles: any = this.autenticationService.getRole();
     this.displayedColumns = ['vigencia', 'unidad', 'tipoPlan', 'estado', 'acciones'];
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA') && roles.__zone_symbol__value.find(x => x == 'PLANEACION')){
+    if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
       this.loadUnidades();
-    } 
+    }
     else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';  
       this.validarUnidad();    
-    } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
-      this.rol = 'PLANEACION'
-      this.loadUnidades();
     }
   }
 
@@ -235,6 +232,7 @@ export class PlanAnualComponent implements OnInit {
     let categoria = this.form.get('categoria').value;
     let estado = this.form.get('estado').value;
     let plan = this.form.get('plan').value;
+
     Swal.fire({
       title: 'Generando Reporte',
       timerProgressBar: true,
@@ -255,7 +253,7 @@ export class PlanAnualComponent implements OnInit {
         this.request.post(environment.PLANES_MID, `reportes/plan_anual/`+plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
           if (data) {
             if (data.Data.generalData){
-              this.dataSource.data = [];
+              this.dataSource.data= [];
               let auxEstado = this.estados.find(element => element._id === estado);
               this.reporte = body;
               this.reporte["excel"] = data.Data.excelB64;
@@ -264,7 +262,9 @@ export class PlanAnualComponent implements OnInit {
               this.reporte["tipo_plan"] = "Plan de acción de funcionamiento"
               this.reporte["estado_plan"] = auxEstado.nombre
               this.tablaVisible = true;
-              this.dataSource.data.unshift(this.reporte);
+              let auxDataSource = this.dataSource.data;
+              auxDataSource.push(this.reporte)
+              this.dataSource.data = auxDataSource;
               Swal.close();
             }else{
               Swal.close();
@@ -297,13 +297,14 @@ export class PlanAnualComponent implements OnInit {
 
         this.request.post(environment.PLANES_MID, `reportes/plan_anual_general/`+ plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
           if (data) {
-            this.dataSource.data = [];
             let infoReportes : any[] = data.Data.generalData;
+            this.dataSource.data= [];
             for (let i = 0 ; i< infoReportes.length; i++){
               infoReportes[i]["excel"] = data.Data["excelB64"];
               infoReportes[i]["vigencia"] = vigencia["Nombre"]
               if (i == infoReportes.length -1 ){
-                this.dataSource.data = infoReportes
+                let auxDataSource = this.dataSource.data;
+                this.dataSource.data = auxDataSource.concat(infoReportes);
                 this.tablaVisible = true
                 Swal.close();
               }
@@ -329,17 +330,20 @@ export class PlanAnualComponent implements OnInit {
 
       this.request.post(environment.PLANES_MID, `reportes/necesidades/`+plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
         if (data) {
-          this.dataSource.data = [];
+          this.dataSource.data= [];
           let auxEstado = this.estados.find(element => element._id === estado);
           this.reporte = body;
           this.reporte["excel"] = data.Data;
           this.reporte["nombre_unidad"] = "General";
-          this.reporte["vigencia"] = vigencia.Nombre
-          this.reporte["tipo_plan"] = "Plan de acción de funcionamiento"
-          this.reporte["estado_plan"] = auxEstado.nombre
+          this.reporte["vigencia"] = vigencia.Nombre;
+          this.reporte["tipo_plan"] = "Necesidades";
+          this.reporte["estado_plan"] = auxEstado.nombre;
+          this.reporte["unidad_id"] = "";
+          let auxDataSource = this.dataSource.data;
+          auxDataSource.push(this.reporte)
+          this.dataSource.data = auxDataSource;
           this.tablaVisible = true;
-          this.dataSource.data.unshift(this.reporte);
-          Swal.close();
+          Swal.close()
         }
       }, (error) => {
         Swal.fire({
