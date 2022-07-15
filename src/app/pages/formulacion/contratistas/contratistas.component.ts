@@ -271,7 +271,7 @@ export class ContratistasComponent implements OnInit {
   validarIncremento() {
     let strValUnitario = (this.dataSource.data[0].valorUnitario.toString()).replace(/\$|,/g, '');
     let strValUnitarioInc = (this.dataSource.data[0].valorUnitarioInc.toString()).replace(/\$|,/g, '');
-    this.porcentajeIncremento = ((((parseFloat(strValUnitarioInc) - parseInt(strValUnitario)) / parseInt(strValUnitario)) * 100).toFixed(2));
+    this.porcentajeIncremento = ((((parseFloat(strValUnitarioInc) - parseInt(strValUnitario)) / parseInt(strValUnitario)) * 100)).toFixed(2);
   }
 
   getValorTotal() {
@@ -327,7 +327,7 @@ export class ContratistasComponent implements OnInit {
         this.dataSource.data[rowIndex].valorTotalInc = this.dataSource.data[rowIndex].valorTotal;
     }
     else {
-      let incremento = parseInt(this.porcentajeIncremento, 10);
+      let incremento = parseFloat(this.porcentajeIncremento);
         let strValUnitario = element.valorUnitario.replace(/\$|,/g, '');
         let strValTotal = element.valorTotal.replace(/\$|,/g, '');
         let valorUnitarioInc = parseFloat((((incremento / 100) * parseInt(strValUnitario)) + parseInt(strValUnitario)).toFixed(2));
@@ -346,7 +346,7 @@ export class ContratistasComponent implements OnInit {
       }
     }
     else {
-      let incremento = parseInt(this.porcentajeIncremento, 10);
+      let incremento = parseFloat(this.porcentajeIncremento);
       for (let i = 0; i < this.dataSource.data.length; i++) {
         let strValUnitario = this.dataSource.data[i].valorUnitario.replace(/\$|,/g, '');
         let strValTotal = this.dataSource.data[i].valorTotal.replace(/\$|,/g, '');
