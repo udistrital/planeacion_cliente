@@ -12,7 +12,7 @@
             <mat-vertical-stepper>
                 <mat-step *ngFor="let step of steps; let index = index; let last = last;">
                     <div class="container-border" *ngIf="!last">
-                        <h4>{{step.tipo}}</h4>
+                        <h4>{{step.descripcion}}</h4>
                         <ng-template matStepLabel>{{step.nombre}}</ng-template>
                         <ng-container>
                             <br><br>

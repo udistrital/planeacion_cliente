@@ -196,6 +196,7 @@ export class DocentesComponent implements OnInit {
               {
                 "nombre": "Docentes V.E Ocasionales",
                 "tipo": "RHF",
+                "descripcion": "Administración de valores pregrado",
                 "nivel": "Pregrado",
                 "data": this.dataSourceRHF,
                 "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Completo" }],
@@ -204,6 +205,7 @@ export class DocentesComponent implements OnInit {
               {
                 "nombre": "Docentes V.E Cátedra",
                 "tipo": 'RHVPRE',
+                "descripcion": 'Administración de valores pregrado',
                 "nivel": "Pregrado",
                 "data": this.dataSourceRHVPRE,
                 "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
@@ -212,6 +214,7 @@ export class DocentesComponent implements OnInit {
               {
                 "nombre": "Docentes V.E Cátedra",
                 "tipo": "RHVPOS",
+                "descripcion": "Administración de valores posgrado",
                 "nivel": "Posgrado",
                 "data": this.dataSourceRHVPOS,
                 "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
@@ -235,10 +238,10 @@ export class DocentesComponent implements OnInit {
                   this.dataSourceRHF.data = this.data.rhf;
                 }
                 if (this.data.rhv_pre != "{}"){
-                  this.dataSourceRHVPOS.data = this.data.rhv_pre;
+                  this.dataSourceRHVPRE.data = this.data.rhv_pre;
                 } 
                 if (this.data.rhv_pos != "{}"){
-                  this.dataSourceRHVPRE.data = this.data.rhv_pos;
+                  this.dataSourceRHVPOS.data = this.data.rhv_pos;
                 }
                 if (this.data.rubros != "{}" && this.data.rubros != null){
                   this.dataSourceRubros.data = this.data.rubros;
@@ -247,7 +250,8 @@ export class DocentesComponent implements OnInit {
               this.steps = [
                 {
                   "nombre": "Docentes V.E Ocasionales",
-                  "tipo": "Administración de valores pregrado",
+                  "tipo": "RHF",
+                  "descripcion": "Administración de valores pregrado",
                   "nivel": "Pregrado",
                   "data": this.dataSourceRHF,
                   "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Completo" }],
@@ -255,7 +259,8 @@ export class DocentesComponent implements OnInit {
                 },
                 {
                   "nombre": "Docentes V.E Cátedra",
-                  "tipo": 'Administración de valores pregrado',
+                  "tipo": 'RHVPRE',
+                  "descripcion": 'Administración de valores pregrado',
                   "nivel": "Pregrado",
                   "data": this.dataSourceRHVPRE,
                   "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
@@ -263,7 +268,8 @@ export class DocentesComponent implements OnInit {
                 },
                 {
                   "nombre": "Docentes V.E Cátedra",
-                  "tipo": "Administración de valores posgrado",
+                  "tipo": "RHVPOS",
+                  "descripcion": "Administración de valores posgrado",
                   "nivel": "Posgrado",
                   "data": this.dataSourceRHVPOS,
                   "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
