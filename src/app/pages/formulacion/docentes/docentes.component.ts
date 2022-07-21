@@ -203,7 +203,7 @@ export class DocentesComponent implements OnInit {
                 "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
               },
               {
-                "nombre": "Docentes V.E Cátedra",
+                "nombre": "Docentes V.E Hora Cátedra",
                 "tipo": 'RHVPRE',
                 "descripcion": 'Administración de valores pregrado',
                 "nivel": "Pregrado",
@@ -212,7 +212,7 @@ export class DocentesComponent implements OnInit {
                 "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
               },
               {
-                "nombre": "Docentes V.E Cátedra",
+                "nombre": "Docentes V.E Hora Cátedra",
                 "tipo": "RHVPOS",
                 "descripcion": "Administración de valores posgrado",
                 "nivel": "Posgrado",
@@ -258,7 +258,7 @@ export class DocentesComponent implements OnInit {
                   "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
                 },
                 {
-                  "nombre": "Docentes V.E Cátedra",
+                  "nombre": "Docentes V.E Hora Cátedra",
                   "tipo": 'RHVPRE',
                   "descripcion": 'Administración de valores pregrado',
                   "nivel": "Pregrado",
@@ -267,7 +267,7 @@ export class DocentesComponent implements OnInit {
                   "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
                 },
                 {
-                  "nombre": "Docentes V.E Cátedra",
+                  "nombre": "Docentes V.E Hora Cátedra",
                   "tipo": "RHVPOS",
                   "descripcion": "Administración de valores posgrado",
                   "nivel": "Posgrado",
