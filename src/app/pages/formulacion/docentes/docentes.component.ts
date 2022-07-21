@@ -194,7 +194,7 @@ export class DocentesComponent implements OnInit {
             this.dataSourceRHVPOS.data = [];
             this.steps = [
               {
-                "nombre": "Recurso horas fijas - Pregrado",
+                "nombre": "Docentes V.E Ocasionales",
                 "tipo": "RHF",
                 "nivel": "Pregrado",
                 "data": this.dataSourceRHF,
@@ -202,7 +202,7 @@ export class DocentesComponent implements OnInit {
                 "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
               },
               {
-                "nombre": "Recurso horas variable - Pregrado",
+                "nombre": "Docentes V.E Cátedra",
                 "tipo": 'RHVPRE',
                 "nivel": "Pregrado",
                 "data": this.dataSourceRHVPRE,
@@ -210,7 +210,7 @@ export class DocentesComponent implements OnInit {
                 "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
               },
               {
-                "nombre": "Recurso horas variable - Posgrado",
+                "nombre": "Docentes V.E Cátedra",
                 "tipo": "RHVPOS",
                 "nivel": "Posgrado",
                 "data": this.dataSourceRHVPOS,
@@ -231,36 +231,39 @@ export class DocentesComponent implements OnInit {
             this.dataSourceRubros.data = dataRubros;
             this.getData().then(() => {
               if (this.data != "") {
-                if (this.data.rhf != "{}")
+                if (this.data.rhf != "{}"){
                   this.dataSourceRHF.data = this.data.rhf;
-                if (this.data.rhv_pre != "{}")
-                  this.dataSourceRHVPOS.data = this.data.rhv_pos;
-                if (this.data.rhv_pos != "{}")
-                  this.dataSourceRHVPRE.data = this.data.rhv_pre;
+                }
+                if (this.data.rhv_pre != "{}"){
+                  this.dataSourceRHVPOS.data = this.data.rhv_pre;
+                } 
+                if (this.data.rhv_pos != "{}"){
+                  this.dataSourceRHVPRE.data = this.data.rhv_pos;
+                }
                 if (this.data.rubros != "{}" && this.data.rubros != null){
-                  this.dataSourceRubros.data = this.data.rubros
+                  this.dataSourceRubros.data = this.data.rubros;
                 }
               }
               this.steps = [
                 {
-                  "nombre": "Recurso horas fijas - Pregrado",
-                  "tipo": "RHF",
+                  "nombre": "Docentes V.E Ocasionales",
+                  "tipo": "Administración de valores pregrado",
                   "nivel": "Pregrado",
                   "data": this.dataSourceRHF,
                   "tipos": [{ "nombre": "Medio Tiempo" }, { "nombre": "Tiempo Completo" }],
                   "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
                 },
                 {
-                  "nombre": "Recurso horas variable - Pregrado",
-                  "tipo": 'RHVPRE',
+                  "nombre": "Docentes V.E Cátedra",
+                  "tipo": 'Administración de valores pregrado',
                   "nivel": "Pregrado",
                   "data": this.dataSourceRHVPRE,
                   "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
                   "categorias": [{ "nombre": "Auxiliar" }, { "nombre": "Asistente" }, { "nombre": "Asociado" }, { "nombre": "Titular" }]
                 },
                 {
-                  "nombre": "Recurso horas variable - Posgrado",
-                  "tipo": "RHVPOS",
+                  "nombre": "Docentes V.E Cátedra",
+                  "tipo": "Administración de valores posgrado",
                   "nivel": "Posgrado",
                   "data": this.dataSourceRHVPOS,
                   "tipos": [{ "nombre": "H. Catedra Honorarios" }, { "nombre": "H. Catedra Prestacional" }],
@@ -268,7 +271,7 @@ export class DocentesComponent implements OnInit {
                 },
                 {
                   "nombre": "Selección de rubros",
-                  "tipo": "rubros",
+                  "tipo": "Rubros",
                   "data": this.dataSourceRubros,
                 }
               ];

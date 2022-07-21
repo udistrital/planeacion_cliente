@@ -11,7 +11,8 @@
         <form>
             <mat-vertical-stepper>
                 <mat-step *ngFor="let step of steps; let index = index; let last = last;">
-                    <div *ngIf="!last">
+                    <div class="container-border" *ngIf="!last">
+                        <h4>{{step.tipo}}</h4>
                         <ng-template matStepLabel>{{step.nombre}}</ng-template>
                         <ng-container>
                             <br><br>
@@ -555,7 +556,7 @@
                             <button *ngIf="last" class="btn btn-primary" [disabled]="!formStep.valid" type="submit">Guardar</button> -->
                         </div>
                     </div>
-                    <div *ngIf="last">
+                    <div class="container-border" *ngIf="last">
                         <ng-template matStepLabel>{{step.nombre}}</ng-template>
                         <u class="textGuide">
                             A continuación usted deberá seleccionar los rubros relacionados con el pago de nomina de los
