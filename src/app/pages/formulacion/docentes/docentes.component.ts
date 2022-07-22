@@ -2226,67 +2226,76 @@ export class DocentesComponent implements OnInit {
   }
 
   guardarRecursos() {
-    let arreglo: string[] = [];
-    this.accionBoton = 'guardar';
-    this.tipoIdenti = 'docentes';
-    let accion = this.accionBoton;
-    let identi = this.tipoIdenti;
-    var identificaciones: any;
-    let data = this.dataSourceRHF.data;
-
-    for (var i in data) {
-      var obj = data[i];
-      obj["activo"] = true;
-      var num = +i + 1;
-    }
-    let dataStrRHF = JSON.stringify(Object.assign({}, data));
-
-    data = this.dataSourceRHVPRE.data
-    for (var i in data) {
-      var obj = data[i];
-      obj["activo"] = true;
-      var num = +i + 1;
-    }
-    let dataStrRHVPRE = JSON.stringify(Object.assign({}, data));
-
-
-    data = this.dataSourceRHVPOS.data
-    for (var i in data) {
-      var obj = data[i];
-      obj["activo"] = true;
-      var num = +i + 1;
-    }
-    let dataStrRHVPOS = JSON.stringify(Object.assign({}, data));
-
-    data = this.dataSourceRubros.data
-    for (var i in data) {
-      var obj = data[i];
-      obj["activo"] = true;
-      var num = +i + 1;
-    }
-    let dataRubros = JSON.stringify(Object.assign({}, data))
-
-    identificaciones = {
-      "rhf": dataStrRHF,
-      "rhv_pre": dataStrRHVPRE,
-      "rhv_pos": dataStrRHVPOS,
-      "rubros": dataRubros
-    }
-    let aux = JSON.stringify(Object.assign({}, identificaciones));
-    this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, aux, this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
-      if (data) {
-        Swal.fire({
-          title: 'Guardado exitoso',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 3500
-        })
-        if (!this.banderaCerrar) {
-          this.acciones.emit({ aux, accion, identi });
-        }
+    if (this.verificarTablas()){
+      let arreglo: string[] = [];
+      this.accionBoton = 'guardar';
+      this.tipoIdenti = 'docentes';
+      let accion = this.accionBoton;
+      let identi = this.tipoIdenti;
+      var identificaciones: any;
+      let data = this.dataSourceRHF.data;
+  
+      for (var i in data) {
+        var obj = data[i];
+        obj["activo"] = true;
+        var num = +i + 1;
       }
-    })
+      let dataStrRHF = JSON.stringify(Object.assign({}, data));
+  
+      data = this.dataSourceRHVPRE.data
+      for (var i in data) {
+        var obj = data[i];
+        obj["activo"] = true;
+        var num = +i + 1;
+      }
+      let dataStrRHVPRE = JSON.stringify(Object.assign({}, data));
+  
+  
+      data = this.dataSourceRHVPOS.data
+      for (var i in data) {
+        var obj = data[i];
+        obj["activo"] = true;
+        var num = +i + 1;
+      }
+      let dataStrRHVPOS = JSON.stringify(Object.assign({}, data));
+  
+      data = this.dataSourceRubros.data
+      for (var i in data) {
+        var obj = data[i];
+        obj["activo"] = true;
+        var num = +i + 1;
+      }
+      let dataRubros = JSON.stringify(Object.assign({}, data))
+  
+      identificaciones = {
+        "rhf": dataStrRHF,
+        "rhv_pre": dataStrRHVPRE,
+        "rhv_pos": dataStrRHVPOS,
+        "rubros": dataRubros
+      }
+      let aux = JSON.stringify(Object.assign({}, identificaciones));
+      this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, aux, this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
+        if (data) {
+          Swal.fire({
+            title: 'Guardado exitoso',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 3500
+          })
+          if (!this.banderaCerrar) {
+            this.acciones.emit({ aux, accion, identi });
+          }
+        }
+      })  
+    }else{
+      Swal.fire({
+        icon: 'warning',
+        title: 'Por favor complete todos los campos antes de continuar',
+        timer: 3500,
+      })
+    }
 
+   
   }
 
   ocultarRecursos() {
@@ -2378,7 +2387,37 @@ export class DocentesComponent implements OnInit {
       }
   }
 
-
+  verificarTablas(): boolean{
+    var bandera : boolean = false
+    for (let i = 0; i < this.dataSourceRHF.data.length; i++) {
+      let aux = this.dataSourceRHF.data[i];
+      if (aux.pensionesPublico != "" && aux.pensionesPrivado != "" && aux.cesantiasPublico != "" && aux.cesantiasPrivado != ""){
+        bandera = true;
+      }else{
+        return false;
+        break
+      }
+    }
+    for (let i = 0; i < this.dataSourceRHVPRE.data.length; i++) {
+      let aux = this.dataSourceRHVPRE.data[i];
+      if (aux.pensionesPublico != "" && aux.pensionesPrivado != "" && aux.cesantiasPublico != "" && aux.cesantiasPrivado != ""){
+        bandera = true;
+      }else{
+        return false;
+        break
+      }
+    }
+    for (let i = 0; i < this.dataSourceRHVPOS.data.length; i++) {
+      let aux = this.dataSourceRHVPOS.data[i];
+      if (aux.pensionesPublico != "" && aux.pensionesPrivado != "" && aux.cesantiasPublico != "" && aux.cesantiasPrivado != ""){
+        bandera = true;
+      }else{
+        return false;
+        break
+      }
+    }
+    return bandera
+  }
 
 
 }
