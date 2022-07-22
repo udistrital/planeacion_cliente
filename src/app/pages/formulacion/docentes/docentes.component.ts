@@ -892,11 +892,19 @@ export class DocentesComponent implements OnInit {
 
 
   onChangeTipo(element, rowIndex, tipo) {
-    if (tipo === 'RHF') {
-      if (element.tipo === "Medio Tiempo") {
-        this.dataSourceRHF.data[rowIndex].horas = 20;
-      } else if (element.tipo === "Tiempo Completo") {
-        this.dataSourceRHF.data[rowIndex].horas = 40;
+    if (element.tipo != "H. Catedra Honorarios"){
+      Swal.fire({
+        icon: 'warning',
+        title: 'Por favor complete los campos de cesantias y pensiones',
+        timer: 3500,
+        showConfirmButton: false
+      })
+      if (tipo === 'RHF') {
+        if (element.tipo === "Medio Tiempo") {
+          this.dataSourceRHF.data[rowIndex].horas = 20;
+        } else if (element.tipo === "Tiempo Completo") {
+          this.dataSourceRHF.data[rowIndex].horas = 40;
+        }
       }
     }
   }
