@@ -239,7 +239,7 @@
                 *ngIf="step.type == 'button'" (click)="but()">Foo</button>
               <!-- OBSERVACIÓN -->
               <ng-container *ngIf="!hiddenObs">
-                <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.required == 'true'">
+                <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.sub == null || step.sub == []">
                   <mat-label>Campo de observación:</mat-label>
                   <textarea matInput formControlName="{{step.id+'_o'}}" placeholder="Escriba la observación"
                     required="false" readonly="{{readonlyObs}}"></textarea>
@@ -294,8 +294,7 @@
                           *ngIf="subpanel.type == 'button'" (click)="budisplayed_columns()">Foo</button>
                         <!-- OBSERVACIÓN -->
                         <ng-container *ngIf="!hiddenObs">
-                          <mat-form-field appearance="outline" [style.width.%]="100"
-                            *ngIf="subpanel.required == 'true'">
+                          <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.sub == null || subpanel.sub == [] ">
                             <mat-label>Campo de observación:</mat-label>
                             <textarea matInput formControlName="{{subpanel.id+'_o'}}"
                               placeholder="Escriba la observación" required="false"
@@ -331,7 +330,7 @@
                     *ngIf="subs.type == 'button'" (click)="but()">Foo</button>
                   <!-- OBSERVACIÓN -->
                   <ng-container *ngIf="!hiddenObs">
-                    <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.required == 'true'">
+                    <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.sub == null || subs.sub == []">
                       <mat-label>Campo de observación:</mat-label>
                       <textarea matInput formControlName="{{subs.id+'_o'}}" placeholder="Escriba la observación"
                         required="false" readonly="{{readonlyObs}}"></textarea>
