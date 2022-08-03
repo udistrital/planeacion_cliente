@@ -299,9 +299,8 @@ export class FormulacionComponent implements OnInit {
           armoPI: this.dataArmonizacionPI.toString(),
           entrada: formValue
         }
-        this.request.put(environment.PRUEBA, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data: any) => {
           if (data) {
-            console.log(actividad)
             Swal.fire({
               title: 'Actividad agregada',
               //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
@@ -343,7 +342,7 @@ export class FormulacionComponent implements OnInit {
           armoPI: aux2,
           entrada: formValue
         }
-        this.request.put(environment.PRUEBA, `formulacion/actualizar_actividad`, actividad, this.plan._id + `/` + this.rowActividad).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id + `/` + this.rowActividad).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Información de actividad actualizada',
