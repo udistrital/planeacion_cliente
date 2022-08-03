@@ -97,7 +97,7 @@ export class FormulacionComponent implements OnInit {
   if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
       this.loadUnidades();
-  }else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+  }else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
       this.verificarFechas();
     } 
@@ -337,9 +337,9 @@ export class FormulacionComponent implements OnInit {
         let aux2 = this.dataArmonizacionPI.toString();
         var formValue = this.form.value;
         var actividad = {
-          entrada: formValue,
           armo: aux,
-          armoPI: aux2
+          armoPI: aux2,
+          entrada: formValue
         }
         this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id + `/` + this.rowActividad).subscribe((data: any) => {
           if (data) {
@@ -746,6 +746,7 @@ export class FormulacionComponent implements OnInit {
           this.steps = data.Data[0]
           this.json = data.Data[1][0]
           this.form = this.formBuilder.group(this.json);
+          
           let auxAmonizacion = data.Data[2][0]
           let strArmonizacion = auxAmonizacion.armo
           let len = (strArmonizacion.split(",").length)

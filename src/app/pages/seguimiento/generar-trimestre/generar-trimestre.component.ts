@@ -135,7 +135,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   getRol() {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA'|| 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
