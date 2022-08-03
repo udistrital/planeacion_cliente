@@ -50,7 +50,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.getRol();
     if(this.rol != undefined && this.rol=='PLANEACION'){
       this.loadPeriodos();
-    }else if(this.rol != undefined && this.rol=='JEFE_DEPENDENCIA'){
+    }else if(this.rol != undefined && this.rol=='JEFE_DEPENDENCIA'|| 'ASISTENTE_DEPENDENCIA'){
       this.validarUnidad();
     }
     this.dataSource = new MatTableDataSource<any>();

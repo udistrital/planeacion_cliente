@@ -47,7 +47,7 @@ export class PlanAnualComponent implements OnInit {
       this.rol = 'PLANEACION'
       this.loadUnidades();
     }
-    else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+    else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA'|| 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';  
       this.validarUnidad();    
     }
