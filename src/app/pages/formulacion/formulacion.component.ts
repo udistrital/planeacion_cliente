@@ -336,7 +336,6 @@ export class FormulacionComponent implements OnInit {
         var aux = this.dataArmonizacionPED.toString();
         let aux2 = this.dataArmonizacionPI.toString();
         var formValue = this.form.value;
-        console.log(this.form.value)
         var actividad = {
           armo: aux,
           armoPI: aux2,
