@@ -363,7 +363,7 @@
       </mat-card-content>
     </mat-card>
     <br><br>
-    <mat-card-content *ngIsGranted="['JEFE_DEPENDENCIA']">
+    <mat-card-content *ngIsGranted="['JEFE_DEPENDENCIA','ASISTENTE_DEPENDENCIA']">
       <u class="textGuide" *ngIf="plan.estado_plan_id == '614d3ad301c7a200482fabfd'">
         Dando clic al botón "Culminar plan" usted da por culminada esta etapa y se enviara la información para revisión
         por la oficina de planeación, y no podrá realizar modificaciones hasta que sea retornado con observaciones
@@ -382,7 +382,7 @@
   <mat-card-footer style="text-align: center;">
     <ng-container>
       <button mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad || estadoPlan != 'En formulación'"
-        *ngIsGranted="['JEFE_DEPENDENCIA']">
+        *ngIsGranted="['JEFE_DEPENDENCIA','ASISTENTE_DEPENDENCIA']">
         Agregar actividad
       </button>
       <button mat-raised-button color="primary" (click)="identificarContratistas()" [disabled]="!dataT">
@@ -396,7 +396,7 @@
         Identificación de Recurso Docente
       </button>
       <ng-container *ngIf="banderaUltimaVersion">
-        <ng-container *ngIsGranted="['JEFE_DEPENDENCIA']">
+        <ng-container *ngIsGranted="['JEFE_DEPENDENCIA','ASISTENTE_DEPENDENCIA']">
           <button class="btn-formulacion" *ngIf="plan.estado_plan_id == '614d3ad301c7a200482fabfd'" mat-raised-button
             color="primary" (click)="culminarPlan()" [disabled]="!dataT">
             Culminar plan
@@ -414,7 +414,7 @@
             Enviar Revisión
           </button>
         </ng-container>
-        <ng-container *ngIsGranted="['JEFE_DEPENDENCIA']">
+        <ng-container *ngIsGranted="['JEFE_DEPENDENCIA', 'ASISTENTE_DEPENDENCIA']">
           <button class="btn-formulacion"
             *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03' || plan.estado_plan_id === '615335c501c7a213a12fb2a3'"
             mat-raised-button color="primary" (click)="realizarAjustes()" [disabled]="!dataT">
