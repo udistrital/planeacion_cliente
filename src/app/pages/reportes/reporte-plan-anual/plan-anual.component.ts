@@ -137,6 +137,21 @@ export class PlanAnualComponent implements OnInit {
   }
 
   loadEstados(){
+    // Carga estado Formulado
+    this.request.get(environment.PLANES_CRUD, `estado-plan/614d3aeb01c7a245952fabff`).subscribe((data: any) => {
+      if (data) {
+        this.estados.push(data.Data)
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+    // Carga estado Pre aval
     this.request.get(environment.PLANES_CRUD, `estado-plan/614d3b4401c7a222052fac05`).subscribe((data: any) => {
       if (data) {
         this.estados.push(data.Data)
@@ -150,7 +165,7 @@ export class PlanAnualComponent implements OnInit {
         timer: 2500
       })
     })
-
+    // Carga estado  aval
     this.request.get(environment.PLANES_CRUD, `estado-plan/6153355601c7a2365b2fb2a1`).subscribe((data: any) => {
       if (data) {
         this.estados.push(data.Data)
