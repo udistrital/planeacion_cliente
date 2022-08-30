@@ -141,11 +141,6 @@ export class DocentesComponent implements OnInit {
           "codigo": ""
         },
         {
-          "categoria": "Intereses cesantías",
-          "rubro": "" ,
-          "codigo": ""
-        },
-        {
           "categoria": "Aporte cesantías público",
           "rubro": "" ,
           "codigo": ""
