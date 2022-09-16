@@ -2277,43 +2277,49 @@ export class DocentesComponent implements OnInit {
     let modals = [];
 
     this.dataSourceRHF.data.forEach((data, i) => {
-      let sumaC = parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0;
-      let totalC = parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0
+      let sumaC = (parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0);
+      let totalC = (parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0);
       if( sumaC != totalC ) {
+        console.log(sumaC, '!=', totalC)
         this.banderaCerrar = true;
         modals.push({icon: 'warning', title: 'Docentes V.E Ocasionales Pregrado', text: (i+1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias'})
       }
-      let sumaP = parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0;
-      let totalP = parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0
+      let sumaP = (parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0);
+      let totalP = (parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0);
       if( sumaP != totalP ) {
+        console.log(sumaP, '!=', totalP)
         this.banderaCerrar = true;
         modals.push({icon: 'warning', title: 'Docentes V.E Ocasionales Pregrado', text: (i+1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en pensiones'})
       }
     })
     this.dataSourceRHVPRE.data.forEach((data, i) => {
-      let sumaC = parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0;
-      let totalC = parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0
+      let sumaC = (parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0);
+      let totalC = (parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0);
       if( sumaC != totalC ) {
+        console.log(sumaC, '!=', totalC)
         this.banderaCerrar = true;
         modals.push({icon: 'warning', title: 'Docentes V.E Hora Cátedra Pregrado', text: (i+1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias'})
       }
-      let sumaP = parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0;
-      let totalP = parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0
+      let sumaP = (parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0);
+      let totalP = (parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0);
       if( sumaP != totalP ) {
+        console.log(sumaP, '!=', totalP)
         this.banderaCerrar = true;
         modals.push({icon: 'warning', title: 'Docentes V.E Hora Cátedra Pregrado', text: (i+1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en pensiones'})
       }
     })
     this.dataSourceRHVPOS.data.forEach((data, i) => {
-      let sumaC = parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0;
-      let totalC = parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0
+      let sumaC = (parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0);
+      let totalC = (parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0);
       if( sumaC != totalC ) {
+        console.log(sumaC, '!=', totalC)
         this.banderaCerrar = true;
         modals.push({icon: 'warning', title: 'Docentes V.E Hora Cátedra Posgrado', text: (i+1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias'})
       }
-      let sumaP = parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0;
-      let totalP = parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0
+      let sumaP = (parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0);
+      let totalP = (parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0);
       if( sumaP != totalP ) {
+        console.log(sumaP, '!=', totalP)
         this.banderaCerrar = true;
         modals.push({icon: 'warning', title: 'Docentes V.E Hora Cátedra Posgrado', text: (i+1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en pensiones'})
       }
