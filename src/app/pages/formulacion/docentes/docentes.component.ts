@@ -2283,7 +2283,7 @@ export class DocentesComponent implements OnInit {
         this.banderaCerrar = true;
         modals.push({icon: 'warning', title: 'Docentes V.E Ocasionales Pregrado', text: (i+1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias'})
       }
-      let sumaP = parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0;
+      let sumaP = parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0;
       let totalP = parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0
       if( sumaP != totalP ) {
         this.banderaCerrar = true;
@@ -2297,7 +2297,7 @@ export class DocentesComponent implements OnInit {
         this.banderaCerrar = true;
         modals.push({icon: 'warning', title: 'Docentes V.E Hora Cátedra Pregrado', text: (i+1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias'})
       }
-      let sumaP = parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0;
+      let sumaP = parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0;
       let totalP = parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0
       if( sumaP != totalP ) {
         this.banderaCerrar = true;
@@ -2311,7 +2311,7 @@ export class DocentesComponent implements OnInit {
         this.banderaCerrar = true;
         modals.push({icon: 'warning', title: 'Docentes V.E Hora Cátedra Posgrado', text: (i+1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias'})
       }
-      let sumaP = parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0;
+      let sumaP = parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0 + parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0;
       let totalP = parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0
       if( sumaP != totalP ) {
         this.banderaCerrar = true;
@@ -2330,6 +2330,12 @@ export class DocentesComponent implements OnInit {
       //   title: 'Algunos aportes de cesantias o pensiones no coinciden con los totales, revise detenidamente cada uno de los campos.',
       //   showConfirmButton: true
       // })
+    } else if(this.incremento == 0.0) {
+      Swal.fire({
+        icon: 'warning',
+        text: 'El porcentaje de incremento asociado a la vigencia en cuestión aún no ha sido aplicado, por favor presione el botón "Aplicar Incremento" para actualizar los valores.',
+        showConfirmButton: true
+      })
     } else {
     if (this.verificarTablas()){
       let arreglo: string[] = [];
