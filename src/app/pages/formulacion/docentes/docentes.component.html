@@ -309,7 +309,7 @@
                                     </ng-container>
                                     <!-- Total Salud -->
                                     <ng-container matColumnDef="totalSalud">
-                                        <th mat-header-cell class="header3" *matHeaderCellDef> Total Salud</th>
+                                        <th mat-header-cell class="header3" *matHeaderCellDef> Total aporte Salud UD</th>
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
@@ -360,7 +360,7 @@
                                     </ng-container>
                                     <!-- Total Pensiones-->
                                     <ng-container matColumnDef="totalPensiones">
-                                        <th mat-header-cell class="header3" *matHeaderCellDef> Total Pensiones</th>
+                                        <th mat-header-cell class="header3" *matHeaderCellDef> Total aporte Pensión UD</th>
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
@@ -593,7 +593,7 @@
                                                 [(ngModel)]="element.rubro" [ngModelOptions]="{standalone: true}" (selectionChange)="onChangeRubro($event, rowIndex)"
                                                 placeholder="Seleccione el rubro" required>
                                                 <mat-option>--</mat-option>
-                                                <mat-option *ngFor="let rubro of rubros" [value]="rubro.Codigo">
+                                                <mat-option class="multiline-mat-option" *ngFor="let rubro of rubros" [value]="rubro.Codigo">
                                                     {{rubro.Nombre}}
                                                 </mat-option>
                                             </mat-select>
@@ -634,7 +634,7 @@
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
                 (click)="ocultarRecursos()">Cerrar</button>
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                [disabled]="banderaCerrar" (click)="guardarRecursos()">Guardar</button>
+                [disabled]="banderaCerrar || banderaEsperaRubros" (click)="guardarRecursos()">Guardar</button>
         </ng-container>
     </mat-card-footer>
 </mat-card>
