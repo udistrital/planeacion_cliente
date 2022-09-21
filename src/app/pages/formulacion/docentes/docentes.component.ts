@@ -378,21 +378,21 @@ export class DocentesComponent implements OnInit {
         }
         this.mostrarObservaciones = this.verificarObservaciones();
         if (this.mostrarObservaciones) {
-          return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
+          return ['index', 'acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
         } else {
-          return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
+          return ['index', 'acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
         }
 
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
+        return ['index', 'acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
+        return ['index', 'acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
       }
     }
 
@@ -400,22 +400,22 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
+        return ['index', 'acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
+        return ['index', 'acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
+        return ['index', 'acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
+        return ['index', 'acciones', 'tipo', 'categoria', 'semanas', 'horas', 'totalHoras', 'meses', 'sueldoBasico', 'sueldoMensual', 'primaServicios', 'primaNavidad', 'primaVacaciones', 'bonificacion', 'cesantiasPublico', 'cesantiasPrivado', 'interesesCesantias', 'cesantias', 'totalCesantias', 'totalSalud', 'pensionesPublico', 'pensionesPrivado', 'totalPensiones', 'totalArl', 'caja', 'icbf', 'total'];
       }
     }
   }
@@ -427,21 +427,21 @@ export class DocentesComponent implements OnInit {
         this.readonlyTable = this.verificarVersiones();
         this.mostrarObservaciones = this.verificarObservaciones();
         if (this.mostrarObservaciones) {
-          return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
+          return ['indexP', 'accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
         } else {
-          return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
+          return ['indexP', 'accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
         }
 
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
+        return ['indexP', 'accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
+        return ['indexP', 'accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
       }
     }
 
@@ -449,22 +449,22 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
+        return ['indexP', 'accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
+        return ['indexP', 'accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
+        return ['indexP', 'accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP', 'observacionesP']
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
+        return ['indexP', 'accionesP','tipoP','categoriaP','semanasP','horasP','totalHorasP','mesesP','sueldoBasicoP','sueldoMensualP','prestacionesSociales','seguridadSocial','parafiscales','totalRecursoP']
       }
     }
   }

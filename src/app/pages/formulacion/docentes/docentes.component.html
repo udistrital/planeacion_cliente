@@ -28,6 +28,16 @@
                             <br><br>
                             <div class="table-responsive">
                                 <table mat-table matSort [dataSource]="step.data">
+                                    <!-- index -->
+                                    <ng-container matColumnDef="index">
+                                        <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            {{rowIndex+1}}
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                            {{step.footer}}
+                                        </td>
+                                    </ng-container>
                                     <!-- Tipo -->
                                     <ng-container matColumnDef="tipo">
                                         <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> Tipo
@@ -470,6 +480,10 @@
 
 
                                     <!-- Headers -->
+                                    <ng-container matColumnDef="indexP">
+                                        <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef
+                                            [style.text-align]="center" [attr.rowspan]="2">#</th>
+                                    </ng-container>
                                     <ng-container matColumnDef="tipoP">
                                         <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef
                                             [style.text-align]="center" [attr.rowspan]="2">Tipo
@@ -552,8 +566,7 @@
                                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                                 </table>
                             </div>
-                            <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" aria-label="Select page of users">
-                            </mat-paginator>
+                            
                         </ng-container>
                         <br><br>
                         <div>
