@@ -240,6 +240,7 @@ export class DocentesComponent implements OnInit {
             this.dataSourceRubros.data = dataRubros;
             this.getData().then(() => {
               if (this.data != "") {
+                console.log("Get datos: ", this.data);
                 if (this.data.rhf != "{}"){
                   this.dataSourceRHF.data = this.data.rhf;
                   this.checkIncremento(this.data.rhf);
@@ -251,7 +252,8 @@ export class DocentesComponent implements OnInit {
                   this.dataSourceRHVPOS.data = this.data.rhv_pos;
                 }
                 if (this.data.rubros != "{}" && this.data.rubros != null){
-                  this.dataSourceRubros.data = this.data.rubros;
+                  let filtradoManual = this.data.rubros.filter((rubro) => !rubro.hasOwnProperty('bonificacion'));
+                  this.dataSourceRubros.data = filtradoManual;
                 }
               }
               this.steps = [
@@ -2354,39 +2356,39 @@ export class DocentesComponent implements OnInit {
       let identi = this.tipoIdenti;
       var identificaciones: any;
 
-      let data = this.dataSourceRHF.data;
-      for (var i in data) {
-        var obj = data[i];
+      let aux1 = this.dataSourceRHF.data;
+      for (var i in aux1) {
+        var obj = aux1[i];
         obj["activo"] = true;
         obj["incremento"] = this.incremento;
         var num = +i + 1;
       }
-      let dataStrRHF = JSON.stringify(Object.assign({}, data));
+      let dataStrRHF = JSON.stringify(Object.assign({}, aux1));
   
-      data = this.dataSourceRHVPRE.data
-      for (var i in data) {
-        var obj = data[i];
+      let aux2 = this.dataSourceRHVPRE.data
+      for (var i in aux2) {
+        var obj = aux2[i];
         obj["activo"] = true;
         var num = +i + 1;
       }
-      let dataStrRHVPRE = JSON.stringify(Object.assign({}, data));
+      let dataStrRHVPRE = JSON.stringify(Object.assign({}, aux2));
   
   
-      data = this.dataSourceRHVPOS.data
-      for (var i in data) {
-        var obj = data[i];
+      let aux3 = this.dataSourceRHVPOS.data
+      for (var i in aux3) {
+        var obj = aux3[i];
         obj["activo"] = true;
         var num = +i + 1;
       }
-      let dataStrRHVPOS = JSON.stringify(Object.assign({}, data));
+      let dataStrRHVPOS = JSON.stringify(Object.assign({}, aux3));
   
-      data = this.dataSourceRubros.data
-      for (var i in data) {
-        var obj = data[i];
+      let aux4 = this.dataSourceRubros.data
+      for (var i in aux4) {
+        var obj = aux4[i];
         obj["activo"] = true;
         var num = +i + 1;
       }
-      let dataRubros = JSON.stringify(Object.assign({}, data))
+      let dataRubros = JSON.stringify(Object.assign({}, aux4))
   
       identificaciones = {
         "rhf": dataStrRHF,
