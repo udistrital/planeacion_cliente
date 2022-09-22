@@ -1724,37 +1724,38 @@ export class DocentesComponent implements OnInit {
       if (tipo === "RHF") {
         if (element.tipo === "Medio Tiempo") {
           if (element.categoria === "Auxiliar") {
-            let salud = (((((this.auxiliarMTO.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            // let salud = (((((this.auxiliarMTO.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.auxiliarMTO.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Asistente") {
-            let salud = (((((this.asistenteMTO.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.asistenteMTO.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Asociado") {
-            let salud = (((((this.asociadoMTO.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.asociadoMTO.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Titular") {
-            let salud = (((((this.titularMTO.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.titularMTO.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
 
         } else if (element.tipo === "Tiempo Completo") {
           if (element.categoria === "Auxiliar") {
-            let salud = (((((this.auxiliarTCO.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.auxiliarTCO.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Asistente") {
-            let salud = (((((this.asistenteTCO.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.asistenteTCO.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Asociado") {
-            let salud = (((((this.asociadoTCO.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.asociadoTCO.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Titular") {
-            let salud = (((((this.titularTCO.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.titularTCO.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHF.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
         }
@@ -1765,19 +1766,19 @@ export class DocentesComponent implements OnInit {
 
         } else if (element.tipo === "H. Catedra Prestacional") {
           if (element.categoria === "Auxiliar") {
-            let salud = (((((this.auxiliarPrestacional.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.auxiliarPrestacional.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHVPRE.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Asistente") {
-            let salud = (((((this.asistentePrestacional.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.asistentePrestacional.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHVPRE.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Asociado") {
-            let salud = (((((this.asociadoPrestacional.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.asociadoPrestacional.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHVPRE.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Titular") {
-            let salud = (((((this.titularPrestacional.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.titularPrestacional.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHVPRE.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
         }
@@ -1788,27 +1789,27 @@ export class DocentesComponent implements OnInit {
 
         } else if (element.tipo === "H. Catedra Prestacional") {
           if (element.categoria === "Asistente") {
-            let salud = (((((this.asistentePrestacionalPOS.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.asistentePrestacionalPOS.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Asociado") {
-            let salud = (((((this.asociadoPrestacionalPOS.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.asociadoPrestacionalPOS.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Titular") {
-            let salud = (((((this.titularPrestacionalPOS.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.titularPrestacionalPOS.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Asistente UD") {
-            let salud = (((((this.asistenteUDPrestacionalPOS.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.asistenteUDPrestacionalPOS.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Asociado UD") {
-            let salud = (((((this.asociadoUDPrestacionalPOS.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.asociadoUDPrestacionalPOS.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
           if (element.categoria === "Titular UD") {
-            let salud = (((((this.titularUDPrestacionalPOS.salud * element.horas) * element.semanas)*0.085)/0.125)*(1+this.incremento)).toFixed(0);
+            let salud = (((((this.titularUDPrestacionalPOS.salarioBasico * element.horas) * element.semanas)*0.085))*(1+this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].totalSalud = formatCurrency(parseInt(salud), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
         }
