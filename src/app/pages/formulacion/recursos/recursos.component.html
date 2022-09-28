@@ -35,7 +35,7 @@
                                     [ngModelOptions]="{standalone: true}"
                                     (selectionChange)="onSelected($event, rowIndex)" placeholder="Nombre del rubro"
                                     required>
-                                    <mat-option *ngFor="let rubro of rubros" [value]="rubro.Nombre">
+                                    <mat-option class="multiline-mat-option" *ngFor="let rubro of rubros" [value]="rubro.Nombre">
                                         {{rubro.Nombre}}
                                     </mat-option>
                                 </mat-select>
