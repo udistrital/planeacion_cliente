@@ -284,7 +284,7 @@
                         <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subpanel.type == 'select'">
                           <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subpanel.id}}"
                             required="{{subpanel.required}}" disabled="{{readOnlyAll}}">
-                            <mat-option>--</mat-option>
+                            <mat-option value="">--</mat-option>
                             <mat-option *ngFor="let opt of subpanel.options" [value]="opt.valor">
                               {{opt.valor}}
                             </mat-option>
@@ -320,7 +320,7 @@
                   <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subs.type == 'select'">
                     <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subs.id}}"
                       required="{{subs.required}}" disabled="{{readOnlyAll}}">
-                      <mat-option>--</mat-option>
+                      <mat-option value="">--</mat-option>
                       <mat-option *ngFor="let opt of subs.options" [value]="opt.valor">
                         {{opt.valor}}
                       </mat-option>
