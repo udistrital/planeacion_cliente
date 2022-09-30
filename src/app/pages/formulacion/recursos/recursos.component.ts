@@ -10,6 +10,7 @@ import { environment } from '../../../../environments/environment';
 import { localeData } from 'moment';
 import { read } from 'fs';
 import { formatCurrency, getCurrencySymbol } from '@angular/common';
+import { rubros_aux } from './rubros';
 
 @Component({
   selector: 'app-recursos',
@@ -159,10 +160,14 @@ export class RecursosComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `formulacion/get_rubros`).subscribe((data: any) => {
+    this.rubros = rubros_aux
+    Swal.close();
+
+    // Comentario temporal por cambios de rubros
+    /*this.request.get(environment.PLANES_MID, `formulacion/get_rubros`).subscribe((data: any) => {
       this.rubros = data.Data;
       Swal.close();
-    })
+    })*/
 
   }
 
