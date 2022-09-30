@@ -9,6 +9,7 @@ import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { FormControl, Validators } from '@angular/forms';
 import { isNumeric } from 'rxjs/internal-compatibility';
 import { formatCurrency, getCurrencySymbol } from '@angular/common';
+import { rubros_aux } from '../recursos/rubros';
 
 @Component({
   selector: 'app-docentes',
@@ -115,7 +116,10 @@ export class DocentesComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `formulacion/get_rubros`).subscribe((data: any) => {
+    this.rubros = rubros_aux
+    Swal.close();
+    
+    /*this.request.get(environment.PLANES_MID, `formulacion/get_rubros`).subscribe((data: any) => {
       this.rubros = data.Data;
       Swal.close();
       Swal.fire({
@@ -124,7 +128,7 @@ export class DocentesComponent implements OnInit {
         showConfirmButton: true
       })
       this.banderaEsperaRubros = false;
-    })
+    })*/
 
   }
 
