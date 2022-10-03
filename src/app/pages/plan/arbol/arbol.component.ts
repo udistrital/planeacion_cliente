@@ -106,7 +106,7 @@ export class ArbolComponent implements OnInit {
 
   ) {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA'|| 'ASISTENTE_DEPENDENCIA')) {
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
@@ -188,10 +188,10 @@ export class ArbolComponent implements OnInit {
   }
 
   armonizar(fila, bandera) {
-    if (this.armonizacionPED){
+    if (this.armonizacionPED) {
       this.changeIcon(fila)
       this.grupo.emit({ fila, bandera, plan: "PED" })
-    }else if (this.armonizacionPI){
+    } else if (this.armonizacionPI) {
       this.changeIcon(fila)
       this.grupo.emit({ fila, bandera, plan: "PI" })
     }
@@ -221,11 +221,17 @@ export class ArbolComponent implements OnInit {
 
   expandNodes() {
     for (let nodo of this.dataArmonizacion) {
-      let found = this.treeControl.dataNodes.find(element => element.id == nodo)
-      let index = this.treeControl.dataNodes.indexOf(found)
-      this.treeControl.expand(this.treeControl.dataNodes[index - 2])
-      this.treeControl.expand(this.treeControl.dataNodes[index - 1])
-      this.treeControl.expand(this.treeControl.dataNodes[index])
+      let found = this.treeControl.dataNodes.find(element => element.id == nodo);
+      let index = this.treeControl.dataNodes.indexOf(found);
+      let level = found.level;
+
+      for (let i = index; level >= 0; i--) {
+        const element = this.treeControl.dataNodes[i];
+        if (element.level == level) {
+          this.treeControl.expand(element);
+          level--;
+        }
+      }
     }
   }
 
