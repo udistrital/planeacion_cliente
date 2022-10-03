@@ -1,7 +1,7 @@
 import { Component, ViewChild, OnInit, DoCheck } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import {  FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { RequestManager } from '../services/requestManager';
 import { environment } from '../../../environments/environment';
 import { MatTableDataSource } from '@angular/material/table';
@@ -45,7 +45,7 @@ export class FormulacionComponent implements OnInit {
   identRecursos: boolean;
   identDocentes: boolean;
   banderaIdentDocentes: boolean;
-  banderaUltimaVersion : boolean;
+  banderaUltimaVersion: boolean;
 
   tipoPlanId: string;
   idPadre: string;
@@ -94,13 +94,13 @@ export class FormulacionComponent implements OnInit {
     this.dataT = false;
     this.moduloVisible = false;
     let roles: any = this.autenticationService.getRole();
-  if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
+    if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
       this.loadUnidades();
-  }else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA')) {
+    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
       this.verificarFechas();
-    } 
+    }
   }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -135,7 +135,7 @@ export class FormulacionComponent implements OnInit {
   verificarFechas() {
     this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
       if (data) {
-        if (data.Data.length != 0){
+        if (data.Data.length != 0) {
           let seguimientoFormulacion = data.Data[0];
           let auxFecha = new Date();
           let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
@@ -155,7 +155,7 @@ export class FormulacionComponent implements OnInit {
               timer: 10000
             })
           }
-        }else{
+        } else {
           Swal.fire({
             title: 'Error en la operación',
             text: `No se encuentran fechas establecidas para la formulación. Intente más tarde.`,
@@ -472,9 +472,9 @@ export class FormulacionComponent implements OnInit {
   }
 
   onChangeVersion(version) {
-    if (version._id == this.versiones[this.versiones.length - 1]._id){
+    if (version._id == this.versiones[this.versiones.length - 1]._id) {
       this.banderaUltimaVersion = true;
-    }else{
+    } else {
       this.banderaUltimaVersion = false;
     }
     this.plan = version;
@@ -576,7 +576,7 @@ export class FormulacionComponent implements OnInit {
   getVersiones(planB) {
     let aux = planB.nombre.replace(/ /g, "%20");
     this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.unidad.Id + `/` + this.vigencia.Id +
-      `/` +aux).subscribe((data: any) => {
+      `/` + aux).subscribe((data: any) => {
         if (data) {
           this.versiones = data;
           for (var i in this.versiones) {
@@ -746,14 +746,14 @@ export class FormulacionComponent implements OnInit {
           this.steps = data.Data[0]
           this.json = data.Data[1][0]
           this.form = this.formBuilder.group(this.json);
-          
+
           let auxAmonizacion = data.Data[2][0]
           let strArmonizacion = auxAmonizacion.armo
           let len = (strArmonizacion.split(",").length)
-          this.dataArmonizacionPED = strArmonizacion.split(",", len)
+          this.dataArmonizacionPED = strArmonizacion.split(",", len).filter(((item) => item != ""))
           let strArmonizacion2 = auxAmonizacion.armoPI
           let len2 = (strArmonizacion2.split(",").length)
-          this.dataArmonizacionPI = strArmonizacion2.split(",", len2)
+          this.dataArmonizacionPI = strArmonizacion2.split(",", len2).filter(((item) => item != ""))
         }
       }, (error) => {
         Swal.fire({
@@ -1119,7 +1119,7 @@ export class FormulacionComponent implements OnInit {
       } else {
         this.request.get(environment.PLANES_MID, `formulacion/verificar_identificaciones/` + this.plan._id).subscribe((data: any) => {
           if (data) {
-            if (data.Data == true){
+            if (data.Data == true) {
               Swal.fire({
                 title: 'Culminar Plan',
                 text: `¿Está seguro de enviar este Plan Culminado?`,
@@ -1165,7 +1165,7 @@ export class FormulacionComponent implements OnInit {
                     timer: 2500
                   })
                 }
-            }else{
+            } else {
               Swal.fire({
                 title: 'Error en la operación',
                 icon: 'error',
