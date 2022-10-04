@@ -156,7 +156,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
 
   loadPeriodos() {
-    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG`).subscribe((data: any) => {
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
       if (data) {
         this.vigencias = data.Data;
       }
