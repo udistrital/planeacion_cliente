@@ -291,7 +291,7 @@ export class FormulacionComponent implements OnInit {
 
   submit() {
     if (!this.banderaEdit) { // ADD NUEVA ACTIVIDAD
-      if (this.dataArmonizacionPED.length != 0) {
+      if (this.dataArmonizacionPED.length != 0 && this.dataArmonizacionPI.length != 0) {
 
         var formValue = this.form.value;
         var actividad = {
@@ -332,7 +332,7 @@ export class FormulacionComponent implements OnInit {
       }
 
     } else { // EDIT ACTIVIDAD
-      if (this.dataArmonizacionPED.length != 0) {
+      if (this.dataArmonizacionPED.length != 0 && this.dataArmonizacionPI.length != 0) {
         var aux = this.dataArmonizacionPED.toString();
         let aux2 = this.dataArmonizacionPI.toString();
         var formValue = this.form.value;
