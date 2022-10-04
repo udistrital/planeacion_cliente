@@ -307,10 +307,9 @@ export class PlanAnualComponent implements OnInit {
           tipo_plan_id: "61639b8c1634adf976ed4b4c",
           estado_plan_id: estado,
           vigencia: (vigencia.Id).toString(),
-          
         }
 
-        this.request.post(environment.PLANES_MID_PROXY, `reportes/plan_anual_general/`+ plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
+        this.request.post(environment.PLANES_MID_PROXY, `reportes/plan_anual_general/`+ plan.nombre, body).subscribe((data: any) => {
           if (data) {
             let infoReportes : any[] = data.Data.generalData;
             this.dataSource.data= [];
