@@ -320,6 +320,18 @@ export class FormulacionComponent implements OnInit {
               }
             })
           }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: 'No fue posible crear la actividad, por favor contactarse con el administrador del sistema',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+
+          this.addActividad = false;
+          this.dataArmonizacionPED = [];
+          this.dataArmonizacionPI = [];
         })
       } else {
         Swal.fire({
@@ -360,6 +372,18 @@ export class FormulacionComponent implements OnInit {
               }
             })
           }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible actualizar la actividad, por favor contactarse con el administrador del sistema`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+
+          this.addActividad = false;
+          this.dataArmonizacionPED = [];
+          this.dataArmonizacionPI = [];
         })
       } else {
         Swal.fire({
