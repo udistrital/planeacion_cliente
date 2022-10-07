@@ -669,7 +669,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   ajustarData() {
-    if (this.rol == 'PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != '614d3ad301c7a200482fabfd') {
       this.iconEditar = 'search'
     } else if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_PLANEACION') {
       this.iconEditar = 'edit'
