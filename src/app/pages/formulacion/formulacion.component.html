@@ -102,10 +102,13 @@
         <p>Señor usuario, la siguiente tabla expone un resumen de las actividades relacionadas al {{plan.nombre}}, el
           cual se encuentra formulando.</p>
       </mat-card>
-      <mat-form-field appearance="standard" [style.width.%]="50">
-        <mat-label>Búsqueda</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Actividad" #input>
-      </mat-form-field>
+      <div class="flex">
+        <mat-form-field appearance="standard" [style.width.%]="50">
+          <mat-label>Búsqueda</mat-label>
+          <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Actividad" #input>
+        </mat-form-field>
+        <mat-slide-toggle class="toggle" [(ngModel)]="isChecked" (change)="filterActive()">Ver inactivos</mat-slide-toggle>
+      </div>
       <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
         <ng-container matColumnDef="index" class="td-align-left">
           <th mat-header-cell *matHeaderCellDef [style.text-align]="center"> Número </th>

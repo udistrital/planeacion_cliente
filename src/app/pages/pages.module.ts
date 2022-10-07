@@ -23,6 +23,7 @@ import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPT
 import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OasGridColsDirective } from './directives/oas-grid-cols.directive';
@@ -120,6 +121,7 @@ const materialModules = [
   MatExpansionModule,
   MatButtonModule,
   MatStepperModule,
+  MatSlideToggleModule,
   MatRadioModule,
   MatMomentDateModule
 ];

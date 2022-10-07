@@ -69,6 +69,8 @@ export class FormulacionComponent implements OnInit {
   ponderacionActividades: string;
   moduloVisible: boolean;
   rol: string;
+  isChecked = true
+  defaultFilterPredicate?: (data: any, filter: string) => boolean;
 
   formArmonizacion: FormGroup;
   formSelect: FormGroup;
@@ -126,9 +128,27 @@ export class FormulacionComponent implements OnInit {
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filterPredicate = this.defaultFilterPredicate;
     this.dataSource.filter = filterValue.trim().toLowerCase();
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
+    }
+  }
+
+  filterActive() {
+    if (!this.isChecked) {
+      this.dataSource.filterPredicate = function(data: any, filterValue: string) {
+        return data.activo === filterValue
+      };
+      this.dataSource.filter = "Activo"
+      if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+      }
+    } else{
+      this.dataSource.filter = ""
+      if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+      }
     }
   }
 
@@ -677,6 +697,7 @@ export class FormulacionComponent implements OnInit {
     this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
       if (data.Data.data_source != null) {
         this.dataSource = new MatTableDataSource(data.Data.data_source);
+        this.defaultFilterPredicate = this.dataSource.filterPredicate;
         this.cambiarValor("activo", true, "Activo", this.dataSource.data)
         this.cambiarValor("activo", false, "Inactivo", this.dataSource.data)
         this.displayedColumns = data.Data.displayed_columns;

@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle'
 import { MatInputModule } from '@angular/material/input';
 import { ROUTES } from '@angular/router';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -42,6 +43,7 @@ import { MatMomentDateModule, MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_A
     MatGridListModule,
     MatButtonModule,
     MatDatepickerModule,
+    MatSlideToggleModule,
     MatMomentDateModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
