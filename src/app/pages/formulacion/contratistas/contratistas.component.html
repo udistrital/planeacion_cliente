@@ -15,7 +15,7 @@
         <div class="label-rubro">Rubro:
           <mat-select class="form-control" [(value)]="rubroSeleccionado">
             <mat-option>--</mat-option>
-            <mat-option *ngFor="let rubro of rubros" [value]="rubro">
+            <mat-option class="multiline-mat-option" *ngFor="let rubro of rubros" [value]="rubro">
               {{rubro.Codigo}} - {{rubro.Nombre}}
             </mat-option>
           </mat-select>

@@ -117,10 +117,18 @@ input{
 
 .label-rubro{
   border: 1px solid var(--primary);
+  height: unset;
   padding: 1%;
   border-radius: 10px 10px 10px 10px;
-  width: fit-content;
+  width: auto;
   margin-bottom: 1%;
   width: 40%;
 }
 
+.multiline-mat-option.mat-option {
+  white-space: normal;
+  line-height: normal;
+  height: unset;
+  padding-top: 0.9em;
+  padding-bottom: 0.9em;
+} 
