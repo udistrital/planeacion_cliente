@@ -11,12 +11,22 @@
 
 
     <form #myForm="ngForm" (ngSubmit)="submit(myForm)">
-      <div class="label-inc">Incremento:
-        <mat-form-field floatLabel="never">
-          <input [readonly]="readonlyTable" min="0" type="number" matInput class="form-control" 
-            (change)="actualizarIncremento()" [(ngModel)]="porcentajeIncremento" [ngModelOptions]="{standalone: true}"  placeholder="%" required>
-        </mat-form-field>
-      </div>
+      <ng-container>
+        <div class="label-rubro">Rubro:
+          <mat-select class="form-control" [(value)]="rubroSeleccionado">
+            <mat-option>--</mat-option>
+            <mat-option *ngFor="let rubro of rubros" [value]="rubro">
+              {{rubro.Codigo}} - {{rubro.Nombre}}
+            </mat-option>
+          </mat-select>
+        </div>
+        <div class="label-inc">Incremento:
+          <mat-form-field floatLabel="never">
+            <input [readonly]="readonlyTable" min="0" type="number" matInput class="form-control"
+              (change)="actualizarIncremento()" [(ngModel)]="porcentajeIncremento" [ngModelOptions]="{standalone: true}"  placeholder="%" required>
+          </mat-form-field>
+        </div>
+      </ng-container>
 
       <ng-container>
         <div class="table-responsive">
