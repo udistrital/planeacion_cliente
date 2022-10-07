@@ -12,6 +12,7 @@ import { request } from 'http';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { read } from 'fs';
 import { CurrencyPipe, formatCurrency, getCurrencySymbol } from '@angular/common';
+import { rubros_aux } from '../recursos/rubros';
 
 @Component({
   selector: 'app-contratistas',
@@ -20,6 +21,7 @@ import { CurrencyPipe, formatCurrency, getCurrencySymbol } from '@angular/common
 })
 export class ContratistasComponent implements OnInit {
 
+  contratistasGroup: FormGroup
   displayedColumns: string[];
   displayedHeaders: string[];
   columnsToDisplay: string[];
@@ -39,7 +41,10 @@ export class ContratistasComponent implements OnInit {
   readonlyTable: boolean = false;
   mostrarObservaciones: boolean;
   porcentajeIncremento: string;
+  rubroSeleccionado: any;
   vigenciaConsulta: any;
+  rubros = rubros_aux
+  totalInc: number;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -211,8 +216,6 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
-
-
   getEstado() {
     this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.Plan.estado_plan_id).subscribe((data: any) => {
       if (data) {
@@ -237,6 +240,7 @@ export class ContratistasComponent implements OnInit {
       this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/` + this.plan + `/6184b3e6f6fc97850127bb68`).subscribe((dataG: any) => {
         if (dataG.Data != null) {
           this.dataSource.data = dataG.Data;
+          this.rubroSeleccionado = rubros_aux[rubros_aux.findIndex((e: any) => e.Codigo === this.dataSource.data[0].rubro)]
           this.validarIncremento();
         }
       })
@@ -304,6 +308,7 @@ export class ContratistasComponent implements OnInit {
       }
       this.total = acc;
       if (this.total >> 0.00) {
+        this.totalInc = this.total
         return this.total;
       } else {
         return '0';
@@ -374,7 +379,10 @@ export class ContratistasComponent implements OnInit {
         valorTotal: 0,
         valorTotalInc: 0,
         observaciones: '',
-        actividades: ''
+        actividades: '',
+        rubro: '',
+        rubroNombre: '',
+        total: ''
       });
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -389,7 +397,10 @@ export class ContratistasComponent implements OnInit {
         valorUnitarioInc: 0,
         valorTotal: 0,
         valorTotalInc: 0,
-        actividades: ''
+        actividades: '',
+        rubro: '',
+        rubroNombre: '',
+        total: ''
       });
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -471,6 +482,11 @@ export class ContratistasComponent implements OnInit {
   guardarContratistas() {
     this.accionBoton = 'guardar';
     this.tipoIdenti = 'contratistas'
+    for (let i = 0; i < this.dataSource.data.length; i++) {
+      this.dataSource.data[i].rubro = this.rubroSeleccionado.Codigo
+      this.dataSource.data[i].totalInc = ((this.total).toFixed(2)).toString()
+      this.dataSource.data[i].rubroNombre = this.rubroSeleccionado.Nombre
+    }
     let data = this.dataSource.data;
     this.validarDataSource(data);
     if (this.errorDataSource) {
