@@ -1260,6 +1260,13 @@ export class FormulacionComponent implements OnInit {
           timer: 2500
         })
       }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en solicitud de cálculo de ponderación, por favor contactarse con el administrador del sistema.',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 2500
+      })
     })
     return dataPromise
   }
