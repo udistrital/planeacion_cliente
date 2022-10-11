@@ -79,14 +79,14 @@ export class ContratistasComponent implements OnInit {
     })
   }
 
-  loadVigenciaConsulta(){
-    let aux : number = + this.vigencia.Nombre;
-    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Nombre:`+(aux-1).toString()).subscribe((data: any) => {
+  loadVigenciaConsulta() {
+    let aux: number = + this.vigencia.Nombre;
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Nombre:` + (aux - 1).toString()).subscribe((data: any) => {
       if (data) {
         let auxVigencia = data.Data[0];
-        if (auxVigencia.Id != null){
+        if (auxVigencia.Id != null) {
           this.vigenciaConsulta = auxVigencia;
-        }else{
+        } else {
           this.readonlyTable = true;
           Swal.fire({
             title: 'Error en la operación',
@@ -118,24 +118,24 @@ export class ContratistasComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.mostrarObservaciones = this.verificarObservaciones();
-        if (this.readonlyTable != true){ //Se tiene en cuenta vigencia para la consulta --  loadVigenciaConsulta()
+        if (this.readonlyTable != true) { //Se tiene en cuenta vigencia para la consulta --  loadVigenciaConsulta()
           this.readonlyTable = this.verificarVersiones();
         }
         if (this.mostrarObservaciones) {
-          return [ 'acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+          return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
         } else {
-          return ['acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+          return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return [ 'acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyTable = true;
         this.readonlyObs = true;
-        return ['acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
 
@@ -143,22 +143,22 @@ export class ContratistasComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return [ 'acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return [ 'acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones','descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
   }
@@ -167,33 +167,33 @@ export class ContratistasComponent implements OnInit {
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         if (this.mostrarObservaciones && !this.readonlyTable) {
-          return ['AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+          return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
         } else {
-          return [ 'AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+          return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
-        return ['AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
-        return [ 'AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
     }
 
     if (this.rol == 'PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
-        return [ 'AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
       if (this.estadoPlan == 'En revisión') {
-        return ['AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
-        return ['AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
-        return [ 'AccionesP','DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
     }
   }
@@ -276,6 +276,10 @@ export class ContratistasComponent implements OnInit {
     let strValUnitario = (this.dataSource.data[0].valorUnitario.toString()).replace(/\$|,/g, '');
     let strValUnitarioInc = (this.dataSource.data[0].valorUnitarioInc.toString()).replace(/\$|,/g, '');
     this.porcentajeIncremento = ((((parseFloat(strValUnitarioInc) - parseInt(strValUnitario)) / parseInt(strValUnitario)) * 100)).toFixed(2);
+    if (parseFloat(this.porcentajeIncremento) < 0) {
+      this.porcentajeIncremento = "9.5"
+      this.actualizarIncremento()
+    }
   }
 
   getValorTotal() {
@@ -328,17 +332,17 @@ export class ContratistasComponent implements OnInit {
 
   getIncremento(element, rowIndex) {
     if (this.porcentajeIncremento == '' || this.porcentajeIncremento == undefined) {
-        this.dataSource.data[rowIndex].valorUnitarioInc = this.dataSource.data[rowIndex].valorUnitario;
-        this.dataSource.data[rowIndex].valorTotalInc = this.dataSource.data[rowIndex].valorTotal;
+      this.dataSource.data[rowIndex].valorUnitarioInc = this.dataSource.data[rowIndex].valorUnitario;
+      this.dataSource.data[rowIndex].valorTotalInc = this.dataSource.data[rowIndex].valorTotal;
     }
     else {
       let incremento = parseFloat(this.porcentajeIncremento);
-        let strValUnitario = element.valorUnitario.replace(/\$|,/g, '');
-        let strValTotal = element.valorTotal.replace(/\$|,/g, '');
-        let valorUnitarioInc = parseFloat((((incremento / 100) * parseInt(strValUnitario)) + parseInt(strValUnitario)).toFixed(2));
-        let valorTotalInc = parseFloat((((incremento / 100) * parseInt(strValTotal)) + parseInt(strValTotal)).toFixed(2));
-        this.dataSource.data[rowIndex].valorUnitarioInc = formatCurrency(valorUnitarioInc, 'en-US', getCurrencySymbol('USD', 'wide'));
-        this.dataSource.data[rowIndex].valorTotalInc = formatCurrency(valorTotalInc, 'en-US', getCurrencySymbol('USD', 'wide'));
+      let strValUnitario = element.valorUnitario.replace(/\$|,/g, '');
+      let strValTotal = element.valorTotal.replace(/\$|,/g, '');
+      let valorUnitarioInc = parseFloat((((incremento / 100) * parseInt(strValUnitario)) + parseInt(strValUnitario)).toFixed(2));
+      let valorTotalInc = parseFloat((((incremento / 100) * parseInt(strValTotal)) + parseInt(strValTotal)).toFixed(2));
+      this.dataSource.data[rowIndex].valorUnitarioInc = formatCurrency(valorUnitarioInc, 'en-US', getCurrencySymbol('USD', 'wide'));
+      this.dataSource.data[rowIndex].valorTotalInc = formatCurrency(valorTotalInc, 'en-US', getCurrencySymbol('USD', 'wide'));
     }
 
   }
@@ -445,13 +449,13 @@ export class ContratistasComponent implements OnInit {
     if (event.value == undefined) {
       this.dataSource.data[rowIndex].valorUnitario = '';
     } else {
-      this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=ParametroId:` + event.value + `,PeriodoId:`+this.vigenciaConsulta.Id).subscribe((data: any) => {
+      this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=ParametroId:` + event.value + `,PeriodoId:` + this.vigenciaConsulta.Id).subscribe((data: any) => {
         if (data) {
           let elemento = data.Data
-          if (elemento[0].Valor != null){
+          if (elemento[0].Valor != null) {
             let valor = JSON.parse(elemento[0].Valor);
             this.dataSource.data[rowIndex].valorUnitario = formatCurrency(valor.ValorMensual, 'en-US', getCurrencySymbol('USD', 'wide'));
-          }else{
+          } else {
             this.readonlyTable = true;
             Swal.fire({
               title: 'Error en la operación',
@@ -480,42 +484,51 @@ export class ContratistasComponent implements OnInit {
   }
 
   guardarContratistas() {
-    this.accionBoton = 'guardar';
-    this.tipoIdenti = 'contratistas'
-    for (let i = 0; i < this.dataSource.data.length; i++) {
-      this.dataSource.data[i].rubro = this.rubroSeleccionado.Codigo
-      this.dataSource.data[i].totalInc = ((this.total).toFixed(2)).toString()
-      this.dataSource.data[i].rubroNombre = this.rubroSeleccionado.Nombre
-    }
-    let data = this.dataSource.data;
-    this.validarDataSource(data);
-    if (this.errorDataSource) {
+    if (this.rubroSeleccionado != undefined) {
+      this.accionBoton = 'guardar';
+      this.tipoIdenti = 'contratistas'
+      for (let i = 0; i < this.dataSource.data.length; i++) {
+        this.dataSource.data[i].rubro = this.rubroSeleccionado.Codigo
+        this.dataSource.data[i].totalInc = ((this.total).toFixed(2)).toString()
+        this.dataSource.data[i].rubroNombre = this.rubroSeleccionado.Nombre
+      }
+      let data = this.dataSource.data;
+      this.validarDataSource(data);
+      if (this.errorDataSource) {
+        Swal.fire({
+          title: 'Tiene datos sin completar. Por favor verifique',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 3500
+        })
+      } else if (!this.errorDataSource) {
+        let accion = this.accionBoton;
+        let identi = this.tipoIdenti;
+        for (var i in data) {
+          var obj = data[i];
+          obj["activo"] = true;
+          var num = +i + 1;
+          obj["index"] = num.toString();
+        }
+        let dataS = JSON.stringify(Object.assign({}, data))
+        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, this.plan + `/6184b3e6f6fc97850127bb68`).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Guardado exitoso',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 3500
+            })
+            this.acciones.emit({ dataS, accion, identi });
+          }
+        })
+      }
+    } else {
       Swal.fire({
-        title: 'Tiene datos sin completar. Por favor verifique',
+        title: 'Por favor selecione el rubro correspondiente.',
         icon: 'error',
         showConfirmButton: false,
         timer: 3500
-      })
-    } else if (!this.errorDataSource) {
-      let accion = this.accionBoton;
-      let identi = this.tipoIdenti;
-      for (var i in data) {
-        var obj = data[i];
-        obj["activo"] = true;
-        var num = +i + 1;
-        obj["index"] = num.toString();
-      }
-      let dataS = JSON.stringify(Object.assign({}, data))
-      this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, this.plan + `/6184b3e6f6fc97850127bb68`).subscribe((data: any) => {
-        if (data) {
-          Swal.fire({
-            title: 'Guardado exitoso',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 3500
-          })
-          this.acciones.emit({ dataS, accion, identi });
-        }
       })
     }
   }
