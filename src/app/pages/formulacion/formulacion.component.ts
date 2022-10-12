@@ -69,7 +69,7 @@ export class FormulacionComponent implements OnInit {
   ponderacionActividades: string;
   moduloVisible: boolean;
   rol: string;
-  isChecked = true
+  isChecked: boolean
   defaultFilterPredicate?: (data: any, filter: string) => boolean;
 
   formArmonizacion: FormGroup;
@@ -95,6 +95,7 @@ export class FormulacionComponent implements OnInit {
     this.identDocentes = false;
     this.dataT = false;
     this.moduloVisible = false;
+    this.isChecked = true;
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
@@ -705,6 +706,7 @@ export class FormulacionComponent implements OnInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         this.dataT = true;
+        this.filterActive()
       } else if (data.Data.data_source == null) {
         this.dataT = false;
         Swal.fire({
