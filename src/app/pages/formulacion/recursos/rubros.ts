@@ -624,6 +624,10 @@ export const rubros_aux = [
       "Nombre": "Servicios de instalación de vidrios y ventanas"
     },
     {
+      "Codigo": "2.1.2.02.02.006.05.01.1.5",
+      "Nombre": "Servicios de mudanza de muebles domésticos y de oficina y otros menajes"
+    },
+    {
       "Codigo": "2.1.2.02.02.006.03.02.9.1",
       "Nombre": "Alojamiento; servicios de suministros de comidas y bebidas"
     },
