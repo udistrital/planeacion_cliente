@@ -21,6 +21,7 @@ export class PlanAnualComponent implements OnInit {
   unidadVisible: boolean;
   tablaVisible: boolean;
   reporte: any;
+  reporte_archivo: any;
   dataSource: MatTableDataSource<any>;
   displayedColumns: string[];
   rol : string;
@@ -42,7 +43,7 @@ export class PlanAnualComponent implements OnInit {
     this.estados = [];
     this.dataSource = new MatTableDataSource<any>();
     let roles: any = this.autenticationService.getRole();
-    this.displayedColumns = ['vigencia', 'unidad', 'tipoPlan', 'estado', 'acciones'];
+    this.displayedColumns = ['vigencia', 'unidad', 'tipoPlan', 'estado'];
     if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
       this.loadUnidades();
@@ -271,7 +272,7 @@ export class PlanAnualComponent implements OnInit {
               this.dataSource.data= [];
               let auxEstado = this.estados.find(element => element._id === estado);
               this.reporte = body;
-              this.reporte["excel"] = data.Data.excelB64;
+              this.reporte_archivo = data.Data.excelB64;
               this.reporte["nombre_unidad"] = data.Data.generalData[0].nombreUnidad;
               this.reporte["vigencia"] = vigencia.Nombre
               this.reporte["tipo_plan"] = "Plan de acción de funcionamiento"
@@ -313,8 +314,8 @@ export class PlanAnualComponent implements OnInit {
           if (data) {
             let infoReportes : any[] = data.Data.generalData;
             this.dataSource.data= [];
+            this.reporte_archivo = data.Data["excelB64"];
             for (let i = 0 ; i< infoReportes.length; i++){
-              infoReportes[i]["excel"] = data.Data["excelB64"];
               infoReportes[i]["vigencia"] = vigencia["Nombre"]
               if (i == infoReportes.length -1 ){
                 let auxDataSource = this.dataSource.data;
@@ -339,7 +340,6 @@ export class PlanAnualComponent implements OnInit {
         tipo_plan_id: "61639b8c1634adf976ed4b4c",
         estado_plan_id: estado,
         vigencia: (vigencia.Id).toString(),
-        
       }
 
       this.request.post(environment.PLANES_MID, `reportes/necesidades/`+plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
@@ -347,7 +347,7 @@ export class PlanAnualComponent implements OnInit {
           this.dataSource.data= [];
           let auxEstado = this.estados.find(element => element._id === estado);
           this.reporte = body;
-          this.reporte["excel"] = data.Data;
+          this.reporte_archivo = data.Data["excelB64"];
           this.reporte["nombre_unidad"] = "General";
           this.reporte["vigencia"] = vigencia.Nombre;
           this.reporte["tipo_plan"] = "Necesidades";
@@ -374,8 +374,8 @@ export class PlanAnualComponent implements OnInit {
   }
 
 
-  descargarReporte(reporte) {
-    let blob = this.base64ToBlob(reporte.excel);
+  descargarReporte() {
+    let blob = this.base64ToBlob(this.reporte_archivo);
     let url = window.URL.createObjectURL(blob);
     var anchor = document.createElement("a");
     anchor.download = "Reporte.xlsx";
