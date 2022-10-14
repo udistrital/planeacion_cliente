@@ -30,8 +30,13 @@
                                     <!-- index -->
                                     <ng-container matColumnDef="index">
                                         <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
-                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
-                                            {{element.index}}
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index" >
+                                            <p *ngIf="element.index!=undefined">
+                                                {{element.index}}
+                                            </p>
+                                            <p *ngIf="element.index==undefined">
+                                                {{rowIndex+1}}
+                                            </p>
                                         </td>
                                         <td mat-footer-cell *matFooterCellDef class="footer">
                                             {{step.footer}}

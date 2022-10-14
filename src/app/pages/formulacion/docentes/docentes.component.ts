@@ -246,13 +246,37 @@ export class DocentesComponent implements OnInit {
                 console.log("Get datos: ", this.data);
                 if (this.data.rhf != "{}") {
                   this.dataSourceRHF.data = this.data.rhf;
+                  this.dataSourceRHF.data.sort((a: any, b: any) => {
+                    if (parseInt(a.index) < parseInt(b.index)) {
+                      return -1;
+                    } else if (parseInt(a.index) > parseInt(b.index)) {
+                      return 1;
+                    }
+                    return 0;
+                  })
                   this.checkIncremento(this.data.rhf);
                 }
                 if (this.data.rhv_pre != "{}") {
                   this.dataSourceRHVPRE.data = this.data.rhv_pre;
+                  this.dataSourceRHVPRE.data.sort((a: any, b: any) => {
+                    if (parseInt(a.index) < parseInt(b.index)) {
+                      return -1;
+                    } else if (parseInt(a.index) > parseInt(b.index)) {
+                      return 1;
+                    }
+                    return 0;
+                  })
                 }
                 if (this.data.rhv_pos != "{}") {
                   this.dataSourceRHVPOS.data = this.data.rhv_pos;
+                  this.dataSourceRHVPOS.data.sort((a: any, b: any) => {
+                    if (parseInt(a.index) < parseInt(b.index)) {
+                      return -1;
+                    } else if (parseInt(a.index) > parseInt(b.index)) {
+                      return 1;
+                    }
+                    return 0;
+                  })
                 }
                 if (this.data.rubros != "{}" && this.data.rubros != null) {
                   let filtradoManual = this.data.rubros.filter((rubro) => !rubro.hasOwnProperty('bonificacion'));
@@ -293,6 +317,9 @@ export class DocentesComponent implements OnInit {
                   "data": this.dataSourceRubros,
                 }
               ];
+              this.OnPageChangeRHF({length:0,pageIndex:0,pageSize:10});
+              this.OnPageChangeRHVPOS({length:0,pageIndex:0,pageSize:10});
+              this.OnPageChangeRHVPRE({length:0,pageIndex:0,pageSize:10});
             })
           }
         }
@@ -685,82 +712,6 @@ export class DocentesComponent implements OnInit {
         this.asistenteMTO = data.Data[2];
         this.asociadoMTO = data.Data[3];
       }
-      this.titularMTO = {
-        "Categoria": "Titular",
-        "Dedicacion": "MTO",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1735,
-        "caja": 1735,
-        "cesantias": 3614,
-        "icbf": 1301,
-        "interesCesantias": 434,
-        "pension": 6938,
-        "primaNavidad": 3212,
-        "primaVacaciones": 1799,
-        "prima_servicios": 3212,
-        "salarioBasico": 43363.1375,
-        "salud": 1735,
-        "vacaciones": 1799
-      };
-      this.auxiliarMTO = {
-        "Categoria": "Auxiliar",
-        "Dedicacion": "MTO",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 871,
-        "caja": 871,
-        "cesantias": 1815,
-        "icbf": 654,
-        "interesCesantias": 218,
-        "pension": 3485,
-        "primaNavidad": 1614,
-        "primaVacaciones": 904,
-        "prima_servicios": 1614,
-        "salarioBasico": 21784.325,
-        "salud": 871,
-        "vacaciones": 904
-      };
-      this.asistenteMTO = {
-        "Categoria": "Asistente",
-        "Dedicacion": "MTO",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1389,
-        "caja": 1389,
-        "cesantias": 2894,
-        "icbf": 1042,
-        "interesCesantias": 347,
-        "pension": 5557,
-        "primaNavidad": 2573,
-        "primaVacaciones": 1441,
-        "prima_servicios": 2573,
-        "salarioBasico": 34731.6125,
-        "salud": 1389,
-        "vacaciones": 1441
-      };
-      this.asociadoMTO = {
-        "Categoria": "Asociado",
-        "Dedicacion": "MTO",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1562,
-        "caja": 1562,
-        "cesantias": 3254,
-        "icbf": 1171,
-        "interesCesantias": 390,
-        "pension": 6248,
-        "primaNavidad": 2892,
-        "primaVacaciones": 1620,
-        "prima_servicios": 2892,
-        "salarioBasico": 39047.375,
-        "salud": 1562,
-        "vacaciones": 1620
-      };
     })
 
     this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyTCO).subscribe((data: any) => {
@@ -770,82 +721,6 @@ export class DocentesComponent implements OnInit {
         this.asistenteTCO = data.Data[2];
         this.asociadoTCO = data.Data[3];
       }
-      this.titularTCO = {
-        "Categoria": "Titular",
-        "Dedicacion": "TCO",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1735,
-        "caja": 1735,
-        "cesantias": 3614,
-        "icbf": 1301,
-        "interesCesantias": 434,
-        "pension": 6938,
-        "primaNavidad": 3212,
-        "primaVacaciones": 1799,
-        "prima_servicios": 3212,
-        "salarioBasico": 43363.1375,
-        "salud": 1735,
-        "vacaciones": 1799
-      };
-      this.auxiliarTCO = {
-        "Categoria": "Auxiliar",
-        "Dedicacion": "TCO",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 871,
-        "caja": 871,
-        "cesantias": 1815,
-        "icbf": 654,
-        "interesCesantias": 218,
-        "pension": 3485,
-        "primaNavidad": 1614,
-        "primaVacaciones": 904,
-        "prima_servicios": 1614,
-        "salarioBasico": 21784.325,
-        "salud": 871,
-        "vacaciones": 904
-      };
-      this.asistenteTCO = {
-        "Categoria": "Asistente",
-        "Dedicacion": "TCO",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1389,
-        "caja": 1389,
-        "cesantias": 2894,
-        "icbf": 1042,
-        "interesCesantias": 347,
-        "pension": 5557,
-        "primaNavidad": 2573,
-        "primaVacaciones": 1441,
-        "prima_servicios": 2573,
-        "salarioBasico": 34731.6125,
-        "salud": 1389,
-        "vacaciones": 1441
-      };
-      this.asociadoTCO = {
-        "Categoria": "Asociado",
-        "Dedicacion": "TCO",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1562,
-        "caja": 1562,
-        "cesantias": 3254,
-        "icbf": 1171,
-        "interesCesantias": 390,
-        "pension": 6248,
-        "primaNavidad": 2892,
-        "primaVacaciones": 1620,
-        "prima_servicios": 2892,
-        "salarioBasico": 39047.375,
-        "salud": 1562,
-        "vacaciones": 1620
-      };
     })
 
     this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyPrestacional).subscribe((data: any) => {
@@ -855,82 +730,6 @@ export class DocentesComponent implements OnInit {
         this.asistentePrestacional = data.Data[2];
         this.asociadoPrestacional = data.Data[3];
       }
-      this.titularPrestacional = {
-        "Categoria": "Titular",
-        "Dedicacion": "HCP",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1973,
-        "caja": 1973,
-        "cesantias": 4110,
-        "icbf": 1480,
-        "interesCesantias": 493,
-        "pension": 7892,
-        "primaNavidad": 3654,
-        "primaVacaciones": 2046,
-        "prima_servicios": 3654,
-        "salarioBasico": 49323,
-        "salud": 1973,
-        "vacaciones": 2046
-      };
-      this.auxiliarPrestacional = {
-        "Categoria": "Auxiliar",
-        "Dedicacion": "HCP",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1184,
-        "caja": 1184,
-        "cesantias": 2466,
-        "icbf": 888,
-        "interesCesantias": 296,
-        "pension": 4735,
-        "primaNavidad": 2192,
-        "primaVacaciones": 1228,
-        "prima_servicios": 2192,
-        "salarioBasico": 29593.8,
-        "salud": 1184,
-        "vacaciones": 1228
-      };
-      this.asistentePrestacional = {
-        "Categoria": "Asistente",
-        "Dedicacion": "HCP",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1513,
-        "caja": 1513,
-        "cesantias": 3151,
-        "icbf": 1134,
-        "interesCesantias": 378,
-        "pension": 6050,
-        "primaNavidad": 2801,
-        "primaVacaciones": 1569,
-        "prima_servicios": 2801,
-        "salarioBasico": 37814.3,
-        "salud": 1513,
-        "vacaciones": 1569
-      };
-      this.asociadoPrestacional = {
-        "Categoria": "Asociado",
-        "Dedicacion": "HCP",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1776,
-        "caja": 1776,
-        "cesantias": 3699,
-        "icbf": 1332,
-        "interesCesantias": 444,
-        "pension": 7103,
-        "primaNavidad": 3288,
-        "primaVacaciones": 1841,
-        "prima_servicios": 3288,
-        "salarioBasico": 44390.7,
-        "salud": 1776,
-        "vacaciones": 1841
-      };
     })
 
     this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyHonorarios).subscribe((data: any) => {
@@ -940,82 +739,6 @@ export class DocentesComponent implements OnInit {
         this.asistenteHonorarios = data.Data[2];
         this.asociadoHonorarios = data.Data[3];
       }
-      this.titularHonorarios = {
-        "Categoria": "Titular",
-        "Dedicacion": "HCH",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1973,
-        "caja": 1973,
-        "cesantias": 4110,
-        "icbf": 1480,
-        "interesCesantias": 493,
-        "pension": 7892,
-        "primaNavidad": 3654,
-        "primaVacaciones": 2046,
-        "prima_servicios": 3654,
-        "salarioBasico": 49323,
-        "salud": 1973,
-        "vacaciones": 2046
-      };
-      this.auxiliarHonorarios = {
-        "Categoria": "Auxiliar",
-        "Dedicacion": "HCH",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1184,
-        "caja": 1184,
-        "cesantias": 2466,
-        "icbf": 888,
-        "interesCesantias": 296,
-        "pension": 4735,
-        "primaNavidad": 2192,
-        "primaVacaciones": 1228,
-        "prima_servicios": 2192,
-        "salarioBasico": 29593.8,
-        "salud": 1184,
-        "vacaciones": 1228
-      };
-      this.asistenteHonorarios = {
-        "Categoria": "Asistente",
-        "Dedicacion": "HCH",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1513,
-        "caja": 1513,
-        "cesantias": 3151,
-        "icbf": 1134,
-        "interesCesantias": 378,
-        "pension": 6050,
-        "primaNavidad": 2801,
-        "primaVacaciones": 1569,
-        "prima_servicios": 2801,
-        "salarioBasico": 37814.3,
-        "salud": 1513,
-        "vacaciones": 1569
-      };
-      this.asociadoHonorarios = {
-        "Categoria": "Asociado",
-        "Dedicacion": "HCH",
-        "EsDePlanta": false,
-        "NivelAcademico": "PREGRADO",
-        "Vigencia": 2022,
-        "arl": 1776,
-        "caja": 1776,
-        "cesantias": 3699,
-        "icbf": 1332,
-        "interesCesantias": 444,
-        "pension": 7103,
-        "primaNavidad": 3288,
-        "primaVacaciones": 1841,
-        "prima_servicios": 3288,
-        "salarioBasico": 44390.7,
-        "salud": 1776,
-        "vacaciones": 1841
-      };
     })
 
     this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyHonorariosPOS).subscribe((data: any) => {
@@ -1027,120 +750,6 @@ export class DocentesComponent implements OnInit {
         this.asistenteUDHonorariosPOS = data.Data[4];
         this.asociadoUDHonorariosPOS = data.Data[5];
       }
-      this.titularHonorariosPOS = {
-        "Categoria": "Titular",
-        "Dedicacion": "HCH",
-        "EsDePlanta": false,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 8000,
-        "caja": 8000,
-        "cesantias": 16667,
-        "icbf": 6000,
-        "interesCesantias": 2000,
-        "pension": 32000,
-        "primaNavidad": 14815,
-        "primaVacaciones": 8296,
-        "prima_servicios": 14815,
-        "salarioBasico": 200000,
-        "salud": 8000,
-        "vacaciones": 8296
-      };
-      this.asistenteHonorariosPOS = {
-        "Categoria": "Asistente",
-        "Dedicacion": "HCH",
-        "EsDePlanta": false,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 5200,
-        "caja": 5200,
-        "cesantias": 10833,
-        "icbf": 3900,
-        "interesCesantias": 1300,
-        "pension": 20800,
-        "primaNavidad": 9630,
-        "primaVacaciones": 5393,
-        "prima_servicios": 9630,
-        "salarioBasico": 130000,
-        "salud": 5200,
-        "vacaciones": 5393
-      };
-      this.asociadoHonorariosPOS = {
-        "Categoria": "Asociado",
-        "Dedicacion": "HCH",
-        "EsDePlanta": false,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 6800,
-        "caja": 6800,
-        "cesantias": 14167,
-        "icbf": 5100,
-        "interesCesantias": 1700,
-        "pension": 27200,
-        "primaNavidad": 12593,
-        "primaVacaciones": 7052,
-        "prima_servicios": 12593,
-        "salarioBasico": 170000,
-        "salud": 6800,
-        "vacaciones": 7052
-      };
-      this.titularUDHonorariosPOS = {
-        "Categoria": "Titular",
-        "Dedicacion": "HCH",
-        "EsDePlanta": true,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 8800,
-        "caja": 8800,
-        "cesantias": 18333,
-        "icbf": 6600,
-        "interesCesantias": 2200,
-        "pension": 35200,
-        "primaNavidad": 16296,
-        "primaVacaciones": 9126,
-        "prima_servicios": 16296,
-        "salarioBasico": 220000,
-        "salud": 8800,
-        "vacaciones": 9126
-      };
-      this.asistenteUDHonorariosPOS = {
-        "Categoria": "Asistente",
-        "Dedicacion": "HCH",
-        "EsDePlanta": true,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 6400,
-        "caja": 6400,
-        "cesantias": 13333,
-        "icbf": 4800,
-        "interesCesantias": 1600,
-        "pension": 25600,
-        "primaNavidad": 11852,
-        "primaVacaciones": 6637,
-        "prima_servicios": 11852,
-        "salarioBasico": 160000,
-        "salud": 6400,
-        "vacaciones": 6637
-      };
-      this.asociadoUDHonorariosPOS = {
-        "Categoria": "Asociado",
-        "Dedicacion": "HCH",
-        "EsDePlanta": true,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 7600,
-        "caja": 7600,
-        "cesantias": 15833,
-        "icbf": 5700,
-        "interesCesantias": 1900,
-        "pension": 30400,
-        "primaNavidad": 14074,
-        "primaVacaciones": 7881,
-        "prima_servicios": 14074,
-        "salarioBasico": 190000,
-        "salud": 7600,
-        "vacaciones": 7881
-      };
     })
 
     this.request.post(environment.RESOLUCIONES_DOCENTES_SERVICE, "services/desagregado_planeacion", bodyPrestacionalPOS).subscribe((data: any) => {
@@ -1152,120 +761,6 @@ export class DocentesComponent implements OnInit {
         this.asistenteUDPrestacionalPOS = data.Data[4];
         this.asociadoUDPrestacionalPOS = data.Data[5];
       }
-      this.titularPrestacionalPOS = {
-        "Categoria": "Titular",
-        "Dedicacion": "HCP",
-        "EsDePlanta": false,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 8000,
-        "caja": 8000,
-        "cesantias": 16667,
-        "icbf": 6000,
-        "interesCesantias": 2000,
-        "pension": 32000,
-        "primaNavidad": 14815,
-        "primaVacaciones": 8296,
-        "prima_servicios": 14815,
-        "salarioBasico": 200000,
-        "salud": 8000,
-        "vacaciones": 8296
-      };
-      this.asistentePrestacionalPOS = {
-        "Categoria": "Asistente",
-        "Dedicacion": "HCP",
-        "EsDePlanta": false,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 5200,
-        "caja": 5200,
-        "cesantias": 10833,
-        "icbf": 3900,
-        "interesCesantias": 1300,
-        "pension": 20800,
-        "primaNavidad": 9630,
-        "primaVacaciones": 5393,
-        "prima_servicios": 9630,
-        "salarioBasico": 130000,
-        "salud": 5200,
-        "vacaciones": 5393
-      };
-      this.asociadoPrestacionalPOS = {
-        "Categoria": "Asociado",
-        "Dedicacion": "HCP",
-        "EsDePlanta": false,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 6800,
-        "caja": 6800,
-        "cesantias": 14167,
-        "icbf": 5100,
-        "interesCesantias": 1700,
-        "pension": 27200,
-        "primaNavidad": 12593,
-        "primaVacaciones": 7052,
-        "prima_servicios": 12593,
-        "salarioBasico": 170000,
-        "salud": 6800,
-        "vacaciones": 7052
-      };
-      this.titularUDPrestacionalPOS = {
-        "Categoria": "Titular",
-        "Dedicacion": "HCP",
-        "EsDePlanta": true,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 8800,
-        "caja": 8800,
-        "cesantias": 18333,
-        "icbf": 6600,
-        "interesCesantias": 2200,
-        "pension": 35200,
-        "primaNavidad": 16296,
-        "primaVacaciones": 9126,
-        "prima_servicios": 16296,
-        "salarioBasico": 220000,
-        "salud": 8800,
-        "vacaciones": 9126
-      };
-      this.asistenteUDPrestacionalPOS = {
-        "Categoria": "Asistente",
-        "Dedicacion": "HCP",
-        "EsDePlanta": true,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 6400,
-        "caja": 6400,
-        "cesantias": 13333,
-        "icbf": 4800,
-        "interesCesantias": 1600,
-        "pension": 25600,
-        "primaNavidad": 11852,
-        "primaVacaciones": 6637,
-        "prima_servicios": 11852,
-        "salarioBasico": 160000,
-        "salud": 6400,
-        "vacaciones": 6637
-      };
-      this.asociadoUDPrestacionalPOS = {
-        "Categoria": "Asociado",
-        "Dedicacion": "HCP",
-        "EsDePlanta": true,
-        "NivelAcademico": "POSGRADO",
-        "Vigencia": 2022,
-        "arl": 7600,
-        "caja": 7600,
-        "cesantias": 15833,
-        "icbf": 5700,
-        "interesCesantias": 1900,
-        "pension": 30400,
-        "primaNavidad": 14074,
-        "primaVacaciones": 7881,
-        "prima_servicios": 14074,
-        "salarioBasico": 190000,
-        "salud": 7600,
-        "vacaciones": 7881
-      };
     })
   }
 
@@ -1309,6 +804,7 @@ export class DocentesComponent implements OnInit {
 
       this.dataSourceRHF.paginator = this.paginatorRHF;
       this.dataSourceRHF.sort = this.sortRHF;
+      this.OnPageChangeRHF({pageIndex:0,length:0,pageSize:this.paginatorRHF.pageSize})
     } else if (tipo == 'RHVPRE') {
       this.dataSourceRHVPRE.data.unshift({
         nivel: 'Pregrado',
@@ -1348,6 +844,7 @@ export class DocentesComponent implements OnInit {
 
       this.dataSourceRHVPRE.paginator = this.paginatorRHVPRE;
       this.dataSourceRHVPRE.sort = this.sortRHVPRE;
+      this.OnPageChangeRHVPRE({pageIndex:0,length:0,pageSize:this.paginatorRHF.pageSize})
     } else if (tipo == 'RHVPOS') {
       this.dataSourceRHVPOS.data.unshift({
         nivel: 'Posgrado',
@@ -1387,6 +884,7 @@ export class DocentesComponent implements OnInit {
 
       this.dataSourceRHVPOS.paginator = this.paginatorRHVPOS;
       this.dataSourceRHVPOS.sort = this.sortRHVPOS;
+      this.OnPageChangeRHVPOS({pageIndex:0,length:0,pageSize:this.paginatorRHF.pageSize})
     }
   }
 
