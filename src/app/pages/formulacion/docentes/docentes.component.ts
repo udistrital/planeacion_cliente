@@ -135,6 +135,11 @@ export class DocentesComponent implements OnInit {
     if (this.dataTabla) {
       this.dataSourceRubros.data = [
         {
+          "categoria": "Salario básico",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
           "categoria": "Prima de Servicios",
           "rubro": "",
           "codigo": ""
@@ -317,9 +322,25 @@ export class DocentesComponent implements OnInit {
                   "data": this.dataSourceRubros,
                 }
               ];
-              this.OnPageChangeRHF({length:0,pageIndex:0,pageSize:10});
-              this.OnPageChangeRHVPOS({length:0,pageIndex:0,pageSize:10});
-              this.OnPageChangeRHVPRE({length:0,pageIndex:0,pageSize:10});
+              let sueldo = true;
+              this.dataSourceRubros.data.forEach(rubro => {
+                if (rubro.categoria == 'Salario básico') {
+                  sueldo = false
+                }
+              });
+              if (sueldo) {
+                let datos = this.dataSourceRubros.data;
+                datos.push({
+                  "activo": true,
+                  "categoria": "Salario básico",
+                  "rubro": "",
+                  "codigo": ""
+                });
+                this.dataSourceRubros.data = datos;
+              }
+              this.OnPageChangeRHF({ length: 0, pageIndex: 0, pageSize: 10 });
+              this.OnPageChangeRHVPOS({ length: 0, pageIndex: 0, pageSize: 10 });
+              this.OnPageChangeRHVPRE({ length: 0, pageIndex: 0, pageSize: 10 });
             })
           }
         }
@@ -804,7 +825,7 @@ export class DocentesComponent implements OnInit {
 
       this.dataSourceRHF.paginator = this.paginatorRHF;
       this.dataSourceRHF.sort = this.sortRHF;
-      this.OnPageChangeRHF({pageIndex:0,length:0,pageSize:this.paginatorRHF.pageSize})
+      this.OnPageChangeRHF({ pageIndex: 0, length: 0, pageSize: this.paginatorRHF.pageSize })
     } else if (tipo == 'RHVPRE') {
       this.dataSourceRHVPRE.data.unshift({
         nivel: 'Pregrado',
@@ -844,7 +865,7 @@ export class DocentesComponent implements OnInit {
 
       this.dataSourceRHVPRE.paginator = this.paginatorRHVPRE;
       this.dataSourceRHVPRE.sort = this.sortRHVPRE;
-      this.OnPageChangeRHVPRE({pageIndex:0,length:0,pageSize:this.paginatorRHF.pageSize})
+      this.OnPageChangeRHVPRE({ pageIndex: 0, length: 0, pageSize: this.paginatorRHF.pageSize })
     } else if (tipo == 'RHVPOS') {
       this.dataSourceRHVPOS.data.unshift({
         nivel: 'Posgrado',
@@ -884,7 +905,7 @@ export class DocentesComponent implements OnInit {
 
       this.dataSourceRHVPOS.paginator = this.paginatorRHVPOS;
       this.dataSourceRHVPOS.sort = this.sortRHVPOS;
-      this.OnPageChangeRHVPOS({pageIndex:0,length:0,pageSize:this.paginatorRHF.pageSize})
+      this.OnPageChangeRHVPOS({ pageIndex: 0, length: 0, pageSize: this.paginatorRHF.pageSize })
     }
   }
 
@@ -2831,7 +2852,6 @@ export class DocentesComponent implements OnInit {
   }
 
   OnPageChangeRHF(event: PageEvent) {
-    debugger
     let startIndex = event.pageIndex * event.pageSize;
     let endIndex = startIndex + event.pageSize;
     if (endIndex > this.dataSourceRHF.data.length) {
@@ -2860,6 +2880,10 @@ export class DocentesComponent implements OnInit {
 }
 
 var dataRubros: any[] = [
+  {
+    "categoria": "Salario básico",
+    "rubro": ""
+  },
   {
     "categoria": "Prima de Servicios",
     "rubro": ""
