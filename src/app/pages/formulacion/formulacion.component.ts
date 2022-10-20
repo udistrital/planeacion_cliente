@@ -1216,7 +1216,7 @@ export class FormulacionComponent implements OnInit {
               Swal.fire({
                 title: 'Error en la operación',
                 icon: 'error',
-                text: `Por favor complete las identificaciones para continuar`,
+                text: `Por favor complete las identificaciones de contratistas y/o docentes para continuar`,
                 showConfirmButton: false,
                 timer: 2500
               })
