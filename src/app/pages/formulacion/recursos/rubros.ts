@@ -1058,5 +1058,17 @@ export const rubros_aux = [
     {
       "Codigo": "2.3.3.05.09.054.22.06.1",
       "Nombre": "Vivienda Administrativos"
+    },
+    {
+      "Codigo": "2.1.2.02.02.008.03.04.4.9",
+      "Nombre": "Otros servicios de ensayos y análisis técnicos"
+    },
+    {
+      "Codigo": "2.1.2.02.01.003.06.09.01.2",
+      "Nombre": "Recubrimientos de material plástico para piso"
+    },
+    {
+      "Codigo": "2.1.2.02.01.003.06.09.09.4",
+      "Nombre": "Señales en material plástico"
     }
   ]
