@@ -1,66 +1,131 @@
-.mat-card{
+.mat-card {
   background-color: #F1F5F8;
 }
 
 
 table {
-    width: 100%;
-  }
+  width: 100%;
+}
 
 th {
-    color: white;
-    text-align: center !important;
+  color: white;
+  text-align: center !important;
 }
 
-td{
+td {
   text-align: center;
 }
-.td-align-right{
+
+.td-align-right {
   text-align: right;
   justify-content: flex-end;
 }
 
-.header-align-right{
+.header-align-right {
   display: flex;
   padding: 21px 0;
   justify-content: flex-end;
 }
 
-.container-border{
-    border: 1px solid var(--primary);
-    // border-top: 0px;
-    padding: 1%;
-    border-radius: 15px 15px 15px 15px;
+.container-border {
+  border: 1px solid var(--primary);
+  // border-top: 0px;
+  padding: 1%;
+  border-radius: 15px 15px 15px 15px;
 }
 
-.container-border h1{
-    width: 99%;
-    color: var(--primary);
-    font-size:16px;
-    margin-top:-28px;
-    margin-left:7px;
-    padding-left: 8px;
-    background:white;
-    position: relative;
+.container-border h1 {
+  width: 99%;
+  color: var(--primary);
+  font-size: 16px;
+  margin-top: -28px;
+  margin-left: 7px;
+  padding-left: 8px;
+  background: white;
+  position: relative;
 }
 
 textarea {
   resize: none;
 }
 
-.mat-row:nth-child(even){
-  background-color:#E7D6D6;
+.mat-row:nth-child(even) {
+  background-color: #E7D6D6;
 }
-      
-.mat-row:nth-child(odd){
+
+.mat-row:nth-child(odd) {
   background-color: white;
 }
 
-.input-search{
+.input-search {
   width: 99%;
   height: 30px;
   border-radius: 5px 5px 5px 5px;
 }
 
+mat-button-toggle-group {
+  margin-left: 12px;
+}
 
+.mat-button-toggle-checked {
+  background-color: var(--primary);
+  color: white;
+  // color: mat-color($accent, default-contrast);
+}
 
+.textGuide {
+  background-color: #ffff;
+  border: 1px solid var(--primary);
+  border-radius: 15px 15px 15px 15px;
+  box-shadow: var(--primary) 3px 4px 0;
+  color: #0a0a0a;
+  display: inline-block;
+  font-size: 1.1em;
+  padding: 1%;
+  text-decoration: none;
+  margin-bottom: 1%;
+  width: 97%;
+}
+
+.flex {
+  display: flex;
+  vertical-align: middle;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.sameRow {
+  border: 3px solid black;
+  justify-content: center;
+  text-align: center;
+  align-content: center;
+  vertical-align: middle;
+  padding: 10px;
+  font-size: 15px;
+  margin-top: 2%;
+  margin-right: 5%;
+  color: var(--primary);
+  border-radius: 8px;
+  border-color: var(--primary);
+}
+
+.container{
+  display: block !important;
+  margin-bottom: 30px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sameRow h4 {
+  width: 95%;
+  background-color: var(--primary) !important;
+  color: #F1F5F8;
+  font-size: 15px;
+  margin-top: -28px;
+  margin-left: 7px;
+  padding: 0.5%;
+  position: relative;
+  border-radius: 15px 15px 15px 15px;
+  font-weight: normal;
+}

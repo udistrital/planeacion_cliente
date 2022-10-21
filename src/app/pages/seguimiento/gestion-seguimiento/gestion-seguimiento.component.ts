@@ -9,7 +9,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import {Location} from '@angular/common';
+import { Location } from '@angular/common';
 import { DataSource } from '@angular/cdk/collections';
 
 @Component({
@@ -23,23 +23,23 @@ export class SeguimientoComponentGestion implements OnInit {
   planId: string;
   unidad: any;
   plan: any;
-  estado : any;
-  actividadesGenerales : any[];
+  estado: any;
+  actividadesGenerales: any[];
   formGestionSeguimiento: FormGroup;
-  dataActividad : any;
+  dataActividad: any;
   rol: string;
-  indicadores : any[] = [{index: 1, dato:'', activo:false}];
-  metas : any[] = [{index: 1, dato:'', activo:false}];
-  indexActividad : string = '';
-  fechaModificacion : string = '';
-  seguimiento : any;
-  trimestre:any;
+  indicadores: any[] = [{ index: 1, dato: '', activo: false }];
+  metas: any[] = [{ index: 1, dato: '', activo: false }];
+  indexActividad: string = '';
+  fechaModificacion: string = '';
+  seguimiento: any;
+  trimestre: any;
   trimestres: any[] = [];
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private request : RequestManager,
+    private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
     private router: Router,
     private _location: Location
@@ -67,9 +67,9 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
 
-  getRol(){
+  getRol() {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA'|| 'ASISTENTE_DEPENDENCIA')) {
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
@@ -93,7 +93,11 @@ export class SeguimientoComponentGestion implements OnInit {
   // }
 
   backClicked() {
-    this._location.back();
+    if (this._location.getState()["navigationId"] == 2) {
+      this.router.navigate(['pages/seguimiento/listar-plan-accion-anual/'])
+    } else {
+      this._location.back();
+    }
   }
 
   applyFilter(event: Event) {
@@ -105,8 +109,8 @@ export class SeguimientoComponentGestion implements OnInit {
     }
   }
 
-  loadDataPlan(){
-    this.request.get(environment.PLANES_CRUD, `plan?query=_id:`+ this.planId).subscribe((data: any) => {
+  loadDataPlan() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=_id:` + this.planId).subscribe((data: any) => {
       if (data) {
         this.plan = data.Data[0];
         this.loadEstado(this.plan.estado_plan_id);
@@ -122,8 +126,8 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
-  loadEstado(estado_id){
-    this.request.get(environment.PLANES_CRUD, `estado-plan?query=_id:`+ estado_id).subscribe((data: any) => {
+  loadEstado(estado_id) {
+    this.request.get(environment.PLANES_CRUD, `estado-plan?query=_id:` + estado_id).subscribe((data: any) => {
       if (data) {
         this.estado = data.Data[0];
         this.loadUnidad(this.plan.dependencia_id);
@@ -139,8 +143,8 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
-  loadUnidad(dependencia_id){
-    this.request.get(environment.OIKOS_SERVICE, `dependencia?query=Id:`+ dependencia_id).subscribe((data: any) => {
+  loadUnidad(dependencia_id) {
+    this.request.get(environment.OIKOS_SERVICE, `dependencia?query=Id:` + dependencia_id).subscribe((data: any) => {
       if (data) {
         this.unidad = data[0];
         this.formGestionSeguimiento.get('plan').setValue(this.plan.nombre);
@@ -157,14 +161,14 @@ export class SeguimientoComponentGestion implements OnInit {
         timer: 2500
       })
     })
-  } 
+  }
 
-  loadActividades(){
-    this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/`+ this.planId).subscribe((data: any) => {
+  loadActividades() {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.planId).subscribe((data: any) => {
       if (data) {
-        if (this.rol== 'JEFE_DEPENDENCIA'){
+        if (this.rol == 'JEFE_DEPENDENCIA') {
           this.actividadesGenerales = data.Data;
-        }else if(this.rol == 'PLANEACION'){
+        } else if (this.rol == 'PLANEACION') {
           this.dataSource.data = data.Data;
           this.cambiarValor("activo", true, "Activo", this.dataSource.data)
           this.cambiarValor("activo", false, "Inactivo", this.dataSource.data)
@@ -179,7 +183,7 @@ export class SeguimientoComponentGestion implements OnInit {
         timer: 2500
       })
     })
-  } 
+  }
 
   cambiarValor(valorABuscar, valorViejo, valorNuevo, dataS) {
     dataS.forEach(function (elemento) {
@@ -187,24 +191,24 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
-  onChangeA(event){
-    if(event != undefined){
+  onChangeA(event) {
+    if (event != undefined) {
       this.formGestionSeguimiento.get('actividad').setValue(event.dato);
       this.loadDataActividad(event.index);
-    }else{
+    } else {
       this.formGestionSeguimiento.get('actividad').setValue("");
       this.formGestionSeguimiento.get('lineamiento').setValue("");
       this.formGestionSeguimiento.get('meta_estrategica').setValue("");
       this.formGestionSeguimiento.get('estrategia').setValue("");
       this.formGestionSeguimiento.get('tarea').setValue("");
-      this.indicadores = [{index: 1, dato:'', activo:false}];
-      this.metas = [{index: 1, dato:'', activo:false}];
+      this.indicadores = [{ index: 1, dato: '', activo: false }];
+      this.metas = [{ index: 1, dato: '', activo: false }];
       this.indexActividad = '';
     }
   }
 
-  loadDataActividad(index){
-    this.request.get(environment.PLANES_MID, `seguimiento/get_data/`+ this.planId + `/`+ index ).subscribe((data: any) => {
+  loadDataActividad(index) {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_data/` + this.planId + `/` + index).subscribe((data: any) => {
       if (data) {
         this.dataActividad = data.Data
         this.formGestionSeguimiento.get('lineamiento').setValue(this.dataActividad.lineamiento);
@@ -228,15 +232,15 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
-  reportar(){
-    this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/'+ this.indexActividad]);
+  reportar() {
+    this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/' + this.indexActividad]);
   }
 
-  revisar(row){
+  revisar(row) {
     this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId).subscribe((data: any) => {
       if (data.Data.length != 0) {
         let seguimiento = data.Data[data.Data.length - 1]
-        this.loadTrimestre(seguimiento.periodo_id,row);
+        this.loadTrimestre(seguimiento.periodo_id, row);
       }
     }, (error) => {
       Swal.fire({
@@ -250,7 +254,7 @@ export class SeguimientoComponentGestion implements OnInit {
     /* this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/'+ row.index]); */
   }
 
-  loadTrimestre(periodo_id,row) {
+  loadTrimestre(periodo_id, row) {
     this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + periodo_id).subscribe((data: any) => {
       if (data) {
         this.trimestre = data.Data[data.Data.length - 1]
