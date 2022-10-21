@@ -1071,4 +1071,9 @@ export const rubros_aux = [
       "Codigo": "2.1.2.02.01.003.06.09.09.4",
       "Nombre": "Señales en material plástico"
     }
+    ,
+    {
+      "Codigo": "2.1.2.02.01.004.02.09.2",
+      "Nombre": "Herramientas de mano"
+    }
   ]
