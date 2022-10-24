@@ -226,7 +226,7 @@
               <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'numeric'">
                 <mat-label>Ingrese el valor:</mat-label>
                 <input type="number" matInput formControlName="{{step.id}}" placeholder="Ingrese el valor numérico"
-                  required="{{step.required}}" readonly="{{readOnlyAll}}">
+                  required="{{step.required}}" readonly="{{readOnlyAll}}" step="0.01" value="0.00" pattern="^\d*(\.\d{0,2})?$">
                 <mat-icon matSuffix>create</mat-icon>
               </mat-form-field>
               <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="step.type == 'select'">
