@@ -138,14 +138,14 @@ export class FormulacionComponent implements OnInit {
 
   filterActive() {
     if (!this.isChecked) {
-      this.dataSource.filterPredicate = function(data: any, filterValue: string) {
+      this.dataSource.filterPredicate = function (data: any, filterValue: string) {
         return data.activo === filterValue
       };
       this.dataSource.filter = "Activo"
       if (this.dataSource.paginator) {
         this.dataSource.paginator.firstPage();
       }
-    } else{
+    } else {
       this.dataSource.filter = ""
       if (this.dataSource.paginator) {
         this.dataSource.paginator.firstPage();
