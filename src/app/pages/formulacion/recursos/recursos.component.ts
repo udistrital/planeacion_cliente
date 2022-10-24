@@ -33,7 +33,7 @@ export class RecursosComponent implements OnInit {
   estadoPlan: string;
   readonlyObs: boolean;
   readonlyTable: boolean = false;
-  mostrarObservaciones : boolean = false ;
+  mostrarObservaciones: boolean = false;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -86,26 +86,26 @@ export class RecursosComponent implements OnInit {
   }
 
   visualizarColumnas(): string[] {
-    if (this.rol == 'JEFE_DEPENDENCIA') {
+    if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'ASISTENTE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = this.verificarVersiones();
         this.mostrarObservaciones = this.verificarObservaciones();
-        if (this.mostrarObservaciones && !this.readonlyTable){
-          return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
-        }else{
-          return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
+        if (this.mostrarObservaciones && !this.readonlyTable) {
+          return ['acciones', 'codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
+        } else {
+          return ['acciones', 'codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
+        return ['acciones', 'codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
+        return ['acciones', 'codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
       }
     }
 
@@ -113,22 +113,22 @@ export class RecursosComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
+        return ['acciones', 'codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
+        return ['acciones', 'codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
+        return ['acciones', 'codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones','codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
+        return ['acciones', 'codigo', 'Nombre', 'valor', 'descripcion', 'actividades'];
       }
     }
   }
@@ -191,15 +191,15 @@ export class RecursosComponent implements OnInit {
   }
 
   updateValue(element, rowIndex) {
-    let val = parseInt(element.valor,10);
+    let val = parseInt(element.valor, 10);
     if (Number.isNaN(val)) {
       let auxVal = element.valor.replace(/\$|,/g, '')
-      let aux2 = parseInt(auxVal,10);
+      let aux2 = parseInt(auxVal, 10);
       this.dataSource.data[rowIndex].valor = formatCurrency(aux2, 'en-US', getCurrencySymbol('USD', 'wide'));
-    }else{  
+    } else {
       this.dataSource.data[rowIndex].valor = formatCurrency(val, 'en-US', getCurrencySymbol('USD', 'wide'));
     }
-}
+  }
 
 
   getValorTotal() {
@@ -210,7 +210,7 @@ export class RecursosComponent implements OnInit {
         let strValTotal = aux.replace(/\$|,/g, '');
         acc = acc + parseFloat(strValTotal)
       }
-      this.total = acc;      if (this.total >> 0.00) {
+      this.total = acc; if (this.total >> 0.00) {
         return this.total;
       } else {
         return '0';
@@ -221,7 +221,7 @@ export class RecursosComponent implements OnInit {
   }
 
   addElement() {
-    if (this.rol == 'PLANEACION'){
+    if (this.rol == 'PLANEACION') {
       this.dataSource.data.unshift({
         codigo: '',
         Nombre: '',
@@ -230,7 +230,7 @@ export class RecursosComponent implements OnInit {
         actividades: '',
         observaciones: ''
       });
-    }else{
+    } else {
       this.dataSource.data.unshift({
         codigo: '',
         Nombre: '',
