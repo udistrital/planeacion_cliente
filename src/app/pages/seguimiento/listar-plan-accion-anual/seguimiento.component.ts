@@ -19,7 +19,7 @@ import { UserService } from '../../services/userService';
   styleUrls: ['./seguimiento.component.scss']
 })
 export class SeguimientoComponentList implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
+  displayedColumns: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento'];
   displayedColumnsPL: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento'];
   dataSource: MatTableDataSource<any>;
   planes: any[];
@@ -35,6 +35,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   testDatos: any = datosTest;
   rol: string;
   periodoHabilitado: boolean;
+  formFechas: FormGroup;
   formSelect: FormGroup;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -45,14 +46,13 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     private autenticationService: ImplicitAutenticationService,
     private userService: UserService,
     private formBuilder: FormBuilder,
-
-
   ) {
     this.unidadSelected = false;
     this.getRol();
     if (this.rol != undefined && this.rol == 'PLANEACION') {
       this.loadPeriodos();
     } else if (this.rol != undefined && this.rol == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA') {
+      this.loadPeriodos();
       this.validarUnidad();
     }
     this.dataSource = new MatTableDataSource<any>();
@@ -68,6 +68,12 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.formFechas = this.formBuilder.group({
+      fecha1: ['',],
+      fecha2: ['',],
+      fecha3: ['',],
+      fecha4: ['',]
+    });
     this.formSelect = this.formBuilder.group({
       selectUnidad: ['',],
     });
@@ -179,7 +185,102 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
       if (data) {
         this.vigencias = data.Data;
-        this.loadPlanes("vigencia");
+        if (this.rol != undefined && this.rol == 'PLANEACION') {
+          this.loadPlanes("vigencia");
+        } else {
+
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  loadFechas() {
+    Swal.fire({
+      title: 'Cargando períodos',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+
+    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
+      if (data) {
+        if (data.Data != "") {
+          let periodos = data.Data;
+
+          Swal.fire({
+            title: 'Cargando Fechas',
+            timerProgressBar: true,
+            showConfirmButton: false,
+            willOpen: () => {
+              Swal.showLoading();
+            },
+          })
+          if (periodos.length > 0) {
+            for (let i = 0; i < periodos.length; i++) {
+              this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe((data: any) => {
+                if (data) {
+                  let seguimiento = data.Data[0];
+                  let fechaInicio = new Date(seguimiento["fecha_inicio"]);
+                  let fechaFin = new Date(seguimiento["fecha_fin"]);
+
+                  if (i == 0) {
+                    this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
+                    this.formFechas.get('fecha2').setValue(fechaFin.toLocaleDateString());
+                  } else if (i == 1) {
+                    this.formFechas.get('fecha3').setValue(fechaInicio.toLocaleDateString());
+                    this.formFechas.get('fecha4').setValue(fechaFin.toLocaleDateString());
+                  } else if (i == 2) {
+                    this.formFechas.get('fecha5').setValue(fechaInicio.toLocaleDateString());
+                    this.formFechas.get('fecha6').setValue(fechaFin.toLocaleDateString());
+                  } else if (i == 3) {
+                    this.formFechas.get('fecha7').setValue(fechaInicio.toLocaleDateString());
+                    this.formFechas.get('fecha8').setValue(fechaFin.toLocaleDateString());
+                    Swal.close();
+                  }
+
+                }
+              }, (error) => {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 2500
+                })
+              })
+            }
+          } else {
+            Swal.close();
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encuentran tirmestres habilitados para esta vigencia`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+
+          Swal.close();
+        } else {
+          Swal.close();
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron trimestres para esta vigencia`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
       }
     }, (error) => {
       Swal.fire({
@@ -216,6 +317,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   onChangeV(vigencia) {
+    this.vigencia = vigencia
+    this.loadFechas();
     // TO DO
     /*
     if (vigencia == undefined) {

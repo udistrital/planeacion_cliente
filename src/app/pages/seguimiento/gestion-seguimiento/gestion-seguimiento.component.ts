@@ -49,7 +49,6 @@ export class SeguimientoComponentGestion implements OnInit {
     });
     this.loadDataPlan();
     this.dataSource = new MatTableDataSource<any>();
-
   }
 
   ngOnInit(): void {
@@ -168,6 +167,7 @@ export class SeguimientoComponentGestion implements OnInit {
       if (data) {
         if (this.rol == 'JEFE_DEPENDENCIA') {
           this.actividadesGenerales = data.Data;
+          this.dataSource.data = data.Data;
         } else if (this.rol == 'PLANEACION') {
           this.dataSource.data = data.Data;
           this.cambiarValor("activo", true, "Activo", this.dataSource.data)

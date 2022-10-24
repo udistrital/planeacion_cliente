@@ -90,15 +90,15 @@
                 <div class="mat-elevation-z8">
                     <table mat-table [dataSource]="dataSource" matSort>
                         <ng-container matColumnDef="index">
-                            <th mat-header-cell *matHeaderCellDef [style.text-align]="center" > ID actividad </th>
+                            <th mat-header-cell *matHeaderCellDef> ID actividad </th>
                             <td mat-cell *matCellDef="let row">{{row.index}}</td>
                         </ng-container>
                         <ng-container matColumnDef="dato">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Actividad </th>
+                            <th mat-header-cell *matHeaderCellDef> Actividad </th>
                             <td mat-cell *matCellDef="let row">{{row.dato}}</td>
                         </ng-container>
                         <ng-container matColumnDef="activo">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado </th>
+                            <th mat-header-cell *matHeaderCellDef> Estado </th>
                             <td mat-cell *matCellDef="let row">{{row.activo}}</td>
                         </ng-container>
                         <ng-container matColumnDef="gestion">
