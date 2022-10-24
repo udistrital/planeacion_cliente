@@ -4,15 +4,16 @@ import { AppRoutingModule } from './app-routing.module';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-import { MatTableModule } from '@angular/material/table' 
+import { MatTableModule } from '@angular/material/table'
 import { AppComponent } from './app.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { HttpClientModule } from '@angular/common/http';
-import {MatDialogModule} from '@angular/material/dialog';;
+import { MatDialogModule } from '@angular/material/dialog';;
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -25,7 +26,7 @@ import { MatMomentDateModule, MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_A
 @NgModule({
   declarations: [
     AppComponent,
-    
+
   ],
   imports: [
     CommonModule,
@@ -45,11 +46,12 @@ import { MatMomentDateModule, MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_A
     MatDatepickerModule,
     MatSlideToggleModule,
     MatMomentDateModule,
+    MatButtonToggleModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
-  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy } , CurrencyPipe, {provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}],
-  schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
+  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }, CurrencyPipe, { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent],
-  
+
 })
 export class AppModule { }
