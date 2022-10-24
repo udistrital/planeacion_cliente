@@ -1,5 +1,5 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -19,22 +19,25 @@ import { UserService } from '../../services/userService';
   styleUrls: ['./seguimiento.component.scss']
 })
 export class SeguimientoComponentList implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
+  displayedColumns: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento'];
   displayedColumnsPL: string[] = ['unidad', 'estado', 'vigencia', 'periodo', 'seguimiento'];
   dataSource: MatTableDataSource<any>;
   planes: any[];
+  allPlanes: any[];
   unidades: any[] = [];
-  auxUnidades : any[]= [];
+  auxUnidades: any[] = [];
+  auxPlanes: any[] = [];
   unidadSelected: boolean;
   unidad: any;
-  vigencias : any[];
-  vigenciaSelected : boolean;
+  vigencias: any[];
+  vigenciaSelected: boolean;
   vigencia: any;
   testDatos: any = datosTest;
   rol: string;
-  periodoHabilitado : boolean;
-  formSelect : FormGroup;
-
+  periodoHabilitado: boolean;
+  formFechas: FormGroup;
+  formSelect: FormGroup;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     public dialog: MatDialog,
@@ -43,14 +46,13 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     private autenticationService: ImplicitAutenticationService,
     private userService: UserService,
     private formBuilder: FormBuilder,
-
-
   ) {
     this.unidadSelected = false;
     this.getRol();
-    if(this.rol != undefined && this.rol=='PLANEACION'){
+    if (this.rol != undefined && this.rol == 'PLANEACION') {
       this.loadPeriodos();
-    }else if(this.rol != undefined && this.rol=='JEFE_DEPENDENCIA'|| 'ASISTENTE_DEPENDENCIA'){
+    } else if (this.rol != undefined && this.rol == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA') {
+      this.loadPeriodos();
       this.validarUnidad();
     }
     this.dataSource = new MatTableDataSource<any>();
@@ -59,16 +61,21 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.dataSource.data = [];
     /* if (this.rol === 'PLANEACION'){ */
-    this.loadPlanes("vigencia");
+    // this.loadPlanes("vigencia");
     /* } else if (this.rol === 'JEFE_DEPENDENCIA'){
       this.loadPlanes("unidad");
     } */
   }
 
   ngOnInit(): void {
+    this.formFechas = this.formBuilder.group({
+      fecha1: ['',],
+      fecha2: ['',],
+      fecha3: ['',],
+      fecha4: ['',]
+    });
     this.formSelect = this.formBuilder.group({
       selectUnidad: ['',],
-  
     });
   }
 
@@ -81,25 +88,25 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     }
   }
 
-  validarUnidad(){
+  validarUnidad() {
     this.userService.user$.subscribe((data) => {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
-          .subscribe((vinculacion: any) => {
-            this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:`+ vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
-              if (dataUnidad) {
-                let unidad = dataUnidad[0]["DependenciaId"]
-                unidad["TipoDependencia"]= dataUnidad[0]["TipoDependenciaId"]["Id"]
-       
-                this.unidades.push(unidad);
-                this.auxUnidades.push(unidad);
-                this.formSelect.get('selectUnidad').setValue(unidad);
-                this.onChangeU(unidad);
+            .subscribe((vinculacion: any) => {
+              this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
+                if (dataUnidad) {
+                  let unidad = dataUnidad[0]["DependenciaId"]
+                  unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
 
-              }
+                  this.unidades.push(unidad);
+                  this.auxUnidades.push(unidad);
+                  this.formSelect.get('selectUnidad').setValue(unidad);
+                  this.onChangeU(unidad);
+
+                }
+              })
             })
-          })
         })
 
     })
@@ -139,26 +146,141 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     })
   }
 
-  onKey(value){
-    if (value === ""){
+  onKey(value) {
+    if (value === "") {
       this.auxUnidades = this.unidades;
-    }else{
+    } else {
       this.auxUnidades = this.search(value);
     }
   }
 
-  search(value){
+  onKeyP(value) {
+    if (value === "") {
+      this.auxPlanes = this.planes;
+    } else {
+      this.auxPlanes = this.searchP(value);
+    }
+  }
+
+  search(value) {
     let filter = value.toLowerCase();
-    if (this.unidades != undefined){
+    if (this.unidades != undefined) {
       return this.unidades.filter(option => option.Nombre.toLowerCase().startsWith(filter));
     }
   }
 
+  searchP(value) {
+    let filter = value.toLowerCase();
+    if (this.planes != undefined) {
+      return this.planes.filter(option => option.nombre.toLowerCase().includes(filter));
+    }
+  }
+
+  filterPlanes(data) {
+    var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
+    return dataAux.filter(e => e.activo == true);
+  }
 
   loadPeriodos() {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
       if (data) {
         this.vigencias = data.Data;
+        if (this.rol != undefined && this.rol == 'PLANEACION') {
+          this.loadPlanes("vigencia");
+        } else {
+
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  loadFechas() {
+    Swal.fire({
+      title: 'Cargando períodos',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+
+    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
+      if (data) {
+        if (data.Data != "") {
+          let periodos = data.Data;
+
+          Swal.fire({
+            title: 'Cargando Fechas',
+            timerProgressBar: true,
+            showConfirmButton: false,
+            willOpen: () => {
+              Swal.showLoading();
+            },
+          })
+          if (periodos.length > 0) {
+            for (let i = 0; i < periodos.length; i++) {
+              this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe((data: any) => {
+                if (data) {
+                  let seguimiento = data.Data[0];
+                  let fechaInicio = new Date(seguimiento["fecha_inicio"]);
+                  let fechaFin = new Date(seguimiento["fecha_fin"]);
+
+                  if (i == 0) {
+                    this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
+                    this.formFechas.get('fecha2').setValue(fechaFin.toLocaleDateString());
+                  } else if (i == 1) {
+                    this.formFechas.get('fecha3').setValue(fechaInicio.toLocaleDateString());
+                    this.formFechas.get('fecha4').setValue(fechaFin.toLocaleDateString());
+                  } else if (i == 2) {
+                    this.formFechas.get('fecha5').setValue(fechaInicio.toLocaleDateString());
+                    this.formFechas.get('fecha6').setValue(fechaFin.toLocaleDateString());
+                  } else if (i == 3) {
+                    this.formFechas.get('fecha7').setValue(fechaInicio.toLocaleDateString());
+                    this.formFechas.get('fecha8').setValue(fechaFin.toLocaleDateString());
+                    Swal.close();
+                  }
+
+                }
+              }, (error) => {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 2500
+                })
+              })
+            }
+          } else {
+            Swal.close();
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encuentran tirmestres habilitados para esta vigencia`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+
+          Swal.close();
+        } else {
+          Swal.close();
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron trimestres para esta vigencia`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
       }
     }, (error) => {
       Swal.fire({
@@ -181,11 +303,47 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       this.dataSource.data = [];
       this.loadPlanes("unidad");
     }
+    this.allPlanes = this.dataSource.data;
   }
 
+  onChangeP(plan) {
+    if (plan == undefined) {
+      this.dataSource.data = this.planes;
+    } else {
+      this.dataSource.data = this.searchP(plan[0]);
+    }
+    this.allPlanes = this.dataSource.data;
+    this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
+  }
+
+  onChangeV(vigencia) {
+    this.vigencia = vigencia
+    this.loadFechas();
+    // TO DO
+    /*
+    if (vigencia == undefined) {
+      this.unidadSelected = false;
+      this.dataSource.data = [];
+    } else {
+      this.unidadSelected = true;
+      this.unidad = vigencia;
+      this.dataSource.data = [];
+      this.loadPlanes("unidad");
+    }
+    this.allPlanes = this.dataSource.data;*    if (vigencia == undefined) {
+      this.unidadSelected = false;
+      this.dataSource.data = [];
+    } else {
+      this.unidadSelected = true;
+      this.unidad = vigencia;
+      this.dataSource.data = [];
+      this.loadPlanes("unidad");
+    }
+    this.allPlanes = this.dataSource.data;*/
+  }
 
   loadPlanes(tipo) {
-    if (tipo == "unidad"){
+    if (tipo == "unidad") {
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,dependencia_id:` + this.unidad.Id).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
@@ -195,6 +353,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             this.getVigencias();
             this.getPeriodos();
             this.dataSource.data = this.planes;
+            this.allPlanes = this.dataSource.data;
+            this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
           } else {
             this.unidadSelected = false;
             Swal.fire({
@@ -205,7 +365,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               timer: 2500
             })
           }
-  
         }
       }, (error) => {
         Swal.fire({
@@ -215,9 +374,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
           showConfirmButton: false,
           timer: 2500
         })
-  
       })
-    }else if(tipo == 'vigencia'){
+    } else if (tipo == 'vigencia') {
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
@@ -226,7 +384,21 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             this.getEstados();
             this.getVigencias();
             this.getPeriodos();
+            this.planes.forEach(plan => {
+              let bandera = true;
+              this.auxPlanes.forEach(auxplan => {
+                if (auxplan.nombre == plan.nombre) {
+                  bandera = false;
+                }
+              });
+
+              if (bandera) {
+                this.auxPlanes.push(plan);
+              }
+            });
             this.dataSource.data = this.planes;
+            this.allPlanes = this.dataSource.data;
+            this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
           } else {
             this.unidadSelected = false;
             Swal.fire({
@@ -237,7 +409,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               timer: 2500
             })
           }
-  
         }
       }, (error) => {
         Swal.fire({
@@ -247,10 +418,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
           showConfirmButton: false,
           timer: 2500
         })
-  
       })
     }
-
   }
 
   getUnidades() {
@@ -322,11 +491,16 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + seguimiento.periodo_id).subscribe((data: any) => {
               if (data) {
                 let aux = data.Data[0]
+                this.planes[i].periodo = {
+                  "trimestre": aux.ParametroId.CodigoAbreviacion,
+                  "nombre": aux.ParametroId.Nombre
+                }
+
                 this.planes[i].periodo = aux.ParametroId.Nombre;
                 this.periodoHabilitado = true;
               }
             }, (error) => {
-              Swal.fire({ 
+              Swal.fire({
                 title: 'Error en la operación',
                 text: 'No se encontraron datos registrados',
                 icon: 'warning',
@@ -356,5 +530,13 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.router.navigate(['pages/seguimiento/gestion-seguimiento/' + plan_id])
   }
 
-
+  OnPageChange(event: PageEvent) {
+    let startIndex = event.pageIndex * event.pageSize;
+    let endIndex = startIndex + event.pageSize;
+    if (endIndex > this.allPlanes.length) {
+      endIndex = this.allPlanes.length;
+    }
+    this.dataSource.data = this.allPlanes.slice(startIndex, endIndex);
+    this.dataSource.data.length = this.allPlanes.length;
+  }
 }

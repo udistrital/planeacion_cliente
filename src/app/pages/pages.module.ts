@@ -83,6 +83,7 @@ import { ProyectosOtrosFondosComponent } from './banco-de-proyectos/proyectos-ot
 import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/reporte-funcionamiento/reporte-funcionamiento.component';
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
 import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/construir-plan-proyecto.component';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 
 
@@ -210,6 +211,7 @@ const MY_FORMATS = {
     MatCardModule,
     MatGridListModule,
     MatButtonModule,
+    MatButtonToggleModule,
     ...materialModules
   ],
   providers: [
