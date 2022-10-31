@@ -2,7 +2,6 @@
   background-color: #F1F5F8;
 }
 
-
 table {
   width: 100%;
 }
@@ -104,16 +103,8 @@ mat-button-toggle-group {
   padding: 10px;
   font-size: 15px;
   margin-top: 2%;
-  margin-right: 5%;
   border-radius: 8px;
   border-color: var(--primary);
-}
-
-.container{
-  display: block !important;
-  margin-bottom: 30px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .sameRow h4 {
@@ -130,8 +121,47 @@ mat-button-toggle-group {
 }
 
 .contenedor {
-  padding: 12px;
+  padding: 10px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 15px;
+}
+
+.contenedorTrimestre {
+  display: flex;
+  margin: 0px 10px;
+}
+
+mat-hint {
+  font-size: 11px;
+}
+
+.gris {
+  background-color: #999;
+  color: white;
+}
+
+.amarillo {
+  background-color: var(--warning-base);
+  color: black;
+}
+
+.verde {
+  background-color: var(--success-base);
+  color: white;
+}
+
+.mat-button-toggle-checked.amarillo {
+  background-color: var(--warning-accent);
+  color: white;
+}
+
+.mat-button-toggle-checked.verde {
+  background-color: var(--success-accent);
+  color: white;
+}
+
+.mat-button-toggle-checked.gris {
+  background-color: rgb(122, 122, 122);
+  color: white;
 }

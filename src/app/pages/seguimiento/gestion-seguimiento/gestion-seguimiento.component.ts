@@ -21,6 +21,7 @@ export class SeguimientoComponentGestion implements OnInit {
   displayedColumns: string[] = ['index', 'dato', 'activo', 'gestion'];
   dataSource: MatTableDataSource<any>;
   planId: string;
+  trimestreId: string;
   unidad: any;
   plan: any;
   estado: any;
@@ -46,6 +47,7 @@ export class SeguimientoComponentGestion implements OnInit {
   ) {
     activatedRoute.params.subscribe(prm => {
       this.planId = prm['plan_id'];
+      this.trimestreId = prm['trimestre'];
     });
     this.loadDataPlan();
     this.dataSource = new MatTableDataSource<any>();
@@ -240,7 +242,7 @@ export class SeguimientoComponentGestion implements OnInit {
     this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId).subscribe((data: any) => {
       if (data.Data.length != 0) {
         let seguimiento = data.Data[data.Data.length - 1]
-        this.loadTrimestre(seguimiento.periodo_id, row);
+        this.loadTrimestre(seguimiento.periodo_seguimiento_id, row);
       }
     }, (error) => {
       Swal.fire({
@@ -259,7 +261,7 @@ export class SeguimientoComponentGestion implements OnInit {
       if (data) {
         this.trimestre = data.Data[data.Data.length - 1]
         this.trimestres.push(this.trimestre.ParametroId);
-        this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId + `,periodo_id:` + this.trimestre.Id).subscribe((data: any) => {
+        this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId + `,periodo_seguimiento_id:` + this.trimestre.Id).subscribe((data: any) => {
           if (data.Data.length != 0) {
             let seguimiento = data.Data[0];
             let auxFecha = new Date();

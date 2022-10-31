@@ -256,7 +256,7 @@ const routes: Routes = [{
           component: SeguimientoComponentList,
         },
         {
-          path: 'gestion-seguimiento/:plan_id',
+          path: 'gestion-seguimiento/:plan_id/:trimestre',
           component: SeguimientoComponentGestion,
         },
         {

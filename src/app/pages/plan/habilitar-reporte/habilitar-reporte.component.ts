@@ -131,8 +131,8 @@ export class HabilitarReporteComponent implements OnInit {
     } else if (this.tipo === 'seguimiento') {
       if (this.periodos.length > 0){
         for (let i = 0; i < this.periodos.length; i++) {
-          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + this.periodos[i].Id).subscribe((data: any) => {
-            if (data) {
+          this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id).subscribe((data: any) => {
+            if (data.Data.length != 0) {
               let seguimiento = data.Data[0];
               let fechaInicio = new Date(seguimiento["fecha_inicio"]);
               let fechaFin = new Date(seguimiento["fecha_fin"]);
@@ -152,6 +152,8 @@ export class HabilitarReporteComponent implements OnInit {
                 Swal.close();
               }
   
+            } else {
+              Swal.close();
             }
           }, (error) => {
             Swal.fire({
@@ -263,7 +265,7 @@ export class HabilitarReporteComponent implements OnInit {
                     dato: "{}",
                     tipo_seguimiento_id: "6260e975ebe1e6498f7404ee",
                     estado_seguimiento_id: "No aplica",
-                    periodo_id: "No aplica",
+                    periodo_seguimiento_id: "No aplica",
                     activo: true, 
                     fecha_inicio: this.formFechas.get('fecha9').value.toISOString() ,
                     fecha_fin: this.formFechas.get('fecha10').value.toISOString()
