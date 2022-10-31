@@ -185,7 +185,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   getSeguimiento() {
-    this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planId + `,periodo_id:` + this.trimestreId).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planId + `,periodo_seguimiento_id:` + this.trimestreId).subscribe((data: any) => {
       if (data.Data) {
         this.seguimientoCompleto = data.Data[0];
         this.getEstado();
@@ -444,7 +444,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           let primerDatoAcumu = indicador.nombre;
           let datoIdentir = {
             "plan_id": this.planId,
-            "periodo_id": this.trimestreId,
+            "periodo_seguimiento_id": this.trimestreId,
             "index": this.indexActividad,
             "Nombre_del_indicador": primerDatoAcumu.replace(reg, '_'),
             "avancePeriodo": "2"
@@ -466,7 +466,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
       let datoIdenti = {
         "plan_id": this.planId,
-        "periodo_id": this.trimestreId,
+        "periodo_seguimiento_id": this.trimestreId,
         "index": this.indexActividad,
         "Nombre_del_indicador": this.indicadorActivo,
         "avancePeriodo": this.formGenerarTrimestre.get('avancePeriodo').value
