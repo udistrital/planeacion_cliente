@@ -100,7 +100,7 @@ export class FormulacionComponent implements OnInit {
     if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
       this.loadUnidades();
-    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA')) {
+    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
       this.verificarFechas();
     }

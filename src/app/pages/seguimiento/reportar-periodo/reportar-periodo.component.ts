@@ -90,7 +90,7 @@ export class ReportarPeriodoComponent implements OnInit {
 
 
   generarTrimestre() {
-    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId + `,periodo_id:` + this.trimestre.Id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId + `,periodo_seguimiento_id:` + this.trimestre.Id).subscribe((data: any) => {
       if (data.Data.length != 0) {
         let seguimiento = data.Data[0];
         let auxFecha = new Date();
@@ -145,7 +145,7 @@ export class ReportarPeriodoComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId).subscribe((data: any) => {
       if (data.Data.length != 0) {
         let seguimiento = data.Data[data.Data.length - 1]
-        this.loadTrimestre(seguimiento.periodo_id);
+        this.loadTrimestre(seguimiento.periodo_seguimiento_id);
       }
     }, (error) => {
       Swal.fire({
@@ -180,7 +180,7 @@ export class ReportarPeriodoComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId).subscribe((data: any) => {
       if (data.Data.length != 0) {
         let seguimientor = data.Data[data.Data.length - 1]
-        this.trimestreId = seguimientor.periodo_id;
+        this.trimestreId = seguimientor.periodo_seguimiento_id;
 
         this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/` + this.planId).subscribe((data: any) => {
           if (data) {
@@ -193,7 +193,7 @@ export class ReportarPeriodoComponent implements OnInit {
               let primerDatoAcumu = indicador.nombre;
               let datoIdentir = {
                 "plan_id": this.planId,
-                "periodo_id": this.trimestreId,
+                "periodo_seguimiento_id": this.trimestreId,
                 "index": this.indexActividad,
                 "Nombre_del_indicador": primerDatoAcumu.replace(reg, '_'),
                 "avancePeriodo": "2"
