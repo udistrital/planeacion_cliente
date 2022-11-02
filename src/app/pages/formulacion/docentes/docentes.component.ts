@@ -837,7 +837,7 @@ export class DocentesComponent implements OnInit {
         meses: 0,
         sueldoBasico: '',
         sueldoMensual: '',
-        privaServicios: '',
+        primaServicios: '',
         primaNavidad: '',
         primaVacaciones: '',
         vacaciones: '',
@@ -877,7 +877,7 @@ export class DocentesComponent implements OnInit {
         meses: 0,
         sueldoBasico: '',
         sueldoMensual: '',
-        privaServicios: '',
+        primaServicios: '',
         primaNavidad: '',
         primaVacaciones: '',
         vacaciones: '',
@@ -1325,16 +1325,13 @@ export class DocentesComponent implements OnInit {
           } else if (element.categoria === "Auxiliar") {
             let primaServicios = ((this.auxiliarPrestacional.prima_servicios * element.horas) * element.semanas * (1 + this.incremento)).toFixed(0);
             this.dataSourceRHVPRE.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (element.categoria === "Asistente") {
+          } else if (element.categoria === "Asistente") {
             let primaServicios = ((this.asistentePrestacional.prima_servicios * element.horas) * element.semanas * (1 + this.incremento)).toFixed(0);
             this.dataSourceRHVPRE.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (element.categoria === "Asociado") {
+          } else if (element.categoria === "Asociado") {
             let primaServicios = ((this.asociadoPrestacional.prima_servicios * element.horas) * element.semanas * (1 + this.incremento)).toFixed(0);
             this.dataSourceRHVPRE.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (element.categoria === "Titular") {
+          } else if (element.categoria === "Titular") {
             let primaServicios = ((this.titularPrestacional.prima_servicios * element.horas) * element.semanas * (1 + this.incremento)).toFixed(0);
             this.dataSourceRHVPRE.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
@@ -1350,24 +1347,19 @@ export class DocentesComponent implements OnInit {
           } else if (element.categoria === "Asistente") {
             let primaServicios = ((this.asistentePrestacionalPOS.prima_servicios * element.horas) * element.semanas * (1 + this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (element.categoria === "Asociado") {
+          }else if (element.categoria === "Asociado") {
             let primaServicios = ((this.asociadoPrestacionalPOS.prima_servicios * element.horas) * element.semanas * (1 + this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (element.categoria === "Titular") {
+          } else if (element.categoria === "Titular") {
             let primaServicios = ((this.titularPrestacionalPOS.prima_servicios * element.horas) * element.semanas * (1 + this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (element.categoria === "Asistente UD") {
+          } else if (element.categoria === "Asistente UD") {
             let primaServicios = ((this.asistenteUDPrestacionalPOS.prima_servicios * element.horas) * element.semanas * (1 + this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (element.categoria === "Asociado UD") {
+          } else if (element.categoria === "Asociado UD") {
             let primaServicios = ((this.asociadoUDPrestacionalPOS.prima_servicios * element.horas) * element.semanas * (1 + this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
-          }
-          if (element.categoria === "Titular UD") {
+          } else if (element.categoria === "Titular UD") {
             let primaServicios = ((this.titularUDPrestacionalPOS.prima_servicios * element.horas) * element.semanas * (1 + this.incremento)).toFixed(0);
             this.dataSourceRHVPOS.data[rowIndex].primaServicios = formatCurrency(parseInt(primaServicios), 'en-US', getCurrencySymbol('USD', 'wide'));
           }
