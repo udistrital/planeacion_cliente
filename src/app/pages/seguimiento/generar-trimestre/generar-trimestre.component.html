@@ -18,20 +18,23 @@
                 <mat-grid-list cols="6" rowHeight="35px" gutterSize="5px">
                     <mat-grid-tile class="titulo">Actividad general</mat-grid-tile>
                     <mat-grid-tile>
-                        <textarea class="width-text-trimestre" [readonly]="true" placeholder="Actividad"></textarea>
+                        <textarea class="width-text-trimestre" [readonly]="true"
+                            placeholder="Actividad">{{seguimiento.informacion.index}}</textarea>
                     </mat-grid-tile>
                     <mat-grid-tile class="titulo" colspan="4">Descripción de la actividad</mat-grid-tile>
                     <mat-grid-tile class="titulo">Ponderación</mat-grid-tile>
                     <mat-grid-tile>
-                        <textarea class="width-text-trimestre" [readonly]="true" placeholder="%"></textarea>
+                        <textarea class="width-text-trimestre" [readonly]="true"
+                            placeholder="%">{{seguimiento.informacion.ponderacion}}</textarea>
                     </mat-grid-tile>
                     <mat-grid-tile colspan="4" rowspan="2">
                         <textarea class="width-text-trimestre" [readonly]="true"
-                            placeholder="Descripción de la actividad general seleccionada"></textarea>
+                            placeholder="Descripción de la actividad general seleccionada">{{seguimiento.informacion.descripcion}}</textarea>
                     </mat-grid-tile>
                     <mat-grid-tile class="titulo">Periodo de ejecución</mat-grid-tile>
                     <mat-grid-tile>
-                        <textarea class="width-text-trimestre" [readonly]="true" placeholder="Periodo"></textarea>
+                        <textarea class="width-text-trimestre" [readonly]="true"
+                            placeholder="Periodo">{{seguimiento.informacion.periodo}}</textarea>
                     </mat-grid-tile>
                 </mat-grid-list>
 
@@ -39,11 +42,12 @@
                     <mat-grid-tile colspan="2" class="titulo">Productos asociados</mat-grid-tile>
                     <mat-grid-tile class="titulo" colspan="4">Tareas asociadas</mat-grid-tile>
                     <mat-grid-tile colspan="2" rowspan="2">
-                        <textarea class="width-text-trimestre" [readonly]="true"></textarea>
+                        <textarea class="width-text-trimestre"
+                            [readonly]="true">{{seguimiento.informacion.producto}}</textarea>
                     </mat-grid-tile>
                     <mat-grid-tile colspan="4" rowspan="2">
                         <textarea class="width-text-trimestre" [readonly]="true"
-                            placeholder="Tareas asociadas a la actividad general"></textarea>
+                            placeholder="Tareas asociadas a la actividad general">{{seguimiento.informacion.tarea}}</textarea>
                     </mat-grid-tile>
                 </mat-grid-list>
                 <div class="container-border">
@@ -348,16 +352,14 @@
 
                     <br>
 
-                    <mat-card>
+                    <mat-card *ngIf="rol=='PLANEACION'">
                         <mat-card-header>Estado de la actividad</mat-card-header>
                         <mat-card-content>
                             <textarea class="width-text-trimestre" id="Estado" placeholder="Estado"
                                 formControlName="estadoActividad" required
-                                [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                                [readonly]="!indicadorSelected || readonlyFormulario">{{seguimiento.estado.nombre}}</textarea>
                         </mat-card-content>
                     </mat-card>
-
-
                 </div>
 
             </div>
