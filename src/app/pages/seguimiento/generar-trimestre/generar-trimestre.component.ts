@@ -15,33 +15,33 @@ import { VisualizarDocumentoDialogComponent } from './visualizar-documento-dialo
 import { UserService } from '../../services/userService';
 
 export interface Indicador {
-  nombre:string;
-  formula:string;
-  meta:string;
-  reporteNumerador:string;
-  reporteDenominador:string;
-  detalleReporte:string;
-  observaciones:string;
+  nombre: string;
+  formula: string;
+  meta: string;
+  reporteNumerador: string;
+  reporteDenominador: string;
+  detalleReporte: string;
+  observaciones: string;
 }
 
-export interface ResultadosIndicador{
-  indicador:string;
-  indicadorAcumulado:string;
-  avanceAcumulado:string;
-  brechaExistente:string;
+export interface ResultadosIndicador {
+  indicador: string;
+  indicadorAcumulado: string;
+  avanceAcumulado: string;
+  brechaExistente: string;
 }
 
 //Data de prueba para tabla de indicadores:
 const ELEMENT_DATA: Indicador[] = [
-  {nombre: 'Ind. 1', formula: "a", meta: 'as',reporteNumerador:'1',reporteDenominador:'2',detalleReporte:"det",observaciones:'No'},
-  {nombre: 'Ind. 2', formula: "b", meta: 'ad',reporteNumerador:'1',reporteDenominador:'2',detalleReporte:"det",observaciones:'No'},
-  {nombre: 'Ind. 3', formula: "c", meta: 'df',reporteNumerador:'1',reporteDenominador:'2',detalleReporte:"det",observaciones:'No'},
+  { nombre: 'Ind. 1', formula: "a", meta: 'as', reporteNumerador: '1', reporteDenominador: '2', detalleReporte: "det", observaciones: 'No' },
+  { nombre: 'Ind. 2', formula: "b", meta: 'ad', reporteNumerador: '1', reporteDenominador: '2', detalleReporte: "det", observaciones: 'No' },
+  { nombre: 'Ind. 3', formula: "c", meta: 'df', reporteNumerador: '1', reporteDenominador: '2', detalleReporte: "det", observaciones: 'No' },
 ];
 
 const ELEMENT_DATA2: ResultadosIndicador[] = [
-  {indicador:'Ind. 1', indicadorAcumulado:'30', avanceAcumulado:'50', brechaExistente:'20'},
-  {indicador:'Ind. 2', indicadorAcumulado:'30', avanceAcumulado:'50', brechaExistente:'20'},
-  {indicador:'Ind. 3', indicadorAcumulado:'30', avanceAcumulado:'50', brechaExistente:'20'},
+  { indicador: 'Ind. 1', indicadorAcumulado: '30', avanceAcumulado: '50', brechaExistente: '20' },
+  { indicador: 'Ind. 2', indicadorAcumulado: '30', avanceAcumulado: '50', brechaExistente: '20' },
+  { indicador: 'Ind. 3', indicadorAcumulado: '30', avanceAcumulado: '50', brechaExistente: '20' },
 ];
 
 @Component({
@@ -50,9 +50,9 @@ const ELEMENT_DATA2: ResultadosIndicador[] = [
   styleUrls: ['./generar-trimestre.component.scss']
 })
 export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
-  columnasIndicadores: string[] = ['nombre', 'formula', 'meta','reporteNumerador', 'reporteDenominador','detalleReporte', 'observaciones'];
+  columnasIndicadores: string[] = ['nombre', 'formula', 'meta', 'reporteNumerador', 'reporteDenominador', 'detalleReporte', 'observaciones'];
   datosIndicadores = new MatTableDataSource<Indicador>(ELEMENT_DATA);
-  columnasResultados: string[] = ['indicador','indicadorAcumulado', 'avanceAcumulado', 'brechaExistente'];
+  columnasResultados: string[] = ['indicador', 'indicadorAcumulado', 'avanceAcumulado', 'brechaExistente'];
   datosResultados = new MatTableDataSource<ResultadosIndicador>(ELEMENT_DATA2);
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
@@ -69,7 +69,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   indicadores: File[] = [];
   documentos: any[] = [];
   indicadorSelected: boolean;
-  seguimiento: any = {};
+  seguimiento: any = { 'informacion': '', 'estado': '' };
   indicadorActivo: string;
   documentoSeleccionado: File = null;
   trimestre: string = '';
@@ -82,11 +82,12 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   mostrarObservaciones: boolean;
   documentoPlaneacion: any;
   seguimientoCompleto: any;
-  estadoSeguimiento : string;
-  estados : any[];
+  estadoSeguimiento: string;
+  estados: any[];
   readonlyFormulario: boolean;
   readonlyObservacion: boolean;
   unidad: string;
+  reporte: any;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -107,7 +108,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.loadData();
     this.loadTrimestre();
     this.getSeguimiento();
-    this.loadEstados();    
+    this.loadEstados();
   }
 
   ngOnInit(): void {
@@ -122,7 +123,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       observaciones: ['', Validators.required],
       documentos: ['',],
       autor: ['',],
-      observacionesP: ['',]
+      observacionesP: ['',],
+      estadoActividad: ['',]
     });
     this.indicadorSelected = false;
     this.mostrarObservaciones = false;
@@ -135,7 +137,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   getRol() {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA'|| 'ASISTENTE_DEPENDENCIA')) {
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
@@ -153,9 +155,32 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   loadTrimestre() {
-    this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + this.trimestreId).subscribe((data: any) => {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/` + this.trimestreId).subscribe((data: any) => {
       if (data) {
-        this.trimestre = data.Data[0].ParametroId.Nombre;
+        let periodoId = data.Data.periodo_id;
+
+        this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + periodoId).subscribe((data: any) => {
+          if (data) {
+            this.trimestre = data.Data[0].ParametroId.Nombre;
+          }
+          Swal.close();
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        })
       }
     }, (error) => {
       Swal.fire({
@@ -168,7 +193,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     })
   }
 
-  loadEstados(){
+  loadEstados() {
     this.request.get(environment.PLANES_CRUD, `estado-seguimiento`).subscribe((data: any) => {
       if (data.Data.length != 0) {
         this.estados = data.Data;
@@ -185,11 +210,20 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   getSeguimiento() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planId + `,periodo_seguimiento_id:` + this.trimestreId).subscribe((data: any) => {
       if (data.Data) {
         this.seguimientoCompleto = data.Data[0];
         this.getEstado();
-       }
+        Swal.close();
+      }
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
@@ -219,21 +253,21 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
   }
 
-  verificarFormulario(){
-    if (this.rol === 'PLANEACION'){
-      if (this.estadoSeguimiento === 'En Reporte' ||this.estadoSeguimiento === 'Aprobado para evaluación' ){
+  verificarFormulario() {
+    if (this.rol === 'PLANEACION') {
+      if (this.estadoSeguimiento === 'En Reporte' || this.estadoSeguimiento === 'Aprobado para evaluación') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      }else if (this.estadoSeguimiento === 'Generado'){
+      } else if (this.estadoSeguimiento === 'Generado') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = false;
         this.mostrarObservaciones = true;
-      }else if (this.estadoSeguimiento === 'Observación'){
+      } else if (this.estadoSeguimiento === 'Observación') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-      }else if (this.estadoSeguimiento === 'Ajustado'){
+      } else if (this.estadoSeguimiento === 'Ajustado') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = false;
         this.mostrarObservaciones = true;
@@ -243,24 +277,24 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       //   this.readonlyObservacion = true;
       //   this.mostrarObservaciones = false;
       // }
-    }else if (this.rol == 'JEFE_DEPENDENCIA'){
-      if (this.estadoSeguimiento === 'En Reporte'){
+    } else if (this.rol == 'JEFE_DEPENDENCIA') {
+      if (this.estadoSeguimiento === 'En Reporte') {
         this.readonlyFormulario = false;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      }else if (this.estadoSeguimiento === 'Generado'){
+      } else if (this.estadoSeguimiento === 'Generado') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      }else if (this.estadoSeguimiento === 'Observación'){
+      } else if (this.estadoSeguimiento === 'Observación') {
         this.readonlyFormulario = false;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-      }else if (this.estadoSeguimiento === 'Ajustado'){
+      } else if (this.estadoSeguimiento === 'Ajustado') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-      }else if (this.estadoSeguimiento === 'Aprobado para evaluación'){
+      } else if (this.estadoSeguimiento === 'Aprobado para evaluación') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
@@ -293,7 +327,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   onChangeI(event: string) {
-    this.documentoSeleccionado= null;
+    this.documentoSeleccionado = null;
     if (event == undefined) {
       this.indicadorSelected = false;
       this.auxDocumentos = [];
@@ -435,6 +469,14 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   generarAvance() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/` + this.planId).subscribe((data: any) => {
       if (data) {
         this.listIndicadores = data.Data;
@@ -463,6 +505,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             }
           })
         }
+        Swal.close();
       }
       let datoIdenti = {
         "plan_id": this.planId,
@@ -497,9 +540,18 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   loadInidicadores() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/` + this.planId).subscribe((data: any) => {
       if (data) {
         this.indicadores = data.Data;
+        Swal.close();
       }
     }, (error) => {
       Swal.fire({
@@ -540,9 +592,18 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
 
   loadData() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.PLANES_MID, `seguimiento/get_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
       if (data.Data != '') {
         this.seguimiento = data.Data;
+        Swal.close();
       }
     }, (error) => {
       Swal.fire({
@@ -999,5 +1060,3 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
   }
 }
-
-

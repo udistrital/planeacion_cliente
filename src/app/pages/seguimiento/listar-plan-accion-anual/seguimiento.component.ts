@@ -191,8 +191,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         this.vigencias = data.Data;
         if (this.rol != undefined && this.rol == 'PLANEACION') {
           this.loadPlanes("vigencia");
-        } else {
-
         }
       }
     }, (error) => {
@@ -310,14 +308,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                       showConfirmButton: false,
                       timer: 2500
                     });
-                    this.formFechas.get('fecha1').setValue(null);
-                    this.formFechas.get('fecha2').setValue(null);
-                    this.formFechas.get('fecha3').setValue(null);
-                    this.formFechas.get('fecha4').setValue(null);
-                    this.formFechas.get('fecha5').setValue(null);
-                    this.formFechas.get('fecha6').setValue(null);
-                    this.formFechas.get('fecha7').setValue(null);
-                    this.formFechas.get('fecha8').setValue(null);
+                    this.limpiarCampoFechas();
                   }
                 }, (error) => {
                   Swal.fire({
@@ -327,14 +318,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                     showConfirmButton: false,
                     timer: 2500
                   });
-                  this.formFechas.get('fecha1').setValue(null);
-                  this.formFechas.get('fecha2').setValue(null);
-                  this.formFechas.get('fecha3').setValue(null);
-                  this.formFechas.get('fecha4').setValue(null);
-                  this.formFechas.get('fecha5').setValue(null);
-                  this.formFechas.get('fecha6').setValue(null);
-                  this.formFechas.get('fecha7').setValue(null);
-                  this.formFechas.get('fecha8').setValue(null);
+                  this.limpiarCampoFechas();
                 })
               }
             } else {
@@ -346,14 +330,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                 showConfirmButton: false,
                 timer: 2500
               });
-              this.formFechas.get('fecha1').setValue(null);
-              this.formFechas.get('fecha2').setValue(null);
-              this.formFechas.get('fecha3').setValue(null);
-              this.formFechas.get('fecha4').setValue(null);
-              this.formFechas.get('fecha5').setValue(null);
-              this.formFechas.get('fecha6').setValue(null);
-              this.formFechas.get('fecha7').setValue(null);
-              this.formFechas.get('fecha8').setValue(null);
+              this.limpiarCampoFechas();
             }
 
             Swal.close();
@@ -366,14 +343,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               showConfirmButton: false,
               timer: 2500
             });
-            this.formFechas.get('fecha1').setValue(null);
-            this.formFechas.get('fecha2').setValue(null);
-            this.formFechas.get('fecha3').setValue(null);
-            this.formFechas.get('fecha4').setValue(null);
-            this.formFechas.get('fecha5').setValue(null);
-            this.formFechas.get('fecha6').setValue(null);
-            this.formFechas.get('fecha7').setValue(null);
-            this.formFechas.get('fecha8').setValue(null);
+            this.limpiarCampoFechas();
           }
         }
       }, (error) => {
@@ -386,14 +356,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         })
       })
     } else {
-      this.formFechas.get('fecha1').setValue(null);
-      this.formFechas.get('fecha2').setValue(null);
-      this.formFechas.get('fecha3').setValue(null);
-      this.formFechas.get('fecha4').setValue(null);
-      this.formFechas.get('fecha5').setValue(null);
-      this.formFechas.get('fecha6').setValue(null);
-      this.formFechas.get('fecha7').setValue(null);
-      this.formFechas.get('fecha8').setValue(null);
+      this.limpiarCampoFechas();
     }
   }
 
@@ -426,6 +389,14 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   loadPlanes(tipo) {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     if (tipo == "unidad") {
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,dependencia_id:` + this.unidad.Id).subscribe((data: any) => {
         if (data) {
@@ -438,6 +409,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             this.dataSource.data = this.planes;
             this.allPlanes = this.dataSource.data;
             this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
+            Swal.close();
           } else {
             this.unidadSelected = false;
             Swal.fire({
@@ -482,6 +454,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             this.dataSource.data = this.planes;
             this.allPlanes = this.dataSource.data;
             this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
+            Swal.close();
           } else {
             this.unidadSelected = false;
             Swal.fire({
@@ -643,9 +616,20 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   onTrimestreChange(trimestre: any, id: any) {
     let index = this.dataSource.data.findIndex(row => row._id == id)
     if (this.vigencia) {
-      this.dataSource.data[index]["estado"] = this.dataSource.data[index][trimestre + "estado"];
+      this.dataSource.data[index]["estado"] = this.dataSource.data[index][trimestre.toLowerCase() + "estado"];
     }
     this.dataSource.data[index]["trimestre"] = trimestre;
 
+  }
+
+  limpiarCampoFechas() {
+    this.formFechas.get('fecha1').setValue(null);
+    this.formFechas.get('fecha2').setValue(null);
+    this.formFechas.get('fecha3').setValue(null);
+    this.formFechas.get('fecha4').setValue(null);
+    this.formFechas.get('fecha5').setValue(null);
+    this.formFechas.get('fecha6').setValue(null);
+    this.formFechas.get('fecha7').setValue(null);
+    this.formFechas.get('fecha8').setValue(null);
   }
 }
