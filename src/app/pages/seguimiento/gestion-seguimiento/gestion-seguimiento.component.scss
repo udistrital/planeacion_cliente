@@ -17,7 +17,7 @@ td {
 }
 
 .td-align-right {
-  text-align: right;
+  text-align: center;
   justify-content: flex-end;
 }
 
@@ -133,7 +133,6 @@ td {
   outline: none;
 }
 
-
 .width-list {
   width: 31%;
   margin-left: 1%;
@@ -159,7 +158,6 @@ td {
   display: inline-block;
   height: auto;
 }
-
 
 .width-list textarea {
   width: 98%;
@@ -193,7 +191,6 @@ td {
   width: 100%;
 }
 
-
 .background-button {
   border-radius: 8px 8px 8px 8px;
   width: 29%;
@@ -202,12 +199,7 @@ td {
 
 .align-button1 {
   position: absolute;
-  margin: 2% 2% 2% 19%;
-}
-
-.align-button2 {
-  position: absolute;
-  margin: 2% 0% 2% 52%;
+  margin: 20px 2% 2% 35%;
 }
 
 .container-button {
@@ -216,13 +208,10 @@ td {
 }
 
 .state {
-  // width: 8%;
   text-align: center;
   border: 1px solid var(--primary);
   padding: 0.5%;
   border-radius: 15px 15px 15px 15px;
-  // position: absolute;
-  // margin-left: 4%;
   top: 11%;
 }
 
