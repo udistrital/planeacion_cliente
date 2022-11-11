@@ -15,7 +15,6 @@ import { ReportarPeriodoComponent } from './seguimiento/reportar-periodo/reporta
 import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/generar-trimestre.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
-import { Evidencias } from './seguimiento/evidencias/evidencias.component';
 import { ConstruccionModulComponent } from './construccion-modul/construccion-modul.component';
 import { PUIComponent } from './pui/pui.component';
 import { PedComponent } from './ped/ped.component';
@@ -266,10 +265,6 @@ const routes: Routes = [{
         {
           path: 'generar-trimestre/:plan_id/:index/:trimestre_id',
           component: GenerarTrimestreComponent,
-        },
-        {
-          path: 'app-evidencias',
-          component: Evidencias,
         },
         
       ]
