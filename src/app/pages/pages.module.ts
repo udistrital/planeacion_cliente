@@ -43,7 +43,7 @@ import { SeguimientoComponentList } from './seguimiento/listar-plan-accion-anual
 import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/gestion-seguimiento.component';
 import { ReportarPeriodoComponent } from './seguimiento/reportar-periodo/reportar-periodo.component';
 import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/generar-trimestre.component';
-import { Evidencias } from './seguimiento/evidencias/evidencias.component';
+import { EvidenciasDialogComponent } from './seguimiento/evidencias/evidencias-dialog.component';
 import { ArbolComponent } from './plan/arbol/arbol.component';
 import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agregar-dialog.component';
 import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
@@ -100,7 +100,7 @@ const pagesComponents = [
   SeguimientoComponentGestion,
   ReportarPeriodoComponent,
   GenerarTrimestreComponent,
-  Evidencias,
+  EvidenciasDialogComponent,
   FormulacionComponent,
   AgregarDialogComponent,
   EditarDialogComponent,
@@ -153,7 +153,7 @@ const MY_FORMATS = {
     SeguimientoComponentGestion,
     ReportarPeriodoComponent,
     GenerarTrimestreComponent,
-    Evidencias,
+    EvidenciasDialogComponent,
     ArbolComponent,
     AgregarDialogComponent,
     EditarDialogComponent,

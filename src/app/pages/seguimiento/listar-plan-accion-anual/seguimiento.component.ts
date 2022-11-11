@@ -60,11 +60,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.data = [];
-    /* if (this.rol === 'PLANEACION'){ */
-    // this.loadPlanes("vigencia");
-    /* } else if (this.rol === 'JEFE_DEPENDENCIA'){
-      this.loadPlanes("unidad");
-    } */
   }
 
   ngOnInit(): void {
@@ -118,10 +113,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
   gestion() {
     window.location.href = '#/pages/seguimiento/gestion-seguimiento';
-  }
-
-  traerDatos() {
-    //console.log('si entra en traer datos');
   }
 
   applyFilter(event: Event) {
@@ -186,6 +177,14 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   loadPeriodos() {
+    Swal.fire({
+      title: 'Cargando períodos',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
       if (data) {
         this.vigencias = data.Data;
@@ -205,7 +204,12 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   async loadFechas() {
-    await this.loadPlanes("unidad");
+    if (this.unidadSelected) {
+      await this.loadPlanes("unidad");
+    } else {
+      await this.loadPlanes("vigencia");
+    }
+
     if (this.vigencia) {
       Swal.fire({
         title: 'Cargando períodos',
@@ -283,7 +287,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                                     this.dataSource.data[index][trimestre + "class"] = "gris";
                                   }
                                   this.dataSource.data[index][trimestre + "estado"] = estado.Data.nombre;
-
+                                  this.allPlanes = this.dataSource.data;
                                 } else {
                                   Swal.fire({
                                     title: 'Error en la operación',
@@ -293,8 +297,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                                     timer: 2500
                                   });
                                 }
+                                Swal.close();
                               })
-
                             }
                           });
                         }
@@ -322,7 +326,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                 })
               }
             } else {
-              Swal.close();
               Swal.fire({
                 title: 'Error en la operación',
                 text: `No se encuentran tirmestres habilitados para esta vigencia`,
@@ -332,10 +335,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               });
               this.limpiarCampoFechas();
             }
-
-            Swal.close();
           } else {
-            Swal.close();
             Swal.fire({
               title: 'Error en la operación',
               text: `No se encontraron trimestres para esta vigencia`,
@@ -409,7 +409,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             this.dataSource.data = this.planes;
             this.allPlanes = this.dataSource.data;
             this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
-            Swal.close();
           } else {
             this.unidadSelected = false;
             Swal.fire({
@@ -454,7 +453,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             this.dataSource.data = this.planes;
             this.allPlanes = this.dataSource.data;
             this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
-            Swal.close();
           } else {
             this.unidadSelected = false;
             Swal.fire({
@@ -476,6 +474,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         })
       })
     }
+    Swal.close();
   }
 
   getUnidades() {

@@ -13,6 +13,8 @@ import { element } from 'protractor';
 import { Location } from '@angular/common';
 import { VisualizarDocumentoDialogComponent } from './visualizar-documento-dialog/visualizar-documento-dialog.component';
 import { UserService } from '../../services/userService';
+import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
+import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
 
 export interface Indicador {
   nombre: string;
@@ -74,26 +76,24 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   documentoSeleccionado: File = null;
   trimestre: string = '';
   auxDocumentos: string[] = [];
-  auxDocumentosP: string;
   generalData: any = {};
   generalDatar: any = {};
   listIndicadores: any = {};
   textoDeInput: string = null
   mostrarObservaciones: boolean;
   documentoPlaneacion: any;
-  seguimientoCompleto: any;
   estadoSeguimiento: string;
   estados: any[];
   readonlyFormulario: boolean;
   readonlyObservacion: boolean;
   unidad: string;
-  reporte: any;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private request: RequestManager,
+    private gestorDocumental: GestorDocumentalService,
     private _location: Location,
     public dialog: MatDialog,
     private router: Router,
@@ -107,7 +107,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.loadInidicadores();
     this.loadData();
     this.loadTrimestre();
-    this.getSeguimiento();
     this.loadEstados();
   }
 
@@ -155,14 +154,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   loadTrimestre() {
-    Swal.fire({
-      title: 'Cargando información',
-      timerProgressBar: true,
-      showConfirmButton: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-    })
     this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/` + this.trimestreId).subscribe((data: any) => {
       if (data) {
         let periodoId = data.Data.periodo_id;
@@ -171,7 +162,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           if (data) {
             this.trimestre = data.Data[0].ParametroId.Nombre;
           }
-          Swal.close();
         }, (error) => {
           Swal.fire({
             title: 'Error en la operación',
@@ -209,34 +199,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     })
   }
 
-  getSeguimiento() {
-    Swal.fire({
-      title: 'Cargando información',
-      timerProgressBar: true,
-      showConfirmButton: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-    })
-    this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planId + `,periodo_seguimiento_id:` + this.trimestreId).subscribe((data: any) => {
-      if (data.Data) {
-        this.seguimientoCompleto = data.Data[0];
-        this.getEstado();
-        Swal.close();
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
-  }
 
   getEstado() {
-    this.request.get(environment.PLANES_CRUD, `estado-seguimiento/` + this.seguimientoCompleto.estado_seguimiento_id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `estado-seguimiento/` + this.seguimiento.estado_seguimiento_id).subscribe((data: any) => {
       if (data) {
         this.estadoSeguimiento = data.Data.nombre;
         this.verificarFormulario();
@@ -326,70 +291,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onChangeI(event: string) {
-    this.documentoSeleccionado = null;
-    if (event == undefined) {
-      this.indicadorSelected = false;
-      this.auxDocumentos = [];
-      this.documentos = [];
-      this.documentoPlaneacion = undefined;
-      this.formGenerarTrimestre.get('avancePeriodo').setValue('');
-      this.formGenerarTrimestre.get('avanceAcumulado').setValue('');
-      this.formGenerarTrimestre.get('producto').setValue('');
-      this.formGenerarTrimestre.get('evidencia').setValue('');
-      this.formGenerarTrimestre.get('logros').setValue('');
-      this.formGenerarTrimestre.get('dificultades').setValue('');
-      this.formGenerarTrimestre.get('observaciones').setValue('');
-      this.formGenerarTrimestre.get('observacionesP').setValue('');
-      this.formGenerarTrimestre.get('autor').setValue('');
-    } else {
-      let reg = / /g;
-      this.indicadorActivo = event.replace(reg, '_');
-      this.indicadorSelected = true;
-
-      if (this.seguimiento[this.indicadorActivo] != null) {
-        this.auxDocumentos = [];
-        this.documentos = [];
-        this.formGenerarTrimestre.get('avancePeriodo').setValue(this.seguimiento[this.indicadorActivo].avancePeriodo);
-        this.formGenerarTrimestre.get('avanceAcumulado').setValue(this.seguimiento[this.indicadorActivo].avanceAcumulado);
-        this.formGenerarTrimestre.get('producto').setValue(this.seguimiento[this.indicadorActivo].producto);
-        this.formGenerarTrimestre.get('evidencia').setValue(this.seguimiento[this.indicadorActivo].evidencia);
-        this.formGenerarTrimestre.get('logros').setValue(this.seguimiento[this.indicadorActivo].logros);
-        this.formGenerarTrimestre.get('dificultades').setValue(this.seguimiento[this.indicadorActivo].dificultades);
-        this.formGenerarTrimestre.get('observaciones').setValue(this.seguimiento[this.indicadorActivo].observaciones);
-        if (this.seguimiento[this.indicadorActivo]["documentos"] != "" && this.seguimiento[this.indicadorActivo]["documentos"] != undefined) {
-          this.loadDocumentos(this.seguimiento[this.indicadorActivo]["documentos"]);
-        }
-        if (this.seguimiento[this.indicadorActivo]["observacionesP"] != "") {
-          this.formGenerarTrimestre.get('observacionesP').setValue(this.seguimiento[this.indicadorActivo].observacionesP);
-          this.formGenerarTrimestre.get('autor').setValue(this.seguimiento[this.indicadorActivo].autor);
-        } else {
-          this.getDataUser();
-        }
-        if (this.seguimiento[this.indicadorActivo]["documentoP"] != "" && this.seguimiento[this.indicadorActivo]["documentoP"] != undefined) {
-          this.loadDocumentoP(this.seguimiento[this.indicadorActivo]["documentoP"]);
-        }
-        else {
-          this.documentoPlaneacion = undefined;
-        }
-      } else {
-        this.auxDocumentos = [];
-        this.documentos = [];
-        this.documentoPlaneacion = undefined;
-        this.formGenerarTrimestre.get('avancePeriodo').setValue('');
-        this.formGenerarTrimestre.get('avanceAcumulado').setValue('');
-        this.formGenerarTrimestre.get('producto').setValue('');
-        this.formGenerarTrimestre.get('evidencia').setValue('');
-        this.formGenerarTrimestre.get('logros').setValue('');
-        this.formGenerarTrimestre.get('dificultades').setValue('');
-        this.formGenerarTrimestre.get('observaciones').setValue('');
-        this.formGenerarTrimestre.get('observacionesP').setValue('');
-        this.formGenerarTrimestre.get('autor').setValue('');
-
-      }
-    }
-  }
-
   onChangeD(event) {
     if (event != null) {
       this.documentoSeleccionado = event;
@@ -399,47 +300,37 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   }
 
-  onChangeDocumento(event) {
-    if (event != undefined) {
-      let aux = event.files[0];
-      const found = this.documentos.find(element => element.name == aux.name);
-      if (found == undefined) {
-        this.documentos.push(aux);
-        Swal.fire({
-          title: 'Documento Cargado',
-          text: `Revise el campo de soportes para visualizar o eliminar`,
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 2000
-        })
-      } else {
-        Swal.fire({
-          title: 'Error en la operación',
-          text: `El documento ya se encuentra cargado`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2000
-        })
+  onSeeDocumentos(event) {
+    const dialogRef = this.dialog.open(EvidenciasDialogComponent, {
+      width: '80%',
+      height: '55%',
+      data: this.documentos
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result == undefined) {
+        return undefined;
       }
-
-    } else {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se pudo subir el documento`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    }
-
+    });
   }
 
-  onChangeDocumentoP(event) {
+  async onChangeDocumento(event) {
     if (event != undefined) {
       let aux = event.files[0];
+
       const found = this.documentos.find(element => element.name == aux.name);
-      if (this.documentoPlaneacion == undefined || this.documentoPlaneacion.name != aux.name) {
-        this.documentoPlaneacion = aux;
+      if (found == undefined) {
+        let documento = {
+          IdTipoDocumento: 60,
+          nombre: aux.name,
+          metadatos: {
+            dato_a: "Soporte planeacion"
+          },
+          descripcion: "Documento de soporte para seguimiento de plan de acción",
+          file: await this.gestorDocumental.fileToBase64(aux)
+        }
+        this.documentos.push(documento);
+        this.seguimiento.documento = this.documentos;
         Swal.fire({
           title: 'Documento Cargado',
           text: `Revise el campo de soportes para visualizar o eliminar`,
@@ -456,6 +347,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           timer: 2000
         })
       }
+
     } else {
       Swal.fire({
         title: 'Error en la operación',
@@ -465,18 +357,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         timer: 2500
       })
     }
-
   }
 
   generarAvance() {
-    Swal.fire({
-      title: 'Cargando información',
-      timerProgressBar: true,
-      showConfirmButton: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-    })
     this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/` + this.planId).subscribe((data: any) => {
       if (data) {
         this.listIndicadores = data.Data;
@@ -505,7 +388,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             }
           })
         }
-        Swal.close();
       }
       let datoIdenti = {
         "plan_id": this.planId,
@@ -540,18 +422,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   loadInidicadores() {
-    Swal.fire({
-      title: 'Cargando información',
-      timerProgressBar: true,
-      showConfirmButton: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-    })
     this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/` + this.planId).subscribe((data: any) => {
       if (data) {
         this.indicadores = data.Data;
-        Swal.close();
       }
     }, (error) => {
       Swal.fire({
@@ -563,33 +436,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       })
     })
   }
-
-  guardarDataIndicador() {
-    this.convertirDocumentos().then(() => {
-      let aux = this.auxDocumentos.toString();
-      this.seguimiento[this.indicadorActivo] = {
-        avancePeriodo: this.formGenerarTrimestre.get('avancePeriodo').value,
-        avanceAcumulado: this.formGenerarTrimestre.get('avanceAcumulado').value,
-        producto: this.formGenerarTrimestre.get('producto').value,
-        evidencia: this.formGenerarTrimestre.get('evidencia').value,
-        logros: this.formGenerarTrimestre.get('logros').value,
-        dificultades: this.formGenerarTrimestre.get('dificultades').value,
-        observaciones: this.formGenerarTrimestre.get('observaciones').value,
-        documentos: this.auxDocumentos.toString(),
-        observacionesP: this.formGenerarTrimestre.get('observacionesP').value,
-        autor: this.formGenerarTrimestre.get('autor').value,
-        documentoP: this.auxDocumentosP
-      };
-    })
-    Swal.fire({
-      title: 'Informacion de indicador actualizada',
-      text: `Para guardar los cambios oprima el boton Guardar`,
-      icon: 'success',
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
-
 
   loadData() {
     Swal.fire({
@@ -603,6 +449,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.request.get(environment.PLANES_MID, `seguimiento/get_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
       if (data.Data != '') {
         this.seguimiento = data.Data;
+        this.unidad = this.seguimiento.informacion.unidad;
+        this.documentos = data.Data.evidencia;
         Swal.close();
       }
     }, (error) => {
@@ -623,14 +471,32 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           title: 'Información de seguimiento actualizada',
           text: 'El seguimiento se ha guardado satisfactoriamente',
           icon: 'success'
-        })
+        }).then(res => {
+          this.loadData();
+        });
       }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No fue posible guardar el seguimiento`,
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 2500
+      })
     })
   }
 
   eliminarDocumento() {
     for (let i = 0; i < this.documentos.length; i++) {
       if (this.documentos[i].name == this.documentoSeleccionado.name) {
+
+        for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
+          const evidencia = this.seguimiento.evidencia[index];
+          if (evidencia.Nombre == this.documentoSeleccionado.name) {
+            this.seguimiento.evidencia[index].Activo = false;
+            break;
+          }
+        }
         this.documentos.splice(i, 1);
         this.documentoSeleccionado = null;
         Swal.fire({
@@ -648,175 +514,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.documentoPlaneacion = undefined;
   }
 
-
-  revisarDocumento(bandera: string): void {
-
-    let header = "data:application/pdf;base64,";
-    let documentoBase64: string;
-
-    if (bandera === 'documento') {
-      if (this.documentoSeleccionado["file"] == undefined) {
-        const file = this.documentoSeleccionado;
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          let aux = new String(reader.result);
-          documentoBase64 = aux.replace(header, "");
-          const dialogRef = this.dialog.open(VisualizarDocumentoDialogComponent, {
-            width: '1200',
-            minHeight: 'calc(100vh - 90px)',
-            height: '80%',
-            data: documentoBase64
-          });
-        }
-
-      } else {
-        const dialogRef = this.dialog.open(VisualizarDocumentoDialogComponent, {
-          width: '1200',
-          minHeight: 'calc(100vh - 90px)',
-          height: '80%',
-          data: this.documentoSeleccionado["file"]
-        });
-      }
-    } else if ('documentoP') {
-      if (this.documentoPlaneacion["file"] == undefined) {
-        const file = this.documentoPlaneacion;
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          let aux = new String(reader.result);
-          documentoBase64 = aux.replace(header, "");
-          const dialogRef = this.dialog.open(VisualizarDocumentoDialogComponent, {
-            width: '1200',
-            minHeight: 'calc(100vh - 90px)',
-            height: '80%',
-            data: documentoBase64
-          });
-        }
-
-      } else {
-        const dialogRef = this.dialog.open(VisualizarDocumentoDialogComponent, {
-          width: '1200',
-          minHeight: 'calc(100vh - 90px)',
-          height: '80%',
-          data: this.documentoPlaneacion["file"]
-        });
-      }
-    }
-  }
-
-
-  convertirDocumentos() {
-    let message: string = '';
-    let resolveRef;
-    let rejectRef;
-    let dataPromise: Promise<string> = new Promise((resolve, reject) => {
-      resolveRef = resolve;
-      rejectRef = reject;
-    });
-    let header = "data:application/pdf;base64,";
-    let documentosPost: any[] = this.documentos;
-    let documentoBase64: string;
-    this.cargarDocumentoPlaneacion().then(() => {
-      if (this.documentos.length > 0) {
-        for (let i = 0; i < this.documentos.length; i++) {
-          if (this.documentos[i]["file"] == undefined) {
-            const file = this.documentos[i];
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-              let aux = new String(reader.result);
-              documentoBase64 = aux.replace(header, "")
-              let bodyPost = {
-                IdTipoDocumento: 60,
-                nombre: this.documentos[i].name,
-                metadatos: {
-                  dato_a: "Soporte planeacion"
-                },
-                descripcion: "Documento de soporte para seguimiento de plan de acción",
-                file: documentoBase64
-              }
-              let body: any[] = [];
-              body.push(bodyPost);
-              this.request.post(environment.GESTOR_DOCUMENTAL_MID, `document/upload`, body).subscribe((data: any) => {
-                if (data) {
-                  this.auxDocumentos.push(data.res.Enlace)
-                  if (i == this.documentos.length - 1)
-                    resolveRef(message)
-                } else {
-                  Swal.fire({
-                    title: 'Error al crear identificación. Intente de nuevo',
-                    icon: 'warning',
-                    showConfirmButton: false,
-                    timer: 2500
-                  })
-                }
-              })
-
-            };
-          } else {
-            this.auxDocumentos.push(this.documentos[i]["uid"]);
-            resolveRef(message);
-          }
-        }
-      } else {
-        resolveRef(message);
-      }
-    })
-    return dataPromise;
-  }
-
-  cargarDocumentoPlaneacion() {
-    let message: string = '';
-    let resolveRef;
-    let rejectRef;
-    let dataPromise: Promise<string> = new Promise((resolve, reject) => {
-      resolveRef = resolve;
-      rejectRef = reject;
-    });
-
-    if (this.documentoPlaneacion != undefined) {
-      let header = "data:application/pdf;base64,";
-      let documentoBase64: string;
-      const file = this.documentoPlaneacion;
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        let aux = new String(reader.result);
-        documentoBase64 = aux.replace(header, "")
-        let bodyPost = {
-          IdTipoDocumento: 60,
-          nombre: this.documentoPlaneacion.name,
-          metadatos: {
-            dato_a: "Soporte Observaciones planeacion"
-          },
-          descripcion: "Documento de soporte para seguimiento del plan de acción",
-          file: documentoBase64
-        }
-        let body: any[] = [];
-        body.push(bodyPost);
-        this.request.post(environment.GESTOR_DOCUMENTAL_MID, `document/upload`, body).subscribe((data: any) => {
-          if (data) {
-            this.auxDocumentosP = data.res.Enlace;
-            resolveRef(message);
-          } else {
-            Swal.fire({
-              title: 'Error al cargar documento. Intente de nuevo',
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-            })
-            resolveRef(message);
-
-          }
-        })
-      };
-    } else {
-      this.auxDocumentosP = '';
-      resolveRef(message);
-    }
-    return dataPromise;
-  }
 
   loadDocumentos(docs: string) {
     let auxDocs = docs.split(",");
@@ -882,14 +579,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           estado_seguimiento_id: auxEstado._id
         }
         this.seguimiento.estado_plan_id = auxEstado._id
-        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimientoCompleto._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Seguimiento Generado',
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.getSeguimiento();
                 this.verificarFormulario();
               }
             })
@@ -930,14 +626,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           estado_seguimiento_id: auxEstado._id
         }
         this.seguimiento.estado_plan_id = auxEstado._id
-        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimientoCompleto._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Observación Cancelada',
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.getSeguimiento();
                 this.verificarFormulario();
               }
             })
@@ -978,14 +673,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           estado_seguimiento_id: auxEstado._id
         }
         this.seguimiento.estado_plan_id = auxEstado._id
-        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimientoCompleto._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Reporte Aprobado',
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.getSeguimiento();
                 this.verificarFormulario();
               }
             })
@@ -1027,14 +721,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           estado_seguimiento_id: auxEstado._id
         }
         this.seguimiento.estado_plan_id = auxEstado._id
-        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimientoCompleto._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Reporte reenviado correctamente',
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.getSeguimiento();
                 this.verificarFormulario();
               }
             })

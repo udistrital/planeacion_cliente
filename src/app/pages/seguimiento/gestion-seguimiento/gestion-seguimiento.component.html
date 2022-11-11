@@ -46,7 +46,7 @@
                         </ng-container>
                         <ng-container matColumnDef="activo">
                             <th mat-header-cell *matHeaderCellDef [style.text-align]="center"> Estado </th>
-                            <td mat-cell *matCellDef="let row">{{row.estado}}</td>
+                            <td mat-cell *matCellDef="let row">{{row.estado.nombre}}</td>
                         </ng-container>
                         <ng-container matColumnDef="gestion">
                             <th mat-header-cell *matHeaderCellDef [style.text-align]="center"> Gestión </th>
