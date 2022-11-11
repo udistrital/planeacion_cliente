@@ -43,14 +43,6 @@ export class SeguimientoComponentGestion implements OnInit {
       this.planId = prm['plan_id'];
       this.trimestreId = prm['trimestre'];
     });
-    Swal.fire({
-      title: 'Cargando información',
-      timerProgressBar: true,
-      showConfirmButton: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-    })
     this.loadDataSeguimiento();
     this.dataSource = new MatTableDataSource<any>();
   }
@@ -68,7 +60,6 @@ export class SeguimientoComponentGestion implements OnInit {
     });
     this.getRol();
   }
-
 
   getRol() {
     let roles: any = this.autenticationService.getRole();
@@ -97,10 +88,18 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   loadDataSeguimiento() {
-    this.request.get(environment.PLANES_MID, `seguimiento/get_estado_trimestre/` + this.planId + `/` + this.trimestreId).subscribe((data: any) => {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    this.request.get(environment.PLANES_MID, `seguimiento/get_estado_trimestre/` + this.planId + `/` + this.trimestreId).subscribe(async (data: any) => {
       if (data) {
         this.estadoSeguimiento = data.Data;
-        this.loadUnidad(this.estadoSeguimiento.plan_id.dependencia_id);
+        await this.loadUnidad(this.estadoSeguimiento.plan_id.dependencia_id);
       }
     }, (error) => {
       Swal.fire({
@@ -136,11 +135,7 @@ export class SeguimientoComponentGestion implements OnInit {
   loadActividades() {
     this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.estadoSeguimiento._id).subscribe((data: any) => {
       if (data) {
-        if (this.rol == 'JEFE_DEPENDENCIA') {
-          this.dataSource.data = data.Data;
-        } else if (this.rol == 'PLANEACION') {
-          this.dataSource.data = data.Data;
-        }
+        this.dataSource.data = data.Data;
         Swal.close();
       }
     }, (error) => {
@@ -154,43 +149,8 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
-  // cambiarValor(valorABuscar, valorViejo, valorNuevo, dataS) {
-  //   dataS.forEach(function (elemento) {
-  //     elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
-  //   })
-  // }
-
-  // loadDataActividad(index) {
-  //   this.request.get(environment.PLANES_MID, `seguimiento/get_data/` + this.planId + `/` + index).subscribe((data: any) => {
-  //     if (data) {
-  //       this.dataActividad = data.Data
-  //       this.formGestionSeguimiento.get('lineamiento').setValue(this.dataActividad.lineamiento);
-  //       this.formGestionSeguimiento.get('meta_estrategica').setValue(this.dataActividad.meta_estrategica);
-  //       this.formGestionSeguimiento.get('estrategia').setValue(this.dataActividad.estrategia);
-  //       this.indicadores = [];
-  //       this.indicadores = this.dataActividad.indicador;
-  //       this.metas = [];
-  //       this.metas = this.dataActividad.meta;
-  //       this.formGestionSeguimiento.get('tarea').setValue(this.dataActividad.tarea);
-  //       this.indexActividad = index;
-  //     }
-  //   }, (error) => {
-  //     Swal.fire({
-  //       title: 'Error en la operación',
-  //       text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-  //       icon: 'warning',
-  //       showConfirmButton: false,
-  //       timer: 2500
-  //     })
-  //   })
-  // }
-
   reportar() {
     this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/' + this.indexActividad]);
-  }
-
-  enviar() {
-
   }
 
   revisar(row) {
@@ -201,7 +161,7 @@ export class SeguimientoComponentGestion implements OnInit {
     let fechaInicio = new Date(this.estadoSeguimiento.periodo_seguimiento_id["fecha_inicio"]);
     let fechaFin = new Date(this.estadoSeguimiento.periodo_seguimiento_id["fecha_fin"]);
 
-    if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) { 
+    if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
       this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + row.index + '/' + this.estadoSeguimiento.periodo_seguimiento_id["_id"]])
     } else {
       Swal.fire({
@@ -212,21 +172,6 @@ export class SeguimientoComponentGestion implements OnInit {
         timer: 10000
       })
     }
-    // this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,plan_id:` + this.planId).subscribe((data: any) => {
-    //   if (data.Data.length != 0) {
-    //     let seguimiento = data.Data[data.Data.length - 1]
-    //     this.loadTrimestre(this.estadoSeguimiento.periodo_seguimiento_id, row);
-    //   }
-    // }, (error) => {
-    //   Swal.fire({
-    //     title: 'Error en la operación',
-    //     text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-    //     icon: 'warning',
-    //     showConfirmButton: false,
-    //     timer: 2500
-    //   })
-    // })
-    /* this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/'+ row.index]); */
   }
 
   loadTrimestre(periodo_id, row) {

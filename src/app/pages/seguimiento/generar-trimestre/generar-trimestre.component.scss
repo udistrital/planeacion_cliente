@@ -1,6 +1,5 @@
 .mat-card {
   background-color: #F1F5F8;
-  // overflow-x: scroll;
   display: block;
 }
 
@@ -401,6 +400,12 @@ mat-grid-tile .width-text-trimestre {
   margin-top: 2%;
 }
 
+.container-button3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .align-avance1 {
   width: 29%;
   border: 1px solid var(--primary);
@@ -499,21 +504,14 @@ input[type="file"] {
 }
 
 .width-label-upload {
-  border: 2px solid var(--primary);
+  background-color: var(--primary);
+  color: white;
   border-radius: 8px 8px 8px 8px;
-  display: inline-block;
-  padding: 6px 12px;
-  cursor: pointer;
-  margin-left: 2%;
-  margin-top: 2%;
-  margin-bottom: 10px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
+  width: 29%;
+  height: 40px;
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
   text-align: center;
-  color: var(--primary);
-  padding-bottom: 15px;
-  position: relative;
-  top: -25px;
+  line-height: 36px;
 }
 
 .upload-input-container {
@@ -542,7 +540,6 @@ input[type="file"] {
 .input-autor {
   width: 80%;
 }
-
 
 .sameRow {
   border: 3px solid black;

@@ -27,100 +27,6 @@
                         </u>
                         <br>
                     </div>
-                    <form [formGroup]="formFechas">
-                        <ng-container>
-                            <div class="flex">
-                                <div class="sameRow" style="vertical-align: middle;" [style.width.%]="90">
-                                    <h4>Fechas guia para cada trimestre para la vigencia</h4>
-                                    <mat-form-field appearance="fill" [style.width.%]="100">
-                                        <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
-                                        <mat-select (selectionChange)="onChangeV($event.value)">
-                                            <mat-option>--</mat-option>
-                                            <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
-                                                {{vigencia.Nombre}}
-                                            </mat-option>
-                                        </mat-select>
-                                    </mat-form-field>
-
-                                    <div class="contenedor">
-                                        <div class="contenedorTrimestre">
-                                            <mat-label id="desc-input-label">Trimestre 1:
-                                            </mat-label>
-                                            <br>
-                                            <div>
-                                                <mat-label>Inicio</mat-label>
-                                                <input class="unidad" type="text" matInput formControlName="fecha1"
-                                                    required readonly>
-                                                <mat-hint>DD/MM/YYYY</mat-hint>
-                                            </div>
-                                            <br>
-                                            <div>
-                                                <mat-label>Fin</mat-label>
-                                                <input class="unidad" type="text" matInput formControlName="fecha2"
-                                                    required readonly>
-                                                <mat-hint>DD/MM/YYYY</mat-hint>
-                                            </div>
-                                        </div>
-                                        <div class="contenedorTrimestre">
-                                            <mat-label id="desc-input-label">Trimestre 2:
-                                            </mat-label>
-                                            <br>
-                                            <div>
-                                                <mat-label>Inicio</mat-label>
-                                                <input class="unidad" type="text" matInput formControlName="fecha3"
-                                                    required readonly>
-                                                <mat-hint>DD/MM/YYYY</mat-hint>
-                                            </div>
-                                            <br>
-                                            <div>
-                                                <mat-label>Fin</mat-label>
-                                                <input class="unidad" type="text" matInput formControlName="fecha4"
-                                                    required readonly>
-                                                <mat-hint>DD/MM/YYYY</mat-hint>
-                                            </div>
-                                        </div>
-                                        <div class="contenedorTrimestre">
-                                            <mat-label id="desc-input-label">Trimestre 3:
-                                            </mat-label>
-                                            <br>
-                                            <div>
-                                                <mat-label>Inicio</mat-label>
-                                                <input class="unidad" type="text" matInput formControlName="fecha5"
-                                                    required readonly>
-                                                <mat-hint>DD/MM/YYYY</mat-hint>
-                                            </div>
-                                            <br>
-                                            <div>
-                                                <mat-label>Fin</mat-label>
-                                                <input class="unidad" type="text" matInput formControlName="fecha6"
-                                                    required readonly>
-                                                <mat-hint>DD/MM/YYYY</mat-hint>
-                                            </div>
-                                        </div>
-                                        <div class="contenedorTrimestre">
-                                            <mat-label id="desc-input-label">Trimestre 4:
-                                            </mat-label>
-                                            <br>
-                                            <div>
-                                                <mat-label>Inicio</mat-label>
-                                                <input class="unidad" type="text" matInput formControlName="fecha7"
-                                                    required readonly>
-                                                <mat-hint>DD/MM/YYYY</mat-hint>
-                                            </div>
-                                            <br>
-                                            <div>
-                                                <mat-label>Fin</mat-label>
-                                                <input class="unidad" type="text" matInput formControlName="fecha8"
-                                                    required readonly>
-                                                <mat-hint>DD/MM/YYYY</mat-hint>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </ng-container>
-                    </form>
-                    <br>
                 </div>
             </ng-container>
 
@@ -143,6 +49,101 @@
                     </mat-select>
                 </mat-form-field>
             </ng-container>
+
+            <form [formGroup]="formFechas">
+                <ng-container>
+                    <div class="flex">
+                        <div class="sameRow" style="vertical-align: middle;" [style.width.%]="90">
+                            <h4>Fechas guia para cada trimestre para la vigencia</h4>
+                            <mat-form-field appearance="fill" [style.width.%]="100">
+                                <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
+                                <mat-select (selectionChange)="onChangeV($event.value)">
+                                    <mat-option>--</mat-option>
+                                    <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
+                                        {{vigencia.Nombre}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <div class="contenedor">
+                                <div class="contenedorTrimestre">
+                                    <mat-label id="desc-input-label">Trimestre 1:
+                                    </mat-label>
+                                    <br>
+                                    <div>
+                                        <mat-label>Inicio</mat-label>
+                                        <input class="unidad" type="text" matInput formControlName="fecha1" required
+                                            readonly>
+                                        <mat-hint>DD/MM/YYYY</mat-hint>
+                                    </div>
+                                    <br>
+                                    <div>
+                                        <mat-label>Fin</mat-label>
+                                        <input class="unidad" type="text" matInput formControlName="fecha2" required
+                                            readonly>
+                                        <mat-hint>DD/MM/YYYY</mat-hint>
+                                    </div>
+                                </div>
+                                <div class="contenedorTrimestre">
+                                    <mat-label id="desc-input-label">Trimestre 2:
+                                    </mat-label>
+                                    <br>
+                                    <div>
+                                        <mat-label>Inicio</mat-label>
+                                        <input class="unidad" type="text" matInput formControlName="fecha3" required
+                                            readonly>
+                                        <mat-hint>DD/MM/YYYY</mat-hint>
+                                    </div>
+                                    <br>
+                                    <div>
+                                        <mat-label>Fin</mat-label>
+                                        <input class="unidad" type="text" matInput formControlName="fecha4" required
+                                            readonly>
+                                        <mat-hint>DD/MM/YYYY</mat-hint>
+                                    </div>
+                                </div>
+                                <div class="contenedorTrimestre">
+                                    <mat-label id="desc-input-label">Trimestre 3:
+                                    </mat-label>
+                                    <br>
+                                    <div>
+                                        <mat-label>Inicio</mat-label>
+                                        <input class="unidad" type="text" matInput formControlName="fecha5" required
+                                            readonly>
+                                        <mat-hint>DD/MM/YYYY</mat-hint>
+                                    </div>
+                                    <br>
+                                    <div>
+                                        <mat-label>Fin</mat-label>
+                                        <input class="unidad" type="text" matInput formControlName="fecha6" required
+                                            readonly>
+                                        <mat-hint>DD/MM/YYYY</mat-hint>
+                                    </div>
+                                </div>
+                                <div class="contenedorTrimestre">
+                                    <mat-label id="desc-input-label">Trimestre 4:
+                                    </mat-label>
+                                    <br>
+                                    <div>
+                                        <mat-label>Inicio</mat-label>
+                                        <input class="unidad" type="text" matInput formControlName="fecha7" required
+                                            readonly>
+                                        <mat-hint>DD/MM/YYYY</mat-hint>
+                                    </div>
+                                    <br>
+                                    <div>
+                                        <mat-label>Fin</mat-label>
+                                        <input class="unidad" type="text" matInput formControlName="fecha8" required
+                                            readonly>
+                                        <mat-hint>DD/MM/YYYY</mat-hint>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </form>
+            <br>
 
             <div class="mat-elevation-z8">
                 <table mat-table [dataSource]="dataSource" matSort>
