@@ -1,8 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -11,7 +10,6 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { element } from 'protractor';
 import { Location } from '@angular/common';
-import { VisualizarDocumentoDialogComponent } from './visualizar-documento-dialog/visualizar-documento-dialog.component';
 import { UserService } from '../../services/userService';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
@@ -33,19 +31,6 @@ export interface ResultadosIndicador {
   brechaExistente: string;
 }
 
-//Data de prueba para tabla de indicadores:
-const ELEMENT_DATA: Indicador[] = [
-  { nombre: 'Ind. 1', formula: "a", meta: 'as', reporteNumerador: '1', reporteDenominador: '2', detalleReporte: "det", observaciones: 'No' },
-  { nombre: 'Ind. 2', formula: "b", meta: 'ad', reporteNumerador: '1', reporteDenominador: '2', detalleReporte: "det", observaciones: 'No' },
-  { nombre: 'Ind. 3', formula: "c", meta: 'df', reporteNumerador: '1', reporteDenominador: '2', detalleReporte: "det", observaciones: 'No' },
-];
-
-const ELEMENT_DATA2: ResultadosIndicador[] = [
-  { indicador: 'Ind. 1', indicadorAcumulado: '30', avanceAcumulado: '50', brechaExistente: '20' },
-  { indicador: 'Ind. 2', indicadorAcumulado: '30', avanceAcumulado: '50', brechaExistente: '20' },
-  { indicador: 'Ind. 3', indicadorAcumulado: '30', avanceAcumulado: '50', brechaExistente: '20' },
-];
-
 @Component({
   selector: 'app-seguimiento',
   templateUrl: './generar-trimestre.component.html',
@@ -53,9 +38,9 @@ const ELEMENT_DATA2: ResultadosIndicador[] = [
 })
 export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   columnasIndicadores: string[] = ['nombre', 'formula', 'meta', 'reporteNumerador', 'reporteDenominador', 'detalleReporte', 'observaciones'];
-  datosIndicadores = new MatTableDataSource<Indicador>(ELEMENT_DATA);
+  datosIndicadores: any[];
   columnasResultados: string[] = ['indicador', 'indicadorAcumulado', 'avanceAcumulado', 'brechaExistente'];
-  datosResultados = new MatTableDataSource<ResultadosIndicador>(ELEMENT_DATA2);
+  datosResultados: MatTableDataSource<any>;
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
   selectedFiles: any;
@@ -86,6 +71,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   estados: any[];
   readonlyFormulario: boolean;
   readonlyObservacion: boolean;
+  denominadorFijo: boolean;
+  tendencia: string;
   unidad: string;
 
   constructor(
@@ -98,13 +85,14 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     public dialog: MatDialog,
     private router: Router,
     private userService: UserService) {
+    // this.datosIndicadores = new MatTableDataSource();
+    this.datosResultados = new MatTableDataSource();
     this.activatedRoute.params.subscribe(prm => {
       this.planId = prm['plan_id'];
       this.indexActividad = prm['index'];
       this.trimestreId = prm['trimestre_id'];
     });
     this.getRol();
-    this.loadInidicadores();
     this.loadData();
     this.loadTrimestre();
     this.loadEstados();
@@ -130,8 +118,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.datosIndicadores.paginator = this.paginatorIndicadores;
-    this.datosResultados.paginator = this.paginatorResultados;
   }
 
   getRol() {
@@ -300,7 +286,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   }
 
-  onSeeDocumentos(event) {
+  onSeeDocumentos() {
     const dialogRef = this.dialog.open(EvidenciasDialogComponent, {
       width: '80%',
       height: '55%',
@@ -421,23 +407,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   }
 
-  loadInidicadores() {
-    this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/` + this.planId).subscribe((data: any) => {
-      if (data) {
-        this.indicadores = data.Data;
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
-  }
-
-  loadData() {
+  async loadData() {
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
@@ -446,11 +416,18 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `seguimiento/get_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+    await this.request.get(environment.PLANES_MID, `seguimiento/get_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
       if (data.Data != '') {
         this.seguimiento = data.Data;
         this.unidad = this.seguimiento.informacion.unidad;
         this.documentos = data.Data.evidencia;
+        this.datosIndicadores = data.Data.cuantitativo.indicadores;
+        this.datosResultados = data.Data.cuantitativo.resultados;
+        this.tendencia = data.Data.cuantitativo.tendencia;
+        if (data.Data.cuantitativo.denominador == "Denominador fijo" && data.Data.informacion.trimestre != "T1") {
+          this.denominadorFijo = true;
+        }
+        this.verificarFormulario();
         Swal.close();
       }
     }, (error) => {
@@ -514,7 +491,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.documentoPlaneacion = undefined;
   }
 
-
   loadDocumentos(docs: string) {
     let auxDocs = docs.split(",");
     for (let i = 0; i < auxDocs.length; i++) {
@@ -539,7 +515,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       })
     }
   }
-
 
   loadDocumentoP(docs: string) {
     this.request.get(environment.GESTOR_DOCUMENTAL_MID, `document/` + docs).subscribe((data: any) => {
@@ -705,7 +680,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
   }
 
-
   ajustarReporte() {
     Swal.fire({
       title: 'Reenviar Reporte',
@@ -751,5 +725,45 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           timer: 2500
         })
       }
+  }
+
+  calcularResultado() {
+    for (let index = 0; index < this.datosIndicadores.length; index++) {
+      const element = this.datosIndicadores[index];
+      if (element.reporteDenominador != "" || element.reporteNumerador != "") {
+        var denominador = parseInt(element.reporteDenominador);
+        const numerador = parseInt(element.reporteNumerador);
+        this.datosIndicadores[index].reporteDenominador = denominador;
+        this.datosIndicadores[index].reporteNumerador = numerador;
+        if (denominador != NaN && numerador != NaN) {
+          this.datosResultados[index].indicador = Math.round(numerador / denominador * 10) / 10;
+          if (!this.denominadorFijo) {
+            denominador += this.datosResultados[index].acumuladoDenominador;
+          }
+          this.datosResultados[index].indicadorAcumulado = Math.round((this.datosResultados[index].acumuladoNumerador + numerador) / denominador * 10) / 10;
+
+          var meta = parseInt(element.meta);
+          var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+          if (this.tendencia = "Creciente") {
+            this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / meta * 100 * 10) / 10;
+          } else if (this.tendencia = "Decreciente") {
+            if (indicadorAcumulado < meta) {
+              this.datosResultados[index].avanceAcumulado = Math.round(1 + ((meta - indicadorAcumulado) / meta) * 10) / 10;
+            } else {
+              this.datosResultados[index].avanceAcumulado = Math.round(1 - ((meta - indicadorAcumulado) / meta) * 10) / 10;
+            }
+          }
+          this.datosResultados[index].brechaExistente = Math.round((meta - indicadorAcumulado) * 10) / 10;
+        }
+      } else {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `Los datos de numerador y denominador no pueden estar vacios`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }
   }
 }

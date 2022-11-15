@@ -3,6 +3,10 @@
   display: block;
 }
 
+::ng-deep textarea.mat-input-element {
+  color: #000000;
+}
+
 th.mat-header-cell:last-of-type,
 td.mat-cell:last-of-type,
 td.mat-footer-cell:last-of-type {
@@ -464,6 +468,9 @@ mat-grid-tile .width-text-trimestre {
 
 textarea {
   resize: none;
+  text-align: center;
+  white-space: pre-line;
+  -moz-text-align-last: left;
 }
 
 .boder-text {
@@ -577,4 +584,12 @@ input[type="file"] {
   text-decoration: none;
   margin-bottom: 1%;
   width: 97%;
+}
+
+ng-container {
+  vertical-align: middle;
+}
+
+.rowText {
+  padding: 0px !important;
 }
