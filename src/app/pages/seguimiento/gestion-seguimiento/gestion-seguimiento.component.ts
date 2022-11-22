@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { Location } from '@angular/common';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-seguimiento',
@@ -19,7 +20,7 @@ export class SeguimientoComponentGestion implements OnInit {
   planId: string;
   trimestreId: string;
   unidad: any;
-  estadoSeguimiento: any;
+  seguimiento: any;
   formGestionSeguimiento: FormGroup;
   dataActividad: any;
   rol: string;
@@ -27,9 +28,9 @@ export class SeguimientoComponentGestion implements OnInit {
   metas: any[] = [{ index: 1, dato: '', activo: false }];
   indexActividad: string = '';
   fechaModificacion: string = '';
-  seguimiento: any;
   trimestre: any;
   trimestres: any[] = [];
+  allActividades: any[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -98,8 +99,8 @@ export class SeguimientoComponentGestion implements OnInit {
     })
     this.request.get(environment.PLANES_MID, `seguimiento/get_estado_trimestre/` + this.planId + `/` + this.trimestreId).subscribe(async (data: any) => {
       if (data) {
-        this.estadoSeguimiento = data.Data;
-        await this.loadUnidad(this.estadoSeguimiento.plan_id.dependencia_id);
+        this.seguimiento = data.Data;
+        await this.loadUnidad(this.seguimiento.plan_id.dependencia_id);
       }
     }, (error) => {
       Swal.fire({
@@ -116,9 +117,9 @@ export class SeguimientoComponentGestion implements OnInit {
     this.request.get(environment.OIKOS_SERVICE, `dependencia?query=Id:` + dependencia_id).subscribe((data: any) => {
       if (data) {
         this.unidad = data[0];
-        this.formGestionSeguimiento.get('plan').setValue(this.estadoSeguimiento.plan_id.nombre);
+        this.formGestionSeguimiento.get('plan').setValue(this.seguimiento.plan_id.nombre);
         this.formGestionSeguimiento.get('unidad').setValue(this.unidad.Nombre);
-        this.formGestionSeguimiento.get('estado').setValue(this.estadoSeguimiento.estado_seguimiento_id.nombre);
+        this.formGestionSeguimiento.get('estado').setValue(this.seguimiento.estado_seguimiento_id.nombre);
         this.loadActividades();
       }
     }, (error) => {
@@ -133,9 +134,10 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   loadActividades() {
-    this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.estadoSeguimiento._id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.seguimiento._id).subscribe((data: any) => {
       if (data) {
         this.dataSource.data = data.Data;
+        this.allActividades = this.dataSource.data;
         Swal.close();
       }
     }, (error) => {
@@ -150,7 +152,71 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   reportar() {
-    this.router.navigate(['pages/seguimiento/reportar-periodo/' + this.planId + '/' + this.indexActividad]);
+    Swal.fire({
+      title: 'Enviar Reporte',
+      text: `¿Confirma que desea enviar el reporte de seguimiento al Plan de Acción para su etapa de revisión por parte de la Oficina Asesora de Planeación y Control?`,
+      icon: 'warning',
+      confirmButtonText: `Continuar`,
+      cancelButtonText: `Cancelar`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let mod = {
+          SeguimientoId: this.seguimiento._id
+        };
+
+        this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, mod, "").subscribe((data: any) => {
+          if (data) {
+            if (data.Success) {
+              Swal.fire({
+                title: 'El reporte se ha enviado satisfactoriamente',
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  this.loadActividades();
+                }
+              });
+            } else {
+              let message: string = '<b>ID - Actividad</b><br/>';
+              let aux: object = data.Data.actividades
+              let keys: string[];
+
+              keys = Object.keys(aux)
+              for (let key of keys) {
+                message = message + key + ' - ' + aux[key] + "<br/>"
+              }
+
+              Swal.fire({
+                title: 'Debe reportar las siguientes actividades:',
+                icon: 'error',
+                showConfirmButton: true,
+                html: message
+              })
+            }
+          }
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Generación de reporte cancelada',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  enviar() {
+    /// Cambiar a un mensaje y guardar cambio de estado para planeacion
   }
 
   revisar(row) {
@@ -158,11 +224,11 @@ export class SeguimientoComponentGestion implements OnInit {
     let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
     let strFechaHoy = new Date(auxFechaCol).toISOString();
     let fechaHoy = new Date(strFechaHoy);
-    let fechaInicio = new Date(this.estadoSeguimiento.periodo_seguimiento_id["fecha_inicio"]);
-    let fechaFin = new Date(this.estadoSeguimiento.periodo_seguimiento_id["fecha_fin"]);
+    let fechaInicio = new Date(this.seguimiento.periodo_seguimiento_id["fecha_inicio"]);
+    let fechaFin = new Date(this.seguimiento.periodo_seguimiento_id["fecha_fin"]);
 
     if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
-      this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + row.index + '/' + this.estadoSeguimiento.periodo_seguimiento_id["_id"]])
+      this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + row.index + '/' + this.seguimiento.periodo_seguimiento_id["_id"]])
     } else {
       Swal.fire({
         title: 'Error en la operación',
@@ -219,5 +285,15 @@ export class SeguimientoComponentGestion implements OnInit {
         timer: 2500
       })
     })
+  }
+
+  OnPageChange(event: PageEvent) {
+    let startIndex = event.pageIndex * event.pageSize;
+    let endIndex = startIndex + event.pageSize;
+    if (endIndex > this.allActividades.length) {
+      endIndex = this.allActividades.length;
+    }
+    this.dataSource.data = this.allActividades.slice(startIndex, endIndex);
+    this.dataSource.data.length = this.allActividades.length;
   }
 }

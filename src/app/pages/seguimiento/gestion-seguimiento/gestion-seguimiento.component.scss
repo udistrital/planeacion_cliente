@@ -2,14 +2,13 @@
   background-color: #F1F5F8;
 }
 
-
 table {
   width: 100%;
 }
 
 th {
   color: white;
-  text-align: center;
+  text-align: center !important;
 }
 
 td {
@@ -28,7 +27,6 @@ td {
 }
 
 .container-border {
-  margin: 3% 0% 0% 0%;
   border: 1px solid var(--primary);
   padding: 1%;
   border-radius: 15px 15px 15px 15px;
