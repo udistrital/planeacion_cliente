@@ -53,24 +53,27 @@
                 <div class="container-border">
                     <h1>COMPONENTE CUALITATIVO</h1>
                     <br>
-                    <mat-card class="desc-input-label">
+                    <mat-card class="desc-input-label" [formGroup]="formCualitativo">
                         <mat-card-header>Reporte de avance del trimestre</mat-card-header>
                         <mat-card-content>
-                            <textarea class="width-text-trimestre" id="reporte" placeholder="Reporte" required
-                                [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                            <textarea class="width-text-trimestre" id="reporte"
+                                placeholder="Describa las acciones implementadas en el marco de la actividad general, así como  los logros obtenidos."
+                                required [value]="datosCualitativo.reporte" [(ngModel)]="datosCualitativo.reporte"
+                                [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
                         </mat-card-content>
                     </mat-card>
                     <mat-card class="desc-input-label">
                         <mat-card-header>Productos intermedios</mat-card-header>
                         <mat-card-content>
-                            <textarea class="width-text-trimestre" id="Producto" placeholder="Producto"
-                                formControlName="producto" required
-                                [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                            <textarea class="width-text-trimestre" id="productos"
+                                placeholder="Relacione los productos y evidencias resultantes de las acciones establecidas en el espacio anterior, tenga en cuenta que las evidencias deberán estar cargadas."
+                                formControlName="producto" required [value]="datosCualitativo.productos"
+                                [(ngModel)]="datosCualitativo.productos" [readonly]="readonlyFormulario"></textarea>
                         </mat-card-content>
                     </mat-card>
                     <mat-card class="desc-input-label">
                         <mat-card-header>Evidencias</mat-card-header>
-                        <mat-card-content *ngIf="rol=='JEFE_DEPENDENCIA'">
+                        <mat-card-content *ngIf="rol=='JEFE_DEPENDENCIA' && !readonlyFormulario">
                             <div class="width-text-trimestre"
                                 style="background-color: white; height: 60px; text-align: unset;">
                                 <button class="background-button align-button1" mat-raised-button color="primary"
@@ -83,7 +86,7 @@
                             </div>
                         </mat-card-content>
 
-                        <mat-card-content *ngIf="rol=='PLANEACION'">
+                        <mat-card-content *ngIf="rol=='PLANEACION' || readonlyFormulario">
                             <div class="width-text-trimestre container-button3"
                                 style="background-color: white; height: 60px; text-align: unset;">
                                 <button class="background-button" mat-raised-button color="primary"
@@ -94,24 +97,28 @@
                     <mat-card class="desc-input-label">
                         <mat-card-header>Dificultades</mat-card-header>
                         <mat-card-content>
-                            <textarea class="width-text-trimestre" id="Dificultades" placeholder="Dificultades"
-                                formControlName="dificultades" required
-                                [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                            <textarea class="width-text-trimestre" id="dificultades"
+                                placeholder="Establezca en caso de existir, las dificultades asociadas a la implementación de la actividad general y la consecución de las metas planteadas."
+                                formControlName="dificultades" required [value]="datosCualitativo.dificultades"
+                                [(ngModel)]="datosCualitativo.dificultades" [readonly]="readonlyFormulario"></textarea>
                         </mat-card-content>
                     </mat-card>
-                    <mat-card class="desc-input-label">
-                        <mat-card-header>Observaciones</mat-card-header>
+                    <br>
+                    <mat-card class="desc-input-label" *ngIf="mostrarObservaciones">
+                        <h1>Observaciones</h1>
                         <mat-card-content>
-                            <textarea class="width-text-trimestre" id="Observaciones" placeholder="Observaciones"
-                                formControlName="observaciones" required
-                                [readonly]="!indicadorSelected || readonlyFormulario"></textarea>
+                            <textarea class="width-text-trimestre" id="observaciones"
+                                placeholder="Observaciones realizadas desde la OAPC a la unidad para el componente cualitativo"
+                                formControlName="observaciones" required [value]="datosCualitativo.observaciones"
+                                [(ngModel)]="datosCualitativo.observaciones"
+                                [readonly]="!indicadorSelected || readonlyObservacion"></textarea>
                         </mat-card-content>
                     </mat-card>
 
                     <div class="container-button3">
-
-                        <button class="background-button" mat-raised-button color="primary"
-                            (click)="guardarSeguimiento()">Guardar</button>
+                        <button class="background-button" mat-raised-button color="primary" *ngIf="!readonlyFormulario"
+                            (click)="guardarCualitativo()">Guardar
+                            componente Cualitativo</button>
                     </div>
                 </div>
                 <br>
@@ -179,6 +186,7 @@
                                     <th mat-header-cell *matHeaderCellDef> Reporte numerador </th>
                                     <td class="rowText" mat-cell *matCellDef="let element">
                                         <textarea class="form-control" matInput placeholder="Numerador"
+                                            onkeydown="return /[0-9, Backspace]/i.test(event.key)"
                                             [readonly]="readonlyFormulario" [value]="element.reporteNumerador"
                                             [(ngModel)]="element.reporteNumerador" [ngModelOptions]="{standalone: true}"
                                             required></textarea>
@@ -189,6 +197,7 @@
                                     <th mat-header-cell *matHeaderCellDef> Reporte denominador </th>
                                     <td class="rowText" mat-cell *matCellDef="let element">
                                         <textarea class="form-control" matInput placeholder="Denominador"
+                                            onkeydown="return /[0-9, Backspace]/i.test(event.key)"
                                             [readonly]="readonlyFormulario || denominadorFijo"
                                             [value]="element.reporteDenominador"
                                             [(ngModel)]="element.reporteDenominador"
@@ -245,7 +254,7 @@
                             </table>
                         </div>
                         <div>
-                            <button class="background-button"
+                            <button class="background-button" *ngIf="mostrarObservaciones || readonlyObservacion"
                                 style="width: auto; display:block; margin-left: auto; margin-right: auto;"
                                 mat-raised-button color="primary" (click)="calcularResultado()">Calcular/Ver
                                 resultados</button>
@@ -256,7 +265,7 @@
                                         Control </th>
                                     <td class="rowText" mat-cell *matCellDef="let element">
                                         <textarea class="form-control" matInput placeholder="Observaciones"
-                                            [readonly]="readonlyFormulario" [value]="element.observaciones"
+                                            [readonly]="readonlyObservacion" [value]="element.observaciones"
                                             [(ngModel)]="element.observaciones" [ngModelOptions]="{standalone: true}"
                                             required></textarea>
                                     </td>
@@ -368,33 +377,51 @@
                                 [readonly]="!indicadorSelected || readonlyFormulario">{{seguimiento.estado.nombre}}</textarea>
                         </mat-card-content>
                     </mat-card>
+                    <div class="align-button-enviar">
+                        <button class="background-button" mat-raised-button color="primary" *ngIf="!readonlyFormulario"
+                            (click)="guardarCuantitativo()">Guardar componente Cuantitativo</button>
+                    </div>
                 </div>
 
             </div>
             <br>
-            <div class="container-button">
-                <button class="background-button align-button1" mat-raised-button color="primary"
-                    (click)="guardarSeguimiento()">Guardar</button>
-                <button class="background-button align-button2" mat-raised-button color="primary"
+            <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoSeguimiento==='Sin reporte'">
+                <button class="background-button" mat-raised-button color="primary"
+                    (click)="guardarSeguimiento()">Guardar seguimiento de actividad</button>
+                <button class="background-button" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
             </div>
-            <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoSeguimiento==='En Reporte'">
+            <div class="align-button-enviar"
+                *ngIf="rol=='JEFE_DEPENDENCIA' && estadoSeguimiento==='Actividad en reporte'">
                 <button class="background-button" mat-raised-button color="primary" (click)="generarReporte()">Generar
                     Reporte</button>
+                <button class="background-button" mat-raised-button color="primary"
+                    (click)="backClicked()">Regresar</button>
+            </div>
+            <div class="align-button-enviar"
+                *ngIf="rol=='JEFE_DEPENDENCIA' && readonlyFormulario">
+                <button class="background-button" mat-raised-button color="primary"
+                    (click)="backClicked()">Regresar</button>
             </div>
             <div class="align-button-enviar"
                 *ngIf="rol=='PLANEACION' && (estadoSeguimiento==='Generado' || estadoSeguimiento==='Ajustado')">
                 <button class="background-button" mat-raised-button color="primary" (click)="enviarObservacion()">Enviar
                     Observación</button>
+                <button class="background-button" mat-raised-button color="primary"
+                    (click)="backClicked()">Regresar</button>
             </div>
             <div class="align-button-enviar"
                 *ngIf="rol=='PLANEACION' && (estadoSeguimiento==='Generado' ||estadoSeguimiento==='Ajustado')">
                 <button class="background-button" mat-raised-button color="primary" (click)="aprobarReporte()">Aprobar
                     Reporte</button>
+                <button class="background-button" mat-raised-button color="primary"
+                    (click)="backClicked()">Regresar</button>
             </div>
             <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoSeguimiento==='Observación'">
                 <button class="background-button" mat-raised-button color="primary" (click)="ajustarReporte()">Reenviar
                     Reporte</button>
+                <button class="background-button" mat-raised-button color="primary"
+                    (click)="backClicked()">Regresar</button>
             </div>
         </form>
     </mat-card-content>
