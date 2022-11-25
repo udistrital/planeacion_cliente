@@ -19,6 +19,7 @@ export class EvidenciasDialogComponent implements OnInit {
   rol: string;
   unidad: string;
   dataFiltered: Object[];
+  readonlyFormulario: string;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -28,7 +29,10 @@ export class EvidenciasDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: Object[]) {
     this.getRol();
 
-    this.dataFiltered = data.filter(doc => doc["Activo"] == true || doc["file"] != undefined);
+    this.readonlyFormulario = JSON.parse(JSON.stringify(data[1]));
+    this.dataFiltered = JSON.parse(JSON.stringify(data[0]));
+    this.dataSource = new MatTableDataSource(this.dataFiltered)
+    this.filterActive();
   }
 
   ngOnInit(): void {
@@ -51,11 +55,10 @@ export class EvidenciasDialogComponent implements OnInit {
   }
 
   cerrar() {
-    this.dialogRef.close(this.data);
+    this.dialogRef.close(this.data[0]);
   }
 
   async revisar(row) {
-    console.log(row)
     if (row.file != undefined) {
       let header = "data:application/pdf;base64,";
       const dialogRef = this.dialog.open(VisualizarDocumentoDialogComponent, {
@@ -107,13 +110,23 @@ export class EvidenciasDialogComponent implements OnInit {
   }
 
   inactivar(row) {
-    for (let index = 0; index < this.data.length; index++) {
-      let doc = this.data[index];
+    for (let index = 0; index < this.dataFiltered.length; index++) {
+      let doc = this.dataFiltered[index];
       if (doc["Id"] == row["Id"]) {
-        this.data[index]["Activo"] = false;
+        this.dataFiltered[index]["Activo"] = false;
         break;
       }
     }
-    this.dataFiltered = this.data.filter(doc => doc["Activo"] == true || doc["file"] != undefined);
+    this.filterActive();
+  }
+
+  filterActive() {
+    this.dataSource.filterPredicate = function (data: any, filterValue: string) {
+      return data.Activo == JSON.parse(filterValue);
+    };
+    this.dataSource.filter = "true";
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 }
