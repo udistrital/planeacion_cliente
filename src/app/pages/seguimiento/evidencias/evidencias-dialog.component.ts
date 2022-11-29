@@ -55,7 +55,11 @@ export class EvidenciasDialogComponent implements OnInit {
   }
 
   cerrar() {
-    this.dialogRef.close(this.data[0]);
+    if (this.rol == 'PLANEACION') {
+      this.dialogRef.close(this.dataSource.data);
+    } else {
+      this.dialogRef.close(this.data[0]);
+    }
   }
 
   async revisar(row) {
@@ -91,10 +95,12 @@ export class EvidenciasDialogComponent implements OnInit {
             if (result == undefined) {
               return undefined;
             } else {
-              if (row["Id"] == result["Id"]) {
-                row["Observacion"] = result["Observacion"]
-              }
-            }
+              for (let index = 0; index < this.dataSource.data.length; index++) {
+                if (this.dataSource.data[index]["Id"] == result["Id"]) {
+                  this.dataSource.data[index]["Observacion"] = result["Observacion"];
+                };
+              };
+            };
           });
         }, (error) => {
           Swal.fire({
