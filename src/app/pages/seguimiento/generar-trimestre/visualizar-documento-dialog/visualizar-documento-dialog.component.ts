@@ -14,6 +14,7 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
   header = "data:application/pdf;base64,";
   rol: string;
   observacion: string;
+  observacionText: string;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -22,7 +23,7 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any) {
     this.getRol();
     this.observacion = data.Observacion;
-
+    this.observacionText = this.observacion;
     this.file = this.sanitizer.bypassSecurityTrustResourceUrl(data["url"]);
   }
 
@@ -31,6 +32,10 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
 
   cerrar() {
     this.dialogRef.close({ "Id": this.data["Id"], "Observacion": this.observacion });
+  }
+
+  guardar() {
+    this.dialogRef.close({ "Id": this.data["Id"], "Observacion": this.observacionText });
   }
 
   getRol() {

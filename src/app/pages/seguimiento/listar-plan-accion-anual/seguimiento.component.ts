@@ -388,7 +388,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     if (recursivo) {
       this.onChangeV(this.vigencia, false);
     }
-    if (plan == undefined && this.vigencia == undefined) {
+    if (plan == undefined || (plan == undefined && this.vigencia == undefined)) {
       this.dataSource.data = this.planes;
     } else {
       this.dataSource.data = this.searchP(plan[0]);
@@ -399,7 +399,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
   onChangeV(vigencia, recursivo) {
     this.vigencia = vigencia;
-    if (this.plan == undefined && this.vigencia == undefined) {
+    if (this.plan == undefined || (this.plan == undefined && this.vigencia == undefined)) {
       this.dataSource.data = this.planes;
     } else {
       this.loadFechas();
