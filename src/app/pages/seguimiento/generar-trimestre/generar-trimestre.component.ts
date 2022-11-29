@@ -68,6 +68,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   textoDeInput: string = null
   mostrarObservaciones: boolean;
   documentoPlaneacion: any;
+  estadoActividad: string;
   estadoSeguimiento: string;
   estados: any[];
   readonlyFormulario: boolean;
@@ -176,33 +177,33 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   verificarFormulario() {
     if (this.rol === 'PLANEACION') {
-      if (this.estadoSeguimiento === 'Actividad en reporte' || this.estadoSeguimiento ===  'Sin reporte') {
+      if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Sin reporte') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      } else if (this.estadoSeguimiento === 'Actividad reportada') {
+      } else if (this.estadoActividad === 'Actividad reportada' || this.estadoActividad === 'Con observaciones') {
         this.readonlyFormulario = true;
-        this.readonlyObservacion = false;
+        this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión OAPC');
         this.mostrarObservaciones = true;
-      } else if (this.estadoSeguimiento === 'Con observaciones' || this.estadoSeguimiento === 'Actividad valada') {
+      } else if (this.estadoActividad === 'Actividad valada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
       }
     } else if (this.rol == 'JEFE_DEPENDENCIA') {
-      if (this.estadoSeguimiento === 'Actividad en reporte' || this.estadoSeguimiento === 'Habilitado'  || this.estadoSeguimiento ===  'Sin reporte') {
+      if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Habilitado' || this.estadoActividad === 'Sin reporte') {
         this.readonlyFormulario = false;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      } else if (this.estadoSeguimiento === 'Actividad reportada') {
+      } else if (this.estadoActividad === 'Actividad reportada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      } else if (this.estadoSeguimiento === 'Con observaciones') {
+      } else if (this.estadoActividad === 'Con observaciones') {
         this.readonlyFormulario = false;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-      } else if (this.estadoSeguimiento === 'Actividad valada') {
+      } else if (this.estadoActividad === 'Actividad valada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
@@ -222,7 +223,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(documentos => {
-      if (documentos != undefined && this.documentos != documentos) {
+      if (documentos != undefined && JSON.stringify(this.documentos) != JSON.stringify(documentos)) {
 
         let documentoPorSubir = {
           documento: null,
@@ -340,10 +341,31 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.datosResultados = data.Data.cuantitativo.resultados;
         this.tendencia = data.Data.cuantitativo.tendencia;
         this.datosCualitativo = data.Data.cualitativo;
+
+        if (this.datosCualitativo.observaciones == "") {
+          this.datosCualitativo.observaciones = "Sin observación"
+        }
+
         if (data.Data.cuantitativo.denominador == "Denominador fijo" && data.Data.informacion.trimestre != "T1") {
           this.denominadorFijo = true;
         }
-        this.estadoSeguimiento = this.seguimiento.estado.nombre;
+
+        for (let index = 0; index < this.datosIndicadores.length; index++) {
+          const indicador = this.datosIndicadores[index];
+          if (indicador.observaciones == "") {
+            this.datosIndicadores[index].observaciones = "Sin observación";
+          }
+        }
+
+        for (let index = 0; index < this.documentos.length; index++) {
+          const documento = this.documentos[index];
+          if (documento.Observacion == "") {
+            this.documentos[index].Observacion = "Sin observación";
+          }
+        }
+
+        this.estadoActividad = this.seguimiento.estado.nombre;
+        this.estadoSeguimiento = this.seguimiento.estadoSeguimiento;
         this.verificarFormulario();
         Swal.close();
       }
@@ -359,69 +381,160 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   guardarCualitativo() {
-    this.request.post(environment.PLANES_MID, `seguimiento/guardar_cualitativo/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, { "cualitativo": this.seguimiento.cualitativo }).subscribe((data: any) => {
-      if (data) {
+    var mensaje = `¿Desea guardar la información del componente cualitativo?`
+    if (this.rol === 'PLANEACION') {
+      mensaje = `¿Desea guardar las observaciones del componente cualitativo?`
+    }
+
+    Swal.fire({
+      title: 'Guardar seguimiento',
+      text: mensaje,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.post(environment.PLANES_MID, `seguimiento/guardar_cualitativo/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, { "cualitativo": this.seguimiento.cualitativo }).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Información de seguimiento actualizada',
+              text: 'El seguimiento del componente cualitativo se ha guardado satisfactoriamente',
+              icon: 'success'
+            }).then(res => {
+              this.loadData();
+            });
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        })
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
-          title: 'Información de seguimiento actualizada',
-          text: 'El seguimiento se ha guardado satisfactoriamente',
-          icon: 'success'
-        }).then(res => {
-          this.loadData();
-        });
+          title: 'Generación de seguimiento cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
       }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No fue posible guardar el seguimiento`,
-        icon: 'error',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
   guardarCuantitativo() {
-    this.request.post(environment.PLANES_MID, `seguimiento/guardar_cuantitativo/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, { "cuantitativo": this.seguimiento.cuantitativo }).subscribe((data: any) => {
-      if (data) {
+    var mensaje = `¿Desea guardar la información del componente cuantitativo?`
+    if (this.rol === 'PLANEACION') {
+      mensaje = `¿Desea guardar las observaciones del componente cuantitativo?`
+    }
+
+    Swal.fire({
+      title: 'Guardar seguimiento',
+      text: mensaje,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.post(environment.PLANES_MID, `seguimiento/guardar_cuantitativo/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, { "cuantitativo": this.seguimiento.cuantitativo }).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Información de seguimiento actualizada',
+              text: 'El seguimiento del componente cuantitativo se ha guardado satisfactoriamente',
+              icon: 'success'
+            }).then(res => {
+              this.loadData();
+            });
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        })
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
-          title: 'Información de seguimiento actualizada',
-          text: 'El seguimiento se ha guardado satisfactoriamente',
-          icon: 'success'
-        }).then(res => {
-          this.loadData();
-        });
+          title: 'Generación de seguimiento cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
       }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No fue posible guardar el seguimiento`,
-        icon: 'error',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
   guardarSeguimiento() {
-    this.request.post(environment.PLANES_MID, `seguimiento/guardar_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, this.seguimiento).subscribe((data: any) => {
-      if (data) {
-        Swal.fire({
-          title: 'Información de seguimiento actualizada',
-          text: 'El seguimiento se ha guardado satisfactoriamente',
-          icon: 'success'
-        }).then(res => {
-          this.loadData();
+    Swal.fire({
+      title: 'Guardar seguimiento',
+      text: `¿Desea guardar todos los componentes del seguimiento?`,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.post(environment.PLANES_MID, `seguimiento/guardar_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, this.seguimiento).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Información de seguimiento actualizada',
+              text: 'El seguimiento se ha guardado satisfactoriamente',
+              icon: 'success'
+            }).then(res => {
+              this.loadData();
+            });
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
         });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Generación de seguimiento cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
       }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No fue posible guardar el seguimiento`,
-        icon: 'error',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
   generarReporte() {
@@ -463,53 +576,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Generación de reporte cancelada',
-          icon: 'error',
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
-  }
-
-  enviarObservacion() {
-    Swal.fire({
-      title: 'Enviar Observacion',
-      text: `Desea enviar las observaciones realizadas para este reporte`,
-      icon: 'warning',
-      confirmButtonText: `Sí`,
-      cancelButtonText: `No`,
-      showCancelButton: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const auxEstado = this.estados.find(element => element.nombre === 'Observación');
-        let mod = {
-          estado_seguimiento_id: auxEstado._id
-        }
-        this.seguimiento.estado_plan_id = auxEstado._id
-        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimiento._id).subscribe((data: any) => {
-          if (data) {
-            Swal.fire({
-              title: 'Observación Cancelada',
-              icon: 'success',
-            }).then((result) => {
-              if (result.value) {
-                this.verificarFormulario();
-              }
-            })
-          }
-        })
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        Swal.fire({
-          title: 'Generación de observación cancelada',
           icon: 'error',
           showConfirmButton: false,
           timer: 2500
@@ -659,5 +725,92 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         })
       }
     }
+  }
+
+  finalizarSeguimiento() {
+    var mensaje = `¿Desea avalar la actividad?`
+    if (this.veririficarObservaciones()) {
+      mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
+    }
+
+    Swal.fire({
+      title: 'Guardar seguimiento',
+      text: mensaje,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.post(environment.PLANES_MID, `seguimiento/revision_actividad/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, this.seguimiento).subscribe((data: any) => {
+          if (data) {
+
+            if (data.Data.Observación) {
+              Swal.fire({
+                title: 'Información de seguimiento actualizada',
+                text: 'Las observaciones hechas al seguimiento se ha guardado satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
+            } else {
+              Swal.fire({
+                title: 'Información de seguimiento actualizada',
+                text: 'La actividad ha sido avalada satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
+            }
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Generación de seguimiento cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  veririficarObservaciones() {
+    if (this.seguimiento.cualitativo.observaciones != "" && this.seguimiento.cualitativo.observaciones != "Sin observación") {
+      return true;
+    }
+
+    for (let index = 0; index < this.seguimiento.cuantitativo.indicadores.length; index++) {
+      const indicador = this.seguimiento.cuantitativo.indicadores[index];
+      if (indicador.observaciones != "" && indicador.observaciones != "Sin observación") {
+        return true;
+      }
+    }
+
+    for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
+      const evidencia = this.seguimiento.evidencia[index];
+      if (evidencia.Observacion != "" && evidencia.Observacion != "Sin observación") {
+        return true;
+      }
+    }
+
+    return false
   }
 }

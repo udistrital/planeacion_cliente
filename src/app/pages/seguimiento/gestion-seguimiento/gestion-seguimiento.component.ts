@@ -31,6 +31,7 @@ export class SeguimientoComponentGestion implements OnInit {
   trimestre: any;
   trimestres: any[] = [];
   allActividades: any[];
+  estado: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -100,6 +101,7 @@ export class SeguimientoComponentGestion implements OnInit {
     this.request.get(environment.PLANES_MID, `seguimiento/get_estado_trimestre/` + this.planId + `/` + this.trimestreId).subscribe(async (data: any) => {
       if (data) {
         this.seguimiento = data.Data;
+        this.estado = this.seguimiento.estado_seguimiento_id.nombre;
         await this.loadUnidad(this.seguimiento.plan_id.dependencia_id);
       }
     }, (error) => {
@@ -295,5 +297,48 @@ export class SeguimientoComponentGestion implements OnInit {
     }
     this.dataSource.data = this.allActividades.slice(startIndex, endIndex);
     this.dataSource.data.length = this.allActividades.length;
+  }
+
+  iniciarRevision() {
+    Swal.fire({
+      title: 'Iniciar Revisión',
+      text: `Esta a punto de iniciar la revisión para este Plan`,
+      icon: 'warning',
+      confirmButtonText: `Continuar`,
+      cancelButtonText: `Cancelar`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.seguimiento.estado_seguimiento_id = "622ba46d16511e32535c326b"
+        this.request.put(environment.PLANES_CRUD, `seguimiento`, this.seguimiento, this.seguimiento._id).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Seguimiento en revisión',
+              icon: 'success',
+            }).then((result) => {
+              if (result.value) {
+                this.loadDataSeguimiento();
+              }
+            })
+          }
+        })
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Inicio de revisión cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 }
