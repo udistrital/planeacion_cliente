@@ -4,6 +4,29 @@ import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+//import { MatPaginator } from '@angular/material/paginator';
+
+export interface PeriodicElement {
+  name: string;
+  position: number;
+  weight: number;
+  symbol: string;
+  icon: string;
+}
+
+const ELEMENT_DATA: PeriodicElement[] = [
+  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H', icon: 'compare_arrows'},
+  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He', icon: 'compare_arrows'},
+  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li', icon: 'compare_arrows'},
+  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be', icon: 'compare_arrows'},
+  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B', icon: 'compare_arrows'},
+  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C', icon: 'compare_arrows'},
+  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N', icon: 'compare_arrows'},
+  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O', icon: 'compare_arrows'},
+  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F', icon: 'compare_arrows'},
+  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne', icon: 'compare_arrows'},
+];
 
 @Component({
   selector: 'app-habilitar-reporte',
@@ -13,18 +36,22 @@ import { RequestManager } from '../../services/requestManager';
 export class HabilitarReporteComponent implements OnInit {
 
   vigenciaSelected: boolean;
+  unidadSelected: boolean;
   tipoSelected: boolean;
   reporteHabilitado: boolean;
   vigencias: any[];
   periodos: any[];
   vigencia: any;
   tipo: string;
+  unidad: string;
   periodo: any;
   periodoFormulacion = [Date, Date];
   formFechas: FormGroup;
   date9: Date = new Date();
   guardarDisabled: boolean;
-
+  displayedColumns: string[] = ['position', 'name', 'actions'];
+  //displayedColumnsView: string[] = ['numero', 'unidad'];
+  dataSource = ELEMENT_DATA;
   constructor(
     private request: RequestManager,
     private formBuilder: FormBuilder,
@@ -45,7 +72,9 @@ export class HabilitarReporteComponent implements OnInit {
       fecha7: ['',],
       fecha8: ['',],
       fecha9: ['',],
-      fecha10: ['',]
+      fecha10: ['',],
+      fecha11: ['',],
+      fecha12: ['',]
     });
   }
 
@@ -64,7 +93,13 @@ export class HabilitarReporteComponent implements OnInit {
       })
     })
   }
-
+  changeIcon(fila) {
+    if (fila.icon == 'compare_arrows') {
+      fila.icon = 'done'
+    } else {
+      fila.icon = 'compare_arrows'
+    }
+  }
 
 
   onChangeV(vigencia) {
@@ -78,6 +113,7 @@ export class HabilitarReporteComponent implements OnInit {
         this.loadFechas();
     }
   }
+   
 
   onChange(tipo) {
     if (tipo == undefined) {
@@ -89,9 +125,29 @@ export class HabilitarReporteComponent implements OnInit {
     }
   }
 
+  onChangeU(unidad) {
+    if (unidad == undefined) {
+      this.unidadSelected = false;
+    } else {
+      this.unidadSelected = true;
+      this.unidad = unidad;      
+    }
+  }
+
   onChangeFF(index: number, event: MatDatepickerInputEvent<Date>) {
     if (index == 1) {
       let aux: Date = event.value;
+    }
+  }
+  onChangeI(vigencia) {
+    if (vigencia == undefined) {
+      this.vigenciaSelected = false;
+    } else {
+      this.vigenciaSelected = true;
+      this.vigencia = vigencia;
+       this.loadTrimestres();
+       if (this.tipoSelected)
+         this.loadFechas();
     }
   }
 
@@ -104,7 +160,7 @@ export class HabilitarReporteComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    if (this.tipo === 'formulacion') {
+    if (this.tipo === 'formulacion' || 'formulaciones') {
       this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0){
@@ -128,7 +184,7 @@ export class HabilitarReporteComponent implements OnInit {
           timer: 2500
         })
       })
-    } else if (this.tipo === 'seguimiento') {
+    } else if (this.tipo === 'seguimiento' || 'seguimientos') {
       if (this.periodos.length > 0){
         for (let i = 0; i < this.periodos.length; i++) {
           this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id).subscribe((data: any) => {
@@ -448,5 +504,6 @@ export class HabilitarReporteComponent implements OnInit {
     }
   }
 
+  
 
 }
