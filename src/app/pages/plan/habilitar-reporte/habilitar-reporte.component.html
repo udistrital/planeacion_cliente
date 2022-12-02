@@ -157,14 +157,21 @@
                         <mat-option value="seguimientos">Seguimiento</mat-option>
                     </mat-select>
                 </mat-form-field>                
-                <mat-form-field appearance="fill" [style.width.%]="100">
+                <!-- <mat-form-field appearance="fill" [style.width.%]="100">
                     <mat-label id="tipo-input-label">Unidades a las que desea asignar el proceso</mat-label>
                     <mat-select (selectionChange)="onChangeU($event.value)">
                         <mat-option>--</mat-option>
                         <mat-option value="unidades">Unidades a las que desea asignar el proceso</mat-option>
                         
                     </mat-select>
-                </mat-form-field>
+                    
+                </mat-form-field> -->              
+                
+                <div class="unidades">
+                    <button  mat-raised-button matPrefix color="primary" (click)="onChangeU('unidades')">Unidades a las que desea asignar el proceso</button>
+                </div>
+                
+                
                 <!-- <button class="mat-card">Unidades a las que desea asignar el proceso</button> -->
             </div>            
             <ng-container *ngIf="tipo=='seguimientos' && vigenciaSelected">
@@ -271,9 +278,8 @@
     </mat-card-content>
     
     <mat-card class="card-oas" *ngIf="(tipo=='formulaciones' || tipo=='seguimientos') && vigenciaSelected && unidadSelected">
-        <mat-card-header class="container-border">Unidades a las que desea asignar el proceso</mat-card-header>
-        <br>
-        <br>
+        <div class="container-border">
+            <h2 class="titulo">Unidades a asignar</h2>
         <mat-card-content>          
             
               <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
@@ -307,6 +313,7 @@
               
                
         </mat-card-content>
+        </div>
     </mat-card>
     <mat-card-footer *ngIf="!reporteHabilitado && tipoSelected" style="text-align: center;">
         <button mat-raised-button color="primary" [disabled]="guardarDisabled" (click)="guardar()">
