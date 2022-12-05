@@ -6,13 +6,13 @@ table {
 th {
   color: white;
   text-align: center;
-  justify-content: flex-end;
+  
 }
 
-// .td-align-right{
-//   text-align: right;
-//   justify-content: flex-end;
-// }
+.unidades {
+  display: flex;
+  justify-content: center;  
+}
 
 .mat-column-nombre{
   word-wrap: break-word !important;
@@ -49,6 +49,8 @@ th {
   justify-content: center;
   
 }
+
+
 
 .mat-column-actions{
   word-wrap: break-word !important;
