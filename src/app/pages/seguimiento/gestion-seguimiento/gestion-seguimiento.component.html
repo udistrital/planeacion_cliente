@@ -45,7 +45,7 @@
                         </ng-container>
                         <ng-container matColumnDef="activo">
                             <th mat-header-cell *matHeaderCellDef> Estado </th>
-                            <td mat-cell *matCellDef="let row">{{row.estado.nombre}}</td>
+                            <td mat-cell [ngClass]="row.estado.color" *matCellDef="let row">{{row.estado.nombre}}</td>
                         </ng-container>
                         <ng-container matColumnDef="gestion">
                             <th mat-header-cell *matHeaderCellDef> Gestión </th>
@@ -69,17 +69,21 @@
             </div>
             <div class="container-button">
                 <button
-                    *ngIf="rol=='JEFE_DEPENDENCIA' && this.seguimiento.estado_seguimiento_id.nombre != 'Enviado a revisión'"
+                    *ngIf="rol=='JEFE_DEPENDENCIA' && this.seguimiento.estado_seguimiento_id.nombre != 'Enviado a revisión' && this.seguimiento.estado_seguimiento_id.nombre != 'En revisión OAPC' && this.seguimiento.estado_seguimiento_id.nombre != 'Reporte Avalado'"
                     class="background-button align-button1" mat-raised-button color="primary"
                     (click)="reportar()">Enviar reporte</button>
 
-                <button *ngIf="rol=='PLANEACION' && estado=='Enviado a revisión'"
+                    <button
+                    *ngIf="rol=='JEFE_DEPENDENCIA' && this.estado == 'Con observaciones'"
+                    class="background-button align-button1" mat-raised-button color="primary"
+                    (click)="reportar()">Enviar corrección</button>
+
+                    <button *ngIf="rol=='PLANEACION' && estado=='Enviado a revisión'"
                     class="background-button align-button1" mat-raised-button color="primary"
                     (click)="iniciarRevision()">Iniciar revisión</button>
 
-                <button *ngIf="rol=='PLANEACION' && estado=='En revisión OAPC'" [disabled]="indexActividad === ''"
-                    class="background-button align-button1" mat-raised-button color="primary"
-                    (click)="enviar()">Enviar</button>
+                <button *ngIf="rol=='PLANEACION' && estado=='En revisión OAPC'" class="background-button align-button1" mat-raised-button color="primary"
+                    (click)="finalizarRevision()">Finalizar revisión</button>
 
                 <button class="btn-gestion-seg" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
