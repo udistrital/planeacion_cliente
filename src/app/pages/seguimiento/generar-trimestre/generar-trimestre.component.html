@@ -402,7 +402,7 @@
 
             </div>
             <br>
-            <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Sin reporte'">
+            <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones')">
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="guardarSeguimiento()">Guardar seguimiento de actividad</button>
                 <button class="background-button" mat-raised-button color="primary"
@@ -421,24 +421,18 @@
             </div>
 
             <div class="align-button-enviar"
-                *ngIf="rol=='PLANEACION' && (estadoActividad==='Sin reporte' || estadoActividad==='Actividad en reporte')">
+                *ngIf="rol=='PLANEACION' && (readonlyObservacion || estadoActividad==='Sin reporte' || estadoActividad==='Actividad en reporte' || estadoActividad==='Actividad avalada')">
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
             </div>
             <div class="align-button-enviar"
-                *ngIf="rol=='PLANEACION' && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada' )">
+                *ngIf="rol=='PLANEACION' && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada' )">
                 <button class="background-button" mat-raised-button color="primary"
-                    (click)="finalizarSeguimiento()">Finalizar revisión</button>
+                    (click)="guardarRevision()">Guardar revisión de actividad</button>
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
             </div>
-            <!-- <div class="align-button-enviar"
-                *ngIf="rol=='PLANEACION' && (estadoActividad==='Generado' || estadoActividad==='Actividad reportada')">
-                <button class="background-button" mat-raised-button color="primary" (click)="aprobarReporte()">Aprobar
-                    Reporte</button>
-                <button class="background-button" mat-raised-button color="primary"
-                    (click)="backClicked()">Regresar</button>
-            </div> -->
+
             <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Observación'">
                 <button class="background-button" mat-raised-button color="primary" (click)="ajustarReporte()">Reenviar
                     Reporte</button>

@@ -138,6 +138,16 @@ export class SeguimientoComponentGestion implements OnInit {
   loadActividades() {
     this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.seguimiento._id).subscribe((data: any) => {
       if (data) {
+
+        for (let index = 0; index < data.Data.length; index++) {
+          const actividad = data.Data[index];
+          if (actividad.estado.nombre == "Con observaciones") {
+            data.Data[index].estado.color = "conObservacion";
+          }
+          if (actividad.estado.nombre == "Actividad avalada") {
+            data.Data[index].estado.color = "avalada";
+          }
+        }
         this.dataSource.data = data.Data;
         this.allActividades = this.dataSource.data;
         Swal.close();
@@ -163,11 +173,7 @@ export class SeguimientoComponentGestion implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        let mod = {
-          SeguimientoId: this.seguimiento._id
-        };
-
-        this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, mod, "").subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
               Swal.fire({
@@ -175,7 +181,7 @@ export class SeguimientoComponentGestion implements OnInit {
                 icon: 'success',
               }).then((result) => {
                 if (result.value) {
-                  this.loadActividades();
+                  this.loadDataSeguimiento();
                 }
               });
             } else {
@@ -188,12 +194,21 @@ export class SeguimientoComponentGestion implements OnInit {
                 message = message + key + ' - ' + aux[key] + "<br/>"
               }
 
-              Swal.fire({
-                title: 'Debe reportar las siguientes actividades:',
-                icon: 'error',
-                showConfirmButton: true,
-                html: message
-              })
+              if (this.estado != 'Con observaciones') {
+                Swal.fire({
+                  title: 'Debe reportar las siguientes actividades:',
+                  icon: 'error',
+                  showConfirmButton: true,
+                  html: message
+                })
+              } else {
+                Swal.fire({
+                  title: 'Debe revisar las observaciones de las siguientes actividades:',
+                  icon: 'error',
+                  showConfirmButton: true,
+                  html: message
+                })
+              }
             }
           }
         });
@@ -217,8 +232,64 @@ export class SeguimientoComponentGestion implements OnInit {
       }
   }
 
-  enviar() {
-    /// Cambiar a un mensaje y guardar cambio de estado para planeacion
+  finalizarRevision() {
+    Swal.fire({
+      title: 'Finalizar revisión',
+      text: `¿Confirma que desea finalizar la revisión del seguimiento al Plan de Acción?`,
+      icon: 'warning',
+      confirmButtonText: `Continuar`,
+      cancelButtonText: `Cancelar`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "", this.seguimiento._id).subscribe((data: any) => {
+          if (data) {
+            if (data.Success) {
+              Swal.fire({
+                title: 'El reporte se ha enviado satisfactoriamente',
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  this.loadDataSeguimiento();
+                }
+              });
+            } else {
+              let message: string = '<b>ID - Actividad</b><br/>';
+              let aux: object = data.Data.actividades
+              let keys: string[];
+
+              keys = Object.keys(aux)
+              for (let key of keys) {
+                message = message + key + ' - ' + aux[key] + "<br/>"
+              }
+
+              Swal.fire({
+                title: 'Actividades sin revisar',
+                icon: 'error',
+                showConfirmButton: true,
+                html: 'Debe avalar o realizar las observaciones a las siguientes actividades:<br/>' + message
+              })
+            }
+          }
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Finalizalización de revisión cancelada',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
   revisar(row) {

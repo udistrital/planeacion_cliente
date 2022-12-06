@@ -125,7 +125,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
-      this.rol = 'PLANEACION'
+      this.rol = 'PLANEACION';
     }
   }
 
@@ -185,7 +185,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.readonlyFormulario = true;
         this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión OAPC');
         this.mostrarObservaciones = true;
-      } else if (this.estadoActividad === 'Actividad valada') {
+      } else if (this.estadoActividad === 'Actividad avalada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
@@ -200,10 +200,10 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
       } else if (this.estadoActividad === 'Con observaciones') {
-        this.readonlyFormulario = false;
+        this.readonlyFormulario = this.estadoSeguimiento != 'Con observaciones';
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-      } else if (this.estadoActividad === 'Actividad valada') {
+      } else if (this.estadoActividad === 'Actividad avalada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
@@ -219,7 +219,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(EvidenciasDialogComponent, {
       width: '80%',
       height: '55%',
-      data: [this.documentos, this.readonlyFormulario],
+      data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion],
     });
 
     dialogRef.afterClosed().subscribe(documentos => {
@@ -230,7 +230,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           evidencia: documentos
         };
 
-        this.request.post(environment.PLANES_MID, `seguimiento/guardar_documentos/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, documentoPorSubir).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.documentos = documentos;
             Swal.fire({
@@ -278,7 +278,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           evidencia: this.seguimiento.evidencia
         };
 
-        this.request.post(environment.PLANES_MID, `seguimiento/guardar_documentos/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, documentoPorSubir).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Documento Cargado',
@@ -342,8 +342,14 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.tendencia = data.Data.cuantitativo.tendencia;
         this.datosCualitativo = data.Data.cualitativo;
 
+        this.estadoActividad = this.seguimiento.estado.nombre;
+        this.estadoSeguimiento = this.seguimiento.estadoSeguimiento;
+        this.verificarFormulario();
+
         if (this.datosCualitativo.observaciones == "") {
           this.datosCualitativo.observaciones = "Sin observación"
+        } else {
+          this.mostrarObservaciones = true;
         }
 
         if (data.Data.cuantitativo.denominador == "Denominador fijo" && data.Data.informacion.trimestre != "T1") {
@@ -354,6 +360,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           const indicador = this.datosIndicadores[index];
           if (indicador.observaciones == "") {
             this.datosIndicadores[index].observaciones = "Sin observación";
+          } else {
+            this.mostrarObservaciones = true;
           }
         }
 
@@ -361,12 +369,12 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           const documento = this.documentos[index];
           if (documento.Observacion == "") {
             this.documentos[index].Observacion = "Sin observación";
+          } else {
+            this.mostrarObservaciones = true;
           }
         }
 
-        this.estadoActividad = this.seguimiento.estado.nombre;
-        this.estadoSeguimiento = this.seguimiento.estadoSeguimiento;
-        this.verificarFormulario();
+
         Swal.close();
       }
     }, (error) => {
@@ -383,7 +391,10 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   guardarCualitativo() {
     var mensaje = `¿Desea guardar la información del componente cualitativo?`
     if (this.rol === 'PLANEACION') {
-      mensaje = `¿Desea guardar las observaciones del componente cualitativo?`
+      mensaje = `¿Desea avalar la actividad?`
+      if (this.veririficarObservaciones()) {
+        mensaje = `¿Desea guardar las observaciones del componente cualitativo?`
+      }
     }
 
     Swal.fire({
@@ -395,7 +406,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.post(environment.PLANES_MID, `seguimiento/guardar_cualitativo/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, { "cualitativo": this.seguimiento.cualitativo }).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cualitativo`, { "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Información de seguimiento actualizada',
@@ -437,7 +448,10 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   guardarCuantitativo() {
     var mensaje = `¿Desea guardar la información del componente cuantitativo?`
     if (this.rol === 'PLANEACION') {
-      mensaje = `¿Desea guardar las observaciones del componente cuantitativo?`
+      mensaje = `¿Desea avalar la actividad?`
+      if (this.veririficarObservaciones()) {
+        mensaje = `¿Desea guardar las observaciones del componente cuantitativo?`
+      }
     }
 
     Swal.fire({
@@ -449,7 +463,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.post(environment.PLANES_MID, `seguimiento/guardar_cuantitativo/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, { "cuantitativo": this.seguimiento.cuantitativo }).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cuantitativo`, { "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Información de seguimiento actualizada',
@@ -498,7 +512,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.post(environment.PLANES_MID, `seguimiento/guardar_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, this.seguimiento).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_seguimiento`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Información de seguimiento actualizada',
@@ -727,7 +741,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }
   }
 
-  finalizarSeguimiento() {
+  guardarRevision() {
     var mensaje = `¿Desea avalar la actividad?`
     if (this.veririficarObservaciones()) {
       mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
@@ -742,7 +756,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.post(environment.PLANES_MID, `seguimiento/revision_actividad/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, this.seguimiento).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/revision_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
 
             if (data.Data.Observación) {

@@ -69,7 +69,7 @@ export class EvidenciasDialogComponent implements OnInit {
         width: '1200',
         minHeight: 'calc(100vh - 90px)',
         height: '80%',
-        data: { "url": header + row.file }
+        data: { "url": header + row.file, "editable": !this.data[2] }
       });
     } else {
       Swal.fire({
@@ -88,7 +88,7 @@ export class EvidenciasDialogComponent implements OnInit {
             width: '1200px',
             minHeight: 'calc(100vh - 90px)',
             height: '800px',
-            data: documentos[0]
+            data: { ...documentos[0], "editable": !this.data[2] }
           });
 
           dialogRef.afterClosed().subscribe(result => {

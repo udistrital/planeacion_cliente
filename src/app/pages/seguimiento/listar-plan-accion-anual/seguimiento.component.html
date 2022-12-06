@@ -46,7 +46,7 @@
                             <h4>Fechas guia para cada trimestre para la vigencia</h4>
                             <mat-form-field appearance="fill" [style.width.%]="100">
                                 <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
-                                <mat-select (selectionChange)="onChangeV($event.value, true)">
+                                <mat-select (selectionChange)="onChangeV($event.value, rol=='PLANEACION')">
                                     <mat-option>--</mat-option>
                                     <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
                                         {{vigencia.Nombre}}
@@ -134,7 +134,7 @@
             </form>
             <br>
 
-            <form [formGroup]="formFechas" *ngIf="rol=='PLANEACION'">
+            <form [formGroup]="formFechas" *ngIf="rol=='PLANEACION' && vigencia != undefined">
                 <ng-container>
                     <div class="flex">
                         <div class="sameRow" style="vertical-align: middle;" [style.width.%]="90">
