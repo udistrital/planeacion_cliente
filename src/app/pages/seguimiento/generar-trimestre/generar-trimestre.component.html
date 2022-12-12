@@ -218,7 +218,7 @@
                                     <td class="rowText" mat-cell *matCellDef="let element">
                                         <textarea class="form-control" matInput placeholder="Denominador"
                                             onkeydown="return /[0-9, Backspace]/i.test(event.key)"
-                                            [readonly]="readonlyFormulario || denominadorFijo"
+                                            [readonly]="readonlyFormulario || element.denominador == 'Denominador fijo' && denominadorFijo"
                                             [value]="element.reporteDenominador"
                                             [(ngModel)]="element.reporteDenominador"
                                             [ngModelOptions]="{standalone: true}" required></textarea>
@@ -402,7 +402,7 @@
 
             </div>
             <br>
-            <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones')">
+            <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC'">
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="guardarSeguimiento()">Guardar seguimiento de actividad</button>
                 <button class="background-button" mat-raised-button color="primary"

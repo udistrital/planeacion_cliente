@@ -219,9 +219,9 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         },
       })
 
-      this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
+      this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe(async (data: any) => {
         if (data) {
-          if (data.Data != "") {
+          if (data.Data != "" && data.Data != null) {
             let periodos = data.Data;
             Swal.close();
 
@@ -237,7 +237,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
               let trimestres = { t1: {}, t2: {}, t3: {}, t4: {} }
               for (let i = 0; i < periodos.length; i++) {
-                this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=periodo_id:` + periodos[i].Id).subscribe((data: any) => {
+                await this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe((data: any) => {
                   if (data && data.Data != "") {
                     let seguimiento = data.Data[0];
 
@@ -263,7 +263,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                     }
 
                     if (Object.keys(trimestres.t1).length !== 0 && Object.keys(trimestres.t2).length !== 0 && Object.keys(trimestres.t3).length !== 0 && Object.keys(trimestres.t4).length !== 0) {
-                      this.dataSource.data = this.allPlanes.filter(plan => plan.vigencia == this.vigencia.Nombre);
+                      let datos = this.allPlanes.filter(plan => plan.vigencia == this.vigencia.Nombre);
+                      this.dataSource.data = datos;
 
                       Swal.fire({
                         title: 'Cargando Fechas',
@@ -277,18 +278,19 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                         const plan = this.dataSource.data[index];
 
                         for (let trimestre in trimestres) {
-                          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,plan_id:` + plan._id + `,periodo_seguimiento_id:` + trimestres[trimestre]["id"]).subscribe((data: any) => {
+                          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,plan_id:` + plan._id + `,periodo_seguimiento_id:` + trimestres[trimestre]["id"]).subscribe(async (data: any) => {
                             if (data.Data.length != 0) {
 
-                              this.request.get(environment.PLANES_CRUD, `estado-seguimiento/` + data.Data[0].estado_seguimiento_id).subscribe((estado: any) => {
+                              await this.request.get(environment.PLANES_CRUD, `estado-seguimiento/` + data.Data[0].estado_seguimiento_id).subscribe((estado: any) => {
                                 if (estado && estado.Data != null) {
                                   let auxFecha = new Date();
                                   let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
                                   let strFechaHoy = new Date(auxFechaCol).toISOString();
                                   let fechaHoy = new Date(strFechaHoy);
 
-                                  if (estado.Data.nombre == "Avalada") {
+                                  if (estado.Data.nombre == "Reporte Avalado") {
                                     this.dataSource.data[index][trimestre + "class"] = "verde";
+                                    this.dataSource.data[index]["estado"] = estado.Data.nombre;
                                   } else if (fechaHoy >= trimestres[trimestre]["fecha_inicio"] && fechaHoy <= trimestres[trimestre]["fecha_fin"]) {
                                     this.dataSource.data[index][trimestre + "class"] = "amarillo";
                                     this.dataSource.data[index]["estado"] = estado.Data.nombre;

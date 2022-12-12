@@ -338,7 +338,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.unidad = this.seguimiento.informacion.unidad;
         this.documentos = JSON.parse(JSON.stringify(data.Data.evidencia));
         this.datosIndicadores = data.Data.cuantitativo.indicadores;
-        this.datosResultados = data.Data.cuantitativo.resultados;
+        this.datosResultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.resultados));
         this.tendencia = data.Data.cuantitativo.tendencia;
         this.datosCualitativo = data.Data.cualitativo;
 
@@ -346,34 +346,37 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.estadoSeguimiento = this.seguimiento.estadoSeguimiento;
         this.verificarFormulario();
 
-        if (this.datosCualitativo.observaciones == "") {
-          this.datosCualitativo.observaciones = "Sin observación"
-        } else {
-          this.mostrarObservaciones = true;
+        if (this.estadoActividad != "Sin reporte") {
+          if (this.datosCualitativo.observaciones == "" || this.datosCualitativo.observaciones == undefined) {
+            this.datosCualitativo.observaciones = "Sin observación"
+          } else {
+            this.mostrarObservaciones = true;
+          }
         }
 
-        if (data.Data.cuantitativo.denominador == "Denominador fijo" && data.Data.informacion.trimestre != "T1") {
+        if (data.Data.informacion.trimestre != "T1") {
           this.denominadorFijo = true;
         }
 
         for (let index = 0; index < this.datosIndicadores.length; index++) {
           const indicador = this.datosIndicadores[index];
-          if (indicador.observaciones == "") {
-            this.datosIndicadores[index].observaciones = "Sin observación";
-          } else {
-            this.mostrarObservaciones = true;
+          if (this.estadoActividad != "Sin reporte") {
+            if ((indicador.observaciones == "" || indicador.observaciones == undefined) && this.rol != "JEFE_DEPENDENCIA") {
+              this.datosIndicadores[index].observaciones = "Sin observación";
+            }
           }
         }
 
         for (let index = 0; index < this.documentos.length; index++) {
           const documento = this.documentos[index];
-          if (documento.Observacion == "") {
-            this.documentos[index].Observacion = "Sin observación";
-          } else {
-            this.mostrarObservaciones = true;
+          if (this.estadoActividad != "Sin reporte") {
+            if (documento.Observacion == "") {
+              this.documentos[index].Observacion = "Sin observación";
+            } else {
+              this.mostrarObservaciones = true;
+            }
           }
         }
-
 
         Swal.close();
       }
@@ -706,15 +709,15 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       const element = this.datosIndicadores[index];
       if (element.reporteDenominador != "" || element.reporteNumerador != "") {
         var denominador = parseInt(element.reporteDenominador);
-        const numerador = parseInt(element.reporteNumerador);
+        var numerador = parseInt(element.reporteNumerador);
         this.datosIndicadores[index].reporteDenominador = denominador;
         this.datosIndicadores[index].reporteNumerador = numerador;
         if (denominador != NaN && numerador != NaN) {
-          this.datosResultados[index].indicador = Math.round(numerador / denominador * 10) / 10;
+          this.datosResultados[index].indicador = this.seguimiento.cuantitativo.resultados[index].indicador + Math.round(numerador / denominador * 10) / 10;
           if (!this.denominadorFijo) {
             denominador += this.datosResultados[index].acumuladoDenominador;
           }
-          this.datosResultados[index].indicadorAcumulado = Math.round((this.datosResultados[index].acumuladoNumerador + numerador) / denominador * 10) / 10;
+          this.datosResultados[index].indicadorAcumulado = this.seguimiento.cuantitativo.resultados[index].indicadorAcumulado + Math.round((this.datosResultados[index].acumuladoNumerador + numerador) / denominador * 10) / 10;
 
           var meta = parseInt(element.meta);
           var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
