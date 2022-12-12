@@ -1041,10 +1041,8 @@ export class FormulacionComponent implements OnInit {
     }
     this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/` + this.plan._id, parametros).subscribe((data: any) => {
       if (data) {
-        let upd = {
-          estado_plan_id: "614d3ad301c7a200482fabfd"
-        }
-        this.request.put(environment.PLANES_CRUD, `plan`, upd, data.Data._id).subscribe((dataPut: any) => {
+        this.plan.estado_plan_id = "614d3ad301c7a200482fabfd";
+        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
           if (dataPut) {
             this.plan = dataPut.Data;
             Swal.fire({
@@ -1176,11 +1174,8 @@ export class FormulacionComponent implements OnInit {
                 showCancelButton: true
               }).then((result) => {
                 if (result.isConfirmed) {
-                  let mod = {
-                    estado_plan_id: "614d3aeb01c7a245952fabff"
-                  }
-                  this.plan.estado_plan_id = "614d3aeb01c7a245952fabff"
-                  this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+                  this.plan.estado_plan_id = "614d3aeb01c7a245952fabff";
+                  this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
                     if (data) {
                       Swal.fire({
                         title: 'Plan enviado',
@@ -1283,11 +1278,8 @@ export class FormulacionComponent implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        let mod = {
-          estado_plan_id: "614d3b0301c7a2a44e2fac01"
-        }
-        this.plan.estado_plan_id = "614d3b0301c7a2a44e2fac01"
-        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+        this.plan.estado_plan_id = "614d3b0301c7a2a44e2fac01";
+        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Plan En Revisión',
@@ -1337,11 +1329,8 @@ export class FormulacionComponent implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        let mod = {
-          estado_plan_id: "614d3b1e01c7a265372fac03"
-        }
-        this.plan.estado_plan_id = "614d3b1e01c7a265372fac03"
-        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+        this.plan.estado_plan_id = "614d3b1e01c7a265372fac03";
+        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Revisión Enviada',
@@ -1435,11 +1424,8 @@ export class FormulacionComponent implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        let mod = {
-          estado_plan_id: "614d3b4401c7a222052fac05"
-        }
-        this.plan.estado_plan_id = "614d3b4401c7a222052fac05"
-        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+        this.plan.estado_plan_id = "614d3b4401c7a222052fac05";
+        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Plan pre avalado',
@@ -1490,11 +1476,8 @@ export class FormulacionComponent implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        let mod = {
-          estado_plan_id: "6153355601c7a2365b2fb2a1"
-        }
-        this.plan.estado_plan_id = "6153355601c7a2365b2fb2a1"
-        this.request.put(environment.PLANES_CRUD, `plan`, mod, this.plan._id).subscribe((data: any) => {
+        this.plan.estado_plan_id = "6153355601c7a2365b2fb2a1";
+        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Plan Avalado',

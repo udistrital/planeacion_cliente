@@ -663,178 +663,145 @@ export class HabilitarReporteComponent implements OnInit {
   }
 
   actualizarPeriodo(i: number, periodoId: number) {
+    let body;
     if (i === 0) {
-      let body = {
+      body = {
         "periodo_id": periodoId.toString(),
         "fecha_inicio": this.formFechas.get('fecha1').value.toISOString(),
         "fecha_fin": this.formFechas.get('fecha2').value.toISOString()
       }
-      this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      };
-
     } else if (i === 1) {
-      let body = {
+      body = {
         "periodo_id": periodoId.toString(),
         "fecha_inicio": this.formFechas.get('fecha3').value.toISOString(),
         "fecha_fin": this.formFechas.get('fecha4').value.toISOString()
       }
-      this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
     } else if (i === 2) {
-      let body = {
+      body = {
         "periodo_id": periodoId.toString(),
         "fecha_inicio": this.formFechas.get('fecha5').value.toISOString(),
         "fecha_fin": this.formFechas.get('fecha6').value.toISOString()
       }
-      this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
     } else if (i === 3) {
-      let body = {
+      body = {
         "periodo_id": periodoId.toString(),
         "fecha_inicio": this.formFechas.get('fecha7').value.toISOString(),
         "fecha_fin": this.formFechas.get('fecha8').value.toISOString()
       }
-      this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    }
+
+    this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
     }
   }
 
   actualizarPeriodoInv(i: number, periodoId: number) {
     let fecha_In;
     let fecha_Fin;
+
     if (i === 0) {
       fecha_In = this.formFechas.get('fecha11').value.toISOString();
-      fecha_Fin = this.formFechas.get('fecha12').value.toISOString();    
-
-  } else if (i === 1) {
+      fecha_Fin = this.formFechas.get('fecha12').value.toISOString();
+    } else if (i === 1) {
       fecha_In = this.formFechas.get('fecha13').value.toISOString();
-      fecha_Fin = this.formFechas.get('fecha14').value.toISOString(); 
-  } else if (i === 2) {
+      fecha_Fin = this.formFechas.get('fecha14').value.toISOString();
+    } else if (i === 2) {
       fecha_In = this.formFechas.get('fecha15').value.toISOString();
-      fecha_Fin = this.formFechas.get('fecha16').value.toISOString();  
-  } else if (i === 3) {
+      fecha_Fin = this.formFechas.get('fecha16').value.toISOString();
+    } else if (i === 3) {
       fecha_In = this.formFechas.get('fecha17').value.toISOString();
-      fecha_Fin = this.formFechas.get('fecha18').value.toISOString();  
-  } 
-  this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + periodoId + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: any) => {
-    if (data) {
-      let seguimientoFormulacionGlobal = data.Data[0];
-      if (data.Data.length == 0) {
-        let body = {
-          periodo_id: periodoId.toString(),
-          fecha_inicio: fecha_In,
-          fecha_fin: fecha_Fin,
-          activo: true,
-          tipo_seguimiento_id: '6385fa136a0d19d7888837ed',
-        };
-        this.request.post(environment.PLANES_CRUD, `periodo-seguimiento`, body).subscribe((data: any) => {
-          if (data) {
+      fecha_Fin = this.formFechas.get('fecha18').value.toISOString();
+    }
+
+    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + periodoId + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: any) => {
+      if (data) {
+        let seguimientoFormulacionGlobal = data.Data[0];
+        if (data.Data.length == 0) {
+          let body = {
+            periodo_id: periodoId.toString(),
+            fecha_inicio: fecha_In,
+            fecha_fin: fecha_Fin,
+            activo: true,
+            tipo_seguimiento_id: '6385fa136a0d19d7888837ed',
+          };
+          this.request.post(environment.PLANES_CRUD, `periodo-seguimiento`, body).subscribe((data: any) => {
+            if (data) {
+              Swal.fire({
+                title: 'Fechas Actualizadas',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
+          }, (error) => {
             Swal.fire({
-              title: 'Fechas Actualizadas',
-              icon: 'success',
+              title: 'Error en la operación',
+              text: `No se creó el registro ${JSON.stringify(error)}`,
+              icon: 'warning',
               showConfirmButton: false,
               timer: 2500
             })
-          }
-        }, (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            text: `No se creó el registro ${JSON.stringify(error)}`,
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 2500
           })
-        })
-      } else if (data.Data.length > 0) {      
-          
-          seguimientoFormulacionGlobal["fecha_inicio"]= fecha_In;
-          seguimientoFormulacionGlobal["fecha_fin"] = fecha_Fin;              
-          seguimientoFormulacionGlobal["tipo_seguimiento_id"]= '6385fa136a0d19d7888837ed';
-        this.request.put(environment.PLANES_CRUD, `periodo-seguimiento`, seguimientoFormulacionGlobal, seguimientoFormulacionGlobal['_id']).subscribe((data: any) => {
-          if (data) {
+        } else if (data.Data.length > 0) {
+          seguimientoFormulacionGlobal["fecha_inicio"] = fecha_In;
+          seguimientoFormulacionGlobal["fecha_fin"] = fecha_Fin;
+          seguimientoFormulacionGlobal["tipo_seguimiento_id"] = '6385fa136a0d19d7888837ed';
+          this.request.put(environment.PLANES_CRUD, `periodo-seguimiento`, seguimientoFormulacionGlobal, seguimientoFormulacionGlobal['_id']).subscribe((data: any) => {
+            if (data) {
+              Swal.fire({
+                title: 'Fechas Actualizadas',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
+
+          }), (error) => {
             Swal.fire({
-              title: 'Fechas Actualizadas',
-              icon: 'success',
+              title: 'Error en la operación',
+              text: `No se actualizo el registro ${JSON.stringify(error)}`,
+              icon: 'warning',
               showConfirmButton: false,
               timer: 2500
             })
-          }
 
-        }), (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            text: `No se actualizo el registro ${JSON.stringify(error)}`,
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 2500
-          })           
-            
           }
+        }
       }
-    }        
-  })     
-
-    
-
-  
-}
-
-limpiar() {
-  if (this.tipo === 'formulacion') {
-    this.formFechas.get('fecha9').setValue("");
-    this.formFechas.get('fecha10').setValue("");
-  } else if (this.tipo == 'seguimiento') {
-    this.formFechas.get('fecha1').setValue("");
-    this.formFechas.get('fecha2').setValue("");
-    this.formFechas.get('fecha3').setValue("");
-    this.formFechas.get('fecha4').setValue("");
-    this.formFechas.get('fecha5').setValue("");
-    this.formFechas.get('fecha6').setValue("");
-    this.formFechas.get('fecha7').setValue("");
-    this.formFechas.get('fecha8').setValue("");
-  } else if (this.tipo === 'formulaciones') {
-    this.formFechas.get('fecha19').setValue("");
-    this.formFechas.get('fecha20').setValue("");
-  } else if (this.tipo == 'seguimientos') {
-    this.formFechas.get('fecha11').setValue("");
-    this.formFechas.get('fecha12').setValue("");
-    this.formFechas.get('fecha13').setValue("");
-    this.formFechas.get('fecha14').setValue("");
-    this.formFechas.get('fecha15').setValue("");
-    this.formFechas.get('fecha16').setValue("");
-    this.formFechas.get('fecha17').setValue("");
-    this.formFechas.get('fecha18').setValue("");
+    })
   }
-}
 
-  
-
+  limpiar() {
+    if (this.tipo === 'formulacion') {
+      this.formFechas.get('fecha9').setValue("");
+      this.formFechas.get('fecha10').setValue("");
+    } else if (this.tipo == 'seguimiento') {
+      this.formFechas.get('fecha1').setValue("");
+      this.formFechas.get('fecha2').setValue("");
+      this.formFechas.get('fecha3').setValue("");
+      this.formFechas.get('fecha4').setValue("");
+      this.formFechas.get('fecha5').setValue("");
+      this.formFechas.get('fecha6').setValue("");
+      this.formFechas.get('fecha7').setValue("");
+      this.formFechas.get('fecha8').setValue("");
+    } else if (this.tipo === 'formulaciones') {
+      this.formFechas.get('fecha19').setValue("");
+      this.formFechas.get('fecha20').setValue("");
+    } else if (this.tipo == 'seguimientos') {
+      this.formFechas.get('fecha11').setValue("");
+      this.formFechas.get('fecha12').setValue("");
+      this.formFechas.get('fecha13').setValue("");
+      this.formFechas.get('fecha14').setValue("");
+      this.formFechas.get('fecha15').setValue("");
+      this.formFechas.get('fecha16').setValue("");
+      this.formFechas.get('fecha17').setValue("");
+      this.formFechas.get('fecha18').setValue("");
+    }
+  }
 }
