@@ -300,7 +300,7 @@ export class SeguimientoComponentGestion implements OnInit {
     let fechaInicio = new Date(this.seguimiento.periodo_seguimiento_id["fecha_inicio"]);
     let fechaFin = new Date(this.seguimiento.periodo_seguimiento_id["fecha_fin"]);
 
-    if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
+    if ((fechaHoy >= fechaInicio && fechaHoy <= fechaFin) || row.estado.nombre == "Actividad avalada") {
       this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + row.index + '/' + this.seguimiento.periodo_seguimiento_id["_id"]])
     } else {
       Swal.fire({
