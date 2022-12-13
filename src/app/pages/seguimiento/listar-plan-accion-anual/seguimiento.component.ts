@@ -403,6 +403,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.vigencia = vigencia;
     if (this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined)) {
       this.dataSource.data = this.planes;
+      this.plan = undefined;
     } else {
       this.loadFechas();
     }
