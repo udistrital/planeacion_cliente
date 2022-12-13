@@ -73,11 +73,7 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   backClicked() {
-    if (this._location.getState()["navigationId"] == 2) {
       this.router.navigate(['pages/seguimiento/listar-plan-accion-anual/'])
-    } else {
-      this._location.back();
-    }
   }
 
   applyFilter(event: Event) {

@@ -30,7 +30,7 @@
                                     <!-- index -->
                                     <ng-container matColumnDef="index">
                                         <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
-                                        <td mat-cell *matCellDef="let element; let rowIndex = index" >
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <p *ngIf="element.index!=undefined">
                                                 {{element.index}}
                                             </p>
@@ -82,6 +82,20 @@
                                             {{step.footer}}
                                         </td>
                                     </ng-container>
+                                    <!-- Cantidad -->
+                                    <ng-container matColumnDef="cantidad">
+                                        <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Cantidad
+                                        </th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input [readonly]="readonlyTable" min="1" type="number"
+                                                    class="form-control" matInput placeholder="Cantidad"
+                                                    [value]="element.cantidad" [(ngModel)]="element.cantidad"
+                                                    [ngModelOptions]="{standalone: true}" required>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef></td>
+                                    </ng-container>
                                     <!-- Semanas -->
                                     <ng-container matColumnDef="semanas">
                                         <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> Semanas
@@ -122,7 +136,24 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="number" class="form-control" matInput
                                                     placeholder="Total horas"
-                                                    [value]="totalHoras(element, rowIndex, step.tipo)"
+                                                    [value]="totalHoras(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [(ngModel)]="element.totalHoras"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
+                                    <!-- Total horas individual -->
+                                    <ng-container matColumnDef="totalHorasIndividual">
+                                        <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> Total
+                                            horas individual
+                                        </th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="number" class="form-control" matInput
+                                                    placeholder="Total horas"
+                                                    [value]="totalHoras(element, rowIndex, step.tipo, 1)"
                                                     [(ngModel)]="element.totalHoras"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -148,13 +179,30 @@
                                     <!-- Sueldo Basico -->
                                     <ng-container matColumnDef="sueldoBasico">
                                         <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> Sueldo
-                                            Básico
+                                            Básico Total
                                         </th>
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Sueldo Básico"
-                                                    [value]="actualizarSueldoBasico(element, rowIndex, step.tipo)"
+                                                    [value]="actualizarSueldoBasico(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [(ngModel)]="element.sueldoBasico"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
+                                    <!-- Sueldo Basico Individual -->
+                                    <ng-container matColumnDef="sueldoBasicoIndividual">
+                                        <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> Sueldo
+                                            Básico Individual
+                                        </th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="text" class="form-control" matInput
+                                                    placeholder="Sueldo Básico"
+                                                    [value]="actualizarSueldoBasico(element, rowIndex, step.tipo, 1)"
                                                     [(ngModel)]="element.sueldoBasico"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -164,13 +212,30 @@
                                     </ng-container>
                                     <!-- Sueldo Mensual -->
                                     <ng-container matColumnDef="sueldoMensual">
-                                        <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> Sueldo
+                                        <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> Total
+                                            Sueldo
                                             Mensual</th>
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Sueldo Mensual"
-                                                    [value]="actualizarSueldoMensual(element, rowIndex, step.tipo)"
+                                                    [value]="actualizarSueldoMensual(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [(ngModel)]="element.sueldoMensual"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
+                                    <!-- Sueldo Mensual individual -->
+                                    <ng-container matColumnDef="sueldoMensualIndividual">
+                                        <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> Sueldo
+                                            Mensual Individual</th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="text" class="form-control" matInput
+                                                    placeholder="Sueldo Mensual"
+                                                    [value]="actualizarSueldoMensual(element, rowIndex, step.tipo, 1)"
                                                     [(ngModel)]="element.sueldoMensual"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -329,7 +394,24 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Aportes a Cesantias"
-                                                    [value]="actualizarTotalCesantias(element, rowIndex, step.tipo)"
+                                                    [value]="actualizarTotalCesantias(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [(ngModel)]="element.totalCesantias"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
+                                    <!-- Total aportes a Cesantias Individual -->
+                                    <ng-container matColumnDef="totalCesantiasIndividual">
+                                        <th mat-header-cell class="header2" *matHeaderCellDef> Total Aportes a Cesantias
+                                            Individual
+                                        </th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="text" class="form-control" matInput
+                                                    placeholder="Total Aportes a Cesantias"
+                                                    [value]="actualizarTotalCesantias(element, rowIndex, step.tipo, 1)"
                                                     [(ngModel)]="element.totalCesantias"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -345,7 +427,24 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Salud"
-                                                    [value]="actualizarSalud(element, rowIndex, step.tipo)"
+                                                    [value]="actualizarSalud(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [(ngModel)]="element.totalSalud"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
+                                    <!-- Total Salud Individual -->
+                                    <ng-container matColumnDef="totalSaludIndividual">
+                                        <th mat-header-cell class="header3" *matHeaderCellDef> Total aporte Salud
+                                            Individual UD
+                                        </th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="text" class="form-control" matInput
+                                                    placeholder="Total Salud"
+                                                    [value]="actualizarSalud(element, rowIndex, step.tipo, 1)"
                                                     [(ngModel)]="element.totalSalud"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -397,7 +496,24 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Pensiones"
-                                                    [value]="actualizarTotalPension(element, rowIndex, step.tipo)"
+                                                    [value]="actualizarTotalPension(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [(ngModel)]="element.totalPensiones"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
+                                    <!-- Total Pensiones Individual-->
+                                    <ng-container matColumnDef="totalPensionesIndividual">
+                                        <th mat-header-cell class="header3" *matHeaderCellDef> Total aporte Pensión
+                                            Individual UD
+                                        </th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="text" class="form-control" matInput
+                                                    placeholder="Total Pensiones"
+                                                    [value]="actualizarTotalPension(element, rowIndex, step.tipo, 1)"
                                                     [(ngModel)]="element.totalPensiones"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -411,7 +527,21 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput placeholder="Total ARL"
-                                                    [value]="actualizarTotalArl(element, rowIndex, step.tipo)"
+                                                    [value]="actualizarTotalArl(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [(ngModel)]="element.totalArl" [ngModelOptions]="{standalone: true}"
+                                                    required readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
+                                    <!-- Total ARL Individual-->
+                                    <ng-container matColumnDef="totalArlIndividual">
+                                        <th mat-header-cell class="header3" *matHeaderCellDef> Total ARL Individual</th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="text" class="form-control" matInput placeholder="Total ARL"
+                                                    [value]="actualizarTotalArl(element, rowIndex, step.tipo, 1)"
                                                     [(ngModel)]="element.totalArl" [ngModelOptions]="{standalone: true}"
                                                     required readonly>
                                             </mat-form-field>
@@ -448,14 +578,29 @@
                                         <td mat-footer-cell *matFooterCellDef class="footer">
                                         </td>
                                     </ng-container>
-                                    <!-- Total Sueldo Básico-->
+                                    <!-- Total Sueldo Básico -->
                                     <ng-container matColumnDef="totalBasico">
                                         <th mat-header-cell *matHeaderCellDef> Total Sueldo Básico</th>
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Sueldo Básico"
-                                                    [value]="actualizarTotalBasico(element, rowIndex, step.tipo)"
+                                                    [value]="actualizarTotalBasico(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [(ngModel)]="element.totalBasico"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
+                                    <!-- Total Sueldo Básico Individual -->
+                                    <ng-container matColumnDef="totalBasicoIndividual">
+                                        <th mat-header-cell *matHeaderCellDef> Total Sueldo Básico Individual</th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="text" class="form-control" matInput
+                                                    placeholder="Total Sueldo Básico"
+                                                    [value]="actualizarTotalBasico(element, rowIndex, step.tipo, 1)"
                                                     [(ngModel)]="element.totalBasico"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -471,7 +616,23 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Aportes UD"
-                                                    [value]="actualizarTotalAportes(element, rowIndex, step.tipo)"
+                                                    [value]="actualizarTotalAportes(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [(ngModel)]="element.totalAportes"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
+                                    <!-- Total Aportes UD Individual -->
+                                    <ng-container matColumnDef="totalAportesIndividual">
+                                        <th mat-header-cell *matHeaderCellDef> Total Aportes Individual UD
+                                        </th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="text" class="form-control" matInput
+                                                    placeholder="Total Aportes UD"
+                                                    [value]="actualizarTotalAportes(element, rowIndex, step.tipo, 1)"
                                                     [(ngModel)]="element.totalAportes"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -488,7 +649,24 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Recurso"
-                                                    [value]="actualizarTotalRecurso(element, rowIndex, step.tipo)"
+                                                    [value]="actualizarTotalRecurso(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [(ngModel)]="element.total" [ngModelOptions]="{standalone: true}"
+                                                    required readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
+                                    <!-- Total Recurso Individual-->
+                                    <ng-container matColumnDef="totalIndividual">
+                                        <th mat-header-cell *matHeaderCellDef> Total
+                                            Recurso Individual
+                                        </th>
+                                        <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="text" class="form-control" matInput
+                                                    placeholder="Total Recurso"
+                                                    [value]="actualizarTotalRecurso(element, rowIndex, step.tipo, 1)"
                                                     [(ngModel)]="element.total" [ngModelOptions]="{standalone: true}"
                                                     required readonly>
                                             </mat-form-field>
@@ -547,6 +725,10 @@
                                             [style.text-align]="center" [attr.rowspan]="2">Categoria
                                         </th>
                                     </ng-container>
+                                    <ng-container matColumnDef="CantidadP">
+                                        <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef
+                                            [style.text-align]="center" [attr.rowspan]="2">Cantidad</th>
+                                    </ng-container>
                                     <ng-container matColumnDef="semanasP">
                                         <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef
                                             [style.text-align]="center" [attr.rowspan]="2">Semanas
@@ -562,6 +744,11 @@
                                             [style.text-align]="center" [attr.rowspan]="2">Total Horas
                                         </th>
                                     </ng-container>
+                                    <ng-container matColumnDef="totalHorasIndividualP">
+                                        <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef
+                                            [style.text-align]="center" [attr.rowspan]="2">Total Horas Individual
+                                        </th>
+                                    </ng-container>
                                     <ng-container matColumnDef="mesesP">
                                         <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef
                                             [style.text-align]="center" [attr.rowspan]="2">Meses
@@ -572,19 +759,29 @@
                                             [style.text-align]="center" [attr.rowspan]="2">Sueldo Basico
                                         </th>
                                     </ng-container>
+                                    <ng-container matColumnDef="sueldoBasicoIndividualP">
+                                        <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef
+                                            [style.text-align]="center" [attr.rowspan]="2">Sueldo Basico Individual
+                                        </th>
+                                    </ng-container>
                                     <ng-container matColumnDef="sueldoMensualP">
                                         <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef
                                             [style.text-align]="center" [attr.rowspan]="2">Sueldo Mensual
                                         </th>
                                     </ng-container>
+                                    <ng-container matColumnDef="sueldoMensualIndividualP">
+                                        <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef
+                                            [style.text-align]="center" [attr.rowspan]="2">Sueldo Mensual Individual
+                                        </th>
+                                    </ng-container>
                                     <ng-container matColumnDef="prestacionesSociales">
                                         <th id="col-combinado" class="header2" mat-header-cell *matHeaderCellDef
-                                            [style.text-align]="center" [attr.colspan]="10">Prestaciones Sociales
+                                            [style.text-align]="center" [attr.colspan]="11">Prestaciones Sociales
                                         </th>
                                     </ng-container>
                                     <ng-container matColumnDef="seguridadSocial">
                                         <th id="col-combinado" class="header3" mat-header-cell *matHeaderCellDef
-                                            [style.text-align]="center" [attr.colspan]="5">Seguridad Social
+                                            [style.text-align]="center" [attr.colspan]="8">Seguridad Social
                                         </th>
                                     </ng-container>
                                     <ng-container matColumnDef="parafiscales">
@@ -594,7 +791,7 @@
                                     </ng-container>
                                     <ng-container matColumnDef="totalRecursoP">
                                         <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef
-                                            [style.text-align]="center" [attr.colspan]="3">Total
+                                            [style.text-align]="center" [attr.colspan]="6">Total
                                         </th>
                                     </ng-container>
                                     <ng-container matColumnDef="observacionesP">

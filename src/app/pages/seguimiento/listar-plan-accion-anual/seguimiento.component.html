@@ -156,7 +156,7 @@
             </form>
             <br>
 
-            <div class="mat-elevation-z8">
+            <div class="mat-elevation-z8" *ngIf="(rol=='JEFE_DEPENDENCIA' && vigencia != undefined) || (rol=='PLANEACION' && plan != undefined && vigencia != undefined)">
                 <table mat-table [dataSource]="dataSource" matSort>
                     <ng-container *ngIf="rol=='PLANEACION'" matColumnDef="unidad">
                         <th mat-header-cell *matHeaderCellDef> Unidad Académica y / o Administrativa </th>

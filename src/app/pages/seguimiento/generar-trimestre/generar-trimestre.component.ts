@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
@@ -53,6 +53,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   planId: string;
   indexActividad: string;
   trimestreId: string;
+  codigoTrimestre: string;
   formGenerarTrimestre: FormGroup;
   indicadores: File[] = [];
   documentos: any[] = [];
@@ -81,6 +82,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     private autenticationService: ImplicitAutenticationService,
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
+    private router: Router,
     private request: RequestManager,
     private gestorDocumental: GestorDocumentalService,
     private _location: Location,
@@ -137,6 +139,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + periodoId).subscribe((data: any) => {
           if (data) {
             this.trimestre = data.Data[0].ParametroId.Nombre;
+            this.codigoTrimestre = data.Data[0].ParametroId.CodigoAbreviacion
           }
         }, (error) => {
           Swal.fire({
@@ -212,7 +215,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   backClicked() {
-    this._location.back();
+    this.router.navigate(['pages/seguimiento/gestion-seguimiento/' + this.planId + '/' + this.codigoTrimestre])
   }
 
   onSeeDocumentos() {
