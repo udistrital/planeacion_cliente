@@ -2,7 +2,9 @@
     <mat-card-header>
         <div style="text-align:center;">
             <mat-card-title>SEGUIMIENTO PLANES DE ACCIÓN</mat-card-title>
-            <mat-card-subtitle>Unidad Académico y/o administrativa {{unidad}}</mat-card-subtitle>
+            <div style="text-align: center;">
+                Unidad Académico y/o administrativa  <b>{{unidad}}</b>
+            </div>
             <br>
             <u class="textGuide">
                 A continuación encontrará un listado de las actividades asociadas al Plan de Acción, a las cuales podrá
@@ -402,7 +404,8 @@
 
             </div>
             <br>
-            <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC'">
+            <div class="align-button-enviar"
+                *ngIf="rol=='JEFE_DEPENDENCIA' && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC'">
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="guardarSeguimiento()">Guardar seguimiento de actividad</button>
                 <button class="background-button" mat-raised-button color="primary"
@@ -427,8 +430,8 @@
             </div>
             <div class="align-button-enviar"
                 *ngIf="rol=='PLANEACION' && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada' )">
-                <button class="background-button" mat-raised-button color="primary"
-                    (click)="guardarRevision()">Guardar revisión de actividad</button>
+                <button class="background-button" mat-raised-button color="primary" (click)="guardarRevision()">Guardar
+                    revisión de actividad</button>
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
             </div>

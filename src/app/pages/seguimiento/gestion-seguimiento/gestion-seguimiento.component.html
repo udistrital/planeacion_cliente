@@ -69,7 +69,7 @@
             </div>
             <div class="container-button">
                 <button
-                    *ngIf="rol=='JEFE_DEPENDENCIA' && this.seguimiento.estado_seguimiento_id.nombre != 'Enviado a revisión' && this.seguimiento.estado_seguimiento_id.nombre != 'En revisión OAPC' && this.seguimiento.estado_seguimiento_id.nombre != 'Reporte Avalado'"
+                    *ngIf="rol=='JEFE_DEPENDENCIA' && this.estado != 'Enviado a revisión' && this.estado != 'En revisión OAPC' && this.estado != 'Reporte Avalado'"
                     class="background-button align-button1" mat-raised-button color="primary"
                     (click)="reportar()">Enviar reporte</button>
 
