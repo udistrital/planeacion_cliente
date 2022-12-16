@@ -8,9 +8,9 @@
         <mat-label>Observación </mat-label>
 
         <mat-form-field *ngIf="rol=='PLANEACION'" style="width: 100%;">
-          <textarea class="observacion" matInput [(ngModel)]="observacion" rows="10"></textarea>
+          <textarea [disabled]="!data.editable" class="observacion" matInput [(ngModel)]="observacionText" rows="10"></textarea>
         </mat-form-field>
-        <button mat-raised-button color="primary" *ngIf="rol=='PLANEACION'" (click)="cerrar()">Guardar</button>
+        <button mat-raised-button [disabled]="!data.editable" color="primary" *ngIf="rol=='PLANEACION'" (click)="guardar()">Guardar</button>
 
         <textarea class="observacion" *ngIf="rol=='JEFE_DEPENDENCIA'" rows="10" disabled
           style="width: 100%;">{{observacion}}</textarea>

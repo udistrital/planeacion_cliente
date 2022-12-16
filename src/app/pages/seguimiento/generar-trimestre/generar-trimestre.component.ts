@@ -10,7 +10,6 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { element } from 'protractor';
 import { Location } from '@angular/common';
-import { UserService } from '../../services/userService';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
 
@@ -44,6 +43,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
   selectedFiles: any;
+  datosCualitativo: any = { 'reporte': '', 'productos': '', 'dificultades': '', 'observaciones': '' };
+  formCualitativo: FormGroup;
 
   @ViewChild('MatPaginatorIndicadores') paginatorIndicadores: MatPaginator;
   @ViewChild('MatPaginatorResultados') paginatorResultados: MatPaginator;
@@ -52,11 +53,12 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   planId: string;
   indexActividad: string;
   trimestreId: string;
+  codigoTrimestre: string;
   formGenerarTrimestre: FormGroup;
   indicadores: File[] = [];
   documentos: any[] = [];
   indicadorSelected: boolean;
-  seguimiento: any = { 'informacion': '', 'estado': '' };
+  seguimiento: any = { 'informacion': '', 'estado': '', 'cualitativo': '', 'cuantitativo': '', 'evidencia': '' };
   indicadorActivo: string;
   documentoSeleccionado: File = null;
   trimestre: string = '';
@@ -67,6 +69,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   textoDeInput: string = null
   mostrarObservaciones: boolean;
   documentoPlaneacion: any;
+  estadoActividad: string;
   estadoSeguimiento: string;
   estados: any[];
   readonlyFormulario: boolean;
@@ -79,13 +82,11 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     private autenticationService: ImplicitAutenticationService,
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
+    private router: Router,
     private request: RequestManager,
     private gestorDocumental: GestorDocumentalService,
     private _location: Location,
-    public dialog: MatDialog,
-    private router: Router,
-    private userService: UserService) {
-    // this.datosIndicadores = new MatTableDataSource();
+    public dialog: MatDialog) {
     this.datosResultados = new MatTableDataSource();
     this.activatedRoute.params.subscribe(prm => {
       this.planId = prm['plan_id'];
@@ -113,6 +114,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       observacionesP: ['',],
       estadoActividad: ['',]
     });
+    this.formCualitativo = this.formBuilder.group(this.datosCualitativo)
     this.indicadorSelected = false;
     this.mostrarObservaciones = false;
   }
@@ -125,18 +127,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
-      this.rol = 'PLANEACION'
+      this.rol = 'PLANEACION';
     }
-  }
-
-  getDataUser() {
-    this.userService.user$.subscribe((data) => {
-      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
-        .subscribe((datosInfoTercero: any) => {
-          this.formGenerarTrimestre.get('autor').setValue(datosInfoTercero[0].TerceroId.NombreCompleto);
-        })
-
-    })
   }
 
   loadTrimestre() {
@@ -147,6 +139,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + periodoId).subscribe((data: any) => {
           if (data) {
             this.trimestre = data.Data[0].ParametroId.Nombre;
+            this.codigoTrimestre = data.Data[0].ParametroId.CodigoAbreviacion
           }
         }, (error) => {
           Swal.fire({
@@ -185,117 +178,83 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     })
   }
 
-
-  getEstado() {
-    this.request.get(environment.PLANES_CRUD, `estado-seguimiento/` + this.seguimiento.estado_seguimiento_id).subscribe((data: any) => {
-      if (data) {
-        this.estadoSeguimiento = data.Data.nombre;
-        this.verificarFormulario();
-      }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
-  }
-
   verificarFormulario() {
     if (this.rol === 'PLANEACION') {
-      if (this.estadoSeguimiento === 'En Reporte' || this.estadoSeguimiento === 'Aprobado para evaluación') {
+      if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Sin reporte') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      } else if (this.estadoSeguimiento === 'Generado') {
+      } else if (this.estadoActividad === 'Actividad reportada' || this.estadoActividad === 'Con observaciones') {
         this.readonlyFormulario = true;
-        this.readonlyObservacion = false;
+        this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión OAPC');
         this.mostrarObservaciones = true;
-      } else if (this.estadoSeguimiento === 'Observación') {
+      } else if (this.estadoActividad === 'Actividad avalada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
-        this.mostrarObservaciones = true;
-      } else if (this.estadoSeguimiento === 'Ajustado') {
-        this.readonlyFormulario = true;
-        this.readonlyObservacion = false;
         this.mostrarObservaciones = true;
       }
-      // else if (this.estadoSeguimiento === 'Aprobado para evaluación'){
-      //   this.readonlyFormulario = true;
-      //   this.readonlyObservacion = true;
-      //   this.mostrarObservaciones = false;
-      // }
     } else if (this.rol == 'JEFE_DEPENDENCIA') {
-      if (this.estadoSeguimiento === 'En Reporte') {
+      if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Habilitado' || this.estadoActividad === 'Sin reporte') {
         this.readonlyFormulario = false;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      } else if (this.estadoSeguimiento === 'Generado') {
+      } else if (this.estadoActividad === 'Actividad reportada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      } else if (this.estadoSeguimiento === 'Observación') {
-        this.readonlyFormulario = false;
+      } else if (this.estadoActividad === 'Con observaciones') {
+        this.readonlyFormulario = this.estadoSeguimiento != 'Con observaciones';
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-      } else if (this.estadoSeguimiento === 'Ajustado') {
+      } else if (this.estadoActividad === 'Actividad avalada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-      } else if (this.estadoSeguimiento === 'Aprobado para evaluación') {
-        this.readonlyFormulario = true;
-        this.readonlyObservacion = true;
-        this.mostrarObservaciones = false;
       }
     }
   }
 
   backClicked() {
-    this._location.back();
-  }
-
-  selectFile(event) {
-    this.selectedFiles = event.target.files;
-    if (this.selectedFiles.length == 0) {
-      return this.selectedFiles = false;
-    }
-  }
-
-  evidencias() {
-    window.location.href = '#/pages/seguimiento/app-evidencias';
-  }
-
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
-  onChangeD(event) {
-    if (event != null) {
-      this.documentoSeleccionado = event;
-    } else {
-      this.documentoSeleccionado = null;
-    }
-
+    this.router.navigate(['pages/seguimiento/gestion-seguimiento/' + this.planId + '/' + this.codigoTrimestre])
   }
 
   onSeeDocumentos() {
     const dialogRef = this.dialog.open(EvidenciasDialogComponent, {
       width: '80%',
       height: '55%',
-      data: this.documentos
+      data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion],
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result == undefined) {
-        return undefined;
+    dialogRef.afterClosed().subscribe(documentos => {
+      if (documentos != undefined && JSON.stringify(this.documentos) != JSON.stringify(documentos)) {
+
+        let documentoPorSubir = {
+          documento: null,
+          evidencia: documentos
+        };
+
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+            this.documentos = documentos;
+            Swal.fire({
+              title: 'Documento(s) actualizado(s)',
+              text: `Revise el campo de soportes para visualizar o eliminar`,
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 2000
+            }).then(res => {
+              this.loadData();
+            });
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se pudo aplicar los cambios`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        })
       }
     });
   }
@@ -303,8 +262,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   async onChangeDocumento(event) {
     if (event != undefined) {
       let aux = event.files[0];
-
-      const found = this.documentos.find(element => element.name == aux.name);
+      const found = this.documentos.find(element => element.nombre == aux.name && element.Activo);
       if (found == undefined) {
         let documento = {
           IdTipoDocumento: 60,
@@ -313,21 +271,44 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             dato_a: "Soporte planeacion"
           },
           descripcion: "Documento de soporte para seguimiento de plan de acción",
-          file: await this.gestorDocumental.fileToBase64(aux)
+          file: await this.gestorDocumental.fileToBase64(aux),
+          Activo: true
         }
         this.documentos.push(documento);
-        this.seguimiento.documento = this.documentos;
-        Swal.fire({
-          title: 'Documento Cargado',
-          text: `Revise el campo de soportes para visualizar o eliminar`,
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 2000
+
+        let documentoPorSubir = {
+          documento: this.documentos,
+          evidencia: this.seguimiento.evidencia
+        };
+
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Documento Cargado',
+              text: `Revise el campo de soportes para visualizar o eliminar`,
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 2000
+            }).then(res => {
+              this.loadData();
+            });
+          }
+        }, (error) => {
+          this.documentos.pop();
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se pudo subir el documento`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
         })
+
+
       } else {
         Swal.fire({
           title: 'Error en la operación',
-          text: `El documento ya se encuentra cargado`,
+          text: `Ya existe un documento con el mismo nombre`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2000
@@ -345,68 +326,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }
   }
 
-  generarAvance() {
-    this.request.get(environment.PLANES_MID, `seguimiento/get_indicadores/` + this.planId).subscribe((data: any) => {
-      if (data) {
-        this.listIndicadores = data.Data;
-        let testSuma = 0;
-        for (let indicador of this.listIndicadores) {
-          let reg = / /g;
-          let primerDatoAcumu = indicador.nombre;
-          let datoIdentir = {
-            "plan_id": this.planId,
-            "periodo_seguimiento_id": this.trimestreId,
-            "index": this.indexActividad,
-            "Nombre_del_indicador": primerDatoAcumu.replace(reg, '_'),
-            "avancePeriodo": "2"
-          }
-          this.request.post(environment.PLANES_MID, `seguimiento/get_avance/`, datoIdentir).subscribe((dataPr: any) => {
-            if (dataPr) {
-              this.generalDatar = dataPr.Data;
-              testSuma = testSuma + parseFloat(this.generalDatar.avanceAcumuladoPrev)
-            } else {
-              Swal.fire({
-                title: 'Error al crear identificación. Intente de nuevo',
-                icon: 'warning',
-                showConfirmButton: false,
-                timer: 2500
-              })
-            }
-          })
-        }
-      }
-      let datoIdenti = {
-        "plan_id": this.planId,
-        "periodo_seguimiento_id": this.trimestreId,
-        "index": this.indexActividad,
-        "Nombre_del_indicador": this.indicadorActivo,
-        "avancePeriodo": this.formGenerarTrimestre.get('avancePeriodo').value
-      }
-      this.request.post(environment.PLANES_MID, `seguimiento/get_avance/`, datoIdenti).subscribe((dataP: any) => {
-        if (dataP) {
-          this.generalData = dataP.Data;
-          this.formGenerarTrimestre.get('avanceAcumulado').setValue(this.generalData.avanceAcumulado);
-        } else {
-          Swal.fire({
-            title: 'Error al crear identificación. Intente de nuevo',
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 2500
-          })
-        }
-      })
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
-
-  }
-
   async loadData() {
     Swal.fire({
       title: 'Cargando información',
@@ -416,18 +335,52 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         Swal.showLoading();
       },
     })
-    await this.request.get(environment.PLANES_MID, `seguimiento/get_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+    await this.request.get(environment.PLANES_MID, `seguimiento/get_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe(async (data: any) => {
       if (data.Data != '') {
         this.seguimiento = data.Data;
         this.unidad = this.seguimiento.informacion.unidad;
-        this.documentos = data.Data.evidencia;
+        this.documentos = JSON.parse(JSON.stringify(data.Data.evidencia));
         this.datosIndicadores = data.Data.cuantitativo.indicadores;
-        this.datosResultados = data.Data.cuantitativo.resultados;
+        this.datosResultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.resultados));
         this.tendencia = data.Data.cuantitativo.tendencia;
-        if (data.Data.cuantitativo.denominador == "Denominador fijo" && data.Data.informacion.trimestre != "T1") {
+        this.datosCualitativo = data.Data.cualitativo;
+
+        this.estadoActividad = this.seguimiento.estado.nombre;
+        this.estadoSeguimiento = this.seguimiento.estadoSeguimiento;
+        this.verificarFormulario();
+
+        if (this.estadoActividad != "Sin reporte") {
+          if (this.datosCualitativo.observaciones == "" || this.datosCualitativo.observaciones == undefined) {
+            this.datosCualitativo.observaciones = "Sin observación"
+          } else {
+            this.mostrarObservaciones = true;
+          }
+        }
+
+        if (data.Data.informacion.trimestre != "T1") {
           this.denominadorFijo = true;
         }
-        this.verificarFormulario();
+
+        for (let index = 0; index < this.datosIndicadores.length; index++) {
+          const indicador = this.datosIndicadores[index];
+          if (this.estadoActividad != "Sin reporte") {
+            if ((indicador.observaciones == "" || indicador.observaciones == undefined) && this.rol != "JEFE_DEPENDENCIA") {
+              this.datosIndicadores[index].observaciones = "Sin observación";
+            }
+          }
+        }
+
+        for (let index = 0; index < this.documentos.length; index++) {
+          const documento = this.documentos[index];
+          if (this.estadoActividad != "Sin reporte") {
+            if (documento.Observacion == "") {
+              this.documentos[index].Observacion = "Sin observación";
+            } else {
+              this.mostrarObservaciones = true;
+            }
+          }
+        }
+
         Swal.close();
       }
     }, (error) => {
@@ -441,134 +394,46 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     })
   }
 
-  guardarSeguimiento() {
-    this.request.post(environment.PLANES_MID, `seguimiento/guardar_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId, this.seguimiento).subscribe((data: any) => {
-      if (data) {
-        Swal.fire({
-          title: 'Información de seguimiento actualizada',
-          text: 'El seguimiento se ha guardado satisfactoriamente',
-          icon: 'success'
-        }).then(res => {
-          this.loadData();
-        });
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No fue posible guardar el seguimiento`,
-        icon: 'error',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
-  }
-
-  eliminarDocumento() {
-    for (let i = 0; i < this.documentos.length; i++) {
-      if (this.documentos[i].name == this.documentoSeleccionado.name) {
-
-        for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
-          const evidencia = this.seguimiento.evidencia[index];
-          if (evidencia.Nombre == this.documentoSeleccionado.name) {
-            this.seguimiento.evidencia[index].Activo = false;
-            break;
-          }
-        }
-        this.documentos.splice(i, 1);
-        this.documentoSeleccionado = null;
-        Swal.fire({
-          title: 'Documento Eliminado',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 2000
-        })
-        break;
+  guardarCualitativo() {
+    var mensaje = `¿Desea guardar la información del componente cualitativo?`
+    if (this.rol === 'PLANEACION') {
+      mensaje = `¿Desea avalar la actividad?`
+      if (this.veririficarObservaciones()) {
+        mensaje = `¿Desea guardar las observaciones del componente cualitativo?`
       }
     }
-  }
 
-  eliminarDocumentoP() {
-    this.documentoPlaneacion = undefined;
-  }
-
-  loadDocumentos(docs: string) {
-    let auxDocs = docs.split(",");
-    for (let i = 0; i < auxDocs.length; i++) {
-      this.request.get(environment.GESTOR_DOCUMENTAL_MID, `document/` + auxDocs[i]).subscribe((data: any) => {
-        if (data) {
-          this.documentos.push({
-            name: data["dc:title"],
-            size: data["file:content"]["length"],
-            type: data["file:content"]["mime-type"],
-            uid: auxDocs[i],
-            file: data["file"]
-          })
-
-        } else {
-          Swal.fire({
-            title: 'Error al crear identificación. Intente de nuevo',
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 2500
-          })
-        }
-      })
-    }
-  }
-
-  loadDocumentoP(docs: string) {
-    this.request.get(environment.GESTOR_DOCUMENTAL_MID, `document/` + docs).subscribe((data: any) => {
-      if (data) {
-        this.documentoPlaneacion = {
-          name: data["dc:title"],
-          size: data["file:content"]["length"],
-          type: data["file:content"]["mime-type"],
-          uid: docs,
-          file: data["file"]
-        }
-
-      } else {
-        Swal.fire({
-          title: 'Error al crear identificación. Intente de nuevo',
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
-    })
-
-  }
-
-  generarReporte() {
     Swal.fire({
-      title: 'Generar Reporte',
-      text: `Esta a punto de generar el reporte para la revisión del seguimiento.`,
+      title: 'Guardar seguimiento',
+      text: mensaje,
       icon: 'warning',
-      confirmButtonText: `Continuar`,
-      cancelButtonText: `Cancelar`,
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        const auxEstado = this.estados.find(element => element.nombre === 'Generado');
-        let mod = {
-          estado_seguimiento_id: auxEstado._id
-        }
-        this.seguimiento.estado_plan_id = auxEstado._id
-        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimiento._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cualitativo`, { "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
-              title: 'Seguimiento Generado',
-              icon: 'success',
-            }).then((result) => {
-              if (result.value) {
-                this.verificarFormulario();
-              }
-            })
+              title: 'Información de seguimiento actualizada',
+              text: 'El seguimiento del componente cualitativo se ha guardado satisfactoriamente',
+              icon: 'success'
+            }).then(res => {
+              this.loadData();
+            });
           }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
         })
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
-          title: 'Generación de reporte cancelada',
+          title: 'Generación de seguimiento cancelado',
           icon: 'error',
           showConfirmButton: false,
           timer: 2500
@@ -586,36 +451,151 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
   }
 
-  enviarObservacion() {
+  guardarCuantitativo() {
+    var mensaje = `¿Desea guardar la información del componente cuantitativo?`
+    if (this.rol === 'PLANEACION') {
+      mensaje = `¿Desea avalar la actividad?`
+      if (this.veririficarObservaciones()) {
+        mensaje = `¿Desea guardar las observaciones del componente cuantitativo?`
+      }
+    }
+
     Swal.fire({
-      title: 'Enviar Observacion',
-      text: `Desea enviar las observaciones realizadas para este reporte`,
+      title: 'Guardar seguimiento',
+      text: mensaje,
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        const auxEstado = this.estados.find(element => element.nombre === 'Observación');
-        let mod = {
-          estado_seguimiento_id: auxEstado._id
-        }
-        this.seguimiento.estado_plan_id = auxEstado._id
-        this.request.put(environment.PLANES_CRUD, `seguimiento`, mod, this.seguimiento._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cuantitativo`, { "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
-              title: 'Observación Cancelada',
-              icon: 'success',
-            }).then((result) => {
-              if (result.value) {
-                this.verificarFormulario();
-              }
-            })
+              title: 'Información de seguimiento actualizada',
+              text: 'El seguimiento del componente cuantitativo se ha guardado satisfactoriamente',
+              icon: 'success'
+            }).then(res => {
+              this.loadData();
+            });
           }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
         })
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
-          title: 'Generación de observación cancelada',
+          title: 'Generación de seguimiento cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  guardarSeguimiento() {
+    Swal.fire({
+      title: 'Guardar seguimiento',
+      text: `¿Desea guardar todos los componentes del seguimiento?`,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_seguimiento`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Información de seguimiento actualizada',
+              text: 'El seguimiento se ha guardado satisfactoriamente',
+              icon: 'success'
+            }).then(res => {
+              this.loadData();
+            });
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Generación de seguimiento cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  generarReporte() {
+    Swal.fire({
+      title: 'Generar Reporte',
+      text: `Esta a punto de generar el reporte para la revisión del seguimiento.`,
+      icon: 'warning',
+      confirmButtonText: `Continuar`,
+      cancelButtonText: `Cancelar`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let mod = {
+          SeguimientoId: this.seguimiento._id
+        };
+
+        this.request.put(environment.PLANES_MID, `seguimiento/reportar_actividad`, mod, this.indexActividad).subscribe((data: any) => {
+          if (data) {
+            if (data.Success) {
+              Swal.fire({
+                title: 'Seguimiento Generado',
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  this.loadData();
+                }
+              });
+            } else {
+              Swal.fire({
+                title: 'No es posible generar el reporte',
+                icon: 'error',
+                showConfirmButton: false,
+                text: data.Data.motivo,
+                timer: 4000
+              })
+            }
+          }
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Generación de reporte cancelada',
           icon: 'error',
           showConfirmButton: false,
           timer: 2500
@@ -732,15 +712,15 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       const element = this.datosIndicadores[index];
       if (element.reporteDenominador != "" || element.reporteNumerador != "") {
         var denominador = parseInt(element.reporteDenominador);
-        const numerador = parseInt(element.reporteNumerador);
+        var numerador = parseInt(element.reporteNumerador);
         this.datosIndicadores[index].reporteDenominador = denominador;
         this.datosIndicadores[index].reporteNumerador = numerador;
         if (denominador != NaN && numerador != NaN) {
-          this.datosResultados[index].indicador = Math.round(numerador / denominador * 10) / 10;
+          this.datosResultados[index].indicador = this.seguimiento.cuantitativo.resultados[index].indicador + Math.round(numerador / denominador * 10) / 10;
           if (!this.denominadorFijo) {
             denominador += this.datosResultados[index].acumuladoDenominador;
           }
-          this.datosResultados[index].indicadorAcumulado = Math.round((this.datosResultados[index].acumuladoNumerador + numerador) / denominador * 10) / 10;
+          this.datosResultados[index].indicadorAcumulado = this.seguimiento.cuantitativo.resultados[index].indicadorAcumulado + Math.round((this.datosResultados[index].acumuladoNumerador + numerador) / denominador * 10) / 10;
 
           var meta = parseInt(element.meta);
           var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
@@ -765,5 +745,92 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         })
       }
     }
+  }
+
+  guardarRevision() {
+    var mensaje = `¿Desea avalar la actividad?`
+    if (this.veririficarObservaciones()) {
+      mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
+    }
+
+    Swal.fire({
+      title: 'Guardar seguimiento',
+      text: mensaje,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/revision_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+
+            if (data.Data.Observación) {
+              Swal.fire({
+                title: 'Información de seguimiento actualizada',
+                text: 'Las observaciones hechas al seguimiento se ha guardado satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
+            } else {
+              Swal.fire({
+                title: 'Información de seguimiento actualizada',
+                text: 'La actividad ha sido avalada satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
+            }
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Generación de seguimiento cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  veririficarObservaciones() {
+    if (this.seguimiento.cualitativo.observaciones != "" && this.seguimiento.cualitativo.observaciones != "Sin observación") {
+      return true;
+    }
+
+    for (let index = 0; index < this.seguimiento.cuantitativo.indicadores.length; index++) {
+      const indicador = this.seguimiento.cuantitativo.indicadores[index];
+      if (indicador.observaciones != "" && indicador.observaciones != "Sin observación") {
+        return true;
+      }
+    }
+
+    for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
+      const evidencia = this.seguimiento.evidencia[index];
+      if (evidencia.Observacion != "" && evidencia.Observacion != "Sin observación") {
+        return true;
+      }
+    }
+
+    return false
   }
 }
