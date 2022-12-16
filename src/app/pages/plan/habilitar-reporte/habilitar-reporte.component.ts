@@ -1,32 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-//import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
+import { Row } from 'ng2-smart-table/lib/lib/data-set/row';
 
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-  icon: string;
+export interface Unidades {
+  posicion: string;
+  correoElectronico: string;
+  DependenciaTipoDependencia: string;
+  Id: number;
+  Nombre: string;
+  TelefonoDependencia: string;
+  TipoDependencia: string;
+  iconSelected: string;
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H', icon: 'compare_arrows' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He', icon: 'compare_arrows' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li', icon: 'compare_arrows' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be', icon: 'compare_arrows' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B', icon: 'compare_arrows' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C', icon: 'compare_arrows' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N', icon: 'compare_arrows' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O', icon: 'compare_arrows' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F', icon: 'compare_arrows' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne', icon: 'compare_arrows' },
-];
+export interface Unidad {
+  Id: string;
+  Nombre: string;
+}
+
+
 
 @Component({
   selector: 'app-habilitar-reporte',
@@ -50,10 +50,14 @@ export class HabilitarReporteComponent implements OnInit {
   formFechas: FormGroup;
   date9: Date = new Date();
   guardarDisabled: boolean;
-  displayedColumns: string[] = ['position', 'name', 'actions'];
-  seguimientoFormulacionGlobal: any[];
-  //displayedColumnsView: string[] = ['numero', 'unidad'];
-  dataSource = ELEMENT_DATA;
+  displayedColumns: string[] = ['index','Nombre', 'actions'];
+  unidadesInteres: any;
+  dataUnidades: any;
+  dataSource = new MatTableDataSource<Unidades>();  
+  
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+  
   constructor(
     private request: RequestManager,
     private formBuilder: FormBuilder,
@@ -63,7 +67,7 @@ export class HabilitarReporteComponent implements OnInit {
     this.guardarDisabled = false;
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void {    
     this.formFechas = this.formBuilder.group({
       fecha1: ['',],
       fecha2: ['',],
@@ -86,6 +90,7 @@ export class HabilitarReporteComponent implements OnInit {
       fecha19: ['',],
       fecha20: ['',]
     });
+    
   }
 
   loadVigencias() {
@@ -103,14 +108,30 @@ export class HabilitarReporteComponent implements OnInit {
       })
     })
   }
-  changeIcon(fila) {
-    if (fila.icon == 'compare_arrows') {
-      fila.icon = 'done'
-    } else {
-      fila.icon = 'compare_arrows'
+  changeIcon(row) {            
+    if (row.iconSelected == 'compare_arrows') {
+      row.iconSelected = 'done';  
+      let unidad = [];      
+      if (this.unidadesInteres[0].Id == undefined ) {
+        unidad = [...[{
+                  "Id": row.Id,
+                  "Nombre": row.Nombre,                  
+                }]];
+      this.unidadesInteres = unidad;
+      } else {
+        unidad = [...this.unidadesInteres, ...[{
+                  "Id": row.Id,
+                  "Nombre": row.Nombre,                  
+                }]];
+      this.unidadesInteres = unidad;
+      }           
+    } else if (row.iconSelected == 'done') {
+      row.iconSelected = 'compare_arrows';
+      let unidadEliminar = row.Id;  
+      const index = this.unidadesInteres.findIndex(x => x.Id == unidadEliminar); 
+      this.unidadesInteres.splice(index, 1);
     }
   }
-
 
   onChangeV(vigencia) {
     if (vigencia == undefined) {
@@ -146,13 +167,16 @@ export class HabilitarReporteComponent implements OnInit {
   }
 
   onChangeU(unidad) {
+    this.loadUnidades();    
     if (unidad == undefined) {
       this.unidadSelected = false;
     } else {
       this.unidadSelected = true;
       this.unidad = unidad;
-    }
+    }       
   }
+
+  
 
   onChangeFF(index: number, event: MatDatepickerInputEvent<Date>) {
     if (index == 1) {
@@ -278,6 +302,7 @@ export class HabilitarReporteComponent implements OnInit {
 
 
     } else if (this.tipo === 'seguimientos') {
+      this.readUnidades();
       if (this.periodos.length > 0) {
         for (let i = 0; i < this.periodos.length; i++) {
           this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: any) => {
@@ -343,6 +368,7 @@ export class HabilitarReporteComponent implements OnInit {
         if (data.Data != "") {
           this.periodos = data.Data;
           this.guardarDisabled = false;
+          //this.readUnidades();
           Swal.close();
         } else {
           this.guardarDisabled = true;
@@ -355,6 +381,73 @@ export class HabilitarReporteComponent implements OnInit {
             showConfirmButton: false,
             timer: 2500
           })
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  readUnidades() {
+    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[0].Id + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: any) => {
+      if (data) {
+        if (data.Data.length != 0) {
+          this.unidadesInteres = JSON.parse(data.Data[0].unidades_interes);
+          if (data.Data[0].unidades_interes == undefined) {
+            this.unidadesInteres = '';
+          }                          
+        } else {
+            this.unidadesInteres = '';          
+        }
+      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    });
+  }
+
+  loadUnidades() {
+    this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) =>{
+      if(data) {
+        if(data.Data.length != 0) {
+          this.dataUnidades = data.Data;
+          if (this.unidadesInteres.length == 0 || this.unidadesInteres.length == undefined || this.unidadesInteres == ' ') {
+            for ( let i = 0; i < this.dataUnidades.length; i++) {             
+              this.dataUnidades[i].iconSelected = 'compare_arrows';
+              this.dataUnidades[i].posicion = i + 1;
+            }
+          } else {
+            for ( let i = 0; i < this.dataUnidades.length; i++ ){
+              for (let j = 0; j < this.unidadesInteres.length; j++ ) {
+                if (this.unidadesInteres[j].Id == this.dataUnidades[i].Id) {
+                  if (this.dataUnidades[i].iconSelected == 'compare_arrows' || this.dataUnidades[i].iconSelected == '' || this.dataUnidades[i].iconSelected == undefined) {
+                    this.dataUnidades[i].iconSelected = 'done';
+                    this.dataUnidades[i].posicion = i + 1;
+                  }
+                } else if (this.unidadesInteres[j].Id != this.dataUnidades[i].Id) {
+                    if (this.dataUnidades[i].iconSelected == 'done') {
+                      this.dataUnidades[i].posicion = i + 1;
+                    } else if (this.dataUnidades.iconSelected == '' || this.dataUnidades.iconSelected == undefined) {
+                        this.dataUnidades[i].iconSelected = 'compare_arrows';
+                        this.dataUnidades[i].posicion = i + 1;                       
+                    }
+                  }
+                }
+              }
+            }
+          this.dataSource = new MatTableDataSource(this.dataUnidades);
+          this.dataSource.paginator = this.paginator;       
         }
       }
     }, (error) => {
@@ -532,6 +625,7 @@ export class HabilitarReporteComponent implements OnInit {
                   let seguimientoFormulacion = data.Data[0];
                   seguimientoFormulacion["fecha_inicio"] = this.formFechas.get('fecha19').value.toISOString();
                   seguimientoFormulacion["fecha_fin"] = this.formFechas.get('fecha20').value.toISOString();
+                  seguimientoFormulacion["unidades_interes"] = "[]"
                   this.request.put(environment.PLANES_CRUD, `periodo-seguimiento`, seguimientoFormulacion, seguimientoFormulacion["_id"]).subscribe((data: any) => {
 
                     if (data) {
@@ -563,7 +657,8 @@ export class HabilitarReporteComponent implements OnInit {
                     //periodo_seguimiento_id: "No aplica",
                     activo: true,
                     fecha_inicio: this.formFechas.get('fecha19').value.toISOString(),
-                    fecha_fin: this.formFechas.get('fecha20').value.toISOString()
+                    fecha_fin: this.formFechas.get('fecha20').value.toISOString(),
+                    unidades_interes: "[]"
                   }
                   this.request.post(environment.PLANES_CRUD, `periodo-seguimiento`, seguimientoFormulacion).subscribe((data: any) => {
                     if (data) {
@@ -667,7 +762,8 @@ export class HabilitarReporteComponent implements OnInit {
       let body = {
         "periodo_id": periodoId.toString(),
         "fecha_inicio": this.formFechas.get('fecha1').value.toISOString(),
-        "fecha_fin": this.formFechas.get('fecha2').value.toISOString()
+        "fecha_fin": this.formFechas.get('fecha2').value.toISOString(),
+        
       }
       this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
         Swal.fire({
@@ -754,6 +850,7 @@ export class HabilitarReporteComponent implements OnInit {
           fecha_fin: fecha_Fin,
           activo: true,
           tipo_seguimiento_id: '6385fa136a0d19d7888837ed',
+          unidades_interes: JSON.stringify(this.unidadesInteres),
         };
         this.request.post(environment.PLANES_CRUD, `periodo-seguimiento`, body).subscribe((data: any) => {
           if (data) {
@@ -773,11 +870,11 @@ export class HabilitarReporteComponent implements OnInit {
             timer: 2500
           })
         })
-      } else if (data.Data.length > 0) {      
-          
+      } else if (data.Data.length > 0) {         
           seguimientoFormulacionGlobal["fecha_inicio"]= fecha_In;
           seguimientoFormulacionGlobal["fecha_fin"] = fecha_Fin;              
-          seguimientoFormulacionGlobal["tipo_seguimiento_id"]= '6385fa136a0d19d7888837ed';
+          seguimientoFormulacionGlobal["tipo_seguimiento_id"] = '6385fa136a0d19d7888837ed';
+          seguimientoFormulacionGlobal["unidades_interes"] = JSON.stringify(this.unidadesInteres);
         this.request.put(environment.PLANES_CRUD, `periodo-seguimiento`, seguimientoFormulacionGlobal, seguimientoFormulacionGlobal['_id']).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -788,7 +885,7 @@ export class HabilitarReporteComponent implements OnInit {
             })
           }
 
-        }), (error) => {
+        }, (error) => {
           Swal.fire({
             title: 'Error en la operación',
             text: `No se actualizo el registro ${JSON.stringify(error)}`,
@@ -797,14 +894,14 @@ export class HabilitarReporteComponent implements OnInit {
             timer: 2500
           })           
             
-          }
+        }) 
       }
     }        
-  })     
+  })   
 
-    
+   
 
-  
+ 
 }
 
 limpiar() {
@@ -838,3 +935,4 @@ limpiar() {
   
 
 }
+
