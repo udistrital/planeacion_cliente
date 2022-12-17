@@ -45,8 +45,8 @@ export class SeguimientoComponentGestion implements OnInit {
       this.planId = prm['plan_id'];
       this.trimestreId = prm['trimestre'];
     });
-    this.loadDataSeguimiento();
     this.dataSource = new MatTableDataSource<any>();
+    this.loadDataSeguimiento();
   }
 
   ngOnInit(): void {
@@ -73,7 +73,7 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   backClicked() {
-      this.router.navigate(['pages/seguimiento/listar-plan-accion-anual/'])
+    this.router.navigate(['pages/seguimiento/listar-plan-accion-anual/'])
   }
 
   applyFilter(event: Event) {
@@ -293,8 +293,8 @@ export class SeguimientoComponentGestion implements OnInit {
     let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
     let strFechaHoy = new Date(auxFechaCol).toISOString();
     let fechaHoy = new Date(strFechaHoy);
-    let fechaInicio = new Date(this.seguimiento.periodo_seguimiento_id["fecha_inicio"]);
-    let fechaFin = new Date(this.seguimiento.periodo_seguimiento_id["fecha_fin"]);
+    let fechaInicio = new Date(this.seguimiento.periodo_seguimiento_id["fecha_inicio"].replace("Z", ""));
+    let fechaFin = new Date(this.seguimiento.periodo_seguimiento_id["fecha_fin"].replace("Z", ""));
 
     if ((fechaHoy >= fechaInicio && fechaHoy <= fechaFin) || row.estado.nombre == "Actividad avalada") {
       this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + row.index + '/' + this.seguimiento.periodo_seguimiento_id["_id"]])
@@ -321,8 +321,8 @@ export class SeguimientoComponentGestion implements OnInit {
             let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
             let strFechaHoy = new Date(auxFechaCol).toISOString();
             let fechaHoy = new Date(strFechaHoy);
-            let fechaInicio = new Date(seguimiento["fecha_inicio"]);
-            let fechaFin = new Date(seguimiento["fecha_fin"]);
+            let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
+            let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
             if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
               this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + row.index + '/' + this.trimestre.Id])
             } else {

@@ -103,12 +103,10 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                   this.auxUnidades.push(unidad);
                   this.formSelect.get('selectUnidad').setValue(unidad);
                   this.onChangeU(unidad);
-
                 }
               })
             })
         })
-
     })
   }
 
@@ -241,8 +239,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                   if (data && data.Data != "") {
                     let seguimiento = data.Data[0];
 
-                    let fechaInicio = new Date(seguimiento["fecha_inicio"]);
-                    let fechaFin = new Date(seguimiento["fecha_fin"]);
+                    let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
+                    let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
 
                     if (i == 0) {
                       this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
