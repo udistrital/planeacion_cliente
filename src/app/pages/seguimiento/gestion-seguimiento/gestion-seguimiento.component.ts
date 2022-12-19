@@ -63,6 +63,17 @@ export class SeguimientoComponentGestion implements OnInit {
     this.getRol();
   }
 
+  ngAfterViewInit() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+  }
+
   getRol() {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
