@@ -757,31 +757,31 @@ export class HabilitarReporteComponent implements OnInit {
 
   actualizarPeriodo(i: number, periodoId: number) {
     let body: { periodo_id: string; fecha_inicio: any; fecha_fin: any; };
+    let fecha_inicio, fecha_fin;
     if (i === 0) {
-      body = {
-        "periodo_id": periodoId.toString(),
-        "fecha_inicio": this.formFechas.get('fecha1').value.toISOString(),
-        "fecha_fin": this.formFechas.get('fecha2').value.toISOString(),
-
-      }
+      fecha_inicio = new Date(this.formFechas.get('fecha1').value);
+      fecha_fin = new Date(this.formFechas.get('fecha2').value);
     } else if (i === 1) {
-      body = {
-        "periodo_id": periodoId.toString(),
-        "fecha_inicio": this.formFechas.get('fecha3').value.toISOString(),
-        "fecha_fin": this.formFechas.get('fecha4').value.toISOString()
-      }
+      fecha_inicio = new Date(this.formFechas.get('fecha3').value);
+      fecha_fin = new Date(this.formFechas.get('fecha4').value);
     } else if (i === 2) {
-      body = {
-        "periodo_id": periodoId.toString(),
-        "fecha_inicio": this.formFechas.get('fecha5').value.toISOString(),
-        "fecha_fin": this.formFechas.get('fecha6').value.toISOString()
-      }
+      fecha_inicio = new Date(this.formFechas.get('fecha5').value);
+      fecha_fin = new Date(this.formFechas.get('fecha6').value);
     } else if (i === 3) {
-      body = {
-        "periodo_id": periodoId.toString(),
-        "fecha_inicio": this.formFechas.get('fecha7').value.toISOString(),
-        "fecha_fin": this.formFechas.get('fecha8').value.toISOString()
-      }
+      fecha_inicio = new Date(this.formFechas.get('fecha7').value);
+      fecha_fin = new Date(this.formFechas.get('fecha8').value);
+    }
+
+    if (fecha_fin.getHours() == 19 ) {
+      fecha_fin.setHours(42,59,59);
+    } else {
+      fecha_fin.setHours(18,59,59);
+    }
+
+    body = {
+      "periodo_id": periodoId.toString(),
+      "fecha_inicio": fecha_inicio.toISOString(),
+      "fecha_fin": fecha_fin.toISOString()
     }
 
     this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error: any) => {

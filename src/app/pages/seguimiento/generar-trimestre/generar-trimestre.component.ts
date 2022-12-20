@@ -742,6 +742,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             }
           }
           this.datosResultados[index].brechaExistente = Math.round((meta - indicadorAcumulado) * 10) / 10;
+          this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
         }
       } else {
         Swal.fire({
