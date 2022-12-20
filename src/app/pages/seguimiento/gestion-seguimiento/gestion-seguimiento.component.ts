@@ -180,7 +180,7 @@ export class SeguimientoComponentGestion implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "", this.seguimiento._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
               Swal.fire({
@@ -249,7 +249,7 @@ export class SeguimientoComponentGestion implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "", this.seguimiento._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
               Swal.fire({
