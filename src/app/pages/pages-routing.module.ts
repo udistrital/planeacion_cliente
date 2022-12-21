@@ -43,6 +43,10 @@ import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/c
 
 import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/reporte-funcionamiento/reporte-funcionamiento.component';
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
+import { FuentesDeApropiacionComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuentes-de-apropiacion/fuentes-de-apropiacion.component';
+import { ProyectosDeInversionVigentesComponent } from './banco-de-proyectos/proyectos-inversion-macro/proyectos-de-inversion-vigentes/proyectos-de-inversion-vigentes.component';
+import { AgregarProyectoVigenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-proyecto-vigente/agregar-proyecto-vigente.component';
+import { FuenteApropiacionDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-dialog.component';
 
 const routes: Routes = [{
   path: '',
@@ -180,6 +184,22 @@ const routes: Routes = [{
       path: 'proyectos-macro',
       component: PagesComponent,
       children:[
+        {
+          path: 'fuentes-de-apropiacion',
+          component: FuentesDeApropiacionComponent,
+        },
+        {
+          path: 'proyectos-de-inversion-vigentes',
+          component: ProyectosDeInversionVigentesComponent,
+        },
+        {
+          path: 'agregar-proyecto-vigente',
+          component: AgregarProyectoVigenteComponent,
+        },
+        {
+          path: 'fuente-apropiacion-dialog',
+          component: FuenteApropiacionDialogComponent,
+        },
         {
           path: 'consultar-proyecto',
           component: ConsultarProyectoInversionComponent,

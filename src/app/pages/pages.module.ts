@@ -84,6 +84,13 @@ import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/repor
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
 import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/construir-plan-proyecto.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { FuentesDeApropiacionComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuentes-de-apropiacion/fuentes-de-apropiacion.component';
+import { ProyectosDeInversionVigentesComponent } from './banco-de-proyectos/proyectos-inversion-macro/proyectos-de-inversion-vigentes/proyectos-de-inversion-vigentes.component';
+import { AgregarProyectoVigenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-proyecto-vigente/agregar-proyecto-vigente.component';
+import { AgregarFuenteDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-fuente-dialog/agregar-fuente-dialog.component';
+import { AgregarMetaDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-meta-dialog/agregar-meta-dialog.component';
+import { CargarSoportesDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/cargar-soportes-dialog/cargar-soportes-dialog.component';
+import { FuenteApropiacionDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-dialog.component';
 
 
 
@@ -192,6 +199,13 @@ const MY_FORMATS = {
     ReporteFuncionamientoComponent,
     ReporteInversionComponent,
     ConstruirPlanProyectoComponent,
+    FuentesDeApropiacionComponent,
+    ProyectosDeInversionVigentesComponent,
+    AgregarProyectoVigenteComponent,
+    AgregarFuenteDialogComponent,
+    AgregarMetaDialogComponent,
+    CargarSoportesDialogComponent,
+    FuenteApropiacionDialogComponent,
   ],
   imports: [
     HttpClientModule,

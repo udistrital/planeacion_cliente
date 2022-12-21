@@ -229,6 +229,7 @@ export class HabilitarReporteComponent implements OnInit {
         })
       })
     } else if (this.tipo === 'formulaciones') {
+      this.readUnidadesForm();
       this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,tipo_seguimiento_id:6389efac6a0d190ffb883f71`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
@@ -394,16 +395,39 @@ export class HabilitarReporteComponent implements OnInit {
     })
   }
 
+  readUnidadesForm() {
+    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[0].Id + `,tipo_seguimiento_id:6389efac6a0d190ffb883f71`).subscribe((data: any) => {
+      if (data) {
+        if (data.Data.length != 0) {
+          this.unidadesInteres = JSON.parse(data.Data[0].unidades_interes);
+          if (data.Data[0].unidades_interes == undefined) {
+            this.unidadesInteres = ' ';
+          }                          
+        } else if (data.Data.length == 0){
+            this.unidadesInteres = ' ';         
+        }
+      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    });
+  }
+
   readUnidades() {
     this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[0].Id + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: any) => {
       if (data) {
         if (data.Data.length != 0) {
           this.unidadesInteres = JSON.parse(data.Data[0].unidades_interes);
           if (data.Data[0].unidades_interes == undefined) {
-            this.unidadesInteres = '';
+            this.unidadesInteres = ' ';
           }                          
-        } else {
-            this.unidadesInteres = '';          
+        } else if (data.Data.length == 0){
+            this.unidadesInteres = ' ';          
         }
       }
     },(error) => {
@@ -623,9 +647,10 @@ export class HabilitarReporteComponent implements OnInit {
               if (data) {
                 if (data.Data.length > 0) {
                   let seguimientoFormulacion = data.Data[0];
+                  seguimientoFormulacion["periodo_id"] = this.periodos[0].Id;
                   seguimientoFormulacion["fecha_inicio"] = this.formFechas.get('fecha19').value.toISOString();
                   seguimientoFormulacion["fecha_fin"] = this.formFechas.get('fecha20').value.toISOString();
-                  seguimientoFormulacion["unidades_interes"] = "[]"
+                  seguimientoFormulacion["unidades_interes"] = JSON.stringify(this.unidadesInteres);
                   this.request.put(environment.PLANES_CRUD, `periodo-seguimiento`, seguimientoFormulacion, seguimientoFormulacion["_id"]).subscribe((data: any) => {
 
                     if (data) {
@@ -651,14 +676,14 @@ export class HabilitarReporteComponent implements OnInit {
                     //descripcion: "Fechas para control de formulación de inversión",
                     //plan_id: "No aplica",
                     //dato: "{}",
-                    periodo_id: "No aplica",
+                    periodo_id: this.periodos[0].Id,
                     tipo_seguimiento_id: "6389efac6a0d190ffb883f71",
                     //estado_seguimiento_id: "No aplica",
                     //periodo_seguimiento_id: "No aplica",
                     activo: true,
                     fecha_inicio: this.formFechas.get('fecha19').value.toISOString(),
                     fecha_fin: this.formFechas.get('fecha20').value.toISOString(),
-                    unidades_interes: "[]"
+                    unidades_interes: JSON.stringify(this.unidadesInteres),
                   }
                   this.request.post(environment.PLANES_CRUD, `periodo-seguimiento`, seguimientoFormulacion).subscribe((data: any) => {
                     if (data) {
@@ -830,12 +855,13 @@ export class HabilitarReporteComponent implements OnInit {
           if (data) {
             Swal.fire({
               title: 'Error en la operación',
-              text: `No se creó el registro ${JSON.stringify(error)}`,
+              text: `No se creó el registro`,
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500
             })
-          })
+          }
+        })
       } else if (data.Data.length > 0) {         
           seguimientoFormulacionGlobal["fecha_inicio"]= fecha_In;
           seguimientoFormulacionGlobal["fecha_fin"] = fecha_Fin;              
