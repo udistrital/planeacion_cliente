@@ -6,3 +6,11 @@
     display: block;
     margin: 2%;
 }
+
+.container-border {
+    margin-top: 100px;
+    border: 1px solid var(--primary);
+    padding: 1%;
+    border-radius: 15px 15px 15px 15px;
+  
+}
