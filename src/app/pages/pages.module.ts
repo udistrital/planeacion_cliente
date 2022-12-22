@@ -84,7 +84,7 @@ import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/repor
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
 import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/construir-plan-proyecto.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-
+import { GoogleChartsModule } from 'angular-google-charts';
 
 
 const pagesComponents = [
@@ -212,6 +212,7 @@ const MY_FORMATS = {
     MatGridListModule,
     MatButtonModule,
     MatButtonToggleModule,
+    GoogleChartsModule,
     ...materialModules
   ],
   providers: [

@@ -1,26 +1,50 @@
+.mat-card {
+  background-color: #F1F5F8;
+}
+
 table {
   width: 100%;
 }
+
 th {
   color: white;
   text-align: center;
 }
-.selectorPlanStyle{
-    width: 75%;
-    padding-right: 5%;
+
+.selectorPlanStyle {
+  width: 75%;
+  padding-right: 5%;
 }
-.selectorVigenciaStyle{
-    width: 20%;
+
+.selectorVigenciaStyle {
+  width: 20%;
 }
-.align-button-ingresar{
+
+.align-button-ingresar {
   text-align: center;
 }
-.background-sum{
+
+.background-sum {
   color: black;
   background-color: white;
   border: 1px solid var(--primary);
   text-align: center;
 }
-.ng-container{
+
+.ng-container {
   width: 32%;
+}
+
+.textGuide {
+  background-color: #ffff;
+  border: 1px solid var(--primary);
+  border-radius: 15px 15px 15px 15px;
+  box-shadow: var(--primary) 3px 4px 0;
+  color: #0a0a0a;
+  display: inline-block;
+  font-size: 1.1em;
+  padding: 1%;
+  text-decoration: none;
+  margin-bottom: 1%;
+  width: 97%;
 }
