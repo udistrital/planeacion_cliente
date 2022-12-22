@@ -241,6 +241,14 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           evidencia: documentos
         };
 
+        Swal.fire({
+          title: 'Guardando cambios',
+          timerProgressBar: true,
+          showConfirmButton: false,
+          willOpen: () => {
+            Swal.showLoading();
+          },
+        })
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.documentos = documentos;
@@ -272,6 +280,16 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       let aux = event.files[0];
       const found = this.documentos.find(element => element.nombre == aux.name && element.Activo);
       if (found == undefined) {
+
+        Swal.fire({
+          title: 'Guardando documento',
+          timerProgressBar: true,
+          showConfirmButton: false,
+          willOpen: () => {
+            Swal.showLoading();
+          },
+        })
+
         let documento = {
           IdTipoDocumento: 60,
           nombre: aux.name,

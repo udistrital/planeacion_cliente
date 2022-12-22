@@ -27,6 +27,7 @@
     "@angular/router": "~11.2.1",
     "@angular/service-worker": "~11.2.1",
     "@popperjs/core": "^2.9.3",
+    "angular-google-charts": "2.01",
     "bootstrap": "^5.1.3",
     "jquery": "^3.6.0",
     "lodash": "^4.17.21",

@@ -84,6 +84,7 @@ import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/repor
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
 import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/construir-plan-proyecto.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { GoogleChartsModule } from 'angular-google-charts';
 import { FuentesDeApropiacionComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuentes-de-apropiacion/fuentes-de-apropiacion.component';
 import { ProyectosDeInversionVigentesComponent } from './banco-de-proyectos/proyectos-inversion-macro/proyectos-de-inversion-vigentes/proyectos-de-inversion-vigentes.component';
 import { AgregarProyectoVigenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-proyecto-vigente/agregar-proyecto-vigente.component';
@@ -226,6 +227,7 @@ const MY_FORMATS = {
     MatGridListModule,
     MatButtonModule,
     MatButtonToggleModule,
+    GoogleChartsModule,
     ...materialModules
   ],
   providers: [
