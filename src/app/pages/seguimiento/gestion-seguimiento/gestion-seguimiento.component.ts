@@ -63,6 +63,17 @@ export class SeguimientoComponentGestion implements OnInit {
     this.getRol();
   }
 
+  ngAfterViewInit() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+  }
+
   getRol() {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
@@ -169,7 +180,7 @@ export class SeguimientoComponentGestion implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "", this.seguimiento._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
               Swal.fire({
@@ -238,7 +249,7 @@ export class SeguimientoComponentGestion implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "", this.seguimiento._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
               Swal.fire({

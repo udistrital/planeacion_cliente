@@ -1,14 +1,12 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { Row } from 'ng2-smart-table/lib/lib/data-set/row';
 
 export interface Unidades {
   posicion: string;
@@ -50,14 +48,14 @@ export class HabilitarReporteComponent implements OnInit {
   formFechas: FormGroup;
   date9: Date = new Date();
   guardarDisabled: boolean;
-  displayedColumns: string[] = ['index','Nombre', 'actions'];
+  displayedColumns: string[] = ['index', 'Nombre', 'actions'];
   unidadesInteres: any;
   dataUnidades: any;
-  dataSource = new MatTableDataSource<Unidades>();  
-  
+  dataSource = new MatTableDataSource<Unidades>();
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  
+
   constructor(
     private request: RequestManager,
     private formBuilder: FormBuilder,
@@ -67,7 +65,7 @@ export class HabilitarReporteComponent implements OnInit {
     this.guardarDisabled = false;
   }
 
-  ngOnInit(): void {    
+  ngOnInit(): void {
     this.formFechas = this.formBuilder.group({
       fecha1: ['',],
       fecha2: ['',],
@@ -90,7 +88,7 @@ export class HabilitarReporteComponent implements OnInit {
       fecha19: ['',],
       fecha20: ['',]
     });
-    
+
   }
 
   loadVigencias() {
@@ -108,32 +106,32 @@ export class HabilitarReporteComponent implements OnInit {
       })
     })
   }
-  changeIcon(row) {            
+  changeIcon(row: { iconSelected: string; Id: any; Nombre: any; }) {
     if (row.iconSelected == 'compare_arrows') {
-      row.iconSelected = 'done';  
-      let unidad = [];      
-      if (this.unidadesInteres[0].Id == undefined ) {
+      row.iconSelected = 'done';
+      let unidad = [];
+      if (this.unidadesInteres[0].Id == undefined) {
         unidad = [...[{
-                  "Id": row.Id,
-                  "Nombre": row.Nombre,                  
-                }]];
-      this.unidadesInteres = unidad;
+          "Id": row.Id,
+          "Nombre": row.Nombre,
+        }]];
+        this.unidadesInteres = unidad;
       } else {
         unidad = [...this.unidadesInteres, ...[{
-                  "Id": row.Id,
-                  "Nombre": row.Nombre,                  
-                }]];
-      this.unidadesInteres = unidad;
-      }           
+          "Id": row.Id,
+          "Nombre": row.Nombre,
+        }]];
+        this.unidadesInteres = unidad;
+      }
     } else if (row.iconSelected == 'done') {
       row.iconSelected = 'compare_arrows';
-      let unidadEliminar = row.Id;  
-      const index = this.unidadesInteres.findIndex(x => x.Id == unidadEliminar); 
+      let unidadEliminar = row.Id;
+      const index = this.unidadesInteres.findIndex((x: { Id: any; }) => x.Id == unidadEliminar);
       this.unidadesInteres.splice(index, 1);
     }
   }
 
-  onChangeV(vigencia) {
+  onChangeV(vigencia: any) {
     if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
@@ -146,7 +144,7 @@ export class HabilitarReporteComponent implements OnInit {
   }
 
 
-  onChange(tipo) {
+  onChange(tipo: string) {
     if (tipo == undefined) {
       this.tipoSelected = false;
     } else {
@@ -156,7 +154,7 @@ export class HabilitarReporteComponent implements OnInit {
     }
   }
 
-  onChangeInv(tipo) {
+  onChangeInv(tipo: string) {
     if (tipo == undefined) {
       this.tipoSelectedInv = false;
     } else {
@@ -166,24 +164,24 @@ export class HabilitarReporteComponent implements OnInit {
     }
   }
 
-  onChangeU(unidad) {
-    this.loadUnidades();    
+  onChangeU(unidad: string) {
+    this.loadUnidades();
     if (unidad == undefined) {
       this.unidadSelected = false;
     } else {
       this.unidadSelected = true;
       this.unidad = unidad;
-    }       
+    }
   }
 
-  
+
 
   onChangeFF(index: number, event: MatDatepickerInputEvent<Date>) {
     if (index == 1) {
       let aux: Date = event.value;
     }
   }
-  onChangeI(vigencia) {
+  onChangeI(vigencia: any) {
     if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
@@ -424,13 +422,14 @@ export class HabilitarReporteComponent implements OnInit {
         if (data.Data.length != 0) {
           this.unidadesInteres = JSON.parse(data.Data[0].unidades_interes);
           if (data.Data[0].unidades_interes == undefined) {
+
             this.unidadesInteres = ' ';
           }                          
         } else if (data.Data.length == 0){
-            this.unidadesInteres = ' ';          
+            this.unidadesInteres = ' ';
         }
       }
-    },(error) => {
+    }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
@@ -442,36 +441,36 @@ export class HabilitarReporteComponent implements OnInit {
   }
 
   loadUnidades() {
-    this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) =>{
-      if(data) {
-        if(data.Data.length != 0) {
+    this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
+      if (data) {
+        if (data.Data.length != 0) {
           this.dataUnidades = data.Data;
           if (this.unidadesInteres.length == 0 || this.unidadesInteres.length == undefined || this.unidadesInteres == ' ') {
-            for ( let i = 0; i < this.dataUnidades.length; i++) {             
+            for (let i = 0; i < this.dataUnidades.length; i++) {
               this.dataUnidades[i].iconSelected = 'compare_arrows';
               this.dataUnidades[i].posicion = i + 1;
             }
           } else {
-            for ( let i = 0; i < this.dataUnidades.length; i++ ){
-              for (let j = 0; j < this.unidadesInteres.length; j++ ) {
+            for (let i = 0; i < this.dataUnidades.length; i++) {
+              for (let j = 0; j < this.unidadesInteres.length; j++) {
                 if (this.unidadesInteres[j].Id == this.dataUnidades[i].Id) {
                   if (this.dataUnidades[i].iconSelected == 'compare_arrows' || this.dataUnidades[i].iconSelected == '' || this.dataUnidades[i].iconSelected == undefined) {
                     this.dataUnidades[i].iconSelected = 'done';
                     this.dataUnidades[i].posicion = i + 1;
                   }
                 } else if (this.unidadesInteres[j].Id != this.dataUnidades[i].Id) {
-                    if (this.dataUnidades[i].iconSelected == 'done') {
-                      this.dataUnidades[i].posicion = i + 1;
-                    } else if (this.dataUnidades.iconSelected == '' || this.dataUnidades.iconSelected == undefined) {
-                        this.dataUnidades[i].iconSelected = 'compare_arrows';
-                        this.dataUnidades[i].posicion = i + 1;                       
-                    }
+                  if (this.dataUnidades[i].iconSelected == 'done') {
+                    this.dataUnidades[i].posicion = i + 1;
+                  } else if (this.dataUnidades.iconSelected == '' || this.dataUnidades.iconSelected == undefined) {
+                    this.dataUnidades[i].iconSelected = 'compare_arrows';
+                    this.dataUnidades[i].posicion = i + 1;
                   }
                 }
               }
             }
+          }
           this.dataSource = new MatTableDataSource(this.dataUnidades);
-          this.dataSource.paginator = this.paginator;       
+          this.dataSource.paginator = this.paginator;
         }
       }
     }, (error) => {
@@ -576,7 +575,7 @@ export class HabilitarReporteComponent implements OnInit {
         } else if (result.dismiss === Swal.DismissReason.cancel) {
         }
       }),
-        (error) => {
+        (error: any) => {
           Swal.fire({
             title: 'Error en la operación',
             icon: 'error',
@@ -617,7 +616,7 @@ export class HabilitarReporteComponent implements OnInit {
         } else if (result.dismiss === Swal.DismissReason.cancel) {
         }
       }),
-        (error) => {
+        (error: any) => {
           Swal.fire({
             title: 'Error en la operación',
             icon: 'error',
@@ -728,7 +727,7 @@ export class HabilitarReporteComponent implements OnInit {
         } else if (result.dismiss === Swal.DismissReason.cancel) {
         }
       }),
-        (error) => {
+        (error: any) => {
           Swal.fire({
             title: 'Error en la operación',
             icon: 'error',
@@ -769,7 +768,7 @@ export class HabilitarReporteComponent implements OnInit {
         } else if (result.dismiss === Swal.DismissReason.cancel) {
         }
       }),
-        (error) => {
+        (error: any) => {
           Swal.fire({
             title: 'Error en la operación',
             icon: 'error',
@@ -783,35 +782,35 @@ export class HabilitarReporteComponent implements OnInit {
   }
 
   actualizarPeriodo(i: number, periodoId: number) {
-    let body;
+    let body: { periodo_id: string; fecha_inicio: any; fecha_fin: any; };
+    let fecha_inicio, fecha_fin;
     if (i === 0) {
-      body = {
-        "periodo_id": periodoId.toString(),
-        "fecha_inicio": this.formFechas.get('fecha1').value.toISOString(),
-        "fecha_fin": this.formFechas.get('fecha2').value.toISOString(),
-        
-      }
+      fecha_inicio = new Date(this.formFechas.get('fecha1').value);
+      fecha_fin = new Date(this.formFechas.get('fecha2').value);
     } else if (i === 1) {
-      body = {
-        "periodo_id": periodoId.toString(),
-        "fecha_inicio": this.formFechas.get('fecha3').value.toISOString(),
-        "fecha_fin": this.formFechas.get('fecha4').value.toISOString()
-      }
+      fecha_inicio = new Date(this.formFechas.get('fecha3').value);
+      fecha_fin = new Date(this.formFechas.get('fecha4').value);
     } else if (i === 2) {
-      body = {
-        "periodo_id": periodoId.toString(),
-        "fecha_inicio": this.formFechas.get('fecha5').value.toISOString(),
-        "fecha_fin": this.formFechas.get('fecha6').value.toISOString()
-      }
+      fecha_inicio = new Date(this.formFechas.get('fecha5').value);
+      fecha_fin = new Date(this.formFechas.get('fecha6').value);
     } else if (i === 3) {
-      body = {
-        "periodo_id": periodoId.toString(),
-        "fecha_inicio": this.formFechas.get('fecha7').value.toISOString(),
-        "fecha_fin": this.formFechas.get('fecha8').value.toISOString()
-      }
+      fecha_inicio = new Date(this.formFechas.get('fecha7').value);
+      fecha_fin = new Date(this.formFechas.get('fecha8').value);
     }
 
-    this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error) => {
+    if (fecha_fin.getHours() == 19 ) {
+      fecha_fin.setHours(42,59,59);
+    } else {
+      fecha_fin.setHours(18,59,59);
+    }
+
+    body = {
+      "periodo_id": periodoId.toString(),
+      "fecha_inicio": fecha_inicio.toISOString(),
+      "fecha_fin": fecha_fin.toISOString()
+    }
+
+    this.request.put(environment.PLANES_MID, `seguimiento/habilitar_reportes`, body, "").subscribe(), (error: any) => {
       Swal.fire({
         title: 'Error en la operación',
         icon: 'error',
@@ -823,8 +822,8 @@ export class HabilitarReporteComponent implements OnInit {
   }
 
   actualizarPeriodoInv(i: number, periodoId: number) {
-    let fecha_In;
-    let fecha_Fin;
+    let fecha_In: any;
+    let fecha_Fin: any;
 
     if (i === 0) {
       fecha_In = this.formFechas.get('fecha11').value.toISOString();
@@ -864,11 +863,11 @@ export class HabilitarReporteComponent implements OnInit {
         })
       } else if (data.Data.length > 0) {         
           seguimientoFormulacionGlobal["fecha_inicio"]= fecha_In;
-          seguimientoFormulacionGlobal["fecha_fin"] = fecha_Fin;              
+          seguimientoFormulacionGlobal["fecha_fin"] = fecha_Fin;
           seguimientoFormulacionGlobal["tipo_seguimiento_id"] = '6385fa136a0d19d7888837ed';
           seguimientoFormulacionGlobal["unidades_interes"] = JSON.stringify(this.unidadesInteres);
-        this.request.put(environment.PLANES_CRUD, `periodo-seguimiento`, seguimientoFormulacionGlobal, seguimientoFormulacionGlobal['_id']).subscribe((data: any) => {
-          if (data) {
+          this.request.put(environment.PLANES_CRUD, `periodo-seguimiento`, seguimientoFormulacionGlobal, seguimientoFormulacionGlobal['_id']).subscribe((data: any) => {
+            if (data) {
               Swal.fire({
                 title: 'Fechas Actualizadas',
                 icon: 'success',
@@ -876,50 +875,45 @@ export class HabilitarReporteComponent implements OnInit {
                 timer: 2500
               })
             }
-        }, (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            text: `No se actualizo el registro ${JSON.stringify(error)}`,
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 2500
-          })           
-            
-        }) 
+          }, (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se actualizo el registro ${JSON.stringify(error)}`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          })
+        }
       }
-    }        
-  })   
+    })
+  }
 
-   
-
- 
-}
-
-limpiar() {
-  if (this.tipo === 'formulacion') {
-    this.formFechas.get('fecha9').setValue("");
-    this.formFechas.get('fecha10').setValue("");
-  } else if (this.tipo == 'seguimiento') {
-    this.formFechas.get('fecha1').setValue("");
-    this.formFechas.get('fecha2').setValue("");
-    this.formFechas.get('fecha3').setValue("");
-    this.formFechas.get('fecha4').setValue("");
-    this.formFechas.get('fecha5').setValue("");
-    this.formFechas.get('fecha6').setValue("");
-    this.formFechas.get('fecha7').setValue("");
-    this.formFechas.get('fecha8').setValue("");
-  } else if (this.tipo === 'formulaciones') {
-    this.formFechas.get('fecha19').setValue("");
-    this.formFechas.get('fecha20').setValue("");
-  } else if (this.tipo == 'seguimientos') {
-    this.formFechas.get('fecha11').setValue("");
-    this.formFechas.get('fecha12').setValue("");
-    this.formFechas.get('fecha13').setValue("");
-    this.formFechas.get('fecha14').setValue("");
-    this.formFechas.get('fecha15').setValue("");
-    this.formFechas.get('fecha16').setValue("");
-    this.formFechas.get('fecha17').setValue("");
-    this.formFechas.get('fecha18').setValue("");
+  limpiar() {
+    if (this.tipo === 'formulacion') {
+      this.formFechas.get('fecha9').setValue("");
+      this.formFechas.get('fecha10').setValue("");
+    } else if (this.tipo == 'seguimiento') {
+      this.formFechas.get('fecha1').setValue("");
+      this.formFechas.get('fecha2').setValue("");
+      this.formFechas.get('fecha3').setValue("");
+      this.formFechas.get('fecha4').setValue("");
+      this.formFechas.get('fecha5').setValue("");
+      this.formFechas.get('fecha6').setValue("");
+      this.formFechas.get('fecha7').setValue("");
+      this.formFechas.get('fecha8').setValue("");
+    } else if (this.tipo === 'formulaciones') {
+      this.formFechas.get('fecha19').setValue("");
+      this.formFechas.get('fecha20').setValue("");
+    } else if (this.tipo == 'seguimientos') {
+      this.formFechas.get('fecha11').setValue("");
+      this.formFechas.get('fecha12').setValue("");
+      this.formFechas.get('fecha13').setValue("");
+      this.formFechas.get('fecha14').setValue("");
+      this.formFechas.get('fecha15').setValue("");
+      this.formFechas.get('fecha16').setValue("");
+      this.formFechas.get('fecha17').setValue("");
+      this.formFechas.get('fecha18').setValue("");
     }
   }
 }

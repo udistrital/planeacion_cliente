@@ -120,6 +120,14 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
   }
 
   getRol() {
@@ -144,7 +152,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         }, (error) => {
           Swal.fire({
             title: 'Error en la operación',
-            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            text: `No se encontraron datos del trimestre`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500
@@ -154,7 +162,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        text: `No se encontraron datos del periodo`,
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
@@ -170,7 +178,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        text: `No se encontraron datos del estado}`,
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
@@ -386,12 +394,12 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        text: `No se encontraron datos registrados`,
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
       })
-    })
+    }, () => Swal.close())
   }
 
   guardarCualitativo() {
@@ -734,6 +742,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             }
           }
           this.datosResultados[index].brechaExistente = Math.round((meta - indicadorAcumulado) * 10) / 10;
+          this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
         }
       } else {
         Swal.fire({
