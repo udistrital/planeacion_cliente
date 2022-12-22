@@ -279,7 +279,7 @@
     </mat-card-content>
     <!-- Tabla-Unidades -->
 
-    <mat-card class="card-oas" *ngIf="tipo=='seguimientos' && vigenciaSelected && unidadSelected">
+    <mat-card class="card-oas" *ngIf="(tipo=='seguimientos' || tipo == 'formulaciones') && vigenciaSelected && unidadSelected">
         <div class="container-border">
             <h2 class="titulo">Unidades a asignar</h2>
 
