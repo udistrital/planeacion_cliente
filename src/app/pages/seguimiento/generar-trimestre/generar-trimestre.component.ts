@@ -259,7 +259,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
               showConfirmButton: false,
               timer: 2000
             }).then(res => {
-              this.loadData();
+              // this.loadData();
             });
           }
         }, (error) => {
@@ -316,7 +316,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
               showConfirmButton: false,
               timer: 2000
             }).then(res => {
-              this.loadData();
+              // this.loadData();
             });
           }
         }, (error) => {

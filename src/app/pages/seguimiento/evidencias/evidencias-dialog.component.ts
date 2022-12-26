@@ -83,7 +83,6 @@ export class EvidenciasDialogComponent implements OnInit {
 
       await this.gestorDocumental.get([row]).subscribe(
         (documentos) => {
-          Swal.close();
           const dialogRef = this.dialog.open(VisualizarDocumentoDialogComponent, {
             width: '1200px',
             minHeight: 'calc(100vh - 90px)',
@@ -111,7 +110,6 @@ export class EvidenciasDialogComponent implements OnInit {
             timer: 2500
           });
         })
-      Swal.close();
     }
   }
 

@@ -2,14 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { RequestManager } from '../services/requestManager';
 import { environment } from 'src/environments/environment';
 import { MatTableDataSource } from '@angular/material/table';
-import { Location } from '@angular/common';
 import Swal from 'sweetalert2';
 
-import datosTest from 'src/assets/json/evaluacion.json';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import * as internal from 'stream';
-import { runInThisContext } from 'vm';
-
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-evaluacion',
@@ -17,11 +13,10 @@ import { runInThisContext } from 'vm';
   styleUrls: ['./evaluacion.component.scss']
 })
 export class EvaluacionComponent implements OnInit {
-  title = 'Google Chart Example';
+  title = 'Cumplimiento General Plan de Acción 2022 - Unidad ';
   type = 'PieChart';
   type2 = 'ColumnChart';
-
-
+  spans = [];
   pieChartColumns = [
     'Effort',
     'Amount given'
@@ -35,7 +30,7 @@ export class EvaluacionComponent implements OnInit {
     pieSliceTextStyle: {
       color: 'black',
     },
-    tooltip: { trigger: 'none' },
+    // tooltip: { trigger: 'none' },
     slices: {
       1: { color: 'transparent' }
     },
@@ -47,8 +42,8 @@ export class EvaluacionComponent implements OnInit {
     legend: 'none',
   };
   lineChartcolumnNames = [
-    'Year',
-    'value',
+    'Actividad',
+    'Avance',
     { role: 'style' },
     { role: 'annotation' },
     { type: 'string', role: 'tooltip', p: { html: true } },
@@ -76,47 +71,6 @@ export class EvaluacionComponent implements OnInit {
     ['developer19', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
     ['developer21', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
     ['developer22', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer23', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer24', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer25', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer26', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer27', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer28', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer29', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer30', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer31', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer32', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer33', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer34', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer35', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer36', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer37', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer38', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer39', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer40', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer41', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer42', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer43', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer44', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer45', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer46', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer47', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer48', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer49', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer50', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer51', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer52', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer53', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer54', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer55', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer56', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer57', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer58', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer59', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer60', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer61', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer62', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer63', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
     ['developer64', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
     ['developer65', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
     ['developer66', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
@@ -126,42 +80,23 @@ export class EvaluacionComponent implements OnInit {
     ['developer70', 8, 'color: rgb(143, 27, 0)', '$6', ''],
   ];
 
-  dataSources = [
-    { priority: 'P1', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Undefined', dateCreated: '11/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Undefined', dateCreated: '11/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'New', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'New', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'New', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'New', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-  ];
-  displayedColumnss = ['priority', 'status', 'dateCreated', 'testNumber', 'testCurrency', 'testTime'];
-  spanningColumns = ['priority', 'status', 'dateCreated'];
+  displayedColumns: string[] = [
+    "id", "ponderacion", "periodo", "actividad", "indicador", "formula", "meta",
+    "numt1", "dent1", "pert1", "acut1", "metat1", "actividadt1",
 
-  displayedColumns: string[] = ["id", "ponderacion", "periodoE", "actividad", "indicador", "formula", "meta", "estado", "vigencia", "periodo", "seguimiento"];
-  displayedColumnsSum: string[] = ['avance', 'sumaT1', 'sumaT2', 'sumaT3', 'sumaT4'];
+    "numt2", "dent2", "pert2", "acut2", "metat2", "actividadt2",
+
+    "numt3", "dent3", "pert3", "acut3", "metat3", "actividadt3",
+
+    "numt4", "dent4", "pert4", "acut4", "metat4", "actividadt4",];
+
+  displayedHeaders: string[] = ["idP", "ponderacionP", "periodoP", "actividadP", "indicadorP", "formulaP", "metaP", "trimestre1", "trimestre2", "trimestre3", "trimestre4"];
   dataSource: MatTableDataSource<any>;
   tipoPlanId: string; // id tipo plan
   idPadre: string; // id padre del objeto
   planes: any[];
+  periodos: any[];
   bandera: boolean;
-  sumaT1: number;
-  sumaT2: number;
-  sumaT3: number;
-  sumaT4: number;
   ponderacion: number;
   vigencias: any[];
   unidades: any[];
@@ -169,40 +104,50 @@ export class EvaluacionComponent implements OnInit {
   unidad: any;
   vigenciaSelected: boolean;
   vigencia: any;
+  periodoSelected: boolean;
+  periodo: any;
+  planSelected: boolean;
+  plan: any;
 
   // testDatos: any = datosTest;
   testDatos: any = [
     {
-      numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1",
-      indicador: [{ indicadorN: "indicador 1", formula: "x-b", meta: "140", trimestre1: {}, trimestre2: {}, trimestre3: {}, trimestre4: {} },
-      { indicadorN: "indicador 2", formula: "x-c", meta: "150", trimestre1: {}, trimestre2: {}, trimestre3: {}, trimestre4: {} },
-      { indicadorN: "indicador 3", formula: "x-d", meta: "1640", trimestre1: {}, trimestre2: {}, trimestre3: {}, trimestre4: {} }]
+      numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1.1",
+      indicador: "indicador 1", formula: "x-b", meta: "140", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
+    },
+    {
+      numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1.2",
+      indicador: "indicador 3", formula: "x-d", meta: "1640", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
+    },
+    {
+      numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1.3",
+      indicador: "indicador 3", formula: "x-d", meta: "1640", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
     },
 
-    { numero: 2, ponderado: 10, periodo: 2, actividad: "Actividad 2", indicador: [{ indicadorN: "indicador 01", formula: "x-y", meta: "180", trimestre1: {}, trimestre2: {}, trimestre3: {}, trimestre4: {} }] }];
+
+    { numero: 2, ponderado: 10, periodo: 2, actividad: "Actividad 2", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 } },
+
+    { numero: 3, ponderado: 20, periodo: 3, actividad: "Actividad 3.1", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 } },
+    { numero: 3, ponderado: 20, periodo: 3, actividad: "Actividad 3.2", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 } },
+    { numero: 3, ponderado: 20, periodo: 3, actividad: "Actividad 3.3", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 } }
+
+  ];
   rol: string;
 
   constructor(
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
-    private _location: Location
+    private router: Router
   ) {
-    this.loadPlanes();
-    this.loadPeriodos();
+    this.loadVigencias();
     this.loadUnidades();
     this.unidadSelected = false;
     this.vigenciaSelected = false;
-  }
 
-  onChange(plan) {
-    this.bandera = false;
-    if (plan == undefined) {
-      this.tipoPlanId = undefined;
-    } else {
-      this.tipoPlanId = plan.tipo_plan_id;
-      let nombrePlan = document.getElementById('test');
-      this.idPadre = plan._id; // id plan
-    }
+    this.cacheSpan('numero', d => d.numero)
+    this.cacheSpan('ponderado', d => d.numero + d.ponderado)
+    this.cacheSpan('periodo', d => d.numero + d.ponderado + d.periodo)
+    this.cacheSpan('actividad', d => d.numero + d.ponderado + d.periodo + d.actividad)
   }
 
   onChangeU(unidad) {
@@ -211,6 +156,9 @@ export class EvaluacionComponent implements OnInit {
     } else {
       this.unidadSelected = true;
       this.unidad = unidad;
+      if (this.vigenciaSelected) {
+        this.loadPlanes();
+      }
     }
   }
 
@@ -220,11 +168,33 @@ export class EvaluacionComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
+      this.loadPeriodo();
+      if (this.unidadSelected) {
+        this.loadPlanes();
+      }
+    }
+  }
+
+  onChangeP(plan) {
+    if (plan == undefined) {
+      this.planSelected = false;
+    } else {
+      this.planSelected = true;
+      this.plan = plan;
+    }
+  }
+
+  onChangePe(periodo) {
+    if (periodo == undefined) {
+      this.periodoSelected = false;
+    } else {
+      this.periodoSelected = true;
+      this.periodo = periodo;
     }
   }
 
   backClicked() {
-    this._location.back();
+    this.router.navigate(['pages/dashboard'])
   }
 
   getRol() {
@@ -240,10 +210,26 @@ export class EvaluacionComponent implements OnInit {
     this.bandera = true;
   }
 
-  loadPeriodos() {
+  loadVigencias() {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
       if (data) {
         this.vigencias = data.Data;
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  loadPeriodo() {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
+      if (data) {
+        this.periodos = data.Data;
       }
     }, (error) => {
       Swal.fire({
@@ -273,7 +259,7 @@ export class EvaluacionComponent implements OnInit {
   }
 
   loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:61639b8c1634adf976ed4b4c,dependencia_id:` + this.unidad.Id + `,vigencia:` + this.vigencia.Id).subscribe((data: any) => {
       if (data) {
         this.planes = data.Data;
         this.planes = this.filterActivos(this.planes);
@@ -293,38 +279,32 @@ export class EvaluacionComponent implements OnInit {
     return data.filter(e => e.activo == true);
   }
 
-  sumPercent() {
-    this.ponderacion = 0;
-    for (let ponder of this.testDatos) {
-      let ponderacionunidad = parseFloat(ponder.ponderacion);
-      this.ponderacion = this.ponderacion + ponderacionunidad;
-    }
-    this.sumaT1 = 0;
-    this.sumaT2 = 0;
-    this.sumaT3 = 0;
-    this.sumaT4 = 0;
-
-    for (let ponderacion of this.testDatos) {
-      let ponder = parseFloat(ponderacion.ponderacion);
-      let T1 = parseFloat(ponderacion.trimestre1);
-      let T2 = parseFloat(ponderacion.trimestre2);
-      let T3 = parseFloat(ponderacion.trimestre3);
-      let T4 = parseFloat(ponderacion.trimestre4);
-      let suma1 = ((ponder * (T1)) / this.ponderacion);
-      let suma2 = ((ponder * (T2)) / this.ponderacion);
-      let suma3 = ((ponder * (T3)) / this.ponderacion);
-      let suma4 = ((ponder * (T4)) / this.ponderacion);
-
-      this.sumaT1 = this.sumaT1 + suma1;
-      this.sumaT2 = this.sumaT2 + suma2;
-      this.sumaT3 = this.sumaT3 + suma3;
-      this.sumaT4 = this.sumaT4 + suma4;
-    }
-  }
-
   ngOnInit(): void {
     this.getRol();
-    this.sumPercent();
   }
 
+  cacheSpan(key, accessor) {
+    for (let i = 0; i < this.testDatos.length;) {
+      let currentValue = accessor(this.testDatos[i]);
+      let count = 1;
+
+      for (let j = i + 1; j < this.testDatos.length; j++) {
+        if (currentValue != accessor(this.testDatos[j])) {
+          break;
+        }
+        count++;
+      }
+
+      if (!this.spans[i]) {
+        this.spans[i] = {};
+      }
+
+      this.spans[i][key] = count;
+      i += count;
+    }
+  }
+
+  getRowSpan(col, index) {
+    return this.spans[index] && this.spans[index][col];
+  }
 }
