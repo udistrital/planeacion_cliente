@@ -252,14 +252,14 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.documentos = documentos;
+            this.estadoActividad = data.Data.estadoActividad.nombre;
+            this.verificarFormulario();
             Swal.fire({
               title: 'Documento(s) actualizado(s)',
               text: `Revise el campo de soportes para visualizar o eliminar`,
               icon: 'success',
               showConfirmButton: false,
               timer: 2000
-            }).then(res => {
-              // this.loadData();
             });
           }
         }, (error) => {
@@ -309,14 +309,15 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
+            this.estadoActividad = data.Data.estadoActividad.nombre;
+            this.verificarFormulario();
+
             Swal.fire({
               title: 'Documento Cargado',
               text: `Revise el campo de soportes para visualizar o eliminar`,
               icon: 'success',
               showConfirmButton: false,
               timer: 2000
-            }).then(res => {
-              // this.loadData();
             });
           }
         }, (error) => {
