@@ -7,6 +7,11 @@ import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { Router } from '@angular/router';
 
+class plan {
+  periodos: string[];
+  plan: string;
+}
+
 @Component({
   selector: 'app-evaluacion',
   templateUrl: './evaluacion.component.html',
@@ -107,31 +112,58 @@ export class EvaluacionComponent implements OnInit {
   periodoSelected: boolean;
   periodo: any;
   planSelected: boolean;
-  plan: any;
+  tr2: boolean = true;
+  tr3: boolean = true;
+  tr4: boolean = true;
+  testDatos: any
+  plan = {
+    "periodos": [],
+    "plan": "",
+    "id": ""
+  };
 
-  // testDatos: any = datosTest;
-  testDatos: any = [
-    {
-      numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1.1",
-      indicador: "indicador 1", formula: "x-b", meta: "140", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
-    },
-    {
-      numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1.2",
-      indicador: "indicador 3", formula: "x-d", meta: "1640", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
-    },
-    {
-      numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1.3",
-      indicador: "indicador 3", formula: "x-d", meta: "1640", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
-    },
+  // testDatos: any = [
+  //   {
+  //     numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1",
+  //     indicador: "indicador 1", formula: "x-b", meta: "140", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
+  //   },
+  //   {
+  //     numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1",
+  //     indicador: "indicador 3", formula: "x-d", meta: "1640", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
+  //   },
+  //   {
+  //     numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1",
+  //     indicador: "indicador 3", formula: "x-d", meta: "1640", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
+  //   },
 
 
-    { numero: 2, ponderado: 10, periodo: 2, actividad: "Actividad 2", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 } },
+  //   {
+  //     numero: 2, ponderado: 10, periodo: 2, actividad: "Actividad 2", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
+  //   },
 
-    { numero: 3, ponderado: 20, periodo: 3, actividad: "Actividad 3.1", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 } },
-    { numero: 3, ponderado: 20, periodo: 3, actividad: "Actividad 3.2", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 } },
-    { numero: 3, ponderado: 20, periodo: 3, actividad: "Actividad 3.3", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }, trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 } }
+  //   {
+  //     numero: 3, ponderado: 20, periodo: 3, actividad: "Actividad 3", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
+  //   },
+  //   {
+  //     numero: 3, ponderado: 20, periodo: 3, actividad: "Actividad 3", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
+  //   },
+  //   {
+  //     numero: 3, ponderado: 20, periodo: 3, actividad: "Actividad 3", indicador: "indicador 01", formula: "x-y", meta: "180", trimestre1: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre2: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre3: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 },
+  //     trimestre4: { "numerador": 1, "denominador": 1, "periodo": 4, "acumulado": 19, "meta": 12, "actividad": 32 }
+  //   }
 
-  ];
+  // ];
   rol: string;
 
   constructor(
@@ -144,10 +176,7 @@ export class EvaluacionComponent implements OnInit {
     this.unidadSelected = false;
     this.vigenciaSelected = false;
 
-    this.cacheSpan('numero', d => d.numero)
-    this.cacheSpan('ponderado', d => d.numero + d.ponderado)
-    this.cacheSpan('periodo', d => d.numero + d.ponderado + d.periodo)
-    this.cacheSpan('actividad', d => d.numero + d.ponderado + d.periodo + d.actividad)
+
   }
 
   onChangeU(unidad) {
@@ -168,7 +197,7 @@ export class EvaluacionComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
-      this.loadPeriodo();
+      // this.loadPeriodo();
       if (this.unidadSelected) {
         this.loadPlanes();
       }
@@ -190,6 +219,23 @@ export class EvaluacionComponent implements OnInit {
     } else {
       this.periodoSelected = true;
       this.periodo = periodo;
+      if (periodo.nombre == "Trimestre Dos") {
+        this.tr2 = true;
+        this.tr3 = false;
+        this.tr4 = false;
+      } else if (periodo.nombre == "Trimestre Tres") {
+        this.tr2 = true;
+        this.tr3 = true;
+        this.tr4 = false;
+      } else if (periodo.nombre == "Trimestre Cuatro") {
+        this.tr2 = true;
+        this.tr3 = true;
+        this.tr4 = true;
+      } else {
+        this.tr2 = false;
+        this.tr3 = false;
+        this.tr4 = false;
+      }
     }
   }
 
@@ -207,7 +253,29 @@ export class EvaluacionComponent implements OnInit {
   }
 
   ingresarEvaluacion() {
+    debugger
     this.bandera = true;
+    this.request.get(environment.PLANES_MID, `evaluacion/`+this.vigencia.Id+`/`+this.plan.id+`/`+this.periodo.id).subscribe((data: any) => {
+      if (data) {
+        this.testDatos = data.Data;
+        this.cacheSpan('numero', d => d.numero)
+        this.cacheSpan('ponderado', d => d.numero + d.ponderado)
+        this.cacheSpan('periodo', d => d.numero + d.ponderado + d.periodo)
+        this.cacheSpan('actividad', d => d.numero + d.ponderado + d.periodo + d.actividad)
+        this.cacheSpan('actividadt1', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1)
+        this.cacheSpan('actividadt2', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2)
+        this.cacheSpan('actividadt3', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3)
+        this.cacheSpan('actividadt4', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4)
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   loadVigencias() {
@@ -259,24 +327,28 @@ export class EvaluacionComponent implements OnInit {
   }
 
   loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:61639b8c1634adf976ed4b4c,dependencia_id:` + this.unidad.Id + `,vigencia:` + this.vigencia.Id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `evaluacion/planes_periodo/` + this.vigencia.Id + `/` + this.unidad.Id).subscribe((data: any) => {
       if (data) {
-        this.planes = data.Data;
-        this.planes = this.filterActivos(this.planes);
+        if (data.Data != null) {
+          this.planes = data.Data;
+        } else {
+          Swal.fire({
+            title: 'La unidad no tiene planes con seguimientos avalados para la vigencia selecionada',
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
       }
     }, (error) => {
       Swal.fire({
-        title: 'Error en la operación',
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
+        // title: 'Error en la operación',
+        title: 'La unidad no tiene planes con seguimientos avalados para la vigencia selecionada',
+        icon: 'info',
         showConfirmButton: false,
         timer: 2500
       })
     })
-  }
-
-  filterActivos(data) {
-    return data.filter(e => e.activo == true);
   }
 
   ngOnInit(): void {
