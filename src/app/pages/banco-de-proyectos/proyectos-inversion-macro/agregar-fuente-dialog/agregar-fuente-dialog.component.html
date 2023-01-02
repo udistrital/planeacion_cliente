@@ -13,6 +13,13 @@
             </mat-error>
         </mat-form-field>
         <mat-form-field appearance="fill" [style.width.%]="95">
+          <mat-label id="descripcion">Descripción</mat-label>
+          <input type="text" matInput formControlName="descripcion" placeholder="Ingrese una Descripción" required>
+          <mat-error *ngIf="formEditar.get('descripcion').invalid">
+            {{getErrorMessage(formEditar.get('descripcion'))}}
+          </mat-error>
+      </mat-form-field>
+        <mat-form-field appearance="fill" [style.width.%]="95">
             <mat-label id="desc-input-label">Valor Asignado</mat-label>
             <textarea matInput formControlName="valor" placeholder="Ingrese un valor"
               required></textarea>
@@ -24,7 +31,7 @@
         <mat-card-actions style="text-align: center;">
             <ng-container>
                 <button [disabled]="!formEditar.valid" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
-                  [mat-dialog-close]="formEditar.value">
+                  [mat-dialog-close]="formEditar.value" (click)="addFuente()">
                   Guardar
                 </button>
               </ng-container>
