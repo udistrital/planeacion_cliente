@@ -1,45 +1,50 @@
-import { Component, OnInit, Inject, AfterContentChecked, DoCheck, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, AfterContentChecked, DoCheck, Output, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { RequestManager } from 'src/app/pages/services/requestManager';
-import { FuentesDeApropiacionComponent } from '../fuentes-de-apropiacion/fuentes-de-apropiacion.component';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-agregar-fuente-dialog',
-  templateUrl: './agregar-fuente-dialog.component.html',
-  styleUrls: ['./agregar-fuente-dialog.component.scss']
+  selector: 'app-editar-fuente',
+  templateUrl: './editar-fuente.component.html',
+  styleUrls: ['./editar-fuente.component.scss']
 })
-export class AgregarFuenteDialogComponent implements OnInit {
+export class EditarFuenteComponent implements OnInit {
+
   formEditar: FormGroup;
   nombre: string;
   descripcion: string;
   valor: number;
   required: boolean;
-  constructor(
-    private formBuilder: FormBuilder,
-    public dialogRef: MatDialogRef<AgregarFuenteDialogComponent>,
+  dataRow: any;
+  fuenteId: any;
+
+   
+
+  constructor(private formBuilder: FormBuilder,
+    public dialogRef: MatDialogRef<EditarFuenteComponent>,
     private request: RequestManager,
-    private router: Router,
-  ) {
-    // this.nombre = sub.nombre;
-    // this.valor = sub.valor;
-   }
+    @Inject(MAT_DIALOG_DATA) public data: any) {
+      this.nombre = data.row.nombre;
+      this.descripcion = data.row.descripcion;
+      this.valor = data.row.presupuesto;
+      this.dataRow = data.row;
+     }
 
   ngOnInit(): void {
     this.formEditar = this.formBuilder.group({
       valor: [this.valor, Validators.required],
       nombre: [this.nombre, Validators.required],
-      descripcion: [this.descripcion, Validators.required],      
+      descripcion: [this.descripcion, Validators.required],
     });
-
+    this.loadInfoFuente();
   }
 
-  ngOnDestroy() {    
-    
+  ngOnDestroy(){
+
   }
 
   close(): void {
@@ -54,19 +59,27 @@ export class AgregarFuenteDialogComponent implements OnInit {
     }
   }
 
-  addFuente(){
+  loadInfoFuente() {
+    this.formEditar.get('nombre').setValue(this.nombre);
+    this.formEditar.get('descripcion').setValue(this.descripcion);
+    this.formEditar.get('valor').setValue(this.valor);
+  }
+
+  editFuente() {
+    this.fuenteId = this.dataRow._id;
     let fuentesApropiacion = {      
       activo: true,
       nombre: this.formEditar.get('nombre').value,
       presupuesto: parseInt(this.formEditar.get('valor').value), 
       descripcion: this.formEditar.get('descripcion').value,
-      codigo_abreviacion: ""     
+      codigo_abreviacion: "" ,
+      fecha_creacion: this.dataRow.fecha_creacion,
+
     }
-    
-    this.request.post(environment.PLANES_CRUD, 'fuentes-apropiacion', fuentesApropiacion).subscribe((data: any) => {
+    this.request.put(environment.PLANES_CRUD, 'fuentes-apropiacion', fuentesApropiacion, this.fuenteId).subscribe((data: any) => {
       if (data) {
         Swal.fire({
-          title: 'Fuente de apropiacion agregada',
+          title: 'Fuente de apropiacion editada',
           icon: 'success',
           showConfirmButton: false,
           timer: 2500
@@ -81,7 +94,6 @@ export class AgregarFuenteDialogComponent implements OnInit {
         timer: 2500
       })
     })
-    //FuentesDeApropiacionComponent.reloadFuentes()
   }
 
 }

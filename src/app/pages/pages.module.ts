@@ -92,6 +92,7 @@ import { AgregarFuenteDialogComponent } from './banco-de-proyectos/proyectos-inv
 import { AgregarMetaDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-meta-dialog/agregar-meta-dialog.component';
 import { CargarSoportesDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/cargar-soportes-dialog/cargar-soportes-dialog.component';
 import { FuenteApropiacionDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-dialog.component';
+import { EditarFuenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/editar-fuente/editar-fuente.component';
 
 
 
@@ -207,6 +208,7 @@ const MY_FORMATS = {
     AgregarMetaDialogComponent,
     CargarSoportesDialogComponent,
     FuenteApropiacionDialogComponent,
+    EditarFuenteComponent,
   ],
   imports: [
     HttpClientModule,
