@@ -743,24 +743,24 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.datosIndicadores[index].reporteDenominador = denominador;
         this.datosIndicadores[index].reporteNumerador = numerador;
         if (denominador != NaN && numerador != NaN) {
-          this.datosResultados[index].indicador = this.seguimiento.cuantitativo.resultados[index].indicador + Math.round(numerador / denominador * 10) / 10;
+          this.datosResultados[index].indicador = Math.round((this.seguimiento.cuantitativo.resultados[index].indicador + numerador / denominador) * 100) / 100;
           if (!this.denominadorFijo) {
             denominador += this.datosResultados[index].acumuladoDenominador;
           }
-          this.datosResultados[index].indicadorAcumulado = this.seguimiento.cuantitativo.resultados[index].indicadorAcumulado + Math.round((this.datosResultados[index].acumuladoNumerador + numerador) / denominador * 10) / 10;
+          this.datosResultados[index].indicadorAcumulado = Math.round(this.seguimiento.cuantitativo.resultados[index].indicadorAcumulado + ((this.datosResultados[index].acumuladoNumerador + numerador) / denominador) * 100) / 100;
 
           var meta = parseInt(element.meta);
           var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
           if (this.tendencia = "Creciente") {
-            this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / meta * 100 * 10) / 10;
+            this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / meta * 100 * 100) / 100;
           } else if (this.tendencia = "Decreciente") {
             if (indicadorAcumulado < meta) {
-              this.datosResultados[index].avanceAcumulado = Math.round(1 + ((meta - indicadorAcumulado) / meta) * 10) / 10;
+              this.datosResultados[index].avanceAcumulado = Math.round(1 + ((meta - indicadorAcumulado) / meta) * 100) / 100;
             } else {
-              this.datosResultados[index].avanceAcumulado = Math.round(1 - ((meta - indicadorAcumulado) / meta) * 10) / 10;
+              this.datosResultados[index].avanceAcumulado = Math.round(1 - ((meta - indicadorAcumulado) / meta) * 100) / 100;
             }
           }
-          this.datosResultados[index].brechaExistente = Math.round((meta - indicadorAcumulado) * 10) / 10;
+          this.datosResultados[index].brechaExistente = Math.round((meta - indicadorAcumulado) * 100) / 100;
           this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
         }
       } else {
@@ -860,5 +860,54 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }
 
     return false
+  }
+
+  retornarRevision() {
+    Swal.fire({
+      title: 'Retornar estado',
+      text: `¿Desea retornar la actividad al estado Actividad reportada?`,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/retornar_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Información de seguimiento actualizada',
+              text: 'Se ha actualizado el estado de la actividad satisfactoriamente',
+              icon: 'success'
+            }).then(res => {
+              this.loadData();
+            });
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible retornar el estado`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cambio de estado cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 }

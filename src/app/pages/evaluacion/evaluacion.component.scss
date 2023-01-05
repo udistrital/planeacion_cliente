@@ -11,6 +11,19 @@ th {
   text-align: center;
 }
 
+.wrap{ 
+  white-space: pre-wrap;      /* CSS3 */   
+  white-space: -moz-pre-wrap; /* Firefox */    
+  white-space: -pre-wrap;     /* Opera <7 */   
+  white-space: -o-pre-wrap;   /* Opera 7 */    
+  word-wrap: break-word;      /* IE */
+  border:1px solid blue;
+  height:48px;
+  max-height: 96px;
+  overflow: auto;
+  width:200px;
+}
+
 .selectorPlanStyle {
   width: 75%;
   padding-right: 5%;
@@ -22,17 +35,6 @@ th {
 
 .align-button-ingresar {
   text-align: center;
-}
-
-.background-sum {
-  color: black;
-  background-color: white;
-  border: 1px solid var(--primary);
-  text-align: center;
-}
-
-.ng-container {
-  width: 32%;
 }
 
 .textGuide {

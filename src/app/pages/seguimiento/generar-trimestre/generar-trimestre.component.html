@@ -3,7 +3,7 @@
         <div style="text-align:center;">
             <mat-card-title>SEGUIMIENTO PLANES DE ACCIÓN</mat-card-title>
             <div style="text-align: center;">
-                Unidad Académico y/o administrativa  <b>{{unidad}}</b>
+                Unidad Académico y/o administrativa <b>{{unidad}}</b>
             </div>
             <br>
             <u class="textGuide">
@@ -427,7 +427,11 @@
                 *ngIf="rol=='PLANEACION' && (readonlyObservacion || estadoActividad==='Sin reporte' || estadoActividad==='Actividad en reporte' || estadoActividad==='Actividad avalada')">
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
+                <button class="background-button" mat-raised-button color="primary"
+                    *ngIf="estadoActividad==='Actividad avalada'" (click)="retornarRevision()">Retornar a
+                    revisión</button>
             </div>
+
             <div class="align-button-enviar"
                 *ngIf="rol=='PLANEACION' && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada' )">
                 <button class="background-button" mat-raised-button color="primary" (click)="guardarRevision()">Guardar
