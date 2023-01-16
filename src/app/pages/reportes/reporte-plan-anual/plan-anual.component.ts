@@ -310,7 +310,7 @@ export class PlanAnualComponent implements OnInit {
           vigencia: (vigencia.Id).toString(),
         }
 
-        this.request.post(environment.PLANES_MID_PROXY, `reportes/plan_anual_general/`+ plan.nombre, body).subscribe((data: any) => {
+        this.request.post(environment.PLANES_MID, `reportes/plan_anual_general/`+ plan.nombre, body).subscribe((data: any) => {
           if (data) {
             let infoReportes : any[] = data.Data.generalData;
             this.dataSource.data= [];
