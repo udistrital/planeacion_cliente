@@ -5,6 +5,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { MatTableModule } from '@angular/material/table'
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { AppComponent } from './app.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
@@ -22,6 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ROUTES } from '@angular/router';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatMomentDateModule, MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_ADAPTER_OPTIONS_FACTORY } from '@angular/material-moment-adapter';
+import { GoogleChartsModule } from 'angular-google-charts';
 
 @NgModule({
   declarations: [
@@ -46,8 +48,10 @@ import { MatMomentDateModule, MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_A
     MatDatepickerModule,
     MatSlideToggleModule,
     MatMomentDateModule,
+    MatPaginatorModule,
     MatButtonToggleModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    GoogleChartsModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }, CurrencyPipe, { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

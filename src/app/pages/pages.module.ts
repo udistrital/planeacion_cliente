@@ -43,7 +43,7 @@ import { SeguimientoComponentList } from './seguimiento/listar-plan-accion-anual
 import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/gestion-seguimiento.component';
 import { ReportarPeriodoComponent } from './seguimiento/reportar-periodo/reportar-periodo.component';
 import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/generar-trimestre.component';
-import { Evidencias } from './seguimiento/evidencias/evidencias.component';
+import { EvidenciasDialogComponent } from './seguimiento/evidencias/evidencias-dialog.component';
 import { ArbolComponent } from './plan/arbol/arbol.component';
 import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agregar-dialog.component';
 import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
@@ -84,6 +84,15 @@ import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/repor
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
 import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/construir-plan-proyecto.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { GoogleChartsModule } from 'angular-google-charts';
+import { FuentesDeApropiacionComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuentes-de-apropiacion/fuentes-de-apropiacion.component';
+import { ProyectosDeInversionVigentesComponent } from './banco-de-proyectos/proyectos-inversion-macro/proyectos-de-inversion-vigentes/proyectos-de-inversion-vigentes.component';
+import { AgregarProyectoVigenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-proyecto-vigente/agregar-proyecto-vigente.component';
+import { AgregarFuenteDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-fuente-dialog/agregar-fuente-dialog.component';
+import { AgregarMetaDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-meta-dialog/agregar-meta-dialog.component';
+import { CargarSoportesDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/cargar-soportes-dialog/cargar-soportes-dialog.component';
+import { FuenteApropiacionDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-dialog.component';
+import { EditarFuenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/editar-fuente/editar-fuente.component';
 
 
 
@@ -100,7 +109,7 @@ const pagesComponents = [
   SeguimientoComponentGestion,
   ReportarPeriodoComponent,
   GenerarTrimestreComponent,
-  Evidencias,
+  EvidenciasDialogComponent,
   FormulacionComponent,
   AgregarDialogComponent,
   EditarDialogComponent,
@@ -153,7 +162,7 @@ const MY_FORMATS = {
     SeguimientoComponentGestion,
     ReportarPeriodoComponent,
     GenerarTrimestreComponent,
-    Evidencias,
+    EvidenciasDialogComponent,
     ArbolComponent,
     AgregarDialogComponent,
     EditarDialogComponent,
@@ -192,6 +201,14 @@ const MY_FORMATS = {
     ReporteFuncionamientoComponent,
     ReporteInversionComponent,
     ConstruirPlanProyectoComponent,
+    FuentesDeApropiacionComponent,
+    ProyectosDeInversionVigentesComponent,
+    AgregarProyectoVigenteComponent,
+    AgregarFuenteDialogComponent,
+    AgregarMetaDialogComponent,
+    CargarSoportesDialogComponent,
+    FuenteApropiacionDialogComponent,
+    EditarFuenteComponent,
   ],
   imports: [
     HttpClientModule,
@@ -212,6 +229,7 @@ const MY_FORMATS = {
     MatGridListModule,
     MatButtonModule,
     MatButtonToggleModule,
+    GoogleChartsModule,
     ...materialModules
   ],
   providers: [

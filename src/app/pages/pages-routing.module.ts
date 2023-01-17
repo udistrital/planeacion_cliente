@@ -15,7 +15,6 @@ import { ReportarPeriodoComponent } from './seguimiento/reportar-periodo/reporta
 import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/generar-trimestre.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
-import { Evidencias } from './seguimiento/evidencias/evidencias.component';
 import { ConstruccionModulComponent } from './construccion-modul/construccion-modul.component';
 import { PUIComponent } from './pui/pui.component';
 import { PedComponent } from './ped/ped.component';
@@ -44,6 +43,10 @@ import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/c
 
 import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/reporte-funcionamiento/reporte-funcionamiento.component';
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
+import { FuentesDeApropiacionComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuentes-de-apropiacion/fuentes-de-apropiacion.component';
+import { ProyectosDeInversionVigentesComponent } from './banco-de-proyectos/proyectos-inversion-macro/proyectos-de-inversion-vigentes/proyectos-de-inversion-vigentes.component';
+import { AgregarProyectoVigenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-proyecto-vigente/agregar-proyecto-vigente.component';
+import { FuenteApropiacionDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-dialog.component';
 
 const routes: Routes = [{
   path: '',
@@ -182,6 +185,22 @@ const routes: Routes = [{
       component: PagesComponent,
       children:[
         {
+          path: 'fuentes-de-apropiacion',
+          component: FuentesDeApropiacionComponent,
+        },
+        {
+          path: 'proyectos-de-inversion-vigentes',
+          component: ProyectosDeInversionVigentesComponent,
+        },
+        {
+          path: 'agregar-proyecto-vigente',
+          component: AgregarProyectoVigenteComponent,
+        },
+        {
+          path: 'fuente-apropiacion-dialog',
+          component: FuenteApropiacionDialogComponent,
+        },
+        {
           path: 'consultar-proyecto',
           component: ConsultarProyectoInversionComponent,
         },
@@ -266,10 +285,6 @@ const routes: Routes = [{
         {
           path: 'generar-trimestre/:plan_id/:index/:trimestre_id',
           component: GenerarTrimestreComponent,
-        },
-        {
-          path: 'app-evidencias',
-          component: Evidencias,
         },
         
       ]

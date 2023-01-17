@@ -32,6 +32,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   vigencias: any[];
   vigenciaSelected: boolean;
   vigencia: any;
+  plan: any;
   testDatos: any = datosTest;
   rol: string;
   periodoHabilitado: boolean;
@@ -60,11 +61,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.data = [];
-    /* if (this.rol === 'PLANEACION'){ */
-    // this.loadPlanes("vigencia");
-    /* } else if (this.rol === 'JEFE_DEPENDENCIA'){
-      this.loadPlanes("unidad");
-    } */
   }
 
   ngOnInit(): void {
@@ -107,21 +103,15 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                   this.auxUnidades.push(unidad);
                   this.formSelect.get('selectUnidad').setValue(unidad);
                   this.onChangeU(unidad);
-
                 }
               })
             })
         })
-
     })
   }
 
   gestion() {
     window.location.href = '#/pages/seguimiento/gestion-seguimiento';
-  }
-
-  traerDatos() {
-    //console.log('si entra en traer datos');
   }
 
   applyFilter(event: Event) {
@@ -186,13 +176,19 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   loadPeriodos() {
+    Swal.fire({
+      title: 'Cargando períodos',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
       if (data) {
         this.vigencias = data.Data;
         if (this.rol != undefined && this.rol == 'PLANEACION') {
           this.loadPlanes("vigencia");
-        } else {
-
         }
       }
     }, (error) => {
@@ -207,7 +203,10 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   async loadFechas() {
-    await this.loadPlanes("unidad");
+    if (this.unidadSelected) {
+      await this.loadPlanes("unidad");
+    }
+
     if (this.vigencia) {
       Swal.fire({
         title: 'Cargando períodos',
@@ -218,10 +217,11 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         },
       })
 
-      this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
+      this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe(async (data: any) => {
         if (data) {
-          if (data.Data != "") {
+          if (data.Data != "" && data.Data != null) {
             let periodos = data.Data;
+            Swal.close();
 
             Swal.fire({
               title: 'Cargando Fechas',
@@ -235,12 +235,12 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
               let trimestres = { t1: {}, t2: {}, t3: {}, t4: {} }
               for (let i = 0; i < periodos.length; i++) {
-                this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=periodo_id:` + periodos[i].Id).subscribe((data: any) => {
+                await this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe((data: any) => {
                   if (data && data.Data != "") {
                     let seguimiento = data.Data[0];
 
-                    let fechaInicio = new Date(seguimiento["fecha_inicio"]);
-                    let fechaFin = new Date(seguimiento["fecha_fin"]);
+                    let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
+                    let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
 
                     if (i == 0) {
                       this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
@@ -261,23 +261,34 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                     }
 
                     if (Object.keys(trimestres.t1).length !== 0 && Object.keys(trimestres.t2).length !== 0 && Object.keys(trimestres.t3).length !== 0 && Object.keys(trimestres.t4).length !== 0) {
-                      this.dataSource.data = this.allPlanes.filter(plan => plan.vigencia == this.vigencia.Nombre);
+                      let datos = this.allPlanes.filter(plan => plan.vigencia == this.vigencia.Nombre);
+                      this.dataSource.data = datos;
+
+                      Swal.fire({
+                        title: 'Cargando Fechas',
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                          Swal.showLoading();
+                        },
+                      })
                       for (let index = 0; index < this.dataSource.data.length; index++) {
                         const plan = this.dataSource.data[index];
 
                         for (let trimestre in trimestres) {
-                          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,plan_id:` + plan._id + `,periodo_seguimiento_id:` + trimestres[trimestre]["id"]).subscribe((data: any) => {
+                          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,plan_id:` + plan._id + `,periodo_seguimiento_id:` + trimestres[trimestre]["id"]).subscribe(async (data: any) => {
                             if (data.Data.length != 0) {
 
-                              this.request.get(environment.PLANES_CRUD, `estado-seguimiento/` + data.Data[0].estado_seguimiento_id).subscribe((estado: any) => {
+                              await this.request.get(environment.PLANES_CRUD, `estado-seguimiento/` + data.Data[0].estado_seguimiento_id).subscribe((estado: any) => {
                                 if (estado && estado.Data != null) {
                                   let auxFecha = new Date();
                                   let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
                                   let strFechaHoy = new Date(auxFechaCol).toISOString();
                                   let fechaHoy = new Date(strFechaHoy);
 
-                                  if (estado.Data.nombre == "Avalada") {
+                                  if (estado.Data.nombre == "Reporte Avalado") {
                                     this.dataSource.data[index][trimestre + "class"] = "verde";
+                                    this.dataSource.data[index]["estado"] = estado.Data.nombre;
                                   } else if (fechaHoy >= trimestres[trimestre]["fecha_inicio"] && fechaHoy <= trimestres[trimestre]["fecha_fin"]) {
                                     this.dataSource.data[index][trimestre + "class"] = "amarillo";
                                     this.dataSource.data[index]["estado"] = estado.Data.nombre;
@@ -285,7 +296,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                                     this.dataSource.data[index][trimestre + "class"] = "gris";
                                   }
                                   this.dataSource.data[index][trimestre + "estado"] = estado.Data.nombre;
-
+                                  this.allPlanes = this.dataSource.data;
                                 } else {
                                   Swal.fire({
                                     title: 'Error en la operación',
@@ -296,11 +307,12 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                                   });
                                 }
                               })
-
                             }
                           });
                         }
+                        Swal.close();
                       }
+                      Swal.close();
                     }
                   } else {
                     Swal.fire({
@@ -310,14 +322,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                       showConfirmButton: false,
                       timer: 2500
                     });
-                    this.formFechas.get('fecha1').setValue(null);
-                    this.formFechas.get('fecha2').setValue(null);
-                    this.formFechas.get('fecha3').setValue(null);
-                    this.formFechas.get('fecha4').setValue(null);
-                    this.formFechas.get('fecha5').setValue(null);
-                    this.formFechas.get('fecha6').setValue(null);
-                    this.formFechas.get('fecha7').setValue(null);
-                    this.formFechas.get('fecha8').setValue(null);
+                    this.limpiarCampoFechas();
                   }
                 }, (error) => {
                   Swal.fire({
@@ -327,18 +332,10 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                     showConfirmButton: false,
                     timer: 2500
                   });
-                  this.formFechas.get('fecha1').setValue(null);
-                  this.formFechas.get('fecha2').setValue(null);
-                  this.formFechas.get('fecha3').setValue(null);
-                  this.formFechas.get('fecha4').setValue(null);
-                  this.formFechas.get('fecha5').setValue(null);
-                  this.formFechas.get('fecha6').setValue(null);
-                  this.formFechas.get('fecha7').setValue(null);
-                  this.formFechas.get('fecha8').setValue(null);
+                  this.limpiarCampoFechas();
                 })
               }
             } else {
-              Swal.close();
               Swal.fire({
                 title: 'Error en la operación',
                 text: `No se encuentran tirmestres habilitados para esta vigencia`,
@@ -346,19 +343,9 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                 showConfirmButton: false,
                 timer: 2500
               });
-              this.formFechas.get('fecha1').setValue(null);
-              this.formFechas.get('fecha2').setValue(null);
-              this.formFechas.get('fecha3').setValue(null);
-              this.formFechas.get('fecha4').setValue(null);
-              this.formFechas.get('fecha5').setValue(null);
-              this.formFechas.get('fecha6').setValue(null);
-              this.formFechas.get('fecha7').setValue(null);
-              this.formFechas.get('fecha8').setValue(null);
+              this.limpiarCampoFechas();
             }
-
-            Swal.close();
           } else {
-            Swal.close();
             Swal.fire({
               title: 'Error en la operación',
               text: `No se encontraron trimestres para esta vigencia`,
@@ -366,14 +353,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               showConfirmButton: false,
               timer: 2500
             });
-            this.formFechas.get('fecha1').setValue(null);
-            this.formFechas.get('fecha2').setValue(null);
-            this.formFechas.get('fecha3').setValue(null);
-            this.formFechas.get('fecha4').setValue(null);
-            this.formFechas.get('fecha5').setValue(null);
-            this.formFechas.get('fecha6').setValue(null);
-            this.formFechas.get('fecha7').setValue(null);
-            this.formFechas.get('fecha8').setValue(null);
+            this.limpiarCampoFechas();
           }
         }
       }, (error) => {
@@ -386,14 +366,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         })
       })
     } else {
-      this.formFechas.get('fecha1').setValue(null);
-      this.formFechas.get('fecha2').setValue(null);
-      this.formFechas.get('fecha3').setValue(null);
-      this.formFechas.get('fecha4').setValue(null);
-      this.formFechas.get('fecha5').setValue(null);
-      this.formFechas.get('fecha6').setValue(null);
-      this.formFechas.get('fecha7').setValue(null);
-      this.formFechas.get('fecha8').setValue(null);
+      this.limpiarCampoFechas();
     }
   }
 
@@ -410,8 +383,12 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.allPlanes = this.dataSource.data;
   }
 
-  onChangeP(plan) {
-    if (plan == undefined) {
+  onChangeP(plan, recursivo) {
+    this.plan = plan;
+    if (recursivo) {
+      this.onChangeV(this.vigencia, false);
+    }
+    if (plan == undefined || (plan == undefined && this.vigencia == undefined)) {
       this.dataSource.data = this.planes;
     } else {
       this.dataSource.data = this.searchP(plan[0]);
@@ -420,16 +397,33 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
   }
 
-  onChangeV(vigencia) {
-    this.vigencia = vigencia
-    this.loadFechas();
+  onChangeV(vigencia, recursivo) {
+    this.vigencia = vigencia;
+    if (this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined)) {
+      this.dataSource.data = this.planes;
+      this.plan = undefined;
+    } else {
+      this.loadFechas();
+    }
+    if (recursivo) {
+      this.onChangeP(this.plan, false);
+    }
   }
 
   loadPlanes(tipo) {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     if (tipo == "unidad") {
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,dependencia_id:` + this.unidad.Id).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
+            data.Data.sort(function (a, b) { return b.vigencia - a.vigencia; });
             this.planes = data.Data;
             this.getUnidades();
             this.getEstados();
@@ -462,6 +456,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
+            data.Data.sort(function (a, b) { return b.vigencia - a.vigencia; });
             this.planes = data.Data;
             this.getUnidades();
             this.getEstados();
@@ -503,6 +498,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         })
       })
     }
+    Swal.close();
   }
 
   getUnidades() {
@@ -559,14 +555,21 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
-        })
-
-      })
-    }
+        });
+      });
+    };
   }
 
   getPeriodos() {
     for (let i = 0; i < this.planes.length; i++) {
+      Swal.fire({
+        title: 'Cargando información',
+        timerProgressBar: true,
+        showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+      })
       this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planes[i]._id + `,activo:true`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
@@ -613,6 +616,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         })
 
       })
+      Swal.close();
     }
   }
 
@@ -643,9 +647,20 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   onTrimestreChange(trimestre: any, id: any) {
     let index = this.dataSource.data.findIndex(row => row._id == id)
     if (this.vigencia) {
-      this.dataSource.data[index]["estado"] = this.dataSource.data[index][trimestre + "estado"];
+      this.dataSource.data[index]["estado"] = this.dataSource.data[index][trimestre.toLowerCase() + "estado"];
     }
     this.dataSource.data[index]["trimestre"] = trimestre;
 
+  }
+
+  limpiarCampoFechas() {
+    this.formFechas.get('fecha1').setValue(null);
+    this.formFechas.get('fecha2').setValue(null);
+    this.formFechas.get('fecha3').setValue(null);
+    this.formFechas.get('fecha4').setValue(null);
+    this.formFechas.get('fecha5').setValue(null);
+    this.formFechas.get('fecha6').setValue(null);
+    this.formFechas.get('fecha7').setValue(null);
+    this.formFechas.get('fecha8').setValue(null);
   }
 }

@@ -3,99 +3,370 @@
     <mat-card-title>Evaluación planes de acción anuales</mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    <ng-container>
+      <div>
+        <div>
+          <u class="textGuide">
+            A continuación encontrará un listado de unidades y vigencia, usted debe realizar la selección en cada una de
+            las listas correspondientes.
+          </u>
+          <br>
+        </div>
+      </div>
+    </ng-container>
     <mat-form-field class="selectorPlanStyle" appearance="fill">
-      <mat-label id="tipo-input-label">Seleccionar Unidad</mat-label>
-        <mat-select id="test" (selectionChange)="onChangeU($event.value)">
-          <mat-option>--</mat-option>
-          <mat-option *ngFor="let unidad of unidades" [value]="unidad">
-            {{unidad.Nombre}}
-          </mat-option>
-        </mat-select>
+      <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
+      <mat-select id="test" (selectionChange)="onChangeU($event.value)">
+        <mat-option>--</mat-option>
+        <mat-option *ngFor="let unidad of unidades" [value]="unidad">
+          {{unidad.Nombre}}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="selectorVigenciaStyle" appearance="fill">
-      <mat-label id="tipo-input-label">Vigencia</mat-label>
-        <mat-select (selectionChange)="onChangeV($event.value)">
+      <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
+      <mat-select (selectionChange)="onChangeV($event.value)">
+        <mat-option>--</mat-option>
+        <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
+          {{vigencia.Nombre}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div *ngIf="vigenciaSelected && unidadSelected">
+      <mat-form-field class="selectorPlanStyle" appearance="fill">
+        <mat-label id="tipo-input-label">Seleccione el Plan de acción</mat-label>
+        <mat-select (selectionChange)="onChangeP($event.value)">
           <mat-option>--</mat-option>
-          <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
-            {{vigencia.Nombre}}
+          <mat-option *ngFor="let plan of planes" [value]="plan">
+            {{plan.plan}}
           </mat-option>
         </mat-select>
-    </mat-form-field>
-  </mat-card-content>
-  <div class="align-button-ingresar">
-      <button *ngIf="unidadSelected != false && vigenciaSelected != false" (click)="ingresarEvaluacion()" class="btn-gestion-seg" mat-raised-button color="primary">Ingresar Evaluación</button>
-  </div>
+      </mat-form-field>
 
-  <div *ngIf="bandera === true">
-    <mat-card-header>
-      <mat-card-title>Evaluación planes de acción anuales</mat-card-title>
-    </mat-card-header>
-    <table mat-table [dataSource]="testDatos" matSort>
-      <ng-container matColumnDef="id" >
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> N° </th>
-          <td mat-cell *matCellDef="let row">{{row.numero}}</td>
-      </ng-container>
-      <ng-container matColumnDef="unidad">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Ponderación actividad </th>
-          <td mat-cell *matCellDef="let row"> {{row.ponderacion}} </td>
-      </ng-container>
-      <ng-container matColumnDef="estado">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Trimestre 1 </th>
-          <td mat-cell *matCellDef="let row"> {{row.trimestre1}}% </td>
-      </ng-container>
-      <ng-container matColumnDef="vigencia">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Trimestre 2 </th>
-          <td mat-cell *matCellDef="let row">
-            {{row.trimestre2}}%
-      </td>
-      </ng-container>
-      <ng-container matColumnDef="periodo">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Trimestre 3 </th>
-          <td mat-cell *matCellDef="let row">
-            {{row.trimestre3}}%
-          </td>
-      </ng-container>
-      <ng-container matColumnDef="seguimiento">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Trimestre 4 </th>
-          <td mat-cell *matCellDef="let row">
-            {{row.trimestre4}}%
-      </td>
-      </ng-container>
-      <div>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </div>
-      <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell" colspan="4"></td>
-      </tr>
-    </table>
-    <br>
-    <table mat-table [dataSource]="testDatos" matSort>
-      <ng-container matColumnDef="avance" >
-          <th class="ng-container" mat-header-cell *matHeaderCellDef mat-sort-header> % Avance general </th>
-      </ng-container>
-      <ng-container matColumnDef="sumaT1">
-          <th id="sum1" class="background-sum" mat-header-cell *matHeaderCellDef > {{sumaT1}}% </th>
-      </ng-container>
-      <ng-container matColumnDef="sumaT2">
-          <th class="background-sum" mat-header-cell *matHeaderCellDef> {{sumaT2}}% </th>
-      </ng-container>
-      <ng-container matColumnDef="sumaT3">
-          <th class="background-sum" mat-header-cell *matHeaderCellDef> {{sumaT3}}% </th>
-      </ng-container>
-      <ng-container matColumnDef="sumaT4">
-          <th class="background-sum" mat-header-cell *matHeaderCellDef> {{sumaT4}}% </th>
-      </ng-container>
-      <div>
-          <tr mat-header-row *matHeaderRowDef="displayedColumnsSum"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumnsSum;"></tr>
-      </div>
-      <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell" colspan="4"></td>
-      </tr>
-    </table>
-    <div class="align-button-ingresar">
-        <button class="btn-gestion-seg" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
+      <mat-form-field class="selectorVigenciaStyle" appearance="fill">
+        <mat-label id="tipo-input-label">Seleccione el Periodo</mat-label>
+        <mat-select (selectionChange)="onChangePe($event.value)">
+          <mat-option>--</mat-option>
+          <mat-option *ngFor="let periodo of plan.periodos" [value]="periodo">
+            {{periodo.nombre}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
-  </div>
-  </mat-card>
+
+    <div class="align-button-ingresar">
+      <button *ngIf="unidadSelected != false && vigenciaSelected != false"
+        [disabled]="!(planSelected && periodoSelected)" (click)="ingresarEvaluacion()" class="btn-gestion-seg"
+        mat-raised-button color="primary">Consultar Evaluación</button>
+    </div>
+    <br>
+    <div>
+      <div *ngIf="bandera === true">
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <google-chart [title]="pieTitle" [type]="pieType" style="width: 30%;" height="400" [data]="pieChartData"
+            [columns]="pieChartColumns" [options]="pieChartOptions"></google-chart>
+
+          <google-chart [type]="columnType" [data]="lineChartData" style="width: 70%;" dynamicResize="true" height="400"
+            [columns]="lineChartColumnNames" [options]="lineChartOptions"></google-chart>
+        </div>
+
+        <br>
+        <mat-card-header>
+          <mat-card-title>Evaluación planes de acción anuales</mat-card-title>
+        </mat-card-header>
+
+        <br>
+
+        <div class="table-responsive">
+          <table mat-table [dataSource]="actividades" matSort #table>
+            <ng-container matColumnDef="id" sticky>
+              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('numero',i)"
+                [style.display]="getRowSpan('numero', i) ? '' : 'none'">{{row.numero}}</td>
+              <td mat-footer-cell *matFooterCellDef colspan="7" [style.text-align]="center"> Avance General Plan de
+                accion
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="ponderacion" sticky>
+              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"> </th>
+              <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('ponderado',i)"
+                [style.display]="getRowSpan('ponderado', i) ? '' : 'none'">
+                {{row.ponderado}} </td>
+              <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
+            </ng-container>
+            <ng-container matColumnDef="periodo" sticky>
+              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('periodo',i)"
+                [style.display]="getRowSpan('periodo', i) ? '' : 'none'"> {{row.periodo}}
+              </td>
+              <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
+            </ng-container>
+            <ng-container matColumnDef="actividad" sticky style="border-collapse: separate">
+              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('actividad',i)"
+                [style.display]="getRowSpan('actividad', i) ? '' : 'none'">
+                {{row.actividad}} </td>
+              <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
+            </ng-container>
+
+            <ng-container matColumnDef="indicador" sticky style="border-collapse: separate">
+              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell *matCellDef="let item"> {{item.indicador}}</td>
+              <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
+            </ng-container>
+            <ng-container matColumnDef="formula" sticky>
+              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell *matCellDef="let row"> {{row.formula}} </td>
+              <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
+            </ng-container>
+            <ng-container matColumnDef="meta" sticky>
+              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell *matCellDef="let row"> {{row.meta}}</td>
+              <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
+            </ng-container>
+
+            <!-- trimestre 1 -->
+            <ng-container matColumnDef="numt1">
+              <th mat-header-cell class="header2" *matHeaderCellDef> Numerador </th>
+              <td mat-cell *matCellDef="let row"> {{row.trimestre1.numerador}} </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="dent1">
+              <th mat-header-cell class="header2" *matHeaderCellDef> Denominador </th>
+              <td mat-cell *matCellDef="let row"> {{row.trimestre1.denominador}} </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="pert1">
+              <th mat-header-cell class="header2" *matHeaderCellDef> Indicador del periodo</th>
+              <td mat-cell *matCellDef="let row"> {{row.trimestre1.periodo}}% </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="acut1">
+              <th mat-header-cell class="header2" *matHeaderCellDef> Indicador acumulado </th>
+              <td mat-cell *matCellDef="let row"> {{row.trimestre1.acumulado}}% </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="metat1">
+              <th mat-header-cell class="header2" *matHeaderCellDef> Cumplimiento por meta </th>
+              <td mat-cell *matCellDef="let row"> {{row.trimestre1.meta}}% </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="actividadt1">
+              <th mat-header-cell class="header2" *matHeaderCellDef> Cumplimiento por actividad</th>
+              <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('actividadt1',i)"
+                [style.display]="getRowSpan('actividadt1', i) ? '' : 'none'"> {{row.trimestre1.actividad}}%</td>
+              <td mat-footer-cell *matFooterCellDef>{{avanceTr1}}%</td>
+            </ng-container>
+
+            <!-- trimestre 2 -->
+            <ng-container matColumnDef="numt2">
+              <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Numerador </th>
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre2.numerador}} </td>
+              <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="dent2">
+              <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Denominador
+              </th>
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre2.denominador}}
+              </td>
+              <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="pert2">
+              <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Indicador del
+                periodo</th>
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre2.periodo}}% </td>
+              <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="acut2">
+              <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Indicador
+                acumulado </th>
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre2.acumulado}}%
+              </td>
+              <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="metat2">
+              <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Cumplimiento
+                por
+                meta </th>
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre2.meta}}% </td>
+              <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="actividadt2">
+              <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Cumplimiento
+                por
+                actividad</th>
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row; let i = index"
+                [attr.rowspan]="getRowSpan('actividadt2',i)"
+                [style.display]="getRowSpan('actividadt2', i) && tr2 ? '' : 'none'">
+                {{row.trimestre2.actividad}}%</td>
+              <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef>{{avanceTr2}}%</td>
+            </ng-container>
+
+            <!-- trimestre 3 -->
+            <ng-container matColumnDef="numt3">
+              <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Numerador </th>
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre3.numerador}} </td>
+              <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="dent3">
+              <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Denominador
+              </th>
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre3.denominador}}
+              </td>
+              <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="pert3">
+              <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Indicador del
+                periodo</th>
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre3.periodo}}% </td>
+              <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="acut3">
+              <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Indicador
+                acumulado </th>
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre3.acumulado}}%
+              </td>
+              <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="metat3">
+              <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Cumplimiento
+                por
+                meta </th>
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre3.meta}}% </td>
+              <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="actividadt3">
+              <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Cumplimiento
+                por
+                actividad</th>
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row; let i = index"
+                [attr.rowspan]="getRowSpan('actividadt3',i)"
+                [style.display]="getRowSpan('actividadt3', i) && tr3 ? '' : 'none'">
+                {{row.trimestre3.actividad}}%</td>
+              <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef>{{avanceTr3}}%</td>
+            </ng-container>
+
+            <!-- trimestre 4 -->
+            <ng-container matColumnDef="numt4">
+              <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Numerador </th>
+              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre4.numerador}} </td>
+              <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="dent4">
+              <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Denominador
+              </th>
+              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre4.denominador}}
+              </td>
+              <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="pert4">
+              <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Indicador del
+                periodo</th>
+              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre4.periodo}}% </td>
+              <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="acut4">
+              <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Indicador
+                acumulado </th>
+              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre4.acumulado}}%
+              </td>
+              <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="metat4">
+              <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Cumplimiento
+                por
+                meta </th>
+              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre4.meta}}% </td>
+              <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="actividadt4">
+              <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Cumplimiento
+                por
+                actividad</th>
+              <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('actividadt4',i)"
+                [style.display]="getRowSpan('actividadt4', i) && tr4 ? '' : 'none'">
+                {{row.trimestre4.actividad}}%</td>
+              <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef>{{avanceTr4}}%</td>
+            </ng-container>
+
+
+            <!-- Headers -->
+            <ng-container matColumnDef="idP" sticky>
+              <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef [style.text-align]="center"
+                [attr.rowspan]="2">N°</th>
+            </ng-container>
+
+            <ng-container matColumnDef="ponderacionP" sticky>
+              <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef [style.text-align]="center"
+                [attr.rowspan]="2">Pond.</th>
+            </ng-container>
+
+            <ng-container matColumnDef="periodoP" sticky>
+              <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef [style.text-align]="center"
+                [attr.rowspan]="2">Periodo de ejecución</th>
+            </ng-container>
+
+            <ng-container matColumnDef="actividadP" sticky>
+              <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef [style.text-align]="center"
+                [attr.rowspan]="2">Actividad general</th>
+            </ng-container>
+
+            <ng-container matColumnDef="indicadorP" sticky>
+              <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef [style.text-align]="center"
+                [attr.rowspan]="2">Indicador asociado</th>
+            </ng-container>
+
+            <ng-container matColumnDef="formulaP" sticky>
+              <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef [style.text-align]="center"
+                [attr.rowspan]="2">Fórmula del indicador</th>
+            </ng-container>
+
+            <ng-container matColumnDef="metaP" sticky>
+              <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef [style.text-align]="center"
+                [attr.rowspan]="2">Meta</th>
+            </ng-container>
+
+            <ng-container matColumnDef="trimestre1">
+              <th id="col-combinado" class="header2" mat-header-cell *matHeaderCellDef [style.text-align]="center"
+                [attr.colspan]="6">Trimestre 1
+              </th>
+            </ng-container>
+
+            <ng-container matColumnDef="trimestre2">
+              <th id="col-combinado" class="header3" mat-header-cell *matHeaderCellDef
+                [style.display]="tr2 ? '' : 'none'" [style.text-align]="center" [attr.colspan]="6">Trimestre 2
+              </th>
+            </ng-container>
+
+            <ng-container matColumnDef="trimestre3">
+              <th id="col-combinado" class="header4" mat-header-cell *matHeaderCellDef
+                [style.display]="tr3 ? '' : 'none'" [style.text-align]="center" [attr.colspan]="6">Trimestre 3
+              </th>
+            </ng-container>
+
+            <ng-container matColumnDef="trimestre4">
+              <th id="col-combinado" class="header5" mat-header-cell *matHeaderCellDef
+                [style.display]="tr4 ? '' : 'none'" [style.text-align]="center" [attr.colspan]="6">Trimestre 4
+              </th>
+            </ng-container>
+
+
+            <tr mat-header-row *matHeaderRowDef="displayedHeaders" class="example-second-header-row"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+
+            <!-- </div> -->
+
+          </table>
+        </div>
+        <br>
+        <div class="align-button-ingresar">
+          <button class="btn-gestion-seg" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
