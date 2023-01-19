@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import {MatTableDataSource} from '@angular/material/table';
+import {MatTable, MatTableDataSource} from '@angular/material/table';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { element } from 'protractor';
 import { ControlContainer } from '@angular/forms';
+
 
 export interface Fuentes {
   posicion: number;
@@ -40,6 +41,7 @@ export class FuentesDeApropiacionComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatTable) myTable!: MatTable<Fuentes>;
 
   constructor(
     private request: RequestManager,
@@ -76,7 +78,7 @@ export class FuentesDeApropiacionComponent implements OnInit {
           for(let i = 0; i < this.dataFuentes.length; i++) {
             this.dataFuentes[i].posicion = i + 1;
           }
-          this.dataSource = new MatTableDataSource(this.dataFuentes);
+          this.dataSource = new MatTableDataSource<Fuentes>(this.dataFuentes);
           this.getTotalPresupuesto();
         }
       }
@@ -90,78 +92,16 @@ export class FuentesDeApropiacionComponent implements OnInit {
     const dialogRef = this.dialog.open(EditarFuenteComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
-      data: {row}
+      data: {row}      
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      window.location.reload();
+      //this.myTable.renderRows();   
+      this.reloadFuentes();
+      //window.location.reload();
     });
   }
 
-  // putData(res, bandera){
-  //   if (bandera == 'editar'){
-  //     this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
-  //       if(data){
-  //         Swal.fire({
-  //           title: 'Actualización correcta',
-  //           text: `Se actualizaron correctamente los datos`,
-  //           icon: 'success',
-  //         }).then((result) => {
-  //           if (result.value) {
-  //             window.location.reload();
-  //           }
-  //         })
-  //       }
-  //     }),
-  //     (error) => {
-  //       Swal.fire({
-  //         title: 'Error en la operación',
-  //         icon: 'error',
-  //         showConfirmButton: false,
-  //         timer: 2500
-  //       })
-  //     }
-  //   } else if (bandera == 'activo') {
-  //     Swal.fire({
-  //       title: 'Inhabilitar plan',
-  //       text: `¿Está seguro de inhabilitar el plan?`,
-  //       showCancelButton: true,
-  //       confirmButtonText: `Si`,
-  //       cancelButtonText: `No`,
-  //     }).then((result) => {
-  //         if (result.isConfirmed) {
-  //           this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
-  //             if (data){
-  //               Swal.fire({
-  //                 title: 'Cambio realizado', 
-  //                 icon: 'success',
-  //               }).then((result) => {
-  //                 if (result.value) {
-  //                   window.location.reload();
-  //                 }
-  //               })
-  //             }
-  //           }),
-  //           (error) => {
-  //             Swal.fire({
-  //               title: 'Error en la operación',
-  //               icon: 'error',
-  //               showConfirmButton: false,
-  //               timer: 2500
-  //             })
-  //           }
-  //         } else if (result.dismiss === Swal.DismissReason.cancel) {
-  //           Swal.fire({
-  //             title: 'Cambio cancelado', 
-  //             icon: 'error',
-  //             showConfirmButton: false,
-  //             timer: 2500
-  //           })
-  //         }
-  //     })
-  //   } 
-  // }
-  
   inactivar(row) {
     Swal.fire({
       title: 'Inhabilitar fuente',
@@ -173,7 +113,6 @@ export class FuentesDeApropiacionComponent implements OnInit {
       this.fuente = row;
       if (this.fuente["id"] == row["id"]) {        
         this.fuente["activo"] = false;
-        console.log(this.fuente, 'elemento a eliminar');
         this.request.put(environment.PLANES_CRUD, 'fuentes-apropiacion', this.fuente, this.fuente["_id"]).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -200,7 +139,7 @@ export class FuentesDeApropiacionComponent implements OnInit {
       }
     })     
   }
-  reloadFuentes() {
+  reloadFuentes() {    
     window.location.reload();
   }
 }
