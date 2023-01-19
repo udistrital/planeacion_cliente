@@ -5,17 +5,21 @@ import {MatSort} from '@angular/material/sort';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { FuenteApropiacionDialogComponent } from '../fuente-apropiacion-dialog/fuente-apropiacion-dialog.component';
+import { RequestManager } from 'src/app/pages/services/requestManager';
+import { environment } from 'src/environments/environment';
+import Swal from 'sweetalert2';
+
 
 export interface Fuentes {
-  Codigo: string;
-  Nombre: string;
-  Apropiacion: number;
+  posicion: string;
+  nombre: string;
+  presupuesto: number;
   iconSelected: string;
 }
 
 const INFO: Fuentes[] = [
-  {Codigo: '1', Nombre: 'Fuente1', Apropiacion: 20000, iconSelected: 'done'},
-  {Codigo: '2', Nombre: 'Fuente2', Apropiacion: 40000, iconSelected: 'done'},
+  {posicion: '1', nombre: 'Fuente1', presupuesto: 20000, iconSelected: 'done'},
+  {posicion: '2', nombre: 'Fuente2', presupuesto: 40000, iconSelected: 'done'},
 ]
 
 @Component({
@@ -24,19 +28,30 @@ const INFO: Fuentes[] = [
   styleUrls: ['./proyectos-de-inversion-vigentes.component.scss']
 })
 export class ProyectosDeInversionVigentesComponent implements OnInit {
-  displayedColumns: string[] = ['codigo','nombre', 'apropiacion', 'actions'];
+  displayedColumns: string[] = ['posicion','nombre', 'presupuesto', 'actions'];
   dataSource = new MatTableDataSource<Fuentes>(INFO);
+  documentos: any[] = [];
+  planes: any[] = [];
+  fuentes: any[] = []
+  fuentesPlan: any[] = [];
+  renderProyects: any[] = [];
+  sumaFuentes = 0;
+  valorFuente: any;
+  dataRow: any;
+  //id: any;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   constructor(
     public dialog: MatDialog,
     private router: Router,
+    private request: RequestManager,    
     ) {
     
    }
 
   ngOnInit(): void {
+    this.loadData()
   }
 
   addElement() {
@@ -44,10 +59,80 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
     this.router.navigate(['pages/proyectos-macro/agregar-proyecto-vigente']);
   }
 
-  verListadoFuentes() {
-    this.router.navigate(['pages/proyectos-macro/fuente-apropiacion-dialog']);
+  verListadoFuentes(row) {    
+    this.router.navigate(['pages/proyectos-macro/fuente-apropiacion-dialog/'+ row.id_detalle_fuentes + '/' + row.id_detalle_soportes]);
   }
 
+  loadData(){
+    this.request.get(environment.PLANES_MID, `inversion/getproyectos/idPlaneacion`).subscribe((data: any) => {
+      if (data){
+        
+        this.planes = data.Data;      
+        if(this.planes.length > 0){
+          for(let index=0; index < this.planes.length; index++) {
+            this.valorFuente = JSON.parse(this.planes[index].fuentes)
+            this.sumaFuentes = 0;
+            for(let i = 0; i < this.valorFuente.length; i++) {
+              this.sumaFuentes +=  this.valorFuente[i].presupuesto;
+            }
+            this.fuentes.push({nombre: this.planes[index].nombre_proyecto, posicion: (index + 1), fuentes_apropiacion: JSON.parse(this.planes[index].fuentes), presupuesto: this.sumaFuentes, id_detalle_fuentes:this.planes[index].id_detalle_fuentes,
+            id_detalle_soportes:this.planes[index].id_detalle_soportes,id: this.planes[index].id, soportes: this.planes[index].soportes})
+          }
+          this.dataSource = new MatTableDataSource<Fuentes>(this.fuentes);
+        }
+      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación', 
+        text: 'No se encontraron datos registrados',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+
+    })
+  }
+
+  // Inactivar todo el árbol
+  inactivar(row){
+    Swal.fire({
+      title: 'Inhabilitar plan',
+      text: `¿Está seguro de inhabilitar el plan?`,
+      showCancelButton: true,
+      confirmButtonText: `Si`,
+      cancelButtonText: `No`,
+    }).then((result) => {
+        if (result.isConfirmed) {
+          this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan`, row.id).subscribe((data: any) => {
+            if(data){
+              Swal.fire({
+                title: 'Cambio realizado', 
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  window.location.reload();
+                }
+              })
+            }
+          }),
+          (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          Swal.fire({
+            title: 'Cambio cancelado', 
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+    })
+  }
   // verListadoFuentes(): void {
   //   const dialogRef = this.dialog.open(FuenteApropiacionDialogComponent, {
   //     width: 'calc(80vw - 60px)',

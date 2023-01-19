@@ -5,7 +5,7 @@
     </mat-card-header>
     <form [formGroup]="formEditar">
         <mat-form-field appearance="fill" [style.width.%]="95">
-            <mat-label id="nombre-input-label">Descripción Meta</mat-label>
+            <mat-label id="nombre-input-label">Nombre Meta</mat-label>
             <input type="text" matInput formControlName="nombre" placeholder="Ingrese un nombre" required>
             <!-- <mat-icon matSuffix>create</mat-icon> -->
             <mat-error *ngIf="formEditar.get('nombre').invalid">
@@ -14,8 +14,10 @@
         </mat-form-field>
         <mat-form-field appearance="fill" [style.width.%]="95">
             <mat-label id="desc-input-label">Asignación Presupuesto</mat-label>
-            <textarea matInput formControlName="valor" placeholder="Ingrese un valor"
-              required></textarea>
+            <input type="text" matInput formControlName="valor" placeholder="Ingrese un valor numérico" required>
+            <mat-error *ngIf="formEditar.get('valor').invalid"> {{getErrorMessage(formEditar.get('valor'))}}</mat-error>
+            <!-- <textarea matInput formControlName="valor" placeholder="Ingrese un valor"
+              required></textarea> -->
             <!-- <mat-icon matSuffix>create</mat-icon> -->
             <!-- <mat-error *ngIf="formEditar.get('descripcion').invalid">
               {{getErrorMessage(formEditar.get('descripcion'))}}
@@ -23,7 +25,7 @@
         </mat-form-field>
         <mat-card-actions style="text-align: center;">
             <ng-container>
-                <button [disabled]="!formEditar.valid" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
+                <button [disabled]="!formEditar.valid" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="addMeta()"
                   [mat-dialog-close]="formEditar.value">
                   Guardar
                 </button>
