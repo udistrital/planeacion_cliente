@@ -93,6 +93,8 @@ import { AgregarMetaDialogComponent } from './banco-de-proyectos/proyectos-inver
 import { CargarSoportesDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/cargar-soportes-dialog/cargar-soportes-dialog.component';
 import { FuenteApropiacionDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-dialog.component';
 import { EditarFuenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/editar-fuente/editar-fuente.component';
+import { EditarApropiacionFuenteDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/editar-apropiacion-fuente-dialog/editar-apropiacion-fuente-dialog.component';
+import { VisualizarSoportesDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/visualizar-soportes-dialog/visualizar-soportes-dialog.component';
 
 
 
@@ -209,6 +211,8 @@ const MY_FORMATS = {
     CargarSoportesDialogComponent,
     FuenteApropiacionDialogComponent,
     EditarFuenteComponent,
+    EditarApropiacionFuenteDialogComponent,
+    VisualizarSoportesDialogComponent,
   ],
   imports: [
     HttpClientModule,

@@ -197,7 +197,7 @@ const routes: Routes = [{
           component: AgregarProyectoVigenteComponent,
         },
         {
-          path: 'fuente-apropiacion-dialog',
+          path: 'fuente-apropiacion-dialog/:id/:id_detalle_soportes',
           component: FuenteApropiacionDialogComponent,
         },
         {
