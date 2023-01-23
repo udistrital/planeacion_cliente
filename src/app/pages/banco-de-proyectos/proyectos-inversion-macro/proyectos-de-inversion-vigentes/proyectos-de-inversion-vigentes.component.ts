@@ -18,8 +18,8 @@ export interface Fuentes {
 }
 
 const INFO: Fuentes[] = [
-  {posicion: '1', nombre: 'Fuente1', presupuesto: 20000, iconSelected: 'done'},
-  {posicion: '2', nombre: 'Fuente2', presupuesto: 40000, iconSelected: 'done'},
+  //{posicion: '1', nombre: 'Fuente1', presupuesto: 20000, iconSelected: 'done'},
+  //{posicion: '2', nombre: 'Fuente2', presupuesto: 40000, iconSelected: 'done'},
 ]
 
 @Component({
@@ -64,7 +64,7 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
   }
 
   loadData(){
-    this.request.get(environment.PLANES_MID, `inversion/getproyectos/idPlaneacion`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `inversion/getproyectos/63ca86f1b6c0e5725a977dae`).subscribe((data: any) => {
       if (data){
         
         this.planes = data.Data;      

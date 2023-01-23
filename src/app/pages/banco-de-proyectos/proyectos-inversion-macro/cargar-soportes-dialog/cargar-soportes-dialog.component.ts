@@ -87,7 +87,7 @@ export class CargarSoportesDialogComponent implements OnInit {
           //evidencia: this.seguimiento.evidencia
         };
 
-        this.request.post(environment.PLANES_MID, `inversion/guardar-documentos`, documentoPorSubir).subscribe((data: any) => {
+        this.request.post(environment.PLANES_MID, `inversion/guardar_documentos`, documentoPorSubir).subscribe((data: any) => {
           if (data) {
             Swal.fire({
             title: 'Documento Cargado',
