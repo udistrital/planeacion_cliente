@@ -240,6 +240,7 @@ export class AgregarProyectoVigenteComponent implements OnInit {
           timer: 2500
         })
       }
+      this.router.navigate(['pages/proyectos-macro/proyectos-de-inversion-vigentes']);  
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
@@ -248,8 +249,7 @@ export class AgregarProyectoVigenteComponent implements OnInit {
         showConfirmButton: false,
         timer: 2500
       })
-    }) 
-    this.router.navigate(['pages/proyectos-macro/proyectos-de-inversion-vigentes']);  
+    })     
   }  
   
 
