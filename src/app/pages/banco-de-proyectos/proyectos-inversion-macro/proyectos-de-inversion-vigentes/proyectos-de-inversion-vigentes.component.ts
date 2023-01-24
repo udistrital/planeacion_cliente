@@ -63,25 +63,37 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
     this.router.navigate(['pages/proyectos-macro/fuente-apropiacion-dialog/'+ row.id_detalle_fuentes + '/' + row.id_detalle_soportes]);
   }
 
-  loadData(){
-    this.request.get(environment.PLANES_MID, `inversion/getproyectos/63ca86f1b6c0e5725a977dae`).subscribe((data: any) => {
+  loadData(){   
+    Swal.fire({
+      title: 'Cargando Proyectos',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    }) 
+    this.request.get(environment.PLANES_MID, `inversion/getproyectos/63ca86f1b6c0e5725a977dae`).subscribe( (data: any) => {
       if (data){
-        
+        console.log(data, "data");
         this.planes = data.Data;      
         if(this.planes.length > 0){
           for(let index=0; index < this.planes.length; index++) {
-            this.valorFuente = JSON.parse(this.planes[index].fuentes)
-            this.sumaFuentes = 0;
-            for(let i = 0; i < this.valorFuente.length; i++) {
-              this.sumaFuentes +=  this.valorFuente[i].presupuesto;
-            }
-            this.fuentes.push({nombre: this.planes[index].nombre_proyecto, posicion: (index + 1), fuentes_apropiacion: JSON.parse(this.planes[index].fuentes), presupuesto: this.sumaFuentes, id_detalle_fuentes:this.planes[index].id_detalle_fuentes,
-            id_detalle_soportes:this.planes[index].id_detalle_soportes,id: this.planes[index].id, soportes: this.planes[index].soportes})
+            if(this.planes[index].fuentes != undefined) {
+              console.log(this.planes[index].fuentes, "proyecto")
+              this.valorFuente = JSON.parse(this.planes[index].fuentes)
+              this.sumaFuentes = 0;
+              for(let i = 0; i < this.valorFuente.length; i++) {
+                this.sumaFuentes +=  this.valorFuente[i].presupuesto;
+              }
+              this.fuentes.push({nombre: this.planes[index].nombre_proyecto, posicion: (index + 1), fuentes_apropiacion: JSON.parse(this.planes[index].fuentes), presupuesto: this.sumaFuentes, id_detalle_fuentes:this.planes[index].id_detalle_fuentes,
+              id_detalle_soportes:this.planes[index].id_detalle_soportes,id: this.planes[index].id, soportes: this.planes[index].soportes});              
+            }            
           }
           this.dataSource = new MatTableDataSource<Fuentes>(this.fuentes);
+          Swal.close();
         }
       }
-    },(error) => {
+    },(error) => {      
       Swal.fire({
         title: 'Error en la operación', 
         text: 'No se encontraron datos registrados',
