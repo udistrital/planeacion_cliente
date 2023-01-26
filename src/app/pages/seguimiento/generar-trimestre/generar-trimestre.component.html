@@ -99,7 +99,7 @@
                         <textarea class="textareaContenido" id="productos"
                             placeholder="* Enliste los productos y evidencias resultantes de las acciones establecidas en el espacio anterior, tenga en cuenta que las evidencias deberán estar cargadas."
                             required [value]="datosCualitativo.productos" [(ngModel)]="datosCualitativo.productos"
-                            [readonly]="readonlyFormulario"></textarea>
+                            [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
                     </div>
 
                     <div style="margin: 10px 0px 20px 0px; width: 15%;"
@@ -138,7 +138,7 @@
                         <textarea class="textareaContenido" id="dificultades"
                             placeholder="* Establezca en caso de existir, las dificultades asociadas a la implementación de la actividad general y la consecución de las metas planteadas."
                             required [value]="datosCualitativo.dificultades" [(ngModel)]="datosCualitativo.dificultades"
-                            [readonly]="readonlyFormulario"></textarea>
+                            [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
                     </div>
                 </div>
 
@@ -148,12 +148,13 @@
                     <textarea class="textareaContenido" id="observaciones"
                         placeholder="* Observaciones realizadas desde la OAPC a la unidad para el componente cualitativo."
                         formControlName="observaciones" required [value]="datosCualitativo.observaciones"
-                        [(ngModel)]="datosCualitativo.observaciones" [readonly]="readonlyObservacion"></textarea>
+                        [ngModelOptions]="{standalone: true}" [(ngModel)]="datosCualitativo.observaciones"
+                        [readonly]="readonlyObservacion"></textarea>
                 </div>
 
                 <div class="container-button3">
                     <button class="background-button" mat-raised-button color="primary" *ngIf="!readonlyFormulario"
-                        (click)="guardarCualitativo()">Guardar componente Cualitativo</button>
+                        (click)="guardarCualitativo()">Guardar componente cualitativo</button>
 
                     <button class="background-button" mat-raised-button color="primary"
                         *ngIf="rol=='PLANEACION' && !readonlyObservacion" (click)="guardarCualitativo()">Guardar
@@ -176,7 +177,14 @@
                         </ng-container>
 
                         <ng-container matColumnDef="meta">
-                            <td mat-cell style="width: 35px;" *matCellDef="let element"> {{element.meta}} </td>
+                            <td mat-cell style="width: 35px;" *matCellDef="let element">
+                                <div *ngIf="element.unidad =='Porcentaje' || element.unidad =='Tasa'">
+                                    {{element.meta/100 | percent:'1.1-1'}}
+                                </div>
+                                <div *ngIf="element.unidad =='Unidad'">
+                                    {{element.meta}}
+                                </div>
+                            </td>
                         </ng-container>
 
                         <ng-container matColumnDef="reporteNumerador">
@@ -274,7 +282,6 @@
                             </th>
                         </ng-container>
 
-
                         <tr mat-header-row
                             *matHeaderRowDef="['header-row-general', 'header-row-indicador', 'header-row-observacion']">
                         </tr>
@@ -298,38 +305,75 @@
                     <table mat-table [dataSource]="datosResultados">
                         <ng-container matColumnDef="nombre">
                             <th mat-header-cell *matHeaderCellDef> Nombre del indicador </th>
-                            <td mat-cell *matCellDef="let element"> {{element.indicador}} </td>
+                            <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
                         </ng-container>
 
                         <ng-container matColumnDef="indicador">
                             <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Indicador del periodo </th>
-                            <td mat-cell style="width: 70px;" *matCellDef="let element"> {{element.indicador}} </td>
+                            <td mat-cell style="width: 70px;" *matCellDef="let element">
+                                <div *ngIf="element.unidad =='Porcentaje' || element.unidad =='Tasa'">
+                                    {{element.indicador | percent:'1.1-1'}}
+                                </div>
+                                <div *ngIf="element.unidad =='Unidad'">
+                                    {{element.indicador}}
+                                </div>
+                            </td>
                         </ng-container>
 
                         <ng-container matColumnDef="numerador">
                             <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Numerador acumulado </th>
-                            <td mat-cell style="width: 70px;" *matCellDef="let element"> {{element.indicador}} </td>
+                            <td mat-cell style="width: 70px;" *matCellDef="let element"> {{element.acumuladoNumerador}}
+                            </td>
                         </ng-container>
                         <ng-container matColumnDef="denominador">
                             <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Denominador acumulado </th>
-                            <td mat-cell style="width: 70px;" *matCellDef="let element"> {{element.indicador}} </td>
+                            <td mat-cell style="width: 70px;" *matCellDef="let element">
+                                {{element.acumuladoDenominador}} </td>
                         </ng-container>
 
                         <ng-container matColumnDef="indicadorAcumulado">
                             <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Indicador acumulado </th>
-                            <td mat-cell style="width: 70px;" *matCellDef="let element"> {{element.indicadorAcumulado}}
+                            <td mat-cell style="width: 70px;" *matCellDef="let element">
+                                <div *ngIf="element.unidad =='Porcentaje' || element.unidad =='Tasa'">
+                                    {{element.indicadorAcumulado | percent:'1.1-1'}}
+                                </div>
+                                <div *ngIf="element.unidad =='Unidad'">
+                                    {{element.indicadorAcumulado}}
+                                </div>
                             </td>
                         </ng-container>
 
                         <ng-container matColumnDef="avanceAcumulado">
                             <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Cumplimiento meta </th>
-                            <td mat-cell style="width: 70px;" *matCellDef="let element"> {{element.avanceAcumulado}} %
+                            <td mat-cell style="width: 70px;" *matCellDef="let element">
+                                <div *ngIf="element.avanceAcumulado <= 1; else elseBlock">
+                                    {{element.avanceAcumulado | percent:'1.1-1'}}
+                                </div>
+                                <ng-template #elseBlock>
+                                    100% (+{{element.avanceAcumulado - 1 | percent:'1.1-1'}})
+                                </ng-template>
                             </td>
                         </ng-container>
 
                         <ng-container matColumnDef="brechaExistente">
                             <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Brecha </th>
-                            <td mat-cell style="width: 70px;" *matCellDef="let element"> {{element.brechaExistente}}
+                            <td mat-cell style="width: 70px;" *matCellDef="let element">
+                                <div *ngIf="element.brechaExistente >= 0; else elseBlock">
+                                    <div *ngIf="element.unidad =='Porcentaje' || element.unidad =='Tasa'">
+                                        {{element.brechaExistente | percent:'1.1-1'}}
+                                    </div>
+                                    <div *ngIf="element.unidad =='Unidad'">
+                                        {{element.brechaExistente | number: '1.0-0'}}
+                                    </div>
+                                </div>
+                                <ng-template #elseBlock>
+                                    <div *ngIf="element.unidad =='Porcentaje' || element.unidad =='Tasa'">
+                                        0% (+{{-1 * element.brechaExistente | percent:'1.1-1'}})
+                                    </div>
+                                    <div *ngIf="element.unidad =='Unidad'">
+                                        0 (+{{-1 * element.brechaExistente}})
+                                    </div>
+                                </ng-template>
                             </td>
                         </ng-container>
 

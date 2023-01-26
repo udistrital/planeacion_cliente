@@ -77,6 +77,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   denominadorFijo: boolean;
   tendencia: string;
   unidad: string;
+  numeradorOriginal: number[] = [];
+  denominadorOriginal: number[] = [];
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -369,6 +371,15 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.documentos = JSON.parse(JSON.stringify(data.Data.evidencia));
         this.datosIndicadores = data.Data.cuantitativo.indicadores;
         this.datosResultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.resultados));
+
+        this.numeradorOriginal = []
+        this.denominadorOriginal = []
+        let resultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.resultados));
+        resultados.forEach(indicador => {
+          this.numeradorOriginal.push(indicador.acumuladoNumerador);
+          this.denominadorOriginal.push(indicador.acumuladoDenominador);
+        });
+
         this.tendencia = data.Data.cuantitativo.tendencia;
         this.datosCualitativo = data.Data.cualitativo;
 
@@ -377,7 +388,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.verificarFormulario();
 
         if (this.estadoActividad != "Sin reporte") {
-          if (this.datosCualitativo.observaciones == "" || this.datosCualitativo.observaciones == undefined) {
+          if (this.datosCualitativo.observaciones == "" || this.datosCualitativo.observaciones == undefined || this.datosCualitativo.observaciones == "Sin observación") {
             this.datosCualitativo.observaciones = "Sin observación"
           } else {
             this.mostrarObservaciones = true;
@@ -736,23 +747,49 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   calcularResultado() {
     for (let index = 0; index < this.datosIndicadores.length; index++) {
-      const element = this.datosIndicadores[index];
-      if (element.reporteDenominador != "" || element.reporteNumerador != "") {
-        var denominador = parseInt(element.reporteDenominador);
-        var numerador = parseInt(element.reporteNumerador);
-        this.datosIndicadores[index].reporteDenominador = denominador;
-        this.datosIndicadores[index].reporteNumerador = numerador;
+      const indicador = this.datosIndicadores[index];
+      if (indicador.reporteDenominador != "" || indicador.reporteNumerador != "") {
+        const denominador = parseInt(indicador.reporteDenominador);
+        const numerador = parseInt(indicador.reporteNumerador);
+        const meta = parseInt(this.datosIndicadores[index].meta)
         if (denominador != NaN && numerador != NaN) {
-          this.datosResultados[index].indicador = Math.round((this.seguimiento.cuantitativo.resultados[index].indicador + numerador / denominador) * 100) / 100;
-          if (!this.denominadorFijo) {
-            denominador += this.datosResultados[index].acumuladoDenominador;
-          }
-          this.datosResultados[index].indicadorAcumulado = Math.round(this.seguimiento.cuantitativo.resultados[index].indicadorAcumulado + ((this.datosResultados[index].acumuladoNumerador + numerador) / denominador) * 100) / 100;
+          this.datosIndicadores[index].reporteDenominador = denominador;
+          this.datosIndicadores[index].reporteNumerador = numerador;
 
-          var meta = parseInt(element.meta);
+          if (this.datosResultados[index].indicador != 0) {
+            this.datosResultados[index].acumuladoNumerador -= this.numeradorOriginal[index];
+            if (!this.denominadorFijo) {
+              this.datosResultados[index].acumuladoDenominador -= this.denominadorOriginal[index];
+            }
+            this.datosResultados[index].indicadorAcumulado -= this.datosResultados[index].indicador;
+            this.datosResultados[index].indicador = 0;
+          }
+
+          this.datosResultados[index].acumuladoNumerador += numerador;
+          if (!this.denominadorFijo) {
+            this.datosResultados[index].acumuladoDenominador += denominador;
+          }
+
+          if (denominador != 0) {
+            this.datosResultados[index].indicador = Math.round((this.datosResultados[index].indicador + numerador / denominador) * 100) / 100;
+          } else {
+            this.datosResultados[index].indicador = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
+          }
+
+          if (this.datosResultados[index].acumuladoDenominador != 0) {
+            this.datosResultados[index].indicadorAcumulado = Math.round(this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador * 100) / 100;
+          } else {
+            this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
+          }
+
           var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+          debugger
           if (this.tendencia = "Creciente") {
-            this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / meta * 100 * 100) / 100;
+            if (this.datosIndicadores[index].unidad == "Unidad") {
+              this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / meta * 100) / 100;
+            } else {
+              this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / meta * 100 * 100) / 100;
+            }
           } else if (this.tendencia = "Decreciente") {
             if (indicadorAcumulado < meta) {
               this.datosResultados[index].avanceAcumulado = Math.round(1 + ((meta - indicadorAcumulado) / meta) * 100) / 100;
@@ -760,9 +797,18 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
               this.datosResultados[index].avanceAcumulado = Math.round(1 - ((meta - indicadorAcumulado) / meta) * 100) / 100;
             }
           }
-          this.datosResultados[index].brechaExistente = Math.round((meta - indicadorAcumulado) * 100) / 100;
+
+          if (this.datosIndicadores[index].unidad == "Unidad") {
+            this.datosResultados[index].brechaExistente = meta - indicadorAcumulado;
+          } else {
+            this.datosResultados[index].brechaExistente = meta / 100 - indicadorAcumulado;
+          }
           this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
         }
+        this.numeradorOriginal[index] = numerador;
+        this.denominadorOriginal[index] = denominador;
+        indicador.reporteDenominador = String(denominador);
+        indicador.reporteNumerador = String(numerador);
       } else {
         Swal.fire({
           title: 'Error en la operación',
