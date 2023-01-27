@@ -31,6 +31,7 @@ export class EvidenciasDialogComponent implements OnInit {
 
     this.readonlyFormulario = JSON.parse(JSON.stringify(data[1]));
     this.dataFiltered = JSON.parse(JSON.stringify(data[0]));
+    this.unidad = String(data[3]);
     this.dataSource = new MatTableDataSource(this.dataFiltered)
     this.filterActive();
   }
