@@ -178,10 +178,10 @@
 
                         <ng-container matColumnDef="meta">
                             <td mat-cell style="width: 35px;" *matCellDef="let element">
-                                <div *ngIf="element.unidad =='Porcentaje' || element.unidad =='Tasa'">
+                                <div *ngIf="element.unidad =='Porcentaje'">
                                     {{element.meta/100 | percent:'1.1-1'}}
                                 </div>
-                                <div *ngIf="element.unidad =='Unidad'">
+                                <div *ngIf="element.unidad =='Unidad' || element.unidad =='Tasa'">
                                     {{element.meta}}
                                 </div>
                             </td>
@@ -311,11 +311,14 @@
                         <ng-container matColumnDef="indicador">
                             <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Indicador del periodo </th>
                             <td mat-cell style="width: 70px;" *matCellDef="let element">
-                                <div *ngIf="element.unidad =='Porcentaje' || element.unidad =='Tasa'">
+                                <div *ngIf="element.unidad =='Porcentaje'">
                                     {{element.indicador | percent:'1.1-1'}}
                                 </div>
                                 <div *ngIf="element.unidad =='Unidad'">
                                     {{element.indicador}}
+                                </div>
+                                <div *ngIf="element.unidad =='Tasa'">
+                                    {{element.indicador | number:'1.1-2'}}
                                 </div>
                             </td>
                         </ng-container>
@@ -334,11 +337,14 @@
                         <ng-container matColumnDef="indicadorAcumulado">
                             <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Indicador acumulado </th>
                             <td mat-cell style="width: 70px;" *matCellDef="let element">
-                                <div *ngIf="element.unidad =='Porcentaje' || element.unidad =='Tasa'">
-                                    {{element.indicadorAcumulado | percent:'1.1-1'}}
+                                <div *ngIf="element.unidad =='Porcentaje'">
+                                    {{element.indicadorAcumulado | percent:'1.1-2'}}
                                 </div>
                                 <div *ngIf="element.unidad =='Unidad'">
-                                    {{element.indicadorAcumulado}}
+                                    {{element.indicadorAcumulado | number:'1.0-0'}}
+                                </div>
+                                <div *ngIf="element.unidad =='Tasa'">
+                                    {{element.indicadorAcumulado | number:'1.1-2'}}
                                 </div>
                             </td>
                         </ng-container>
@@ -359,18 +365,21 @@
                             <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Brecha </th>
                             <td mat-cell style="width: 70px;" *matCellDef="let element">
                                 <div *ngIf="element.brechaExistente >= 0; else elseBlock">
-                                    <div *ngIf="element.unidad =='Porcentaje' || element.unidad =='Tasa'">
-                                        {{element.brechaExistente | percent:'1.1-1'}}
+                                    <div *ngIf="element.unidad =='Porcentaje'">
+                                        {{element.brechaExistente | percent:'1.1-2'}}
                                     </div>
                                     <div *ngIf="element.unidad =='Unidad'">
                                         {{element.brechaExistente | number: '1.0-0'}}
                                     </div>
+                                    <div *ngIf="element.unidad =='Tasa'">
+                                        {{element.brechaExistente | number: '1.0-2'}}
+                                    </div>
                                 </div>
                                 <ng-template #elseBlock>
-                                    <div *ngIf="element.unidad =='Porcentaje' || element.unidad =='Tasa'">
+                                    <div *ngIf="element.unidad =='Porcentaje'">
                                         0% (+{{-1 * element.brechaExistente | percent:'1.1-1'}})
                                     </div>
-                                    <div *ngIf="element.unidad =='Unidad'">
+                                    <div *ngIf="element.unidad =='Unidad' || element.unidad =='Tasa'">
                                         0 (+{{-1 * element.brechaExistente}})
                                     </div>
                                 </ng-template>
