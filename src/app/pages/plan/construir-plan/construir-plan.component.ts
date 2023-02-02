@@ -24,6 +24,7 @@ export class ConstruirPlanComponent implements OnInit {
   uid_n: number; // nuevo nivel
   planes: any[];
   dato: any;
+  padreSub: string;
 
   @Output() eventChange = new EventEmitter();
   constructor(
@@ -143,6 +144,7 @@ export class ConstruirPlanComponent implements OnInit {
   };
 
   openDialogEditar(sub, subDetalle): void {
+    this.padreSub = sub.padre;    
     const dialogRef = this.dialog.open(EditarDialogComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
@@ -163,8 +165,8 @@ export class ConstruirPlanComponent implements OnInit {
       nombre: res.nombre,
       descripcion: res.descripcion,
       activo: res.activo,
-      bandera_tabla: res.banderaTabla
-    }
+      bandera_tabla: res.banderaTabla      
+    }    
     if (res.hasOwnProperty("opciones")) {
       var array = res.opciones.split(",");
       let jsonArray = []
@@ -189,6 +191,13 @@ export class ConstruirPlanComponent implements OnInit {
       dato: JSON.stringify(this.dato)
     }
     this.request.get(environment.PLANES_CRUD, `subgrupo-detalle/detalle/` + this.uid).subscribe((data: any) => {
+      subgrupoDetalle["fecha_creacion"] = data.Data[0].fecha_creacion;
+      subgrupoDetalle["subgrupo_id"] = data.Data[0].subgrupo_id;
+      subgrupoDetalle["activo"] = true;
+      subgrupoDetalle["descripcion"] = subgrupo.descripcion;
+      subgrupoDetalle["nombre"] = subgrupo.nombre;
+      subgrupo["padre"] = this.padreSub;
+      subgrupo["fecha_creacion"] = data.Data[0].fecha_creacion;      
       if (data.Data.length > 0) {
         this.request.put(environment.PLANES_CRUD, `subgrupo-detalle`, subgrupoDetalle, data.Data[0]._id).subscribe((data: any) => {
           this.request.put(environment.PLANES_CRUD, `subgrupo`, subgrupo, this.uid).subscribe((data: any) => {
@@ -299,7 +308,8 @@ export class ConstruirPlanComponent implements OnInit {
                     nombre: data.Data.nombre,
                     descripcion: data.Data.descripcion,
                     activo: data.Data.activo,
-                    banderaTabla: data.Data.bandera_tabla
+                    banderaTabla: data.Data.bandera_tabla,
+                    padre: data.Data.padre
                   }
                   this.openDialogEditar(subData, subDataDetalle);
                 } else if (!auxiliar.hasOwnProperty("options")) {
@@ -312,7 +322,8 @@ export class ConstruirPlanComponent implements OnInit {
                     nombre: data.Data.nombre,
                     descripcion: data.Data.descripcion,
                     activo: data.Data.activo,
-                    banderaTabla: data.Data.bandera_tabla
+                    banderaTabla: data.Data.bandera_tabla,
+                    padre: data.Data.padre
                   }
                   this.openDialogEditar(subData, subDataDetalle);
                 }

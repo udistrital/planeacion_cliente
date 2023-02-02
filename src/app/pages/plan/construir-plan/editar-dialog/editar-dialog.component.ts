@@ -22,6 +22,7 @@ export class EditarDialogComponent implements OnInit {
   required: boolean;
   opciones: string;
   formatoS: string;
+  padre: string;
   banderaTablaS: string;
   nivel: number;
   opt: boolean;
@@ -65,8 +66,9 @@ export class EditarDialogComponent implements OnInit {
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<EditarDialogComponent>,
     private request: RequestManager,
-    @Inject(MAT_DIALOG_DATA) public data: any) {
+    @Inject(MAT_DIALOG_DATA) public data: any) {      
     this.nombre = data.sub.nombre;
+    this.padre = data.sub.padre;
     this.descripcion = data.sub.descripcion;
     this.activoS = String(data.sub.activo);
     this.tipoPlan = data.sub.tipo_plan_id;
