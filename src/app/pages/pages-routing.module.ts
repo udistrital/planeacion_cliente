@@ -47,6 +47,10 @@ import { FuentesDeApropiacionComponent } from './banco-de-proyectos/proyectos-in
 import { ProyectosDeInversionVigentesComponent } from './banco-de-proyectos/proyectos-inversion-macro/proyectos-de-inversion-vigentes/proyectos-de-inversion-vigentes.component';
 import { AgregarProyectoVigenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-proyecto-vigente/agregar-proyecto-vigente.component';
 import { FuenteApropiacionDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-dialog.component';
+import { FormulacionPlanInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/formulacion-plan-inversion/formulacion-plan-inversion.component';
+import { TipoMetaIndicadorComponent } from './banco-de-proyectos/proyectos-inversion-macro/tipo-meta-indicador/tipo-meta-indicador.component';
+import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-inversion-macro/magnitudes-presupuesto/magnitudes-presupuesto.component';
+import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component'
 
 const routes: Routes = [{
   path: '',
@@ -220,6 +224,22 @@ const routes: Routes = [{
           path: 'reporte-proyecto',
           component: ReportesProyectoInversionComponent,
         },
+        {
+          path: 'formulacion-plan-inversion',
+          component: FormulacionPlanInversionComponent,
+        },
+        {
+          path: 'tipo-meta-indicador',
+          component: TipoMetaIndicadorComponent,
+        },
+        {
+          path: 'magnitudes-presupuesto',
+          component: MagnitudesPresupuestoComponent,
+        },
+        {
+          path: 'identificacion-actividades-recursos',
+          component: IdentificacionActividadesRecursosComponent,
+        },        
       ]
     },
     {
