@@ -74,12 +74,10 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
     }) 
     this.request.get(environment.PLANES_MID, `inversion/getproyectos/63ca86f1b6c0e5725a977dae`).subscribe( (data: any) => {
       if (data){
-        console.log(data, "data");
         this.planes = data.Data;      
         if(this.planes.length > 0){
           for(let index=0; index < this.planes.length; index++) {
-            if(this.planes[index].fuentes != undefined) {
-              console.log(this.planes[index].fuentes, "proyecto")
+            if(this.planes[index].fuentes != undefined) {              
               this.valorFuente = JSON.parse(this.planes[index].fuentes)
               this.sumaFuentes = 0;
               for(let i = 0; i < this.valorFuente.length; i++) {

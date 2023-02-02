@@ -1,1 +1,51 @@
-<app-construccion-modul [nombreComponent]="'Bienvenido al componente de Formulación inversión Macro'"></app-construccion-modul>
+<mat-card class="card-oas">
+    <mat-card-header>
+        <mat-card-title>Listar planes</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <u class="textGuide">
+            En esta sección usted podrá FORMULAR su respectvo PLAN DE ACCIÓN, a continuación por favor seleccione las opciones a las cuales corresponda para su unidad.
+        </u>
+    </mat-card-content>
+    <br><br>
+    <div class="container-border">
+        <mat-form-field appearance="fill" [style.width.%]="100">
+            <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
+            <mat-select (selectionChange)="onChangeU($event.value)">
+                <mat-option>--</mat-option>
+                <mat-option *ngFor="let unidad of unidades" [value]="unidad">
+                    {{unidad.Nombre}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill" [style.width.%]="100">
+            <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
+            <mat-select (selectionChange)="onChangeV($event.value)">
+                <mat-option>--</mat-option>
+                <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
+                    {{vigencia.Nombre}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill" [style.width.%]="100">
+            <mat-label id="tipo-input-label">Seleccione la plantilla para el Plan</mat-label>
+            <mat-select (selectionChange)="onChangeP($event.value)">
+                <mat-option>--</mat-option>
+                <mat-option *ngFor="let plan of planes" [value]="plan">
+                    {{plan.nombre}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <u class="textGuide">
+        Para iniciar su formulación de click en el siguiente botón
+    </u>
+    <mat-card-actions>
+        <div style="margin: 1rem; text-align: center;">
+            <button mat-raised-button color="primary" (click)="formular()" >
+                Formular Plan
+            </button>
+        </div>
+    </mat-card-actions>
+</mat-card>
+<br><br>

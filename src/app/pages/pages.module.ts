@@ -95,6 +95,10 @@ import { FuenteApropiacionDialogComponent } from './banco-de-proyectos/proyectos
 import { EditarFuenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/editar-fuente/editar-fuente.component';
 import { EditarApropiacionFuenteDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/editar-apropiacion-fuente-dialog/editar-apropiacion-fuente-dialog.component';
 import { VisualizarSoportesDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/visualizar-soportes-dialog/visualizar-soportes-dialog.component';
+import { FormulacionPlanInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/formulacion-plan-inversion/formulacion-plan-inversion.component';
+import { TipoMetaIndicadorComponent } from './banco-de-proyectos/proyectos-inversion-macro/tipo-meta-indicador/tipo-meta-indicador.component';
+import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-inversion-macro/magnitudes-presupuesto/magnitudes-presupuesto.component';
+import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component';
 
 
 
@@ -213,6 +217,10 @@ const MY_FORMATS = {
     EditarFuenteComponent,
     EditarApropiacionFuenteDialogComponent,
     VisualizarSoportesDialogComponent,
+    FormulacionPlanInversionComponent,
+    TipoMetaIndicadorComponent,
+    MagnitudesPresupuestoComponent,
+    IdentificacionActividadesRecursosComponent,
   ],
   imports: [
     HttpClientModule,
