@@ -201,7 +201,7 @@
                             <td class="rowText" style="width: 55px;" mat-cell *matCellDef="let element">
                                 <textarea class="form-control" style="width: 90%;" matInput placeholder="Denominador"
                                     onkeydown="return /[0-9, Backspace]/i.test(event.key)"
-                                    [readonly]="readonlyFormulario || element.denominador == 'Denominador fijo' && denominadorFijo"
+                                    [readonly]="readonlyFormulario"
                                     [value]="element.reporteDenominador" [(ngModel)]="element.reporteDenominador"
                                     [ngModelOptions]="{standalone: true}" required></textarea>
                             </td>
