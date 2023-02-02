@@ -752,7 +752,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         const denominador = parseInt(indicador.reporteDenominador);
         const numerador = parseInt(indicador.reporteNumerador);
         const meta = parseInt(this.datosIndicadores[index].meta)
-        if (denominador != NaN && numerador != NaN) {
+        this.denominadorFijo = indicador.denominador != "Denominador variable"
+        if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
           this.datosIndicadores[index].reporteDenominador = denominador;
           this.datosIndicadores[index].reporteNumerador = numerador;
 
@@ -768,13 +769,15 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           this.datosResultados[index].acumuladoNumerador += numerador;
           if (!this.denominadorFijo) {
             this.datosResultados[index].acumuladoDenominador += denominador;
+          } else {
+            this.datosResultados[index].acumuladoDenominador = denominador;            
           }
 
           if (denominador != 0) {
             if (this.datosIndicadores[index].unidad == "Unidad") {
               this.datosResultados[index].indicador = Math.round((numerador / denominador));
             } else {
-              this.datosResultados[index].indicador = Math.round((numerador / denominador) * 100) / 100;
+              this.datosResultados[index].indicador = Math.round((numerador / denominador) * 10000) / 10000;
             }
           } else {
             this.datosResultados[index].indicador = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
@@ -784,7 +787,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             if (this.datosIndicadores[index].unidad == "Unidad") {
               this.datosResultados[index].indicadorAcumulado = Math.round(this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador * 100) / 100;
             } else {
-              this.datosResultados[index].indicadorAcumulado = Math.round((this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador) * 100) / 100;
+              this.datosResultados[index].indicadorAcumulado = Math.round((this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador) * 10000) / 10000;
             }
           } else {
             this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
@@ -796,13 +799,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
               this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 1000) / 1000;
             } else {
-              this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 100) / 100;
+              this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 10000) / 10000;
             }
           } else if (indicador.tendencia == "Decreciente") {
             if (indicadorAcumulado < metaEvaluada) {
-              this.datosResultados[index].avanceAcumulado = Math.round((1 + ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 100) / 100;
+              this.datosResultados[index].avanceAcumulado = Math.round((1 + ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
             } else {
-              this.datosResultados[index].avanceAcumulado = Math.round((1 - ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 100) / 100;
+              this.datosResultados[index].avanceAcumulado = Math.round((1 - ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
             }
           }
 
