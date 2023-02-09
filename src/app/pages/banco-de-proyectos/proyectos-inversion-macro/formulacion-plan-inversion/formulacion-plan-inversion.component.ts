@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ControlContainer } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 export interface Metas {
   Index: string;
@@ -92,11 +92,19 @@ export class FormulacionPlanInversionComponent implements OnInit {
   dataMetasP: any;
   dataMetas = new MatTableDataSource<Metas>(TABLA); 
   unidadesInteres: any;
+  id_formato: string;
 
 
   constructor(
     private router: Router,
-  ) { }
+    private activatedRoute: ActivatedRoute,
+  ) { 
+    activatedRoute.params.subscribe(prm => {
+
+      this.id_formato = prm['id_formato'];  
+      
+    });
+  }
 
   ngOnInit(): void {
   }
@@ -130,7 +138,8 @@ export class FormulacionPlanInversionComponent implements OnInit {
     }
   }
   programarMetas() {
-    this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador']);
+    //console.log(this.id_formato);
+    this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.id_formato]);
     // if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true){
     //   console.log("entró al if");      
     //   this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion']);

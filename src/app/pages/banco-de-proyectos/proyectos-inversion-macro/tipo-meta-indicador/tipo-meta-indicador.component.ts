@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-tipo-meta-indicador',
@@ -17,11 +18,19 @@ export class TipoMetaIndicadorComponent implements OnInit {
   steps: any[];
   json: any;
   estado: string;
+  readOnlyAll: boolean = false;
+  id_formato: string;
 
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
+    private activatedRoute: ActivatedRoute,
   ) { 
+    activatedRoute.params.subscribe(prm => {
+
+      this.id_formato = prm['id_formato'];   
+      console.log(this.id_formato);
+    });
     this.cargaFormato();
   }
 
@@ -45,7 +54,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `formato/63d01facb6c0e55fc1981d73`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formato/` + this.id_formato).subscribe((data: any) => {
       if (data) {
         Swal.close();
         //this.estado = plan.estado_plan_id;
