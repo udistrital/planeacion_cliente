@@ -51,6 +51,7 @@ import { FormulacionPlanInversionComponent } from './banco-de-proyectos/proyecto
 import { TipoMetaIndicadorComponent } from './banco-de-proyectos/proyectos-inversion-macro/tipo-meta-indicador/tipo-meta-indicador.component';
 import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-inversion-macro/magnitudes-presupuesto/magnitudes-presupuesto.component';
 import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component'
+import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 
 const routes: Routes = [{
   path: '',
@@ -225,11 +226,11 @@ const routes: Routes = [{
           component: ReportesProyectoInversionComponent,
         },
         {
-          path: 'formulacion-plan-inversion',
+          path: 'formulacion-plan-inversion/:id_formato',
           component: FormulacionPlanInversionComponent,
         },
         {
-          path: 'tipo-meta-indicador',
+          path: 'tipo-meta-indicador/:id_formato',
           component: TipoMetaIndicadorComponent,
         },
         {
@@ -239,7 +240,11 @@ const routes: Routes = [{
         {
           path: 'identificacion-actividades-recursos',
           component: IdentificacionActividadesRecursosComponent,
-        },        
+        }, 
+        {
+          path: 'programacion-presupuestal',
+          component: ProgramacionPresupuestalComponent,
+        },       
       ]
     },
     {

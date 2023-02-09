@@ -39,7 +39,7 @@
               <mat-icon matSuffix>create</mat-icon>
             </mat-form-field>
             <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="step.type == 'select'">
-              <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{step.id}}"
+              <mat-select formControlName="{{step.id}}"
                 required="{{step.required}}" disabled="{{readOnlyAll}}">
                 <mat-option>--</mat-option>
                 <mat-option *ngFor="let opt of step.options" [value]="opt.valor">
@@ -94,7 +94,7 @@
                         <mat-icon matSuffix>create</mat-icon>
                       </mat-form-field>
                       <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subpanel.type == 'select'">
-                        <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subpanel.id}}"
+                        <mat-select formControlName="{{subpanel.id}}"
                           required="{{subpanel.required}}" disabled="{{readOnlyAll}}">
                           <mat-option value="">--</mat-option>
                           <mat-option *ngFor="let opt of subpanel.options" [value]="opt.valor">
@@ -130,7 +130,7 @@
                   <mat-icon matSuffix>create</mat-icon>
                 </mat-form-field>
                 <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="subs.type == 'select'">
-                  <mat-select (selectionChange)="onChangeSelect($event.value)" formControlName="{{subs.id}}"
+                  <mat-select  formControlName="{{subs.id}}"
                     required="{{subs.required}}" disabled="{{readOnlyAll}}">
                     <mat-option value="">--</mat-option>
                     <mat-option *ngFor="let opt of subs.options" [value]="opt.valor">
