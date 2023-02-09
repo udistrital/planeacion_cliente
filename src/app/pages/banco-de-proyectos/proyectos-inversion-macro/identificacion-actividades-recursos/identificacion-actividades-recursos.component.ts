@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
+import { Router } from '@angular/router';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
@@ -31,11 +32,18 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   json: any;
   estado: string;
   plantilla = false;
+  actividades: any[];
+  actividad: any;
+  actividadId: string;
+  actividadSelected: boolean;
 
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
-  ) { }
+    private router: Router,
+  ) { 
+    this.loadActividades();
+  }
 
   ngOnInit(): void {
   }
@@ -48,6 +56,17 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     this.activedStep = step + 1;
   }
 
+  onChangeA(actividad: any) {
+    if (actividad == undefined) {
+      this.actividadSelected = false;
+    } else {
+      this.actividadSelected = true;
+      this.actividad = actividad; 
+      this.actividadId = this.actividad._id;
+      console.log(this.actividadId, "valor actividad", this.actividadSelected);     
+    }
+  }
+
   cargaFormato() {
     this.plantilla = true;
     Swal.fire({
@@ -58,7 +77,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `formato/63d01facb6c0e55fc1981d73`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formato/` + this.actividadId).subscribe((data: any) => {
       if (data) {
         Swal.close();
         //this.estado = plan.estado_plan_id;
@@ -75,6 +94,29 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         timer: 2500
       })
     })
+  }
+
+  loadActividades() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:63e4f2bbccee4963a2841cb7,formato:true`).subscribe((data: any) => {
+      if (data) {
+        if (data.Data.length != 0) {
+          this.actividades = data.Data;          
+          console.log(this.actividades, "actividades");
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  programacionPresupuestal() {
+    this.router.navigate(['/pages/proyectos-macro/programacion-presupuestal']);    
   }
 
 }

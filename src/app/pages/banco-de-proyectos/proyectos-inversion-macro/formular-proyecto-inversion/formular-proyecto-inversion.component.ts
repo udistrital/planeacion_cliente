@@ -20,9 +20,7 @@ export class FormularProyectoInversionComponent implements OnInit {
   vigenciaSelected: boolean;
   unidadSelected: boolean;
   planSelected: boolean;
-  guardarDisabled: boolean;
-  dataSource: any;
-  displayedColumns: string[] = ['index', 'dato', 'activo', 'gestion'];
+  guardarDisabled: boolean;  
   constructor(
     private request: RequestManager,
     private formBuilder: FormBuilder,
@@ -43,7 +41,7 @@ export class FormularProyectoInversionComponent implements OnInit {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
       if (data) {
         this.vigencias = data.Data; 
-        console.log(this.vigencias, "vigencias")       
+        //console.log(this.vigencias, "vigencias")       
       }
     }, (error) => {
       Swal.fire({
@@ -62,7 +60,7 @@ export class FormularProyectoInversionComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;  
-      console.log(this.vigencia, "valor vigencia", this.vigenciaSelected); 
+      //console.log(this.vigencia, "valor vigencia", this.vigenciaSelected); 
     }
   }
 
@@ -71,7 +69,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       if (data) {
         if (data.Data.length != 0) {          
           this.unidades = data.Data;
-          console.log(this.unidades, "unidades")
+          //console.log(this.unidades, "unidades")
         }
       }
     }, (error) => {
@@ -91,7 +89,7 @@ export class FormularProyectoInversionComponent implements OnInit {
     } else {
       this.unidadSelected = true;
       this.unidad = unidad;  
-      console.log(this.unidad, "valor unidad", this.unidadSelected);    
+      //console.log(this.unidad, "valor unidad", this.unidadSelected);    
     }
   }
 
@@ -100,7 +98,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       if (data) {
         if (data.Data.length != 0) {
           this.planes = data.Data;
-          console.log(this.planes, "planes");
+          //console.log(this.planes, "planes");
         }
       }
     }, (error) => {
@@ -120,14 +118,14 @@ export class FormularProyectoInversionComponent implements OnInit {
     } else {
       this.planSelected = true;
       this.plan = plan; 
-      console.log(this.plan, "valor plan", this.planSelected);     
+      //console.log(this.plan, "valor plan", this.planSelected);     
     }
   }
 
   formular() {
     if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true){
-      console.log("entró al if");      
-      this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion']);
+      //console.log(this.plan, "plan");      
+      this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion/' + this.plan._id]);
     }else{
       Swal.fire({
         title: 'Debe seleccionar todos los criterios',
@@ -136,6 +134,44 @@ export class FormularProyectoInversionComponent implements OnInit {
         timer: 2500
       })
     };
+  }
+
+  formularPlan() {
+    let parametros = {
+      "dependencia_id": String(this.unidad.Id),
+      "vigencia": String(this.vigencia.Id)
+    }
+    this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/` + this.plan._id, parametros).subscribe((data: any) => {
+      if (data) {
+        this.plan.estado_plan_id = "614d3ad301c7a200482fabfd";
+        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
+          if (dataPut) {
+            this.plan = dataPut.Data;
+            Swal.fire({
+              title: 'Formulación nuevo plan',
+              text: `Plan creado satisfactoriamente`,
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 4000
+            })
+            // this.clonar = false;
+            // this.planAsignado = true;
+            // //CARGA TABLA
+            // this.loadData();
+            //this.getVersiones(this.plan);
+          }
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
 }

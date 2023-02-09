@@ -1,30 +1,29 @@
 .container-border {
-  margin-top: 100px;
-  border: 1px solid var(--primary);
-  padding: 1%;
-  border-radius: 15px 15px 15px 15px;
+    margin: 3% 0% 0% 0%;
+    border: 1px solid var(--primary);
+    padding: 1%;
+    border-radius: 15px 15px 15px 15px;     
+  }
 
-}
+.container-border h4 {
+    width: 5%;
+    color: var(--primary);
+    font-size: 16px;
+    margin-top: -28px;
+    margin-left: 7px;
+    padding-left: 8px;
+    background: #F1F5F8;
+    position: relative;
+  }
 
-// .container-border h4 {
-//     width: 5%;
-//     color: var(--primary);
-//     font-size: 16px;
-//     margin-top: -28px;
-//     margin-left: 7px;
-//     padding-left: 8px;
-//     background: #F1F5F8;
-//     position: relative;
-//   }
-
-// .container-border-for {
-//     margin: 3% 0% 0% 0%;
-//     border: 1px solid var(--primary);
-//     padding: 1%;
-//     border-radius: 15px 15px 15px 15px;
-//     margin-left: auto;
-//     margin-right: auto;
-//   }  
+.container-border-for {
+    margin: 3% 0% 0% 0%;
+    border: 1px solid var(--primary);
+    padding: 1%;
+    border-radius: 15px 15px 15px 15px;
+    margin-left: auto;
+    margin-right: auto;
+  }  
 
 .container-border-for h4 {
     width: 12%;
@@ -59,11 +58,26 @@
       margin-bottom: 2%;
   }
   
-  th {
-      color: white;
+  .head {     
       text-align: center !important;
+      background-color: rgb(145, 35, 35);
+  }
+
+  .head-label {
+    color: white;
+  }
+  .inText {
+    color: gray;    
+  }
+
+  mat-grid-tile {
+    border: 1px solid var(--primary);
+    
   }
   
+  .text-area {
+    width: 100%;
+  }
   td{
     text-align: justify;
   }
@@ -194,19 +208,25 @@
     background-color: rgb(145, 35, 35);
   }
   
+  tr.mat-mdc-footer-row td {
+    font-weight: bold;
+  }
+
+  td.mat-cell{
+    text-align:center;
+    //padding: 5px 5px 5px 0;
+    color:black;
+  }
+
+  td.mat-footer-cell{
+    text-align: center;
+    padding: 5px 5px 5px 0;
+    color:black;
+    font-weight: bold;
+  }
   th {
     color: white;
     text-align: center;    
-  }
-
-  th.mat-header-cell{
-    text-align: center;
-    word-wrap: initial;
-    padding: 0px 5px;
-    width: auto;
-    overflow: hidden;
-    vertical-align: middle;
-    color: white;
   }
 
   .cardInfo{    
@@ -225,30 +245,95 @@
     border-radius: 15px 15px 15px 15px;
   }
 
-  .head {     
-    text-align: center !important;
-    background-color: rgb(145, 35, 35);
-}
+  mat-form-field {
+    width: 100;
+    text-align: center;
+    
+  }
+  .mat-column-index{
+    text-align: center; 
+    word-wrap: break-word !important;
+    white-space: unset !important;
+    flex: 0 0 34% !important;
+    width: 5% !important;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  
+    word-break: break-word;
+  
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+  } 
 
-.head-label {
-  color: white;
-}
-.inText {
-  color: gray;    
-}
-
-mat-grid-tile {
-  border: 1px solid var(--primary);
-  background-color: white;
+  .mat-column-fuente{
+    text-align: center; 
+    word-wrap: break-word !important;
+    white-space: unset !important;
+    flex: 0 0 34% !important;
+    width: 20% !important;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   
-}
-
-.text-area {
-  width: 100%;
-}
+    word-break: break-word;
+  
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+  } 
+  .mat-column-valor{
+    text-align: center; 
+    word-wrap: break-word !important;
+    white-space: unset !important;
+    flex: 0 0 34% !important;
+    width: 32.5% !important;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  
+    word-break: break-word;
+  
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+  }
+  
+  .mat-column-disponible{
+    text-align: center; 
+    word-wrap: break-word !important;
+    white-space: unset !important;
+    flex: 0 0 34% !important;
+    width: 32.5% !important;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  
+    word-break: break-word;
+  
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+  } 
   
   
+  .mat-column-estimado{
+    word-wrap: break-word !important;
+    white-space: unset !important;
+    flex: 0 0 6% !important;
+    width: 10% !important;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   
+    word-break: break-word;
   
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
   
+    text-align: center;
+    justify-content: flex-end;
+  }
   
