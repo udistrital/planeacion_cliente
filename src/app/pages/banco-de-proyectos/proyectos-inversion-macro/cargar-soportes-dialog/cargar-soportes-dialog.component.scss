@@ -1,32 +1,25 @@
-#ng-container{
+#ng-container {
     margin-top: 2%;
 }
-.card-dialog{
-    width:calc(70vw - 60px);
-}
-.mat-form-field{
-    display: block;
-    //margin: 2%;
+
+.card-dialog {
+    width: calc(70vw - 60px);
 }
 
-// .mat-raised-button {
-//     background-color: var(--primary);
-//     color: white;
-//     margin: 2% 0% 0% 0%;
-//     margin-left: 40%;
-//   }
+.mat-form-field {
+    display: block;
+}
 
 .container-border {
-    margin-top: 100px;
+    margin-top: 10px;
     border: 1px solid var(--primary);
     padding: 1%;
     border-radius: 15px 15px 15px 15px;
-  
 }
 
 input[type="file"] {
     display: none;
-  }
+}
 
 .align-button2 {
     position: absolute;
