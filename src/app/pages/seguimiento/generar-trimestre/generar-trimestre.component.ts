@@ -450,7 +450,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cualitativo`, { "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cualitativo`, { "informacion": this.seguimiento.informacion, "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Información de seguimiento actualizada',
@@ -507,7 +507,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cuantitativo`, { "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cuantitativo`, { "informacion": this.seguimiento.informacion, "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Información de seguimiento actualizada',
@@ -770,7 +770,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           if (!this.denominadorFijo) {
             this.datosResultados[index].acumuladoDenominador += denominador;
           } else {
-            this.datosResultados[index].acumuladoDenominador = denominador;            
+            this.datosResultados[index].acumuladoDenominador = denominador;
           }
 
           if (denominador != 0) {
