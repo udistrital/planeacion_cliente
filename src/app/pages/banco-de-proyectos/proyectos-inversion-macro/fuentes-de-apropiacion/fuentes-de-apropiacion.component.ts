@@ -1,28 +1,20 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import {MatTable, MatTableDataSource} from '@angular/material/table';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatSort} from '@angular/material/sort';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatDialog } from '@angular/material/dialog';
 import { AgregarFuenteDialogComponent } from '../agregar-fuente-dialog/agregar-fuente-dialog.component';
 import { EditarFuenteComponent } from '../editar-fuente/editar-fuente.component';
 import { RequestManager } from '../../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
-import { element } from 'protractor';
-import { ControlContainer } from '@angular/forms';
-
 
 export interface Fuentes {
   posicion: number;
   nombre: string;
   presupuesto: number;
-  //iconSelected: string;
+  presupuestoDisponible: number;
 }
-
-// const INFO: Fuentes[] = [
-//   {Posicion: '1', Nombre: 'Fuente1', Presupuesto: 20000 },
-//   {Posicion: '2', Nombre: 'Fuente2', Presupuesto: 40000 },
-// ]
 
 @Component({
   selector: 'app-fuentes-de-apropiacion',
@@ -30,10 +22,7 @@ export interface Fuentes {
   styleUrls: ['./fuentes-de-apropiacion.component.scss']
 })
 export class FuentesDeApropiacionComponent implements OnInit {
-  static reloadFuentes() {
-    throw new Error('Method not implemented.');
-  }
-  displayedColumns: string[] = ['index','nombre', 'presupuesto', 'actions'];
+  displayedColumns: string[] = ['index', 'nombre', 'presupuesto', 'actions'];
   dataSource = new MatTableDataSource();
   dataFuentes = [];
   fuente: any;
@@ -46,10 +35,7 @@ export class FuentesDeApropiacionComponent implements OnInit {
   constructor(
     private request: RequestManager,
     public dialog: MatDialog,
-    //private formBuilder: FormBuilder,
-    ) {
-
-   }
+  ) { }
 
   ngOnInit(): void {
     this.getFuentesApropiacion();
@@ -58,24 +44,24 @@ export class FuentesDeApropiacionComponent implements OnInit {
   addElement(): void {
     const dialogRef = this.dialog.open(AgregarFuenteDialogComponent, {
       width: 'calc(80vw - 60px)',
-      height: 'calc(50vw - 70px)',      //data: { ban: 'plan', sub, subDetalle }
-      
+      height: 'calc(35vw - 70px)',
     });
     dialogRef.afterClosed().subscribe(result => {
-      window.location.reload();
+      this.getFuentesApropiacion();
     });
   }
 
   getFuentesApropiacion() {
+    this.dataFuentes = [];
     this.request.get(environment.PLANES_CRUD, 'fuentes-apropiacion').subscribe((data: any) => {
-      if(data) {
-        if (data.Data.length != 0) {         
-          for(let i = 0; i < data.Data.length; i++) { 
-            if( data.Data[i].activo == true ) {  
+      if (data) {
+        if (data.Data.length != 0) {
+          for (let i = 0; i < data.Data.length; i++) {
+            if (data.Data[i].activo == true) {
               this.dataFuentes.push(data.Data[i]);
             }
           }
-          for(let i = 0; i < this.dataFuentes.length; i++) {
+          for (let i = 0; i < this.dataFuentes.length; i++) {
             this.dataFuentes[i].posicion = i + 1;
           }
           this.dataSource = new MatTableDataSource<Fuentes>(this.dataFuentes);
@@ -84,6 +70,7 @@ export class FuentesDeApropiacionComponent implements OnInit {
       }
     })
   }
+
   getTotalPresupuesto() {
     return this.totalPresupuesto = this.dataFuentes.map(t => t.presupuesto).reduce((acc, value) => acc + value, 0);
   }
@@ -92,13 +79,11 @@ export class FuentesDeApropiacionComponent implements OnInit {
     const dialogRef = this.dialog.open(EditarFuenteComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
-      data: {row}      
+      data: { row }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      //this.myTable.renderRows();   
-      this.reloadFuentes();
-      //window.location.reload();
+      this.getFuentesApropiacion();
     });
   }
 
@@ -111,7 +96,7 @@ export class FuentesDeApropiacionComponent implements OnInit {
       cancelButtonText: `No`,
     }).then((result) => {
       this.fuente = row;
-      if (this.fuente["id"] == row["id"]) {        
+      if (this.fuente["id"] == row["id"]) {
         this.fuente["activo"] = false;
         this.request.put(environment.PLANES_CRUD, 'fuentes-apropiacion', this.fuente, this.fuente["_id"]).subscribe((data: any) => {
           if (data) {
@@ -121,7 +106,7 @@ export class FuentesDeApropiacionComponent implements OnInit {
               showConfirmButton: false,
               timer: 2500
             })
-            this.reloadFuentes();
+            this.getFuentesApropiacion();
           }
         }, (error) => {
           Swal.fire({
@@ -131,15 +116,12 @@ export class FuentesDeApropiacionComponent implements OnInit {
             showConfirmButton: false,
             timer: 2500
           }).then((result) => {
-              if (result.value) {
-                window.location.reload();
-              }
-            })
-        })       
+            if (result.value) {
+              this.getFuentesApropiacion();
+            }
+          })
+        })
       }
-    })     
-  }
-  reloadFuentes() {    
-    window.location.reload();
+    })
   }
 }
