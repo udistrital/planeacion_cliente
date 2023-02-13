@@ -1,42 +1,120 @@
 <div class="container-border">
   <mat-card class="card-dialog">
     <mat-card-header>
-        <mat-card-title>Agregar Meta</mat-card-title>
+      <mat-card-title *ngIf="data.estado == 'agregar'">Agregar Meta para el proyecto</mat-card-title>
+      <mat-card-title *ngIf="data.estado == 'consultar'">Meta para el proyecto</mat-card-title>
+      <mat-card-title *ngIf="data.estado == 'editar'">Editar Meta para el proyecto</mat-card-title>
     </mat-card-header>
+
     <form [formGroup]="formEditar">
-        <mat-form-field appearance="fill" [style.width.%]="95">
-            <mat-label id="nombre-input-label">Nombre Meta</mat-label>
-            <input type="text" matInput formControlName="nombre" placeholder="Ingrese un nombre" required>
-            <!-- <mat-icon matSuffix>create</mat-icon> -->
-            <mat-error *ngIf="formEditar.get('nombre').invalid">
-              {{getErrorMessage(formEditar.get('nombre'))}}
-            </mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="fill" [style.width.%]="95">
-            <mat-label id="desc-input-label">Asignación Presupuesto</mat-label>
-            <input type="text" matInput formControlName="valor" placeholder="Ingrese un valor numérico" required>
-            <mat-error *ngIf="formEditar.get('valor').invalid"> {{getErrorMessage(formEditar.get('valor'))}}</mat-error>
-            <!-- <textarea matInput formControlName="valor" placeholder="Ingrese un valor"
-              required></textarea> -->
-            <!-- <mat-icon matSuffix>create</mat-icon> -->
-            <!-- <mat-error *ngIf="formEditar.get('descripcion').invalid">
-              {{getErrorMessage(formEditar.get('descripcion'))}}
-            </mat-error> -->
-        </mat-form-field>
-        <mat-card-actions style="text-align: center;">
-            <ng-container>
-                <button [disabled]="!formEditar.valid" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="addMeta()"
-                  [mat-dialog-close]="formEditar.value">
-                  Guardar
-                </button>
-              </ng-container>
-              <ng-container>
-                <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="close()">
-                    Cancelar
-                </button>
-              </ng-container>
-        </mat-card-actions>
+      <div class="container-border">
+        <h4>&nbsp;&nbsp;Descripción meta&nbsp;&nbsp;</h4>
+        <textarea class="textareaContenido" formControlName="descripcion"
+          placeholder="* Ingrese la descripción de la meta correspondiente" required></textarea>
+        <mat-error *ngIf="formEditar.get('descripcion').invalid">
+          {{getErrorMessage(formEditar.get('descripcion'))}}
+        </mat-error>
+      </div>
+
+      <div class="container-border">
+        <h4>&nbsp;&nbsp;&nbsp;Formulación&nbsp;&nbsp;&nbsp;</h4>
+        <table class="mat-table cdk-table mat-elevation-z8">
+          <thead>
+            <tr class="mat-header-row cdk-header-row ng-star-inserted">
+              <th></th>
+              <th>Año 1</th>
+              <th>Año 2</th>
+              <th>Año 3</th>
+              <th>Año 4</th>
+              <th>Año 5</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="mat-row cdk-row ng-star-inserted">
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Magnitudes
+                (%)</td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" (blur)="blurMagnitud($event, 1)" (focus)="focusMagnitud($event)"
+                  formControlName="magnitud1" [value]="magnitud1 | percent:'1.2-2'"
+                  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');">
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" (blur)="blurMagnitud($event, 2)" (focus)="focusMagnitud($event)"
+                  formControlName="magnitud2" [value]="magnitud2 | percent:'1.2-2'"
+                  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');">
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" (blur)="blurMagnitud($event, 3)" (focus)="focusMagnitud($event)"
+                  formControlName="magnitud3" [value]="magnitud3 | percent:'1.2-2'"
+                  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');">
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" (blur)="blurMagnitud($event, 4)" (focus)="focusMagnitud($event)"
+                  formControlName="magnitud4" [value]="magnitud4 | percent:'1.2-2'"
+                  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');">
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" (blur)="blurMagnitud($event, 5)" (focus)="focusMagnitud($event)"
+                  formControlName="magnitud5" [value]="magnitud5 | percent:'1.2-2'"
+                  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');">
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" disabled disabled [value]="magnitudT | percent:'1.2-2'">
+              </td>
+            </tr>
+            <tr>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Presupuesto
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                  formControlName="presupuesto1" [value]="presupuesto1 | currency" (blur)="blurPresupuesto($event, 1)"
+                  (focus)="focusPresupuesto($event)">
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                  formControlName="presupuesto2" [value]="presupuesto2 | currency" (blur)="blurPresupuesto($event, 2)"
+                  (focus)="focusPresupuesto($event)">
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                  formControlName="presupuesto3" [value]="presupuesto3 | currency" (blur)="blurPresupuesto($event, 3)"
+                  (focus)="focusPresupuesto($event)">
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                  formControlName="presupuesto4" [value]="presupuesto4 | currency" (blur)="blurPresupuesto($event, 4)"
+                  (focus)="focusPresupuesto($event)">
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                  formControlName="presupuesto5" [value]="presupuesto5 | currency" (blur)="blurPresupuesto($event, 5)"
+                  (focus)="focusPresupuesto($event)">
+              </td>
+              <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                <input matInput type="text" [value]="presupuestoT | currency" disabled>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="buttonContainer">
+        <ng-container>
+          <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="close()">
+            Cerrar</button>
+        </ng-container>
+
+        <ng-container *ngIf="data.estado == 'agregar' || data.estado == 'editar'">
+          <button [disabled]="!formEditar.valid" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
+            (click)="addMeta()">Guardar</button>
+        </ng-container>
+
+        <ng-container *ngIf="data.estado == 'consultar'">
+          <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
+            (click)="editarMeta()">Editar</button>
+        </ng-container>
+      </div>
     </form>
   </mat-card>
 </div>
-

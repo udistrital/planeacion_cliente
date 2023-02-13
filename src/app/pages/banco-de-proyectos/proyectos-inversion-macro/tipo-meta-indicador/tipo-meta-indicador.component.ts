@@ -1,7 +1,6 @@
-import { Component, ViewChild, OnInit, DoCheck } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
@@ -25,11 +24,9 @@ export class TipoMetaIndicadorComponent implements OnInit {
     private formBuilder: FormBuilder,
     private request: RequestManager,
     private activatedRoute: ActivatedRoute,
-  ) { 
+  ) {
     activatedRoute.params.subscribe(prm => {
-
-      this.id_formato = prm['id_formato'];   
-      console.log(this.id_formato);
+      this.id_formato = prm['id_formato'];
     });
     this.cargaFormato();
   }
@@ -57,7 +54,6 @@ export class TipoMetaIndicadorComponent implements OnInit {
     this.request.get(environment.PLANES_MID, `formato/` + this.id_formato).subscribe((data: any) => {
       if (data) {
         Swal.close();
-        //this.estado = plan.estado_plan_id;
         this.steps = data[0]
         this.json = data[1][0]
         this.form = this.formBuilder.group(this.json);
