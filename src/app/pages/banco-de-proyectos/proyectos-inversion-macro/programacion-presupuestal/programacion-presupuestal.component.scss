@@ -221,14 +221,20 @@
   td.mat-footer-cell{
     text-align: center;
     padding: 5px 5px 5px 0;
-    color:black;
+    color:white;
     font-weight: bold;
   }
   th {
     color: white;
     text-align: center;    
   }
-
+  .footcol {    
+    background-color: var(--primary);  
+    color: white; 
+  }
+  .totalPre {    
+    color: black;
+  }
   .cardInfo{    
     color: var(--primary);
     font-size: 16px;

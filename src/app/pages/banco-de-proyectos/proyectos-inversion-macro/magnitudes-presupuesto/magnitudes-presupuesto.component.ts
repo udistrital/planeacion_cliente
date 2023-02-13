@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {FormBuilder, Validators} from '@angular/forms';
 
 export interface Tile {
   color: string;
@@ -15,7 +16,13 @@ export interface Tile {
   styleUrls: ['./magnitudes-presupuesto.component.scss']
 })
 export class MagnitudesPresupuestoComponent implements OnInit {
-
+  firstFormGroup = this._formBuilder.group({
+    firstCtrl: ['', Validators.required],
+  });
+  secondFormGroup = this._formBuilder.group({
+    secondCtrl: ['', Validators.required],
+  });
+  isLinear = false;
   // tiles: Tile[] = [
   //   {text: 'Año 1', cols: 2, rows: 1, color: 'rgb(145, 35, 35)', fuente: 'white', border: '1px solid white;'},
   //   {text: 'Año 2', cols: 2, rows: 1, color: 'rgb(145, 35, 35)', fuente: 'white', border: '1px solid white;'},
@@ -47,7 +54,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
 
   // ];
 
-  constructor() { }
+  constructor(private _formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
   }

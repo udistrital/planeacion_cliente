@@ -29,7 +29,7 @@
         </div>
       </ng-container>
     <mat-card-content>
-        <form [formGroup]="">
+        <form [formGroup]="formArmonizacion">
             <div class="container-border">
                 <h2 class="titulo">Armonización general del Plan de Acción</h2>
                 <div class="container-border">
@@ -40,49 +40,14 @@
                     </mat-card-content>
                     <mat-form-field appearance="fill" [style.width.%]="100">
                         <mat-label id="tipo-input-label">Seleccione el Proyecto de Inversión asociado</mat-label>
-                        <mat-select (selectionChange)="onChange($event.value)">
+                        <mat-select formControlName="selectPrIn" (selectionChange)="onChangePrIn($event.value)">
                             <mat-option>--</mat-option>
-                            <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
-                                {{vigencia.Nombre}}
+                            <mat-option *ngFor="let proIn of proyectosInversion" [value]="proIn">
+                                {{proIn.nombre}}
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <table mat-table [dataSource]="dataProyects" class="mat-elevation-z8">
-
-                      <!-- index -->
-                      <ng-container matColumnDef="codigo" class="num">
-                          <th mat-header-cell *matHeaderCellDef>Código</th>
-                          <td mat-cell *matCellDef="let element" class="num">{{element.codigo}}
-                              <!-- <p *ngIf="element.index!=undefined">
-                                  {{element.index}}
-                              </p>
-                              <p *ngIf="element.index==undefined">
-                                  {{rowIndex+1}}
-                              </p> -->
-                          </td>
-                          <td mat-footer-cell *matFooterCellDef class="footer">
-                              {{step.footer}}
-                          </td>
-                      </ng-container>
-                      <!-- Unidad Column -->
-                      <ng-container matColumnDef="nombre" class="nombre-unidad">
-                          <th mat-header-cell *matHeaderCellDef> Nombre del Proyecto </th>
-                          <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
-                      </ng-container>
-      
-                      <!-- Seleccionar -->
-                      <ng-container matColumnDef="actions" class="col-seleccion">
-                          <th mat-header-cell *matHeaderCellDef>Seleccionar</th>
-                          <td mat-cell *matCellDef="let row" class="mat-column-actions">
-                              <button mat-icon-button (click)="changeIcon(row)">
-                                  <mat-icon>{{row.iconSelected}}</mat-icon>
-                              </button>
-                          </td>
-                      </ng-container>
-      
-                      <tr mat-header-row *matHeaderRowDef="displayedProyects"></tr>
-                      <tr mat-row *matRowDef="let row; columns: displayedProyects;"></tr>
-                    </table>
+                    
                 </div> 
                 <div class="container-border">
                     <mat-card-content>
@@ -90,35 +55,18 @@
                             Armonización Plan de Desarrollo Distrital
                         </u>
                     </mat-card-content>
-                    <mat-form-field appearance="fill" [style.width.%]="100">
-                        <mat-label id="tipo-input-label">Seleccione el Plan de Desarrollo Distrital</mat-label>
-                        <mat-select (selectionChange)="onChange($event.value)">
-                            <mat-option>--</mat-option>
-                            <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
-                                {{vigencia.Nombre}}
-                            </mat-option>
-                        </mat-select>                        
+                    <mat-form-field class="select-armo" appearance="fill" [style.width.%]="100">
+                      <mat-label id="tipo-input-label">Seleccione el plan de desarrollo</mat-label>
+                      <mat-select formControlName="selectPED" (selectionChange)="onChangePD($event.value)">
+                        <mat-option>--</mat-option>
+                        <mat-option *ngFor="let planD of planesDesarrollo" [value]="planD">
+                          {{planD.nombre}}
+                        </mat-option>
+                      </mat-select>
                     </mat-form-field>
-                    <table mat-table [dataSource]="dataPDD" class="mat-elevation-z8">
-                      <!-- Unidad Column -->
-                      <ng-container matColumnDef="niveles" class="nombre-unidad">
-                          <th mat-header-cell *matHeaderCellDef> Niveles </th>
-                          <td mat-cell *matCellDef="let element"> {{element.niveles}} </td>
-                      </ng-container>
-      
-                      <!-- Seleccionar -->
-                      <ng-container matColumnDef="actions" class="col-seleccion">
-                          <th mat-header-cell *matHeaderCellDef>Seleccionar</th>
-                          <td mat-cell *matCellDef="let row" class="mat-column-actions">
-                              <button mat-icon-button (click)="changeIcon(row)">
-                                  <mat-icon>{{row.iconSelected}}</mat-icon>
-                              </button>
-                          </td>
-                      </ng-container>
-      
-                      <tr mat-header-row *matHeaderRowDef="displayedPDD"></tr>
-                      <tr mat-row *matRowDef="let row; columns: displayedPDD;"></tr>
-                    </table>
+                    <app-arbol *ngIf="tipoPlanId !== undefined && tipoPlanId != ''" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre"
+                    [dataArmonizacion]="dataArmonizacionPED" [consulta]="false" [armonizacionPED]="true" [estado]="estadoPlan"
+                    [armonizacionPI]="false" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
                 </div> 
                 <div class="container-border">
                     <mat-card-content>
@@ -126,51 +74,18 @@
                             Armonización Plan Estrategico de Desarrollo
                         </u>
                     </mat-card-content>
-                    <mat-form-field appearance="fill" [style.width.%]="100">
-                        <mat-label id="tipo-input-label">Seleccione el Plan Estrategico de Desarrollo</mat-label>
-                        <mat-select (selectionChange)="onChange($event.value)">
-                            <mat-option>--</mat-option>
-                            <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
-                                {{vigencia.Nombre}}
-                            </mat-option>
-                        </mat-select>
+                    <mat-form-field class="select-armo" appearance="fill" [style.width.%]="100">
+                      <mat-label id="tipo-input-label">Seleccione el plan de desarrollo</mat-label>
+                      <mat-select formControlName="selectPED" (selectionChange)="onChangePD($event.value)">
+                        <mat-option>--</mat-option>
+                        <mat-option *ngFor="let planD of planesDesarrollo" [value]="planD">
+                          {{planD.nombre}}
+                        </mat-option>
+                      </mat-select>
                     </mat-form-field>
-                    <table mat-table [dataSource]="dataPED" class="mat-elevation-z8">
-
-                      <!-- index -->
-                      <ng-container matColumnDef="index" class="num">
-                          <th mat-header-cell *matHeaderCellDef>Código</th>
-                          <td mat-cell *matCellDef="let element" class="num">{{element.index}}
-                              <!-- <p *ngIf="element.index!=undefined">
-                                  {{element.index}}
-                              </p>
-                              <p *ngIf="element.index==undefined">
-                                  {{rowIndex+1}}
-                              </p> -->
-                          </td>
-                          <td mat-footer-cell *matFooterCellDef class="footer">
-                              {{step.footer}}
-                          </td>
-                      </ng-container>
-                      <!-- Unidad Column -->
-                      <ng-container matColumnDef="nombre" class="nombre-unidad">
-                          <th mat-header-cell *matHeaderCellDef> Nombre del Proyecto </th>
-                          <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
-                      </ng-container>
-      
-                      <!-- Seleccionar -->
-                      <ng-container matColumnDef="actions" class="col-seleccion">
-                          <th mat-header-cell *matHeaderCellDef>Seleccionar</th>
-                          <td mat-cell *matCellDef="let row" class="mat-column-actions">
-                              <button mat-icon-button (click)="changeIcon(row)">
-                                  <mat-icon>{{row.iconSelected}}</mat-icon>
-                              </button>
-                          </td>
-                      </ng-container>
-      
-                      <tr mat-header-row *matHeaderRowDef="displayedPED"></tr>
-                      <tr mat-row *matRowDef="let row; columns: displayedPED;"></tr>
-                    </table>
+                    <app-arbol *ngIf="tipoPlanId !== undefined && tipoPlanId != ''" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre"
+                    [dataArmonizacion]="dataArmonizacionPED" [consulta]="false" [armonizacionPED]="true" [estado]="estadoPlan"
+                    [armonizacionPI]="false" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
                 </div>  
                 <div class="container-border">
                     <mat-card-content>
@@ -178,51 +93,19 @@
                             Armonización Plan Indicativo
                         </u>
                     </mat-card-content>
-                    <mat-form-field appearance="fill" [style.width.%]="100">
-                        <mat-label id="tipo-input-label">Seleccione el Plan Indicativo</mat-label>
-                        <mat-select (selectionChange)="onChange($event.value)">
-                            <mat-option>--</mat-option>
-                            <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
-                                {{vigencia.Nombre}}
-                            </mat-option>
-                        </mat-select>
+                    <mat-form-field class="select-armo" appearance="fill" [style.width.%]="100">
+                      <mat-label id="tipo-input-label">Seleccione el plan indicativo</mat-label>
+                      <mat-select formControlName="selectPI" (selectionChange)="onChangePI($event.value)">
+                        <mat-option>--</mat-option>
+                        <mat-option *ngFor="let planI of planesIndicativos" [value]="planI">
+                          {{planI.nombre}}
+                        </mat-option>
+                      </mat-select>
                     </mat-form-field>
-                    <table mat-table [dataSource]="dataPI" class="mat-elevation-z8">
-
-                      <!-- index -->
-                      <ng-container matColumnDef="index" class="num">
-                          <th mat-header-cell *matHeaderCellDef>Código</th>
-                          <td mat-cell *matCellDef="let element" class="num">{{element.index}}
-                              <!-- <p *ngIf="element.index!=undefined">
-                                  {{element.index}}
-                              </p>
-                              <p *ngIf="element.index==undefined">
-                                  {{rowIndex+1}}
-                              </p> -->
-                          </td>
-                          <td mat-footer-cell *matFooterCellDef class="footer">
-                              {{step.footer}}
-                          </td>
-                      </ng-container>
-                      <!-- Unidad Column -->
-                      <ng-container matColumnDef="nombre" class="nombre-unidad">
-                          <th mat-header-cell *matHeaderCellDef> Nombre del Proyecto </th>
-                          <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
-                      </ng-container>
-      
-                      <!-- Seleccionar -->
-                      <ng-container matColumnDef="actions" class="col-seleccion">
-                          <th mat-header-cell *matHeaderCellDef>Seleccionar</th>
-                          <td mat-cell *matCellDef="let row" class="mat-column-actions">
-                              <button mat-icon-button (click)="changeIcon(row)">
-                                  <mat-icon>{{row.iconSelected}}</mat-icon>
-                              </button>
-                          </td>
-                      </ng-container>
-      
-                      <tr mat-header-row *matHeaderRowDef="displayedPI"></tr>
-                      <tr mat-row *matRowDef="let row; columns: displayedPI;"></tr>
-                    </table>
+                    <app-arbol *ngIf="tipoPlanIndicativo !== undefined && tipoPlanIndicativo !== ''"
+                    [tipoPlanId]="tipoPlanIndicativo" [idPlan]="idPlanIndicativo" [dataArmonizacion]="dataArmonizacionPI"
+                    [consulta]="false" [armonizacionPED]="false" [armonizacionPI]="true" [estado]="estadoPlan" (grupo)="receiveMessagePI($event)"
+                    [updateSignal]="eventChange"></app-arbol>                  
                 </div> 
                 <div style="margin: 1rem; text-align: center;">
                   <button  class="footbtn" mat-raised-button color="primary" (click)="guardar()">Confirmar</button>
@@ -237,28 +120,43 @@
 
 <mat-card class="container-border">
   <mat-card-header>
-    <h2 class="titulo">Metas Relacionadas al Plan de Acción de Inversión</h2>
+    <h2 class="titulo">Listado de metas relacionadas</h2>
   </mat-card-header>
   <table mat-table [dataSource]="dataMetas" matSort>
-    <ng-container matColumnDef="Index">
+    <ng-container matColumnDef="Posicion">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> N° </th>     
-      <td  mat-cell *matCellDef="let row">{{row.Index}}</td>      
+      <td  mat-cell *matCellDef="let row">{{row.Posicion}}</td> 
+      <td mat-footer-cell *matFooterCellDef></td>     
     </ng-container>
     <ng-container matColumnDef="Meta">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Meta </th>      
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="metas">Meta</th>      
       <td  mat-cell *matCellDef="let row"> {{row.Meta}} </td>
-      
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
     <ng-container matColumnDef="TipodeMeta">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo de Meta </th>      
-      <td mat-cell *matCellDef="let row"> {{row.TipodeMeta}} </td>      
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="metas"> Tipo de Meta </th>      
+      <td mat-cell *matCellDef="let row"> {{row.TipodeMeta}} </td>  
+      <td mat-footer-cell *matFooterCellDef class ="footcol"> Total </td>    
     </ng-container>
     <ng-container matColumnDef="Presupuesto">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Presupuesto Programado </th>      
-      <td  mat-cell *matCellDef="let row"> {{row.Presupuesto}} </td>      
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="prog"> Presupuesto Programado </th>      
+      <td  mat-cell *matCellDef="let row"> {{row.Presupuesto}} </td>  
+      <td mat-footer-cell *matFooterCellDef><div class="totalPre">{{getTotalPresupuesto() | currency}} </div></td>          
+    </ng-container>
+    <ng-container matColumnDef="Acciones">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="metas"> Acciones </th>      
+      <td mat-cell *matCellDef="let row; let rowIndex = index;"> 
+        <button mat-raised-button color="primary" (click)="programarMagnitudes()">
+          <mat-icon>search</mat-icon>
+        </button> 
+        <button mat-raised-button color="primary" (click)="guardar()">
+          <mat-icon>delete</mat-icon>
+        </button>  
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>     
     </ng-container>
     <ng-container matColumnDef="ProgPresupuestal">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Prog. Presupupuestal </th>      
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="prog"> Prog. Presupupuestal </th>      
       <td mat-cell *matCellDef="let row; let rowIndex = index;"> 
         <button mat-raised-button color="primary" (click)="programarMagnitudes()">
           <mat-icon>add_box</mat-icon>
@@ -266,10 +164,11 @@
         <button mat-raised-button color="primary" (click)="guardar()">
           <mat-icon>search</mat-icon>
         </button>  
-      </td>     
+      </td>  
+      <td mat-footer-cell *matFooterCellDef></td>   
     </ng-container>
     <ng-container matColumnDef="ProgActividades">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Prog. Actividades </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="prog"> Prog. Actividades </th>
       <td mat-cell *matCellDef="let row; let rowIndex = index">
         <button mat-raised-button color="primary" (click)="programarIdentificacion()">
           <mat-icon>add_box</mat-icon>
@@ -278,14 +177,16 @@
           <mat-icon>search</mat-icon>
         </button>        
       </td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>    
     <div>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </div>
-    <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" colspan="4"></td>
-    </tr>
+    <!-- <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" colspan="1"></td>
+    </tr> -->
+    <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
   </table>
   <div style="margin: 1rem; text-align: center;">
     <button mat-raised-button color="primary" (click)="guardar()">Culminar</button>
