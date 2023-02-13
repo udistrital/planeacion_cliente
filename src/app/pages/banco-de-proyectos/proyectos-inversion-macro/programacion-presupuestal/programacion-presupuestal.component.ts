@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {FormControl} from '@angular/forms';
+import {FormControl, Validators} from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 
 export interface Fuentes {
@@ -7,12 +7,12 @@ export interface Fuentes {
   fuente: string;
   valor: string;
   disponible: string;
-  estimado: string;
+  estimado: number;
 }
 
 const INFO: Fuentes[] = [
-   {index: 1, fuente: 'Fuente 1', valor: '$ Valor que se extrae del valor de la apropiación', disponible: 'valor apropiación global- Valor estimado', estimado: '$ Valor que ingresa la unidad'},
-   {index: 2, fuente: 'Fuente 2', valor: '$ Valor que se extrae del valor de la apropiación', disponible: 'valor apropiación global- Valor estimado', estimado: '$ Valor que ingresa la unidad'},
+   {index: 1, fuente: 'Fuente 1', valor: '$ Valor que se extrae del valor de la apropiación', disponible: 'valor apropiación global- Valor estimado', estimado: 0},
+   {index: 2, fuente: 'Fuente 2', valor: '$ Valor que se extrae del valor de la apropiación', disponible: 'valor apropiación global- Valor estimado', estimado: 0},
 ]
 
 @Component({
@@ -27,13 +27,15 @@ export class ProgramacionPresupuestalComponent implements OnInit {
   fuente: any;
   totalPresupuesto: any;
   toppings = new FormControl('');
+  valor: number;
   toppingList: string[] = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
   constructor() { }
 
   ngOnInit(): void {
+    valor: [this.valor, Validators.required]
   }
   getTotalPresupuesto() {    
-    return this.totalPresupuesto = this.dataFuentes.map(t => t.presupuesto).reduce((acc, value) => acc + value, 0);
+    return this.totalPresupuesto = this.dataFuentes.map(t => t.estimado).reduce((acc, value) => acc + value, 0);
     
   }
   guardar() {

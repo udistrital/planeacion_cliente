@@ -36,6 +36,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   actividad: any;
   actividadId: string;
   actividadSelected: boolean;
+  totalPresupuesto: any;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -46,6 +47,8 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.getTotalPonderacion();
+    this.getTotalPresupuesto();
   }
 
   prevStep(step) {
@@ -63,7 +66,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       this.actividadSelected = true;
       this.actividad = actividad; 
       this.actividadId = this.actividad._id;
-      console.log(this.actividadId, "valor actividad", this.actividadSelected);     
+      //console.log(this.actividadId, "valor actividad", this.actividadSelected);     
     }
   }
 
@@ -101,7 +104,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       if (data) {
         if (data.Data.length != 0) {
           this.actividades = data.Data;          
-          console.log(this.actividades, "actividades");
+          //console.log(this.actividades, "actividades");
         }
       }
     }, (error) => {
@@ -113,6 +116,15 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         timer: 2500
       })
     })
+  }
+  getTotalPonderacion() {    
+    return this.totalPresupuesto = INFO.map(t => t.ponderacion).reduce((acc, value) => acc + value, 0);
+    
+  }
+
+  getTotalPresupuesto() {    
+    return this.totalPresupuesto = INFO.map(t => t.presupuesto).reduce((acc, value) => acc + value, 0);
+    
   }
 
   programacionPresupuestal() {

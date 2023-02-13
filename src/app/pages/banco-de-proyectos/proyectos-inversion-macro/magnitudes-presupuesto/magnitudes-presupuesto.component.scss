@@ -107,8 +107,7 @@
   }
   
   .btn-formato{
-    align-content: center;
-    display: flex;
+   text-align: center;
   }
   
   
@@ -239,11 +238,13 @@
     border-radius: 15px 15px 15px 15px;
   }
 
-  mat-form-field {
-    width: 100;
-    text-align: center;
+  // mat-form-field {
+  //   width: 100;
+  //   text-align: center;
     
-  }
+  // }
+
+  
   
   
   

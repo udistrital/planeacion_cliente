@@ -246,6 +246,108 @@ mat-grid-tile {
 .text-area {
   width: 100%;
 }
+
+.mat-column-posicion{
+  text-align: center; 
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 34% !important;
+  width: 6% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+} 
+
+.mat-column-actividad{
+  text-align: center; 
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 34% !important;
+  width: 24% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+} 
+.mat-column-ponderacion{
+  text-align: center; 
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 34% !important;
+  width: 24% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.mat-column-presupuesto{
+  text-align: center; 
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 34% !important;
+  width: 24% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+} 
+
+.mat-column-actions{
+  text-align: center; 
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 34% !important;
+  width: 24% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+.metas {
+  padding-left: 6%;    
+}
+.prog {
+  padding-left: 3%;    
+}
+.footcol {    
+  background-color: var(--primary);   
+}
+.totalPre {    
+  color: black;
+}
+td.mat-footer-cell{
+  text-align: center;
+  padding: 5px 5px 5px 0;
+  color:white;
+  font-weight: bold;
+}
   
   
   
