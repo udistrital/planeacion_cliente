@@ -2,6 +2,7 @@ import { CurrencyPipe, PercentPipe } from '@angular/common';
 import { Component, OnInit, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-agregar-meta-dialog',
@@ -160,14 +161,6 @@ export class AgregarMetaDialogComponent implements OnInit {
         }
         element.target.value = this.currencyPipe.transform(this.presupuesto5);
         break;
-      case 6:
-        if (element.target.value == "") {
-          this.presupuestoT = 0;
-        } else {
-          this.presupuestoT = parseInt(element.target.value.replaceAll(",", "").replace(".00", ""));
-        }
-        element.target.value = this.currencyPipe.transform(this.presupuestoT);
-        break;
     }
     this.presupuestoT = this.presupuesto1 + this.presupuesto2 + this.presupuesto3 + this.presupuesto4 + this.presupuesto5;
   }
@@ -179,42 +172,97 @@ export class AgregarMetaDialogComponent implements OnInit {
   blurMagnitud(element, index) {
     switch (index) {
       case 1:
+        this.magnitudT -= this.magnitud1;
         if (element.target.value == "") {
           this.magnitud1 = 0;
         } else {
           this.magnitud1 = parseFloat(element.target.value) / 100;
+          if (this.magnitudT + this.magnitud1 > 1) {
+            Swal.fire({
+              title: 'La magnitud total no puede ser mayor a 100%',
+              text: "",
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            });
+            this.magnitud1 = 0;
+          }
         }
         element.target.value = this.percentagePipe.transform(this.magnitud1, '1.2-2');
         break;
       case 2:
+        this.magnitudT -= this.magnitud2;
         if (element.target.value == "") {
           this.magnitud2 = 0;
         } else {
           this.magnitud2 = parseFloat(element.target.value) / 100;
+          if (this.magnitudT + this.magnitud2 > 1) {
+            Swal.fire({
+              title: 'La magnitud total no puede ser mayor a 100%',
+              text: "",
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            });
+            this.magnitud2 = 0;
+          }
         }
         element.target.value = this.percentagePipe.transform(this.magnitud2, '1.2-2');
         break;
       case 3:
+        this.magnitudT -= this.magnitud3;
         if (element.target.value == "") {
           this.magnitud3 = 0;
         } else {
           this.magnitud3 = parseFloat(element.target.value) / 100;
+          if (this.magnitudT + this.magnitud3 > 1) {
+            Swal.fire({
+              title: 'La magnitud total no puede ser mayor a 100%',
+              text: "",
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            });
+            this.magnitud3 = 0;
+          }
         }
         element.target.value = this.percentagePipe.transform(this.magnitud3, '1.2-2');
         break;
       case 4:
+        this.magnitudT -= this.magnitud4;
         if (element.target.value == "") {
           this.magnitud4 = 0;
         } else {
           this.magnitud4 = parseFloat(element.target.value) / 100;
+          if (this.magnitudT + this.magnitud4 > 1) {
+            Swal.fire({
+              title: 'La magnitud total no puede ser mayor a 100%',
+              text: "",
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            });
+            this.magnitud4 = 0;
+          }
         }
         element.target.value = this.percentagePipe.transform(this.magnitud4, '1.2-2');
         break;
       case 5:
+        this.magnitudT -= this.magnitud5;
         if (element.target.value == "") {
           this.magnitud5 = 0;
         } else {
           this.magnitud5 = parseFloat(element.target.value) / 100;
+          if (this.magnitudT + this.magnitud5 > 1) {
+            Swal.fire({
+              title: 'La magnitud total no puede ser mayor a 100%',
+              text: "",
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            });
+            this.magnitud5 = 0;
+          }
         }
         element.target.value = this.percentagePipe.transform(this.magnitud5, '1.2-2');
         break;

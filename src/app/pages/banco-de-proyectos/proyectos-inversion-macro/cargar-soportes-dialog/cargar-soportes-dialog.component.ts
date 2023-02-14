@@ -1,14 +1,12 @@
-import { Component, OnInit, Inject, AfterContentChecked, DoCheck } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatRadioChange } from '@angular/material/radio';
+import { Component, OnInit, Inject } from '@angular/core';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
-import { AgregarProyectoVigenteComponent } from '../agregar-proyecto-vigente/agregar-proyecto-vigente.component';
 import Swal from 'sweetalert2';
-import {  GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service'
+import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service'
 
-export interface DialogData {  
+export interface DialogData {
   documentos: any[];
 }
 
@@ -19,7 +17,7 @@ export interface DialogData {
 })
 export class CargarSoportesDialogComponent implements OnInit {
   formEditar: FormGroup;
-  nombre: string;  
+  nombre: string;
   required: boolean;
   documentos: any[] = [];
   animal: string
@@ -29,21 +27,21 @@ export class CargarSoportesDialogComponent implements OnInit {
     private request: RequestManager,
     private gestorDocumental: GestorDocumentalService,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { 
-    
+  ) {
   }
 
   ngOnInit(): void {
     this.formEditar = this.formBuilder.group({
-      nombre: [this.nombre, Validators.required], 
-      documentos: ['',],     
+      nombre: [this.nombre, Validators.required],
+      documentos: ['',],
     });
   }
+
   ngOnDestroy() {
     this.close();
   }
 
-  close(): void {    
+  close(): void {
     this.dialogRef.close(this.documentos);
   }
 
@@ -54,8 +52,8 @@ export class CargarSoportesDialogComponent implements OnInit {
       return 'Introduzca un valor válido';
     }
   }
-  
-  async onChangeDocumento(event) {    
+
+  async onChangeDocumento(event) {
     if (event != undefined) {
       let aux = event.files[0];
       const found = this.documentos.find(element => element.nombre == aux.name && element.Activo);
@@ -69,10 +67,10 @@ export class CargarSoportesDialogComponent implements OnInit {
             Swal.showLoading();
           },
         })
-
+        this.nombre = this.formEditar.get("nombre").value;
         let documento = {
           IdTipoDocumento: 66,
-          nombre: aux.name,
+          nombre: this.nombre ? this.nombre : aux.name,
           metadatos: {
             dato_a: "Soportes planeacion"
           },
@@ -84,21 +82,19 @@ export class CargarSoportesDialogComponent implements OnInit {
 
         let documentoPorSubir = {
           documento: this.documentos,
-          //evidencia: this.seguimiento.evidencia
         };
 
         this.request.post(environment.PLANES_MID, `inversion/guardar_documentos`, documentoPorSubir).subscribe((data: any) => {
           if (data) {
             Swal.fire({
-            title: 'Documento Cargado',
-            text: `Revise el campo de soportes para visualizar o eliminar`,
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 2000
-          }).then(res => {
-            this.documentos = data.Data;
-          });
-                    
+              title: 'Documento Cargado',
+              text: `Revise el campo de soportes para visualizar o eliminar`,
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 2000
+            }).then(res => {
+              this.documentos = data.Data;
+            });
           }
         }, (error) => {
           this.documentos.pop();
@@ -110,8 +106,6 @@ export class CargarSoportesDialogComponent implements OnInit {
             timer: 2500
           })
         })
-
-
       } else {
         Swal.fire({
           title: 'Error en la operación',
@@ -121,7 +115,6 @@ export class CargarSoportesDialogComponent implements OnInit {
           timer: 2000
         })
       }
-
     } else {
       Swal.fire({
         title: 'Error en la operación',
@@ -132,6 +125,4 @@ export class CargarSoportesDialogComponent implements OnInit {
       })
     }
   }
-
-  
 }
