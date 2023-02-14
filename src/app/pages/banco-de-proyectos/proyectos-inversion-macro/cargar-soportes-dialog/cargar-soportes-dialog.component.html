@@ -7,7 +7,6 @@
       <mat-form-field appearance="fill" [style.width.%]="100">
         <mat-label id="nombre-input-label">Nombre</mat-label>
         <input type="text" matInput formControlName="nombre" placeholder="Busque un Archivo" required>
-        <!-- <mat-icon matSuffix>create</mat-icon> -->
         <mat-error *ngIf="formEditar.get('nombre').invalid">
           {{getErrorMessage(formEditar.get('nombre'))}}
         </mat-error>
