@@ -131,7 +131,7 @@ export class AgregarProyectoVigenteComponent implements OnInit {
 
   async revisarDocumento(row) {
     Swal.fire({
-      title: 'Cargando Proyectos',
+      title: 'Cargando documento',
       timerProgressBar: true,
       showConfirmButton: false,
       willOpen: () => {
@@ -226,17 +226,21 @@ export class AgregarProyectoVigenteComponent implements OnInit {
   }
 
   blurPresupuesto(element, rowIndex) {
-    if (String(element.target.value).includes("$")) {
-      this.dataSource.data[rowIndex]["presupuestoProyecto"] = parseInt(element.target.value.replaceAll("$", "").replaceAll(",", "").replace(".00", ""));
-    } else {
-      if (element.target.value == "") {
-        this.dataSource.data[rowIndex]["presupuestoProyecto"] = this.totalPresupuestoTemp;
+    if (element.target.value != "") {
+      let presupuesto = parseInt(element.target.value.replaceAll(",", "").replace(".00", ""));
+      if (presupuesto > this.dataSource.data[rowIndex]["presupuestoDisponible"]) {
+        Swal.fire('El valor no puede superar el presupuesto disponible', '', 'info');
+        this.dataSource.data[rowIndex]["presupuestoProyecto"] = 0;
         element.target.value = this.currencyPipe.transform(this.dataSource.data[rowIndex]["presupuestoProyecto"]);
         this.dataSource.data[rowIndex]["presupuestoDisponible"] -= this.dataSource.data[rowIndex]["presupuestoProyecto"];
       } else {
         this.dataSource.data[rowIndex]["presupuestoProyecto"] = parseInt(element.target.value.replaceAll(",", "").replace(".00", ""));
         this.dataSource.data[rowIndex]["presupuestoDisponible"] -= this.dataSource.data[rowIndex]["presupuestoProyecto"];
       }
+    } else {
+      this.dataSource.data[rowIndex]["presupuestoProyecto"] = this.totalPresupuestoTemp;
+      element.target.value = this.currencyPipe.transform(this.dataSource.data[rowIndex]["presupuestoProyecto"]);
+      this.dataSource.data[rowIndex]["presupuestoDisponible"] -= this.dataSource.data[rowIndex]["presupuestoProyecto"];
     }
     this.getTotalPresupuestoProyecto();
   }
@@ -316,6 +320,14 @@ export class AgregarProyectoVigenteComponent implements OnInit {
   }
 
   getDataProyect() {
+    Swal.fire({
+      title: 'Cargando Proyectos',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.PLANES_MID, 'inversion/proyecto/' + this.id).subscribe((data: any) => {
       if (data) {
         this.formProyect.setValue({
@@ -337,19 +349,20 @@ export class AgregarProyectoVigenteComponent implements OnInit {
           }
         }
 
-        this.selectFuente = new FormControl(this.selectedFuentes)
+        this.selectFuente = new FormControl(this.selectedFuentes);
         this.dataSource = new MatTableDataSource<Fuentes>(fuentesTabla);
 
         this.soportes = data["Data"]["soportes"];
         this.dataSourceSoportes = new MatTableDataSource<Soportes>(this.soportes);
 
-        this.metas = data["Data"]["metas"]
+        this.metas = data["Data"]["metas"];
         this.dataSourceMetas = new MatTableDataSource<Metas>(this.metas);
 
-        this.idFuentes = data["Data"]["id_detalle_fuentes"]
-        this.idMetas = data["Data"]["id_detalle_metas"]
-        this.idSoportes = data["Data"]["id_detalle_soportes"]
+        this.idFuentes = data["Data"]["id_detalle_fuentes"];
+        this.idMetas = data["Data"]["id_detalle_metas"];
+        this.idSoportes = data["Data"]["id_detalle_soportes"];
       }
+      Swal.close();
     })
   }
 

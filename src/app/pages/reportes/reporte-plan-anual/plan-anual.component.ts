@@ -229,7 +229,7 @@ export class PlanAnualComponent implements OnInit {
 
   onChangeC(categoria) {
     this.evaluacion = false;
-    if (categoria === 'necesidades') {
+    if (categoria == 'necesidades') {
       this.form.get('tipoReporte').setValue('general');
       this.form.get('tipoReporte').setValue(null);
       this.form.get('tipoReporte').disable();
@@ -237,7 +237,7 @@ export class PlanAnualComponent implements OnInit {
       this.form.get('unidad').disable();
       this.form.get('estado').enable();
       this.unidadVisible = false;
-    } if (categoria === 'evaluacion') {
+    } else if (categoria == 'evaluacion') {
       this.form.get('tipoReporte').setValue(null);
       this.form.get('tipoReporte').disable();
       this.form.get('estado').setValue(null);
@@ -249,6 +249,68 @@ export class PlanAnualComponent implements OnInit {
       this.form.get('estado').enable();
       this.unidadVisible = true;
     }
+  }
+
+  verificar() {
+    let unidad = this.form.get('unidad').value;
+    let vigencia = this.form.get('vigencia').value;
+    let tipoReporte = this.form.get('tipoReporte').value;
+    let categoria = this.form.get('categoria').value;
+    let estado = this.form.get('estado').value;
+    let plan = this.form.get('plan').value;
+    let body = {
+      tipo_plan_id: "61639b8c1634adf976ed4b4c",
+      vigencia: (vigencia.Id).toString(),
+      nombre: plan.nombre
+    };
+    Swal.fire({
+      title: 'Validando reporte',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    if (categoria === 'planAccion') {
+      if (tipoReporte === 'unidad') {
+        body["unidad_id"] = (unidad.Id).toString();
+        body["estado_plan_id"] = estado;
+        body["categoria"] = "Plan de acción unidad";
+      } else if (tipoReporte === 'general') {
+        body["estado_plan_id"] = estado;
+        body["categoria"] = "Plan de acción general";
+      }
+    } else if (categoria === 'necesidades') {
+      body["estado_plan_id"] = estado;
+      body["categoria"] = "Necesidades";
+    } else if (categoria === 'evaluacion') {
+      body["unidad_id"] = (unidad.Id).toString();
+      body["categoria"] = "Evaluación";
+    }
+
+    this.request.post(environment.PLANES_MID, `reportes/validar_reporte`, body).subscribe((res: any) => {
+      if (res) {
+        if (res.Data.reporte) {
+          this.generar();
+        } else {
+          Swal.fire({
+            title: 'No es posible generar un reporte',
+            text: res.Data.mensaje,
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 3500
+          })
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No es posible generar el reporte`,
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   generar() {
