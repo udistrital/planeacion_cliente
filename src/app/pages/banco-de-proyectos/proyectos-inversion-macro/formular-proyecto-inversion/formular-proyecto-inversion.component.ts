@@ -1,9 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ControlContainer, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
+
+export interface Metas {
+  Posicion: string;
+  Meta: string;
+  TipodeMeta: string;
+  Presupuesto: number;
+  //P0rogPresupuestal: string;
+  //ProgActividades: string;
+}
+
+const TABLA: Metas[] =  [
+  {Posicion: '1', Meta: 'Proyecto A', TipodeMeta: 'x', Presupuesto: 30000, },
+  {Posicion: '2', Meta: 'Proyecto A', TipodeMeta: 'x', Presupuesto: 30000, },
+]
 
 @Component({
   selector: 'app-formular-proyecto-inversion',
@@ -11,18 +28,78 @@ import Swal from 'sweetalert2';
   styleUrls: ['./formular-proyecto-inversion.component.scss']
 })
 export class FormularProyectoInversionComponent implements OnInit {
+  activedStep = 0;
   vigencias: any[];
+  metas: any[];
   vigencia: any;
   unidades: any[];
   unidad: any;
   planes: any[];
   plan: any;
+  newPlanId: string;
+  addActividad: boolean;
+  clonar: boolean;
+  moduloVisible: boolean;
+  isChecked: boolean
   vigenciaSelected: boolean;
   unidadSelected: boolean;
   planSelected: boolean;
   guardarDisabled: boolean;  
+  dataT: boolean;
+  banderaEdit: boolean;
+  displayedColumns: string[] = ['Posicion', 'Meta', 'TipodeMeta', 'Presupuesto', 'Acciones', 'ProgPresupuestal', 'ProgActividades'];
+  dataMetasP: any;
+  dataMetas = new MatTableDataSource<Metas>(TABLA);   
+  columnsToDisplay: string[]
+  dataSource: MatTableDataSource<any>;
+  unidadesInteres: any;
+  meta: any;
+  id_formato: string; 
+  totalPresupuesto: any;
+  idPlanIndicativo: string;
+  idProyectoInversion: string;
+  tipoPlanId: string;
+  rowActividad: string;
+  idPadre: string;
+  idPadreDD: string;
+  tipoPlanIdDD: string;
+  tipoProyectoInversion: string;
+  tipoPlanIndicativo: string;
+  proyectosInversion: any[];
+  planesDesarrolloDistrital: any[];
+  planesDesarrollo: any[];
+  planesIndicativos: any[];
+  planDDSelected: boolean;
+  planDSelected: boolean;
+  planISelected: boolean;
+  planAsignado: boolean;
+  proyectSelected: boolean;
+  metaSelected: boolean;
+  dataArmonizacionPED: string[] = [];
+  dataArmonizacionPI: string[] = [];
+  dataArmonizacionPDD: string[] = [];
+  estadoPlan: string;
+  iconEstado: string;
+  iconEditar: string;
+  versionPlan: string;
+  banderaUltimaVersion: boolean;
+  readOnlyAll: boolean = false;
+  planAux: any;
+  versiones: any[];
+  steps: any[];
+  json: any;
+  actividades: boolean = false;
+  formular: boolean = false;
+  formArmonizacion: FormGroup;
+  form: FormGroup;
+  controlVersion = new FormControl();
+  defaultFilterPredicate?: (data: any, filter: string) => boolean;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
   constructor(
     private request: RequestManager,
+    private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private router: Router,
   ) {
@@ -32,9 +109,70 @@ export class FormularProyectoInversionComponent implements OnInit {
     this.vigenciaSelected = false;
     this.unidadSelected = false;
     this.guardarDisabled = false;
+    this.addActividad = false;
+    this.planSelected = false;
+    this.unidadSelected = false;
+    this.vigenciaSelected = false;
+    this.clonar = false;
+    //this.identRecursos = false;
+    //this.identContratistas = false;
+    //this.identDocentes = false;
+    this.dataT = false;
+    this.moduloVisible = false;
+    this.isChecked = true;
+    
    }
 
   ngOnInit(): void {
+    this.formArmonizacion = this.formBuilder.group({
+      selectPDD: ['',],
+      selectPED: ['',],
+      selectPI: ['',],
+      selectPrIn: ['',]
+    });
+    this.getTotalPresupuesto(); 
+  }
+
+  // onChange(value) {
+  //   console.log(value,"prueba")
+  // }
+
+  prevStep(step) {
+    this.activedStep = step - 1;
+  }
+
+  nextStep(step) {
+    this.activedStep = step + 1;
+  }
+
+  cargaFormato() {
+    Swal.fire({
+      title: 'Cargando formato',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    
+    this.request.get(environment.PLANES_MID, `formato/` + this.plan._id).subscribe((data: any) => {
+      if (data) {
+        Swal.close();
+        //this.estado = plan.estado_plan_id;
+        this.steps = data[0]
+        console.log(this.steps, "steps")
+        this.json = data[1][0]
+        this.form = this.formBuilder.group(this.json);
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   loadVigencias() {
@@ -60,6 +198,13 @@ export class FormularProyectoInversionComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;  
+      this.addActividad = false;
+      this.estadoPlan = "";
+      this.iconEstado = "";
+      this.versionPlan = "";
+      if (this.unidadSelected && this.planSelected) {
+        this.busquedaPlanes(this.planAux);
+      }
       //console.log(this.vigencia, "valor vigencia", this.vigenciaSelected); 
     }
   }
@@ -69,6 +214,8 @@ export class FormularProyectoInversionComponent implements OnInit {
       if (data) {
         if (data.Data.length != 0) {          
           this.unidades = data.Data;
+          //this.auxUnidades = data.Data;
+          this.moduloVisible = true;
           //console.log(this.unidades, "unidades")
         }
       }
@@ -88,9 +235,48 @@ export class FormularProyectoInversionComponent implements OnInit {
       this.unidadSelected = false;
     } else {
       this.unidadSelected = true;
+      this.addActividad = false;
       this.unidad = unidad;  
-      //console.log(this.unidad, "valor unidad", this.unidadSelected);    
+      this.estadoPlan = "";
+      this.iconEstado = "";
+      this.versionPlan = "";
+      if (this.vigenciaSelected && this.planSelected) {
+        this.busquedaPlanes(this.planAux);
+      }
+      console.log(this.unidad, "valor unidad", this.unidadSelected);    
     }
+  }
+
+  busquedaPlanes(planB) {
+    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
+      this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe((data: any) => {
+        if (data.Data.length > 0) {
+          this.getVersiones(planB);
+        } else if (data.Data.length == 0) {
+          Swal.fire({
+            title: 'Formulación nuevo plan',
+            html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
+              'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
+              'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
+              '<i>Deberá formular el plan</i>',
+            // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}. 
+            // Deberá formular un nuevo plan`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 7000
+          })
+          this.clonar = true;
+          this.plan = planB;
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
   }
 
   loadPlanes() {
@@ -98,6 +284,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       if (data) {
         if (data.Data.length != 0) {
           this.planes = data.Data;
+          //this.planes = this.filterPlanes(this.planes);
           //console.log(this.planes, "planes");
         }
       }
@@ -112,39 +299,406 @@ export class FormularProyectoInversionComponent implements OnInit {
     })
   }
 
+  getVersiones(planB) {
+    let aux = planB.nombre.replace(/ /g, "%20");
+    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.unidad.Id + `/` + this.vigencia.Id +
+      `/` + aux).subscribe((data: any) => {
+        if (data) {
+          this.versiones = data;
+          for (var i in this.versiones) {
+            var obj = this.versiones[i];
+            var num = +i + 1;
+            obj["numero"] = num.toString();
+          }
+          var len = this.versiones.length;
+          var pos = +len - 1;
+          this.plan = this.versiones[pos];
+          this.planAsignado = true;
+          this.clonar = false;
+          this.banderaUltimaVersion = true;
+          this.loadData();
+          this.controlVersion = new FormControl(this.plan);
+          this.versionPlan = this.plan.numero;
+          this.getEstado();
+        }
+      }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+  // visualizeObs() {
+  //   if (this.rol == 'JEFE_DEPENDENCIA') {
+  //     if (this.estadoPlan == 'En formulación') {
+  //       if (this.versiones.length == 1) {
+  //         this.hiddenObs = true;
+  //       } else if (this.versiones.length > 1 && this.banderaEdit && this.addActividad) {
+  //         this.hiddenObs = false;
+  //       } else if (this.versiones.length > 1 && !this.banderaEdit && this.addActividad) {
+  //         this.hiddenObs = true;
+  //       }
+  //       this.readonlyObs = true;
+  //       this.readOnlyAll = false;
+  //     }
+  //     if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
+  //       this.readonlyObs = true;
+  //       this.readOnlyAll = true;
+  //       this.hiddenObs = false;
+  //     }
+  //     if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
+  //       this.readonlyObs = true;
+  //       this.readOnlyAll = true;
+  //       this.hiddenObs = true;
+  //     }
+  //   }
+  //   if (this.rol == 'PLANEACION') {
+  //     if (this.estadoPlan == 'En formulación') {
+  //       this.readonlyObs = true;
+  //       this.readOnlyAll = true;
+  //       this.hiddenObs = false;
+  //     }
+  //     if (this.estadoPlan == 'En revisión') {
+  //       this.readOnlyAll = true;
+  //       this.readonlyObs = false;
+  //       this.hiddenObs = false;
+  //     }
+  //     if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
+  //       this.readOnlyAll = true;
+  //       this.readonlyObs = true;
+  //       this.hiddenObs = false;
+  //     }
+  //     if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
+  //       this.readonlyObs = true;
+  //       this.readOnlyAll = true;
+  //       this.hiddenObs = true;
+  //     }
+  //   }
+  // }
+  getEstado() {
+    this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.plan.estado_plan_id).subscribe((data: any) => {
+      if (data) {
+        this.estadoPlan = data.Data.nombre;
+        this.getIconEstado();
+        this.cargarPlanesDesarrolloDistrital();
+        this.cargarPlanesDesarrollo();
+        this.cargarPlanesIndicativos();
+        this.cargarProyectosInversion();
+        
+        //this.visualizeObs();
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  getIconEstado() {
+    if (this.plan.estado_plan_id == '614d3ad301c7a200482fabfd') {
+      this.iconEstado = "create";
+    } else if (this.plan.estado_plan_id == '614d3aeb01c7a245952fabff') {
+      this.iconEstado = "assignment_turned_in";
+    } else if (this.plan.estado_plan_id == '614d3b0301c7a2a44e2fac01') {
+      this.iconEstado = "pageview";
+    } else if (this.plan.estado_plan_id == '614d3b1e01c7a265372fac03') {
+      this.iconEstado = "assignment_return";
+    } else if (this.plan.estado_plan_id == '614d3b4401c7a222052fac05') {
+      this.iconEstado = "done";
+    } else if (this.plan.estado_plan_id == '6153355601c7a2365b2fb2a1') {
+      this.iconEstado = "done_all"
+    } else if (this.plan.estado_plan_id == '615335c501c7a213a12fb2a3') {
+      this.iconEstado = "build";
+    }
+  }
+
+  getErrorMessage(campo: FormControl) {
+    if (campo.hasError('required',)) {
+      return 'Campo requerido';
+    } else {
+      return 'Introduzca un valor válido';
+    }
+  }
+
+  changeIcon(row: { iconSelected: string; Id: any; Nombre: any; }) {
+    if (row.iconSelected == 'compare_arrows') {
+      row.iconSelected = 'done';
+      let unidad = [];
+      if (this.unidadesInteres[0].Id == undefined) {
+        unidad = [...[{
+          "Id": row.Id,
+          "Nombre": row.Nombre,
+        }]];
+        this.unidadesInteres = unidad;
+      } else {
+        unidad = [...this.unidadesInteres, ...[{
+          "Id": row.Id,
+          "Nombre": row.Nombre,
+        }]];
+        this.unidadesInteres = unidad;
+      }
+    } else if (row.iconSelected == 'done') {
+      row.iconSelected = 'compare_arrows';
+      let unidadEliminar = row.Id;
+      const index = this.unidadesInteres.findIndex((x: { Id: any; }) => x.Id == unidadEliminar);
+      this.unidadesInteres.splice(index, 1);
+    }
+  }
+
   onChangeP(plan: any) {
     if (plan == undefined) {
       this.planSelected = false;
     } else {
       this.planSelected = true;
+      this.addActividad = false;
       this.plan = plan; 
-      //console.log(this.plan, "valor plan", this.planSelected);     
+      this.estadoPlan = "";
+      this.iconEstado = "";
+      this.versionPlan = "";
+      this.busquedaPlanes(plan);
+      console.log(this.plan, "valor plan", this.planSelected);     
     }
   }
 
-  formular() {
-    if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true){
-      //console.log(this.plan, "plan");      
-      this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion/' + this.plan._id]);
-    }else{
-      Swal.fire({
-        title: 'Debe seleccionar todos los criterios',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    };
+
+  // formular() {
+  //   if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true){
+  //     //console.log(this.plan, "plan");      
+  //     this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion/' + this.plan._id + this.newPlanId]);
+  //   }else{
+  //     Swal.fire({
+  //       title: 'Debe seleccionar todos los criterios',
+  //       icon: 'warning',
+  //       showConfirmButton: false,
+  //       timer: 2500
+  //     })
+  //   };
+  // }
+
+  programarMetas() {
+    this.actividades = true;
+    this.request.get(environment.PLANES_MID, `inversion/metaspro/` + this.idProyectoInversion).subscribe((data: any) => {
+      if (data.Data.length > 0) {
+        this.metas = data.Data;
+      }
+    })
+    this.cargaFormato();
+    //console.log(this.id_formato);
+    //this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.id_formato + '/' + this.idProyectoInversion + '/' + this.newPlanId]);
+    // if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true){
+    //   console.log("entró al if");      
+    //   this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion']);
+    // }else{
+    //   Swal.fire({
+    //     title: 'Debe seleccionar todos los criterios',
+    //     icon: 'warning',
+    //     showConfirmButton: false,
+    //     timer: 2500
+    //   })
+    // };
+  }
+  getTotalPresupuesto() {    
+    return this.totalPresupuesto = TABLA.map(t => t.Presupuesto).reduce((acc, value) => acc + value, 0);
+    
+  }
+  programarMagnitudes() {
+    this.router.navigate(['/pages/proyectos-macro/magnitudes-presupuesto']);    
+  }
+  programarIdentificacion() {
+    this.router.navigate(['/pages/proyectos-macro/identificacion-actividades-recursos']);    
+  }
+
+  onChangeVersion(version) {
+    if (version._id == this.versiones[this.versiones.length - 1]._id) {
+      this.banderaUltimaVersion = true;
+    } else {
+      this.banderaUltimaVersion = false;
+    }
+    this.plan = version;
+    this.versionPlan = this.plan.numero;
+    this.controlVersion = new FormControl(this.plan);
+    this.getEstado();
+    this.planAsignado = true;
+    this.clonar = false;
+    this.loadData();
+    this.addActividad = false;
+  }
+  onChangePDD(planDD) {
+    if (planDD == undefined) {
+      this.planDDSelected = false;
+      //this.idPadre = undefined;
+      this.tipoPlanId = undefined;
+    } else {
+      this.planDDSelected = true;
+      this.idPadreDD = planDD._id;
+      this.tipoPlanIdDD = planDD.tipo_plan_id;
+      console.log(this.planDDSelected, 'idPlanEstrategicoDesarrollo');
+    }
+  }
+
+  onChangePD(planD) {
+    if (planD == undefined) {
+      this.planDSelected = false;
+      this.idPadre = undefined;
+      this.tipoPlanId = undefined;
+    } else {
+      this.planDSelected = true;
+      this.idPadre = planD._id;
+      this.tipoPlanId = planD.tipo_plan_id;
+      console.log(this.planDSelected, 'idPlanEstrategicoDesarrollo');
+    }
+  }
+
+  onChangePI(planI) {
+    if (planI == undefined) {
+      this.planISelected = false;
+      this.idPlanIndicativo = undefined;
+      this.tipoPlanIndicativo = undefined;
+    } else {
+      this.planISelected = true;
+      this.idPlanIndicativo = planI._id;
+      this.tipoPlanIndicativo = planI.tipo_plan_id;
+      console.log(this.planISelected, 'idPlanIndicativo');
+    }
+  }
+
+  onChangePrIn(proIn) {
+    if (proIn == undefined) {
+      this.proyectSelected = false;
+      this.idProyectoInversion = undefined;
+      this.tipoProyectoInversion = undefined;
+    } else {
+      this.proyectSelected = true;
+      this.idProyectoInversion = proIn._id;
+      console.log(this.idProyectoInversion , 'idProyectoInversion');
+      this.tipoProyectoInversion = proIn.tipo_plan_id;
+    }
+  }
+
+  onChangeM(meta) {
+    if (meta == undefined) {
+      this.metaSelected = false;
+      this.idPadre = undefined;
+      this.tipoPlanId = undefined;
+    } else {
+      this.metaSelected = true;
+      this.meta = meta;
+      //this.tipoPlanId = meta.tipo_plan_id;
+      console.log(this.metaSelected, 'idPlanEstrategicoDesarrollo');
+    }
+  }
+
+  cargarPlanesDesarrolloDistrital() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:63e23832ccee49220d83f5d0`).subscribe((data: any) => {
+      if (data) {
+        this.planesDesarrolloDistrital = data.Data;
+        //this.formArmonizacion.get('selectPDD').setValue(this.planesDesarrolloDistrital[0])
+        //this.onChangePD(this.planesDesarrollo[0]);
+      }
+    })
+  }
+  cargarPlanesDesarrollo() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
+      if (data) {
+        this.planesDesarrollo = data.Data;
+        //this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
+        //this.onChangePD(this.planesDesarrollo[0]);
+      }
+    })
+  }
+  
+  cargarProyectosInversion() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:63ca86f1b6c0e5725a977dae`).subscribe((data: any) => {
+      if (data) {
+        this.proyectosInversion = data.Data;
+        console.log(this.proyectosInversion)
+        //this.formArmonizacion.get('selectPrIn').setValue(this.proyectosInversion[0])
+        //this.onChangePrIn(this.proyectosInversion);
+
+      }
+    })
+  }
+  cargarPlanesIndicativos() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b`).subscribe((data: any) => {
+      if (data) {
+        this.planesIndicativos = data.Data;
+        //this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
+        //this.onChangePI(this.planesIndicativos[0]);
+
+      }
+    })
+  }
+  receiveMessage(event) {
+    if (event.bandera === 'armonizar') {
+      var uid_n = event.fila.level;
+      var uid = event.fila.id; // id del nivel a editar
+      if (uid != this.dataArmonizacionPED.find(id => id === uid)) {
+        this.dataArmonizacionPED.push(uid)
+      } else {
+        const index = this.dataArmonizacionPED.indexOf(uid, 0);
+        if (index > -1) {
+          this.dataArmonizacionPED.splice(index, 1);
+        }
+      }
+    }
+  }
+
+  receiveMessagePI(event) {
+    if (event.bandera === 'armonizar') {
+      var uid_n = event.fila.level;
+      var uid = event.fila.id; // id del nivel a editar
+      if (uid != this.dataArmonizacionPI.find(id => id === uid)) {
+        this.dataArmonizacionPI.push(uid)
+      } else {
+        const index = this.dataArmonizacionPI.indexOf(uid, 0);
+        if (index > -1) {
+          this.dataArmonizacionPI.splice(index, 1);
+        }
+      }
+    }
+  }
+
+  receiveMessagePDD(event) {
+    if (event.bandera === 'armonizar') {
+      var uid_n = event.fila.level;
+      var uid = event.fila.id; // id del nivel a editar
+      if (uid != this.dataArmonizacionPDD.find(id => id === uid)) {
+        this.dataArmonizacionPDD.push(uid)
+      } else {
+        const index = this.dataArmonizacionPDD.indexOf(uid, 0);
+        if (index > -1) {
+          this.dataArmonizacionPDD.splice(index, 1);
+        }
+      }
+    }
+  }
+
+  guardar() {
+    console.log("Armonización");
   }
 
   formularPlan() {
-    let parametros = {
-      "dependencia_id": String(this.unidad.Id),
-      "vigencia": String(this.vigencia.Id)
-    }
-    this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/` + this.plan._id, parametros).subscribe((data: any) => {
-      if (data) {
-        this.plan.estado_plan_id = "614d3ad301c7a200482fabfd";
-        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
+    if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true) {
+      let parametros = {
+        "dependencia_id": String(this.unidad.Id),
+        "vigencia": String(this.vigencia.Id), 
+        "id": String(this.plan._id),
+        
+      }
+      this.request.post(environment.PLANES_MID, `inversion/crearplan`, parametros).subscribe((data: any) => {
+        if (data) {
+          console.log(data);
+          this.plan.estado_plan_id = "614d3ad301c7a200482fabfd";
+          this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
           if (dataPut) {
             this.plan = dataPut.Data;
             Swal.fire({
@@ -158,20 +712,229 @@ export class FormularProyectoInversionComponent implements OnInit {
             // this.planAsignado = true;
             // //CARGA TABLA
             // this.loadData();
-            //this.getVersiones(this.plan);
+            this.getVersiones(this.plan);
           }
         })
+          //this.newPlanId = data.Data._id
+          this.cargarPlanesDesarrolloDistrital();
+          this.cargarPlanesDesarrollo();
+          this.cargarPlanesIndicativos();
+          this.cargarProyectosInversion()
+          this.formular = true;
+          console.log(this.newPlanId, "id");
+          //this.plan.estado_plan_id = "614d3ad301c7a200482fabfd";
+          //this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
+            //if (dataPut) {
+              //this.plan = dataPut.Data;
+              Swal.fire({
+                title: 'Formulación nuevo plan',
+                text: `Plan creado satisfactoriamente`,
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 4000
+              })
+              //this.getVersiones(this.plan);
+              //setTimeout(()=>(this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion/' + this.plan._id + '/' + this.newPlanId])),50 );
+            }
+          }), (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              icon: 'error',
+              text: `${JSON.stringify(error)}`,
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+    } else{
+      Swal.fire({
+        title: 'Debe seleccionar todos los criterios',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    };
+
+    
+    
+      
+    
+      
+  }
+
+  loadData() {
+    this.ajustarData();
+
+  }
+  cambiarValor(valorABuscar, valorViejo, valorNuevo, dataS) {
+    dataS.forEach(function (elemento) {
+      elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
+    })
+  }
+
+  filterActive() {
+    if (!this.isChecked) {
+      this.dataSource.filterPredicate = function (data: any, filterValue: string) {
+        return data.activo === filterValue
+      };
+      this.dataSource.filter = "Activo"
+      if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
       }
-    }),
-      (error) => {
+    } else {
+      this.dataSource.filter = ""
+      if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+      }
+    }
+  }
+
+  ajustarData() {
+    // if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != '614d3ad301c7a200482fabfd') {
+    //   this.iconEditar = 'search'
+    // } else if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_PLANEACION') {
+    //   this.iconEditar = 'edit'
+    // }
+    this.request.get(environment.PLANES_MID, `formulacion/get_all_actividades/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
+      if (data.Data.data_source != null) {
+        console.log(data.Data, "metas")
+        this.dataMetas = new MatTableDataSource(data.Data.data_source);
+        this.defaultFilterPredicate = this.dataSource.filterPredicate;
+        this.cambiarValor("activo", true, "Activo", this.dataSource.data)
+        this.cambiarValor("activo", false, "Inactivo", this.dataSource.data)
+        this.displayedColumns = data.Data.displayed_columns;
+        this.columnsToDisplay = this.displayedColumns.slice();
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        this.dataT = true;
+        this.filterActive()
+      } else if (data.Data.data_source == null) {
+        this.dataT = false;
         Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
+          title: 'Atención en la operación',
+          text: `No hay actividades registradas para el plan`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 3500
+        })
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  submit() {
+    if (!this.banderaEdit) { // ADD NUEVA ACTIVIDAD
+      if (this.dataArmonizacionPED.length != 0 && this.dataArmonizacionPI.length != 0) {
+
+        var formValue = this.form.value;
+        var actividad = {
+          armo: this.dataArmonizacionPED.toString(),
+          armoPI: this.dataArmonizacionPI.toString(),
+          entrada: formValue
+        }
+        this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Actividad agregada',
+              //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+              text: 'La actividad se ha registrado satisfactoriamente',
+              icon: 'success'
+            }).then((result) => {
+              if (result.value) {
+                this.loadData()
+                this.form.reset();
+                this.addActividad = false;
+                this.dataArmonizacionPED = [];
+                this.dataArmonizacionPI = [];
+                this.idPadre = undefined;
+                this.tipoPlanId = undefined;
+                this.tipoPlanIndicativo = undefined;
+                this.idPlanIndicativo = undefined;
+              }
+            })
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: 'No fue posible crear la actividad, por favor contactarse con el administrador del sistema',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+
+          this.addActividad = false;
+          this.dataArmonizacionPED = [];
+          this.dataArmonizacionPI = [];
+        })
+      } else {
+        Swal.fire({
+          title: 'Por favor complete la armonización para continuar',
+          text: `No se encontraron datos registrados`,
+          icon: 'warning',
           showConfirmButton: false,
           timer: 2500
         })
       }
+
+    } else { // EDIT ACTIVIDAD
+      if (this.dataArmonizacionPED.length != 0 && this.dataArmonizacionPI.length != 0) {
+        var aux = this.dataArmonizacionPED.toString();
+        let aux2 = this.dataArmonizacionPI.toString();
+        var formValue = this.form.value;
+        var actividad = {
+          armo: aux,
+          armoPI: aux2,
+          entrada: formValue
+        }
+        this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id + `/` + this.rowActividad).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Información de actividad actualizada',
+              //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+              text: 'La actividad se ha actualizado satisfactoriamente',
+              icon: 'success'
+            }).then((result) => {
+              if (result.value) {
+                this.form.reset();
+                this.addActividad = false;
+                this.loadData();
+                this.idPadre = undefined;
+                this.tipoPlanId = undefined;
+                this.idPlanIndicativo = undefined;
+                this.tipoPlanIndicativo = undefined;
+              }
+            })
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible actualizar la actividad, por favor contactarse con el administrador del sistema`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+
+          this.addActividad = false;
+          this.dataArmonizacionPED = [];
+          this.dataArmonizacionPI = [];
+        })
+      } else {
+        Swal.fire({
+          title: 'Por favor complete la armonización para continuar',
+          text: `No se encontraron datos registrados`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+
+    }
   }
 
 }

@@ -226,11 +226,11 @@ const routes: Routes = [{
           component: ReportesProyectoInversionComponent,
         },
         {
-          path: 'formulacion-plan-inversion/:id_formato',
+          path: 'formulacion-plan-inversion/:id_formato/:this.newPlanId',
           component: FormulacionPlanInversionComponent,
         },
         {
-          path: 'tipo-meta-indicador/:id_formato',
+          path: 'tipo-meta-indicador/:id_formato/:idProyectoInversion/:newPlanId',
           component: TipoMetaIndicadorComponent,
         },
         {

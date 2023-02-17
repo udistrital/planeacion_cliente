@@ -3,15 +3,26 @@
   }
   
   
-  table {
-      width: 100%;
-    }
-  
   th {
-      color: white;
-      text-align: center !important;
+    color: white;
+    text-align: center;    
   }
-  
+
+  th.mat-header-cell{
+    text-align: center;
+    word-wrap: initial;
+    padding: 0px 5px;
+    width: auto;
+    overflow: hidden;
+    vertical-align: middle;
+    color: white;
+  }
+
+  td.mat-cell{
+    text-align: center;
+    padding: 5px 5px 5px 0;
+    color:black;
+  } 
   
   .td-align-right{
     text-align: right;
@@ -46,3 +57,46 @@
   .mat-row:nth-child(odd){
     background-color: white;
   }
+
+  .icon-estado{
+    font-size: 40px;
+  }
+
+  .container {
+    width: 200px;
+    vertical-align: middle;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .flex {
+    display: flex;
+    vertical-align: middle;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .sameRow {
+    border: 3px solid black;
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+    vertical-align: middle;
+    padding: 10px;
+    font-size: 15px;
+    margin-top: 2%;
+    margin-right: 5%;
+    color: var(--primary);
+    border-radius: 8px;
+    border-color: var(--primary);
+  }
+  .container{
+    display: block !important;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+  }
+
+  
