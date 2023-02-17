@@ -56,17 +56,17 @@
                         </u>
                     </mat-card-content>
                     <mat-form-field class="select-armo" appearance="fill" [style.width.%]="100">
-                      <mat-label id="tipo-input-label">Seleccione el plan de desarrollo</mat-label>
-                      <mat-select formControlName="selectPED" (selectionChange)="onChangePD($event.value)">
+                      <mat-label id="tipo-input-label">Seleccione el plan de desarrollo distrital</mat-label>
+                      <mat-select formControlName="selectPDD" (selectionChange)="onChangePDD($event.value)">
                         <mat-option>--</mat-option>
-                        <mat-option *ngFor="let planD of planesDesarrollo" [value]="planD">
-                          {{planD.nombre}}
+                        <mat-option *ngFor="let planDD of planesDesarrolloDistrital" [value]="planDD">
+                          {{planDD.nombre}}
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
-                    <app-arbol *ngIf="tipoPlanId !== undefined && tipoPlanId != ''" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre"
-                    [dataArmonizacion]="dataArmonizacionPED" [consulta]="false" [armonizacionPED]="true" [estado]="estadoPlan"
-                    [armonizacionPI]="false" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
+                    <app-arbol *ngIf="tipoPlanId !== undefined && tipoPlanId != ''" [tipoPlanId]="tipoPlanIdDD" [idPlan]="idPadreDD"
+                    [dataArmonizacion]="dataArmonizacionPDD" [consulta]="false" [armonizacionPED]="true" [estado]="estadoPlan"
+                    [armonizacionPI]="false" (grupo)="receiveMessagePDD($event)" [updateSignal]="eventChange"></app-arbol>
                 </div> 
                 <div class="container-border">
                     <mat-card-content>
@@ -75,7 +75,7 @@
                         </u>
                     </mat-card-content>
                     <mat-form-field class="select-armo" appearance="fill" [style.width.%]="100">
-                      <mat-label id="tipo-input-label">Seleccione el plan de desarrollo</mat-label>
+                      <mat-label id="tipo-input-label">Seleccione el plan estrategico de desarrollo</mat-label>
                       <mat-select formControlName="selectPED" (selectionChange)="onChangePD($event.value)">
                         <mat-option>--</mat-option>
                         <mat-option *ngFor="let planD of planesDesarrollo" [value]="planD">
@@ -107,7 +107,7 @@
                     [consulta]="false" [armonizacionPED]="false" [armonizacionPI]="true" [estado]="estadoPlan" (grupo)="receiveMessagePI($event)"
                     [updateSignal]="eventChange"></app-arbol>                  
                 </div> 
-                <div style="margin: 1rem; text-align: center;">
+                <div style="margin: 1rem; text-align: center;" *ngIf="planDDSelected == true && planDSelected == true && planISelected == true && proyectSelected == true">
                   <button  class="footbtn" mat-raised-button color="primary" (click)="guardar()">Confirmar</button>
                 </div>  
                             
