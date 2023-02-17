@@ -24,7 +24,7 @@
                         <u class="textGuide">
                             A continuación usted encontrará un listado de planes de acción anuales relacionados con cada
                             una de las unidades académico y/o administrativas; para iniciar seleccione el de su interés
-                            y posteriormente de clic en el botón de acción llamado SEGUIMIENTO.
+                            y posteriormente de click en el trimestre habilitado.
                         </u>
                         <br>
                     </div>
@@ -35,8 +35,7 @@
                 <u class="textGuide">
                     A continuación encontrará un listado de Planes de Acción anuales relacionados con cada una de las
                     unidades académicas y/o administrativas; para iniciar, seleccione el de su interés y posteriormente
-                    de
-                    clic en el botón de acción llamado SEGUIMIENTO.
+                    de click en el trimestre habilitado.
                 </u>
                 <br>
             </ng-container>
@@ -45,9 +44,9 @@
                 <ng-container>
                     <div class="flex">
                         <div class="sameRow" style="vertical-align: middle;" [style.width.%]="100">
-                            <h4>&nbsp;&nbsp;&nbsp;&nbsp;Fechas guía para cada trimestre para la vigencia.</h4>
+                            <h4>Fechas guía para cada trimestre para la vigencia.</h4>
                             <mat-form-field appearance="fill" [style.width.%]="100">
-                                <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
+                                <mat-label id="tipo-input-label">Seleccione la vigencia</mat-label>
                                 <mat-select (selectionChange)="onChangeV($event.value, rol=='PLANEACION')">
                                     <mat-option>--</mat-option>
                                     <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
@@ -140,7 +139,7 @@
                 <ng-container>
                     <div class="flex">
                         <div class="sameRow" style="vertical-align: middle;" [style.width.%]="100">
-                            <h4>&nbsp;&nbsp;&nbsp;&nbsp;Plan de Acción</h4>
+                            <h4>Plan de Acción</h4>
                             <mat-form-field appearance="fill" [style.width.%]="100">
                                 <mat-label id="tipo-input-label">Seleccione el Plan de interés</mat-label>
                                 <mat-select (selectionChange)="onChangeP($event.value, true)"
@@ -162,7 +161,7 @@
                 *ngIf="(rol=='JEFE_DEPENDENCIA' && vigencia != undefined) || (rol=='PLANEACION' && plan != undefined && vigencia != undefined)">
                 <div class="felx">
                     <div class="sameRow">
-                        <h4>&nbsp;&nbsp;&nbsp;&nbsp;Listado de Planes de Acción</h4>
+                        <h4>Listado de Planes de Acción</h4>
                         <div class="mat-elevation-z8">
                             <table mat-table [dataSource]="dataSource" matSort>
                                 <ng-container *ngIf="rol=='PLANEACION'" matColumnDef="unidad">
@@ -171,7 +170,7 @@
                                 </ng-container>
                                 <ng-container *ngIf="rol=='JEFE_DEPENDENCIA'" matColumnDef="unidad">
                                     <th mat-header-cell *matHeaderCellDef> Nombre del plan </th>
-                                    <td mat-cell *matCellDef="let row"> {{row.nombre}} </td>
+                                    <td mat-cell class="justificarColumna" *matCellDef="let row"> {{row.nombre}} </td>
                                 </ng-container>
                                 <ng-container matColumnDef="vigencia">
                                     <th mat-header-cell *matHeaderCellDef class="columnaAngosta"> Vigencia </th>
