@@ -94,21 +94,30 @@ export class FormulacionPlanInversionComponent implements OnInit {
   dataMetasP: any;
   dataMetas = new MatTableDataSource<Metas>(TABLA); 
   unidadesInteres: any;
-  id_formato: string;
+  id_formato: string;  
+  newPlanId: string;
   totalPresupuesto: any;
   idPlanIndicativo: string;
   idProyectoInversion: string;
   tipoPlanId: string;
   idPadre: string;
+  idPadreDD: string;
+  tipoPlanIdDD: string;
   tipoProyectoInversion: string;
   tipoPlanIndicativo: string;
   proyectosInversion: any[];
+  planesDesarrolloDistrital: any[];
   planesDesarrollo: any[];
   planesIndicativos: any[];
+  planDDSelected: boolean;
   planDSelected: boolean;
+  planISelected: boolean;
+  proyectSelected: boolean;
   dataArmonizacionPED: string[] = [];
   dataArmonizacionPI: string[] = [];
+  dataArmonizacionPDD: string[] = [];
   formArmonizacion: FormGroup;
+  
 
 
   constructor(
@@ -119,9 +128,11 @@ export class FormulacionPlanInversionComponent implements OnInit {
   ) { 
     activatedRoute.params.subscribe(prm => {
 
-      this.id_formato = prm['id_formato'];  
+      this.id_formato = prm['id_formato'];
+      this.newPlanId = prm['this.newPlanId'];
       
     }); 
+    this.cargarPlanesDesarrolloDistrital();
     this.cargarProyectosInversion();
     this.cargarPlanesDesarrollo();
     this.cargarPlanesIndicativos();   
@@ -129,6 +140,7 @@ export class FormulacionPlanInversionComponent implements OnInit {
 
   ngOnInit(): void {
     this.formArmonizacion = this.formBuilder.group({
+      selectPDD: ['',],
       selectPED: ['',],
       selectPI: ['',],
       selectPrIn: ['',]
@@ -167,7 +179,7 @@ export class FormulacionPlanInversionComponent implements OnInit {
 
   programarMetas() {
     //console.log(this.id_formato);
-    this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.id_formato]);
+    this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.id_formato + '/' + this.idProyectoInversion + '/' + this.newPlanId]);
     // if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true){
     //   console.log("entró al if");      
     //   this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion']);
@@ -191,42 +203,72 @@ export class FormulacionPlanInversionComponent implements OnInit {
     this.router.navigate(['/pages/proyectos-macro/identificacion-actividades-recursos']);    
   }
 
+  onChangePDD(planDD) {
+    if (planDD == undefined) {
+      this.planDDSelected = false;
+      //this.idPadre = undefined;
+      this.tipoPlanId = undefined;
+    } else {
+      this.planDDSelected = true;
+      this.idPadreDD = planDD._id;
+      this.tipoPlanIdDD = planDD.tipo_plan_id;
+      console.log(this.planDDSelected, 'idPlanEstrategicoDesarrollo');
+    }
+  }
   onChangePD(planD) {
     if (planD == undefined) {
+      this.planDSelected = false;
       this.idPadre = undefined;
       this.tipoPlanId = undefined;
     } else {
+      this.planDSelected = true;
       this.idPadre = planD._id;
       this.tipoPlanId = planD.tipo_plan_id;
+      console.log(this.planDSelected, 'idPlanEstrategicoDesarrollo');
     }
   }
 
   onChangePI(planI) {
     if (planI == undefined) {
+      this.planISelected = false;
       this.idPlanIndicativo = undefined;
       this.tipoPlanIndicativo = undefined;
     } else {
+      this.planISelected = true;
       this.idPlanIndicativo = planI._id;
       this.tipoPlanIndicativo = planI.tipo_plan_id;
+      console.log(this.planISelected, 'idPlanIndicativo');
     }
   }
 
   onChangePrIn(proIn) {
     if (proIn == undefined) {
-      this.idPlanIndicativo = undefined;
-      this.tipoPlanIndicativo = undefined;
+      this.proyectSelected = false;
+      this.idProyectoInversion = undefined;
+      this.tipoProyectoInversion = undefined;
     } else {
+      this.proyectSelected = true;
       this.idProyectoInversion = proIn._id;
+      console.log(this.proyectSelected, 'idProyectoInversion');
       this.tipoProyectoInversion = proIn.tipo_plan_id;
     }
   }
 
+  cargarPlanesDesarrolloDistrital() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:63e23832ccee49220d83f5d0`).subscribe((data: any) => {
+      if (data) {
+        this.planesDesarrolloDistrital = data.Data;
+        //this.formArmonizacion.get('selectPDD').setValue(this.planesDesarrolloDistrital[0])
+        //this.onChangePD(this.planesDesarrollo[0]);
+      }
+    })
+  }
   cargarPlanesDesarrollo() {
     this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
       if (data) {
         this.planesDesarrollo = data.Data;
-        this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
-        this.onChangePD(this.planesDesarrollo[0]);
+        //this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
+        //this.onChangePD(this.planesDesarrollo[0]);
       }
     })
   }
@@ -236,8 +278,8 @@ export class FormulacionPlanInversionComponent implements OnInit {
       if (data) {
         this.proyectosInversion = data.Data;
         console.log(this.proyectosInversion)
-        this.formArmonizacion.get('selectPrIn').setValue(this.proyectosInversion[0])
-        this.onChangePrIn(this.proyectosInversion);
+        //this.formArmonizacion.get('selectPrIn').setValue(this.proyectosInversion[0])
+        //this.onChangePrIn(this.proyectosInversion);
 
       }
     })
@@ -246,8 +288,8 @@ export class FormulacionPlanInversionComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b`).subscribe((data: any) => {
       if (data) {
         this.planesIndicativos = data.Data;
-        this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
-        this.onChangePI(this.planesIndicativos[0]);
+        //this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
+        //this.onChangePI(this.planesIndicativos[0]);
 
       }
     })
@@ -281,8 +323,24 @@ export class FormulacionPlanInversionComponent implements OnInit {
       }
     }
   }
+
+  receiveMessagePDD(event) {
+    if (event.bandera === 'armonizar') {
+      var uid_n = event.fila.level;
+      var uid = event.fila.id; // id del nivel a editar
+      if (uid != this.dataArmonizacionPDD.find(id => id === uid)) {
+        this.dataArmonizacionPDD.push(uid)
+      } else {
+        const index = this.dataArmonizacionPDD.indexOf(uid, 0);
+        if (index > -1) {
+          this.dataArmonizacionPDD.splice(index, 1);
+        }
+      }
+    }
+  }
+
   guardar() {
-    console.log("función por hacer");
+    console.log("Armonización");
   }
 
 }
