@@ -110,7 +110,7 @@
                                 style="font-weight: bold; margin: 0px 0px 5px 0px; width: 100%;" mat-raised-button
                                 color="primary" (click)="onSeeDocumentos()">Visualizar</button>
                             <label mat-raised-button style="display: block" class="width-label-upload">
-                                <input type="file" (change)="onChangeDocumento($event.target)">
+                                <input type="file" accept="application/pdf" (change)="onChangeDocumento($event.target)">
                                 Adjuntar documento
                             </label>
                         </div>
@@ -178,37 +178,36 @@
                         </ng-container>
 
                         <ng-container matColumnDef="meta">
-                            <td class="rowText" mat-cell style="max-width: 85px; min-width: 85px;"
-                                *matCellDef="let element">
-                                <textarea *ngIf="element.unidad =='Porcentaje'" class="form-control"
-                                    style="width: 90%; resize: none;" matInput readonly=true
-                                    [value]="element.meta/100 | percent:'1.1-1'"></textarea>
-
-                                <textarea *ngIf="element.unidad =='Unidad' || element.unidad =='Tasa'"
-                                    class="form-control" style="width: 90%; resize: none;" matInput readonly=true
-                                    [value]="element.meta"></textarea>
+                            <td mat-cell style="width: 35px;" *matCellDef="let element">
+                                <div *ngIf="element.unidad =='Porcentaje'">
+                                    {{element.meta/100 | percent:'1.1-1'}}
+                                </div>
+                                <div *ngIf="element.unidad =='Unidad' || element.unidad =='Tasa'">
+                                    {{element.meta}}
+                                </div>
                             </td>
                         </ng-container>
 
                         <ng-container matColumnDef="reporteNumerador">
                             <td class="rowText" style="max-width: 85px; min-width: 85px;" mat-cell
                                 *matCellDef="let element">
-                                <textarea class="form-control" style="width: 90%;" matInput placeholder="Numerador"
-                                    onkeydown="return /[0-9, Backspace]/i.test(event.key)"
-                                    [readonly]="readonlyFormulario" [value]="element.reporteNumerador"
-                                    [(ngModel)]="element.reporteNumerador" [ngModelOptions]="{standalone: true}"
-                                    required></textarea>
+                                <input type="number" class="form-control"
+                                    style="width: 90%;height: 48px;text-align: center;" matInput placeholder="Numerador"
+                                    required [value]="element.reporteNumerador" [(ngModel)]="element.reporteNumerador"
+                                    [readonly]="readonlyFormulario" [ngModelOptions]="{standalone: true}" step="0.01"
+                                    value="0.00" pattern="^\d*(\.\d{0,2})?$">
                             </td>
                         </ng-container>
 
                         <ng-container matColumnDef="reporteDenominador">
                             <td class="rowText" style="max-width: 85px; min-width: 85px;" mat-cell
                                 *matCellDef="let element">
-                                <textarea class="form-control" style="width: 90%;" matInput placeholder="Denominador"
-                                    onkeydown="return /[0-9, Backspace]/i.test(event.key)"
-                                    [readonly]="readonlyFormulario" [value]="element.reporteDenominador"
-                                    [(ngModel)]="element.reporteDenominador" [ngModelOptions]="{standalone: true}"
-                                    required></textarea>
+                                <input type="number" class="form-control"
+                                    style="width: 90%;height: 48px;text-align: center;" matInput
+                                    placeholder="Denominador" required [value]="element.reporteDenominador"
+                                    [(ngModel)]="element.reporteDenominador" [readonly]="readonlyFormulario"
+                                    [ngModelOptions]="{standalone: true}" step="0.01" value="0.00"
+                                    pattern="^\d*(\.\d{0,2})?$">
                             </td>
                         </ng-container>
 
@@ -310,7 +309,8 @@
                     <table mat-table [dataSource]="datosResultados">
                         <ng-container matColumnDef="nombre">
                             <th mat-header-cell *matHeaderCellDef> Nombre del indicador </th>
-                            <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
+                            <td mat-cell style="text-align: justify;" *matCellDef="let element"> {{element.nombre}}
+                            </td>
                         </ng-container>
 
                         <ng-container matColumnDef="indicador">
@@ -361,7 +361,7 @@
                                     {{element.avanceAcumulado | percent:'1.1-1'}}
                                 </div>
                                 <ng-template #elseBlock>
-                                    100% (+{{element.avanceAcumulado - 1 | percent:'1.1-1'}})
+                                    100% <br> (+{{element.avanceAcumulado - 1 | percent:'1.1-1'}})
                                 </ng-template>
                             </td>
                         </ng-container>
@@ -382,10 +382,10 @@
                                 </div>
                                 <ng-template #elseBlock>
                                     <div *ngIf="element.unidad =='Porcentaje'">
-                                        0% (+{{-1 * element.brechaExistente | percent:'1.1-1'}})
+                                        0% <br> (+{{-1 * element.brechaExistente | percent:'1.1-1'}})
                                     </div>
                                     <div *ngIf="element.unidad =='Unidad' || element.unidad =='Tasa'">
-                                        0 (+{{-1 * element.brechaExistente}})
+                                        0 <br> (+{{-1 * element.brechaExistente}})
                                     </div>
                                 </ng-template>
                             </td>
