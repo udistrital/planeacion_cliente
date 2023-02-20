@@ -280,70 +280,78 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   async onChangeDocumento(event) {
     if (event != undefined) {
       let aux = event.files[0];
-      const found = this.documentos.find(element => element.nombre == aux.name && element.Activo);
-      if (found == undefined) {
-
+      if (aux.type != 'application/pdf') {
         Swal.fire({
-          title: 'Guardando documento',
-          timerProgressBar: true,
+          title: 'Archivo no válido',
+          text: `Solo se admiten documentos PDF`,
+          icon: 'error',
           showConfirmButton: false,
-          willOpen: () => {
-            Swal.showLoading();
-          },
+          timer: 2500
         })
+      } else {
+        const found = this.documentos.find(element => element.nombre == aux.name && element.Activo);
+        if (found == undefined) {
+          Swal.fire({
+            title: 'Guardando documento',
+            timerProgressBar: true,
+            showConfirmButton: false,
+            willOpen: () => {
+              Swal.showLoading();
+            },
+          })
 
-        let documento = {
-          IdTipoDocumento: 60,
-          nombre: aux.name,
-          metadatos: {
-            dato_a: "Soporte planeacion"
-          },
-          descripcion: "Documento de soporte para seguimiento de plan de acción",
-          file: await this.gestorDocumental.fileToBase64(aux),
-          Activo: true
-        }
-        this.documentos.push(documento);
-
-        let documentoPorSubir = {
-          documento: this.documentos,
-          evidencia: this.seguimiento.evidencia
-        };
-
-        this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
-          if (data) {
-            this.estadoActividad = data.Data.estadoActividad.nombre;
-            this.verificarFormulario();
-
-            Swal.fire({
-              title: 'Documento Cargado',
-              text: `Revise el campo de soportes para visualizar o eliminar`,
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 2000
-            });
+          let documento = {
+            IdTipoDocumento: 60,
+            nombre: aux.name,
+            metadatos: {
+              dato_a: "Soporte planeacion"
+            },
+            descripcion: "Documento de soporte para seguimiento de plan de acción",
+            file: await this.gestorDocumental.fileToBase64(aux),
+            Activo: true
           }
-        }, (error) => {
-          this.documentos.pop();
+          this.documentos.push(documento);
+
+          let documentoPorSubir = {
+            documento: this.documentos,
+            evidencia: this.seguimiento.evidencia
+          };
+
+          this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+            if (data) {
+              this.estadoActividad = data.Data.estadoActividad.nombre;
+              this.verificarFormulario();
+
+              Swal.fire({
+                title: 'Documento Cargado',
+                text: `Revise el campo de soportes para visualizar o eliminar`,
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 2000
+              });
+            }
+          }, (error) => {
+            this.documentos.pop();
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se pudo subir el documento`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          })
+
+
+        } else {
           Swal.fire({
             title: 'Error en la operación',
-            text: `No se pudo subir el documento`,
+            text: `Ya existe un documento con el mismo nombre`,
             icon: 'warning',
             showConfirmButton: false,
-            timer: 2500
+            timer: 2000
           })
-        })
-
-
-      } else {
-        Swal.fire({
-          title: 'Error en la operación',
-          text: `Ya existe un documento con el mismo nombre`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2000
-        })
+        }
       }
-
     } else {
       Swal.fire({
         title: 'Error en la operación',
@@ -374,11 +382,10 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
         this.numeradorOriginal = [];
         this.denominadorOriginal = [];
-        this.calcular = true;
-        let resultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.resultados));
+        let resultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.indicadores));
         resultados.forEach(indicador => {
-          this.numeradorOriginal.push(indicador.acumuladoNumerador);
-          this.denominadorOriginal.push(indicador.acumuladoDenominador);
+          this.numeradorOriginal.push(indicador.reporteNumerador);
+          this.denominadorOriginal.push(indicador.reporteDenominador);
         });
 
         this.datosCualitativo = data.Data.cualitativo;
@@ -389,21 +396,25 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
         if (this.estadoActividad != "Sin reporte") {
           if (this.datosCualitativo.observaciones == "" || this.datosCualitativo.observaciones == undefined || this.datosCualitativo.observaciones == "Sin observación") {
-            this.datosCualitativo.observaciones = "Sin observación"
+            this.datosCualitativo.observaciones = ""
           } else {
             this.mostrarObservaciones = true;
           }
         }
 
         if (data.Data.informacion.trimestre != "T1") {
-          this.denominadorFijo = true;
+          this.calcular = true;
+
+          if (this.datosResultados[0].indicador != 0) {
+            this.calcular = false;
+          }
         }
 
         for (let index = 0; index < this.datosIndicadores.length; index++) {
           const indicador = this.datosIndicadores[index];
           if (this.estadoActividad != "Sin reporte") {
             if ((indicador.observaciones == "" || indicador.observaciones == undefined) && this.rol != "JEFE_DEPENDENCIA") {
-              this.datosIndicadores[index].observaciones = "Sin observación";
+              this.datosIndicadores[index].observaciones = "";
             }
           }
         }
@@ -412,7 +423,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           const documento = this.documentos[index];
           if (this.estadoActividad != "Sin reporte") {
             if (documento.Observacion == "") {
-              this.documentos[index].Observacion = "Sin observación";
+              this.documentos[index].Observacion = "";
             } else {
               this.mostrarObservaciones = true;
             }
@@ -749,9 +760,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     for (let index = 0; index < this.datosIndicadores.length; index++) {
       const indicador = this.datosIndicadores[index];
       if (indicador.reporteDenominador != "" || indicador.reporteNumerador != "") {
-        const denominador = parseInt(indicador.reporteDenominador);
-        const numerador = parseInt(indicador.reporteNumerador);
-        const meta = parseInt(this.datosIndicadores[index].meta)
+        const denominador = parseFloat(indicador.reporteDenominador);
+        const numerador = parseFloat(indicador.reporteNumerador);
+        const meta = parseFloat(this.datosIndicadores[index].meta)
         this.denominadorFijo = indicador.denominador != "Denominador variable"
         if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
           this.datosIndicadores[index].reporteDenominador = denominador;
