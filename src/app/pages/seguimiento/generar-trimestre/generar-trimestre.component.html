@@ -1,422 +1,432 @@
 <mat-card class="card-oas">
     <mat-card-header>
         <div style="text-align:center;">
-            <mat-card-title>SEGUIMIENTO PLANES DE ACCIÓN</mat-card-title>
-            <div style="text-align: center;">
-                Unidad Académico y/o administrativa  <b>{{unidad}}</b>
+            <mat-card-title>Seguimiento al Plan de Acción</mat-card-title>
+            <div style="text-align: center; color: var(--primary);">
+                {{unidad}}
             </div>
             <br>
-            <u class="textGuide">
-                A continuación encontrará un listado de las actividades asociadas al Plan de Acción, a las cuales podrá
-                realizar la revisión para el periodo respectivo.
-            </u>
         </div>
     </mat-card-header>
-
-
-    <div class="container-border" *ngIf="rol=='PLANEACION'">
-        <h1 class="head-border">Estado de la actividad</h1>
-        <mat-card-content style="margin-bottom: 0px;">
-            <mat-form-field appearance="fill" [style.width.%]="100">
-                <mat-label id="Estado">Estado</mat-label>
-                <mat-select [disabled]="true" [(value)]="estadoActividad" (selectionChange)="onChangeV($event.value)">
-                    <mat-option>--</mat-option>
-                    <mat-option *ngFor="let estado of estados" [value]="estado.nombre">
-                        {{estado.nombre}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-        </mat-card-content>
+    <div style="text-align:center;">
+        <u class="textGuide">
+            En esta sección deberá registrar el avance de la actividad general (componentes cualitativo y
+            cuantitativo) para el trimestre en cuestión.
+        </u>
     </div>
 
     <mat-card-content>
         <br>
         <form [formGroup]="formGenerarTrimestre">
             <div class="container-border">
-                <h1 class="head-border">INFORMACIÓN DEL PLAN</h1>
-                <mat-grid-list cols="6" rowHeight="35px" gutterSize="5px">
-                    <mat-grid-tile class="titulo">Actividad general</mat-grid-tile>
-                    <mat-grid-tile>
-                        <textarea class="width-text-trimestre" [readonly]="true"
+                <h1>&nbsp;&nbsp;&nbsp;&nbsp;Información del Plan</h1>
+                <div class="contenedor3c">
+                    <div class="row1">
+                        <mat-label id="desc-input-label">Código actividad:</mat-label>
+                        <textarea class="unidad" [readonly]="true"
                             placeholder="Actividad">{{seguimiento.informacion.index}}</textarea>
-                    </mat-grid-tile>
-                    <mat-grid-tile class="titulo" colspan="4">Descripción de la actividad</mat-grid-tile>
-                    <mat-grid-tile class="titulo">Ponderación</mat-grid-tile>
-                    <mat-grid-tile>
-                        <textarea class="width-text-trimestre" [readonly]="true"
-                            placeholder="%">{{seguimiento.informacion.ponderacion}}</textarea>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="4" rowspan="2">
-                        <textarea class="width-text-trimestre" [readonly]="true"
-                            placeholder="Descripción de la actividad general seleccionada">{{seguimiento.informacion.descripcion}}</textarea>
-                    </mat-grid-tile>
-                    <mat-grid-tile class="titulo">Periodo de ejecución</mat-grid-tile>
-                    <mat-grid-tile>
-                        <textarea class="width-text-trimestre" [readonly]="true"
+                    </div>
+                    <div class="row1" style="grid-row: 2/2;">
+                        <mat-label id="desc-input-label">Ponderación:</mat-label>
+                        <textarea class="unidad" [readonly]="true"
+                            placeholder="0%">{{seguimiento.informacion.ponderacion/100 | percent}}</textarea>
+                    </div>
+                    <div class="row1" style="grid-row: 3/3;">
+                        <mat-label id="desc-input-label">Periodo de ejecución:</mat-label>
+                        <textarea class="unidad" [readonly]="true"
                             placeholder="Periodo">{{seguimiento.informacion.periodo}}</textarea>
-                    </mat-grid-tile>
-                </mat-grid-list>
+                    </div>
 
-                <mat-grid-list cols="6" rowHeight="35px" gutterSize="5px">
-                    <mat-grid-tile colspan="2" class="titulo">Productos asociados</mat-grid-tile>
-                    <mat-grid-tile class="titulo" colspan="4">Tareas asociadas</mat-grid-tile>
-                    <mat-grid-tile colspan="2" rowspan="2">
-                        <textarea class="width-text-trimestre"
+                    <div class="content-border"
+                        style="grid-row: 1/4; grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">
+                        <h2>&nbsp;&nbsp;&nbsp;&nbsp;Descripción de la actividad general&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+                        <textarea class="textareaContenido" [readonly]="true"
+                            placeholder="* Descripción de la actividad general seleccionada">{{seguimiento.informacion.descripcion}}</textarea>
+                    </div>
+                </div>
+
+                <br> <br>
+                <div class="contenedor3c">
+                    <div class="content-border" style="grid-column: 1/1; margin: 0px; height: -webkit-fill-available;">
+                        <h2 style="padding: 1%;margin-top: -24px;">&nbsp;&nbsp;&nbsp;&nbsp;Productos
+                            asociados&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+                        <textarea style="height: 70%;" class="textareaContenido"
                             [readonly]="true">{{seguimiento.informacion.producto}}</textarea>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="4" rowspan="2">
-                        <textarea class="width-text-trimestre" [readonly]="true"
-                            placeholder="Tareas asociadas a la actividad general">{{seguimiento.informacion.tarea}}</textarea>
-                    </mat-grid-tile>
-                </mat-grid-list>
-                <div class="container-border">
-                    <h1>COMPONENTE CUALITATIVO</h1>
-                    <br>
-                    <mat-card class="desc-input-label" [formGroup]="formCualitativo">
-                        <mat-card-header>Reporte de avance del trimestre</mat-card-header>
-                        <mat-card-content>
-                            <textarea class="width-text-trimestre" id="reporte"
-                                placeholder="Describa las acciones implementadas en el marco de la actividad general, así como  los logros obtenidos."
-                                required [value]="datosCualitativo.reporte" [(ngModel)]="datosCualitativo.reporte"
-                                [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
-                        </mat-card-content>
-                    </mat-card>
-                    <mat-card class="desc-input-label">
-                        <mat-card-header>Productos intermedios</mat-card-header>
-                        <mat-card-content>
-                            <textarea class="width-text-trimestre" id="productos"
-                                placeholder="Relacione los productos y evidencias resultantes de las acciones establecidas en el espacio anterior, tenga en cuenta que las evidencias deberán estar cargadas."
-                                formControlName="producto" required [value]="datosCualitativo.productos"
-                                [(ngModel)]="datosCualitativo.productos" [readonly]="readonlyFormulario"></textarea>
-                        </mat-card-content>
-                    </mat-card>
-                    <mat-card class="desc-input-label">
-                        <mat-card-header>Evidencias</mat-card-header>
-                        <mat-card-content *ngIf="rol=='JEFE_DEPENDENCIA' && !readonlyFormulario">
-                            <div class="width-text-trimestre"
-                                style="background-color: white; height: 60px; text-align: unset;">
-                                <button class="background-button align-button1" mat-raised-button color="primary"
-                                    (click)="onSeeDocumentos()" style="margin: 10px 2% 2% 19%;">Visualizar</button>
-                                <label mat-raised-button class="width-label-upload align-button2"
-                                    style="margin: 10px 0% 2% 52%;">
-                                    <input type="file" (change)="onChangeDocumento($event.target)">
-                                    Adjuntar Documento
-                                </label>
-                            </div>
-                        </mat-card-content>
+                    </div>
 
-                        <mat-card-content *ngIf="rol=='PLANEACION' || readonlyFormulario">
-                            <div class="width-text-trimestre container-button3"
-                                style="background-color: white; height: 60px; text-align: unset;">
-                                <button class="background-button" mat-raised-button color="primary"
-                                    (click)="onSeeDocumentos()">Visualizar</button>
-                            </div>
-                        </mat-card-content>
-                    </mat-card>
-                    <mat-card class="desc-input-label">
-                        <mat-card-header>Dificultades</mat-card-header>
-                        <mat-card-content>
-                            <textarea class="width-text-trimestre" id="dificultades"
-                                placeholder="Establezca en caso de existir, las dificultades asociadas a la implementación de la actividad general y la consecución de las metas planteadas."
-                                formControlName="dificultades" required [value]="datosCualitativo.dificultades"
-                                [(ngModel)]="datosCualitativo.dificultades" [readonly]="readonlyFormulario"></textarea>
-                        </mat-card-content>
-                    </mat-card>
-                    <br>
-                    <mat-card class="desc-input-label" *ngIf="mostrarObservaciones">
-                        <h1>Observaciones</h1>
-                        <mat-card-content>
-                            <textarea class="width-text-trimestre" id="observaciones"
-                                placeholder="Observaciones realizadas desde la OAPC a la unidad para el componente cualitativo"
-                                formControlName="observaciones" required [value]="datosCualitativo.observaciones"
-                                [(ngModel)]="datosCualitativo.observaciones"
-                                [readonly]="readonlyObservacion"></textarea>
-                        </mat-card-content>
-                    </mat-card>
-
-                    <div class="container-button3">
-                        <button class="background-button" mat-raised-button color="primary" *ngIf="!readonlyFormulario"
-                            (click)="guardarCualitativo()">Guardar componente Cualitativo</button>
-
-                        <button class="background-button" mat-raised-button color="primary"
-                            *ngIf="rol=='PLANEACION' && !readonlyObservacion" (click)="guardarCualitativo()">Guardar
-                            revisión componente Cualitativo</button>
+                    <div class="content-border" style="grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">
+                        <h2>&nbsp;&nbsp;&nbsp;&nbsp;Actividades específicas&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+                        <textarea class="textareaContenido" [readonly]="true"
+                            placeholder="* Tareas asociadas a la actividad general">{{seguimiento.informacion.tarea}}</textarea>
                     </div>
                 </div>
-                <br>
-                <div class="container-border">
-                    <h1>COMPONENTE CUANTITATIVO</h1>
-                    <div class="tabla-indicadores mat-elevation-z8">
-                        <div>
-                            <table mat-table [dataSource]="datosIndicadores">
-
-                                <ng-container matColumnDef="nombre">
-                                    <th mat-header-cell *matHeaderCellDef> Nombre </th>
-                                    <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="formula">
-                                    <th mat-header-cell *matHeaderCellDef> Formula </th>
-                                    <td mat-cell *matCellDef="let element"> {{element.formula}} </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="meta">
-                                    <th mat-header-cell *matHeaderCellDef> Meta </th>
-                                    <td mat-cell *matCellDef="let element"> {{element.meta}} </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="header-row-general">
-                                    <th mat-header-cell *matHeaderCellDef [style.text-align]="center"
-                                        [attr.colspan]="3">
-                                        Indicadores asociados a la actividad general
-                                    </th>
-                                </ng-container>
-
-                                <ng-container matColumnDef="header-row-nombre">
-                                    <th mat-header-cell *matHeaderCellDef [style.text-align]="center"
-                                        class="secundaria">
-                                        Nombre
-                                    </th>
-                                </ng-container>
-
-                                <ng-container matColumnDef="header-row-formula">
-                                    <th mat-header-cell *matHeaderCellDef [style.text-align]="center"
-                                        class="secundaria">
-                                        Formula
-                                    </th>
-                                </ng-container>
-
-                                <ng-container matColumnDef="header-row-meta">
-                                    <th mat-header-cell *matHeaderCellDef [style.text-align]="center"
-                                        class="secundaria">
-                                        Meta
-                                    </th>
-                                </ng-container>
-
-                                <tr mat-header-row *matHeaderRowDef="['header-row-general']"></tr>
-                                <tr mat-header-row
-                                    *matHeaderRowDef="['header-row-nombre', 'header-row-formula','header-row-meta']">
-                                </tr>
-                                <tr mat-row *matRowDef="let row; columns: ['nombre','formula','meta'];"></tr>
-
-                            </table>
-                        </div>
-                        <div>
-                            <table mat-table [dataSource]="datosIndicadores">
-
-                                <ng-container matColumnDef="reporteNumerador">
-                                    <th mat-header-cell *matHeaderCellDef> Reporte numerador </th>
-                                    <td class="rowText" mat-cell *matCellDef="let element">
-                                        <textarea class="form-control" matInput placeholder="Numerador"
-                                            onkeydown="return /[0-9, Backspace]/i.test(event.key)"
-                                            [readonly]="readonlyFormulario" [value]="element.reporteNumerador"
-                                            [(ngModel)]="element.reporteNumerador" [ngModelOptions]="{standalone: true}"
-                                            required></textarea>
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="reporteDenominador">
-                                    <th mat-header-cell *matHeaderCellDef> Reporte denominador </th>
-                                    <td class="rowText" mat-cell *matCellDef="let element">
-                                        <textarea class="form-control" matInput placeholder="Denominador"
-                                            onkeydown="return /[0-9, Backspace]/i.test(event.key)"
-                                            [readonly]="readonlyFormulario || element.denominador == 'Denominador fijo' && denominadorFijo"
-                                            [value]="element.reporteDenominador"
-                                            [(ngModel)]="element.reporteDenominador"
-                                            [ngModelOptions]="{standalone: true}" required></textarea>
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="detalleReporte">
-                                    <th mat-header-cell *matHeaderCellDef> Detalle del reporte </th>
-                                    <td class="rowText" mat-cell *matCellDef="let element">
-                                        <textarea class="form-control" matInput placeholder="Detalle"
-                                            [readonly]="readonlyFormulario" [value]="element.detalleReporte"
-                                            [(ngModel)]="element.detalleReporte" [ngModelOptions]="{standalone: true}"
-                                            required></textarea>
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="header-row-general">
-                                    <th mat-header-cell *matHeaderCellDef [style.text-align]="center"
-                                        [attr.colspan]="3">
-                                        Indicadores asociados a la actividad general
-                                    </th>
-                                </ng-container>
-
-                                <ng-container matColumnDef="header-row-numerador">
-                                    <th mat-header-cell *matHeaderCellDef [style.text-align]="center"
-                                        class="secundaria">
-                                        Numerador
-                                    </th>
-                                </ng-container>
-
-                                <ng-container matColumnDef="header-row-denominador">
-                                    <th mat-header-cell *matHeaderCellDef [style.text-align]="center"
-                                        class="secundaria">
-                                        Denominador
-                                    </th>
-                                </ng-container>
-
-                                <ng-container matColumnDef="header-row-detalle">
-                                    <th mat-header-cell *matHeaderCellDef [style.text-align]="center"
-                                        class="secundaria">
-                                        Detalle del reporte
-                                    </th>
-                                </ng-container>
-
-                                <tr mat-header-row *matHeaderRowDef="['header-row-general']"></tr>
-                                <tr mat-header-row
-                                    *matHeaderRowDef="['header-row-numerador', 'header-row-denominador','header-row-detalle']">
-                                </tr>
-                                <tr mat-row
-                                    *matRowDef="let row; columns: ['reporteNumerador','reporteDenominador','detalleReporte'];">
-                                </tr>
-
-                            </table>
-                        </div>
-                        <div>
-                            <button class="background-button"
-                                *ngIf="rol=='JEFE_DEPENDENCIA' && (mostrarObservaciones || readonlyObservacion)"
-                                style="width: auto; display:block; margin-left: auto; margin-right: auto;"
-                                mat-raised-button color="primary" (click)="calcularResultado()">Calcular/Ver
-                                resultados</button>
-                            <table mat-table [dataSource]="datosIndicadores">
-
-                                <ng-container matColumnDef="observaciones">
-                                    <th mat-header-cell *matHeaderCellDef> Observaciones Oficina Asesora de Planeación y
-                                        Control </th>
-                                    <td class="rowText" mat-cell *matCellDef="let element">
-                                        <textarea class="form-control" matInput placeholder="Sin observación"
-                                            [readonly]="readonlyObservacion" [value]="element.observaciones"
-                                            [(ngModel)]="element.observaciones" [ngModelOptions]="{standalone: true}"
-                                            required></textarea>
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="header-row-general">
-                                    <th mat-header-cell *matHeaderCellDef [style.text-align]="center">
-                                        Observaciones Oficina Asesora de Planeación y Control
-                                    </th>
-                                </ng-container>
-
-                                <tr mat-header-row *matHeaderRowDef="['header-row-general']"></tr>
-                                <tr mat-row *matRowDef="let row; columns: ['observaciones'];"></tr>
-
-                            </table>
-                        </div>
-                    </div>
-                    <br>
-
-                    <hr>
-
-                    <br>
-                    <div class="mat-elevation-z8">
-                        <table mat-table [dataSource]="datosResultados">
-
-                            <ng-container matColumnDef="indicador">
-                                <th mat-header-cell *matHeaderCellDef class="secundaria"> Indicador del periodo </th>
-                                <th mat-header-cell *matHeaderCellDef class="descripcion"> A partir del reporte de las
-                                    variables para el periodo se calcula el reporte del trimestre </th>
-                                <td mat-cell *matCellDef="let element"> {{element.indicador}} </td>
-                            </ng-container>
-
-                            <ng-container matColumnDef="indicadorAcumulado">
-                                <th mat-header-cell *matHeaderCellDef class="secundaria"> Indicador acumulado </th>
-                                <th mat-header-cell *matHeaderCellDef class="descripcion"> Consolida el valor del
-                                    indicador hasta el ultimo periodo reportado </th>
-                                <td mat-cell *matCellDef="let element"> {{element.indicadorAcumulado}} </td>
-                            </ng-container>
-
-                            <ng-container matColumnDef="avanceAcumulado">
-                                <th mat-header-cell *matHeaderCellDef class="secundaria"> Avance acumulado </th>
-                                <th mat-header-cell *matHeaderCellDef class="descripcion"> Contrasta el reporte el
-                                    indicador acumulado con la meta de la vigencia </th>
-                                <td mat-cell *matCellDef="let element"> {{element.avanceAcumulado}} %</td>
-                            </ng-container>
-
-                            <ng-container matColumnDef="brechaExistente" class="secundaria">
-                                <th mat-header-cell *matHeaderCellDef class="secundaria"> Brecha existente </th>
-                                <th mat-header-cell *matHeaderCellDef class="descripcion"> A partir de la meta
-                                    establecida y el cálculo del indicador acumulado establece la brecha existente o el
-                                    faltante por cubrir </th>
-                                <td mat-cell *matCellDef="let element"> {{element.brechaExistente}} </td>
-                            </ng-container>
-
-                            <ng-container matColumnDef="header-row-general">
-                                <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [attr.colspan]="4">
-                                    Resultados asociados al reporte del indicador
-                                </th>
-                            </ng-container>
-
-                            <ng-container matColumnDef="header-row-ind">
-                                <th mat-header-cell *matHeaderCellDef [style.text-align]="center" class="descripcion">
-                                    A partir del reporte de las variables para el periodo se calcula el reporte del
-                                    trimestre
-                                </th>
-                            </ng-container>
-
-                            <ng-container matColumnDef="header-row-acumulado">
-                                <th mat-header-cell *matHeaderCellDef [style.text-align]="center" class="descripcion">
-                                    Consolida el valor del indicador hasta el ultimo periodo reportado
-                                </th>
-                            </ng-container>
-
-                            <ng-container matColumnDef="header-row-avanceAcumulado">
-                                <th mat-header-cell *matHeaderCellDef [style.text-align]="center" class="descripcion">
-                                    Contrasta el reporte el indicador acumulado con la meta de la vigencia
-                                </th>
-                            </ng-container>
-
-                            <ng-container matColumnDef="header-row-brecha">
-                                <th mat-header-cell *matHeaderCellDef [style.text-align]="center" class="descripcion">
-                                    A partir de la meta establecida y el cálculo del indicador acumulado establece la
-                                    brecha existente o el faltante por cubrir
-                                </th>
-                            </ng-container>
-
-
-
-                            <tr mat-header-row *matHeaderRowDef="['header-row-general']"></tr>
-                            <tr mat-header-row
-                                *matHeaderRowDef="['indicador','indicadorAcumulado', 'avanceAcumulado', 'brechaExistente']">
-                            </tr>
-                            <tr mat-header-row
-                                *matHeaderRowDef="['header-row-ind','header-row-acumulado', 'header-row-avanceAcumulado','header-row-brecha']">
-                            </tr>
-                            <tr mat-row
-                                *matRowDef="let row; columns: ['indicador','indicadorAcumulado', 'avanceAcumulado', 'brechaExistente'];">
-                            </tr>
-                        </table>
-                    </div>
-
-                    <br>
-
-                    <div class="align-button-enviar">
-                        <button class="background-button" mat-raised-button color="primary" *ngIf="!readonlyFormulario"
-                            (click)="guardarCuantitativo()">Guardar componente Cuantitativo</button>
-
-                        <button class="background-button" mat-raised-button color="primary"
-                            *ngIf="rol=='PLANEACION' && !readonlyObservacion" (click)="guardarCuantitativo()">Guardar
-                            revisión componente Cuantitativo</button>
-                    </div>
-                </div>
-
             </div>
+
+            <div class="container-border">
+                <h1>&nbsp;&nbsp;&nbsp;&nbsp;Componente cualitativo</h1>
+                <br>
+                <div class="headerCualitativo">
+                    <div class="headerCircle">
+                        <span>1</span>
+                    </div>
+                    <div>
+                        Reporte de avance del trimestre
+                    </div>
+                </div>
+
+                <div class="contentCuantitativo">
+                    <div class="container-border">
+                        <h4>&nbsp;&nbsp;&nbsp;&nbsp;Digite la información *&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+                        <textarea class="textareaContenido" id="reporte"
+                            placeholder="* Describa las acciones implementadas en el marco de la actividad general, así como  los logros obtenidos."
+                            required [value]="datosCualitativo.reporte" [(ngModel)]="datosCualitativo.reporte"
+                            [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
+                    </div>
+                </div>
+
+                <div class="headerCualitativo">
+                    <div class="headerCircle">
+                        <span>2</span>
+                    </div>
+                    <div>
+                        Soportes (productos intermedios)
+                    </div>
+                </div>
+
+                <div class="contentCuantitativo"
+                    style="padding-left: 24px;display: flex;flex-wrap: nowrap;align-items: center;gap: 1%;">
+                    <div class="container-border" style="width: 80%; margin-left: 0px;">
+                        <h4>&nbsp;&nbsp;&nbsp;&nbsp;Digite la información *&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+                        <textarea class="textareaContenido" id="productos"
+                            placeholder="* Enliste los productos y evidencias resultantes de las acciones establecidas en el espacio anterior, tenga en cuenta que las evidencias deberán estar cargadas."
+                            required [value]="datosCualitativo.productos" [(ngModel)]="datosCualitativo.productos"
+                            [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
+                    </div>
+
+                    <div style="margin: 10px 0px 20px 0px; width: 15%;"
+                        *ngIf="rol=='JEFE_DEPENDENCIA' && !readonlyFormulario">
+                        <div class="container-border" style="margin: 0px;width: 100%;padding: 10px;">
+                            <button class="background-button"
+                                style="font-weight: bold; margin: 0px 0px 5px 0px; width: 100%;" mat-raised-button
+                                color="primary" (click)="onSeeDocumentos()">Visualizar</button>
+                            <label mat-raised-button style="display: block" class="width-label-upload">
+                                <input type="file" accept="application/pdf" (change)="onChangeDocumento($event.target)">
+                                Adjuntar documento
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="margin: 10px 0px 20px 0px; width: 15%;" *ngIf="rol=='PLANEACION' || readonlyFormulario">
+                        <div class="container-border" style="margin: 0px; width: 100%;padding: 10px;">
+                            <button class="background-button" style="font-weight: bold; width: 100%;" mat-raised-button
+                                color="primary" (click)="onSeeDocumentos()">Visualizar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="headerCualitativo">
+                    <div class="headerCircle">
+                        <span>3</span>
+                    </div>
+                    <div>
+                        Dificultades
+                    </div>
+                </div>
+
+                <div class="contentCuantitativo">
+                    <div class="container-border">
+                        <h4>&nbsp;&nbsp;&nbsp;&nbsp;Digite la información *&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+                        <textarea class="textareaContenido" id="dificultades"
+                            placeholder="* Establezca en caso de existir, las dificultades asociadas a la implementación de la actividad general y la consecución de las metas planteadas."
+                            required [value]="datosCualitativo.dificultades" [(ngModel)]="datosCualitativo.dificultades"
+                            [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
+                    </div>
+                </div>
+
+                <div class="container-border" *ngIf="mostrarObservaciones">
+                    <h4>&nbsp;&nbsp;&nbsp;&nbsp;Observaciones Oficina Asesora de Planeación y
+                        Control&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+                    <textarea class="textareaContenido" id="observaciones"
+                        placeholder="* Observaciones realizadas desde la OAPC a la unidad para el componente cualitativo."
+                        formControlName="observaciones" required [value]="datosCualitativo.observaciones"
+                        [ngModelOptions]="{standalone: true}" [(ngModel)]="datosCualitativo.observaciones"
+                        [readonly]="readonlyObservacion"></textarea>
+                </div>
+
+                <div class="container-button3">
+                    <button class="background-button" mat-raised-button color="primary" *ngIf="!readonlyFormulario"
+                        (click)="guardarCualitativo()">Guardar componente cualitativo</button>
+
+                    <button class="background-button" mat-raised-button color="primary"
+                        *ngIf="rol=='PLANEACION' && !readonlyObservacion" (click)="guardarCualitativo()">Guardar
+                        revisión componente cualitativo</button>
+                </div>
+            </div>
+
+            <br>
+            <div class="container-border">
+                <h1>&nbsp;&nbsp;&nbsp;&nbsp;Componente cuantitativo</h1>
+
+                <div class="mat-elevation-z8">
+                    <table mat-table [dataSource]="datosIndicadores">
+                        <ng-container matColumnDef="nombre">
+                            <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="formula">
+                            <td mat-cell *matCellDef="let element"> {{element.formula}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="meta">
+                            <td mat-cell style="width: 35px;" *matCellDef="let element">
+                                <div *ngIf="element.unidad =='Porcentaje'">
+                                    {{element.meta/100 | percent:'1.1-1'}}
+                                </div>
+                                <div *ngIf="element.unidad =='Unidad' || element.unidad =='Tasa'">
+                                    {{element.meta}}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="reporteNumerador">
+                            <td class="rowText" style="max-width: 85px; min-width: 85px;" mat-cell
+                                *matCellDef="let element">
+                                <input type="number" class="form-control"
+                                    style="width: 90%;height: 48px;text-align: center;" matInput placeholder="Numerador"
+                                    required [value]="element.reporteNumerador" [(ngModel)]="element.reporteNumerador"
+                                    [readonly]="readonlyFormulario" [ngModelOptions]="{standalone: true}" step="0.01"
+                                    value="0.00" pattern="^\d*(\.\d{0,2})?$">
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="reporteDenominador">
+                            <td class="rowText" style="max-width: 85px; min-width: 85px;" mat-cell
+                                *matCellDef="let element">
+                                <input type="number" class="form-control"
+                                    style="width: 90%;height: 48px;text-align: center;" matInput
+                                    placeholder="Denominador" required [value]="element.reporteDenominador"
+                                    [(ngModel)]="element.reporteDenominador" [readonly]="readonlyFormulario"
+                                    [ngModelOptions]="{standalone: true}" step="0.01" value="0.00"
+                                    pattern="^\d*(\.\d{0,2})?$">
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="detalleReporte">
+                            <td class="rowText" mat-cell *matCellDef="let element">
+                                <textarea class="form-control" style="width: 90%;" matInput placeholder="Detalle"
+                                    [readonly]="readonlyFormulario" [value]="element.detalleReporte"
+                                    [(ngModel)]="element.detalleReporte" [ngModelOptions]="{standalone: true}"
+                                    required></textarea>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="observaciones">
+                            <td class="rowText" mat-cell *matCellDef="let element">
+                                <textarea class="form-control" style="width: 90%;" matInput
+                                    placeholder="Sin observación" [readonly]="readonlyObservacion"
+                                    [value]="element.observaciones" [(ngModel)]="element.observaciones"
+                                    [ngModelOptions]="{standalone: true}" required></textarea>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="header-row-general">
+                            <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [attr.colspan]="3">
+                                Indicadores asociados a la actividad general
+                            </th>
+                        </ng-container>
+
+                        <ng-container matColumnDef="header-row-indicador">
+                            <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [attr.colspan]="3">
+                                Reporte del indicador para el trimestre
+                            </th>
+                        </ng-container>
+
+                        <ng-container matColumnDef="header-row-observacion">
+                            <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [attr.rowspan]="2">
+                                Observaciones Oficina Asesora de Planeación y Control
+                            </th>
+                        </ng-container>
+
+                        <ng-container matColumnDef="header-row-nombre">
+                            <th mat-header-cell *matHeaderCellDef [style.text-align]="center" class="secundaria">
+                                Nombre
+                            </th>
+                        </ng-container>
+
+                        <ng-container matColumnDef="header-row-formula">
+                            <th mat-header-cell *matHeaderCellDef [style.text-align]="center" class="secundaria">
+                                Fórmula
+                            </th>
+                        </ng-container>
+
+                        <ng-container matColumnDef="header-row-meta">
+                            <th mat-header-cell style="max-width: 85px; min-width: 85px;" *matHeaderCellDef
+                                [style.text-align]="center" class="secundaria">
+                                Meta
+                            </th>
+                        </ng-container>
+
+                        <ng-container matColumnDef="header-row-numerador">
+                            <th mat-header-cell style="max-width: 85px; min-width: 85px;" *matHeaderCellDef
+                                [style.text-align]="center" class="secundaria">
+                                Numerador
+                            </th>
+                        </ng-container>
+
+                        <ng-container matColumnDef="header-row-denominador">
+                            <th mat-header-cell style="max-width: 85px; min-width: 85px;" *matHeaderCellDef
+                                [style.text-align]="center" class="secundaria">
+                                Denominador
+                            </th>
+                        </ng-container>
+
+                        <ng-container matColumnDef="header-row-detalle">
+                            <th mat-header-cell *matHeaderCellDef [style.text-align]="center" class="secundaria">
+                                Detalle del reporte
+                            </th>
+                        </ng-container>
+
+                        <tr mat-header-row
+                            *matHeaderRowDef="['header-row-general', 'header-row-indicador', 'header-row-observacion']">
+                        </tr>
+                        <tr mat-header-row
+                            *matHeaderRowDef="['header-row-nombre', 'header-row-formula','header-row-meta', 'header-row-numerador', 'header-row-denominador', 'header-row-detalle']">
+                        </tr>
+                        <tr mat-row
+                            *matRowDef="let row; columns: ['nombre','formula','meta', 'reporteNumerador', 'reporteDenominador', 'detalleReporte', 'observaciones'];">
+                        </tr>
+                    </table>
+                </div>
+                <button class="background-button"
+                    *ngIf="rol=='JEFE_DEPENDENCIA' && (mostrarObservaciones || readonlyObservacion)"
+                    style="width: auto; display:block; margin-left: auto; margin-right: auto;" mat-raised-button
+                    color="primary" (click)="calcularResultado()">Calcular indicadores</button>
+
+                <hr>
+
+                <br>
+                <div class="mat-elevation-z8">
+                    <table mat-table [dataSource]="datosResultados">
+                        <ng-container matColumnDef="nombre">
+                            <th mat-header-cell *matHeaderCellDef> Nombre del indicador </th>
+                            <td mat-cell style="text-align: justify;" *matCellDef="let element"> {{element.nombre}}
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="indicador">
+                            <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Indicador del periodo </th>
+                            <td mat-cell style="width: 70px;" *matCellDef="let element">
+                                <div *ngIf="element.unidad =='Porcentaje'">
+                                    {{element.indicador | percent:'1.1-1'}}
+                                </div>
+                                <div *ngIf="element.unidad =='Unidad'">
+                                    {{element.indicador}}
+                                </div>
+                                <div *ngIf="element.unidad =='Tasa'">
+                                    {{element.indicador | number:'1.1-2'}}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="numerador">
+                            <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Numerador acumulado </th>
+                            <td mat-cell style="width: 70px;" *matCellDef="let element"> {{element.acumuladoNumerador}}
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="denominador">
+                            <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Denominador acumulado </th>
+                            <td mat-cell style="width: 70px;" *matCellDef="let element">
+                                {{element.acumuladoDenominador}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="indicadorAcumulado">
+                            <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Indicador acumulado </th>
+                            <td mat-cell style="width: 70px;" *matCellDef="let element">
+                                <div *ngIf="element.unidad =='Porcentaje'">
+                                    {{element.indicadorAcumulado | percent:'1.1-2'}}
+                                </div>
+                                <div *ngIf="element.unidad =='Unidad'">
+                                    {{element.indicadorAcumulado | number:'1.0-0'}}
+                                </div>
+                                <div *ngIf="element.unidad =='Tasa'">
+                                    {{element.indicadorAcumulado | number:'1.1-2'}}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="avanceAcumulado">
+                            <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Cumplimiento meta </th>
+                            <td mat-cell style="width: 70px;" *matCellDef="let element">
+                                <div *ngIf="element.avanceAcumulado <= 1; else elseBlock">
+                                    {{element.avanceAcumulado | percent:'1.1-1'}}
+                                </div>
+                                <ng-template #elseBlock>
+                                    100% <br> (+{{element.avanceAcumulado - 1 | percent:'1.1-1'}})
+                                </ng-template>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="brechaExistente">
+                            <th mat-header-cell style="width: 70px;" *matHeaderCellDef> Brecha </th>
+                            <td mat-cell style="width: 70px;" *matCellDef="let element">
+                                <div *ngIf="element.brechaExistente >= 0; else elseBlock">
+                                    <div *ngIf="element.unidad =='Porcentaje'">
+                                        {{element.brechaExistente | percent:'1.1-2'}}
+                                    </div>
+                                    <div *ngIf="element.unidad =='Unidad'">
+                                        {{element.brechaExistente | number: '1.0-0'}}
+                                    </div>
+                                    <div *ngIf="element.unidad =='Tasa'">
+                                        {{element.brechaExistente | number: '1.0-2'}}
+                                    </div>
+                                </div>
+                                <ng-template #elseBlock>
+                                    <div *ngIf="element.unidad =='Porcentaje'">
+                                        0% <br> (+{{-1 * element.brechaExistente | percent:'1.1-1'}})
+                                    </div>
+                                    <div *ngIf="element.unidad =='Unidad' || element.unidad =='Tasa'">
+                                        0 <br> (+{{-1 * element.brechaExistente}})
+                                    </div>
+                                </ng-template>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row
+                            *matHeaderRowDef="['nombre','indicador', 'numerador', 'denominador', 'indicadorAcumulado', 'avanceAcumulado', 'brechaExistente']">
+                        </tr>
+
+                        <tr mat-row
+                            *matRowDef="let row; columns: ['nombre', 'indicador','numerador', 'denominador','indicadorAcumulado', 'avanceAcumulado', 'brechaExistente'];">
+                        </tr>
+                    </table>
+                </div>
+
+                <br>
+
+                <div class="align-button-enviar">
+                    <button class="background-button" mat-raised-button color="primary" *ngIf="!readonlyFormulario"
+                        (click)="guardarCuantitativo()">Guardar componente cuantitativo</button>
+
+                    <button class="background-button" mat-raised-button color="primary"
+                        *ngIf="rol=='PLANEACION' && !readonlyObservacion" (click)="guardarCuantitativo()">Guardar
+                        revisión componente cuantitativo</button>
+                </div>
+            </div>
+
             <br>
             <div class="align-button-enviar"
                 *ngIf="rol=='JEFE_DEPENDENCIA' && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC'">
                 <button class="background-button" mat-raised-button color="primary"
-                    (click)="guardarSeguimiento()">Guardar seguimiento de actividad</button>
-                <button class="background-button" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
+                <button class="background-button" mat-raised-button color="primary"
+                    (click)="guardarSeguimiento()">Guardar seguimiento de actividad</button>
             </div>
             <div class="align-button-enviar"
                 *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Actividad en reporte'">
-                <button class="background-button" mat-raised-button color="primary" (click)="generarReporte()">Generar
-                    Reporte</button>
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
+                <button class="background-button" mat-raised-button color="primary" (click)="generarReporte()">Generar
+                    reporte</button>
             </div>
             <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && readonlyFormulario">
                 <button class="background-button" mat-raised-button color="primary"
@@ -425,22 +435,45 @@
 
             <div class="align-button-enviar"
                 *ngIf="rol=='PLANEACION' && (readonlyObservacion || estadoActividad==='Sin reporte' || estadoActividad==='Actividad en reporte' || estadoActividad==='Actividad avalada')">
+                <mat-form-field appearance="fill" style="position: absolute; display: block; margin-top: 1%;">
+                    <mat-label id="Estado">Estado de la actividad</mat-label>
+                    <mat-select [disabled]="true" [(value)]="estadoActividad"
+                        (selectionChange)="onChangeV($event.value)">
+                        <mat-option>--</mat-option>
+                        <mat-option *ngFor="let estado of estados" [value]="estado.nombre">
+                            {{estado.nombre}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
+                <button class="background-button" mat-raised-button color="primary"
+                    *ngIf="estadoActividad==='Actividad avalada'" (click)="retornarRevision()">Retornar a
+                    revisión</button>
             </div>
             <div class="align-button-enviar"
                 *ngIf="rol=='PLANEACION' && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada' )">
-                <button class="background-button" mat-raised-button color="primary" (click)="guardarRevision()">Guardar
-                    revisión de actividad</button>
+                <mat-form-field appearance="fill" style="position: absolute; display: block; margin-top: 1%;">
+                    <mat-label id="Estado">Estado de la actividad</mat-label>
+                    <mat-select [disabled]="true" [(value)]="estadoActividad"
+                        (selectionChange)="onChangeV($event.value)">
+                        <mat-option>--</mat-option>
+                        <mat-option *ngFor="let estado of estados" [value]="estado.nombre">
+                            {{estado.nombre}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
+                <button class="background-button" mat-raised-button color="primary" (click)="guardarRevision()">Guardar
+                    revisión de actividad</button>
             </div>
 
             <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Observación'">
-                <button class="background-button" mat-raised-button color="primary" (click)="ajustarReporte()">Reenviar
-                    Reporte</button>
                 <button class="background-button" mat-raised-button color="primary"
                     (click)="backClicked()">Regresar</button>
+                <button class="background-button" mat-raised-button color="primary" (click)="ajustarReporte()">Reenviar
+                    reporte</button>
             </div>
         </form>
     </mat-card-content>

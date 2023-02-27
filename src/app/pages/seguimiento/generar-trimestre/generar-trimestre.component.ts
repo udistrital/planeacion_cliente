@@ -75,8 +75,10 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   readonlyFormulario: boolean;
   readonlyObservacion: boolean;
   denominadorFijo: boolean;
-  tendencia: string;
   unidad: string;
+  numeradorOriginal: number[] = [];
+  denominadorOriginal: number[] = [];
+  calcular: boolean = false;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -230,7 +232,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(EvidenciasDialogComponent, {
       width: '80%',
       height: '55%',
-      data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion],
+      data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion, this.unidad],
     });
 
     dialogRef.afterClosed().subscribe(documentos => {
@@ -252,14 +254,14 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.documentos = documentos;
+            this.estadoActividad = data.Data.estadoActividad.nombre;
+            this.verificarFormulario();
             Swal.fire({
               title: 'Documento(s) actualizado(s)',
               text: `Revise el campo de soportes para visualizar o eliminar`,
               icon: 'success',
               showConfirmButton: false,
               timer: 2000
-            }).then(res => {
-              this.loadData();
             });
           }
         }, (error) => {
@@ -278,69 +280,78 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   async onChangeDocumento(event) {
     if (event != undefined) {
       let aux = event.files[0];
-      const found = this.documentos.find(element => element.nombre == aux.name && element.Activo);
-      if (found == undefined) {
-
+      if (aux.type != 'application/pdf') {
         Swal.fire({
-          title: 'Guardando documento',
-          timerProgressBar: true,
+          title: 'Archivo no válido',
+          text: `Solo se admiten documentos PDF`,
+          icon: 'error',
           showConfirmButton: false,
-          willOpen: () => {
-            Swal.showLoading();
-          },
+          timer: 2500
         })
+      } else {
+        const found = this.documentos.find(element => element.nombre == aux.name && element.Activo);
+        if (found == undefined) {
+          Swal.fire({
+            title: 'Guardando documento',
+            timerProgressBar: true,
+            showConfirmButton: false,
+            willOpen: () => {
+              Swal.showLoading();
+            },
+          })
 
-        let documento = {
-          IdTipoDocumento: 60,
-          nombre: aux.name,
-          metadatos: {
-            dato_a: "Soporte planeacion"
-          },
-          descripcion: "Documento de soporte para seguimiento de plan de acción",
-          file: await this.gestorDocumental.fileToBase64(aux),
-          Activo: true
-        }
-        this.documentos.push(documento);
-
-        let documentoPorSubir = {
-          documento: this.documentos,
-          evidencia: this.seguimiento.evidencia
-        };
-
-        this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
-          if (data) {
-            Swal.fire({
-              title: 'Documento Cargado',
-              text: `Revise el campo de soportes para visualizar o eliminar`,
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 2000
-            }).then(res => {
-              this.loadData();
-            });
+          let documento = {
+            IdTipoDocumento: 60,
+            nombre: aux.name,
+            metadatos: {
+              dato_a: "Soporte planeacion"
+            },
+            descripcion: "Documento de soporte para seguimiento de plan de acción",
+            file: await this.gestorDocumental.fileToBase64(aux),
+            Activo: true
           }
-        }, (error) => {
-          this.documentos.pop();
+          this.documentos.push(documento);
+
+          let documentoPorSubir = {
+            documento: this.documentos,
+            evidencia: this.seguimiento.evidencia
+          };
+
+          this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+            if (data) {
+              this.estadoActividad = data.Data.estadoActividad.nombre;
+              this.verificarFormulario();
+
+              Swal.fire({
+                title: 'Documento Cargado',
+                text: `Revise el campo de soportes para visualizar o eliminar`,
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 2000
+              });
+            }
+          }, (error) => {
+            this.documentos.pop();
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se pudo subir el documento`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          })
+
+
+        } else {
           Swal.fire({
             title: 'Error en la operación',
-            text: `No se pudo subir el documento`,
+            text: `Ya existe un documento con el mismo nombre`,
             icon: 'warning',
             showConfirmButton: false,
-            timer: 2500
+            timer: 2000
           })
-        })
-
-
-      } else {
-        Swal.fire({
-          title: 'Error en la operación',
-          text: `Ya existe un documento con el mismo nombre`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2000
-        })
+        }
       }
-
     } else {
       Swal.fire({
         title: 'Error en la operación',
@@ -368,7 +379,15 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.documentos = JSON.parse(JSON.stringify(data.Data.evidencia));
         this.datosIndicadores = data.Data.cuantitativo.indicadores;
         this.datosResultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.resultados));
-        this.tendencia = data.Data.cuantitativo.tendencia;
+
+        this.numeradorOriginal = [];
+        this.denominadorOriginal = [];
+        let resultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.indicadores));
+        resultados.forEach(indicador => {
+          this.numeradorOriginal.push(indicador.reporteNumerador);
+          this.denominadorOriginal.push(indicador.reporteDenominador);
+        });
+
         this.datosCualitativo = data.Data.cualitativo;
 
         this.estadoActividad = this.seguimiento.estado.nombre;
@@ -376,22 +395,26 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.verificarFormulario();
 
         if (this.estadoActividad != "Sin reporte") {
-          if (this.datosCualitativo.observaciones == "" || this.datosCualitativo.observaciones == undefined) {
-            this.datosCualitativo.observaciones = "Sin observación"
+          if (this.datosCualitativo.observaciones == "" || this.datosCualitativo.observaciones == undefined || this.datosCualitativo.observaciones == "Sin observación") {
+            this.datosCualitativo.observaciones = ""
           } else {
             this.mostrarObservaciones = true;
           }
         }
 
         if (data.Data.informacion.trimestre != "T1") {
-          this.denominadorFijo = true;
+          this.calcular = true;
+
+          if (this.datosResultados[0].indicador != 0) {
+            this.calcular = false;
+          }
         }
 
         for (let index = 0; index < this.datosIndicadores.length; index++) {
           const indicador = this.datosIndicadores[index];
           if (this.estadoActividad != "Sin reporte") {
             if ((indicador.observaciones == "" || indicador.observaciones == undefined) && this.rol != "JEFE_DEPENDENCIA") {
-              this.datosIndicadores[index].observaciones = "Sin observación";
+              this.datosIndicadores[index].observaciones = "";
             }
           }
         }
@@ -400,7 +423,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           const documento = this.documentos[index];
           if (this.estadoActividad != "Sin reporte") {
             if (documento.Observacion == "") {
-              this.documentos[index].Observacion = "Sin observación";
+              this.documentos[index].Observacion = "";
             } else {
               this.mostrarObservaciones = true;
             }
@@ -438,7 +461,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cualitativo`, { "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cualitativo`, { "informacion": this.seguimiento.informacion, "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Información de seguimiento actualizada',
@@ -495,7 +518,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cuantitativo`, { "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/guardar_cuantitativo`, { "informacion": this.seguimiento.informacion, "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Información de seguimiento actualizada',
@@ -735,33 +758,79 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   calcularResultado() {
     for (let index = 0; index < this.datosIndicadores.length; index++) {
-      const element = this.datosIndicadores[index];
-      if (element.reporteDenominador != "" || element.reporteNumerador != "") {
-        var denominador = parseInt(element.reporteDenominador);
-        var numerador = parseInt(element.reporteNumerador);
-        this.datosIndicadores[index].reporteDenominador = denominador;
-        this.datosIndicadores[index].reporteNumerador = numerador;
-        if (denominador != NaN && numerador != NaN) {
-          this.datosResultados[index].indicador = this.seguimiento.cuantitativo.resultados[index].indicador + Math.round(numerador / denominador * 10) / 10;
-          if (!this.denominadorFijo) {
-            denominador += this.datosResultados[index].acumuladoDenominador;
-          }
-          this.datosResultados[index].indicadorAcumulado = this.seguimiento.cuantitativo.resultados[index].indicadorAcumulado + Math.round((this.datosResultados[index].acumuladoNumerador + numerador) / denominador * 10) / 10;
+      const indicador = this.datosIndicadores[index];
+      if (indicador.reporteDenominador != "" || indicador.reporteNumerador != "") {
+        const denominador = parseFloat(indicador.reporteDenominador);
+        const numerador = parseFloat(indicador.reporteNumerador);
+        const meta = parseFloat(this.datosIndicadores[index].meta)
+        this.denominadorFijo = indicador.denominador != "Denominador variable"
+        if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
+          this.datosIndicadores[index].reporteDenominador = denominador;
+          this.datosIndicadores[index].reporteNumerador = numerador;
 
-          var meta = parseInt(element.meta);
-          var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
-          if (this.tendencia = "Creciente") {
-            this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / meta * 100 * 10) / 10;
-          } else if (this.tendencia = "Decreciente") {
-            if (indicadorAcumulado < meta) {
-              this.datosResultados[index].avanceAcumulado = Math.round(1 + ((meta - indicadorAcumulado) / meta) * 10) / 10;
+          if (!this.calcular) {
+            this.datosResultados[index].acumuladoNumerador -= this.numeradorOriginal[index];
+            if (!this.denominadorFijo) {
+              this.datosResultados[index].acumuladoDenominador -= this.denominadorOriginal[index];
+            }
+            this.datosResultados[index].indicadorAcumulado -= this.datosResultados[index].indicador;
+            this.datosResultados[index].indicador = 0;
+          }
+
+          this.datosResultados[index].acumuladoNumerador += numerador;
+          if (!this.denominadorFijo) {
+            this.datosResultados[index].acumuladoDenominador += denominador;
+          } else {
+            this.datosResultados[index].acumuladoDenominador = denominador;
+          }
+
+          if (denominador != 0) {
+            if (this.datosIndicadores[index].unidad == "Unidad") {
+              this.datosResultados[index].indicador = Math.round((numerador / denominador));
             } else {
-              this.datosResultados[index].avanceAcumulado = Math.round(1 - ((meta - indicadorAcumulado) / meta) * 10) / 10;
+              this.datosResultados[index].indicador = Math.round((numerador / denominador) * 10000) / 10000;
+            }
+          } else {
+            this.datosResultados[index].indicador = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
+          }
+
+          if (this.datosResultados[index].acumuladoDenominador != 0) {
+            if (this.datosIndicadores[index].unidad == "Unidad") {
+              this.datosResultados[index].indicadorAcumulado = Math.round(this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador * 100) / 100;
+            } else {
+              this.datosResultados[index].indicadorAcumulado = Math.round((this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador) * 10000) / 10000;
+            }
+          } else {
+            this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
+          }
+
+          var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+          var metaEvaluada = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
+          if (indicador.tendencia == "Creciente") {
+            if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
+              this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 1000) / 1000;
+            } else {
+              this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 10000) / 10000;
+            }
+          } else if (indicador.tendencia == "Decreciente") {
+            if (indicadorAcumulado < metaEvaluada) {
+              this.datosResultados[index].avanceAcumulado = Math.round((1 + ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
+            } else {
+              this.datosResultados[index].avanceAcumulado = Math.round((1 - ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
             }
           }
-          this.datosResultados[index].brechaExistente = Math.round((meta - indicadorAcumulado) * 10) / 10;
+
+          if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
+            this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
+          } else {
+            this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
+          }
           this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
         }
+        this.numeradorOriginal[index] = numerador;
+        this.denominadorOriginal[index] = denominador;
+        indicador.reporteDenominador = String(denominador);
+        indicador.reporteNumerador = String(numerador);
       } else {
         Swal.fire({
           title: 'Error en la operación',
@@ -772,6 +841,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         })
       }
     }
+    this.calcular = false;
   }
 
   guardarRevision() {
@@ -859,5 +929,54 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }
 
     return false
+  }
+
+  retornarRevision() {
+    Swal.fire({
+      title: 'Retornar estado',
+      text: `¿Desea retornar la actividad al estado Actividad reportada?`,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/retornar_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Información de seguimiento actualizada',
+              text: 'Se ha actualizado el estado de la actividad satisfactoriamente',
+              icon: 'success'
+            }).then(res => {
+              this.loadData();
+            });
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible retornar el estado`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cambio de estado cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 }

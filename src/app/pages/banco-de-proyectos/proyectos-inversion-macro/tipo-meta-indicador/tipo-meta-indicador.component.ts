@@ -1,7 +1,6 @@
-import { Component, ViewChild, OnInit, DoCheck } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
@@ -33,8 +32,9 @@ export class TipoMetaIndicadorComponent implements OnInit {
     private formBuilder: FormBuilder,
     private request: RequestManager,
     private activatedRoute: ActivatedRoute,
-  ) { 
+  ) {
     activatedRoute.params.subscribe(prm => {
+
 
       this.planId = prm['idPlan']; 
       this.indexMeta = prm['indexMeta']  
@@ -153,6 +153,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
     this.request.put(environment.PLANES_MID, `inversion/actualizar_meta`, actividad, this.planId + `/` + this.indexMeta).subscribe((data: any) => {      
       if (data) {
         Swal.close();
+
         Swal.fire({
           title: 'Información de actividad actualizada',
           //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
@@ -168,7 +169,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
             //this.idPlanIndicativo = undefined;
             //this.tipoPlanIndicativo = undefined;
           }
-        })
+        }) 
       }
     }, (error) => {
       Swal.fire({
