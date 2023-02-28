@@ -664,7 +664,7 @@ export class FormulacionComponent implements OnInit {
               'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
               'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
               '<i>Deberá formular el plan</i>',
-            // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}. 
+            // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
             // Deberá formular un nuevo plan`,
             icon: 'warning',
             showConfirmButton: false,
@@ -1242,7 +1242,7 @@ export class FormulacionComponent implements OnInit {
         for (let key of keys) {
           message = message + key + ' : ' + aux[key] + "<br/>"
         }
-        if (data.Data.Total === 100) {
+        if (parseInt(data.Data.Total) === 100) {
           this.ponderacionCompleta = true
         } else {
           this.ponderacionCompleta = false
