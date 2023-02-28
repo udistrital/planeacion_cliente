@@ -45,6 +45,12 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   selectedFiles: any;
   datosCualitativo: any = { 'reporte': '', 'productos': '', 'dificultades': '', 'observaciones': '' };
   formCualitativo: FormGroup;
+  FORMATOS = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel", "application/vnd.ms-powerpoint", "application/msword",
+    "application/pdf", "audio/x-m4a", "audio/webm", "audio/x-wav",
+    "audio/ogg", "audio/aac", "image/png", "image/jpeg"]
 
   @ViewChild('MatPaginatorIndicadores') paginatorIndicadores: MatPaginator;
   @ViewChild('MatPaginatorResultados') paginatorResultados: MatPaginator;
@@ -62,6 +68,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   indicadorActivo: string;
   documentoSeleccionado: File = null;
   trimestre: string = '';
+  trimestreAbr: string = '';
   auxDocumentos: string[] = [];
   generalData: any = {};
   generalDatar: any = {};
@@ -78,7 +85,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   unidad: string;
   numeradorOriginal: number[] = [];
   denominadorOriginal: number[] = [];
-  calcular: boolean = false;
+  calcular: boolean = true;
+  abrirDocs: boolean = true;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -229,61 +237,63 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   onSeeDocumentos() {
-    const dialogRef = this.dialog.open(EvidenciasDialogComponent, {
-      width: '80%',
-      height: '55%',
-      data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion, this.unidad],
-    });
+    if (this.abrirDocs) {
+      const dialogRef = this.dialog.open(EvidenciasDialogComponent, {
+        width: '80%',
+        height: '55%',
+        data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion, this.unidad],
+      });
 
-    dialogRef.afterClosed().subscribe(documentos => {
-      if (documentos != undefined && JSON.stringify(this.documentos) != JSON.stringify(documentos)) {
+      dialogRef.afterClosed().subscribe(documentos => {
+        if (documentos != undefined && JSON.stringify(this.documentos) != JSON.stringify(documentos)) {
 
-        let documentoPorSubir = {
-          documento: null,
-          evidencia: documentos
-        };
+          let documentoPorSubir = {
+            documento: null,
+            evidencia: documentos
+          };
 
-        Swal.fire({
-          title: 'Guardando cambios',
-          timerProgressBar: true,
-          showConfirmButton: false,
-          willOpen: () => {
-            Swal.showLoading();
-          },
-        })
-        this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
-          if (data) {
-            this.documentos = documentos;
-            this.estadoActividad = data.Data.estadoActividad.nombre;
-            this.verificarFormulario();
-            Swal.fire({
-              title: 'Documento(s) actualizado(s)',
-              text: `Revise el campo de soportes para visualizar o eliminar`,
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 2000
-            });
-          }
-        }, (error) => {
           Swal.fire({
-            title: 'Error en la operación',
-            text: `No se pudo aplicar los cambios`,
-            icon: 'warning',
+            title: 'Guardando cambios',
+            timerProgressBar: true,
             showConfirmButton: false,
-            timer: 2500
+            willOpen: () => {
+              Swal.showLoading();
+            },
           })
-        })
-      }
-    });
+          this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+            if (data) {
+              this.documentos = documentos;
+              this.estadoActividad = data.Data.estadoActividad.nombre;
+              this.verificarFormulario();
+              Swal.fire({
+                title: 'Documento(s) actualizado(s)',
+                text: `Revise el campo de soportes para visualizar o eliminar`,
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 2000
+              });
+            }
+          }, (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se pudo aplicar los cambios`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          })
+        }
+      });
+    }
   }
 
   async onChangeDocumento(event) {
     if (event != undefined) {
       let aux = event.files[0];
-      if (aux.type != 'application/pdf') {
+      if (!this.FORMATOS.includes(aux.type)) {
         Swal.fire({
           title: 'Archivo no válido',
-          text: `Solo se admiten documentos PDF`,
+          text: `No se admite el tipo de archivo que selecciono`,
           icon: 'error',
           showConfirmButton: false,
           timer: 2500
@@ -340,8 +350,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
               timer: 2500
             })
           })
-
-
         } else {
           Swal.fire({
             title: 'Error en la operación',
@@ -384,8 +392,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.denominadorOriginal = [];
         let resultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.indicadores));
         resultados.forEach(indicador => {
-          this.numeradorOriginal.push(indicador.reporteNumerador);
-          this.denominadorOriginal.push(indicador.reporteDenominador);
+          this.numeradorOriginal.push(indicador.reporteNumerador ? indicador.reporteNumerador : 0);
+          this.denominadorOriginal.push(indicador.reporteDenominador ? indicador.reporteDenominador : 0);
         });
 
         this.datosCualitativo = data.Data.cualitativo;
@@ -402,6 +410,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           }
         }
 
+        this.trimestreAbr = data.Data.informacion.trimestre;
         if (data.Data.informacion.trimestre != "T1") {
           this.calcular = true;
 
@@ -759,78 +768,53 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   calcularResultado() {
     for (let index = 0; index < this.datosIndicadores.length; index++) {
       const indicador = this.datosIndicadores[index];
-      if (indicador.reporteDenominador != "" || indicador.reporteNumerador != "") {
+      if (indicador.reporteDenominador != null && indicador.reporteNumerador != null) {
         const denominador = parseFloat(indicador.reporteDenominador);
         const numerador = parseFloat(indicador.reporteNumerador);
         const meta = parseFloat(this.datosIndicadores[index].meta)
-        this.denominadorFijo = indicador.denominador != "Denominador variable"
-        if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
-          this.datosIndicadores[index].reporteDenominador = denominador;
-          this.datosIndicadores[index].reporteNumerador = numerador;
+        if (denominador == 0.0) {
+          if (numerador == 0.0) {
 
-          if (!this.calcular) {
-            this.datosResultados[index].acumuladoNumerador -= this.numeradorOriginal[index];
-            if (!this.denominadorFijo) {
-              this.datosResultados[index].acumuladoDenominador -= this.denominadorOriginal[index];
+            if (this.trimestreAbr == "T1") {
+              this.datosResultados[index].indicadorAcumulado = 0;
+              this.datosResultados[index].acumuladoNumerador = 0;
+              this.datosResultados[index].acumuladoDenominador = 0;
+              this.datosResultados[index].indicador = 0;
+              this.datosResultados[index].avanceAcumulado = 1;
+
+              var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+              var metaEvaluada = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
+
+              if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
+                this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
+              } else {
+                this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
+              }
+              this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
+            } else {
+              this.calcularBase(indicador, denominador, numerador, meta, index, true)
             }
-            this.datosResultados[index].indicadorAcumulado -= this.datosResultados[index].indicador;
+            this.datosResultados[index].divisionCero = true;
+          } else {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No es posible la división entre cero`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 3500
+            })
+          }
+        } else {
+          if (this.trimestreAbr == "T1") {
+            this.datosResultados[index].indicadorAcumulado = 0;
+            this.datosResultados[index].acumuladoNumerador = 0;
+            this.datosResultados[index].acumuladoDenominador = 0;
             this.datosResultados[index].indicador = 0;
+            this.datosResultados[index].avanceAcumulado = 0;
+            this.datosResultados[index].brechaExistente = 0;
           }
-
-          this.datosResultados[index].acumuladoNumerador += numerador;
-          if (!this.denominadorFijo) {
-            this.datosResultados[index].acumuladoDenominador += denominador;
-          } else {
-            this.datosResultados[index].acumuladoDenominador = denominador;
-          }
-
-          if (denominador != 0) {
-            if (this.datosIndicadores[index].unidad == "Unidad") {
-              this.datosResultados[index].indicador = Math.round((numerador / denominador));
-            } else {
-              this.datosResultados[index].indicador = Math.round((numerador / denominador) * 10000) / 10000;
-            }
-          } else {
-            this.datosResultados[index].indicador = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
-          }
-
-          if (this.datosResultados[index].acumuladoDenominador != 0) {
-            if (this.datosIndicadores[index].unidad == "Unidad") {
-              this.datosResultados[index].indicadorAcumulado = Math.round(this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador * 100) / 100;
-            } else {
-              this.datosResultados[index].indicadorAcumulado = Math.round((this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador) * 10000) / 10000;
-            }
-          } else {
-            this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
-          }
-
-          var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
-          var metaEvaluada = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
-          if (indicador.tendencia == "Creciente") {
-            if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
-              this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 1000) / 1000;
-            } else {
-              this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 10000) / 10000;
-            }
-          } else if (indicador.tendencia == "Decreciente") {
-            if (indicadorAcumulado < metaEvaluada) {
-              this.datosResultados[index].avanceAcumulado = Math.round((1 + ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
-            } else {
-              this.datosResultados[index].avanceAcumulado = Math.round((1 - ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
-            }
-          }
-
-          if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
-            this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
-          } else {
-            this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
-          }
-          this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
+          this.calcularBase(indicador, denominador, numerador, meta, index, false)
         }
-        this.numeradorOriginal[index] = numerador;
-        this.denominadorOriginal[index] = denominador;
-        indicador.reporteDenominador = String(denominador);
-        indicador.reporteNumerador = String(numerador);
       } else {
         Swal.fire({
           title: 'Error en la operación',
@@ -842,6 +826,97 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
     }
     this.calcular = false;
+  }
+
+  calcularBase(indicador, denominador, numerador, meta, index, ceros) {
+    this.denominadorFijo = indicador.denominador != "Denominador variable"
+    if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
+      this.datosIndicadores[index].reporteDenominador = denominador;
+      this.datosIndicadores[index].reporteNumerador = numerador;
+
+      if (!this.calcular) {
+        this.datosResultados[index].acumuladoNumerador -= this.numeradorOriginal[index];
+        if (!this.denominadorFijo) {
+          this.datosResultados[index].acumuladoDenominador -= this.denominadorOriginal[index];
+        }
+        this.datosResultados[index].indicadorAcumulado -= this.datosResultados[index].indicador;
+        this.datosResultados[index].indicador = 0;
+      }
+
+      this.datosResultados[index].acumuladoNumerador += numerador;
+      if (!this.denominadorFijo) {
+        this.datosResultados[index].acumuladoDenominador += denominador;
+      } else {
+        this.datosResultados[index].acumuladoDenominador = denominador;
+      }
+
+      if (denominador != 0) {
+        if (this.datosIndicadores[index].unidad == "Unidad") {
+          this.datosResultados[index].indicador = Math.round((numerador / denominador));
+        } else {
+          this.datosResultados[index].indicador = Math.round((numerador / denominador) * 10000) / 10000;
+        }
+      } else {
+        this.datosResultados[index].indicador = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
+      }
+
+      if (this.datosResultados[index].divisionCero && ceros) {
+        this.datosResultados[index].indicador = 0;
+      }
+
+      if (this.datosResultados[index].acumuladoDenominador != 0) {
+        if (this.datosIndicadores[index].unidad == "Unidad") {
+          this.datosResultados[index].indicadorAcumulado = Math.round(this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador * 100) / 100;
+        } else {
+          this.datosResultados[index].indicadorAcumulado = Math.round((this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador) * 10000) / 10000;
+        }
+      } else {
+        this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
+      }
+
+      var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+      var metaEvaluada = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
+      if (indicador.tendencia == "Creciente") {
+        if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
+          this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 1000) / 1000;
+        } else {
+          this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 10000) / 10000;
+        }
+      } else if (indicador.tendencia == "Decreciente") {
+        if (indicadorAcumulado < metaEvaluada) {
+          this.datosResultados[index].avanceAcumulado = Math.round((1 + ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
+        } else {
+          this.datosResultados[index].avanceAcumulado = Math.round((1 - ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
+        }
+      }
+
+      if (indicador.tendencia == "Creciente") {
+        if (indicadorAcumulado > metaEvaluada) {
+          this.datosResultados[index].brechaExistente = 0;
+        } else {
+          this.datosResultados[index].brechaExistente = Math.round((metaEvaluada - indicadorAcumulado) * 10000) / 10000;
+        }
+      } else if (indicador.tendencia == "Decreciente") {
+        if (indicadorAcumulado < metaEvaluada) {
+          this.datosResultados[index].brechaExistente = 0;
+        } else {
+          this.datosResultados[index].brechaExistente = Math.round((indicadorAcumulado - metaEvaluada) * 10000) / 10000;
+        }
+      }
+      this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
+    }
+    this.numeradorOriginal[index] = numerador;
+    this.denominadorOriginal[index] = denominador;
+    indicador.reporteDenominador = String(denominador);
+    indicador.reporteNumerador = String(numerador);
+  }
+
+  onEnter() {
+    this.abrirDocs = false;
+  }
+
+  offEnter() {
+    this.abrirDocs = true;
   }
 
   guardarRevision() {
