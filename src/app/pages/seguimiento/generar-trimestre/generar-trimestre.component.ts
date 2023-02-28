@@ -262,7 +262,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           })
           this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
             if (data) {
-              this.documentos = documentos;
+              this.documentos = data.Data.seguimiento
               this.estadoActividad = data.Data.estadoActividad.nombre;
               this.verificarFormulario();
               Swal.fire({
@@ -330,6 +330,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
             if (data) {
               this.estadoActividad = data.Data.estadoActividad.nombre;
+              this.documentos = data.Data.seguimiento
               this.verificarFormulario();
 
               Swal.fire({
