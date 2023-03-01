@@ -1,0 +1,349 @@
+<mat-card class="card-oas">
+    <mat-card-header>
+        <mat-card-title>Programación magnitudes y presupuesto</mat-card-title>
+    </mat-card-header>  
+    <br>
+    <mat-card-content>
+        <u class="textGuide">
+            A continuación usted deberá realizar la programación de magnitudes y de presupuesto.
+        </u>
+    </mat-card-content> 
+    <br><br>
+    <!-- Encabezado de info general del proyecto -->
+    <div >
+        <mat-grid-list cols="3"  gutterSize="4px" rowHeight="30px">
+          <mat-grid-tile colspan="1" class="head">           
+              <mat-label class="head-label">Código proyecto</mat-label>      
+          </mat-grid-tile>
+          <mat-grid-tile colspan="1" class="head">        
+              <mat-label class="head-label">Nombre Proyecto</mat-label>            
+          </mat-grid-tile>
+          <mat-grid-tile colspan="1" class="head">          
+              <mat-label class="head-label">Recurso total fuentes ($)</mat-label>                
+          </mat-grid-tile>      
+          <mat-grid-tile>            
+              <mat-label>Código Proyecto</mat-label>       
+          </mat-grid-tile>
+          <mat-grid-tile>            
+              <mat-label>Nombre Proyecto</mat-label>
+          </mat-grid-tile>
+          <mat-grid-tile>            
+              <mat-label>Recurso total fuentes ($)</mat-label>            
+          </mat-grid-tile>      
+        </mat-grid-list>   
+        <br>
+        
+          <mat-grid-list cols="3"  gutterSize="4px" rowHeight="30px">
+            <mat-grid-tile colspan="3" class="head">           
+                <mat-label class="head-label">Meta seleccionada</mat-label>      
+            </mat-grid-tile>
+            <mat-grid-tile colspan="3" rowspan="2">            
+              <mat-label></mat-label>       
+          </mat-grid-tile>
+        </mat-grid-list>
+    </div>    
+    <br><br>
+    <!-- Steper con las tablas de progrmación de magnitudes -->
+    <mat-vertical-stepper orientation="vertical" [linear]="isLinear" #stepper>    
+        <mat-step [stepControl]="firstFormGroup">
+          <form [formGroup]="firstFormGroup">
+            <ng-template matStepLabel>Programación de magnitudes (la suma debe ser 100%)</ng-template>
+            <mat-form-field appearance="none" style="width:100%;">
+                <mat-grid-list cols="12"  gutterSize="4px" rowHeight="30px">
+                    <mat-grid-tile colspan="2" class="head">           
+                        <mat-label class="head-label">Año 1</mat-label>      
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="2" class="head">        
+                        <mat-label class="head-label">Año 2</mat-label>            
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="2" class="head">          
+                        <mat-label class="head-label">Año 3</mat-label>                
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="2" class="head">           
+                        <mat-label class="head-label">Año 4</mat-label>                
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="2" class="head">          
+                        <mat-label class="head-label">Año 5</mat-label>                
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="2" class="head">        
+                        <mat-label class="head-label">Total</mat-label>            
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Formulación</mat-label>       
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Formulación</mat-label>            
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Formulación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>           
+                        <mat-label>Formulación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Formulación</mat-label>                
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Formulación</mat-label>                
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>     
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>                   
+                </mat-grid-list>
+                <br>
+                <div class="container-border">
+                    <mat-form-field  class="text-area">
+                        <mat-label>Campo de observaciones OPAC</mat-label>
+                        <textarea matInput type="text"></textarea>
+                      </mat-form-field>
+                </div>
+            </mat-form-field>
+            <div>
+              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperPrevious>Volver</button>  
+              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperNext>Siguiente</button>
+              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="stepper.reset()">Cancelar</button>
+            </div>
+          </form>
+        </mat-step>
+        <mat-step [stepControl]="secondFormGroup">
+          <form [formGroup]="secondFormGroup">
+            <ng-template matStepLabel>Programación presupuestal ($)</ng-template>
+            <mat-form-field appearance="none" style="width:100%;">
+                <mat-grid-list cols="12"  gutterSize="4px" rowHeight="30px">
+                    <mat-grid-tile colspan="2" class="head">           
+                        <mat-label class="head-label">Año 1</mat-label>      
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="2" class="head">        
+                        <mat-label class="head-label">Año 2</mat-label>            
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="2" class="head">          
+                        <mat-label class="head-label">Año 3</mat-label>                
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="2" class="head">           
+                        <mat-label class="head-label">Año 4</mat-label>                
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="2" class="head">          
+                        <mat-label class="head-label">Año 5</mat-label>                
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan="2" class="head">        
+                        <mat-label class="head-label">Total</mat-label>            
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Formulación</mat-label>       
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Formulación</mat-label>            
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Formulación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>           
+                        <mat-label>Formulación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Formulación</mat-label>                
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Formulación</mat-label>                
+                    </mat-grid-tile>
+                    <mat-grid-tile>            
+                        <mat-label>Programación</mat-label>           
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>     
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Formulación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-label class="inText">Programación</mat-label>
+                            <input matInput >
+                            </mat-form-field>
+                    </mat-grid-tile>                   
+                </mat-grid-list>
+                <br><br>
+                <div class="container-border">
+                    <mat-form-field appearance="none" class="text-area">
+                        <mat-label>Campo de observaciones OPAC</mat-label>
+                        <textarea matInput></textarea>
+                      </mat-form-field>
+                </div>
+            </mat-form-field>
+            <div>
+              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperPrevious>Volver</button>
+              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperNext>Siguiente</button>
+              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperCancel>Cancelar</button>
+            </div>
+          </form>
+          <div class="btn-formato">
+            <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3">Guardar</button> 
+        </div>
+        </mat-step>        
+    </mat-vertical-stepper>
+    
+    
+    
+</mat-card>

@@ -1,0 +1,230 @@
+<mat-card class="card-oas">
+    <mat-card-header>
+        <mat-card-title>Programación magnitudes y presupuesto</mat-card-title>
+    </mat-card-header>  
+    <br>
+    <mat-card-content>
+        <u class="textGuide">
+            A continuación usted deberá seleccionar la fuente a la cual irá dirigida su actividad, con su respectivo valor presupuestal.
+        </u>
+    </mat-card-content> 
+    <br><br>
+    <mat-form-field appearance="fill">
+        <mat-label>Toppings</mat-label>
+        <mat-select [formControl]="toppings" multiple>
+          <mat-option *ngFor="let topping of toppingList" [value]="topping">{{topping}}</mat-option>
+        </mat-select>
+      </mat-form-field>    
+    <br><br>   
+    <!-- Tabla de Fuentes -->
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+        <!-- index -->
+        <ng-container matColumnDef="index" class="num">
+            <th mat-header-cell *matHeaderCellDef>No.</th>
+            <td mat-cell *matCellDef="let element" class="num">{{element.index}}
+                <!-- <p *ngIf="element.index!=undefined">
+                    {{element.index}}
+                </p>
+                <p *ngIf="element.index==undefined">
+                    {{rowIndex+1}}
+                </p> -->
+            </td>
+            <td mat-footer-cell *matFooterCellDef class="footer">
+                {{step.footer}}
+            </td>
+        </ng-container>
+        <!-- Unidad Column -->
+        <ng-container matColumnDef="fuente" class="nombre-unidad">
+            <th mat-header-cell *matHeaderCellDef> Fuente </th>
+            <td mat-cell *matCellDef="let element"> {{element.fuente}} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+        <ng-container matColumnDef="valor" class="nombre-unidad">
+            <th mat-header-cell *matHeaderCellDef> Valor apropiación global </th>
+            <td mat-cell *matCellDef="let element"> {{element.valor}} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+        <ng-container matColumnDef="disponible" class="nombre-unidad">
+            <th mat-header-cell *matHeaderCellDef> Disponible de la apropiación </th>
+            <td mat-cell *matCellDef="let element"> {{element.disponible}} </td>
+            <td mat-footer-cell *matFooterCellDef class ="footcol"> Total Estimado </td>
+        </ng-container>
+        <ng-container matColumnDef="estimado" class="nombre-unidad">
+            <th mat-header-cell *matHeaderCellDef> Valor estimado para la actividad </th>
+            <td mat-cell *matCellDef="let element"><input matInput type="number" value="{{datosIdentificacion.Numero}}">
+            <td mat-footer-cell *matFooterCellDef><div class="totalPre">100</div></td>
+        </ng-container>
+        <!-- Seleccionar -->
+        <!-- <ng-container matColumnDef="actions" class="col-seleccion">
+            <th mat-header-cell *matHeaderCellDef>Seleccionar</th>
+            <td mat-cell *matCellDef="let row" class="mat-column-actions">
+                <button mat-icon-button (click)="changeIcon(row)">
+                    <mat-icon>{{row.iconSelected}}</mat-icon>
+                </button>
+            </td>
+        </ng-container> -->
+        
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+        
+    </table>
+    
+    <br>
+</mat-card>
+<mat-card class="card-oas">
+    <mat-card-header>
+        <mat-card-title>Ponderación horizontal</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <u class="textGuide">Ponderación horizontal (la suma de los porcentajes y valores debe ser el 100% del valor de la programación presupuestal)</u>
+    </mat-card-content>
+    <br><br>
+    <!-- Tabla progrmación prexupuestal -->
+    <mat-grid-list cols="14"  gutterSize="4px" rowHeight="30px">
+        <mat-grid-tile colspan="1" class="head">           
+            <mat-label class="head-label">Variable</mat-label>      
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">        
+            <mat-label class="head-label">En</mat-label>            
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">Feb</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">           
+            <mat-label class="head-label">Mar</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">Abr</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">May</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">Jun</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">Jul</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">Ago</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">Sep</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">Oct</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">Nov</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">Dic</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1" class="head">          
+            <mat-label class="head-label">Total</mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label>Programado (%)</mat-label>       
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>            
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>           
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>           
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>           
+        </mat-grid-tile>
+        <mat-grid-tile>           
+            <mat-label></mat-label>           
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>           
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label>Programado ($)</mat-label>
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>
+        <mat-grid-tile>            
+            <mat-label></mat-label>                
+        </mat-grid-tile>        
+    </mat-grid-list>
+    <br><br>
+    <div class="container-border">
+        <mat-form-field class="text-area">
+            <mat-label>Campo de observación UNIDAD</mat-label>
+            <textarea matInput></textarea>
+          </mat-form-field>
+    </div>
+    <div class="container-border">
+        <mat-form-field class="text-area">
+            <mat-label>Campo de observación OPAC</mat-label>
+            <textarea matInput></textarea>
+          </mat-form-field>
+    </div>
+    <br>    
+    <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
+                (click)="guardar()">Guardar</button>
+    
+</mat-card>

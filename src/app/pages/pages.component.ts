@@ -21,10 +21,8 @@ export class PagesComponent implements OnInit {
   environment: any;
   loadingRouter: boolean;
 
-
-  constructor(    
-    private router: Router, 
-
+  constructor(
+    private router: Router,
   ) {
     this.environment = environment;
     router.events.subscribe((event) => {
@@ -48,13 +46,7 @@ export class PagesComponent implements OnInit {
     });
   }
 
-  
-
   ngOnInit(): void {
     this.loaded = true;
-
-
   }
-
- 
 }

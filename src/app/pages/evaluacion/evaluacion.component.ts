@@ -378,27 +378,23 @@ export class EvaluacionComponent implements OnInit {
       } else {
         continue;
       }
+
       if (actividad.trimestre1.actividad) {
-        this.avanceTr1 += actividad.ponderado * actividad.trimestre1.actividad;
+        this.avanceTr1 += actividad.ponderado / 100 * actividad.trimestre1.actividad;
       }
 
       if (actividad.trimestre2.actividad) {
-        this.avanceTr2 += actividad.ponderado * actividad.trimestre2.actividad;
+        this.avanceTr2 += actividad.ponderado / 100 * actividad.trimestre2.actividad;
       }
 
       if (actividad.trimestre3.actividad) {
-        this.avanceTr3 += actividad.ponderado * actividad.trimestre3.actividad;
+        this.avanceTr3 += actividad.ponderado / 100 * actividad.trimestre3.actividad;
       }
 
       if (actividad.trimestre4.actividad) {
-        this.avanceTr4 += actividad.ponderado * actividad.trimestre4.actividad;
+        this.avanceTr4 += actividad.ponderado / 100 * actividad.trimestre4.actividad;
       }
     }
-
-    this.avanceTr1 = parseFloat((this.avanceTr1 / 100).toFixed(2));
-    this.avanceTr2 = parseFloat((this.avanceTr2 / 100).toFixed(2));
-    this.avanceTr3 = parseFloat((this.avanceTr3 / 100).toFixed(2));
-    this.avanceTr4 = parseFloat((this.avanceTr4 / 100).toFixed(2));
   }
 
   graficarBarras() {
@@ -412,22 +408,22 @@ export class EvaluacionComponent implements OnInit {
       } else {
         continue;
       }
+
+      let actividadValor
       if (this.avanceTr4) {
-        actividades.push([actividad.actividad, actividad.trimestre4.actividad, 'color: rgb(143, 27, 0)', String(actividad.trimestre4.actividad) + '%', '']);
-        continue;
+        actividadValor = Math.round((actividad.trimestre4.actividad * 100) * 100) / 100
       }
       if (this.avanceTr3) {
-        actividades.push([actividad.actividad, actividad.trimestre3.actividad, 'color: rgb(143, 27, 0)', String(actividad.trimestre3.actividad) + '%', '']);
-        continue;
+        actividadValor = Math.round((actividad.trimestre3.actividad * 100) * 100) / 100
       }
       if (this.avanceTr2) {
-        actividades.push([actividad.actividad, actividad.trimestre2.actividad, 'color: rgb(143, 27, 0)', String(actividad.trimestre2.actividad) + '%', '']);
-        continue;
+        actividadValor = Math.round((actividad.trimestre2.actividad * 100) * 100) / 100
       }
       if (this.avanceTr1) {
-        actividades.push([actividad.actividad, actividad.trimestre1.actividad, 'color: rgb(143, 27, 0)', String(actividad.trimestre1.actividad) + '%', '']);
-        continue;
+        actividadValor = Math.round((actividad.trimestre1.actividad * 100) * 100) / 100
       }
+
+      actividades.push([actividad.actividad, actividadValor, 'color: rgb(143, 27, 0)', String(actividadValor) + '%', '']);
     }
 
     this.lineChartData = actividades;
@@ -445,7 +441,7 @@ export class EvaluacionComponent implements OnInit {
       avance = this.avanceTr1;
     }
 
-    this.pieChartData = [['Avance', avance],
-    ['Restante', 100 - avance]];
+    this.pieChartData = [['Avance', avance * 100],
+    ['Restante', 100 - avance * 100]];
   }
 }

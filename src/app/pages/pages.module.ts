@@ -32,8 +32,6 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
-import { UtilService } from './services/utilService';
-import { UserService } from './services/userService';
 import { CrearPlanComponent } from './plan/crear-plan/crear-plan.component';
 import { ListarPlanComponent } from './plan/listar-plan/listar-plan.component';
 import { ConstruirPlanComponent } from './plan/construir-plan/construir-plan.component';
@@ -91,12 +89,15 @@ import { AgregarProyectoVigenteComponent } from './banco-de-proyectos/proyectos-
 import { AgregarFuenteDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-fuente-dialog/agregar-fuente-dialog.component';
 import { AgregarMetaDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-meta-dialog/agregar-meta-dialog.component';
 import { CargarSoportesDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/cargar-soportes-dialog/cargar-soportes-dialog.component';
-import { FuenteApropiacionDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-dialog.component';
+import { FuenteApropiacionDataComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-data.component';
 import { EditarFuenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/editar-fuente/editar-fuente.component';
 import { EditarApropiacionFuenteDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/editar-apropiacion-fuente-dialog/editar-apropiacion-fuente-dialog.component';
 import { VisualizarSoportesDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/visualizar-soportes-dialog/visualizar-soportes-dialog.component';
-
-
+import { FormulacionPlanInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/formulacion-plan-inversion/formulacion-plan-inversion.component';
+import { TipoMetaIndicadorComponent } from './banco-de-proyectos/proyectos-inversion-macro/tipo-meta-indicador/tipo-meta-indicador.component';
+import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-inversion-macro/magnitudes-presupuesto/magnitudes-presupuesto.component';
+import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component';
+import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 
 const pagesComponents = [
   DashboardComponent,
@@ -209,10 +210,15 @@ const MY_FORMATS = {
     AgregarFuenteDialogComponent,
     AgregarMetaDialogComponent,
     CargarSoportesDialogComponent,
-    FuenteApropiacionDialogComponent,
+    FuenteApropiacionDataComponent,
     EditarFuenteComponent,
     EditarApropiacionFuenteDialogComponent,
     VisualizarSoportesDialogComponent,
+    FormulacionPlanInversionComponent,
+    TipoMetaIndicadorComponent,
+    MagnitudesPresupuestoComponent,
+    IdentificacionActividadesRecursosComponent,
+    ProgramacionPresupuestalComponent,
   ],
   imports: [
     HttpClientModule,
@@ -242,7 +248,7 @@ const MY_FORMATS = {
     { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
     { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },
     { provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS },
-    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true} }
+    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
   ]
 })
 export class PagesModule { }

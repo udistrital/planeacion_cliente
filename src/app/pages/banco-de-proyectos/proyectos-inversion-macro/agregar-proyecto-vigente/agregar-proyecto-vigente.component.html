@@ -1,22 +1,15 @@
-<mat-card-content class='container'>
+<mat-card-content class="card-oas">
     <div class="container-border">
-        <h4>Agregar Proyecto Vigente</h4>
+        <h4 *ngIf="!editar">Agregar proyecto vigente</h4>
+        <h4 *ngIf="editar">Editar proyecto vigente</h4>
         <div class='input' [formGroup]="formProyect">
             <mat-form-field class="example-form-field">
                 <mat-label>Nombre del Proyecto</mat-label>
-                <input matInput #message maxlength="256" placeholder="Ex. I need help with..." formControlName="name" required>
-                <!-- <mat-error *ngIf="formEditar.get('name').invalid"> {{getErrorMessage(formEditar.get('name'))}}</mat-error> -->
-                <!-- <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
-                  <mat-icon>close</mat-icon>
-                </button> -->
+                <input matInput #message maxlength="256" formControlName="name" required>
             </mat-form-field>
             <mat-form-field class="example-form-field">
                 <mat-label>Código del Proyecto</mat-label>
-                <input matInput #message maxlength="256" placeholder="Ex. I need help with..." formControlName="codigo" required>
-                <!-- <mat-error *ngIf="formEditar.get('codigo').invalid"> {{getErrorMessage(formEditar.get('codigo'))}}</mat-error> -->
-                <!-- <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
-                  <mat-icon>close</mat-icon>
-                </button> -->
+                <input matInput #message maxlength="256" formControlName="codigo" required>
             </mat-form-field>
         </div>
         <br>
@@ -25,139 +18,129 @@
             <h4>Soportes</h4>
             <table mat-table [dataSource]="dataSourceSoportes">
                 <ng-container matColumnDef="index" class="num">
-                    <th mat-header-cell *matHeaderCellDef>No.</th>
-                    <td mat-cell *matCellDef="let row" class="num">{{row.posicion}}                        
-                    </td>
+                    <th mat-header-cell *matHeaderCellDef style="max-width: 80px;">No.</th>
+                    <td mat-cell *matCellDef="let row" class="num" style="max-width: 80px;"> {{row.posicion}} </td>
                 </ng-container>
                 <ng-container matColumnDef="nombre">
-                    <th mat-header-cell *matHeaderCellDef > Nombre </th>
+                    <th mat-header-cell *matHeaderCellDef> Nombre del Soporte</th>
                     <td mat-cell *matCellDef="let row"> {{row.nombre}} </td>
-                </ng-container>                
-                <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef > Acciones
-                        <button class="material-icons"
-                            matTooltip="Agregar elemento" matTooltipPosition="right" mat-icon-button
-                            (click)="loadSoportes()">
+                </ng-container>
+                <ng-container matColumnDef="actions" style="max-width: 150px;">
+                    <th mat-header-cell *matHeaderCellDef style="max-width: 150px; padding: 0px 5px;">
+                        <button class="material-icons" matTooltip="Agregar elemento" matTooltipPosition="right"
+                            mat-icon-button (click)="loadSoportes()">
                             <mat-icon>add_box</mat-icon>
                         </button>
-                    </th>                    
-                    <td mat-cell *matCellDef="let row" class="td-align-right">
-                        <button mat-icon-button (click)="revisarDocumento(row)"><mat-icon>search</mat-icon></button>                        
-                        <button mat-icon-button (click)="inactivarSoporte(row)"><mat-icon>delete_outline</mat-icon></button>
-                   </td>
+                    </th>
+                    <td mat-cell *matCellDef="let row" class="td-align-right" style="max-width: 150px;">
+                        <button mat-icon-button (click)="revisarDocumento(row)"><mat-icon>search</mat-icon></button>
+                        <button mat-icon-button
+                            (click)="inactivarSoporte(row)"><mat-icon>delete_outline</mat-icon></button>
+                    </td>
                 </ng-container>
                 <tr mat-header-row *matHeaderRowDef="displayedColumnSoportes"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumnSoportes;"></tr>
-                <!-- <tr class="mat-row" *matNoDataRow>
-                    <td class="mat-cell" colspan="5">No se han encontrado resultados para la búsqueda "{{input.value}}"</td>
-                </tr> -->
             </table>
-            <mat-paginator [pageSizeOptions]="[5, 10, 25]" aria-label="Select page of users"></mat-paginator>            
         </div>
         <br><br>
+
         <!-- Tabla Apropiación por Fuente -->
         <div class="container-border">
-            <h4>Apropiación por Fuente</h4>
+            <h4>Apropiación por fuentes</h4>
+            <u class="textGuide">
+                A continuación usted deberá seleccionar las fuentes de interés y relacionar el presupuesto para el
+                proyecto
+            </u>
+
+            <mat-form-field appearance="fill" [style.width.%]="100">
+                <mat-label id="tipo-input-label">Seleccione las fuentes que aplican al proyecto de inversión</mat-label>
+                <mat-select (selectionChange)="onChangeF($event.value)" [formControl]="selectFuente" multiple>
+                    <mat-option *ngFor="let fuente of dataFuentes" [value]="fuente">
+                        {{fuente.nombre}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
             <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-                <ng-container matColumnDef="index" class="num">
-                    <th mat-header-cell *matHeaderCellDef>No.</th>
-                    <td mat-cell *matCellDef="let element" class="num">{{element.posicion}}
-                        <!-- <p *ngIf="element.index!=undefined">
-                            {{element.index}}
-                        </p>
-                        <p *ngIf="element.index==undefined">
-                            {{rowIndex+1}}
-                        </p> -->
-                    </td>
+                <ng-container matColumnDef="index">
+                    <th mat-header-cell *matHeaderCellDef style="max-width: 80px;">No.</th>
+                    <td mat-cell *matCellDef="let element; let rowIndex = index" style="max-width: 80px;">
+                        {{rowIndex+1}} </td>
                     <td mat-footer-cell *matFooterCellDef class="footer"></td>
                 </ng-container>
                 <ng-container matColumnDef="nombre">
-                    <th mat-header-cell *matHeaderCellDef > Nombre </th>
+                    <th mat-header-cell *matHeaderCellDef> Nombre de la fuente</th>
                     <td mat-cell *matCellDef="let row"> {{row.nombre}} </td>
                     <td mat-footer-cell *matFooterCellDef> Total </td>
                 </ng-container>
-                <ng-container matColumnDef="presupuesto">
-                    <th mat-header-cell *matHeaderCellDef > Presupuesto </th>
-                    <td mat-cell *matCellDef="let row"> {{row.presupuesto}} </td>
+                <ng-container matColumnDef="presupuestoGlobal">
+                    <th mat-header-cell *matHeaderCellDef> Presupuesto global </th>
+                    <td mat-cell *matCellDef="let row"> {{row.presupuesto | currency}} </td>
                     <td mat-footer-cell *matFooterCellDef> {{getTotalPresupuesto() | currency}} </td>
                 </ng-container>
-                <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef >
-                        <!-- <button class="material-icons"
-                            matTooltip="Agregar elemento" matTooltipPosition="right" mat-icon-button
-                            (click)="addElement(step.tipo)">
-                            <mat-icon>add_box</mat-icon>
-                        </button> -->
-                    </th>
-                    <!-- <th mat-header-cell *matHeaderCellDef class="header-align-right"> Acciones </th> -->
-                    <td mat-cell *matCellDef="let row" class="td-align-right">
-                        <button mat-icon-button (click)="apropiacionFuentesEdit(row)"><mat-icon>edit</mat-icon></button>
-                        <!-- <button mat-icon-button (click)="editar(row)"><mat-icon>edit</mat-icon></button> -->
-                        <!-- <button mat-icon-button (click)="inactivar(row)"><mat-icon>delete_outline</mat-icon></button> -->
-                   </td>
-                   <td mat-footer-cell *matFooterCellDef></td>
+                <ng-container matColumnDef="disponible">
+                    <th mat-header-cell *matHeaderCellDef> Disponible </th>
+                    <td mat-cell *matCellDef="let row"> {{row.presupuestoDisponible | currency}} </td>
+                    <td mat-footer-cell *matFooterCellDef> {{getTotalPresupuestoDisponible() | currency}} </td>
+                </ng-container>
+                <ng-container matColumnDef="presupuesto">
+                    <th mat-header-cell *matHeaderCellDef> Presupuesto proyecto </th>
+                    <td mat-cell *matCellDef="let row; let rowIndex = index">
+                        <input type="text" matInput required id="presupuesto"
+                            onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57"
+                            placeholder="$ ingrese el valor" [value]="row.presupuestoProyecto | currency"
+                            (focus)="focusPresupuesto($event,rowIndex)" (blur)="blurPresupuesto($event,rowIndex)">
+                    </td>
+                    <td mat-footer-cell *matFooterCellDef> {{getTotalPresupuestoProyecto() | currency}} </td>
                 </ng-container>
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                <tr class="mat-row" *matNoDataRow>
-                    <td class="mat-cell" colspan="5">No se han encontrado resultados para la búsqueda "{{input.value}}"</td>
-                </tr>
                 <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
             </table>
-            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>            
+            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
         </div>
         <br><br>
+
         <!-- Tabla Metas Asocioadas al Proyecto -->
         <div class="container-border">
-            <h4>Metas Asociadas al Proyecto</h4>
+            <h4>Metas asociadas al proyecto</h4>
             <table mat-table [dataSource]="dataSourceMetas" class="mat-elevation-z8">
                 <ng-container matColumnDef="index">
-                    <th mat-header-cell *matHeaderCellDef>No.</th>
-                    <td mat-cell *matCellDef="let element" class="num">{{element.posicion}}                    
+                    <th mat-header-cell *matHeaderCellDef style="max-width: 80px;">No.</th>
+                    <td mat-cell *matCellDef="let element" class="num" style="max-width: 80px;"> {{element.posicion}}
                     </td>
-                    <td mat-footer-cell *matFooterCellDef class="footer"></td>
                 </ng-container>
-                <ng-container matColumnDef="nombre">
-                    <th mat-header-cell *matHeaderCellDef > Nombre </th>
-                    <td mat-cell *matCellDef="let row"> {{row.nombre}} </td>
-                    <td mat-footer-cell *matFooterCellDef> Total Presupuesto </td>
-                </ng-container>
-                <ng-container matColumnDef="presupuesto">
-                    <th mat-header-cell *matHeaderCellDef > Presupuesto </th>
-                    <td mat-cell *matCellDef="let row"> {{row.presupuesto}} </td>
-                    <td mat-footer-cell *matFooterCellDef> {{getTotalPresupuestoMetas() | currency}} </td>
+                <ng-container matColumnDef="descripcion">
+                    <th mat-header-cell *matHeaderCellDef> Descripción meta </th>
+                    <td mat-cell *matCellDef="let row"> {{row.descripcion}} </td>
                 </ng-container>
                 <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef >
-                        <button class="material-icons"
-                            matTooltip="Agregar elemento" matTooltipPosition="right" mat-icon-button
-                            (click)="addMeta()">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <button class="material-icons" matTooltip="Agregar elemento" matTooltipPosition="right"
+                            mat-icon-button (click)="addMeta()">
                             <mat-icon>add_box</mat-icon>
                         </button>
                     </th>
                     <td mat-cell *matCellDef="let row" class="td-align-right">
-                        <!-- <button mat-icon-button (click)="construirPlan(row._id, row.nombre, row.tipo_plan_id)"><mat-icon>search</mat-icon></button> -->
-                        <button mat-icon-button (click)="inactivarMeta(row)"><mat-icon>delete_outline</mat-icon></button>
-                   </td>
-                   <td mat-footer-cell *matFooterCellDef class="footer"></td>
+                        <button mat-icon-button (click)="searchMeta(row)"><mat-icon>search</mat-icon></button>
+                        <button mat-icon-button
+                            (click)="inactivarMeta(row)"><mat-icon>delete_outline</mat-icon></button>
+                    </td>
                 </ng-container>
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                <tr class="mat-row" *matNoDataRow>
-                    <td class="mat-cell" colspan="5">No se han encontrado resultados para la búsqueda "{{input.value}}"</td>
-                </tr>
-                <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsMetas"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsMetas;"></tr>
             </table>
-            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>            
-        </div>        
-    </div>
-</mat-card-content>
-<mat-card-footer class="footBtn">
-    <button mat-raised-button color="primary" (click)="postDataProyect()">
-        Guardar
-    </button>
-    <button mat-raised-button color="primary" (click)="cancelar()">
-        Cancelar
-    </button>
-</mat-card-footer>
+            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+        </div>
 
+        <div class="buttonContainer">
+            <button mat-raised-button color="primary" class="col-3 mt-2 mb-3" (click)="cancelar()">
+                Cancelar
+            </button>
+            <button mat-raised-button color="primary" class="col-3 mt-2 mb-3" (click)="postDataProyect()">
+                Guardar
+            </button>
+        </div>
+    </div>
+
+</mat-card-content>

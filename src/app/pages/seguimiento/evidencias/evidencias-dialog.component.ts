@@ -83,12 +83,12 @@ export class EvidenciasDialogComponent implements OnInit {
       })
 
       await this.gestorDocumental.get([row]).subscribe(
-        (documentos) => {
+        (documento) => {
           const dialogRef = this.dialog.open(VisualizarDocumentoDialogComponent, {
             width: '1200px',
             minHeight: 'calc(100vh - 90px)',
             height: '800px',
-            data: { ...documentos[0], "editable": !this.data[2] }
+            data: { ...documento[0], "editable": !this.data[2] }
           });
 
           dialogRef.afterClosed().subscribe(result => {

@@ -1,57 +1,40 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import {MatTableDataSource} from '@angular/material/table';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatSort} from '@angular/material/sort';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AgregarMetaDialogComponent } from '../agregar-meta-dialog/agregar-meta-dialog.component';
 import { CargarSoportesDialogComponent } from '../cargar-soportes-dialog/cargar-soportes-dialog.component';
-import { Documento } from 'src/app/@core/models/documento';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
-import { EditarFuenteComponent } from '../editar-fuente/editar-fuente.component';
 import Swal from 'sweetalert2';
-import { EditarApropiacionFuenteDialogComponent } from '../editar-apropiacion-fuente-dialog/editar-apropiacion-fuente-dialog.component';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { VisualizarSoportesDialogComponent } from '../visualizar-soportes-dialog/visualizar-soportes-dialog.component';
+import { CurrencyPipe } from '@angular/common';
 
 export interface Fuentes {
-  Posicion: string;
-  Nombre: string;
-  Presupuesto: number;
+  _id: string;
+  posicion: string;
+  nombre: string;
+  presupuesto: number;
+  presupuestoDisponible: number;
+  presupuestoProyecto: number;
   iconSelected: string;
 }
-// export class InputClearableExample {
-//   value = 'Clear me';
-// }
-
-const INFO: Fuentes[] = [
-  {Posicion: '1', Nombre: 'Ejemplo', Presupuesto: 20000, iconSelected: 'done'},
-  
-]
 
 export interface Soportes {
   posicion: string;
   nombre: string;
-  actions: string;  
-  //iconSelected: string;
+  actions: string;
 }
-
-const SOPORTES: Soportes[] = [
-  {posicion: '1', nombre: 'Ejemplo', actions: 'done'},  
-]
 
 export interface Metas {
   posicion: string;
-  nombre: string;
-  presupuesto: number;
-  //iconSelected: string;
+  descripcion: string;
+  id: string;
 }
-
-const METAS: Metas[] = [
-  {posicion: '1', nombre: 'Ejemplo', presupuesto: 20000},  
-]
 
 @Component({
   selector: 'app-agregar-proyecto-vigente',
@@ -59,30 +42,37 @@ const METAS: Metas[] = [
   styleUrls: ['./agregar-proyecto-vigente.component.scss']
 })
 
-
-
 export class AgregarProyectoVigenteComponent implements OnInit {
- 
-  displayedColumns: string[] = ['index','nombre', 'presupuesto', 'actions'];
+  displayedColumnSoportes: string[] = ['index', 'nombre', 'actions'];
+  displayedColumns: string[] = ['index', 'nombre', 'presupuestoGlobal', 'disponible', 'presupuesto'];
+  displayedColumnsMetas: string[] = ['index', 'descripcion', 'actions'];
   documentos: any[] = [];
   renderDocs: any[] = [];
   dataFuentes = [];
-  dataSource = new MatTableDataSource<Fuentes>(INFO);
-  displayedColumnSoportes: string[] = ['index', 'nombre', 'actions'];  
-  dataSourceSoportes = new MatTableDataSource<Soportes>(SOPORTES);
-  displayedColumnsMetas: string[] = ['index','nombre', 'presupuesto', 'actions'];
-  dataSourceMetas = new MatTableDataSource<Metas>(METAS);
-  fuentes = INFO;
-  metasPresupuesto = METAS; 
+  dataSource = new MatTableDataSource<Fuentes>();
+  dataSourceSoportes = new MatTableDataSource<Soportes>();
+  dataSourceMetas = new MatTableDataSource<Metas>();
   soportes: any[] = [];
-  dataApropiacion: any[] = []
-  metas: any[] = [];  
+  fuentes: Fuentes;
+  metas: any[] = [];
+  idMetas: string;
+  idFuentes: string;
+  idSoportes: string;
   docs: any;
+  name: string = "";
+  codigo: string = "";
+  metasPresupuesto: Metas;
+  dataApropiacion: any[] = []
   dataNewProyect: object = {};
   indice: number;
   posicionFuente: number;
   formProyect: FormGroup;
-  
+  totalPresupuestoTemp: number = 0;
+  id: string;
+  selectedFuentes: any[] = [];
+  editar: boolean = false;
+  selectFuente = new FormControl();
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(CargarSoportesDialogComponent) child: any;
@@ -91,16 +81,26 @@ export class AgregarProyectoVigenteComponent implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private request: RequestManager,
+    private activatedRoute: ActivatedRoute,
+    private currencyPipe: CurrencyPipe,
     private gestorDocumental: GestorDocumentalService,
-    //private dialogRef: MatDialogRef<EvidenciasDialogComponent>,
-  ) { }
+  ) {
+    activatedRoute.params.subscribe(prm => {
+      this.id = prm['id'];
+    });
+  }
 
   ngOnInit(): void {
     this.formProyect = this.formBuilder.group({
-      name: ['',],
-      codigo: ['',]
+      name: [this.name,],
+      codigo: [this.codigo,]
     });
-    this.getFuentesApropiacion()
+    this.getFuentesApropiacion();
+
+    if (this.id != undefined) {
+      this.getDataProyect();
+      this.editar = true;
+    }
   }
 
   cancelar() {
@@ -118,196 +118,322 @@ export class AgregarProyectoVigenteComponent implements OnInit {
   loadSoportes(): void {
     const dialogRef = this.dialog.open(CargarSoportesDialogComponent, {
       width: 'calc(80vw - 60px)',
-      height: 'calc(40vw - 60px)',
+      height: 'calc(20vw - 60px)',
       data: { name: this.documentos },
     });
-    dialogRef.afterClosed().subscribe(result => {      
+    dialogRef.afterClosed().subscribe(result => {
       this.docs = result;
       result[0].posicion = this.soportes.length + 1;
-      this.soportes.push(result[0]); 
+      this.soportes.push(result[0]);
       this.dataSourceSoportes = new MatTableDataSource<Soportes>(this.soportes);
-      //this.readSoportes();      
     });
   }
 
-  apropiacionFuentesEdit(row): void {
-    this.posicionFuente = row.posicion;
-    let aux = row.nombre;
-        const isElementFind = (element) => element.nombre == aux;
-        this.indice = this.dataFuentes.findIndex(isElementFind);
-    const dialogRef = this.dialog.open(EditarApropiacionFuenteDialogComponent, {
-      width: 'calc(80vw - 60px)',
-      height: 'calc(40vw - 60px)',
-      data: {row}      
-    });
+  async revisarDocumento(row) {
+    Swal.fire({
+      title: 'Cargando documento',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    if (row.file != undefined) {
+      let header = "data:application/pdf;base64,";
+      const dialogRef = this.dialog.open(VisualizarSoportesDialogComponent, {
+        width: '1200',
+        minHeight: 'calc(100vh - 90px)',
+        height: '80%',
+        data: { "url": header + row.file }
+      });
+    } else {
+      Swal.fire({
+        title: 'Cargando información',
+        timerProgressBar: true,
+        showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+      })
 
-    dialogRef.afterClosed().subscribe(result => {  
-      this.dataFuentes[this.indice].posicion = this.posicionFuente; 
-      this.dataFuentes[this.indice].presupuesto = parseInt(result.valor);
-      this.dataFuentes[this.indice].nombre = result.nombre;
-      this.dataSource = new MatTableDataSource<Fuentes>(this.dataFuentes);
-      this.getTotalPresupuestoMetas()     
-    });
+      await this.gestorDocumental.get([row]).subscribe(
+        (documentos) => {
+          Swal.close();
+          const dialogRef = this.dialog.open(VisualizarSoportesDialogComponent, {
+            width: '1200px',
+            minHeight: 'calc(100vh - 90px)',
+            height: '800px',
+            data: { ...documentos[0] }
+          });
+
+          dialogRef.afterClosed().subscribe(result => {
+            if (result == undefined) {
+              return undefined;
+            } else {
+              for (let index = 0; index < this.dataSource.data.length; index++) {
+                if (this.dataSource.data[index]["Id"] == result["Id"]) {
+                  this.dataSource.data[index]["Observacion"] = result["Observacion"];
+                };
+              };
+            };
+          });
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se pudo cargar el documento ${JSON.stringify(error)}`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        })
+      Swal.close();
+    }
   }
 
   getFuentesApropiacion() {
     this.request.get(environment.PLANES_CRUD, 'fuentes-apropiacion').subscribe((data: any) => {
-      if(data) {
-        if (data.Data.length != 0) {         
-          for(let i = 0; i < data.Data.length; i++) { 
-            if( data.Data[i].activo == true ) {  
+      if (data) {
+        if (data.Data.length != 0) {
+          for (let i = 0; i < data.Data.length; i++) {
+            if (data.Data[i].activo == true) {
+              data.Data[i]["presupuestoProyecto"] = "";
               this.dataFuentes.push(data.Data[i]);
             }
           }
-          for(let i = 0; i < this.dataFuentes.length; i++) {
+          for (let i = 0; i < this.dataFuentes.length; i++) {
             this.dataFuentes[i].posicion = i + 1;
           }
-          this.dataSource = new MatTableDataSource<Fuentes>(this.dataFuentes);
           this.getTotalPresupuesto();
         }
       }
     })
   }
-  getTotalPresupuesto() {    
-    return this.dataFuentes.map(t => t.presupuesto).reduce((acc, value) => acc + value, 0);
+
+  onChangeF(fuentes) {
+    this.dataSource = new MatTableDataSource<Fuentes>(fuentes);
   }
 
-  async revisarDocumento(row) {    
-      if (row.file != undefined) {
-        let header = "data:application/pdf;base64,";
-        const dialogRef = this.dialog.open(VisualizarSoportesDialogComponent, {
-          width: '1200',
-          minHeight: 'calc(100vh - 90px)',
-          height: '80%',
-          data: { "url": header + row.file}
-        });
+  getTotalPresupuesto() {
+    return this.dataSource.data.map(t => t.presupuesto).reduce((acc, value) => acc + value, 0);
+  }
+
+  getTotalPresupuestoDisponible() {
+    return this.dataSource.data.map(t => t.presupuestoDisponible).reduce((acc, value) => acc + value, 0);
+  }
+
+  getTotalPresupuestoProyecto() {
+    return this.dataSource.data.map(t => t.presupuestoProyecto).reduce((acc, value) => acc + value, 0);
+  }
+
+  blurPresupuesto(element, rowIndex) {
+    if (element.target.value != "") {
+      let presupuesto = parseInt(element.target.value.replaceAll(",", "").replace(".00", ""));
+      if (presupuesto > this.dataSource.data[rowIndex]["presupuestoDisponible"]) {
+        Swal.fire('El valor no puede superar el presupuesto disponible', '', 'info');
+        this.dataSource.data[rowIndex]["presupuestoProyecto"] = 0;
+        element.target.value = this.currencyPipe.transform(this.dataSource.data[rowIndex]["presupuestoProyecto"]);
+        this.dataSource.data[rowIndex]["presupuestoDisponible"] -= this.dataSource.data[rowIndex]["presupuestoProyecto"];
       } else {
-        Swal.fire({
-          title: 'Cargando información',
-          timerProgressBar: true,
-          showConfirmButton: false,
-          willOpen: () => {
-            Swal.showLoading();
-          },
-        })
-  
-        await this.gestorDocumental.get([row]).subscribe(
-          (documentos) => {
-            Swal.close();
-            const dialogRef = this.dialog.open(VisualizarSoportesDialogComponent, {
-              width: '1200px',
-              minHeight: 'calc(100vh - 90px)',
-              height: '800px',
-              data: { ...documentos[0] }
-            });
-  
-            dialogRef.afterClosed().subscribe(result => {
-              if (result == undefined) {
-                return undefined;
-              } else {
-                for (let index = 0; index < this.dataSource.data.length; index++) {
-                  if (this.dataSource.data[index]["Id"] == result["Id"]) {
-                    this.dataSource.data[index]["Observacion"] = result["Observacion"];
-                  };
-                };
-              };
-            });
-          }, (error) => {
-            Swal.fire({
-              title: 'Error en la operación',
-              text: `No se pudo cargar el documento ${JSON.stringify(error)}`,
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-            });
-          })
-        Swal.close();
-      }    
-  }
-  
-  postDataProyect() {    
-    this.dataNewProyect["nombre_proyecto"] = this.formProyect.get('name').value//.toISOString();
-    this.dataNewProyect["codigo_proyecto"] = this.formProyect.get('codigo').value//.toISOString();
-    this.dataNewProyect["soportes"] = this.soportes;
-    this.dataNewProyect["fuentes"] = this.dataFuentes;
-    this.dataNewProyect["metas"] = this.metas;
-    this.request.post(environment.PLANES_MID, 'inversion/addProyecto', this.dataNewProyect).subscribe((data: any) => {
-      if (data) {
-        Swal.fire({
-          title: 'Proyecto Registrado con Exito',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 2500
-        })
+        this.dataSource.data[rowIndex]["presupuestoProyecto"] = parseInt(element.target.value.replaceAll(",", "").replace(".00", ""));
+        this.dataSource.data[rowIndex]["presupuestoDisponible"] -= this.dataSource.data[rowIndex]["presupuestoProyecto"];
       }
-      this.router.navigate(['pages/proyectos-macro/proyectos-de-inversion-vigentes']);  
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `Por favor intente de nuevo`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })     
-  }  
-  
-
-
-  ngAfterViewInit() {
+    } else {
+      this.dataSource.data[rowIndex]["presupuestoProyecto"] = this.totalPresupuestoTemp;
+      element.target.value = this.currencyPipe.transform(this.dataSource.data[rowIndex]["presupuestoProyecto"]);
+      this.dataSource.data[rowIndex]["presupuestoDisponible"] -= this.dataSource.data[rowIndex]["presupuestoProyecto"];
+    }
+    this.getTotalPresupuestoProyecto();
   }
+
+  focusPresupuesto(element, rowIndex) {
+    this.totalPresupuestoTemp = this.dataSource.data[rowIndex]["presupuestoProyecto"].toString() == "" ? 0 : this.dataSource.data[rowIndex]["presupuestoProyecto"];
+    this.dataSource.data[rowIndex]["presupuestoDisponible"] += this.totalPresupuestoTemp;
+    element.target.value = "";
+  }
+
   addMeta(): void {
     const dialogRef = this.dialog.open(AgregarMetaDialogComponent, {
       width: 'calc(80vw - 60px)',
-      height: 'calc(40vw - 60px)',
-      //data: { ban: 'plan', sub, subDetalle }
+      maxHeight: 'calc(100vh - 90px)',
+      data: { estado: "agregar" }
     });
-    dialogRef.afterClosed().subscribe(result => { 
-      result.posicion = this.metas.length + 1;      
-      this.metas.push({nombre: result.nombre, presupuesto: parseInt(result.valor), posicion: result.posicion});
+    dialogRef.afterClosed().subscribe(result => {
+      result.posicion = this.metas.length + 1;
+      this.metas.push(result);
       this.dataSourceMetas = new MatTableDataSource<Metas>(this.metas);
-      this.getTotalPresupuestoMetas();     
     });
   }
+
+  searchMeta(meta): void {
+    const dialogRef = this.dialog.open(AgregarMetaDialogComponent, {
+      width: 'calc(80vw - 60px)',
+      maxHeight: 'calc(100vh - 90px)',
+      data: { estado: "consultar", meta: meta }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result.posicion == undefined) {
+        result.posicion = this.metas.length + 1;
+        this.metas.push(result);
+      } else {
+        this.metas[result.posicion - 1] = result;
+      }
+      this.dataSourceMetas = new MatTableDataSource<Metas>(this.metas);
+    });
+  }
+
   inactivarSoporte(row) {
     Swal.fire({
-      title: 'Inhabilitar Soporte',
-      text: `¿Está seguro de inhabilitar el soporte?`,
+      title: 'Inactivar soporte',
+      text: `¿Desea inactivar el soporte seleccionado?`,
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
-    }).then((result) => {            
-        let aux = row.nombre;
-        const isElementFind = (element) => element.nombre == aux;
-        let indice = this.soportes.findIndex(isElementFind);
-        this.soportes.splice(indice, 1);
-        for(let i = 0; i < this.soportes.length; i++) {
-          this.soportes[i].posicion = i + 1;
-        }    
-        this.dataSourceSoportes = new MatTableDataSource<Soportes>(this.soportes);        
-    })    
+    }).then((result) => {
+      let aux = row.nombre;
+      const isElementFind = (element) => element.nombre == aux;
+      let indice = this.soportes.findIndex(isElementFind);
+      this.soportes.splice(indice, 1);
+      for (let i = 0; i < this.soportes.length; i++) {
+        this.soportes[i].posicion = i + 1;
+      }
+      this.dataSourceSoportes = new MatTableDataSource<Soportes>(this.soportes);
+    })
   }
 
   inactivarMeta(row) {
     Swal.fire({
-      title: 'Inhabilitar Meta',
-      text: `¿Está seguro de inhabilitar la meta?`,
+      title: 'Inactivar Meta',
+      text: `¿Deseas inactivar la meta seleccionada?`,
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
-    }).then((result) => {            
-        let aux = row.nombre;
-        const isElementFind = (element) => element.nombre == aux;
-        let indice = this.metas.findIndex(isElementFind);
-        this.metas.splice(indice, 1);
-        for(let i = 0; i < this.metas.length; i++) {
-          this.metas[i].posicion = i + 1;
-        }    
-        this.dataSourceMetas = new MatTableDataSource<Metas>(this.metas);        
-    })    
+    }).then((result) => {
+      let aux = row.descripcion;
+      const isElementFind = (element) => element.descripcion == aux;
+      let indice = this.metas.findIndex(isElementFind);
+      this.metas.splice(indice, 1);
+      for (let i = 0; i < this.metas.length; i++) {
+        this.metas[i].posicion = i + 1;
+      }
+      this.dataSourceMetas = new MatTableDataSource<Metas>(this.metas);
+    })
   }
-  
-  getTotalPresupuestoMetas() {    
-    return this.metas.map(t => t.presupuesto).reduce((acc, value) => acc + value, 0);
+
+  getDataProyect() {
+    Swal.fire({
+      title: 'Cargando Proyectos',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    this.request.get(environment.PLANES_MID, 'inversion/proyecto/' + this.id).subscribe((data: any) => {
+      if (data) {
+        this.formProyect.setValue({
+          name: data["Data"]["nombre_proyecto"],
+          codigo: data["Data"]["codigo_proyecto"],
+        });
+
+        var fuentes = data["Data"]["fuentes"];
+        var fuentesTabla = []
+        for (let i = 0; i < fuentes.length; i++) {
+          const fuenteGEt = fuentes[i];
+          for (let index = 0; index < this.dataFuentes.length; index++) {
+            if (this.dataFuentes[index]["_id"] == fuenteGEt["id"]) {
+              this.selectedFuentes.push(this.dataFuentes[index]);
+              fuentesTabla.push(this.dataFuentes[index]);
+              fuentesTabla[fuentesTabla.length - 1]["presupuestoProyecto"] = fuenteGEt["presupuestoProyecto"];
+              break
+            }
+          }
+        }
+
+        this.selectFuente = new FormControl(this.selectedFuentes);
+        this.dataSource = new MatTableDataSource<Fuentes>(fuentesTabla);
+
+        this.soportes = data["Data"]["soportes"];
+        this.dataSourceSoportes = new MatTableDataSource<Soportes>(this.soportes);
+
+        this.metas = data["Data"]["metas"];
+        this.dataSourceMetas = new MatTableDataSource<Metas>(this.metas);
+
+        this.idFuentes = data["Data"]["id_detalle_fuentes"];
+        this.idMetas = data["Data"]["id_detalle_metas"];
+        this.idSoportes = data["Data"]["id_detalle_soportes"];
+      }
+      Swal.close();
+    })
+  }
+
+  postDataProyect() {
+    Swal.fire({
+      title: 'Cargando',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+
+    this.dataNewProyect["nombre_proyecto"] = this.formProyect.get('name').value;
+    this.dataNewProyect["codigo_proyecto"] = this.formProyect.get('codigo').value;
+    this.dataNewProyect["soportes"] = this.soportes;
+    this.dataNewProyect["metas"] = this.metas;
+    var fuentes = [];
+    this.dataSource.data.forEach(fuente => {
+      if (typeof fuente.presupuestoProyecto == "number") {
+        fuentes.push({
+          id: fuente._id,
+          presupuestoProyecto: fuente.presupuestoProyecto,
+          posicion: fuente.posicion,
+          presupuestoDisponible: fuente.presupuestoDisponible
+        });
+      }
+    });
+    this.dataNewProyect["fuentes"] = fuentes;
+
+    if (this.editar) {
+      this.dataNewProyect["id_detalle_fuentes"] = this.idFuentes;
+      this.dataNewProyect["id_detalle_metas"] = this.idMetas;
+      this.dataNewProyect["id_detalle_soportes"] = this.idSoportes;
+      this.request.put(environment.PLANES_MID, 'inversion/proyecto', this.dataNewProyect, this.id).subscribe((data) => {
+        if (data) {
+          Swal.fire({
+            title: 'Proyecto Actualizado con Exito',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 2500
+          }).then(e => this.router.navigate(['pages/proyectos-macro/proyectos-de-inversion-vigentes']))
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `Por favor intente de nuevo`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
+    } else {
+      this.request.post(environment.PLANES_MID, 'inversion/proyecto', this.dataNewProyect).subscribe((data: any) => {
+        if (data) {
+          Swal.fire({
+            title: 'Proyecto Registrado con Exito',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 2500
+          }).then(e => this.router.navigate(['pages/proyectos-macro/proyectos-de-inversion-vigentes']))
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `Por favor intente de nuevo`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
+    }
   }
 }

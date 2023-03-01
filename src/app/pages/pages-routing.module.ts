@@ -46,15 +46,20 @@ import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-in
 import { FuentesDeApropiacionComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuentes-de-apropiacion/fuentes-de-apropiacion.component';
 import { ProyectosDeInversionVigentesComponent } from './banco-de-proyectos/proyectos-inversion-macro/proyectos-de-inversion-vigentes/proyectos-de-inversion-vigentes.component';
 import { AgregarProyectoVigenteComponent } from './banco-de-proyectos/proyectos-inversion-macro/agregar-proyecto-vigente/agregar-proyecto-vigente.component';
-import { FuenteApropiacionDialogComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-dialog.component';
+import { FuenteApropiacionDataComponent } from './banco-de-proyectos/proyectos-inversion-macro/fuente-apropiacion-dialog/fuente-apropiacion-data.component';
+import { FormulacionPlanInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/formulacion-plan-inversion/formulacion-plan-inversion.component';
+import { TipoMetaIndicadorComponent } from './banco-de-proyectos/proyectos-inversion-macro/tipo-meta-indicador/tipo-meta-indicador.component';
+import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-inversion-macro/magnitudes-presupuesto/magnitudes-presupuesto.component';
+import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component'
+import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 
 const routes: Routes = [{
   path: '',
   component: PagesComponent,
   children: [
     {
-       path: 'dashboard',
-       component: DashboardComponent,
+      path: 'dashboard',
+      component: DashboardComponent,
     },
     {
       path: 'informacion_basica',
@@ -75,7 +80,7 @@ const routes: Routes = [{
         {
           path: 'consultar-plan/:plan_id/:nombrePlan/:tipo_plan_id',
           component: ConsultarPlanComponent,
-        }, 
+        },
         {
           path: 'construir-plan/:plan_id/:nombrePlan/:tipo_plan_id',
           component: ConstruirPlanComponent,
@@ -115,7 +120,7 @@ const routes: Routes = [{
     {
       path: 'ped',
       component: PagesComponent,
-      children:[
+      children: [
         {
           path: 'ped',
           component: PedComponent,
@@ -133,7 +138,7 @@ const routes: Routes = [{
     {
       path: 'pmee',
       component: PagesComponent,
-      children:[
+      children: [
         {
           path: 'construccion-pmee',
           component: ConstruccionPmeeComponent,
@@ -151,7 +156,7 @@ const routes: Routes = [{
     {
       path: 'pi',
       component: PagesComponent,
-      children:[
+      children: [
         {
           path: 'consultar-pi',
           component: ConsultarPIComponent,
@@ -169,7 +174,7 @@ const routes: Routes = [{
     {
       path: 'poa',
       component: PagesComponent,
-      children:[
+      children: [
         {
           path: 'consultar-poa',
           component: ConsultarPOAComponent,
@@ -183,7 +188,7 @@ const routes: Routes = [{
     {
       path: 'proyectos-macro',
       component: PagesComponent,
-      children:[
+      children: [
         {
           path: 'fuentes-de-apropiacion',
           component: FuentesDeApropiacionComponent,
@@ -197,8 +202,12 @@ const routes: Routes = [{
           component: AgregarProyectoVigenteComponent,
         },
         {
-          path: 'fuente-apropiacion-dialog/:id/:id_detalle_soportes',
-          component: FuenteApropiacionDialogComponent,
+          path: 'proyecto-inversion/:id',
+          component: AgregarProyectoVigenteComponent,
+        },
+        {
+          path: 'consultar-proyecto-inversion/:id',
+          component: FuenteApropiacionDataComponent,
         },
         {
           path: 'consultar-proyecto',
@@ -220,12 +229,32 @@ const routes: Routes = [{
           path: 'reporte-proyecto',
           component: ReportesProyectoInversionComponent,
         },
+        {
+          path: 'formulacion-plan-inversion/:id_formato/:this.newPlanId',
+          component: FormulacionPlanInversionComponent,
+        },
+        {
+          path: 'tipo-meta-indicador/:idProyectoInversion/:idPlan/:indexMeta',
+          component: TipoMetaIndicadorComponent,
+        },
+        {
+          path: 'magnitudes-presupuesto',
+          component: MagnitudesPresupuestoComponent,
+        },
+        {
+          path: 'identificacion-actividades-recursos',
+          component: IdentificacionActividadesRecursosComponent,
+        },
+        {
+          path: 'programacion-presupuestal',
+          component: ProgramacionPresupuestalComponent,
+        },
       ]
     },
     {
       path: 'banco-inicaitivas',
       component: PagesComponent,
-      children:[
+      children: [
         {
           path: 'consultar-subproyecto',
           component: ConsultarSubProyectoInversionComponent,
@@ -255,7 +284,7 @@ const routes: Routes = [{
     {
       path: 'apropiacion-presupuestal',
       component: PagesComponent,
-      children:[
+      children: [
         {
           path: 'reporte-funcionamiento',
           component: ReporteFuncionamientoComponent,
@@ -286,7 +315,7 @@ const routes: Routes = [{
           path: 'generar-trimestre/:plan_id/:index/:trimestre_id',
           component: GenerarTrimestreComponent,
         },
-        
+
       ]
     },
     {
@@ -297,7 +326,7 @@ const routes: Routes = [{
       path: '', redirectTo: 'dashboard', pathMatch: 'full',
     },
   ]
-    
+
 }]
 
 
@@ -305,5 +334,5 @@ const routes: Routes = [{
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class PagesRoutingModule { 
+export class PagesRoutingModule {
 }
