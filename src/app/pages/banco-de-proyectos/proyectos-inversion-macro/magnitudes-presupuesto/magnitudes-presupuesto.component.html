@@ -10,7 +10,7 @@
     </mat-card-content> 
     <br><br>
     <!-- Encabezado de info general del proyecto -->
-    <div >
+    <div  [formGroup]="formProyect">
         <mat-grid-list cols="3"  gutterSize="4px" rowHeight="30px">
           <mat-grid-tile colspan="1" class="head">           
               <mat-label class="head-label">Código proyecto</mat-label>      
@@ -22,13 +22,13 @@
               <mat-label class="head-label">Recurso total fuentes ($)</mat-label>                
           </mat-grid-tile>      
           <mat-grid-tile>            
-              <mat-label>Código Proyecto</mat-label>       
+              <mat-label><input class="input"  matInput  maxlength="256" formControlName="codigo" readonly required></mat-label>       
           </mat-grid-tile>
           <mat-grid-tile>            
-              <mat-label>Nombre Proyecto</mat-label>
+              <mat-label><input class="input" matInput  maxlength="256" formControlName="name"  readonly required></mat-label>
           </mat-grid-tile>
           <mat-grid-tile>            
-              <mat-label>Recurso total fuentes ($)</mat-label>            
+              <mat-label><input class="input" matInput  maxlength="256" formControlName="valorFuentes" readonly required></mat-label>            
           </mat-grid-tile>      
         </mat-grid-list>   
         <br>
@@ -38,310 +38,228 @@
                 <mat-label class="head-label">Meta seleccionada</mat-label>      
             </mat-grid-tile>
             <mat-grid-tile colspan="3" rowspan="2">            
-              <mat-label></mat-label>       
+              <mat-label><input class="input" matInput  maxlength="256" formControlName="meta" readonly required></mat-label>       
           </mat-grid-tile>
         </mat-grid-list>
     </div>    
     <br><br>
     <!-- Steper con las tablas de progrmación de magnitudes -->
-    <mat-vertical-stepper orientation="vertical" [linear]="isLinear" #stepper>    
-        <mat-step [stepControl]="firstFormGroup">
-          <form [formGroup]="firstFormGroup">
+    <mat-vertical-stepper orientation="vertical" [linear]="isLinear" #stepper> 
+        <form [formGroup]="firstFormGroup">  
+            <mat-step [stepControl]="firstFormGroup">          
             <ng-template matStepLabel>Programación de magnitudes (la suma debe ser 100%)</ng-template>
-            <mat-form-field appearance="none" style="width:100%;">
-                <mat-grid-list cols="12"  gutterSize="4px" rowHeight="30px">
-                    <mat-grid-tile colspan="2" class="head">           
-                        <mat-label class="head-label">Año 1</mat-label>      
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" class="head">        
-                        <mat-label class="head-label">Año 2</mat-label>            
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" class="head">          
-                        <mat-label class="head-label">Año 3</mat-label>                
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" class="head">           
-                        <mat-label class="head-label">Año 4</mat-label>                
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" class="head">          
-                        <mat-label class="head-label">Año 5</mat-label>                
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" class="head">        
-                        <mat-label class="head-label">Total</mat-label>            
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Formulación</mat-label>       
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Formulación</mat-label>            
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Formulación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>           
-                        <mat-label>Formulación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Formulación</mat-label>                
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Formulación</mat-label>                
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>     
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>                   
-                </mat-grid-list>
-                <br>
-                <div class="container-border">
-                    <mat-form-field  class="text-area">
-                        <mat-label>Campo de observaciones OPAC</mat-label>
-                        <textarea matInput type="text"></textarea>
-                      </mat-form-field>
-                </div>
-            </mat-form-field>
+            <table class="mat-table cdk-table mat-elevation-z8">
+                <thead>
+                  <tr class="mat-header-row cdk-header-row ng-star-inserted">                    
+                    <th colspan="2">Año 1</th>
+                    <th colspan="2">Año 2</th>
+                    <th colspan="2">Año 3</th>
+                    <th colspan="2">Año 4</th>
+                    <th colspan="2">Año 5</th>
+                    <th colspan="2">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <tr class="mat-row cdk-row ng-star-inserted">
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                    </tr>
+                    <tr>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">                            
+                            <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                formControlName="presupuesto_1" [value]="presupuesto_1 | currency" (blur)="blurPresupuesto($event, 1)"
+                                (focus)="focusPresupuesto($event)" readonly>                            
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                            <input matInput type="text" [readonly]="readOnlyAll" (blur)="blurMagnitud($event, 1)" (focus)="focusMagnitud($event)"
+                              formControlName="programacion_1" [value]="programacion_1 | percent:'1.2-2'" 
+                              oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');">
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">                            
+                            <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                formControlName="presupuesto_2" [value]="presupuesto_2 | currency" (blur)="blurPresupuesto($event, 2)"
+                                (focus)="focusPresupuesto($event)" readonly>                            
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                            <input matInput type="text" [readonly]="readOnlyAll" (blur)="blurMagnitud($event, 2)" (focus)="focusMagnitud($event)"
+                              formControlName="programacion_2" [value]="programacion_2 | percent:'1.2-2'"
+                              oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');">
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">                            
+                            <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                formControlName="presupuesto_3" [value]="presupuesto_3 | currency" (blur)="blurPresupuesto($event, 3)"
+                                (focus)="focusPresupuesto($event)" readonly>                            
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                            <input matInput type="text" [readonly]="readOnlyAll" (blur)="blurMagnitud($event, 3)" (focus)="focusMagnitud($event)"
+                              formControlName="programacion_3" [value]="programacion_3 | percent:'1.2-2'"
+                              oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');">
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">                            
+                            <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                formControlName="presupuesto_4" [value]="presupuesto_4 | currency" (blur)="blurPresupuesto($event, 4)"
+                                (focus)="focusPresupuesto($event)" readonly>                            
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                            <input matInput type="text" [readonly]="readOnlyAll" (blur)="blurMagnitud($event, 4)" (focus)="focusMagnitud($event)"
+                              formControlName="programacion_4" [value]="programacion_4 | percent:'1.2-2'"
+                              oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');">
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">                            
+                            <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                formControlName="presupuesto_5" [value]="presupuesto_5 | currency" (blur)="blurPresupuesto($event, 5)"
+                                (focus)="focusPresupuesto($event)" readonly>                            
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                            <input matInput type="text" [readonly]="readOnlyAll" (blur)="blurMagnitud($event, 5)" (focus)="focusMagnitud($event)"
+                              formControlName="programacion_5" [value]="programacion_5 | percent:'1.2-2'"
+                              oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');">
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                            <input matInput type="text" [value]="presupuesto_T | currency" disabled>
+                        </td>
+                        <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                            <input matInput type="text" disabled disabled [value]="programacion_T | percent:'1.2-2'">
+                        </td>
+                    </tr>                    
+                </tbody>
+            </table>   
+            <br>
+            <h4>&nbsp;&nbsp;Observación OPAC&nbsp;&nbsp;</h4>
+            <div class="container-border">
+                <textarea class="textareaContenido" formControlName="observacionMagnitudes"
+                    placeholder="* Ingrese la observación correspondiente"></textarea>
+                     <mat-error *ngIf="firstFormGroup.get('observacionMagnitudes').invalid">
+                        {{getErrorMessage(firstFormGroup.get('observacionMagnitudes'))}}
+                    </mat-error>
+            </div>       
             <div>
               <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperPrevious>Volver</button>  
               <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperNext>Siguiente</button>
-              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="stepper.reset()">Cancelar</button>
-            </div>
-          </form>
-        </mat-step>
-        <mat-step [stepControl]="secondFormGroup">
-          <form [formGroup]="secondFormGroup">
+              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="cancelar()">Cancelar</button>
+            </div>          
+            </mat-step>
+        </form>
+        <br><br>
+        <form [formGroup]="secondFormGroup">
+            <mat-step [stepControl]="secondFormGroup">
             <ng-template matStepLabel>Programación presupuestal ($)</ng-template>
-            <mat-form-field appearance="none" style="width:100%;">
-                <mat-grid-list cols="12"  gutterSize="4px" rowHeight="30px">
-                    <mat-grid-tile colspan="2" class="head">           
-                        <mat-label class="head-label">Año 1</mat-label>      
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" class="head">        
-                        <mat-label class="head-label">Año 2</mat-label>            
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" class="head">          
-                        <mat-label class="head-label">Año 3</mat-label>                
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" class="head">           
-                        <mat-label class="head-label">Año 4</mat-label>                
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" class="head">          
-                        <mat-label class="head-label">Año 5</mat-label>                
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" class="head">        
-                        <mat-label class="head-label">Total</mat-label>            
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Formulación</mat-label>       
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Formulación</mat-label>            
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Formulación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>           
-                        <mat-label>Formulación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Formulación</mat-label>                
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Formulación</mat-label>                
-                    </mat-grid-tile>
-                    <mat-grid-tile>            
-                        <mat-label>Programación</mat-label>           
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>     
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Formulación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <mat-form-field>
-                            <mat-label class="inText">Programación</mat-label>
-                            <input matInput >
-                            </mat-form-field>
-                    </mat-grid-tile>                   
-                </mat-grid-list>
-                <br><br>
-                <div class="container-border">
-                    <mat-form-field appearance="none" class="text-area">
-                        <mat-label>Campo de observaciones OPAC</mat-label>
-                        <textarea matInput></textarea>
-                      </mat-form-field>
-                </div>
-            </mat-form-field>
+            <table class="mat-table cdk-table mat-elevation-z8">
+                <thead>
+                  <tr class="mat-header-row cdk-header-row ng-star-inserted">                    
+                    <th colspan="2">Año 1</th>
+                    <th colspan="2">Año 2</th>
+                    <th colspan="2">Año 3</th>
+                    <th colspan="2">Año 4</th>
+                    <th colspan="2">Año 5</th>
+                    <th colspan="2">Total</th>
+                  </tr>
+                </thead>
+            <tbody>
+                <tr class="mat-row cdk-row ng-star-inserted">
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Formulación</td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Programación</td>
+                </tr>
+                <tr>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">                            
+                        <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            formControlName="presupuesto_1" [value]="presupuesto_1 | currency" (blur)="blurPresupuesto($event, 1)"
+                            (focus)="focusPresupuesto($event)" readonly>                            
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                        <input matInput type="text" [readonly]="readOnlyAll" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            formControlName="presupuestoProg_1" [value]="presupuestoProg_1 | currency" (blur)="blurPresupuestoProg($event, 1)"
+                            (focus)="focusPresupuesto($event)" readonly="{{readOnlyAll}}">
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">                            
+                        <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            formControlName="presupuesto_2" [value]="presupuesto_2 | currency" (blur)="blurPresupuesto($event, 2)"
+                            (focus)="focusPresupuesto($event)" readonly>                            
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                        <input matInput type="text" [readonly]="readOnlyAll"oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            formControlName="presupuestoProg_2" [value]="presupuestoProg_2 | currency" (blur)="blurPresupuestoProg($event, 2)"
+                            (focus)="focusPresupuesto($event)" >
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">                            
+                        <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            formControlName="presupuesto_3" [value]="presupuesto_3 | currency" (blur)="blurPresupuesto($event, 3)"
+                            (focus)="focusPresupuesto($event)" readonly>                            
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                        <input matInput type="text" [readonly]="readOnlyAll" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            formControlName="presupuestoProg_3" [value]="presupuestoProg_3 | currency" (blur)="blurPresupuestoProg($event, 3)"
+                            (focus)="focusPresupuesto($event)">
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">                            
+                        <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            formControlName="presupuesto_4" [value]="presupuesto_4 | currency" (blur)="blurPresupuesto($event, 4)"
+                            (focus)="focusPresupuesto($event)" readonly>                            
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                        <input matInput type="text" [readonly]="readOnlyAll" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            formControlName="presupuestoProg_4" [value]="presupuestoProg_4 | currency" (blur)="blurPresupuestoProg($event, 4)"
+                            (focus)="focusPresupuesto($event)">
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">                            
+                        <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            formControlName="presupuesto_5" [value]="presupuesto_5 | currency" (blur)="blurPresupuesto($event, 5)"
+                            (focus)="focusPresupuesto($event)" readonly>                            
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                        <input matInput type="text" [readonly]="readOnlyAll" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            formControlName="presupuestoProg_5" [value]="presupuestoProg_5 | currency" (blur)="blurPresupuestoProg($event, 5)"
+                            (focus)="focusPresupuesto($event)">
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                        <input matInput type="text" [value]="presupuesto_T | currency" disabled>
+                    </td>
+                    <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                        <input matInput type="text" disabled disabled [value]="presupuestoProg_T | currency" disabled>
+                    </td>
+                </tr>                    
+            </tbody>
+            </table>
+            <br>
+            <h4>&nbsp;&nbsp;Observación OPAC&nbsp;&nbsp;</h4>
+            <div class="container-border">
+                <textarea class="textareaContenido" formControlName="observacionPresupuestos"
+                    placeholder="* Ingrese la observación correspondiente"></textarea>
+                     <mat-error *ngIf="secondFormGroup.get('observacionPresupuestos').invalid">
+                        {{getErrorMessage(secondFormGroup.get('observacionPresupuestos'))}}
+                    </mat-error>
+            </div>       
+            
             <div>
               <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperPrevious>Volver</button>
               <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperNext>Siguiente</button>
-              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperCancel>Cancelar</button>
-            </div>
-          </form>
+              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperCancel (click)="cancelar()">Cancelar</button>
+            </div>          
           <div class="btn-formato">
-            <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3">Guardar</button> 
+            <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="progMagnitudes()">Guardar</button> 
         </div>
-        </mat-step>        
+        </mat-step> 
+    </form>       
     </mat-vertical-stepper>
     
     
