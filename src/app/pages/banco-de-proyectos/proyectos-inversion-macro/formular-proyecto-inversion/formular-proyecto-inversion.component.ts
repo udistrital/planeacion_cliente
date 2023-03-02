@@ -599,26 +599,28 @@ export class FormularProyectoInversionComponent implements OnInit {
     console.log(this.metaToSee, "meta seleccionada")
     console.log()
     this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.idProyectoInversion + '/' + this.plan._id + '/' + rowIndex]);
-  }
-  //this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.id_formato + '/' + this.idProyectoInversion + '/' + this.newPlanId]);
-    // if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true){
-    //   console.log("entró al if");      
-    //   this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion']);
-    // }else{
-    //   Swal.fire({
-    //     title: 'Debe seleccionar todos los criterios',
-    //     icon: 'warning',
-    //     showConfirmButton: false,
-    //     timer: 2500
-    //   })
-    // };
+  } 
 
   getTotalPresupuesto() {    
     return this.totalPresupuesto = this.dataMetas.data.map(t => t.presupuesto_programado).reduce((acc, value) => acc + value, 0);
     
   }
-  programarMagnitudes() {
-    this.router.navigate(['/pages/proyectos-macro/magnitudes-presupuesto']);    
+  programarMagnitudes(row) {
+    console.log(row, "fila");
+    this.metaToSee = row;
+    let rowIndex = row.index;
+    let posicionMetaPro = row.posicion;
+    this.router.navigate(['/pages/proyectos-macro/magnitudes-presupuesto/' + this.idProyectoInversion + '/' + this.plan._id + '/' + rowIndex + '/' + posicionMetaPro + '/' + true]);    
+    console.log("programarMagnitudes")
+  }
+
+  verMagnitudes(row) {
+    console.log(row, "fila");
+    this.metaToSee = row;
+    let rowIndex = row.index;
+    let posicionMetaPro = row.posicion;
+    this.router.navigate(['/pages/proyectos-macro/magnitudes-presupuesto/' + this.idProyectoInversion + '/' + this.plan._id + '/' + rowIndex + '/' + posicionMetaPro + '/' + false]);    
+    console.log("programarMagnitudes")
   }
   programarIdentificacion() {
     this.router.navigate(['/pages/proyectos-macro/identificacion-actividades-recursos']);    
@@ -1067,6 +1069,7 @@ export class FormularProyectoInversionComponent implements OnInit {
         if (this.metaSelected == true) {
           var formValue = this.form.value;
         var actividad = {
+          //idProI: this.idProyectoInversion,
           idSubDetalle: this.idSubDetMetasProI,
           indexMetaSubPro: this.indexMeta,
           entrada: formValue
@@ -1079,7 +1082,7 @@ export class FormularProyectoInversionComponent implements OnInit {
             Swal.showLoading();
           },
         })
-        this.request.put(environment.PLANES_MID, `inversion/guardar_actividad`, actividad, this.plan._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `inversion/guardar_meta`, actividad, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.close();
             Swal.fire({
@@ -1138,6 +1141,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       if (this.dataArmonizacionPED.length != 0 && this.dataArmonizacionPI.length != 0 && this.dataArmonizacionPDD.length !=0) {        
         var formValue = this.form.value;
         var actividad = {
+          //idProI: this.idProyectoInversion,
           idSubDetalle: this.idSubDetMetasProI,
           indexMetaSubPro: this.indexMeta,
           entrada: formValue

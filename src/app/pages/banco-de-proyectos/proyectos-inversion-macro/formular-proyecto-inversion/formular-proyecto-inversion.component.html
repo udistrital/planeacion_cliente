@@ -212,10 +212,10 @@
     <ng-container matColumnDef="ProgPresupuestal">
       <th mat-header-cell *matHeaderCellDef mat-sort-header class="prog"> Prog. Presupupuestal </th>      
       <td mat-cell *matCellDef="let row; let rowIndex = index;"> 
-        <button mat-raised-button color="primary" (click)="programarMagnitudes()">
+        <button mat-raised-button color="primary" (click)="programarMagnitudes(row)">
           <mat-icon>add_box</mat-icon>
         </button> 
-        <button mat-raised-button color="primary" (click)="guardar()">
+        <button mat-raised-button color="primary" (click)="verMagnitudes(row)">
           <mat-icon>search</mat-icon>
         </button>  
       </td>  

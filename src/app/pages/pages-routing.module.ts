@@ -238,7 +238,7 @@ const routes: Routes = [{
           component: TipoMetaIndicadorComponent,
         },
         {
-          path: 'magnitudes-presupuesto',
+          path: 'magnitudes-presupuesto/:idProyectoInversion/:idPlan/:indexMeta/:posicionMetaPro/:edit',
           component: MagnitudesPresupuestoComponent,
         },
         {
