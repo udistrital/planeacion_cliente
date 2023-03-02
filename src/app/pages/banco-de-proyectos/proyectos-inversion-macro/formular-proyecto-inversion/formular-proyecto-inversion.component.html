@@ -42,7 +42,7 @@
         Para iniciar su formulación de click en el siguiente botón
     </u>
     <mat-card-actions>
-        <div style="margin: 1rem; text-align: center;">
+        <div style="margin: 1rem; text-align: center;" *ngIf="!formulacionState">
             <button mat-raised-button color="primary" (click)="formularPlan()" >
                 Formular Plan
             </button>
@@ -53,7 +53,7 @@
 
     <!-- Armonización -->
     
-<mat-card class="card-oas">
+<mat-card class="card-oas" *ngIf="formulacionState">
     <mat-card-header>
         <mat-card-title>Formulación</mat-card-title>
     </mat-card-header>
@@ -172,7 +172,7 @@
 </mat-card>
 <br><br>
 
-<mat-card class="container-border">
+<mat-card class="container-border" *ngIf="formulacionState">
   <mat-card-header>
     <h2 class="titulo">Listado de metas relacionadas</h2>
   </mat-card-header>
@@ -248,7 +248,7 @@
   </div>
 </mat-card>
 <br>
-<div style="margin: 1rem; text-align: center;" class="container-border">
+<div style="margin: 1rem; text-align: center;" class="container-border" *ngIf="formulacionState">
   <button mat-raised-button color="primary" (click)="programarMetas()">Programar Metas</button>  
 </div>
 

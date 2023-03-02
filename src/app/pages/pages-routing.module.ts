@@ -234,7 +234,7 @@ const routes: Routes = [{
           component: FormulacionPlanInversionComponent,
         },
         {
-          path: 'tipo-meta-indicador/:idProyectoInversion/:idPlan/:indexMeta',
+          path: 'tipo-meta-indicador/:idProyectoInversion/:idPlan/:rowIndex/:indexMeta',
           component: TipoMetaIndicadorComponent,
         },
         {
