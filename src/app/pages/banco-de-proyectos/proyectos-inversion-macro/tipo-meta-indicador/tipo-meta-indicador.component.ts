@@ -21,6 +21,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
   readOnlyAll: boolean = false;
   planId: string;
   indexMeta: string;
+  rowIndex: string;
   idProyectoInversion: string;
   banderaEdit: boolean;
   idSubDetMetasProI: string;
@@ -37,8 +38,9 @@ export class TipoMetaIndicadorComponent implements OnInit {
     activatedRoute.params.subscribe(prm => {
 
       this.planId = prm['idPlan']; 
-      this.indexMeta = prm['indexMeta']  
-      this.idProyectoInversion = prm['idProyectoInversion']
+      this.indexMeta = prm['indexMeta'];
+      this.idProyectoInversion = prm['idProyectoInversion'];
+      this.rowIndex = prm['rowIndex'];
       //console.log(this.id_formato);
     });
     //this.cargaFormato();
@@ -104,7 +106,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
           Swal.showLoading();
         },
       })
-      this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.planId + `/` + this.indexMeta).subscribe((data: any) => {
+      this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.planId + `/` + this.rowIndex).subscribe((data: any) => {
         if (data) {
           Swal.close();
           //this.onChangePD(this.planesDesarrollo[0]);
@@ -150,7 +152,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
           indexMetaSubPro: this.indexMeta,
           entrada: formValue
         }
-    this.request.put(environment.PLANES_MID, `inversion/actualizar_meta`, actividad, this.planId + `/` + this.indexMeta).subscribe((data: any) => {      
+    this.request.put(environment.PLANES_MID, `inversion/actualizar_meta`, actividad, this.planId + `/` + this.rowIndex).subscribe((data: any) => {      
       if (data) {
         Swal.close();
         Swal.fire({
