@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./evaluacion.component.scss']
 })
 export class EvaluacionComponent implements OnInit {
-  pieTitle = 'Cumplimiento General Plan de Acción 2022 -';
+  pieTitle = 'Cumplimiento general Plan de Acción -';
   pieType = 'PieChart';
   columnType = 'ColumnChart';
   spans = [];
@@ -54,15 +54,26 @@ export class EvaluacionComponent implements OnInit {
 
   lineChartData = [['', 0, 'color: rgb(143, 27, 0)', '', '']];
 
+  // displayedColumns: string[] = [
+  //   "id", "ponderacion", "periodo", "actividad", "indicador", "formula", "meta",
+  //   "numt1", "dent1", "pert1", "acut1", "metat1", "actividadt1",
+  //   "numt2", "dent2", "pert2", "acut2", "metat2", "actividadt2",
+  //   "numt3", "dent3", "pert3", "acut3", "metat3", "actividadt3",
+  //   "numt4", "dent4", "pert4", "acut4", "metat4", "actividadt4",];
+
   displayedColumns: string[] = [
-    "id", "ponderacion", "periodo", "actividad", "indicador", "formula", "meta",
+    "id", "ponderacion", "actividad", "indicador", "formula", "meta",
     "numt1", "dent1", "pert1", "acut1", "metat1", "actividadt1",
     "numt2", "dent2", "pert2", "acut2", "metat2", "actividadt2",
     "numt3", "dent3", "pert3", "acut3", "metat3", "actividadt3",
     "numt4", "dent4", "pert4", "acut4", "metat4", "actividadt4",];
 
+  // displayedHeaders: string[] = [
+  //   "idP", "ponderacionP", "periodoP", "actividadP", "indicadorP", "formulaP", "metaP",
+  //   "trimestre1", "trimestre2", "trimestre3", "trimestre4"];
+
   displayedHeaders: string[] = [
-    "idP", "ponderacionP", "periodoP", "actividadP", "indicadorP", "formulaP", "metaP",
+    "idP", "ponderacionP", "actividadP", "indicadorP", "formulaP", "metaP",
     "trimestre1", "trimestre2", "trimestre3", "trimestre4"];
 
   planes: any[];
@@ -176,10 +187,15 @@ export class EvaluacionComponent implements OnInit {
       },
     });
     this.bandera = true;
+    this.actividades = [];
+    this.spans = [];
     this.request.get(environment.PLANES_MID, `evaluacion/` + this.vigencia.Id + `/` + this.plan.id + `/` + this.periodo.id).subscribe((data: any) => {
       if (data) {
         this.actividades = data.Data;
-        this.pieTitle = "Cumplimiento General Plan de Acción 2022 - " + this.unidad.Nombre;
+        this.actividades.forEach(actividad => {
+          actividad.class = actividad.numero % 2 == 0 ? "claro" : "oscuro";
+        });
+        this.pieTitle = "Cumplimiento general " + this.plan.plan + " - " + this.unidad.Nombre;
         this.cacheSpan('numero', d => d.numero);
         this.cacheSpan('ponderado', d => d.numero + d.ponderado);
         this.cacheSpan('periodo', d => d.numero + d.ponderado + d.periodo);
@@ -252,6 +268,13 @@ export class EvaluacionComponent implements OnInit {
         this.periodos = data.Data;
       }
     }, (error) => {
+      this.bandera = false;
+      this.periodoSelected = false;
+      this.planes = [];
+      this.plan = { "periodos": [], "plan": "", "id": "" };
+      this.tr2 = false;
+      this.tr3 = false;
+      this.tr4 = false;
       Swal.fire({
         title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
@@ -318,6 +341,13 @@ export class EvaluacionComponent implements OnInit {
         }
       }
     }, (error) => {
+      this.bandera = false;
+      this.periodoSelected = false;
+      this.planes = [];
+      this.plan = { "periodos": [], "plan": "", "id": "" };
+      this.tr2 = false;
+      this.tr3 = false;
+      this.tr4 = false;
       Swal.fire({
         title: 'La unidad no tiene planes con seguimientos avalados para la vigencia selecionada',
         icon: 'info',
