@@ -775,27 +775,47 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         const meta = parseFloat(this.datosIndicadores[index].meta)
         if (denominador == 0.0) {
           if (numerador == 0.0) {
-
-            if (this.trimestreAbr == "T1") {
-              this.datosResultados[index].indicadorAcumulado = 0;
-              this.datosResultados[index].acumuladoNumerador = 0;
-              this.datosResultados[index].acumuladoDenominador = 0;
-              this.datosResultados[index].indicador = 0;
-              this.datosResultados[index].avanceAcumulado = 1;
-
-              var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
-              var metaEvaluada = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
-
-              if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
-                this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
-              } else {
-                this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
-              }
-              this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
+            if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: `No es posible la división entre cero`,
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 3500
+              })
+              indicador.reporteDenominador = null;
+              indicador.reporteNumerador = null;
             } else {
-              this.calcularBase(indicador, denominador, numerador, meta, index, true)
+              if (this.trimestreAbr == "T1" || this.datosResultados[index].divisionCero) {
+                this.datosResultados[index].divisionCero = true;
+                this.datosResultados[index].indicadorAcumulado = 1;
+                this.datosResultados[index].acumuladoNumerador = 0;
+                this.datosResultados[index].acumuladoDenominador = 0;
+                this.datosResultados[index].indicador = 0;
+
+                var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+                var metaEvaluada = meta / 100;
+
+                this.datosResultados[index].avanceAcumulado = this.datosResultados[index].indicadorAcumulado / metaEvaluada;
+
+                if (indicador.tendencia == "Creciente") {
+                  if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
+                    this.datosResultados[index].brechaExistente = 0;
+                  } else {
+                    this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
+                  }
+                } else {
+                  if (this.datosResultados[index].indicadorAcumulado < metaEvaluada) {
+                    this.datosResultados[index].brechaExistente = 0;
+                  } else {
+                    this.datosResultados[index].brechaExistente = indicadorAcumulado - metaEvaluada;
+                  }
+                }
+                this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
+              } else {
+                this.calcularBase(indicador, denominador, numerador, meta, index, true)
+              }
             }
-            this.datosResultados[index].divisionCero = true;
           } else {
             Swal.fire({
               title: 'Error en la operación',
@@ -830,6 +850,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   calcularBase(indicador, denominador, numerador, meta, index, ceros) {
+    this.datosResultados[index].divisionCero = false;
     this.denominadorFijo = indicador.denominador != "Denominador variable"
     if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
       this.datosIndicadores[index].reporteDenominador = denominador;
