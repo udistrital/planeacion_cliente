@@ -9,9 +9,10 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { element } from 'protractor';
-import { Location } from '@angular/common';
+import { Location, registerLocaleData } from '@angular/common';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
+import es from '@angular/common/locales/es';
 
 export interface Indicador {
   nombre: string;
@@ -110,6 +111,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    registerLocaleData(es)
     this.formGenerarTrimestre = this.formBuilder.group({
       indicador: ['', Validators.required],
       avancePeriodo: ['', Validators.required],
@@ -769,16 +771,19 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   calcularResultado() {
     for (let index = 0; index < this.datosIndicadores.length; index++) {
       const indicador = this.datosIndicadores[index];
+      debugger
       if (indicador.reporteDenominador != null && indicador.reporteNumerador != null) {
         const denominador = parseFloat(indicador.reporteDenominador);
         const numerador = parseFloat(indicador.reporteNumerador);
-        const meta = parseFloat(this.datosIndicadores[index].meta)
+        const meta = parseFloat(this.datosIndicadores[index].meta);
+        this.calcular = false;
+
         if (denominador == 0.0) {
           if (numerador == 0.0) {
-            if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
+            if (indicador.denominador != "Denominador variable") {
               Swal.fire({
                 title: 'Error en la operación',
-                text: `No es posible la división entre cero`,
+                text: `No es posible la división entre cero para denominador fijo`,
                 icon: 'warning',
                 showConfirmButton: false,
                 timer: 3500
@@ -792,6 +797,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
                 this.datosResultados[index].acumuladoNumerador = 0;
                 this.datosResultados[index].acumuladoDenominador = 0;
                 this.datosResultados[index].indicador = 0;
+                this.numeradorOriginal = [];
+                this.denominadorOriginal = [];
+                this.calcular = true;
 
                 var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
                 var metaEvaluada = meta / 100;
@@ -833,6 +841,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             this.datosResultados[index].indicador = 0;
             this.datosResultados[index].avanceAcumulado = 0;
             this.datosResultados[index].brechaExistente = 0;
+            this.numeradorOriginal = [];
+            this.denominadorOriginal = [];
+            this.calcular = true;
           }
           this.calcularBase(indicador, denominador, numerador, meta, index, false)
         }
@@ -846,7 +857,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         })
       }
     }
-    this.calcular = false;
   }
 
   calcularBase(indicador, denominador, numerador, meta, index, ceros) {
