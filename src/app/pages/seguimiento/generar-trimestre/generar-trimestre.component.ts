@@ -312,7 +312,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             },
           })
 
-          let documento = {
+          let documento = [{
             IdTipoDocumento: 60,
             nombre: aux.name,
             metadatos: {
@@ -321,12 +321,11 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             descripcion: "Documento de soporte para seguimiento de plan de acción",
             file: await this.gestorDocumental.fileToBase64(aux),
             Activo: true
-          }
-          this.documentos.push(documento);
+          }];
 
           let documentoPorSubir = {
-            documento: this.documentos,
-            evidencia: this.seguimiento.evidencia
+            documento: documento,
+            evidencia: this.documentos
           };
 
           this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
