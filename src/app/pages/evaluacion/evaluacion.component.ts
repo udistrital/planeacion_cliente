@@ -6,6 +6,8 @@ import Swal from 'sweetalert2';
 
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { Router } from '@angular/router';
+import { registerLocaleData } from '@angular/common';
+import es from '@angular/common/locales/es';
 
 @Component({
   selector: 'app-evaluacion',
@@ -358,6 +360,7 @@ export class EvaluacionComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    registerLocaleData(es);
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
@@ -410,19 +413,19 @@ export class EvaluacionComponent implements OnInit {
       }
 
       if (actividad.trimestre1.actividad) {
-        this.avanceTr1 += actividad.ponderado / 100 * actividad.trimestre1.actividad;
+        this.avanceTr1 += actividad.ponderado / 100 * (actividad.trimestre1.actividad <= 1 ? actividad.trimestre1.actividad : 1);
       }
 
       if (actividad.trimestre2.actividad) {
-        this.avanceTr2 += actividad.ponderado / 100 * actividad.trimestre2.actividad;
+        this.avanceTr2 += actividad.ponderado / 100 * (actividad.trimestre2.actividad <= 1 ? actividad.trimestre2.actividad : 1);
       }
 
       if (actividad.trimestre3.actividad) {
-        this.avanceTr3 += actividad.ponderado / 100 * actividad.trimestre3.actividad;
+        this.avanceTr3 += actividad.ponderado / 100 * (actividad.trimestre3.actividad <= 1 ? actividad.trimestre3.actividad : 1);
       }
 
       if (actividad.trimestre4.actividad) {
-        this.avanceTr4 += actividad.ponderado / 100 * actividad.trimestre4.actividad;
+        this.avanceTr4 += actividad.ponderado / 100 * (actividad.trimestre4.actividad <= 1 ? actividad.trimestre4.actividad : 1);
       }
     }
   }
