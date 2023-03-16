@@ -1,6 +1,6 @@
 <mat-card class="card-oas">
   <mat-card-header>
-    <mat-card-title>Evaluación Planes de Acción anuales</mat-card-title>
+    <mat-card-title>Evaluación Plan de Acción</mat-card-title>
   </mat-card-header>
   <mat-card-content>
     <ng-container>
@@ -16,7 +16,7 @@
     </ng-container>
     <mat-form-field class="selectorPlanStyle" appearance="fill">
       <mat-label id="tipo-input-label">Seleccione la unidad</mat-label>
-      <mat-select id="test" (selectionChange)="onChangeU($event.value)">
+      <mat-select [(value)]="unidad" (selectionChange)="onChangeU($event.value)">
         <mat-option>--</mat-option>
         <mat-option *ngFor="let unidad of unidades" [value]="unidad">
           {{unidad.Nombre}}
@@ -74,7 +74,7 @@
 
         <br>
         <mat-card-header>
-          <mat-card-title>Evaluación Planes de Acción anuales</mat-card-title>
+          <mat-card-title>Evaluación Plan de Acción</mat-card-title>
         </mat-card-header>
 
         <br>
@@ -93,16 +93,9 @@
               <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"> </th>
               <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('ponderado',i)"
                 [ngClass]="row.class" [style.display]="getRowSpan('ponderado', i) ? '' : 'none'">
-                {{row.ponderado/100 | percent:'1.1-2':'es'}} </td>
+                {{row.ponderado | percent:'1.1-2':'es'}} </td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
-            <!-- <ng-container matColumnDef="periodo" sticky>
-              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
-              <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('periodo',i)"
-                [style.display]="getRowSpan('periodo', i) ? '' : 'none'"> {{row.periodo}}
-              </td>
-              <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
-            </ng-container> -->
             <ng-container matColumnDef="actividad" sticky style="border-collapse: separate">
               <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
               <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('actividad',i)"
@@ -130,13 +123,13 @@
               <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
               <td mat-cell *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.meta/100 | percent:'1.1-2':'es'}}
+                  {{row.meta | percent:'1.1-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
                   {{row.meta | number: '1.0-0':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Tasa'">
-                  {{row.meta | number: '1.0-2':'es'}}
+                  {{row.meta | number: '1.1-2':'es'}}
                 </div>
               </td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
@@ -145,19 +138,19 @@
             <!-- trimestre 1 -->
             <ng-container matColumnDef="numt1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Numerador </th>
-              <td mat-cell *matCellDef="let row" [ngClass]="row.class"> {{row.trimestre1.numerador}} </td>
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class"> {{row.trimestre1.numerador | number: '1.0-2':'es'}} </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="dent1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Denominador </th>
-              <td mat-cell *matCellDef="let row" [ngClass]="row.class"> {{row.trimestre1.denominador}} </td>
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class"> {{row.trimestre1.denominador| number: '1.0-2':'es'}} </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="pert1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Indicador del periodo</th>
               <td mat-cell *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre1.periodo/100 | percent:'1.2-2':'es'}}
+                  {{row.trimestre1.periodo | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
                   {{row.trimestre1.periodo | number: '1.0-0':'es'}}
@@ -172,7 +165,7 @@
               <th mat-header-cell class="header2" *matHeaderCellDef> Indicador acumulado </th>
               <td mat-cell *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre1.acumulado/100 | percent:'1.2-2':'es'}}
+                  {{row.trimestre1.acumulado | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
                   {{row.trimestre1.acumulado | number: '1.0-0':'es'}}
@@ -213,14 +206,14 @@
             <ng-container matColumnDef="numt2">
               <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Numerador </th>
               <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
-                {{row.trimestre2.numerador}} </td>
+                {{row.trimestre2.numerador | number: '1.0-2':'es'}} </td>
               <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="dent2">
               <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Denominador
               </th>
               <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
-                {{row.trimestre2.denominador}}
+                {{row.trimestre2.denominador| number: '1.0-2':'es'}}
               </td>
               <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
@@ -229,7 +222,7 @@
                 periodo</th>
               <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre2.periodo/100 | percent:'1.2-2':'es'}}
+                  {{row.trimestre2.periodo | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
                   {{row.trimestre2.periodo | number: '1.0-0':'es'}}
@@ -245,7 +238,7 @@
                 acumulado </th>
               <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre2.acumulado/100 | percent:'1.2-2':'es'}}
+                  {{row.trimestre2.acumulado | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
                   {{row.trimestre2.acumulado | number: '1.0-0':'es'}}
@@ -293,14 +286,14 @@
             <ng-container matColumnDef="numt3">
               <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Numerador </th>
               <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
-                {{row.trimestre3.numerador}} </td>
+                {{row.trimestre3.numerador | number: '1.0-2':'es'}} </td>
               <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="dent3">
               <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Denominador
               </th>
               <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
-                {{row.trimestre3.denominador}}
+                {{row.trimestre3.denominador| number: '1.0-2':'es'}}
               </td>
               <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
@@ -309,7 +302,7 @@
                 periodo</th>
               <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre3.periodo/100 | percent:'1.2-2':'es'}}
+                  {{row.trimestre3.periodo | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
                   {{row.trimestre3.periodo | number: '1.0-0':'es'}}
@@ -325,7 +318,7 @@
                 acumulado </th>
               <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre3.acumulado/100 | percent:'1.2-2':'es'}}
+                  {{row.trimestre3.acumulado | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
                   {{row.trimestre3.acumulado | number: '1.0-0':'es'}}
@@ -373,14 +366,14 @@
             <ng-container matColumnDef="numt4">
               <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Numerador </th>
               <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
-                {{row.trimestre4.numerador}} </td>
+                {{row.trimestre4.numerador | number: '1.0-2':'es'}} </td>
               <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="dent4">
               <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Denominador
               </th>
               <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
-                {{row.trimestre4.denominador}}
+                {{row.trimestre4.denominador| number: '1.0-2':'es'}}
               </td>
               <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
@@ -389,7 +382,7 @@
                 periodo</th>
               <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre4.periodo/100 | percent:'1.2-2':'es'}}
+                  {{row.trimestre4.periodo | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
                   {{row.trimestre4.periodo | number: '1.0-0':'es'}}
@@ -405,7 +398,7 @@
                 acumulado </th>
               <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre4.acumulado/100 | percent:'1.2-2':'es'}}
+                  {{row.trimestre4.acumulado | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
                   {{row.trimestre4.acumulado | number: '1.0-0':'es'}}
