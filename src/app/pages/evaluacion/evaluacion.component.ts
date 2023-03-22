@@ -45,6 +45,7 @@ export class EvaluacionComponent implements OnInit {
   lineChartOptions = {
     tooltip: { isHtml: true },
     legend: 'none',
+    vAxis: {minValue: 0, maxValue: 100}
   };
 
   lineChartColumnNames = [
@@ -52,7 +53,7 @@ export class EvaluacionComponent implements OnInit {
     'Avance',
     { role: 'style' },
     { role: 'annotation' },
-    { type: 'string', role: 'tooltip', p: { html: true } },
+    { type: 'string', role: 'tooltip' },
   ];
 
   lineChartData = [['', 0, 'color: rgb(143, 27, 0)', '', '']];
@@ -236,15 +237,15 @@ export class EvaluacionComponent implements OnInit {
         this.cacheSpan('actividadt3', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3);
         this.cacheSpan('actividadt4', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4);
 
-        if (this.periodo.nombre == "Trimestre Dos") {
+        if (this.periodo.nombre == "Trimestre dos") {
           this.tr2 = true;
           this.tr3 = false;
           this.tr4 = false;
-        } else if (this.periodo.nombre == "Trimestre Tres") {
+        } else if (this.periodo.nombre == "Trimestre tres") {
           this.tr2 = true;
           this.tr3 = true;
           this.tr4 = false;
-        } else if (this.periodo.nombre == "Trimestre Cuatro") {
+        } else if (this.periodo.nombre == "Trimestre cuatro") {
           this.tr2 = true;
           this.tr3 = true;
           this.tr4 = true;
@@ -482,7 +483,7 @@ export class EvaluacionComponent implements OnInit {
         actividadValor = Math.round((actividad.trimestre1.actividad * 100) * 100) / 100
       }
 
-      actividades.push([actividad.numero, actividadValor, 'color: rgb(143, 27, 0)', String(actividadValor) + '%', '']);
+      actividades.push([actividad.numero, actividadValor, 'color: rgb(143, 27, 0)', String(actividadValor) + '%', actividad.actividad]);
     }
 
     this.lineChartData = actividades;

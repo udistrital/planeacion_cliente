@@ -106,16 +106,16 @@
             </ng-container>
 
             <ng-container matColumnDef="indicador" sticky style="border-collapse: separate">
-              <th mat-header-cell style="width: 300px; max-width:  300px;" *matHeaderCellDef [style.text-align]="center"
+              <th mat-header-cell style="min-width: 250px;width: 300px; max-width:  300px;" *matHeaderCellDef [style.text-align]="center"
                 [ngStyle]="{'display': 'none'}"></th>
-              <td mat-cell [ngClass]="item.class" style="width: 300px; max-width:  300px;" *matCellDef="let item">
+              <td mat-cell [ngClass]="item.class" style="min-width: 250px;width: 300px; max-width:  300px;" *matCellDef="let item">
                 {{item.indicador}}</td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
             <ng-container matColumnDef="formula" sticky>
-              <th mat-header-cell style="width: 300px; max-width:  300px;" *matHeaderCellDef [style.text-align]="center"
+              <th mat-header-cell style="min-width: 250px;width: 300px; max-width:  300px;" *matHeaderCellDef [style.text-align]="center"
                 [ngStyle]="{'display': 'none'}"></th>
-              <td mat-cell [ngClass]="row.class" style="width: 300px; max-width:  300px;" *matCellDef="let row">
+              <td mat-cell [ngClass]="row.class" style="min-width: 250px;width: 300px; max-width:  300px;" *matCellDef="let row">
                 {{row.formula}} </td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
