@@ -48,6 +48,7 @@ export class FormularProyectoInversionComponent implements OnInit {
   guardarDisabled: boolean;  
   dataT: boolean;
   banderaEdit: boolean;
+  formulacionState: boolean;
   displayedColumns: string[] = ['Posicion', 'Meta', 'TipodeMeta', 'Presupuesto', 'Acciones', 'ProgPresupuestal', 'ProgActividades'];
   dataMetasP: any;
   dataMetas = new MatTableDataSource<Metas>();   
@@ -274,6 +275,7 @@ export class FormularProyectoInversionComponent implements OnInit {
           this.planId = data.Data[i]["_id"];          
           this.getDataPlan();
           this.getVersiones(planB);
+          this.formulacionState = true;
         } else if (data.Data.length == 0) {
           Swal.fire({
             title: 'Formulación nuevo plan',
@@ -598,27 +600,29 @@ export class FormularProyectoInversionComponent implements OnInit {
 
     console.log(this.metaToSee, "meta seleccionada")
     console.log()
-    this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.idProyectoInversion + '/' + this.plan._id + '/' + rowIndex]);
-  }
-  //this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.id_formato + '/' + this.idProyectoInversion + '/' + this.newPlanId]);
-    // if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true){
-    //   console.log("entró al if");      
-    //   this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion']);
-    // }else{
-    //   Swal.fire({
-    //     title: 'Debe seleccionar todos los criterios',
-    //     icon: 'warning',
-    //     showConfirmButton: false,
-    //     timer: 2500
-    //   })
-    // };
+    this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.idProyectoInversion + '/' + this.plan._id + '/' + rowIndex + '/' + this.indexMeta]);
+  } 
 
   getTotalPresupuesto() {    
     return this.totalPresupuesto = this.dataMetas.data.map(t => t.presupuesto_programado).reduce((acc, value) => acc + value, 0);
     
   }
-  programarMagnitudes() {
-    this.router.navigate(['/pages/proyectos-macro/magnitudes-presupuesto']);    
+  programarMagnitudes(row) {
+    console.log(row, "fila");
+    this.metaToSee = row;
+    let rowIndex = row.index;
+    let posicionMetaPro = row.posicion;
+    this.router.navigate(['/pages/proyectos-macro/magnitudes-presupuesto/' + this.idProyectoInversion + '/' + this.plan._id + '/' + rowIndex + '/' + posicionMetaPro + '/' + true]);    
+    console.log("programarMagnitudes")
+  }
+
+  verMagnitudes(row) {
+    console.log(row, "fila");
+    this.metaToSee = row;
+    let rowIndex = row.index;
+    let posicionMetaPro = row.posicion;
+    this.router.navigate(['/pages/proyectos-macro/magnitudes-presupuesto/' + this.idProyectoInversion + '/' + this.plan._id + '/' + rowIndex + '/' + posicionMetaPro + '/' + false]);    
+    console.log("programarMagnitudes")
   }
   programarIdentificacion() {
     this.router.navigate(['/pages/proyectos-macro/identificacion-actividades-recursos']);    
@@ -897,7 +901,7 @@ export class FormularProyectoInversionComponent implements OnInit {
 
   inactivar(row) {
   Swal.fire({
-    title: 'Inhabilitar actividad',
+    title: 'Inhabilitar Meta',
     text: `¿Está seguro de inhabilitar esta actividad?`,
     showCancelButton: true,
     confirmButtonText: `Si`,
@@ -911,6 +915,7 @@ export class FormularProyectoInversionComponent implements OnInit {
             icon: 'success',
           }).then((result) => {
             if (result.value) {
+              this.ajustarData();
               //this.loadData()
             }
           })
@@ -970,13 +975,13 @@ export class FormularProyectoInversionComponent implements OnInit {
     //   this.iconEditar = 'edit'
     // }
     this.request.get(environment.PLANES_MID, `inversion/all_metas/` + this.plan._id + `?order=asc&sortby=index`).subscribe((data: any) => {
-      if (data.Data.data_source != null) {
+      if (data.Data != null) {
         console.log(data.Data, "metas")
-        this.dataMetas = new MatTableDataSource(data.Data.data_source);
+        this.dataMetas = new MatTableDataSource(data.Data);
         console.log(this.dataMetas.data, "metas")
         this.defaultFilterPredicate = this.dataSource.filterPredicate;
-        this.cambiarValor("activo", true, "Activo", this.dataSource.data)
-        this.cambiarValor("activo", false, "Inactivo", this.dataSource.data)
+        //this.cambiarValor("activo", true, "Activo", this.dataSource.data)
+        //this.cambiarValor("activo", false, "Inactivo", this.dataSource.data)
         this.displayedColumns = data.Data.displayed_columns;
         this.columnsToDisplay = this.displayedColumns.slice();
         this.dataSource.paginator = this.paginator;
@@ -1003,6 +1008,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       })
     })
   }
+
   editar(fila): void {
     if (fila.activo == 'Inactivo') {
       Swal.fire({
@@ -1067,6 +1073,7 @@ export class FormularProyectoInversionComponent implements OnInit {
         if (this.metaSelected == true) {
           var formValue = this.form.value;
         var actividad = {
+          idProI: this.idProyectoInversion,
           idSubDetalle: this.idSubDetMetasProI,
           indexMetaSubPro: this.indexMeta,
           entrada: formValue
@@ -1079,7 +1086,7 @@ export class FormularProyectoInversionComponent implements OnInit {
             Swal.showLoading();
           },
         })
-        this.request.put(environment.PLANES_MID, `inversion/guardar_actividad`, actividad, this.plan._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `inversion/guardar_meta`, actividad, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.close();
             Swal.fire({
@@ -1089,7 +1096,7 @@ export class FormularProyectoInversionComponent implements OnInit {
               icon: 'success'
             }).then((result) => {
               if (result.value) {
-                this.loadData()
+                this.ajustarData()
                 this.form.reset();
                 this.addActividad = false;
                 //this.dataArmonizacionPED = [];
@@ -1110,9 +1117,9 @@ export class FormularProyectoInversionComponent implements OnInit {
             timer: 2500
           })
 
-          this.addActividad = false;
-          this.dataArmonizacionPED = [];
-          this.dataArmonizacionPI = [];
+          //this.addActividad = false;
+          //this.dataArmonizacionPED = [];
+          //this.dataArmonizacionPI = [];
         })
         } else {
           Swal.fire({
@@ -1138,6 +1145,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       if (this.dataArmonizacionPED.length != 0 && this.dataArmonizacionPI.length != 0 && this.dataArmonizacionPDD.length !=0) {        
         var formValue = this.form.value;
         var actividad = {
+          idProI: this.idProyectoInversion,
           idSubDetalle: this.idSubDetMetasProI,
           indexMetaSubPro: this.indexMeta,
           entrada: formValue

@@ -3,9 +3,11 @@ import { RequestManager } from '../services/requestManager';
 import { environment } from 'src/environments/environment';
 import { MatTable } from '@angular/material/table';
 import Swal from 'sweetalert2';
-
+import { UserService } from '../services/userService';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { Router } from '@angular/router';
+import { registerLocaleData } from '@angular/common';
+import es from '@angular/common/locales/es';
 
 @Component({
   selector: 'app-evaluacion',
@@ -13,7 +15,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./evaluacion.component.scss']
 })
 export class EvaluacionComponent implements OnInit {
-  pieTitle = 'Cumplimiento General Plan de Acción 2022 -';
+  pieTitle = 'Cumplimiento general Plan de Acción -';
   pieType = 'PieChart';
   columnType = 'ColumnChart';
   spans = [];
@@ -33,6 +35,7 @@ export class EvaluacionComponent implements OnInit {
     pieSliceTextStyle: {
       color: 'black',
     },
+    pieSliceBorderColor: "gray",
     slices: {
       1: { color: 'transparent' }
     },
@@ -42,6 +45,7 @@ export class EvaluacionComponent implements OnInit {
   lineChartOptions = {
     tooltip: { isHtml: true },
     legend: 'none',
+    vAxis: {minValue: 0, maxValue: 100}
   };
 
   lineChartColumnNames = [
@@ -49,20 +53,20 @@ export class EvaluacionComponent implements OnInit {
     'Avance',
     { role: 'style' },
     { role: 'annotation' },
-    { type: 'string', role: 'tooltip', p: { html: true } },
+    { type: 'string', role: 'tooltip' },
   ];
 
   lineChartData = [['', 0, 'color: rgb(143, 27, 0)', '', '']];
 
   displayedColumns: string[] = [
-    "id", "ponderacion", "periodo", "actividad", "indicador", "formula", "meta",
+    "id", "ponderacion", "actividad", "indicador", "formula", "meta",
     "numt1", "dent1", "pert1", "acut1", "metat1", "actividadt1",
     "numt2", "dent2", "pert2", "acut2", "metat2", "actividadt2",
     "numt3", "dent3", "pert3", "acut3", "metat3", "actividadt3",
     "numt4", "dent4", "pert4", "acut4", "metat4", "actividadt4",];
 
   displayedHeaders: string[] = [
-    "idP", "ponderacionP", "periodoP", "actividadP", "indicadorP", "formulaP", "metaP",
+    "idP", "ponderacionP", "actividadP", "indicadorP", "formulaP", "metaP",
     "trimestre1", "trimestre2", "trimestre3", "trimestre4"];
 
   planes: any[];
@@ -97,10 +101,10 @@ export class EvaluacionComponent implements OnInit {
   constructor(
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
+    private userService: UserService,
     private router: Router
   ) {
     this.loadVigencias();
-    this.loadUnidades();
     this.unidadSelected = false;
     this.vigenciaSelected = false;
   }
@@ -140,6 +144,7 @@ export class EvaluacionComponent implements OnInit {
       this.planSelected = false;
     } else {
       this.planSelected = true;
+      plan.periodos.forEach(periodo => {periodo.nombre = periodo.nombre[0].toUpperCase() + periodo.nombre.substring(1).toLowerCase()})
       this.plan = plan;
     }
   }
@@ -161,9 +166,47 @@ export class EvaluacionComponent implements OnInit {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';
+      this.validarUnidad();
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
+      this.loadUnidades();
     }
+  }
+
+  validarUnidad() {
+    this.userService.user$.subscribe((data) => {
+      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
+        .subscribe((datosInfoTercero: any) => {
+          this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
+            .subscribe((vinculacion: any) => {
+              if (vinculacion["Data"] != "") {
+                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
+                  if (dataUnidad) {
+                    let unidad = dataUnidad[0]["DependenciaId"]
+                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+                    for (let i = 0; i < dataUnidad.length; i++) {
+                      if (dataUnidad[i]["TipoDependenciaId"]["Id"] === 2) {
+                        unidad["TipoDependencia"] = dataUnidad[i]["TipoDependenciaId"]["Id"]
+                      }
+                    }
+                    this.unidades = [unidad];
+                    this.onChangeU(unidad);
+                    Swal.close();
+                  }
+                })
+              } else {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No cuenta con los permisos requeridos para acceder a este módulo`,
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 4000
+                })
+              }
+            })
+        })
+
+    })
   }
 
   ingresarEvaluacion() {
@@ -176,10 +219,15 @@ export class EvaluacionComponent implements OnInit {
       },
     });
     this.bandera = true;
+    this.actividades = [];
+    this.spans = [];
     this.request.get(environment.PLANES_MID, `evaluacion/` + this.vigencia.Id + `/` + this.plan.id + `/` + this.periodo.id).subscribe((data: any) => {
       if (data) {
         this.actividades = data.Data;
-        this.pieTitle = "Cumplimiento General Plan de Acción 2022 - " + this.unidad.Nombre;
+        this.actividades.forEach(actividad => {
+          actividad.class = actividad.numero % 2 == 0 ? "claro" : "oscuro";
+        });
+        this.pieTitle = "Cumplimiento general " + this.plan.plan + " - " + this.unidad.Nombre;
         this.cacheSpan('numero', d => d.numero);
         this.cacheSpan('ponderado', d => d.numero + d.ponderado);
         this.cacheSpan('periodo', d => d.numero + d.ponderado + d.periodo);
@@ -189,15 +237,15 @@ export class EvaluacionComponent implements OnInit {
         this.cacheSpan('actividadt3', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3);
         this.cacheSpan('actividadt4', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4);
 
-        if (this.periodo.nombre == "Trimestre Dos") {
+        if (this.periodo.nombre == "Trimestre dos") {
           this.tr2 = true;
           this.tr3 = false;
           this.tr4 = false;
-        } else if (this.periodo.nombre == "Trimestre Tres") {
+        } else if (this.periodo.nombre == "Trimestre tres") {
           this.tr2 = true;
           this.tr3 = true;
           this.tr4 = false;
-        } else if (this.periodo.nombre == "Trimestre Cuatro") {
+        } else if (this.periodo.nombre == "Trimestre cuatro") {
           this.tr2 = true;
           this.tr3 = true;
           this.tr4 = true;
@@ -252,6 +300,13 @@ export class EvaluacionComponent implements OnInit {
         this.periodos = data.Data;
       }
     }, (error) => {
+      this.bandera = false;
+      this.periodoSelected = false;
+      this.planes = [];
+      this.plan = { "periodos": [], "plan": "", "id": "" };
+      this.tr2 = false;
+      this.tr3 = false;
+      this.tr4 = false;
       Swal.fire({
         title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
@@ -318,6 +373,13 @@ export class EvaluacionComponent implements OnInit {
         }
       }
     }, (error) => {
+      this.bandera = false;
+      this.periodoSelected = false;
+      this.planes = [];
+      this.plan = { "periodos": [], "plan": "", "id": "" };
+      this.tr2 = false;
+      this.tr3 = false;
+      this.tr4 = false;
       Swal.fire({
         title: 'La unidad no tiene planes con seguimientos avalados para la vigencia selecionada',
         icon: 'info',
@@ -328,6 +390,7 @@ export class EvaluacionComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    registerLocaleData(es);
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
@@ -380,19 +443,19 @@ export class EvaluacionComponent implements OnInit {
       }
 
       if (actividad.trimestre1.actividad) {
-        this.avanceTr1 += actividad.ponderado / 100 * actividad.trimestre1.actividad;
+        this.avanceTr1 += actividad.ponderado / 100 * (actividad.trimestre1.actividad <= 1 ? actividad.trimestre1.actividad : 1);
       }
 
       if (actividad.trimestre2.actividad) {
-        this.avanceTr2 += actividad.ponderado / 100 * actividad.trimestre2.actividad;
+        this.avanceTr2 += actividad.ponderado / 100 * (actividad.trimestre2.actividad <= 1 ? actividad.trimestre2.actividad : 1);
       }
 
       if (actividad.trimestre3.actividad) {
-        this.avanceTr3 += actividad.ponderado / 100 * actividad.trimestre3.actividad;
+        this.avanceTr3 += actividad.ponderado / 100 * (actividad.trimestre3.actividad <= 1 ? actividad.trimestre3.actividad : 1);
       }
 
       if (actividad.trimestre4.actividad) {
-        this.avanceTr4 += actividad.ponderado / 100 * actividad.trimestre4.actividad;
+        this.avanceTr4 += actividad.ponderado / 100 * (actividad.trimestre4.actividad <= 1 ? actividad.trimestre4.actividad : 1);
       }
     }
   }
@@ -412,18 +475,15 @@ export class EvaluacionComponent implements OnInit {
       let actividadValor
       if (this.avanceTr4) {
         actividadValor = Math.round((actividad.trimestre4.actividad * 100) * 100) / 100
-      }
-      if (this.avanceTr3) {
+      } else if (this.avanceTr3) {
         actividadValor = Math.round((actividad.trimestre3.actividad * 100) * 100) / 100
-      }
-      if (this.avanceTr2) {
+      } else if (this.avanceTr2) {
         actividadValor = Math.round((actividad.trimestre2.actividad * 100) * 100) / 100
-      }
-      if (this.avanceTr1) {
+      } else if (this.avanceTr1) {
         actividadValor = Math.round((actividad.trimestre1.actividad * 100) * 100) / 100
       }
 
-      actividades.push([actividad.actividad, actividadValor, 'color: rgb(143, 27, 0)', String(actividadValor) + '%', '']);
+      actividades.push([actividad.numero, actividadValor, 'color: rgb(143, 27, 0)', String(actividadValor) + '%', actividad.actividad]);
     }
 
     this.lineChartData = actividades;

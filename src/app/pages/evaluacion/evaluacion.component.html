@@ -1,6 +1,6 @@
 <mat-card class="card-oas">
   <mat-card-header>
-    <mat-card-title>Evaluación planes de acción anuales</mat-card-title>
+    <mat-card-title>Evaluación Plan de Acción</mat-card-title>
   </mat-card-header>
   <mat-card-content>
     <ng-container>
@@ -15,8 +15,8 @@
       </div>
     </ng-container>
     <mat-form-field class="selectorPlanStyle" appearance="fill">
-      <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
-      <mat-select id="test" (selectionChange)="onChangeU($event.value)">
+      <mat-label id="tipo-input-label">Seleccione la unidad</mat-label>
+      <mat-select [(value)]="unidad" (selectionChange)="onChangeU($event.value)">
         <mat-option>--</mat-option>
         <mat-option *ngFor="let unidad of unidades" [value]="unidad">
           {{unidad.Nombre}}
@@ -24,7 +24,7 @@
       </mat-select>
     </mat-form-field>
     <mat-form-field class="selectorVigenciaStyle" appearance="fill">
-      <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
+      <mat-label id="tipo-input-label">Seleccione la vigencia</mat-label>
       <mat-select (selectionChange)="onChangeV($event.value)">
         <mat-option>--</mat-option>
         <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
@@ -35,7 +35,7 @@
 
     <div *ngIf="vigenciaSelected && unidadSelected">
       <mat-form-field class="selectorPlanStyle" appearance="fill">
-        <mat-label id="tipo-input-label">Seleccione el Plan de acción</mat-label>
+        <mat-label id="tipo-input-label">Seleccione el Plan de Acción</mat-label>
         <mat-select (selectionChange)="onChangeP($event.value)">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let plan of planes" [value]="plan">
@@ -45,7 +45,7 @@
       </mat-form-field>
 
       <mat-form-field class="selectorVigenciaStyle" appearance="fill">
-        <mat-label id="tipo-input-label">Seleccione el Periodo</mat-label>
+        <mat-label id="tipo-input-label">Seleccione el periodo</mat-label>
         <mat-select (selectionChange)="onChangePe($event.value)">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let periodo of plan.periodos" [value]="periodo">
@@ -58,7 +58,7 @@
     <div class="align-button-ingresar">
       <button *ngIf="unidadSelected != false && vigenciaSelected != false"
         [disabled]="!(planSelected && periodoSelected)" (click)="ingresarEvaluacion()" class="btn-gestion-seg"
-        mat-raised-button color="primary">Consultar Evaluación</button>
+        mat-raised-button color="primary">Consultar evaluación</button>
     </div>
     <br>
     <div>
@@ -74,7 +74,7 @@
 
         <br>
         <mat-card-header>
-          <mat-card-title>Evaluación planes de acción anuales</mat-card-title>
+          <mat-card-title>Evaluación Plan de Acción</mat-card-title>
         </mat-card-header>
 
         <br>
@@ -84,54 +84,52 @@
             <ng-container matColumnDef="id" sticky>
               <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
               <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('numero',i)"
-                [style.display]="getRowSpan('numero', i) ? '' : 'none'">{{row.numero}}</td>
-              <td mat-footer-cell *matFooterCellDef colspan="7" [style.text-align]="center"> Avance General Plan de
-                accion
+                [ngClass]="row.class" [style.display]="getRowSpan('numero', i) ? '' : 'none'">{{row.numero}}</td>
+              <td mat-footer-cell *matFooterCellDef colspan="6" [style.text-align]="center"> Avance General Plan de
+                Acción
               </td>
             </ng-container>
             <ng-container matColumnDef="ponderacion" sticky>
               <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"> </th>
               <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('ponderado',i)"
-                [style.display]="getRowSpan('ponderado', i) ? '' : 'none'">
-                {{row.ponderado/100 | percent:'1.1-2'}} </td>
-              <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
-            </ng-container>
-            <ng-container matColumnDef="periodo" sticky>
-              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
-              <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('periodo',i)"
-                [style.display]="getRowSpan('periodo', i) ? '' : 'none'"> {{row.periodo}}
-              </td>
+                [ngClass]="row.class" [style.display]="getRowSpan('ponderado', i) ? '' : 'none'">
+                {{row.ponderado / 100 | percent:'1.1-2':'es'}} </td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
             <ng-container matColumnDef="actividad" sticky style="border-collapse: separate">
               <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
               <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('actividad',i)"
-                [style.display]="getRowSpan('actividad', i) ? '' : 'none'">
+                [ngClass]="row.class" [style.display]="getRowSpan('actividad', i) ? '' : 'none'"
+                style="text-align: justify;">
                 {{row.actividad}} </td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
 
             <ng-container matColumnDef="indicador" sticky style="border-collapse: separate">
-              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
-              <td mat-cell *matCellDef="let item"> {{item.indicador}}</td>
+              <th mat-header-cell style="min-width: 250px;width: 300px; max-width:  300px;" *matHeaderCellDef [style.text-align]="center"
+                [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell [ngClass]="item.class" style="min-width: 250px;width: 300px; max-width:  300px;" *matCellDef="let item">
+                {{item.indicador}}</td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
             <ng-container matColumnDef="formula" sticky>
-              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
-              <td mat-cell *matCellDef="let row"> {{row.formula}} </td>
+              <th mat-header-cell style="min-width: 250px;width: 300px; max-width:  300px;" *matHeaderCellDef [style.text-align]="center"
+                [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell [ngClass]="row.class" style="min-width: 250px;width: 300px; max-width:  300px;" *matCellDef="let row">
+                {{row.formula}} </td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
             <ng-container matColumnDef="meta" sticky>
               <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
-              <td mat-cell *matCellDef="let row">
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.meta/100 | percent:'1.1-2'}}
+                  {{row.meta / 100 | percent:'1.1-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
-                  {{row.meta | number: '1.0-0'}}
+                  {{row.meta | number: '1.0-0':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Tasa'">
-                  {{row.meta | number: '1.0-2'}}
+                  {{row.meta | number: '1.1-2':'es'}}
                 </div>
               </td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
@@ -140,82 +138,97 @@
             <!-- trimestre 1 -->
             <ng-container matColumnDef="numt1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Numerador </th>
-              <td mat-cell *matCellDef="let row"> {{row.trimestre1.numerador}} </td>
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class"> {{row.trimestre1.numerador | number: '1.0-2':'es'}} </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="dent1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Denominador </th>
-              <td mat-cell *matCellDef="let row"> {{row.trimestre1.denominador}} </td>
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class"> {{row.trimestre1.denominador| number: '1.0-2':'es'}} </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="pert1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Indicador del periodo</th>
-              <td mat-cell *matCellDef="let row">
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre1.periodo/100 | percent:'1.2-2'}}
+                  {{row.trimestre1.periodo | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
-                  {{row.trimestre1.periodo | number: '1.0-0'}}
+                  {{row.trimestre1.periodo | number: '1.0-0':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Tasa'">
-                  {{row.trimestre1.periodo | number: '1.1-2'}}
+                  {{row.trimestre1.periodo | number: '1.1-2':'es'}}
                 </div>
               </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="acut1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Indicador acumulado </th>
-              <td mat-cell *matCellDef="let row">
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre1.acumulado/100 | percent:'1.2-2'}}
+                  {{row.trimestre1.acumulado | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
-                  {{row.trimestre1.acumulado | number: '1.0-0'}}
+                  {{row.trimestre1.acumulado | number: '1.0-0':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Tasa'">
-                  {{row.trimestre1.acumulado | number: '1.1-2'}}
+                  {{row.trimestre1.acumulado | number: '1.1-2':'es'}}
                 </div>
               </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="metat1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Cumplimiento por meta </th>
-              <td mat-cell *matCellDef="let row"> {{row.trimestre1.meta | percent:'1.2-2'}} </td>
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class">
+                <div *ngIf="row.trimestre1.meta <= 1; else elseBlock">
+                  {{row.trimestre1.meta | percent:'1.2-2':'es'}}
+                </div>
+                <ng-template #elseBlock>
+                  100% <br> (+{{row.trimestre1.meta - 1 | percent:'1.2-2':'es'}})
+                </ng-template>
+              </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="actividadt1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Cumplimiento por actividad</th>
               <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('actividadt1',i)"
-                [style.display]="getRowSpan('actividadt1', i) ? '' : 'none'"> {{row.trimestre1.actividad |
-                percent:'1.2-2'}}</td>
-              <td mat-footer-cell *matFooterCellDef>{{avanceTr1 | percent:'1.2-2'}}</td>
+                [ngClass]="row.class" [style.display]="getRowSpan('actividadt1', i) ? '' : 'none'">
+                <div *ngIf="row.trimestre1.actividad <= 1; else elseBlock">
+                  {{row.trimestre1.actividad | percent:'1.2-2':'es'}}
+                </div>
+                <ng-template #elseBlock>
+                  100% <br> (+{{row.trimestre1.actividad - 1 | percent:'1.2-2':'es'}})
+                </ng-template>
+              </td>
+              <td mat-footer-cell *matFooterCellDef>{{avanceTr1 | percent:'1.2-2':'es'}}</td>
             </ng-container>
 
             <!-- trimestre 2 -->
             <ng-container matColumnDef="numt2">
               <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Numerador </th>
-              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre2.numerador}} </td>
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
+                {{row.trimestre2.numerador | number: '1.0-2':'es'}} </td>
               <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="dent2">
               <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Denominador
               </th>
-              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre2.denominador}}
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
+                {{row.trimestre2.denominador| number: '1.0-2':'es'}}
               </td>
               <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="pert2">
               <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Indicador del
                 periodo</th>
-              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row">
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre2.periodo/100 | percent:'1.2-2'}}
+                  {{row.trimestre2.periodo | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
-                  {{row.trimestre2.periodo | number: '1.0-0'}}
+                  {{row.trimestre2.periodo | number: '1.0-0':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Tasa'">
-                  {{row.trimestre2.periodo | number: '1.1-2'}}
+                  {{row.trimestre2.periodo | number: '1.1-2':'es'}}
                 </div>
               </td>
               <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
@@ -223,15 +236,15 @@
             <ng-container matColumnDef="acut2">
               <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Indicador
                 acumulado </th>
-              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row">
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre2.acumulado/100 | percent:'1.2-2'}}
+                  {{row.trimestre2.acumulado | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
-                  {{row.trimestre2.acumulado | number: '1.0-0'}}
+                  {{row.trimestre2.acumulado | number: '1.0-0':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Tasa'">
-                  {{row.trimestre2.acumulado | number: '1.1-2'}}
+                  {{row.trimestre2.acumulado | number: '1.1-2':'es'}}
                 </div>
               </td>
               <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
@@ -240,7 +253,14 @@
               <th mat-header-cell [style.display]="tr2 ? '' : 'none'" class="header3" *matHeaderCellDef> Cumplimiento
                 por
                 meta </th>
-              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre2.meta | percent:'1.2-2'}} </td>
+              <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
+                <div *ngIf="row.trimestre2.meta <= 1; else elseBlock">
+                  {{row.trimestre2.meta | percent:'1.2-2':'es'}}
+                </div>
+                <ng-template #elseBlock>
+                  100% <br> (+{{row.trimestre2.meta - 1 | percent:'1.2-2':'es'}})
+                </ng-template>
+              </td>
               <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="actividadt2">
@@ -248,38 +268,47 @@
                 por
                 actividad</th>
               <td mat-cell [style.display]="tr2 ? '' : 'none'" *matCellDef="let row; let i = index"
-                [attr.rowspan]="getRowSpan('actividadt2',i)"
+                [ngClass]="row.class" [attr.rowspan]="getRowSpan('actividadt2',i)"
                 [style.display]="getRowSpan('actividadt2', i) && tr2 ? '' : 'none'">
-                {{row.trimestre2.actividad |
-                  percent:'1.2-2'}}</td>
-              <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef>{{avanceTr2 | percent:'1.2-2'}}</td>
+                <div *ngIf="row.trimestre2.actividad <= 1; else elseBlock">
+                  {{row.trimestre2.actividad | percent:'1.2-2':'es'}}
+                </div>
+                <ng-template #elseBlock>
+                  100% <br> (+{{row.trimestre2.actividad - 1 | percent:'1.2-2':'es'}})
+                </ng-template>
+              </td>
+              <td mat-footer-cell [style.display]="tr2 ? '' : 'none'" *matFooterCellDef>{{avanceTr2 |
+                percent:'1.2-2':'es'}}
+              </td>
             </ng-container>
 
             <!-- trimestre 3 -->
             <ng-container matColumnDef="numt3">
               <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Numerador </th>
-              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre3.numerador}} </td>
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
+                {{row.trimestre3.numerador | number: '1.0-2':'es'}} </td>
               <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="dent3">
               <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Denominador
               </th>
-              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre3.denominador}}
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
+                {{row.trimestre3.denominador| number: '1.0-2':'es'}}
               </td>
               <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="pert3">
               <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Indicador del
                 periodo</th>
-              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"> 
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre3.periodo/100 | percent:'1.2-2'}}
+                  {{row.trimestre3.periodo | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
-                  {{row.trimestre3.periodo | number: '1.0-0'}}
+                  {{row.trimestre3.periodo | number: '1.0-0':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Tasa'">
-                  {{row.trimestre3.periodo | number: '1.1-2'}}
+                  {{row.trimestre3.periodo | number: '1.1-2':'es'}}
                 </div>
               </td>
               <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
@@ -287,15 +316,15 @@
             <ng-container matColumnDef="acut3">
               <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Indicador
                 acumulado </th>
-              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"> 
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre3.acumulado/100 | percent:'1.2-2'}}
+                  {{row.trimestre3.acumulado | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
-                  {{row.trimestre3.acumulado | number: '1.0-0'}}
+                  {{row.trimestre3.acumulado | number: '1.0-0':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Tasa'">
-                  {{row.trimestre3.acumulado | number: '1.1-2'}}
+                  {{row.trimestre3.acumulado | number: '1.1-2':'es'}}
                 </div>
               </td>
               <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
@@ -304,7 +333,14 @@
               <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Cumplimiento
                 por
                 meta </th>
-              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre3.meta | percent:'1.2-2'}} </td>
+              <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
+                <div *ngIf="row.trimestre3.meta <= 1; else elseBlock">
+                  {{row.trimestre3.meta | percent:'1.2-2':'es'}}
+                </div>
+                <ng-template #elseBlock>
+                  100% <br> (+{{row.trimestre3.meta - 1 | percent:'1.2-2':'es'}})
+                </ng-template>
+              </td>
               <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="actividadt3">
@@ -312,38 +348,47 @@
                 por
                 actividad</th>
               <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row; let i = index"
-                [attr.rowspan]="getRowSpan('actividadt3',i)"
+                [attr.rowspan]="getRowSpan('actividadt3',i)" [ngClass]="row.class"
                 [style.display]="getRowSpan('actividadt3', i) && tr3 ? '' : 'none'">
-                {{row.trimestre3.actividad |
-                  percent:'1.2-2'}}</td>
-              <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef>{{avanceTr3 | percent:'1.2-2'}}</td>
+                <div *ngIf="row.trimestre3.actividad <= 1; else elseBlock">
+                  {{row.trimestre3.actividad | percent:'1.2-2':'es'}}
+                </div>
+                <ng-template #elseBlock>
+                  100% <br> (+{{row.trimestre3.actividad - 1 | percent:'1.2-2':'es'}})
+                </ng-template>
+              </td>
+              <td mat-footer-cell [style.display]="tr3 ? '' : 'none'" *matFooterCellDef>{{avanceTr3 |
+                percent:'1.2-2':'es'}}
+              </td>
             </ng-container>
 
             <!-- trimestre 4 -->
             <ng-container matColumnDef="numt4">
               <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Numerador </th>
-              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre4.numerador}} </td>
+              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
+                {{row.trimestre4.numerador | number: '1.0-2':'es'}} </td>
               <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="dent4">
               <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Denominador
               </th>
-              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre4.denominador}}
+              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
+                {{row.trimestre4.denominador| number: '1.0-2':'es'}}
               </td>
               <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="pert4">
               <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Indicador del
                 periodo</th>
-              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row">
+              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre4.periodo/100 | percent:'1.2-2'}}
+                  {{row.trimestre4.periodo | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
-                  {{row.trimestre4.periodo | number: '1.0-0'}}
+                  {{row.trimestre4.periodo | number: '1.0-0':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Tasa'">
-                  {{row.trimestre4.periodo | number: '1.1-2'}}
+                  {{row.trimestre4.periodo | number: '1.1-2':'es'}}
                 </div>
               </td>
               <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
@@ -351,15 +396,15 @@
             <ng-container matColumnDef="acut4">
               <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Indicador
                 acumulado </th>
-              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row">
+              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
                 <div *ngIf="row.unidad =='Porcentaje'">
-                  {{row.trimestre4.acumulado/100 | percent:'1.2-2'}}
+                  {{row.trimestre4.acumulado | percent:'1.2-2':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Unidad'">
-                  {{row.trimestre4.acumulado | number: '1.0-0'}}
+                  {{row.trimestre4.acumulado | number: '1.0-0':'es'}}
                 </div>
                 <div *ngIf="row.unidad =='Tasa'">
-                  {{row.trimestre4.acumulado | number: '1.1-2'}}
+                  {{row.trimestre4.acumulado | number: '1.1-2':'es'}}
                 </div>
               </td>
               <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
@@ -368,7 +413,14 @@
               <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Cumplimiento
                 por
                 meta </th>
-              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row"> {{row.trimestre4.meta | percent:'1.2-2'}} </td>
+              <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row" [ngClass]="row.class">
+                <div *ngIf="row.trimestre4.meta <= 1; else elseBlock">
+                  {{row.trimestre4.meta | percent:'1.2-2':'es'}}
+                </div>
+                <ng-template #elseBlock>
+                  100% <br> (+{{row.trimestre4.meta - 1 | percent:'1.2-2':'es'}})
+                </ng-template>
+              </td>
               <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="actividadt4">
@@ -376,10 +428,17 @@
                 por
                 actividad</th>
               <td mat-cell *matCellDef="let row; let i = index" [attr.rowspan]="getRowSpan('actividadt4',i)"
-                [style.display]="getRowSpan('actividadt4', i) && tr4 ? '' : 'none'">
-                {{row.trimestre4.actividad |
-                  percent:'1.2-2'}}</td>
-              <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef>{{avanceTr4 | percent:'1.2-2'}}</td>
+                [ngClass]="row.class" [style.display]="getRowSpan('actividadt4', i) && tr4 ? '' : 'none'">
+                <div *ngIf="row.trimestre4.actividad <= 1; else elseBlock">
+                  {{row.trimestre4.actividad | percent:'1.2-2':'es'}}
+                </div>
+                <ng-template #elseBlock>
+                  100% <br> (+{{row.trimestre4.actividad - 1 | percent:'1.2-2':'es'}})
+                </ng-template>
+              </td>
+              <td mat-footer-cell [style.display]="tr4 ? '' : 'none'" *matFooterCellDef>{{avanceTr4 |
+                percent:'1.2-2':'es'}}
+              </td>
             </ng-container>
 
 

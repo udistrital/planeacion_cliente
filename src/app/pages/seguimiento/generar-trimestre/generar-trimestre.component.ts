@@ -9,9 +9,10 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { element } from 'protractor';
-import { Location } from '@angular/common';
+import { Location, registerLocaleData } from '@angular/common';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
+import es from '@angular/common/locales/es';
 
 export interface Indicador {
   nombre: string;
@@ -110,6 +111,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    registerLocaleData(es)
     this.formGenerarTrimestre = this.formBuilder.group({
       indicador: ['', Validators.required],
       avancePeriodo: ['', Validators.required],
@@ -310,7 +312,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             },
           })
 
-          let documento = {
+          let documento = [{
             IdTipoDocumento: 60,
             nombre: aux.name,
             metadatos: {
@@ -319,12 +321,11 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             descripcion: "Documento de soporte para seguimiento de plan de acción",
             file: await this.gestorDocumental.fileToBase64(aux),
             Activo: true
-          }
-          this.documentos.push(documento);
+          }];
 
           let documentoPorSubir = {
-            documento: this.documentos,
-            evidencia: this.seguimiento.evidencia
+            documento: documento,
+            evidencia: this.documentos
           };
 
           this.request.put(environment.PLANES_MID, `seguimiento/guardar_documentos`, documentoPorSubir, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
@@ -769,33 +770,59 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   calcularResultado() {
     for (let index = 0; index < this.datosIndicadores.length; index++) {
       const indicador = this.datosIndicadores[index];
+      debugger
       if (indicador.reporteDenominador != null && indicador.reporteNumerador != null) {
         const denominador = parseFloat(indicador.reporteDenominador);
         const numerador = parseFloat(indicador.reporteNumerador);
-        const meta = parseFloat(this.datosIndicadores[index].meta)
+        const meta = parseFloat(this.datosIndicadores[index].meta);
+        this.calcular = false;
+
         if (denominador == 0.0) {
           if (numerador == 0.0) {
-
-            if (this.trimestreAbr == "T1") {
-              this.datosResultados[index].indicadorAcumulado = 0;
-              this.datosResultados[index].acumuladoNumerador = 0;
-              this.datosResultados[index].acumuladoDenominador = 0;
-              this.datosResultados[index].indicador = 0;
-              this.datosResultados[index].avanceAcumulado = 1;
-
-              var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
-              var metaEvaluada = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
-
-              if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
-                this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
-              } else {
-                this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
-              }
-              this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
+            if (indicador.denominador != "Denominador variable") {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: `No es posible la división entre cero para denominador fijo`,
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 3500
+              })
+              indicador.reporteDenominador = null;
+              indicador.reporteNumerador = null;
             } else {
-              this.calcularBase(indicador, denominador, numerador, meta, index, true)
+              if (this.trimestreAbr == "T1" || this.datosResultados[index].divisionCero) {
+                this.datosResultados[index].divisionCero = true;
+                this.datosResultados[index].indicadorAcumulado = 1;
+                this.datosResultados[index].acumuladoNumerador = 0;
+                this.datosResultados[index].acumuladoDenominador = 0;
+                this.datosResultados[index].indicador = 0;
+                this.numeradorOriginal = [];
+                this.denominadorOriginal = [];
+                this.calcular = true;
+
+                var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+                var metaEvaluada = meta / 100;
+
+                this.datosResultados[index].avanceAcumulado = this.datosResultados[index].indicadorAcumulado / metaEvaluada;
+
+                if (indicador.tendencia == "Creciente") {
+                  if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
+                    this.datosResultados[index].brechaExistente = 0;
+                  } else {
+                    this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
+                  }
+                } else {
+                  if (this.datosResultados[index].indicadorAcumulado < metaEvaluada) {
+                    this.datosResultados[index].brechaExistente = 0;
+                  } else {
+                    this.datosResultados[index].brechaExistente = indicadorAcumulado - metaEvaluada;
+                  }
+                }
+                this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
+              } else {
+                this.calcularBase(indicador, denominador, numerador, meta, index, true)
+              }
             }
-            this.datosResultados[index].divisionCero = true;
           } else {
             Swal.fire({
               title: 'Error en la operación',
@@ -813,6 +840,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             this.datosResultados[index].indicador = 0;
             this.datosResultados[index].avanceAcumulado = 0;
             this.datosResultados[index].brechaExistente = 0;
+            this.numeradorOriginal = [];
+            this.denominadorOriginal = [];
+            this.calcular = true;
           }
           this.calcularBase(indicador, denominador, numerador, meta, index, false)
         }
@@ -826,10 +856,10 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         })
       }
     }
-    this.calcular = false;
   }
 
   calcularBase(indicador, denominador, numerador, meta, index, ceros) {
+    this.datosResultados[index].divisionCero = false;
     this.denominadorFijo = indicador.denominador != "Denominador variable"
     if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
       this.datosIndicadores[index].reporteDenominador = denominador;
