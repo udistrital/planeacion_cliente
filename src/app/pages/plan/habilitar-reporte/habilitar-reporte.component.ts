@@ -501,6 +501,7 @@ export class HabilitarReporteComponent implements OnInit {
                   let seguimientoFormulacion = data.Data[0];
                   seguimientoFormulacion["fecha_inicio"] = this.formFechas.get('fecha9').value//.toISOString();
                   seguimientoFormulacion["fecha_fin"] = this.formFechas.get('fecha10').value//.toISOString();
+                  seguimientoFormulacion["periodo_seguimiento_id"] =  "No aplica"
                   this.request.put(environment.PLANES_CRUD, `seguimiento`, seguimientoFormulacion, seguimientoFormulacion["_id"]).subscribe((data: any) => {
                     if (data) {
                       Swal.fire({
