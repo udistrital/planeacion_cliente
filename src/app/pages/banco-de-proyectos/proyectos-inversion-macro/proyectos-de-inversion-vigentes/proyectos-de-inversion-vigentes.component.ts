@@ -72,7 +72,7 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
         Swal.showLoading();
       },
     }) 
-    this.request.get(environment.PLANES_MID, `inversion/getproyectos/63ca86f1b6c0e5725a977dae`).subscribe( (data: any) => {
+    this.request.get(environment.PLANES_MID, `inversion/proyectos/63ca86f1b6c0e5725a977dae`).subscribe( (data: any) => {
       if (data){
         this.planes = data.Data;      
         if(this.planes.length > 0){
