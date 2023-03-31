@@ -838,7 +838,6 @@
                             </div>
                             <!-- <mat-paginator [pageSize]="300" [pageSizeOptions]="[300]" aria-label="Select page of users"></mat-paginator> -->
                         </ng-container>
-                        <br><br>
                         <div>
                             <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
                                 *ngIf="index !== 0" matStepperPrevious (click)="prevStep(index)">Volver</button>
@@ -856,51 +855,66 @@
                             docentes de Cátedra y de Vinculación Especial.
                         </u>
                         <ng-container>
-                            <table mat-table matSort [dataSource]="step.data">
-                                <!-- Categoria -->
-                                <ng-container matColumnDef="categoria">
-                                    <th mat-header-cell *matHeaderCellDef> Categoría
-                                    </th>
-                                    <td mat-cell *matCellDef="let element; let rowIndex = index">
-                                        {{element.categoria}}
-                                    </td>
-                                    <td mat-footer-cell *matFooterCellDef class="footer">
-                                    </td>
+                            <div class="sameRow">
+                                <mat-form-field appearance="fill">
+                                    <mat-label id="tipo-input-label">Seleccione el nivel correspondiente</mat-label>
+                                    <mat-select (selectionChange)="onChangeNivel($event.value)">
+                                        <mat-option *ngFor="let nivel of niveles" [value]="nivel">
+                                            {{nivel}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="container-border" style="margin: 20px 0px 0px 0px;" *ngIf="nivel">
+                                <h4>Rubros {{nivel}} </h4>
+                                <ng-container >
+                                    <table mat-table matSort [dataSource]="step.data">
+                                        <!-- Categoria -->
+                                        <ng-container matColumnDef="categoria">
+                                            <th mat-header-cell *matHeaderCellDef> Categoría
+                                            </th>
+                                            <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                                {{element.categoria}}
+                                            </td>
+                                            <td mat-footer-cell *matFooterCellDef class="footer">
+                                            </td>
+                                        </ng-container>
+                                        <!-- Rubro -->
+                                        <ng-container matColumnDef="rubro">
+                                            <th mat-header-cell *matHeaderCellDef> Rubro </th>
+                                            <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                                <mat-form-field floatLabel="never">
+                                                    <mat-select [disabled]="readonlyTable" class="form-control"
+                                                        [(ngModel)]="element.rubro" [ngModelOptions]="{standalone: true}"
+                                                        (selectionChange)="onChangeRubro($event, rowIndex)"
+                                                        placeholder="Seleccione el rubro" required>
+                                                        <mat-option>--</mat-option>
+                                                        <mat-option class="multiline-mat-option" *ngFor="let rubro of rubros"
+                                                            [value]="rubro.Codigo">
+                                                            {{rubro.Nombre}}
+                                                        </mat-option>
+                                                    </mat-select>
+                                                </mat-form-field>
+                                            </td>
+                                            <td mat-footer-cell *matFooterCellDef class="footer">
+                                                {{step.footer}}
+                                            </td>
+                                        </ng-container>
+                                        <!-- Codigo Rubro -->
+                                        <ng-container matColumnDef="codigo">
+                                            <th mat-header-cell *matHeaderCellDef> Código </th>
+                                            <td mat-cell *matCellDef="let element; let rowIndex = index">
+                                                {{element.codigo}}
+                                            </td>
+                                            <td mat-footer-cell *matFooterCellDef class="footer">
+                                            </td>
+                                        </ng-container>
+                                        <tr mat-header-row *matHeaderRowDef="['categoria','rubro','codigo']"></tr>
+                                        <tr mat-row *matRowDef="let row; columns: ['categoria','rubro','codigo'];"></tr>
+    
+                                    </table>
                                 </ng-container>
-                                <!-- Rubro -->
-                                <ng-container matColumnDef="rubro">
-                                    <th mat-header-cell *matHeaderCellDef> Rubro </th>
-                                    <td mat-cell *matCellDef="let element; let rowIndex = index">
-                                        <mat-form-field floatLabel="never">
-                                            <mat-select [disabled]="readonlyTable" class="form-control"
-                                                [(ngModel)]="element.rubro" [ngModelOptions]="{standalone: true}"
-                                                (selectionChange)="onChangeRubro($event, rowIndex)"
-                                                placeholder="Seleccione el rubro" required>
-                                                <mat-option>--</mat-option>
-                                                <mat-option class="multiline-mat-option" *ngFor="let rubro of rubros"
-                                                    [value]="rubro.Codigo">
-                                                    {{rubro.Nombre}}
-                                                </mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </td>
-                                    <td mat-footer-cell *matFooterCellDef class="footer">
-                                        {{step.footer}}
-                                    </td>
-                                </ng-container>
-                                <!-- Codigo Rubro -->
-                                <ng-container matColumnDef="codigo">
-                                    <th mat-header-cell *matHeaderCellDef> Código </th>
-                                    <td mat-cell *matCellDef="let element; let rowIndex = index">
-                                        {{element.codigo}}
-                                    </td>
-                                    <td mat-footer-cell *matFooterCellDef class="footer">
-                                    </td>
-                                </ng-container>
-                                <tr mat-header-row *matHeaderRowDef="['categoria','rubro','codigo']"></tr>
-                                <tr mat-row *matRowDef="let row; columns: ['categoria','rubro','codigo'];"></tr>
-
-                            </table>
+                            </div>
                         </ng-container>
                     </div>
 
