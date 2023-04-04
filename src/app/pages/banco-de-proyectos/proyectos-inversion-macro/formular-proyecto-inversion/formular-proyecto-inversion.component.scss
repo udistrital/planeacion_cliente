@@ -36,6 +36,7 @@
   }
   
   .textGuide{
+    margin-top: 30Px;
     background-color: #ffff;
     border: 1px solid var(--primary);
     border-radius: 15px 15px 15px 15px;
@@ -104,6 +105,14 @@
     padding: 5px 5px 5px 0;
     color:black;
     font-weight: bold;
+  }
+
+  .container-border {
+    margin-top: 30px;
+    border: 1px solid var(--primary);
+    padding: 1%;
+    border-radius: 15px 15px 15px 15px; 
+    width: 97%; 
   }
 
   

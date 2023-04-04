@@ -242,11 +242,11 @@ const routes: Routes = [{
           component: MagnitudesPresupuestoComponent,
         },
         {
-          path: 'identificacion-actividades-recursos',
+          path: 'identificacion-actividades-recursos/:idProyectoInversion/:idPlan/:indexMeta/:posicionMetaPro/:edit',
           component: IdentificacionActividadesRecursosComponent,
         },
         {
-          path: 'programacion-presupuestal',
+          path: 'programacion-presupuestal/:idProyectoInversion/:idActividad/:idPlan/:indexActividad',
           component: ProgramacionPresupuestalComponent,
         },
       ]

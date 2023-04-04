@@ -137,11 +137,14 @@
             <br>
             <h4>&nbsp;&nbsp;Observación OPAC&nbsp;&nbsp;</h4>
             <div class="container-border">
-                <textarea class="textareaContenido" formControlName="observacionMagnitudes"
-                    placeholder="* Ingrese la observación correspondiente"></textarea>
+                <textarea matInput type="text" class="textareaContenido" [value]="observacionMagnitudes" formControlName="observacionMagnitudes" (blur)="obsBlurEvent($event, 1)" placeholder="* Ingrese la observación correspondiente"  readonly="{{readonlyObs}}"></textarea>
                      <mat-error *ngIf="firstFormGroup.get('observacionMagnitudes').invalid">
                         {{getErrorMessage(firstFormGroup.get('observacionMagnitudes'))}}
                     </mat-error>
+                <!-- <mat-form-field class="text-area">
+                    <mat-label>Campo de observación OPAC</mat-label>
+                    <textarea matInput readonly="{{readonlyObs}}" formControlName="observacionMagnitudes"></textarea>
+                </mat-form-field> -->
             </div>       
             <div>
               <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3" matStepperPrevious>Volver</button>  
@@ -243,11 +246,11 @@
             <br>
             <h4>&nbsp;&nbsp;Observación OPAC&nbsp;&nbsp;</h4>
             <div class="container-border">
-                <textarea class="textareaContenido" formControlName="observacionPresupuestos"
-                    placeholder="* Ingrese la observación correspondiente"></textarea>
-                     <mat-error *ngIf="secondFormGroup.get('observacionPresupuestos').invalid">
+                <textarea matInput type="text" class="textareaContenido" [value]="observacionPresupuestal" (blur)="obsBlurEvent($event, 2)" formControlName="observacionPresupuestal" placeholder="* Ingrese la observación correspondiente"
+                required="false" readonly="{{readonlyObs}}"></textarea>
+                     <!-- <mat-error *ngIf="secondFormGroup.get('observacionPresupuestos').invalid">
                         {{getErrorMessage(secondFormGroup.get('observacionPresupuestos'))}}
-                    </mat-error>
+                    </mat-error> -->
             </div>       
             
             <div>
