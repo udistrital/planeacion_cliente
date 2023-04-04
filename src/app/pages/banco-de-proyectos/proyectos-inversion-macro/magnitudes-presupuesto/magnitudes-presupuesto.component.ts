@@ -4,6 +4,7 @@ import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Console } from 'console';
 import { RequestManager } from 'src/app/pages/services/requestManager';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 
@@ -54,9 +55,26 @@ export class MagnitudesPresupuestoComponent implements OnInit {
   programacion_5: number = 0;
   programacion_T: number = 0;
   observacionMagnitudes: string;
-  observacionPresupuestos: string;
+  observacionPresupuestal: string;
   editar: any;
+  //readOnlyAll: boolean;
+  namePlan: string;
+  dependencia: string;
+  vigencia: string;
+  formulacionState: boolean;
+  plan: any;
+  versiones: any[];
+  planAsignado: boolean;
+  clonar: boolean;
+  banderaUltimaVersion: boolean;
+  rol: string;
+  versionPlan: string;
+  estadoPlan: string;
+  readonlyObs: boolean;
+  hiddenObs: boolean;
   readOnlyAll: boolean;
+  addActividad: boolean;
+  banderaEdit: boolean;
 
 
 
@@ -108,6 +126,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
     private currencyPipe: CurrencyPipe,
     private percentagePipe: PercentPipe,
     private router: Router,
+    private autenticationService: ImplicitAutenticationService,
     ) { 
     activatedRoute.params.subscribe(prm => {
       this.planId = prm['idPlan']; 
@@ -124,6 +143,14 @@ export class MagnitudesPresupuestoComponent implements OnInit {
     // } else if (this.editar){
     //   this.loadMagnitudesProg();
     // }
+    let roles: any = this.autenticationService.getRole();
+    if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION'      
+    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
+      this.rol = 'JEFE_DEPENDENCIA'
+      //this.verificarFechas();
+    }
+    this.loadPlan();
     this.loadMagnitudesProg();
   }
 
@@ -161,7 +188,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
       presupuestoProg_3: [this.presupuestoProg_3, Validators.required],
       presupuestoProg_4: [this.presupuestoProg_4, Validators.required],
       presupuestoProg_5: [this.presupuestoProg_5, Validators.required],    
-      observacionPresupuestos: [this.observacionPresupuestos,],
+      observacionPresupuestos: [this.observacionPresupuestal,],
     })
 
     
@@ -182,17 +209,17 @@ export class MagnitudesPresupuestoComponent implements OnInit {
     });
 
     this.secondFormGroup.setValue({
-      presupuesto_1: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_1').value,),
-      presupuesto_2: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_2').value,),
-      presupuesto_3: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_3').value,),
-      presupuesto_4: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_4').value,), 
-      presupuesto_5: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_5').value,), 
-      presupuestoProg_1: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_1').value,),
-      presupuestoProg_2: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_2').value,),
-      presupuestoProg_3: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_3').value,),
-      presupuestoProg_4: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_4').value,), 
-      presupuestoProg_5: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_5').value,), 
-      observacionPresupuestos: this.firstFormGroup.get('observacionPresupuestos').value,
+      presupuesto_1: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_1').value,),
+      presupuesto_2: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_2').value,),
+      presupuesto_3: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_3').value,),
+      presupuesto_4: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_4').value,), 
+      presupuesto_5: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_5').value,), 
+      presupuestoProg_1: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_1').value,),
+      presupuestoProg_2: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_2').value,),
+      presupuestoProg_3: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_3').value,),
+      presupuestoProg_4: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_4').value,), 
+      presupuestoProg_5: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_5').value,), 
+      observacionPresupuestal: this.secondFormGroup.get('observacionPresupuestal').value,
     });
 
     // if (this.id != undefined) {
@@ -200,6 +227,160 @@ export class MagnitudesPresupuestoComponent implements OnInit {
     //   this.editar = true;
     // }
     
+  }
+
+  loadPlan() {
+    this.request.get(environment.PLANES_CRUD, `plan/` + this.planId).subscribe((data: any) => {
+      if (data) {
+        this.namePlan = data.Data.nombre;
+        this.dependencia = data.Data.dependencia_id;
+        this.vigencia = data.Data.vigencia;
+        this.busquedaPlanes();
+      }
+    })
+  }
+
+  busquedaPlanes() {    
+    console.log(this.namePlan, "nombre plan");    
+    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.dependencia + `,vigencia:` +
+      this.vigencia + `,formato:false,nombre:` + this.namePlan).subscribe((data: any) => {
+        if (data.Data.length > 0) {
+          let i = data.Data.length - 1;
+          console.log(data.Data, "info del plan");
+          this.planId = data.Data[i]["_id"];          
+          this.getVersiones();
+          this.formulacionState = true;
+        } else if (data.Data.length == 0) {
+          Swal.fire({
+            title: 'Información inconclusa',
+            html: 'Falta inoformación del Plan y Meta a consultar',
+            // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
+            // Deberá formular un nuevo plan`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 7000
+          })
+          
+          this.plan = data.Data;
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
+  }
+
+  getVersiones() {
+    let aux = this.namePlan.replace(/ /g, "%20");
+    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.dependencia + `/` + this.vigencia +
+    //this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.unidad + `/` + this.vigencia.Id +
+      `/` + aux).subscribe((data: any) => {
+        if (data) {
+          this.versiones = data;
+          console.log(this.versiones, "versiones");
+          for (var i in this.versiones) {
+            var obj = this.versiones[i];
+            var num = +i + 1;
+            obj["numero"] = num.toString();
+          }
+          var len = this.versiones.length;
+          var pos = +len - 1;
+          this.plan = this.versiones[pos];
+          console.log(this.plan, "this.plan");
+          this.planAsignado = true;
+          this.clonar = false;
+          this.banderaUltimaVersion = true;
+          //this.loadData();
+          //this.controlVersion = new FormControl(this.plan);
+          this.versionPlan = this.plan.numero;
+          this.getEstado();
+        }
+      }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+  visualizeObs() {
+    console.log(this.rol, "rol");
+    if (this.rol == 'JEFE_DEPENDENCIA') {
+      if (this.estadoPlan == 'En formulación') {
+        if (this.versiones.length == 1) {
+          this.hiddenObs = true;
+        } else if (this.versiones.length > 1 && this.banderaEdit && this.addActividad) {
+          this.hiddenObs = false;
+        } else if (this.versiones.length > 1 && !this.banderaEdit && this.addActividad) {
+          this.hiddenObs = true;
+        }
+        this.readonlyObs = true;
+        this.readOnlyAll = false;
+      }
+      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
+        this.readonlyObs = true;
+        this.readOnlyAll = true;
+        this.hiddenObs = false;
+      }
+      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
+        this.readonlyObs = true;
+        this.readOnlyAll = true;
+        this.hiddenObs = true;
+      }
+    }
+    if (this.rol == 'PLANEACION') {
+      if (this.estadoPlan == 'En formulación') {
+        this.readonlyObs = true;
+        this.readOnlyAll = true;
+        this.hiddenObs = false;
+      }
+      if (this.estadoPlan == 'En revisión') {
+        this.readOnlyAll = true;
+        this.readonlyObs = false;
+        this.hiddenObs = false;
+      }
+      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
+        this.readOnlyAll = true;
+        this.readonlyObs = true;
+        this.hiddenObs = false;
+      }
+      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
+        this.readonlyObs = true;
+        this.readOnlyAll = true;
+        this.hiddenObs = true;
+      }
+    }
+  }
+  getEstado() {
+    this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.plan.estado_plan_id).subscribe((data: any) => {
+      if (data) {
+        this.estadoPlan = data.Data.nombre;
+        console.log(this.estadoPlan, "estado Plan");
+        // this.getIconEstado();
+        // this.cargarPlanesDesarrolloDistrital();
+        // this.cargarPlanesDesarrollo();
+        // this.cargarPlanesIndicativos();
+        // this.cargarProyectosInversion();
+
+        this.visualizeObs();
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
   getErrorMessage(campo: FormControl) {
@@ -222,15 +403,15 @@ export class MagnitudesPresupuestoComponent implements OnInit {
           this.programacion_1 = 0;
         } else {
           this.programacion_1 = parseFloat(element.target.value) / 100;
-          if (this.programacion_T + this.programacion_1 > 1) {
+          if (this.programacion_T + this.programacion_1 != 1) {
             Swal.fire({
-              title: 'La magnitud total no puede ser mayor a 100%',
+              title: 'La magnitud total debe ser igual a 100%',
               text: "",
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500
             });
-            this.programacion_1 = 0;
+            //this.programacion_1 = 0;
           }
         }
         element.target.value = this.percentagePipe.transform(this.programacion_1, '1.2-2');
@@ -241,7 +422,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
           this.programacion_2 = 0;
         } else {
           this.programacion_2 = parseFloat(element.target.value) / 100;
-          if (this.programacion_T + this.programacion_2 > 1) {
+          if (this.programacion_T + this.programacion_2 != 1) {
             Swal.fire({
               title: 'La magnitud total no puede ser mayor a 100%',
               text: "",
@@ -249,7 +430,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
               showConfirmButton: false,
               timer: 2500
             });
-            this.programacion_2 = 0;
+            //this.programacion_2 = 0;
           }
         }
         element.target.value = this.percentagePipe.transform(this.programacion_2, '1.2-2');
@@ -260,7 +441,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
           this.programacion_3 = 0;
         } else {
           this.programacion_3 = parseFloat(element.target.value) / 100;
-          if (this.programacion_T + this.programacion_3 > 1) {
+          if (this.programacion_T + this.programacion_3 != 1) {
             Swal.fire({
               title: 'La magnitud total no puede ser mayor a 100%',
               text: "",
@@ -268,7 +449,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
               showConfirmButton: false,
               timer: 2500
             });
-            this.programacion_3 = 0;
+            //this.programacion_3 = 0;
           }
         }
         element.target.value = this.percentagePipe.transform(this.programacion_3, '1.2-2');
@@ -279,7 +460,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
           this.programacion_4 = 0;
         } else {
           this.programacion_4 = parseFloat(element.target.value) / 100;
-          if (this.programacion_T + this.programacion_4 > 1) {
+          if (this.programacion_T + this.programacion_4 != 1) {
             Swal.fire({
               title: 'La magnitud total no puede ser mayor a 100%',
               text: "",
@@ -287,7 +468,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
               showConfirmButton: false,
               timer: 2500
             });
-            this.programacion_4 = 0;
+            //this.programacion_4 = 0;
           }
         }
         element.target.value = this.percentagePipe.transform(this.programacion_4, '1.2-2');
@@ -298,7 +479,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
           this.programacion_5 = 0;
         } else {
           this.programacion_5 = parseFloat(element.target.value) / 100;
-          if (this.programacion_T + this.programacion_5 > 1) {
+          if (this.programacion_T + this.programacion_5 != 1) {
             Swal.fire({
               title: 'La magnitud total no puede ser mayor a 100%',
               text: "",
@@ -306,7 +487,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
               showConfirmButton: false,
               timer: 2500
             });
-            this.programacion_5 = 0;
+            //this.programacion_5 = 0;
           }
         }
         element.target.value = this.percentagePipe.transform(this.programacion_5, '1.2-2');
@@ -411,6 +592,27 @@ export class MagnitudesPresupuestoComponent implements OnInit {
     this.presupuestoProg_T = this.presupuestoProg_1 + this.presupuestoProg_2 + this.presupuestoProg_3 + this.presupuestoProg_4 + this.presupuestoProg_5;
   }
 
+  obsBlurEvent(element, index) {
+    switch (index) {
+      case 1:
+        if (element.target.value == "") {
+          this.observacionMagnitudes = "";
+        } else {
+          this.observacionMagnitudes = element.target.value;
+        }
+        element.target.value = this.observacionMagnitudes;
+        break;
+      case 2:
+        if (element.target.value == "") {
+          this.observacionPresupuestal = "";
+        } else {
+          this.observacionPresupuestal = element.target.value;
+        }
+        element.target.value = this.observacionPresupuestal;
+        break;
+    }
+  }
+
   loadMagnitudesProg() {
     Swal.fire({
       title: 'Cargando información',
@@ -449,7 +651,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
           this.presupuestoProg_5 = magnitudes["presupuestoProg_5"];   
           this.presupuestoProg_T = magnitudes["presupuestoProg_T"]; 
           this.observacionMagnitudes = magnitudes["observacionMagnitudes"];
-          this.observacionPresupuestos = magnitudes["observacionPresupuestos"];
+          this.observacionPresupuestal = magnitudes["observacionPresupuestal"];
                     
             
           
@@ -474,17 +676,17 @@ export class MagnitudesPresupuestoComponent implements OnInit {
             observacionMagnitudes: this.firstFormGroup.get('observacionMagnitudes').value,
           });
           this.secondFormGroup.setValue({
-            presupuesto_1: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_1').value,),
-            presupuesto_2: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_2').value,),
-            presupuesto_3: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_3').value,),
-            presupuesto_4: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_4').value,), 
-            presupuesto_5: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_5').value,), 
-            presupuestoProg_1: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_1').value,),
-            presupuestoProg_2: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_2').value,),
-            presupuestoProg_3: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_3').value,),
-            presupuestoProg_4: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_4').value,), 
-            presupuestoProg_5: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_5').value,), 
-            observacionPresupuestos: this.firstFormGroup.get('observacionPresupuestos').value,
+            presupuesto_1: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_1').value,),
+            presupuesto_2: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_2').value,),
+            presupuesto_3: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_3').value,),
+            presupuesto_4: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_4').value,), 
+            presupuesto_5: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_5').value,), 
+            presupuestoProg_1: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_1').value,),
+            presupuestoProg_2: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_2').value,),
+            presupuestoProg_3: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_3').value,),
+            presupuestoProg_4: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_4').value,), 
+            presupuestoProg_5: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_5').value,), 
+            observacionPresupuestal: this.secondFormGroup.get('observacionPresupuestal').value,
           });
         }
       }, (error) => {
@@ -527,7 +729,9 @@ export class MagnitudesPresupuestoComponent implements OnInit {
               this.presupuesto_3 = metaGEt["presupuesto3"];
               this.presupuesto_4 = metaGEt["presupuesto4"]; 
               this.presupuesto_5 = metaGEt["presupuesto5"];
-              this.presupuesto_T = metaGEt["presupuestoT"];       
+              this.presupuesto_T = metaGEt["presupuestoT"];    
+              this.observacionMagnitudes = metaGEt["observacionMagnitudes"];
+              this.observacionPresupuestal = metaGEt["observacionPresupuestal"];
             }
           }   
           
@@ -552,17 +756,17 @@ export class MagnitudesPresupuestoComponent implements OnInit {
             observacionMagnitudes: this.firstFormGroup.get('observacionMagnitudes').value,
           });
           this.secondFormGroup.setValue({
-            presupuesto_1: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_1').value,),
-            presupuesto_2: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_2').value,),
-            presupuesto_3: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_3').value,),
-            presupuesto_4: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_4').value,), 
-            presupuesto_5: this.currencyPipe.transform(this.firstFormGroup.get('presupuesto_5').value,), 
-            presupuestoProg_1: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_1').value,),
-            presupuestoProg_2: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_2').value,),
-            presupuestoProg_3: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_3').value,),
-            presupuestoProg_4: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_4').value,), 
-            presupuestoProg_5: this.currencyPipe.transform(this.firstFormGroup.get('presupuestoProg_5').value,),
-            observacionPresupuestos: this.firstFormGroup.get('observacionPresupuestos').value, 
+            presupuesto_1: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_1').value,),
+            presupuesto_2: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_2').value,),
+            presupuesto_3: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_3').value,),
+            presupuesto_4: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_4').value,), 
+            presupuesto_5: this.currencyPipe.transform(this.secondFormGroup.get('presupuesto_5').value,), 
+            presupuestoProg_1: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_1').value,),
+            presupuestoProg_2: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_2').value,),
+            presupuestoProg_3: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_3').value,),
+            presupuestoProg_4: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_4').value,), 
+            presupuestoProg_5: this.currencyPipe.transform(this.secondFormGroup.get('presupuestoProg_5').value,),
+            observacionPresupuestal: this.secondFormGroup.get('observacionPresupuestal').value, 
           });
         }
       }, (error) => {
@@ -731,13 +935,13 @@ export class MagnitudesPresupuestoComponent implements OnInit {
       presupuestoProg_5: this.presupuestoProg_5, 
       presupuestoProg_T: this.presupuestoProg_T,
       observacionMagnitudes: this.observacionMagnitudes,
-      observacionPresupuestos: this.observacionPresupuestos
+      observacionPresupuestal: this.observacionPresupuestal
     }
     this.request.put(environment.PLANES_MID, `inversion/magnitudes`, progMagnitudes, this.planId + `/` + this.indexMeta).subscribe((data: any) => {
       if (data) {
         console.log(data)
         Swal.fire({
-          title: 'Programación de Magnitudes y Presupuestos Agragada',
+          title: 'Programación de Magnitudes y Presupuestos Agregada',
           //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
           text: 'La programación de magnitudes y prespuesto se ha registrado satisfactoriamente',
           icon: 'success'
@@ -759,7 +963,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
   }
 
   cancelar() {
-    this.router.navigate(['pages/proyectos-macro/formular-proyecto-inversion']);
+    this.router.navigate(['pages/proyectos-macro/formular-proyecto']);
   }
 
   // blurPresupuesto(element, controlName) {

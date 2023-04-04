@@ -9,67 +9,55 @@
         </u>
     </mat-card-content> 
     <br><br>
-    <mat-form-field appearance="fill">
-        <mat-label>Toppings</mat-label>
-        <mat-select [formControl]="toppings" multiple>
-          <mat-option *ngFor="let topping of toppingList" [value]="topping">{{topping}}</mat-option>
+    <mat-form-field appearance="fill" [style.width.%]="100">
+        <mat-label id="tipo-input-label">Seleccione las fuentes que aplican al proyecto de inversión</mat-label>
+        <mat-select (selectionChange)="onChangeF($event.value)" [formControl]="selectFuente" multiple
+        [disabled]="addActividad || estadoPlan != 'En formulación'">
+            <mat-option *ngFor="let fuente of dataFuentes" [value]="fuente">
+                {{fuente.nombre}}
+            </mat-option>
         </mat-select>
-      </mat-form-field>    
+    </mat-form-field>
     <br><br>   
     <!-- Tabla de Fuentes -->
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-
-        <!-- index -->
-        <ng-container matColumnDef="index" class="num">
-            <th mat-header-cell *matHeaderCellDef>No.</th>
-            <td mat-cell *matCellDef="let element" class="num">{{element.index}}
-                <!-- <p *ngIf="element.index!=undefined">
-                    {{element.index}}
-                </p>
-                <p *ngIf="element.index==undefined">
-                    {{rowIndex+1}}
-                </p> -->
+        <ng-container matColumnDef="index">
+            <th mat-header-cell *matHeaderCellDef style="max-width: 80px;">No.</th>
+            <td mat-cell *matCellDef="let element; let rowIndex = index" style="max-width: 80px;">
+                {{rowIndex+1}} </td>
+            <td mat-footer-cell *matFooterCellDef class="footer"></td>
+        </ng-container>
+        <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef> Nombre de la fuente</th>
+            <td mat-cell *matCellDef="let row"> {{row.nombre}} </td>
+            <td mat-footer-cell *matFooterCellDef> Total </td>
+        </ng-container>
+        <ng-container matColumnDef="presupuestoGlobal">
+            <th mat-header-cell *matHeaderCellDef> Presupuesto global </th>
+            <td mat-cell *matCellDef="let row"> {{row.presupuesto | currency}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getTotalPresupuesto() | currency}} </td>
+        </ng-container>
+        <ng-container matColumnDef="disponible">
+            <th mat-header-cell *matHeaderCellDef> Disponible </th>
+            <td mat-cell *matCellDef="let row"> {{row.presupuestoDisponible | currency}} </td>
+            <td mat-footer-cell *matFooterCellDef> {{getTotalPresupuestoDisponible() | currency}} </td>
+        </ng-container>
+        <ng-container matColumnDef="presupuesto">
+            <th mat-header-cell *matHeaderCellDef> Presupuesto proyecto </th>
+            <td mat-cell *matCellDef="let row; let rowIndex = index">
+                <input type="text" matInput required id="presupuesto"
+                    onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                    placeholder="$ ingrese el valor" [value]="row.presupuestoProyecto | currency"
+                    (focus)="focusPresupuesto($event,rowIndex)" (blur)="blurPresupuesto($event,rowIndex)" [disabled]="addActividad || estadoPlan != 'En formulación'"
+                    >
             </td>
-            <td mat-footer-cell *matFooterCellDef class="footer">
-                {{step.footer}}
-            </td>
+            <td mat-footer-cell *matFooterCellDef> {{getTotalPresupuestoProyecto() | currency}} </td>
         </ng-container>
-        <!-- Unidad Column -->
-        <ng-container matColumnDef="fuente" class="nombre-unidad">
-            <th mat-header-cell *matHeaderCellDef> Fuente </th>
-            <td mat-cell *matCellDef="let element"> {{element.fuente}} </td>
-            <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
-        <ng-container matColumnDef="valor" class="nombre-unidad">
-            <th mat-header-cell *matHeaderCellDef> Valor apropiación global </th>
-            <td mat-cell *matCellDef="let element"> {{element.valor}} </td>
-            <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
-        <ng-container matColumnDef="disponible" class="nombre-unidad">
-            <th mat-header-cell *matHeaderCellDef> Disponible de la apropiación </th>
-            <td mat-cell *matCellDef="let element"> {{element.disponible}} </td>
-            <td mat-footer-cell *matFooterCellDef class ="footcol"> Total Estimado </td>
-        </ng-container>
-        <ng-container matColumnDef="estimado" class="nombre-unidad">
-            <th mat-header-cell *matHeaderCellDef> Valor estimado para la actividad </th>
-            <td mat-cell *matCellDef="let element"><input matInput type="number" value="{{datosIdentificacion.Numero}}">
-            <td mat-footer-cell *matFooterCellDef><div class="totalPre">100</div></td>
-        </ng-container>
-        <!-- Seleccionar -->
-        <!-- <ng-container matColumnDef="actions" class="col-seleccion">
-            <th mat-header-cell *matHeaderCellDef>Seleccionar</th>
-            <td mat-cell *matCellDef="let row" class="mat-column-actions">
-                <button mat-icon-button (click)="changeIcon(row)">
-                    <mat-icon>{{row.iconSelected}}</mat-icon>
-                </button>
-            </td>
-        </ng-container> -->
-        
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
-        
     </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
     
     <br>
 </mat-card>
@@ -82,149 +70,224 @@
     </mat-card-content>
     <br><br>
     <!-- Tabla progrmación prexupuestal -->
-    <mat-grid-list cols="14"  gutterSize="4px" rowHeight="30px">
-        <mat-grid-tile colspan="1" class="head">           
-            <mat-label class="head-label">Variable</mat-label>      
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">        
-            <mat-label class="head-label">En</mat-label>            
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">Feb</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">           
-            <mat-label class="head-label">Mar</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">Abr</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">May</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">Jun</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">Jul</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">Ago</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">Sep</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">Oct</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">Nov</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">Dic</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1" class="head">          
-            <mat-label class="head-label">Total</mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label>Programado (%)</mat-label>       
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>            
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>           
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>           
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>           
-        </mat-grid-tile>
-        <mat-grid-tile>           
-            <mat-label></mat-label>           
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>           
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label>Programado ($)</mat-label>
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>
-        <mat-grid-tile>            
-            <mat-label></mat-label>                
-        </mat-grid-tile>        
-    </mat-grid-list>
+    <form [formGroup]="formEditar">
+        <!-- <div class="container-border">
+          <h4>&nbsp;&nbsp;Descripción meta&nbsp;&nbsp;</h4>
+          <textarea class="textareaContenido" formControlName="descripcion"
+            placeholder="* Ingrese la descripción de la meta correspondiente" required></textarea>
+          <mat-error *ngIf="formEditar.get('descripcion').invalid">
+            {{getErrorMessage(formEditar.get('descripcion'))}}
+          </mat-error>
+        </div> -->
+  
+        <div class="container-border">
+          <!-- <h4>&nbsp;&nbsp;&nbsp;Formulación&nbsp;&nbsp;&nbsp;</h4> -->
+          <table class="mat-table cdk-table mat-elevation-z8">
+            <thead>
+              <tr class="mat-header-row cdk-header-row ng-star-inserted">
+                <th>Variable</th>
+                <th>En</th>
+                <th>Feb</th>
+                <th>Mar</th>
+                <th>Abr</th>
+                <th>May</th>
+                <th>Jun</th>
+                <th>Jul</th>
+                <th>Ago</th>
+                <th>Sep</th>
+                <th>Oct</th>
+                <th>Nov</th>
+                <th>Dic</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="mat-row cdk-row ng-star-inserted">
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Magnitudes
+                  (%)</td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" (blur)="blurMagnitud($event, 1)" (focus)="focusMagnitud($event)"
+                    formControlName="magnitud1" [value]="magnitud1 | percent:'1.2-2'"
+                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                    readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" (blur)="blurMagnitud($event, 2)" (focus)="focusMagnitud($event)"
+                    formControlName="magnitud2" [value]="magnitud2 | percent:'1.2-2'"
+                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                    readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" (blur)="blurMagnitud($event, 3)" (focus)="focusMagnitud($event)"
+                    formControlName="magnitud3" [value]="magnitud3 | percent:'1.2-2'"
+                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                    readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" (blur)="blurMagnitud($event, 4)" (focus)="focusMagnitud($event)"
+                    formControlName="magnitud4" [value]="magnitud4 | percent:'1.2-2'"
+                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                    readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" (blur)="blurMagnitud($event, 5)" (focus)="focusMagnitud($event)"
+                    formControlName="magnitud5" [value]="magnitud5 | percent:'1.2-2'"
+                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                    readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" (blur)="blurMagnitud($event, 6)" (focus)="focusMagnitud($event)"
+                      formControlName="magnitud6" [value]="magnitud6 | percent:'1.2-2'"
+                      oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                      readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" (blur)="blurMagnitud($event, 7)" (focus)="focusMagnitud($event)"
+                      formControlName="magnitud7" [value]="magnitud7 | percent:'1.2-2'"
+                      oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                      readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" (blur)="blurMagnitud($event, 8)" (focus)="focusMagnitud($event)"
+                      formControlName="magnitud8" [value]="magnitud8 | percent:'1.2-2'"
+                      oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                      readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" (blur)="blurMagnitud($event, 9)" (focus)="focusMagnitud($event)"
+                      formControlName="magnitud9" [value]="magnitud9 | percent:'1.2-2'"
+                      oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                      readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" (blur)="blurMagnitud($event, 10)" (focus)="focusMagnitud($event)"
+                      formControlName="magnitud10" [value]="magnitud10 | percent:'1.2-2'"
+                      oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                      readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" (blur)="blurMagnitud($event, 11)" (focus)="focusMagnitud($event)"
+                      formControlName="magnitud11" [value]="magnitud11 | percent:'1.2-2'"
+                      oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                      readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" (blur)="blurMagnitud($event, 12)" (focus)="focusMagnitud($event)"
+                      formControlName="magnitud12" [value]="magnitud12 | percent:'1.2-2'"
+                      oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0[^.]/, '0').replace(/(\..*?)\..*/g, '$1').replace(/(.*\..{2}?).*/g, '$1');"
+                      readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" disabled disabled [value]="magnitudT | percent:'1.2-2'">
+                </td>
+              </tr>
+              <tr>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">Presupuesto
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                    formControlName="presupuesto1" [value]="presupuesto1 | currency" (blur)="blurPresupuestoT($event, 1)"
+                    (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'" >
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                    formControlName="presupuesto2" [value]="presupuesto2 | currency" (blur)="blurPresupuestoT($event, 2)"
+                    (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                    formControlName="presupuesto3" [value]="presupuesto3 | currency" (blur)="blurPresupuestoT($event, 3)"
+                    (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                    formControlName="presupuesto4" [value]="presupuesto4 | currency" (blur)="blurPresupuestoT($event, 4)"
+                    (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                    formControlName="presupuesto5" [value]="presupuesto5 | currency" (blur)="blurPresupuestoT($event, 5)"
+                    (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                      formControlName="presupuesto6" [value]="presupuesto6 | currency" (blur)="blurPresupuestoT($event, 6)"
+                      (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                      formControlName="presupuesto7" [value]="presupuesto7 | currency" (blur)="blurPresupuestoT($event, 7)"
+                      (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                      formControlName="presupuesto8" [value]="presupuesto8 | currency" (blur)="blurPresupuestoT($event, 8)"
+                      (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                      formControlName="presupuesto9" [value]="presupuesto9 | currency" (blur)="blurPresupuestoT($event, 9)"
+                      (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                      formControlName="presupuesto10" [value]="presupuesto10 | currency" (blur)="blurPresupuestoT($event, 10)"
+                      (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                      formControlName="presupuesto11" [value]="presupuesto11 | currency" (blur)="blurPresupuestoT($event, 11)"
+                      (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                    <input matInput type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                      formControlName="presupuesto12" [value]="presupuesto12 | currency" (blur)="blurPresupuestoT($event, 12)"
+                      (focus)="focusPresupuestoT($event)" readonly="addActividad || estadoPlan != 'En formulación'">
+                </td>                
+                <td class="mat-cell cdk-cell cdk-column-presupuesto mat-column-presupuesto ng-star-inserted">
+                  <input matInput type="text" [value]="presupuestoT | currency" disabled>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+  
+        <!-- <div class="buttonContainer">
+          <ng-container>
+            <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="close()">
+              Cerrar</button>
+          </ng-container>
+  
+          <ng-container *ngIf="data.estado == 'agregar' || data.estado == 'editar'">
+            <button [disabled]="!formEditar.valid" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
+              (click)="addMeta()">Guardar</button>
+          </ng-container>
+  
+          <ng-container *ngIf="data.estado == 'consultar'">
+            <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
+              (click)="editarMeta()">Editar</button>
+          </ng-container>
+        </div> -->
+        <br>
+        <div class="container-border">
+          <mat-form-field class="text-area">
+              <mat-label>Campo de observación UNIDAD</mat-label>
+              <textarea matInput [disabled]="addActividad || estadoPlan != 'En formulación'" [value]="observacionUnidad" formControlName="observacionUnidad" (blur)="obsBlurEvent($event, 1)" readonly="{{readOnlyAll}}"></textarea>
+            </mat-form-field>
+        </div>
+        <div class="container-border">
+          <mat-form-field class="text-area">
+              <mat-label>Campo de observación OPAC</mat-label>
+              <textarea matInput [value]="observacionOPAC" formControlName="observacionOPAC" (blur)="obsBlurEvent($event, 2)" readonly="{{readonlyObs}}"></textarea>
+            </mat-form-field>
+        </div>
+    </form>
     <br><br>
-    <div class="container-border">
-        <mat-form-field class="text-area">
-            <mat-label>Campo de observación UNIDAD</mat-label>
-            <textarea matInput></textarea>
-          </mat-form-field>
-    </div>
-    <div class="container-border">
-        <mat-form-field class="text-area">
-            <mat-label>Campo de observación OPAC</mat-label>
-            <textarea matInput></textarea>
-          </mat-form-field>
-    </div>
+    
     <br>    
     <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                (click)="guardar()">Guardar</button>
+                (click)="cancelar()">Cancelar</button>
+    <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
+                (click)="progPresActividad()">Guardar</button>
     
 </mat-card>
