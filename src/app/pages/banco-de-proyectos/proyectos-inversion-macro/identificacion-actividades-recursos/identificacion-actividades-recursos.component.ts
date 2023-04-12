@@ -99,7 +99,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       this.idProyectoInversion = prm['idProyectoInversion'];  
       this.posicionMetaPro = prm['posicionMetaPro'];   
       this.edit = prm['edit'];
-      this.arbolPadreId = prm['idPlan'];
+      //this.arbolPadreId = prm['idPlan'];
     });  
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
@@ -114,6 +114,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.arbolPadreId = this.planId;
     this.unidadId = localStorage.getItem('dependencia_id'); 
     this.vigenciaId = localStorage.getItem('vigenciaId');
     console.log(this.unidadId, this.vigenciaId,  "entra a verificar");
