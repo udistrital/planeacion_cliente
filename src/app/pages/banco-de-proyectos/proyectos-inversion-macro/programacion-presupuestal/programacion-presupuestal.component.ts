@@ -813,7 +813,14 @@ export class ProgramacionPresupuestalComponent implements OnInit {
 
   progPresActividad() {
     //this.fuentesProyect = [];
-    
+    Swal.fire({
+      title: 'Cargando formato',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     var fuentes = [];
     this.dataSource.data.forEach(fuente => {
       if (typeof fuente.presupuestoProyecto == "number") {
@@ -918,6 +925,7 @@ export class ProgramacionPresupuestalComponent implements OnInit {
     console.log(actividad, "actividad");
     this.request.put(environment.PLANES_MID, `inversion/actualizar_actividad`, actividad, this.actividadId + `/` + this.rowIndex).subscribe((data: any) => {
       if (data) {
+        Swal.close();
         console.log(data)
         Swal.fire({
           title: 'Programación de Presupuestos  de Actividades Agregada',
