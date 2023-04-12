@@ -157,13 +157,13 @@ export class FormularProyectoInversionComponent implements OnInit {
     //this.loadActividades();
     
     
-    this.vigenciaSelected = false;
+    //this.vigenciaSelected = false;
     this.unidadSelected = false;
     this.guardarDisabled = false;
     this.addActividad = false;
-    this.planSelected = false;
-    this.unidadSelected = false;
-    this.vigenciaSelected = false;
+    //this.planSelected = false;
+    //this.unidadSelected = false;
+    //this.vigenciaSelected = false;
     this.clonar = false;
     //this.identRecursos = false;
     //this.identContratistas = false;
@@ -422,18 +422,18 @@ export class FormularProyectoInversionComponent implements OnInit {
           let i = data.Data.length - 1;
           console.log(data.Data, "info del plan");
           this.planId = data.Data[i]["_id"];
+          this.cargarPlanesDesarrolloDistrital();
+          this.cargarPlanesDesarrollo();
+          this.cargarPlanesIndicativos();
+          this.cargarProyectosInversion();
           this.getDataPlan();
-          this.getVersiones(planB);
-          // this.cargarPlanesDesarrolloDistrital();
-          // this.cargarPlanesDesarrollo();
-          // this.cargarPlanesIndicativos();
-          // this.cargarProyectosInversion();
+          this.getVersiones(planB);          
           this.formulacionState = true;
         } else if (data.Data.length == 0) {
           Swal.fire({
             title: 'Formulación nuevo plan',
             html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
-              'para la dependencia <b>' + this.unidad.nombre + '</b> y la <br>' +
+              'para la dependencia <b>' + this.namePlan+ '</b> y la <br>' +
               'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
               '<i>Deberá formular el plan</i>',
             // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
@@ -489,6 +489,8 @@ export class FormularProyectoInversionComponent implements OnInit {
         this.dataArmonizacionPI = strArmonizacion2.split(",", len2).filter(((item) => item != ""))
         this.cargarProyectosInversion();
       }
+    }, (error) => { 
+        Swal.close();
       })
   }
 
@@ -783,6 +785,7 @@ export class FormularProyectoInversionComponent implements OnInit {
     this.clonar = false;
     this.loadData();
     this.addActividad = false;
+    this.planId = this.plan._id;
   }
   onChangePDD(planDD) {
     if (planDD == undefined) {
@@ -985,10 +988,10 @@ export class FormularProyectoInversionComponent implements OnInit {
   }
 
   formularPlan() {
-    if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true) {
+    if(this.unidad != undefined && this.vigencia.Id != undefined && this.plan._id != undefined) {
       let parametros = {
         //"dependencia_id": String(this.unidad.Id),
-        "dependencia_id": String(this.unidad),
+        "dependencia_id": String(this.unidad.Id),
         "vigencia": String(this.vigencia.Id),
         "id": String(this.plan._id),
 
@@ -1021,15 +1024,16 @@ export class FormularProyectoInversionComponent implements OnInit {
             // //CARGA TABLA
             // this.loadData();
             this.getVersiones(this.plan);
+            
           }
         })
           //this.newPlanId = data.Data._id
-          this.cargarPlanesDesarrolloDistrital();
-          this.cargarPlanesDesarrollo();
-          this.cargarPlanesIndicativos();
-          this.cargarProyectosInversion();
-          this.formular = true;
-          console.log(this.planId, "id");
+          // this.cargarPlanesDesarrolloDistrital();
+          // this.cargarPlanesDesarrollo();
+          // this.cargarPlanesIndicativos();
+          // this.cargarProyectosInversion();
+          // this.formular = true;
+          // console.log(this.planId, "id");
           //this.plan.estado_plan_id = "614d3ad301c7a200482fabfd";
           //this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
             //if (dataPut) {
@@ -1437,7 +1441,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
+        this.request.post(environment.PLANES_MID, `inversion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
           if (data) {
             this.getVersiones(data.Data);
             Swal.fire({
@@ -1686,6 +1690,7 @@ export class FormularProyectoInversionComponent implements OnInit {
         this.request.put(environment.PLANES_MID, `inversion/guardar_meta`, actividad, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.close();
+            this.actividades = false;
             Swal.fire({
               title: 'Actividad agregada',
               //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
@@ -1695,7 +1700,7 @@ export class FormularProyectoInversionComponent implements OnInit {
               if (result.value) {
                 this.ajustarData()
                 this.form.reset();
-                this.addActividad = false;
+                this.addActividad = false;                
                 //this.dataArmonizacionPED = [];
                 //this.dataArmonizacionPI = [];
                 //this.idPadre = undefined;
@@ -1749,6 +1754,7 @@ export class FormularProyectoInversionComponent implements OnInit {
         }
         this.request.put(environment.PLANES_MID, `inversion/actualizar_actividad`, actividad, this.plan._id + `/` + this.rowActividad).subscribe((data: any) => {
           if (data) {
+            this.actividades = false;
             Swal.fire({
               title: 'Información de actividad actualizada',
               //text: `Acción generada: ${JSON.stringify(this.form.value)}`,

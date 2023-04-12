@@ -80,6 +80,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   readOnlyAll: boolean;
   addActividad: boolean;
   banderaEdit: boolean;
+  arbolPadreId: string;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -96,6 +97,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       this.idProyectoInversion = prm['idProyectoInversion'];  
       this.posicionMetaPro = prm['posicionMetaPro'];   
       this.edit = prm['edit'];
+      this.arbolPadreId = prm['idPlan'];
     });  
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
@@ -300,7 +302,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
 
   busquedaTipoMetas(actividad) {
     this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidadId + `,vigencia:` +
-      this.vigenciaId + `,formato:false,nombre:` + actividad.nombre + `,documento_id:` + this.indexMeta).subscribe((data: any) => {
+      this.vigenciaId + `,formato:false,arbol_padre_id:` + this.arbolPadreId + `,documento_id:` + this.indexMeta).subscribe((data: any) => {
         if (data.Data.length > 0) {  
           let i = data.Data.length - 1;
           console.log(data.Data, "info de la Meta");        
@@ -345,7 +347,8 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         "dependencia_id": this.unidadId,
         "vigencia": this.vigenciaId, 
         "id": String(this.actividadId),
-        "indexMeta": this.indexMeta,        
+        "indexMeta": this.indexMeta,    
+        "arbol_padre_id":  this.arbolPadreId 
       }
       Swal.fire({
         title: 'Creando tipo actividad',
