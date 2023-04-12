@@ -8,63 +8,66 @@ th {
 }
 
 
-th.mat-header-cell{
+th.mat-header-cell {
   text-align: center;
   padding: 5px 5px 5px 0;
-  color:white;
+  color: white;
 }
 
-td.mat-cell{
+td.mat-cell {
   text-align: center;
   padding: 5px 5px 5px 0;
-  color:black;
-} 
+  color: black;
+}
 
 
-.header-align-right{
-display: flex;
-padding: 21px 0;
-justify-content: flex-end;
+.header-align-right {
+  display: flex;
+  padding: 21px 0;
+  justify-content: flex-end;
 }
 
 
 ::ng-deep input.mat-input-element {
-color: #000000;
-text-align: center;
+  color: #000000;
+  text-align: center;
 }
 
 
 ::ng-deep textarea.mat-input-element {
-color: #000000;
+  color: #000000;
 }
 
-.material-icons-delete{
-color: #000000;
+.material-icons-delete {
+  color: #000000;
 }
 
-.footer{
-text-align: center;
+.footer {
+  text-align: center;
 }
 
 .table-responsive {
-display: block;
-width: 100%;
-overflow-x: auto;
-.mat-table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+
+  .mat-table {
     width: 100%;
     max-width: 100%;
     margin-bottom: 1rem;
     display: table;
     border-collapse: collapse;
     margin: 0px;
-}
-.mat-row,
-.mat-header-row {
+  }
+
+  .mat-row,
+  .mat-header-row {
     display: table-row;
     text-align: center;
-}
-.mat-cell,
-.mat-header-cell {
+  }
+
+  .mat-cell,
+  .mat-header-cell {
     text-align: center;
     word-wrap: initial;
     display: table-cell;
@@ -74,9 +77,10 @@ overflow-x: auto;
     white-space: nowrap;
     overflow: hidden;
     vertical-align: middle;
+  }
 }
-}
-.textGuide{
+
+.textGuide {
   background-color: #ffff;
   border: 1px solid var(--primary);
   border-radius: 15px 15px 15px 15px;
@@ -87,14 +91,14 @@ overflow-x: auto;
   padding: 1%;
   text-decoration: none;
   margin-bottom: 1%;
-  width: 97%; 
+  width: 97%;
 }
 
-.mat-raised-button{
+.mat-raised-button {
   margin: 0% 2% 0% 0%;
 }
 
-textarea{
+textarea {
   resize: none;
   text-align: justify;
   white-space: pre-line;
@@ -102,27 +106,27 @@ textarea{
   text-align-last: left;
 }
 
-.mat-row:nth-child(even){
-  background-color:#E7D6D6;
+.mat-row:nth-child(even) {
+  background-color: #E7D6D6;
 }
-      
-.mat-row:nth-child(odd){
+
+.mat-row:nth-child(odd) {
   background-color: white;
 }
 
-.header2{
+.header2 {
   background-color: var(--color900);
 }
 
-.header3{
+.header3 {
   background-color: var(--color800);
 }
 
-.header4{
+.header4 {
   background-color: var(--color700);
 }
 
-.mat-form-field{
+.mat-form-field {
   width: 100%;
 }
 
@@ -131,7 +135,6 @@ textarea{
   border: 1px solid var(--primary);
   padding: 1%;
   border-radius: 15px 15px 15px 15px;
-
 }
 
 .container-border h4 {
@@ -147,7 +150,7 @@ textarea{
   font-weight: normal;
 }
 
-.label-inc{
+.label-inc {
   border: 1px solid var(--primary);
   padding: 1%;
   border-radius: 10px 10px 10px 10px;
@@ -161,4 +164,4 @@ textarea{
   height: unset;
   padding-top: 0.9em;
   padding-bottom: 0.9em;
-} 
+}

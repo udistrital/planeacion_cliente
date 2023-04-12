@@ -31,6 +31,7 @@ export class EvidenciasDialogComponent implements OnInit {
 
     this.readonlyFormulario = JSON.parse(JSON.stringify(data[1]));
     this.dataFiltered = JSON.parse(JSON.stringify(data[0]));
+    this.unidad = String(data[3]);
     this.dataSource = new MatTableDataSource(this.dataFiltered)
     this.filterActive();
   }
@@ -82,13 +83,12 @@ export class EvidenciasDialogComponent implements OnInit {
       })
 
       await this.gestorDocumental.get([row]).subscribe(
-        (documentos) => {
-          Swal.close();
+        (documento) => {
           const dialogRef = this.dialog.open(VisualizarDocumentoDialogComponent, {
             width: '1200px',
             minHeight: 'calc(100vh - 90px)',
             height: '800px',
-            data: { ...documentos[0], "editable": !this.data[2] }
+            data: { ...documento[0], "editable": !this.data[2] }
           });
 
           dialogRef.afterClosed().subscribe(result => {
@@ -111,7 +111,6 @@ export class EvidenciasDialogComponent implements OnInit {
             timer: 2500
           });
         })
-      Swal.close();
     }
   }
 

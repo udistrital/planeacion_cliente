@@ -1,10 +1,12 @@
 <div style="text-align:center;">
     <mat-card-title>LISTADO DE EVIDENCIAS CARGADAS</mat-card-title>
-    <mat-card-subtitle>Unidad Académico y/o administrativa {{unidad}}</mat-card-subtitle>
+    <div style="text-align: center; color: var(--primary);">
+        {{unidad}}
+    </div>
 </div>
 <mat-card style="width: auto;">
     <div class="container-border">
-        <h1>Reporte de avance del trimestre</h1>
+        <h1>&nbsp;&nbsp;&nbsp;&nbsp;Reporte de avance del trimestre</h1>
 
         <div class="mat-elevation-z8">
             <table mat-table [dataSource]="dataSource" matSort>

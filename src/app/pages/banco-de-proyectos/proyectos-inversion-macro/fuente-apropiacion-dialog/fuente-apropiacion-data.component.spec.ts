@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FuenteApropiacionDialogComponent } from './fuente-apropiacion-dialog.component';
+import { FuenteApropiacionDataComponent } from './fuente-apropiacion-data.component';
 
 describe('FuenteApropiacionDialogComponent', () => {
-  let component: FuenteApropiacionDialogComponent;
-  let fixture: ComponentFixture<FuenteApropiacionDialogComponent>;
+  let component: FuenteApropiacionDataComponent;
+  let fixture: ComponentFixture<FuenteApropiacionDataComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FuenteApropiacionDialogComponent ]
+      declarations: [FuenteApropiacionDataComponent]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FuenteApropiacionDialogComponent);
+    fixture = TestBed.createComponent(FuenteApropiacionDataComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

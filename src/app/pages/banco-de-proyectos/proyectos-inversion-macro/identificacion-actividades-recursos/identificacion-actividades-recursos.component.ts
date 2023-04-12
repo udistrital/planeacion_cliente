@@ -9,12 +9,13 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 
 export interface Actividad {
-  posicion: string;
-  actividad: string;
-  ponderacion: number;
+  numero: string;
+  nombre: string;
+  ponderacionV: number;
   presupuesto: number;
-  iconSelected: string;
+  descripcion: string;
 }
+
 
 // const INFO: Actividad[] = [
 //   {posicion: '1', actividad: 'Actividad 1', ponderacion: 30000, presupuesto: 20000, iconSelected: 'done'},
@@ -82,6 +83,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   banderaEdit: boolean;
   arbolPadreId: string;
 
+
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
@@ -108,7 +110,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     }
     this.loadPlan();
     this.loadProyectI();
-    this.loadActividades();   
+    this.loadActividades();
   }
 
   ngOnInit(): void {
@@ -140,10 +142,11 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       this.actividadSelected = false;
     } else {
       this.actividadSelected = true;
-      this.actividad = actividad; 
+      this.actividad = actividad;
       this.actividadId = this.actividad._id;
       this.busquedaTipoMetas(actividad);
-      //console.log(this.actividadId, "valor actividad", this.actividadSelected);     
+      //console.log(this.actividadId, "valor actividad", this.actividadSelected);  
+
     }
   }
 
@@ -439,13 +442,38 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       }
     }, (error) => {
       Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
+        title: 'Cargando formato',
+        timerProgressBar: true,
         showConfirmButton: false,
-        timer: 2500
+        willOpen: () => {
+          Swal.showLoading();
+        },
       })
-    })
+      this.request.get(environment.PLANES_MID, `formato/` + this.actividadId).subscribe((data: any) => {
+        if (data) {
+          Swal.close();
+          this.steps = data[0]
+          this.json = data[1][0]
+          this.form = this.formBuilder.group(this.json);
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
+    } else {
+      Swal.fire({
+        title: 'Debe seleccionar una plantilla de interés para las actividades',
+        text: ``,
+        icon: 'warning',
+        showConfirmButton: true,
+        timer: 3500
+      })
+    }
   }
  
   
@@ -927,6 +955,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           timer: 2500
         })
       }
+
     })
     }
 
