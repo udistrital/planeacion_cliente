@@ -161,8 +161,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
 
   busquedaPlanes() {    
     console.log(this.namePlan, "nombre plan");    
-    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.dependencia + `,vigencia:` +
-      this.vigencia + `,formato:false,nombre:` + this.namePlan).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.dependencia + `,vigencia:` + this.vigencia + `,formato:false,nombre:` + this.namePlan).subscribe((data: any) => {
         if (data.Data.length > 0) {
           let i = data.Data.length - 1;
           console.log(data.Data, "info del plan");
@@ -229,6 +228,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         })
       }
   }
+
   visualizeObs() {
     console.log(this.rol, this.estadoPlan, "rol");
     if (this.rol == 'JEFE_DEPENDENCIA') {
@@ -289,8 +289,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
 
         this.visualizeObs();
       }
-    }),
-      (error) => {
+    }), (error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
@@ -302,8 +301,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   }
 
   busquedaTipoMetas(actividad) {
-    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidadId + `,vigencia:` +
-      this.vigenciaId + `,formato:false,arbol_padre_id:` + this.arbolPadreId + `,documento_id:` + this.indexMeta).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidadId + `,vigencia:` + this.vigenciaId + `,formato:false,arbol_padre_id:` + this.arbolPadreId + `,documento_id:` + this.indexMeta).subscribe((data: any) => {
         if (data.Data.length > 0) {  
           let i = data.Data.length - 1;
           console.log(data.Data, "info de la Meta");        
@@ -331,7 +329,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           this.actividad = actividad;
           this.formularPlan();
         }
-      }, (error) => {
+      }), (error) => {
         Swal.fire({
           title: 'Error en la operación',
           text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
@@ -339,7 +337,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           showConfirmButton: false,
           timer: 2500
         })
-      })
+      }
   }
 
   formularPlan() {
@@ -420,8 +418,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       
   }
 
-  cargaFormato() {
-    this.plantilla = true;    
+  cargaFormato() {        
     Swal.fire({
       title: 'Cargando formato',
       timerProgressBar: true,
@@ -430,6 +427,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         Swal.showLoading();
       },
     })
+    this.plantilla = true;
     this.request.get(environment.PLANES_MID, `formato/` + this.actividadId).subscribe((data: any) => {
       if (data) {
         Swal.close();
@@ -438,7 +436,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         this.json = data[1][0]
         this.form = this.formBuilder.group(this.json);
       }
-    }, (error) => {
+    }), (error) => {
       Swal.fire({
         title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
@@ -446,7 +444,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         showConfirmButton: false,
         timer: 2500
       })
-    })
+    }
   }
  
   
@@ -459,7 +457,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           //console.log(this.actividades, "actividades");
         }
       }
-    }, (error) => {
+    }), (error) => {
       Swal.fire({
         title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
@@ -467,7 +465,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         showConfirmButton: false,
         timer: 2500
       })
-    })
+    }
   }
   
   loadProyectI() {
@@ -615,7 +613,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           }
         })
       }
-    }, (error) => {
+    }), (error) => {
       Swal.fire({
         title: 'Error en la operación',
         text: 'No fue posible crear la actividad, por favor contactarse con el administrador del sistema',
@@ -627,7 +625,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       //this.addActividad = false;
       //this.dataArmonizacionPED = [];
       //this.dataArmonizacionPI = [];
-    })
+    }
   }
    
   ajustarData() {
@@ -910,8 +908,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
               }
             })
           }
-        }),
-          (error) => {
+        }), (error) => {
             Swal.fire({
               title: 'Error en la operación',
               icon: 'error',
@@ -931,7 +928,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     })
     }
 
-    cancelar() {
+  cancelar() {
       this.actualizarPresupuestoMeta();
       this.router.navigate(['pages/proyectos-macro/formular-proyecto']);
     }
