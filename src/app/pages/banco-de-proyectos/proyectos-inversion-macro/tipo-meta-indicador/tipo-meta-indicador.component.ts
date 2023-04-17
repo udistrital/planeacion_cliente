@@ -78,6 +78,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
   }
 
   loadPlan() {
+    
     this.request.get(environment.PLANES_CRUD, `plan/` + this.planId).subscribe((data: any) => {
       if (data) {
         this.namePlan = data.Data.nombre;
@@ -86,6 +87,18 @@ export class TipoMetaIndicadorComponent implements OnInit {
         this.busquedaPlanes();
       }
     })
+  }
+
+  programarMetas() {
+    this.actividades = true;
+    this.request.get(environment.PLANES_MID, `inversion/metaspro/` + this.idProyectoInversion).subscribe((data: any) => {      
+      if (data.Data) {        
+        this.metas = data.Data.metas;
+        this.idSubDetMetasProI = data.Data.id_detalle_meta;
+        console.log(data.Data, "Metas");
+        //this.cargaFormato();
+      }
+    })    
   }
 
   busquedaPlanes() {    
@@ -228,17 +241,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
       }
   }
 
-  programarMetas() {
-    this.actividades = true;
-    this.request.get(environment.PLANES_MID, `inversion/metaspro/` + this.idProyectoInversion).subscribe((data: any) => {      
-      if (data.Data) {        
-        this.metas = data.Data.metas;
-        this.idSubDetMetasProI = data.Data.id_detalle_meta;
-        console.log(data.Data, "Metas");
-        //this.cargaFormato();
-      }
-    })    
-  }
+  
 
   onChangeM(meta) {
     if (meta == undefined) {
