@@ -5,8 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { isNumeric } from 'rxjs/internal-compatibility';
 import { formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from '../recursos/rubros';
@@ -26,7 +25,8 @@ export class DocentesComponent implements OnInit {
   dataSourceRHF: MatTableDataSource<any>;
   dataSourceRHVPRE: MatTableDataSource<any>;
   dataSourceRHVPOS: MatTableDataSource<any>;
-  dataSourceRubros: MatTableDataSource<any>;
+  dataSourceRubrosPre: MatTableDataSource<any>;
+  dataSourceRubrosPos: MatTableDataSource<any>;
   vigenciaConsulta: any;
   banderaCerrar: boolean = false;
   banderaEsperaRubros: boolean = false;
@@ -38,7 +38,7 @@ export class DocentesComponent implements OnInit {
   readonlyObs: boolean;
   readonlyTable: boolean = false;
   mostrarObservaciones: boolean;
-
+  nivel: any;
   data: any;
   banderaSumasPensiones: boolean = false;
 
@@ -78,7 +78,8 @@ export class DocentesComponent implements OnInit {
   incrementoInput = new FormControl('9.5');
   incremento: number = 0.0;
   incrementoAnterior: number = 0.0;
-  //
+  niveles:string[] = ["Pregrado", "Posgrado"]
+  
   @ViewChild(MatPaginator) paginatorRHF: MatPaginator;
   @ViewChild(MatPaginator) paginatorRHVPRE: MatPaginator;
   @ViewChild(MatPaginator) paginatorRHVPOS: MatPaginator;
@@ -99,7 +100,8 @@ export class DocentesComponent implements OnInit {
     this.dataSourceRHF = new MatTableDataSource<any>();
     this.dataSourceRHVPRE = new MatTableDataSource<any>();
     this.dataSourceRHVPOS = new MatTableDataSource<any>();
-    this.dataSourceRubros = new MatTableDataSource<any>();
+    this.dataSourceRubrosPre = new MatTableDataSource<any>();
+    this.dataSourceRubrosPos = new MatTableDataSource<any>();
     this.loadPlan();
     this.loadVigenciaConsulta();
     this.loadTabla();
@@ -117,28 +119,11 @@ export class DocentesComponent implements OnInit {
     })
     this.rubros = rubros_aux
     Swal.close();
-
-    /*this.request.get(environment.PLANES_MID, `formulacion/get_rubros`).subscribe((data: any) => {
-      this.rubros = data.Data;
-      Swal.close();
-      Swal.fire({
-        icon: 'info',
-        text: 'La selección de rubros ha cargado correctamente.',
-        showConfirmButton: true
-      })
-      this.banderaEsperaRubros = false;
-    })*/
-
   }
 
   loadTabla() {
     if (this.dataTabla) {
-      this.dataSourceRubros.data = [
-        {
-          "categoria": "Salario básico",
-          "rubro": "",
-          "codigo": ""
-        },
+      this.dataSourceRubrosPre.data = [
         {
           "categoria": "Prima de Servicios",
           "rubro": "",
@@ -151,6 +136,82 @@ export class DocentesComponent implements OnInit {
         },
         {
           "categoria": "Prima de vacaciones",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Salario básico",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Intereses cesantías",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Aporte cesantías público",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Aporte cesantías privado",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Aporte salud",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Fondo pensiones público",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Fondo pensiones privado",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Aporte ARL",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Aporte CCF",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Aporte ICBF",
+          "rubro": "",
+          "codigo": ""
+        }];
+      this.dataSourceRubrosPos.data = [
+        {
+          "categoria": "Prima de Servicios",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Prima de navidad",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Prima de vacaciones",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Salario básico",
+          "rubro": "",
+          "codigo": ""
+        },
+        {
+          "categoria": "Intereses cesantías",
           "rubro": "",
           "codigo": ""
         },
@@ -232,18 +293,21 @@ export class DocentesComponent implements OnInit {
               {
                 "nombre": "Selección de rubros",
                 "tipo": "rubros",
-                "data": this.dataSourceRubros,
+                "data": this.dataSourceRubrosPre,
               }
             ];
+            if (this.nivel != "pregrado") {
+              this.steps[3].data = this.dataSourceRubrosPos;
+            }
             let datoIdenti = {
               "activo": true
             }
             this.request.put(environment.PLANES_CRUD, `identificacion`, datoIdenti, identificacion._id).subscribe();
           } else {
-            this.dataSourceRubros.data = dataRubros;
+            this.dataSourceRubrosPre.data = JSON.parse(JSON.stringify(dataRubros));
+            this.dataSourceRubrosPos.data = JSON.parse(JSON.stringify(dataRubros));
             this.getData().then(() => {
               if (this.data != "") {
-                console.log("Get datos: ", this.data);
                 if (this.data.rhf != "{}") {
                   this.dataSourceRHF.data = this.data.rhf;
                   this.dataSourceRHF.data.sort((a: any, b: any) => {
@@ -298,7 +362,10 @@ export class DocentesComponent implements OnInit {
                 }
                 if (this.data.rubros != "{}" && this.data.rubros != null) {
                   let filtradoManual = this.data.rubros.filter((rubro) => !rubro.hasOwnProperty('bonificacion'));
-                  this.dataSourceRubros.data = filtradoManual;
+                  this.dataSourceRubrosPre.data = filtradoManual;
+                }
+                if (this.data.rubros_pos != "{}" && this.data.rubros_pos != null) {
+                  this.dataSourceRubrosPos.data = this.data.rubros_pos;
                 }
               }
               this.steps = [
@@ -332,24 +399,29 @@ export class DocentesComponent implements OnInit {
                 {
                   "nombre": "Selección de rubros",
                   "tipo": "Rubros",
-                  "data": this.dataSourceRubros,
+                  "data": this.dataSourceRubrosPre,
                 }
               ];
+
+              if (this.nivel != "pregrado") {
+                this.steps[3].data = this.dataSourceRubrosPos;
+              }
+
               let sueldo = true;
-              this.dataSourceRubros.data.forEach(rubro => {
+              this.dataSourceRubrosPre.data.forEach(rubro => {
                 if (rubro.categoria == 'Salario básico') {
                   sueldo = false
                 }
               });
               if (sueldo) {
-                let datos = this.dataSourceRubros.data;
+                let datos = this.dataSourceRubrosPre.data;
                 datos.push({
                   "activo": true,
                   "categoria": "Salario básico",
                   "rubro": "",
                   "codigo": ""
                 });
-                this.dataSourceRubros.data = datos;
+                this.dataSourceRubrosPre.data = datos;
               }
               this.OnPageChangeRHF({ length: 0, pageIndex: 0, pageSize: 10 });
               this.OnPageChangeRHVPOS({ length: 0, pageIndex: 0, pageSize: 10 });
@@ -527,7 +599,7 @@ export class DocentesComponent implements OnInit {
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['indexP', 'accionesP', 'tipoP', 'categoriaP', 'CantidadP', 'semanasP', 'horasP', 'totalHorasIndividualP', 'totalHorasP', 'mesesP', 'sueldoBasicoIndividualP', 'sueldoBasicoP', 'sueldoMensualIndividualP', 'sueldoMensualP', 'prestacionesSociales', 'seguridadSocial', 'parafiscales', 'totalRecursoP'   ]
+        return ['indexP', 'accionesP', 'tipoP', 'categoriaP', 'CantidadP', 'semanasP', 'horasP', 'totalHorasIndividualP', 'totalHorasP', 'mesesP', 'sueldoBasicoIndividualP', 'sueldoBasicoP', 'sueldoMensualIndividualP', 'sueldoMensualP', 'prestacionesSociales', 'seguridadSocial', 'parafiscales', 'totalRecursoP']
       }
     }
   }
@@ -1008,10 +1080,18 @@ export class DocentesComponent implements OnInit {
   }
 
   onChangeRubro(event, rowIndex) {
-    if (event == undefined) {
-      this.dataSourceRubros.data[rowIndex].codigo = '';
+    if (this.nivel == "pregrado") {
+      if (event == undefined) {
+        this.dataSourceRubrosPre.data[rowIndex].codigo = '';
+      } else {
+        this.dataSourceRubrosPre.data[rowIndex].codigo = event.value;
+      }
     } else {
-      this.dataSourceRubros.data[rowIndex].codigo = event.value;
+      if (event == undefined) {
+        this.dataSourceRubrosPos.data[rowIndex].codigo = '';
+      } else {
+        this.dataSourceRubrosPos.data[rowIndex].codigo = event.value;
+      }
     }
   }
 
@@ -1029,6 +1109,15 @@ export class DocentesComponent implements OnInit {
       text: 'El porcentaje de incremento asociado a la vigencia en cuestión ha sido aplicado a los valores presupuestados. Sin embargo, revisar que los valores tanto de cesantias como pensiones coincidan con los totales.',
       showConfirmButton: true
     })
+  }
+
+  onChangeNivel(event) {
+    this.nivel = String(event).toLowerCase();
+    if (this.nivel == "pregrado") {
+      this.steps[3].data = this.dataSourceRubrosPre;
+    } else {
+      this.steps[3].data = this.dataSourceRubrosPos;
+    }
   }
 
   checkIncremento(incrementoFromDB) {
@@ -2609,14 +2698,12 @@ export class DocentesComponent implements OnInit {
       let sumaC = (parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0);
       let totalC = (parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0);
       if (sumaC != totalC) {
-        console.log(sumaC, '!=', totalC)
         this.banderaCerrar = true;
         modals.push({ icon: 'warning', title: 'Docentes V.E Ocasionales Pregrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias' })
       }
       let sumaP = (parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0);
       let totalP = (parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0);
       if (sumaP != totalP) {
-        console.log(sumaP, '!=', totalP)
         this.banderaCerrar = true;
         modals.push({ icon: 'warning', title: 'Docentes V.E Ocasionales Pregrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en pensiones' })
       }
@@ -2625,14 +2712,12 @@ export class DocentesComponent implements OnInit {
       let sumaC = (parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0);
       let totalC = (parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0);
       if (sumaC != totalC) {
-        console.log(sumaC, '!=', totalC)
         this.banderaCerrar = true;
         modals.push({ icon: 'warning', title: 'Docentes V.E Hora Cátedra Pregrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias' })
       }
       let sumaP = (parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0);
       let totalP = (parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0);
       if (sumaP != totalP) {
-        console.log(sumaP, '!=', totalP)
         this.banderaCerrar = true;
         modals.push({ icon: 'warning', title: 'Docentes V.E Hora Cátedra Pregrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en pensiones' })
       }
@@ -2641,14 +2726,12 @@ export class DocentesComponent implements OnInit {
       let sumaC = (parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0);
       let totalC = (parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0);
       if (sumaC != totalC) {
-        console.log(sumaC, '!=', totalC)
         this.banderaCerrar = true;
         modals.push({ icon: 'warning', title: 'Docentes V.E Hora Cátedra Posgrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias' })
       }
       let sumaP = (parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0);
       let totalP = (parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0);
       if (sumaP != totalP) {
-        console.log(sumaP, '!=', totalP)
         this.banderaCerrar = true;
         modals.push({ icon: 'warning', title: 'Docentes V.E Hora Cátedra Posgrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en pensiones' })
       }
@@ -2709,7 +2792,7 @@ export class DocentesComponent implements OnInit {
         }
         let dataStrRHVPOS = JSON.stringify(Object.assign({}, aux3));
 
-        let aux4 = this.dataSourceRubros.data
+        let aux4 = this.dataSourceRubrosPre.data
         for (var i in aux4) {
           var obj = aux4[i];
           obj["activo"] = true;
@@ -2717,11 +2800,19 @@ export class DocentesComponent implements OnInit {
         }
         let dataRubros = JSON.stringify(Object.assign({}, aux4))
 
+        let aux5 = this.dataSourceRubrosPos.data
+        for (var i in aux5) {
+          var obj = aux5[i];
+          obj["activo"] = true;
+          var num = +i + 1;
+        }
+        let dataRubrosPos = JSON.stringify(Object.assign({}, aux5))
         identificaciones = {
           "rhf": dataStrRHF,
           "rhv_pre": dataStrRHVPRE,
           "rhv_pos": dataStrRHVPOS,
           "rubros": dataRubros,
+          "rubros_pos": dataRubrosPos
         }
         let aux = JSON.stringify(Object.assign({}, identificaciones));
         this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, aux, this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
@@ -2899,54 +2990,67 @@ export class DocentesComponent implements OnInit {
 
 var dataRubros: any[] = [
   {
-    "categoria": "Salario básico",
-    "rubro": ""
-  },
-  {
     "categoria": "Prima de Servicios",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Prima de navidad",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Prima de vacaciones",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
+  },
+  {
+    "categoria": "Salario básico",
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Intereses cesantías",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Aporte cesantías público",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Aporte cesantías privado",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Aporte salud",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Fondo pensiones público",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Fondo pensiones privado",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Aporte ARL",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Aporte CCF",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   },
   {
     "categoria": "Aporte ICBF",
-    "rubro": ""
+    "rubro": "",
+    "codigo": ""
   }];

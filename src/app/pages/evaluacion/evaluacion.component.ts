@@ -1,15 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { RequestManager } from '../services/requestManager';
 import { environment } from 'src/environments/environment';
-import { MatTableDataSource } from '@angular/material/table';
-import { Location } from '@angular/common';
+import { MatTable } from '@angular/material/table';
 import Swal from 'sweetalert2';
-
-import datosTest from 'src/assets/json/evaluacion.json';
+import { UserService } from '../services/userService';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import * as internal from 'stream';
-import { runInThisContext } from 'vm';
-
+import { Router } from '@angular/router';
+import { registerLocaleData } from '@angular/common';
+import es from '@angular/common/locales/es';
 
 @Component({
   selector: 'app-evaluacion',
@@ -17,191 +15,103 @@ import { runInThisContext } from 'vm';
   styleUrls: ['./evaluacion.component.scss']
 })
 export class EvaluacionComponent implements OnInit {
-  title = 'Google Chart Example';
-  type = 'PieChart';
-  type2 = 'ColumnChart';
-
+  pieTitle = 'Cumplimiento general Plan de Acción -';
+  pieType = 'PieChart';
+  columnType = 'ColumnChart';
+  spans = [];
 
   pieChartColumns = [
     'Effort',
     'Amount given'
   ];
+
   pieChartData = [
     ['', 75],
     ['', 25],
   ];
-  options = {
+
+  pieChartOptions = {
     pieHole: 0.5,
     pieSliceTextStyle: {
       color: 'black',
     },
-    tooltip: { trigger: 'none' },
+    pieSliceBorderColor: "gray",
     slices: {
       1: { color: 'transparent' }
     },
     legend: 'none'
   };
 
-  lineChartoptions = {
+  lineChartOptions = {
     tooltip: { isHtml: true },
     legend: 'none',
+    vAxis: {minValue: 0, maxValue: 100}
   };
-  lineChartcolumnNames = [
-    'Year',
-    'value',
+
+  lineChartColumnNames = [
+    'Actividad',
+    'Avance',
     { role: 'style' },
     { role: 'annotation' },
-    { type: 'string', role: 'tooltip', p: { html: true } },
+    { type: 'string', role: 'tooltip' },
   ];
 
-  lineChartdata = [
-    ['developer1', 8, 'color: rgb(143, 27, 0)', '6', ''],
-    ['developer2', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer3', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer4', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer5', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer6', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer7', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer8', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer9', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer10', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer11', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer12', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer13', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer14', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer15', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer16', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer17', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer18', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer19', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer21', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer22', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer23', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer24', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer25', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer26', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer27', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer28', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer29', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer30', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer31', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer32', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer33', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer34', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer35', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer36', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer37', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer38', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer39', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer40', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer41', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer42', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer43', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer44', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer45', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer46', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer47', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer48', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer49', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer50', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer51', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer52', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer53', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer54', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer55', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer56', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer57', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer58', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer59', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer60', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer61', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer62', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer63', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer64', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer65', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer66', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer67', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer68', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer69', 8, 'color: rgb(143, 27, 0)', '$6', '1221212 <br/> $ 6'],
-    ['developer70', 8, 'color: rgb(143, 27, 0)', '$6', ''],
-  ];
+  lineChartData = [['', 0, 'color: rgb(143, 27, 0)', '', '']];
 
-  dataSources = [
-    { priority: 'P1', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Undefined', dateCreated: '11/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Undefined', dateCreated: '11/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'New', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P1', status: 'New', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Undefined', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'Open', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'New', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-    { priority: 'P2', status: 'New', dateCreated: '12/12/12', testNumber: 545, testCurrency: 45, testTime: '12:45' },
-  ];
-  displayedColumnss = ['priority', 'status', 'dateCreated', 'testNumber', 'testCurrency', 'testTime'];
-  spanningColumns = ['priority', 'status', 'dateCreated'];
+  displayedColumns: string[] = [
+    "id", "ponderacion", "actividad", "indicador", "formula", "meta",
+    "numt1", "dent1", "pert1", "acut1", "metat1", "actividadt1",
+    "numt2", "dent2", "pert2", "acut2", "metat2", "actividadt2",
+    "numt3", "dent3", "pert3", "acut3", "metat3", "actividadt3",
+    "numt4", "dent4", "pert4", "acut4", "metat4", "actividadt4",];
 
-  displayedColumns: string[] = ["id", "ponderacion", "periodoE", "actividad", "indicador", "formula", "meta", "estado", "vigencia", "periodo", "seguimiento"];
-  displayedColumnsSum: string[] = ['avance', 'sumaT1', 'sumaT2', 'sumaT3', 'sumaT4'];
-  dataSource: MatTableDataSource<any>;
-  tipoPlanId: string; // id tipo plan
-  idPadre: string; // id padre del objeto
+  displayedHeaders: string[] = [
+    "idP", "ponderacionP", "actividadP", "indicadorP", "formulaP", "metaP",
+    "trimestre1", "trimestre2", "trimestre3", "trimestre4"];
+
   planes: any[];
+  periodos: any[];
   bandera: boolean;
-  sumaT1: number;
-  sumaT2: number;
-  sumaT3: number;
-  sumaT4: number;
-  ponderacion: number;
   vigencias: any[];
   unidades: any[];
   unidadSelected: boolean;
   unidad: any;
   vigenciaSelected: boolean;
   vigencia: any;
-
-  // testDatos: any = datosTest;
-  testDatos: any = [
-    {
-      numero: 1, ponderado: 0, periodo: 2, actividad: "Actividad 1",
-      indicador: [{ indicadorN: "indicador 1", formula: "x-b", meta: "140", trimestre1: {}, trimestre2: {}, trimestre3: {}, trimestre4: {} },
-      { indicadorN: "indicador 2", formula: "x-c", meta: "150", trimestre1: {}, trimestre2: {}, trimestre3: {}, trimestre4: {} },
-      { indicadorN: "indicador 3", formula: "x-d", meta: "1640", trimestre1: {}, trimestre2: {}, trimestre3: {}, trimestre4: {} }]
-    },
-
-    { numero: 2, ponderado: 10, periodo: 2, actividad: "Actividad 2", indicador: [{ indicadorN: "indicador 01", formula: "x-y", meta: "180", trimestre1: {}, trimestre2: {}, trimestre3: {}, trimestre4: {} }] }];
+  periodoSelected: boolean;
+  periodo: any;
+  planSelected: boolean;
+  tr2: boolean = true;
+  tr3: boolean = true;
+  tr4: boolean = true;
+  actividades: any
   rol: string;
+  plan = {
+    "periodos": [],
+    "plan": "",
+    "id": ""
+  };
+  avanceTr1 = 0;
+  avanceTr2 = 0;
+  avanceTr3 = 0;
+  avanceTr4 = 0;
+
+  @ViewChild(MatTable) table: MatTable<any>;
 
   constructor(
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
-    private _location: Location
+    private userService: UserService,
+    private router: Router
   ) {
-    this.loadPlanes();
-    this.loadPeriodos();
-    this.loadUnidades();
+    this.loadVigencias();
     this.unidadSelected = false;
     this.vigenciaSelected = false;
   }
 
-  onChange(plan) {
-    this.bandera = false;
-    if (plan == undefined) {
-      this.tipoPlanId = undefined;
-    } else {
-      this.tipoPlanId = plan.tipo_plan_id;
-      let nombrePlan = document.getElementById('test');
-      this.idPadre = plan._id; // id plan
+  ngAfterViewChecked(): void {
+    if (this.table) {
+      this.table.updateStickyColumnStyles();
     }
   }
 
@@ -211,6 +121,9 @@ export class EvaluacionComponent implements OnInit {
     } else {
       this.unidadSelected = true;
       this.unidad = unidad;
+      if (this.vigenciaSelected) {
+        this.loadPlanes();
+      }
     }
   }
 
@@ -220,27 +133,144 @@ export class EvaluacionComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
+      if (this.unidadSelected) {
+        this.loadPlanes();
+      }
+    }
+  }
+
+  onChangeP(plan) {
+    if (plan == undefined) {
+      this.planSelected = false;
+    } else {
+      this.planSelected = true;
+      plan.periodos.forEach(periodo => {periodo.nombre = periodo.nombre[0].toUpperCase() + periodo.nombre.substring(1).toLowerCase()})
+      this.plan = plan;
+    }
+  }
+
+  onChangePe(periodo) {
+    if (periodo == undefined) {
+      this.periodoSelected = false;
+    } else {
+      this.periodoSelected = true;
+      this.periodo = periodo;
     }
   }
 
   backClicked() {
-    this._location.back();
+    this.router.navigate(['pages/dashboard']);
   }
 
   getRol() {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
-      this.rol = 'JEFE_DEPENDENCIA'
+      this.rol = 'JEFE_DEPENDENCIA';
+      this.validarUnidad();
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
-      this.rol = 'PLANEACION'
+      this.rol = 'PLANEACION';
+      this.loadUnidades();
     }
   }
 
-  ingresarEvaluacion() {
-    this.bandera = true;
+  validarUnidad() {
+    this.userService.user$.subscribe((data) => {
+      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
+        .subscribe((datosInfoTercero: any) => {
+          this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
+            .subscribe((vinculacion: any) => {
+              if (vinculacion["Data"] != "") {
+                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
+                  if (dataUnidad) {
+                    let unidad = dataUnidad[0]["DependenciaId"]
+                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+                    for (let i = 0; i < dataUnidad.length; i++) {
+                      if (dataUnidad[i]["TipoDependenciaId"]["Id"] === 2) {
+                        unidad["TipoDependencia"] = dataUnidad[i]["TipoDependenciaId"]["Id"]
+                      }
+                    }
+                    this.unidades = [unidad];
+                    this.onChangeU(unidad);
+                    Swal.close();
+                  }
+                })
+              } else {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No cuenta con los permisos requeridos para acceder a este módulo`,
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 4000
+                })
+              }
+            })
+        })
+
+    })
   }
 
-  loadPeriodos() {
+  ingresarEvaluacion() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    this.bandera = true;
+    this.actividades = [];
+    this.spans = [];
+    this.request.get(environment.PLANES_MID, `evaluacion/` + this.vigencia.Id + `/` + this.plan.id + `/` + this.periodo.id).subscribe((data: any) => {
+      if (data) {
+        this.actividades = data.Data;
+        this.actividades.forEach(actividad => {
+          actividad.class = actividad.numero % 2 == 0 ? "claro" : "oscuro";
+        });
+        this.pieTitle = "Cumplimiento general " + this.plan.plan + " - " + this.unidad.Nombre;
+        this.cacheSpan('numero', d => d.numero);
+        this.cacheSpan('ponderado', d => d.numero + d.ponderado);
+        this.cacheSpan('periodo', d => d.numero + d.ponderado + d.periodo);
+        this.cacheSpan('actividad', d => d.numero + d.ponderado + d.periodo + d.actividad);
+        this.cacheSpan('actividadt1', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1);
+        this.cacheSpan('actividadt2', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2);
+        this.cacheSpan('actividadt3', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3);
+        this.cacheSpan('actividadt4', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4);
+
+        if (this.periodo.nombre == "Trimestre dos") {
+          this.tr2 = true;
+          this.tr3 = false;
+          this.tr4 = false;
+        } else if (this.periodo.nombre == "Trimestre tres") {
+          this.tr2 = true;
+          this.tr3 = true;
+          this.tr4 = false;
+        } else if (this.periodo.nombre == "Trimestre cuatro") {
+          this.tr2 = true;
+          this.tr3 = true;
+          this.tr4 = true;
+        } else {
+          this.tr2 = false;
+          this.tr3 = false;
+          this.tr4 = false;
+        }
+        this.calcularAvanceGeneral();
+        this.graficarBarras();
+        this.graficarCircular();
+        Swal.close();
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      });
+    })
+  }
+
+  loadVigencias() {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
       if (data) {
         this.vigencias = data.Data;
@@ -252,14 +282,54 @@ export class EvaluacionComponent implements OnInit {
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
-      })
-    })
+      });
+    });
+  }
+
+  loadPeriodo() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
+      if (data) {
+        this.periodos = data.Data;
+      }
+    }, (error) => {
+      this.bandera = false;
+      this.periodoSelected = false;
+      this.planes = [];
+      this.plan = { "periodos": [], "plan": "", "id": "" };
+      this.tr2 = false;
+      this.tr3 = false;
+      this.tr4 = false;
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      });
+    });
   }
 
   loadUnidades() {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
     this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
       if (data) {
         this.unidades = data.Data;
+        Swal.close();
       }
     }, (error) => {
       Swal.fire({
@@ -268,63 +338,170 @@ export class EvaluacionComponent implements OnInit {
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
-      })
-    })
+      });
+    });
   }
 
   loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    this.request.get(environment.PLANES_MID, `evaluacion/planes_periodo/` + this.vigencia.Id + `/` + this.unidad.Id).subscribe((data: any) => {
       if (data) {
-        this.planes = data.Data;
-        this.planes = this.filterActivos(this.planes);
+        if (data.Data != null) {
+          this.planes = data.Data;
+          Swal.close();
+        } else {
+          this.bandera = false;
+          this.periodoSelected = false;
+          this.planes = [];
+          this.plan = { "periodos": [], "plan": "", "id": "" };
+          this.tr2 = false;
+          this.tr3 = false;
+          this.tr4 = false;
+          Swal.fire({
+            title: 'La unidad no tiene planes con seguimientos avalados para la vigencia selecionada',
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        }
       }
     }, (error) => {
+      this.bandera = false;
+      this.periodoSelected = false;
+      this.planes = [];
+      this.plan = { "periodos": [], "plan": "", "id": "" };
+      this.tr2 = false;
+      this.tr3 = false;
+      this.tr4 = false;
       Swal.fire({
-        title: 'Error en la operación',
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
+        title: 'La unidad no tiene planes con seguimientos avalados para la vigencia selecionada',
+        icon: 'info',
         showConfirmButton: false,
         timer: 2500
-      })
-    })
-  }
-
-  filterActivos(data) {
-    return data.filter(e => e.activo == true);
-  }
-
-  sumPercent() {
-    this.ponderacion = 0;
-    for (let ponder of this.testDatos) {
-      let ponderacionunidad = parseFloat(ponder.ponderacion);
-      this.ponderacion = this.ponderacion + ponderacionunidad;
-    }
-    this.sumaT1 = 0;
-    this.sumaT2 = 0;
-    this.sumaT3 = 0;
-    this.sumaT4 = 0;
-
-    for (let ponderacion of this.testDatos) {
-      let ponder = parseFloat(ponderacion.ponderacion);
-      let T1 = parseFloat(ponderacion.trimestre1);
-      let T2 = parseFloat(ponderacion.trimestre2);
-      let T3 = parseFloat(ponderacion.trimestre3);
-      let T4 = parseFloat(ponderacion.trimestre4);
-      let suma1 = ((ponder * (T1)) / this.ponderacion);
-      let suma2 = ((ponder * (T2)) / this.ponderacion);
-      let suma3 = ((ponder * (T3)) / this.ponderacion);
-      let suma4 = ((ponder * (T4)) / this.ponderacion);
-
-      this.sumaT1 = this.sumaT1 + suma1;
-      this.sumaT2 = this.sumaT2 + suma2;
-      this.sumaT3 = this.sumaT3 + suma3;
-      this.sumaT4 = this.sumaT4 + suma4;
-    }
+      });
+    });
   }
 
   ngOnInit(): void {
+    registerLocaleData(es);
+    Swal.fire({
+      title: 'Cargando información',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
     this.getRol();
-    this.sumPercent();
   }
 
+  cacheSpan(key, accessor) {
+    for (let i = 0; i < this.actividades.length;) {
+      let currentValue = accessor(this.actividades[i]);
+      let count = 1;
+
+      for (let j = i + 1; j < this.actividades.length; j++) {
+        if (currentValue != accessor(this.actividades[j])) {
+          break;
+        }
+        count++;
+      }
+
+      if (!this.spans[i]) {
+        this.spans[i] = {};
+      }
+
+      this.spans[i][key] = count;
+      i += count;
+    }
+  }
+
+  getRowSpan(col, index) {
+    return this.spans[index] && this.spans[index][col];
+  }
+
+  calcularAvanceGeneral() {
+    let numero = 0;
+    this.avanceTr1 = 0;
+    this.avanceTr2 = 0;
+    this.avanceTr3 = 0;
+    this.avanceTr4 = 0;
+
+    for (let index = 0; index < this.actividades.length; index++) {
+      const actividad = this.actividades[index];
+      if (numero != actividad.numero) {
+        numero = actividad.numero;
+      } else {
+        continue;
+      }
+
+      if (actividad.trimestre1.actividad) {
+        this.avanceTr1 += actividad.ponderado / 100 * (actividad.trimestre1.actividad <= 1 ? actividad.trimestre1.actividad : 1);
+      }
+
+      if (actividad.trimestre2.actividad) {
+        this.avanceTr2 += actividad.ponderado / 100 * (actividad.trimestre2.actividad <= 1 ? actividad.trimestre2.actividad : 1);
+      }
+
+      if (actividad.trimestre3.actividad) {
+        this.avanceTr3 += actividad.ponderado / 100 * (actividad.trimestre3.actividad <= 1 ? actividad.trimestre3.actividad : 1);
+      }
+
+      if (actividad.trimestre4.actividad) {
+        this.avanceTr4 += actividad.ponderado / 100 * (actividad.trimestre4.actividad <= 1 ? actividad.trimestre4.actividad : 1);
+      }
+    }
+  }
+
+  graficarBarras() {
+    let numero = 0;
+    let actividades = [];
+
+    for (let index = 0; index < this.actividades.length; index++) {
+      const actividad = this.actividades[index];
+      if (numero != actividad.numero) {
+        numero = actividad.numero;
+      } else {
+        continue;
+      }
+
+      let actividadValor
+      if (this.avanceTr4) {
+        actividadValor = Math.round((actividad.trimestre4.actividad * 100) * 100) / 100
+      } else if (this.avanceTr3) {
+        actividadValor = Math.round((actividad.trimestre3.actividad * 100) * 100) / 100
+      } else if (this.avanceTr2) {
+        actividadValor = Math.round((actividad.trimestre2.actividad * 100) * 100) / 100
+      } else if (this.avanceTr1) {
+        actividadValor = Math.round((actividad.trimestre1.actividad * 100) * 100) / 100
+      }
+
+      actividades.push([actividad.numero, actividadValor, 'color: rgb(143, 27, 0)', String(actividadValor) + '%', actividad.actividad]);
+    }
+
+    this.lineChartData = actividades;
+  }
+
+  graficarCircular() {
+    let avance = 0;
+    if (this.tr4) {
+      avance = this.avanceTr4;
+    } else if (this.tr3) {
+      avance = this.avanceTr3;
+    } else if (this.tr2) {
+      avance = this.avanceTr2;
+    } else {
+      avance = this.avanceTr1;
+    }
+
+    this.pieChartData = [['Avance', avance * 100],
+    ['Restante', 100 - avance * 100]];
+  }
 }
