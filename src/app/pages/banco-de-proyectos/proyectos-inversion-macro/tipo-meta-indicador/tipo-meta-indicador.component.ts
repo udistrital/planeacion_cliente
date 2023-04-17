@@ -89,8 +89,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
 
   busquedaPlanes() {    
     console.log(this.namePlan, "nombre plan");    
-    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.dependencia + `,vigencia:` +
-      this.vigencia + `,formato:false,nombre:` + this.namePlan).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.dependencia + `,vigencia:` + this.vigencia + `,formato:false,nombre:` + this.namePlan).subscribe((data: any) => {
         if (data.Data.length > 0) {
           let i = data.Data.length - 1;
           console.log(data.Data, "info del plan");
@@ -110,7 +109,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
           
           this.plan = data.Data;
         }
-      }, (error) => {
+      }), (error) => {
         Swal.fire({
           title: 'Error en la operación',
           text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
@@ -118,14 +117,12 @@ export class TipoMetaIndicadorComponent implements OnInit {
           showConfirmButton: false,
           timer: 2500
         })
-      })
+      }
   }
 
   getVersiones() {
     let aux = this.namePlan.replace(/ /g, "%20");
-    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.dependencia + `/` + this.vigencia +
-    //this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.unidad + `/` + this.vigencia.Id +
-      `/` + aux).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.dependencia + `/` + this.vigencia + `/` + aux).subscribe((data: any) => {
         if (data) {
           this.versiones = data;
           console.log(this.versiones, "versiones");
@@ -157,6 +154,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
         })
       }
   }
+
   visualizeObs() {
     console.log(this.rol, "rol");
     if (this.rol == 'JEFE_DEPENDENCIA') {
@@ -240,6 +238,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
       }
     })    
   }
+
   onChangeM(meta) {
     if (meta == undefined) {
       this.metaSelected = false;
@@ -302,7 +301,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
           // let len2 = (strArmonizacion2.split(",").length)
           // this.dataArmonizacionPI = strArmonizacion2.split(",", len2).filter(((item) => item != ""))
         }
-      }, (error) => {
+      }), (error) => {
         Swal.fire({
           title: 'Error en la operación',
           text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
@@ -310,7 +309,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
           showConfirmButton: false,
           timer: 2500
         })
-      })
+      }
     //}
   }
 
@@ -351,7 +350,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
           }
         }) 
       }
-    }, (error) => {
+    }), (error) => {
       Swal.fire({
         title: 'Error en la operación',
         text: `No fue posible actualizar la actividad, por favor contactarse con el administrador del sistema`,
@@ -363,7 +362,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
       //this.addActividad = false;
       //this.dataArmonizacionPED = [];
       //this.dataArmonizacionPI = [];
-    })
+    }
     } else {
       Swal.fire({
         title: 'Error en la operación',
@@ -404,106 +403,106 @@ export class TipoMetaIndicadorComponent implements OnInit {
   //   })
   // }
 
-  submit() {
-    // if (!this.banderaEdit) { // ADD NUEVA ACTIVIDAD     
+  // submit() {
+  //   // if (!this.banderaEdit) { // ADD NUEVA ACTIVIDAD     
 
-         var formValue = this.form.value;
-         console.log(formValue);
-    //     var actividad = {
-    //       //armo: this.dataArmonizacionPED.toString(),
-    //       //armoPI: this.dataArmonizacionPI.toString(),
-    //       entrada: formValue
-    //     }
-        // this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data: any) => {
-        //   if (data) {
-        //     Swal.fire({
-        //       title: 'Actividad agregada',
-        //       //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
-        //       text: 'La actividad se ha registrado satisfactoriamente',
-        //       icon: 'success'
-        //     }).then((result) => {
-        //       if (result.value) {
-        //         //this.loadData()
-        //         this.form.reset();
-        //         //this.addActividad = false;
-        //         //this.dataArmonizacionPED = [];
-        //         //this.dataArmonizacionPI = [];
-        //         //this.idPadre = undefined;
-        //         //this.tipoPlanId = undefined;
-        //         //this.tipoPlanIndicativo = undefined;
-        //         //this.idPlanIndicativo = undefined;
-        //       }
-        //     })
-        //   }
-        // }, (error) => {
-        //   Swal.fire({
-        //     title: 'Error en la operación',
-        //     text: 'No fue posible crear la actividad, por favor contactarse con el administrador del sistema',
-        //     icon: 'error',
-        //     showConfirmButton: false,
-        //     timer: 2500
-        //   })
+  //        var formValue = this.form.value;
+  //        console.log(formValue);
+  //   //     var actividad = {
+  //   //       //armo: this.dataArmonizacionPED.toString(),
+  //   //       //armoPI: this.dataArmonizacionPI.toString(),
+  //   //       entrada: formValue
+  //   //     }
+  //       // this.request.put(environment.PLANES_MID, `formulacion/guardar_actividad`, actividad, this.plan._id).subscribe((data: any) => {
+  //       //   if (data) {
+  //       //     Swal.fire({
+  //       //       title: 'Actividad agregada',
+  //       //       //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+  //       //       text: 'La actividad se ha registrado satisfactoriamente',
+  //       //       icon: 'success'
+  //       //     }).then((result) => {
+  //       //       if (result.value) {
+  //       //         //this.loadData()
+  //       //         this.form.reset();
+  //       //         //this.addActividad = false;
+  //       //         //this.dataArmonizacionPED = [];
+  //       //         //this.dataArmonizacionPI = [];
+  //       //         //this.idPadre = undefined;
+  //       //         //this.tipoPlanId = undefined;
+  //       //         //this.tipoPlanIndicativo = undefined;
+  //       //         //this.idPlanIndicativo = undefined;
+  //       //       }
+  //       //     })
+  //       //   }
+  //       // }, (error) => {
+  //       //   Swal.fire({
+  //       //     title: 'Error en la operación',
+  //       //     text: 'No fue posible crear la actividad, por favor contactarse con el administrador del sistema',
+  //       //     icon: 'error',
+  //       //     showConfirmButton: false,
+  //       //     timer: 2500
+  //       //   })
 
-        //   this.addActividad = false;
-        //   this.dataArmonizacionPED = [];
-        //   this.dataArmonizacionPI = [];
-        // })
+  //       //   this.addActividad = false;
+  //       //   this.dataArmonizacionPED = [];
+  //       //   this.dataArmonizacionPI = [];
+  //       // })
       
 
-    // } else { // EDIT ACTIVIDAD
-    //   if (this.dataArmonizacionPED.length != 0 && this.dataArmonizacionPI.length != 0) {
-    //     var aux = this.dataArmonizacionPED.toString();
-    //     let aux2 = this.dataArmonizacionPI.toString();
-    //     var formValue = this.form.value;
-    //     var actividad = {
-    //       armo: aux,
-    //       armoPI: aux2,
-    //       entrada: formValue
-    //     }
-    //     this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id + `/` + this.rowActividad).subscribe((data: any) => {
-    //       if (data) {
-    //         Swal.fire({
-    //           title: 'Información de actividad actualizada',
-    //           //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
-    //           text: 'La actividad se ha actualizado satisfactoriamente',
-    //           icon: 'success'
-    //         }).then((result) => {
-    //           if (result.value) {
-    //             this.form.reset();
-    //             this.addActividad = false;
-    //             this.loadData();
-    //             this.idPadre = undefined;
-    //             this.tipoPlanId = undefined;
-    //             this.idPlanIndicativo = undefined;
-    //             this.tipoPlanIndicativo = undefined;
-    //           }
-    //         })
-    //       }
-    //     }, (error) => {
-    //       Swal.fire({
-    //         title: 'Error en la operación',
-    //         text: `No fue posible actualizar la actividad, por favor contactarse con el administrador del sistema`,
-    //         icon: 'error',
-    //         showConfirmButton: false,
-    //         timer: 2500
-    //       })
+  //   // } else { // EDIT ACTIVIDAD
+  //   //   if (this.dataArmonizacionPED.length != 0 && this.dataArmonizacionPI.length != 0) {
+  //   //     var aux = this.dataArmonizacionPED.toString();
+  //   //     let aux2 = this.dataArmonizacionPI.toString();
+  //   //     var formValue = this.form.value;
+  //   //     var actividad = {
+  //   //       armo: aux,
+  //   //       armoPI: aux2,
+  //   //       entrada: formValue
+  //   //     }
+  //   //     this.request.put(environment.PLANES_MID, `formulacion/actualizar_actividad`, actividad, this.plan._id + `/` + this.rowActividad).subscribe((data: any) => {
+  //   //       if (data) {
+  //   //         Swal.fire({
+  //   //           title: 'Información de actividad actualizada',
+  //   //           //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+  //   //           text: 'La actividad se ha actualizado satisfactoriamente',
+  //   //           icon: 'success'
+  //   //         }).then((result) => {
+  //   //           if (result.value) {
+  //   //             this.form.reset();
+  //   //             this.addActividad = false;
+  //   //             this.loadData();
+  //   //             this.idPadre = undefined;
+  //   //             this.tipoPlanId = undefined;
+  //   //             this.idPlanIndicativo = undefined;
+  //   //             this.tipoPlanIndicativo = undefined;
+  //   //           }
+  //   //         })
+  //   //       }
+  //   //     }, (error) => {
+  //   //       Swal.fire({
+  //   //         title: 'Error en la operación',
+  //   //         text: `No fue posible actualizar la actividad, por favor contactarse con el administrador del sistema`,
+  //   //         icon: 'error',
+  //   //         showConfirmButton: false,
+  //   //         timer: 2500
+  //   //       })
 
-    //       this.addActividad = false;
-    //       this.dataArmonizacionPED = [];
-    //       this.dataArmonizacionPI = [];
-    //     })
-    //   } else {
-    //     Swal.fire({
-    //       title: 'Por favor complete la armonización para continuar',
-    //       text: `No se encontraron datos registrados`,
-    //       icon: 'warning',
-    //       showConfirmButton: false,
-    //       timer: 2500
-    //     })
-    //   }
+  //   //       this.addActividad = false;
+  //   //       this.dataArmonizacionPED = [];
+  //   //       this.dataArmonizacionPI = [];
+  //   //     })
+  //   //   } else {
+  //   //     Swal.fire({
+  //   //       title: 'Por favor complete la armonización para continuar',
+  //   //       text: `No se encontraron datos registrados`,
+  //   //       icon: 'warning',
+  //   //       showConfirmButton: false,
+  //   //       timer: 2500
+  //   //     })
+  //   //   }
 
-    // }
-  }
+  //   // }
+  // }
 
   cancelar() {
     this.router.navigate(['pages/proyectos-macro/formular-proyecto']);
