@@ -12,7 +12,6 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./tipo-meta-indicador.component.scss']
 })
 export class TipoMetaIndicadorComponent implements OnInit {
-
   activedStep = 0;
   form: FormGroup;
   steps: any[];
@@ -45,6 +44,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
   hiddenObs: boolean;
   readOnlyAll: boolean;
   addActividad: boolean;
+  controlVersion = new FormControl();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -53,15 +53,6 @@ export class TipoMetaIndicadorComponent implements OnInit {
     private router: Router,
     private autenticationService: ImplicitAutenticationService,
   ) { 
-    activatedRoute.params.subscribe(prm => {
-
-      this.planId = prm['idPlan']; 
-      this.indexMeta = prm['indexMeta'];
-      this.idProyectoInversion = prm['idProyectoInversion'];
-      this.rowIndex = prm['rowIndex'];
-      //console.log(this.id_formato);
-    });
-    //this.cargaFormato();
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'      
@@ -69,6 +60,14 @@ export class TipoMetaIndicadorComponent implements OnInit {
       this.rol = 'JEFE_DEPENDENCIA'
       //this.verificarFechas();
     }
+    activatedRoute.params.subscribe(prm => {
+      this.planId = prm['idPlan']; 
+      this.indexMeta = prm['indexMeta'];
+      this.idProyectoInversion = prm['idProyectoInversion'];
+      this.rowIndex = prm['rowIndex'];
+      //console.log(this.id_formato);
+    });
+    //this.cargaFormato();    
     this.loadPlan();
   }
 
@@ -78,7 +77,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
   }
 
   loadPlan() {
-    
+
     this.request.get(environment.PLANES_CRUD, `plan/` + this.planId).subscribe((data: any) => {
       if (data) {
         this.namePlan = data.Data.nombre;
@@ -153,7 +152,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
           this.clonar = false;
           this.banderaUltimaVersion = true;
           //this.loadData();
-          //this.controlVersion = new FormControl(this.plan);
+          this.controlVersion = new FormControl(this.plan);
           this.versionPlan = this.plan.numero;
           this.getEstado();
         }
@@ -169,6 +168,22 @@ export class TipoMetaIndicadorComponent implements OnInit {
       }
   }
 
+  onChangeVersion(version) {
+    if (version._id == this.versiones[this.versiones.length - 1]._id) {
+      this.banderaUltimaVersion = true;
+    } else {
+      this.banderaUltimaVersion = false;
+    }
+    this.plan = version;
+    this.versionPlan = this.plan.numero;
+    this.controlVersion = new FormControl(this.plan);
+    this.getEstado();
+    this.planAsignado = true;
+    this.clonar = false;
+    //this.loadData();
+    this.addActividad = false;
+    this.planId = this.plan._id;
+  }
   visualizeObs() {
     console.log(this.rol, "rol");
     if (this.rol == 'JEFE_DEPENDENCIA') {
@@ -229,8 +244,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
 
         this.visualizeObs();
       }
-    }),
-      (error) => {
+    }), (error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
@@ -366,15 +380,15 @@ export class TipoMetaIndicadorComponent implements OnInit {
       //this.dataArmonizacionPED = [];
       //this.dataArmonizacionPI = [];
     }
-    } else {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `Debe seleccionar una Meta del Proyecto de Inversión Vigente asociado`,
-        icon: 'error',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    }
+    } //else {
+    //   Swal.fire({
+    //     title: 'Error en la operación',
+    //     text: `Debe seleccionar una Meta del Proyecto de Inversión Vigente asociado`,
+    //     icon: 'error',
+    //     showConfirmButton: false,
+    //     timer: 2500
+    //   })
+    // }
     
   }
   
