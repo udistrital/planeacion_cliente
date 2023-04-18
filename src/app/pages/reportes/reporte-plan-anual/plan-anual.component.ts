@@ -24,10 +24,11 @@ export class PlanAnualComponent implements OnInit {
   reporte_archivo: any;
   dataSource: MatTableDataSource<any>;
   displayedColumns: string[];
-  rol : string;
-  moduloVisible : boolean;
+  rol: string;
+  moduloVisible: boolean;
   estados: any[];
   planes: any[];
+  evaluacion: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -48,9 +49,9 @@ export class PlanAnualComponent implements OnInit {
       this.rol = 'PLANEACION'
       this.loadUnidades();
     }
-    else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA'|| 'ASISTENTE_DEPENDENCIA')) {
-      this.rol = 'JEFE_DEPENDENCIA';  
-      this.validarUnidad();    
+    else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA')) {
+      this.rol = 'JEFE_DEPENDENCIA';
+      this.validarUnidad();
     }
   }
 
@@ -60,8 +61,8 @@ export class PlanAnualComponent implements OnInit {
       tipoReporte: ['', Validators.required],
       categoria: ['', Validators.required],
       unidad: ['', Validators.required],
-      estado:['', Validators.required],
-      plan:['', Validators.required],
+      estado: ['', Validators.required],
+      plan: ['', Validators.required],
     });
   }
 
@@ -137,7 +138,7 @@ export class PlanAnualComponent implements OnInit {
     })
   }
 
-  loadEstados(){
+  loadEstados() {
     // Carga estado Formulado
     this.request.get(environment.PLANES_CRUD, `estado-plan/614d3aeb01c7a245952fabff`).subscribe((data: any) => {
       if (data) {
@@ -227,20 +228,91 @@ export class PlanAnualComponent implements OnInit {
   }
 
   onChangeC(categoria) {
-    if (categoria === 'necesidades') {
+    this.evaluacion = false;
+    if (categoria == 'necesidades') {
       this.form.get('tipoReporte').setValue('general');
       this.form.get('tipoReporte').setValue(null);
       this.form.get('tipoReporte').disable();
       this.form.get('unidad').setValue(null);
       this.form.get('unidad').disable();
+      this.form.get('estado').enable();
       this.unidadVisible = false;
-    } else{
+    } else if (categoria == 'evaluacion') {
+      this.form.get('tipoReporte').setValue(null);
+      this.form.get('tipoReporte').disable();
+      this.form.get('estado').setValue(null);
+      this.form.get('estado').disable();
+      this.evaluacion = true;
+    } else {
       this.form.get('tipoReporte').enable();
       this.form.get('unidad').enable();
+      this.form.get('estado').enable();
       this.unidadVisible = true;
     }
   }
- 
+
+  verificar() {
+    let unidad = this.form.get('unidad').value;
+    let vigencia = this.form.get('vigencia').value;
+    let tipoReporte = this.form.get('tipoReporte').value;
+    let categoria = this.form.get('categoria').value;
+    let estado = this.form.get('estado').value;
+    let plan = this.form.get('plan').value;
+    let body = {
+      tipo_plan_id: "61639b8c1634adf976ed4b4c",
+      vigencia: (vigencia.Id).toString(),
+      nombre: plan.nombre
+    };
+    Swal.fire({
+      title: 'Validando reporte',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    if (categoria === 'planAccion') {
+      if (tipoReporte === 'unidad') {
+        body["unidad_id"] = (unidad.Id).toString();
+        body["estado_plan_id"] = estado;
+        body["categoria"] = "Plan de acción unidad";
+      } else if (tipoReporte === 'general') {
+        body["estado_plan_id"] = estado;
+        body["categoria"] = "Plan de acción general";
+      }
+    } else if (categoria === 'necesidades') {
+      body["estado_plan_id"] = estado;
+      body["categoria"] = "Necesidades";
+    } else if (categoria === 'evaluacion') {
+      body["unidad_id"] = (unidad.Id).toString();
+      body["categoria"] = "Evaluación";
+    }
+
+    this.request.post(environment.PLANES_MID, `reportes/validar_reporte`, body).subscribe((res: any) => {
+      if (res) {
+        if (res.Data.reporte) {
+          this.generar();
+        } else {
+          Swal.fire({
+            title: 'No es posible generar un reporte',
+            text: res.Data.mensaje,
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 3500
+          })
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No es posible generar el reporte`,
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
   generar() {
     let unidad = this.form.get('unidad').value;
     let vigencia = this.form.get('vigencia').value;
@@ -266,10 +338,10 @@ export class PlanAnualComponent implements OnInit {
           vigencia: (vigencia.Id).toString(),
         }
 
-        this.request.post(environment.PLANES_MID, `reportes/plan_anual/`+plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
+        this.request.post(environment.PLANES_MID, `reportes/plan_anual/` + plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
           if (data) {
-            if (data.Data.generalData){
-              this.dataSource.data= [];
+            if (data.Data.generalData) {
+              this.dataSource.data = [];
               let auxEstado = this.estados.find(element => element._id === estado);
               this.reporte = body;
               this.reporte_archivo = data.Data.excelB64;
@@ -282,7 +354,7 @@ export class PlanAnualComponent implements OnInit {
               auxDataSource.push(this.reporte)
               this.dataSource.data = auxDataSource;
               Swal.close();
-            }else{
+            } else {
               Swal.close();
               Swal.fire({
                 title: 'Error en la operación',
@@ -310,14 +382,14 @@ export class PlanAnualComponent implements OnInit {
           vigencia: (vigencia.Id).toString(),
         }
 
-        this.request.post(environment.PLANES_MID_PROXY, `reportes/plan_anual_general/`+ plan.nombre, body).subscribe((data: any) => {
+        this.request.post(environment.PLANES_MID_PROXY, `reportes/plan_anual_general/` + plan.nombre, body).subscribe((data: any) => {
           if (data) {
-            let infoReportes : any[] = data.Data.generalData;
-            this.dataSource.data= [];
+            let infoReportes: any[] = data.Data.generalData;
+            this.dataSource.data = [];
             this.reporte_archivo = data.Data["excelB64"];
-            for (let i = 0 ; i< infoReportes.length; i++){
+            for (let i = 0; i < infoReportes.length; i++) {
               infoReportes[i]["vigencia"] = vigencia["Nombre"]
-              if (i == infoReportes.length -1 ){
+              if (i == infoReportes.length - 1) {
                 let auxDataSource = this.dataSource.data;
                 this.dataSource.data = auxDataSource.concat(infoReportes);
                 this.tablaVisible = true
@@ -335,16 +407,16 @@ export class PlanAnualComponent implements OnInit {
           })
         })
       }
-    }else if (categoria === 'necesidades'){
+    } else if (categoria === 'necesidades') {
       let body = {
         tipo_plan_id: "61639b8c1634adf976ed4b4c",
         estado_plan_id: estado,
         vigencia: (vigencia.Id).toString(),
       }
 
-      this.request.post(environment.PLANES_MID, `reportes/necesidades/`+plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
+      this.request.post(environment.PLANES_MID, `reportes/necesidades/` + plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
         if (data) {
-          this.dataSource.data= [];
+          this.dataSource.data = [];
           let auxEstado = this.estados.find(element => element._id === estado);
           this.reporte = body;
           this.reporte_archivo = data.Data["excelB64"];
@@ -368,11 +440,51 @@ export class PlanAnualComponent implements OnInit {
           timer: 2500
         })
       })
+    } else if (categoria === 'evaluacion') {
+      let body = {
+        unidad_id: (unidad.Id).toString(),
+        tipo_plan_id: "61639b8c1634adf976ed4b4c",
+        vigencia: (vigencia.Id).toString(),
+      }
 
+      this.request.post(environment.PLANES_MID, `reportes/plan_anual_evaluacion/` + plan.nombre.replace(/ /g, "%20"), body).subscribe((data: any) => {
+        if (data) {
+          if (data.Data.generalData) {
+            this.dataSource.data = [];
+            this.reporte = body;
+            this.reporte_archivo = data.Data.excelB64;
+            this.reporte["nombre_unidad"] = data.Data.generalData[0].nombreUnidad;
+            this.reporte["vigencia"] = vigencia.Nombre
+            this.reporte["tipo_plan"] = "Evaluación plan de acción"
+            this.reporte["estado_plan"] = plan.nombre;
+            this.tablaVisible = true;
+            let auxDataSource = this.dataSource.data;
+            auxDataSource.push(this.reporte)
+            this.dataSource.data = auxDataSource;
+            Swal.close();
+          } else {
+            Swal.close();
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron datos registrados para este reporte`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
     }
-
   }
-
 
   descargarReporte() {
     let blob = this.base64ToBlob(this.reporte_archivo);
@@ -399,8 +511,8 @@ export class PlanAnualComponent implements OnInit {
     return new Blob(byteArrays, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   }
 
-   consultarVigencia(infoReportes : any[]){
-    for (let i = 0 ; i< infoReportes.length; i++){
+  consultarVigencia(infoReportes: any[]) {
+    for (let i = 0; i < infoReportes.length; i++) {
       this.request.get(environment.PARAMETROS_SERVICE, `periodo/` + infoReportes[i]["vigencia"]).subscribe((data: any) => {
         if (data) {
           let vigencia: any = data.Data;

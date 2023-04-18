@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-visualizar-documento-dialog',
@@ -25,6 +26,7 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
     this.observacion = data.Observacion;
     this.observacionText = this.observacion;
     this.file = this.sanitizer.bypassSecurityTrustResourceUrl(data["url"]);
+    Swal.close();
   }
 
   ngOnInit(): void {

@@ -23,7 +23,8 @@
         <div class="label-inc">Incremento:
           <mat-form-field floatLabel="never">
             <input [readonly]="readonlyTable" min="0" type="number" matInput class="form-control"
-              (change)="actualizarIncremento()" [(ngModel)]="porcentajeIncremento" [ngModelOptions]="{standalone: true}"  placeholder="%" required>
+              (change)="actualizarIncremento()" [(ngModel)]="porcentajeIncremento" [ngModelOptions]="{standalone: true}"
+              placeholder="%" required>
           </mat-form-field>
         </div>
       </ng-container>
@@ -126,7 +127,7 @@
                 <mat-form-field floatLabel="never">
                   <input [readonly]="readonlyTable" class="form-control" type="text" matInput
                     [value]="element.valorUnitarioInc" (change)="updateValueInc(element, rowIndex)"
-                    [(ngModel)]="element.valorUnitarioInc" [ngModelOptions]="{standalone: true}" required  disabled>
+                    [(ngModel)]="element.valorUnitarioInc" [ngModelOptions]="{standalone: true}" required disabled>
                 </mat-form-field>
               <td mat-footer-cell *matFooterCellDef class="footer"></td>
             </ng-container>

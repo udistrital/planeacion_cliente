@@ -1,38 +1,19 @@
 <div class="container-border">
   <mat-card class="card-dialog">
     <mat-card-header>
-        <mat-card-title>Cargar Soportes</mat-card-title>
+      <mat-card-title>Cargar Soportes</mat-card-title>
     </mat-card-header>
     <form [formGroup]="formEditar">
-        <mat-form-field appearance="fill" [style.width.%]="100">
-            <mat-label id="nombre-input-label">Nombre</mat-label>
-            <input type="text" matInput formControlName="nombre" placeholder="Busque un Archivo" required>
-            <!-- <mat-icon matSuffix>create</mat-icon> -->
-            <mat-error *ngIf="formEditar.get('nombre').invalid">
-              {{getErrorMessage(formEditar.get('nombre'))}}
-            </mat-error>            
-        </mat-form-field>
-        <label mat-raised-button class="width-label-upload align-button2"
-            style="margin: 45px 0% 2% 33%;">
-            <input type="file" (change)="onChangeDocumento($event.target)">Adjuntar Documento           
-        </label>
-        <!-- <button mat-raised-button color="primary" type="file" class="col-3 mt-2 mb-3"
-                  [mat-dialog-close]="formEditar.value"><mat-icon>attach_file</mat-icon>
-                  Cargar Soportes
-        </button>         -->
-        <!-- <mat-card-actions style="text-align: center;">
-            <ng-container>
-                <button [disabled]="!formEditar.valid" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
-                  [mat-dialog-close]="formEditar.value">
-                  Guardar
-                </button>
-              </ng-container>
-              <ng-container>
-                <button mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3" (click)="close()">
-                    Cancelar
-                </button>
-              </ng-container>
-        </mat-card-actions> -->
+      <mat-form-field appearance="fill" [style.width.%]="100">
+        <mat-label id="nombre-input-label">Nombre</mat-label>
+        <input type="text" matInput formControlName="nombre" placeholder="Busque un Archivo" required>
+        <mat-error *ngIf="formEditar.get('nombre').invalid">
+          {{getErrorMessage(formEditar.get('nombre'))}}
+        </mat-error>
+      </mat-form-field>
+      <label mat-raised-button class="width-label-upload align-button2" style="margin: 45px 0% 2% 33%;">
+        <input type="file" (change)="onChangeDocumento($event.target)">Adjuntar Documento
+      </label>
     </form>
   </mat-card>
 </div>

@@ -9,12 +9,13 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 
 export interface Actividad {
-  posicion: string;
-  actividad: string;
-  ponderacion: number;
+  numero: string;
+  nombre: string;
+  ponderacionV: number;
   presupuesto: number;
-  iconSelected: string;
+  descripcion: string;
 }
+
 
 // const INFO: Actividad[] = [
 //   {posicion: '1', actividad: 'Actividad 1', ponderacion: 30000, presupuesto: 20000, iconSelected: 'done'},
@@ -82,6 +83,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   banderaEdit: boolean;
   arbolPadreId: string;
 
+
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
@@ -108,7 +110,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     }
     this.loadPlan();
     this.loadProyectI();
-    this.loadActividades();   
+    this.loadActividades();
   }
 
   ngOnInit(): void {
@@ -141,10 +143,11 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       this.actividadSelected = false;
     } else {
       this.actividadSelected = true;
-      this.actividad = actividad; 
+      this.actividad = actividad;
       this.actividadId = this.actividad._id;
       this.busquedaTipoMetas(actividad);
-      //console.log(this.actividadId, "valor actividad", this.actividadSelected);     
+      //console.log(this.actividadId, "valor actividad", this.actividadSelected);  
+
     }
   }
 
@@ -446,6 +449,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       })
     }
   }
+ 
  
   
   loadActividades() {
@@ -925,6 +929,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           timer: 2500
         })
       }
+
     })
     }
 
