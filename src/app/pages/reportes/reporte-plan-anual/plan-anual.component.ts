@@ -85,7 +85,6 @@ export class PlanAnualComponent implements OnInit {
                     this.moduloVisible = true;
                     this.form.get('categoria').setValue("planAccion");
                     this.form.get('tipoReporte').setValue("unidad");
-                    this.form.get('categoria').disable();
                     this.form.get('tipoReporte').disable();
                   }
                 })
@@ -229,25 +228,27 @@ export class PlanAnualComponent implements OnInit {
 
   onChangeC(categoria) {
     this.evaluacion = false;
-    if (categoria == 'necesidades') {
-      this.form.get('tipoReporte').setValue('general');
-      this.form.get('tipoReporte').setValue(null);
-      this.form.get('tipoReporte').disable();
-      this.form.get('unidad').setValue(null);
-      this.form.get('unidad').disable();
-      this.form.get('estado').enable();
-      this.unidadVisible = false;
-    } else if (categoria == 'evaluacion') {
-      this.form.get('tipoReporte').setValue(null);
-      this.form.get('tipoReporte').disable();
-      this.form.get('estado').setValue(null);
-      this.form.get('estado').disable();
-      this.evaluacion = true;
-    } else {
-      this.form.get('tipoReporte').enable();
-      this.form.get('unidad').enable();
-      this.form.get('estado').enable();
-      this.unidadVisible = true;
+    if (this.rol == 'PLANEACION') {
+      if (categoria == 'necesidades') {
+        this.form.get('tipoReporte').setValue('general');
+        this.form.get('tipoReporte').setValue(null);
+        this.form.get('tipoReporte').disable();
+        this.form.get('unidad').setValue(null);
+        this.form.get('unidad').disable();
+        this.form.get('estado').enable();
+        this.unidadVisible = false;
+      } else if (categoria == 'evaluacion') {
+        this.form.get('tipoReporte').setValue(null);
+        this.form.get('tipoReporte').disable();
+        this.form.get('estado').setValue(null);
+        this.form.get('estado').disable();
+        this.evaluacion = true;
+      } else {
+        this.form.get('tipoReporte').enable();
+        this.form.get('unidad').enable();
+        this.form.get('estado').enable();
+        this.unidadVisible = true;
+      }
     }
   }
 

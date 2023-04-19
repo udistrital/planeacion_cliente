@@ -3,10 +3,31 @@
         <mat-card-title>Meta Seleccionada de la Tabla Resumen Metas Plan</mat-card-title>
     </mat-card-header>   
     <br><br>
+    <ng-container>
+      <div class="container">
+        <div class="flex">
+          <!-- <div class="sameRow" style="vertical-align: middle;" [style.width.%]="60">Estado del plan: {{estadoPlan}}
+            <br>
+            <mat-icon class="icon-estado">{{iconEstado}}</mat-icon>
+          </div> -->
+          <div class="sameRow" [style.width.%]="80">
+            <mat-form-field appearance="fill" [style.width.%]="80">
+              <mat-label id="tipo-input-label">Versiones</mat-label>
+              <mat-select (selectionChange)="onChangeVersion($event.value)" [formControl]="controlVersion">
+                <mat-option *ngFor="let version of versiones" [value]="version">
+                  Versión {{version.numero}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </ng-container>
     <div class="container-border">
       <mat-form-field appearance="fill" [style.width.%]="100">
         <mat-label id="tipo-input-label">Seleccione la Meta del Proyecto de Inversión asociado</mat-label>
-        <mat-select formControlName="selectMeta" (selectionChange)="onChangeM($event.value)">
+        <mat-select formControlName="selectMeta" (selectionChange)="onChangeM($event.value)" [disabled]="addActividad || estadoPlan != 'En formulación'"
+        >
             <mat-option>--</mat-option>
             <mat-option *ngFor="let meta of metas" [value]="meta">
                 {{meta.descripcion}}
@@ -161,9 +182,11 @@
                 *ngIf="!last" matStepperNext (click)="nextStep(index)">Siguiente</button>
               <br><br>
               <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                (click)="ocultar()">Cancelar</button>
-              <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                *ngIf="last" [disabled]="!form.valid" (click)="actualizarMeta()">Actualizar</button>
+                (click)="cancelar()">Cancelar</button>
+              
+                <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
+                  *ngIf="last" [disabled]="!form.valid" (click)="actualizarMeta()">Actualizar</button>
+              
               <!-- <button *ngIf="index !== 0" matStepperPrevious class="btn btn-primary" type="button" (click)="prevStep(index)">Atrás</button>
             <button *ngIf="!last" matStepperNext class="btn btn-primary" type="button" [disabled]="!formStep.at(index).valid" (click)="nextStep(index)">Siguiente</button>
             <button *ngIf="last" class="btn btn-primary" [disabled]="!formStep.valid" type="submit">Guardar</button> -->
