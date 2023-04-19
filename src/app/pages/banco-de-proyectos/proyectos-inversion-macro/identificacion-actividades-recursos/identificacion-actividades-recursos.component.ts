@@ -169,9 +169,9 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         if (data.Data.length > 0) {
           let i = data.Data.length - 1;
           console.log(data.Data, "info del plan");
-          this.getEstado();
+          //this.getEstado();
           //this.planId = data.Data[i]["_id"];          
-          //this.getVersiones();
+          this.getVersiones();
           this.formulacionState = true;
         } else if (data.Data.length == 0) {
           Swal.fire({
@@ -210,9 +210,9 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
             var num = +i + 1;
             obj["numero"] = num.toString();
           }
-          var len = this.versiones.length;
-          var pos = +len - 1;
-          this.plan = this.versiones[pos];
+          //var len = this.versiones.length;
+          //var pos = +len - 1;
+          //this.plan = this.versiones[pos];
           console.log(this.plan, "this.plan");
           this.planAsignado = true;
           this.clonar = false;
@@ -235,7 +235,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   }
 
   visualizeObs() {
-    console.log(this.rol, this.estadoPlan, "rol");
+    console.log(this.rol, this.estadoPlan, this.estadoPlan, "rol");
     if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         if (this.versiones.length == 1) {
@@ -247,6 +247,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         }
         this.readonlyObs = true;
         this.readOnlyAll = false;
+        console.log(this.readOnlyAll);
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
         this.readonlyObs = true;
