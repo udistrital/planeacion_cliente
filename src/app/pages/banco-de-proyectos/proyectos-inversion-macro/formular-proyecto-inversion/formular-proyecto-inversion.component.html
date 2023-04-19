@@ -280,7 +280,7 @@
     <ng-container *ngIsGranted="['PLANEACION']">
       <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03'" mat-raised-button
         color="primary" (click)="preAval()" [disabled]="dataT">
-        Dar Pre-Aval
+        Pre aprobar
       </button>
     </ng-container>
 
@@ -292,9 +292,16 @@
     </ng-container>
 
     <ng-container *ngIsGranted="['PLANEACION']">
-      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b4401c7a222052fac05'" mat-raised-button
+      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b4401c7a222052fac05' || plan.estado_plan_id === '614d3b1e01c7a265372fac03'" mat-raised-button
         color="primary" (click)="avalar()" [disabled]="dataT">
-        Dar Aval
+        Aprobar
+      </button>
+    </ng-container>
+
+    <ng-container *ngIsGranted="['PLANEACION']">
+      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '6153355601c7a2365b2fb2a1'" mat-raised-button
+        color="primary" (click)="avalar()" [disabled]="dataT">
+        Volver a Formulación
       </button>
     </ng-container>
 
@@ -320,7 +327,7 @@
     <div class="container-border">
       <mat-form-field appearance="fill" [style.width.%]="100">
         <mat-label id="tipo-input-label">Seleccione la Meta del Proyecto de Inversión asociado</mat-label>
-        <mat-select formControlName="selectMeta" (selectionChange)="onChangeM($event.value)">
+        <mat-select (selectionChange)="onChangeM($event.value)" [formControl]="selectedMetaProI" [disabled]="addActividad || estadoPlan != 'En formulación'">
             <mat-option>--</mat-option>
             <mat-option *ngFor="let meta of metas" [value]="meta">
                 {{meta.descripcion}}
@@ -476,9 +483,13 @@
               <br><br>
               <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
                 (click)="ocultar()">Cancelar</button>
-              <div *ngIf="banderaUltimaVersion">
+              <div *ngIf="banderaUltimaVersion && !guardarDisabled">
                 <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
                   *ngIf="last" [disabled]="!form.valid" (click)="submit()">Guardar</button>
+              </div>
+              <div *ngIf="banderaUltimaVersion && guardarDisabled">
+                <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
+                  *ngIf="last" [disabled]="!form.valid" (click)="actualizarMeta()">Actualizar</button>
               </div>
               <!-- <button *ngIf="index !== 0" matStepperPrevious class="btn btn-primary" type="button" (click)="prevStep(index)">Atrás</button>
             <button *ngIf="!last" matStepperNext class="btn btn-primary" type="button" [disabled]="!formStep.at(index).valid" (click)="nextStep(index)">Siguiente</button>
