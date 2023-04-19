@@ -23,7 +23,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   displayedColumnsPL: string[] = ['unidad', 'vigencia', 'estado', 'periodo', 'seguimiento'];
   dataSource: MatTableDataSource<any>;
   planes: any[];
-  allPlanes: any[];
+  allPlanes: any[] = [];
   unidades: any[] = [];
   auxUnidades: any[] = [];
   auxPlanes: any[] = [];
@@ -187,9 +187,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
       if (data) {
         this.vigencias = data.Data;
-        if (this.rol != undefined && this.rol == 'PLANEACION') {
-          this.loadPlanes("vigencia");
-        }
+        Swal.close();
       }
     }, (error) => {
       Swal.fire({
@@ -202,9 +200,9 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     })
   }
 
-  async loadFechas() {
+  loadFechas() {
     if (this.unidadSelected) {
-      await this.loadPlanes("unidad");
+      this.loadPlanes("unidad");
     }
 
     if (this.vigencia) {
@@ -260,18 +258,22 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                       trimestres.t4 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
                     }
 
-                    if (Object.keys(trimestres.t1).length !== 0 && Object.keys(trimestres.t2).length !== 0 && Object.keys(trimestres.t3).length !== 0 && Object.keys(trimestres.t4).length !== 0) {
+                    if (Object.keys(trimestres.t1).length !== 0 &&
+                      Object.keys(trimestres.t2).length !== 0 &&
+                      Object.keys(trimestres.t3).length !== 0 &&
+                      Object.keys(trimestres.t4).length !== 0) {
                       let datos = this.allPlanes.filter(plan => plan.vigencia == this.vigencia.Nombre);
                       this.dataSource.data = datos;
 
                       Swal.fire({
-                        title: 'Cargando Fechas',
+                        title: 'Cargando fechas',
                         timerProgressBar: true,
                         showConfirmButton: false,
                         willOpen: () => {
                           Swal.showLoading();
                         },
                       })
+
                       for (let index = 0; index < this.dataSource.data.length; index++) {
                         const plan = this.dataSource.data[index];
 
@@ -383,30 +385,31 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.allPlanes = this.dataSource.data;
   }
 
-  onChangeP(plan, recursivo) {
+  onChangeP(plan) {
     this.plan = plan;
-    if (recursivo) {
-      this.onChangeV(this.vigencia, false);
-    }
     if (plan == undefined || (plan == undefined && this.vigencia == undefined)) {
       this.dataSource.data = this.planes;
     } else {
       this.dataSource.data = this.searchP(plan[0]);
     }
     this.allPlanes = this.dataSource.data;
+    if (this.rol != undefined && this.rol == 'PLANEACION') {
+      this.loadFechas();
+    }
     this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
   }
 
-  onChangeV(vigencia, recursivo) {
+  onChangeV(vigencia) {
     this.vigencia = vigencia;
-    if (this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined)) {
-      this.dataSource.data = this.planes;
-      this.plan = undefined;
-    } else {
-      this.loadFechas();
-    }
-    if (recursivo) {
-      this.onChangeP(this.plan, false);
+    this.dataSource.data = this.planes;
+    this.auxPlanes = [];
+    this.plan = undefined;
+    if (!(this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined))) {
+      if (this.rol != undefined && this.rol == 'PLANEACION') {
+        this.loadPlanes("vigencia");
+      } else {
+        this.loadFechas();
+      }
     }
   }
 
@@ -453,7 +456,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         })
       })
     } else if (tipo == 'vigencia') {
-      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1`).subscribe((data: any) => {
+      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id}`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
             data.Data.sort(function (a, b) { return b.vigencia - a.vigencia; });
