@@ -1682,6 +1682,52 @@ export class FormularProyectoInversionComponent implements OnInit {
         })
       }
   }
+
+  devolverAFormulacion() {
+    Swal.fire({
+      title: 'Volver a Formular',
+      text: `¿Desea regresar el plan a Formulación?`,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.plan.estado_plan_id = "614d3b1e01c7a265372fac03";
+        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Revisión Enviada',
+              icon: 'success',
+            }).then((result) => {
+              if (result.value) {
+                this.busquedaPlanes(data.Data);
+                this.loadData();
+                this.addActividad = false;
+              }
+            })
+          }
+        })
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Envio de Revisión Cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
   // loadActividades() {
   //   this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:63e4f2bbccee4963a2841cb7,formato:true`).subscribe((data: any) => {
   //     if (data) {
