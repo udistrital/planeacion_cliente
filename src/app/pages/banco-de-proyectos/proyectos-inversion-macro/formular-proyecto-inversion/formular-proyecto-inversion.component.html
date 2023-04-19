@@ -96,7 +96,7 @@
                     </mat-card-content>
                     <mat-form-field appearance="fill" [style.width.%]="100">
                         <mat-label id="tipo-input-label">Seleccione el Proyecto de Inversión asociado</mat-label>
-                        <mat-select  (selectionChange)="onChangePrIn($event.value)" [formControl]="selectedProI">
+                        <mat-select  (selectionChange)="onChangePrIn($event.value)" [formControl]="selectedProI" [disabled]="rol === 'PLANEACION' || estado  != 'En formulación'">
                             <mat-option>--</mat-option>
                             <mat-option *ngFor="let proIn of proyectosInversion" [value]="proIn">
                                 {{proIn.nombre}}
@@ -113,7 +113,7 @@
                     </mat-card-content>
                     <mat-form-field class="select-armo" appearance="fill" [style.width.%]="100">
                       <mat-label id="tipo-input-label">Seleccione el plan de desarrollo distrital</mat-label>
-                      <mat-select (selectionChange)="onChangePDD($event.value)" [formControl]="selectedPDD">
+                      <mat-select (selectionChange)="onChangePDD($event.value)" [formControl]="selectedPDD" [disabled]="rol === 'PLANEACION' || estado  != 'En formulación'">
                         <mat-option>--</mat-option>
                         <mat-option *ngFor="let planDD of planesDesarrolloDistrital" [value]="planDD">
                           {{planDD.nombre}}
@@ -133,7 +133,7 @@
                     </mat-card-content>
                     <mat-form-field class="select-armo" appearance="fill" [style.width.%]="100">
                       <mat-label id="tipo-input-label">Seleccione el plan estrategico de desarrollo</mat-label>
-                      <mat-select (selectionChange)="onChangePD($event.value)" [formControl]="selectedPED">
+                      <mat-select (selectionChange)="onChangePD($event.value)" [formControl]="selectedPED" [disabled]="rol === 'PLANEACION' || estado  != 'En formulación'">
                         <mat-option>--</mat-option>
                         <mat-option *ngFor="let planD of planesDesarrollo" [value]="planD">
                           {{planD.nombre}}
@@ -152,7 +152,7 @@
                     </mat-card-content>
                     <mat-form-field class="select-armo" appearance="fill" [style.width.%]="100">
                       <mat-label id="tipo-input-label">Seleccione el plan indicativo</mat-label>
-                      <mat-select (selectionChange)="onChangePI($event.value)" [formControl]="selectedPI">
+                      <mat-select (selectionChange)="onChangePI($event.value)" [formControl]="selectedPI" [disabled]="rol === 'PLANEACION' || estado  != 'En formulación'">
                         <mat-option>--</mat-option>
                         <mat-option *ngFor="let planI of planesIndicativos" [value]="planI">
                           {{planI.nombre}}
@@ -287,7 +287,7 @@
     <ng-container *ngIsGranted="['PLANEACION']">
       <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b4401c7a222052fac05'" mat-raised-button
         color="primary" (click)="realizarAjustes()" [disabled]="dataT">
-        Remitir Ajuste Plan de Acción
+        Remitir Ajuste Presupuestal
       </button>
     </ng-container>
 
@@ -300,7 +300,7 @@
 
     <ng-container *ngIsGranted="['PLANEACION']">
       <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '6153355601c7a2365b2fb2a1'" mat-raised-button
-        color="primary" (click)="avalar()" [disabled]="dataT">
+        color="primary" (click)="devolverAFormulacion()" [disabled]="dataT">
         Volver a Formulación
       </button>
     </ng-container>

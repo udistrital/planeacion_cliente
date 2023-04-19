@@ -12,7 +12,7 @@
     <mat-form-field appearance="fill" [style.width.%]="100">
         <mat-label id="tipo-input-label">Seleccione las fuentes que aplican al proyecto de inversión</mat-label>
         <mat-select (selectionChange)="onChangeF($event.value)" [formControl]="selectFuente" multiple
-        [disabled]="addActividad || estadoPlan != 'En formulación'">
+        [disabled]="rol === 'PLANEACION' || estadoPlan  != 'En formulación'">
             <mat-option *ngFor="let fuente of dataFuentes" [value]="fuente">
                 {{fuente.nombre}}
             </mat-option>
@@ -48,7 +48,7 @@
                 <input type="text" matInput required id="presupuesto"
                     onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                     placeholder="$ ingrese el valor" [value]="row.presupuestoProyecto | currency"
-                    (focus)="focusPresupuesto($event,rowIndex)" (blur)="blurPresupuesto($event,rowIndex)" [disabled]="addActividad || estadoPlan != 'En formulación'"
+                    (focus)="focusPresupuesto($event,rowIndex)" (blur)="blurPresupuesto($event,rowIndex)" [disabled]="rol === 'PLANEACION' || estadoPlan  != 'En formulación'"
                     >
             </td>
             <td mat-footer-cell *matFooterCellDef> {{getTotalPresupuestoProyecto() | currency}} </td>
