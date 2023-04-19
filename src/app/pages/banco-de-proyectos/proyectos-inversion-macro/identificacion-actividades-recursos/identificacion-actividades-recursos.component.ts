@@ -154,6 +154,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   loadPlan() {
     this.request.get(environment.PLANES_CRUD, `plan/` + this.planId).subscribe((data: any) => {
       if (data) {
+        this.plan = data.Data;
         this.namePlan = data.Data.nombre;
         this.dependencia = data.Data.dependencia_id;
         this.vigencia = data.Data.vigencia;
@@ -168,8 +169,9 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         if (data.Data.length > 0) {
           let i = data.Data.length - 1;
           console.log(data.Data, "info del plan");
-          this.planId = data.Data[i]["_id"];          
-          this.getVersiones();
+          this.getEstado();
+          //this.planId = data.Data[i]["_id"];          
+          //this.getVersiones();
           this.formulacionState = true;
         } else if (data.Data.length == 0) {
           Swal.fire({
@@ -284,6 +286,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.plan.estado_plan_id).subscribe((data: any) => {
       if (data) {
         this.estadoPlan = data.Data.nombre;
+        console.log("EstadoPlan", this.estadoPlan);
         // this.getIconEstado();
         // this.cargarPlanesDesarrolloDistrital();
         // this.cargarPlanesDesarrollo();
@@ -581,7 +584,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     var actividad = {
     idProI: this.idProyectoInversion,
     //idSubDetalle: this.idSubDetMetasProI,
-    indexMetaSubPro: this.indexMeta,
+    indexMetaSubPro: this.posicionMetaPro,
     //totalPresupuesto: this.totalPresupuesto,
     entrada: formValue
     }

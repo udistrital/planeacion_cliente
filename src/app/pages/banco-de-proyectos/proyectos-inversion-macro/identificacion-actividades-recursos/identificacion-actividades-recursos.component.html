@@ -380,8 +380,10 @@
                     <br><br>
                     <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
                       (click)="cancelar()">Cancelar</button>
+                     
                     <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                      *ngIf="last" [disabled]="!form.valid" (click)="actualizarActividad()">Actualizar</button>
+                      *ngIf="estadoPlan == 'En revisión' || estadoPlan == 'En formulación'" [disabled]="!form.valid" (click)="actualizarActividad()">Actualizar</button>
+                   
                     <!-- <button *ngIf="index !== 0" matStepperPrevious class="btn btn-primary" type="button" (click)="prevStep(index)">Atrás</button>
                   <button *ngIf="!last" matStepperNext class="btn btn-primary" type="button" [disabled]="!formStep.at(index).valid" (click)="nextStep(index)">Siguiente</button>
                   <button *ngIf="last" class="btn btn-primary" [disabled]="!formStep.valid" type="submit">Guardar</button> -->

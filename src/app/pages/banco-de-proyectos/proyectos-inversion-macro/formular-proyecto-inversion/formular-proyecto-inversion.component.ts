@@ -122,6 +122,8 @@ export class FormularProyectoInversionComponent implements OnInit {
   proIn: any;
   planD: any;
   planI: any;
+  metaProIn: any;
+  rowIndex: string;
   formArmonizacion: FormGroup;
   formFormulacion: FormGroup;
   form: FormGroup;
@@ -133,6 +135,7 @@ export class FormularProyectoInversionComponent implements OnInit {
   selectedProI = new FormControl();
   selectedPED = new FormControl();
   selectedPI = new FormControl();
+  selectedMetaProI = new FormControl();
   defaultFilterPredicate?: (data: any, filter: string) => boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -731,11 +734,92 @@ export class FormularProyectoInversionComponent implements OnInit {
 
   verMeta(row) {
     this.metaToSee = row;
-    let rowIndex = row.index
-
+    this.rowIndex = row.index
+    this.editar(row);
     console.log(this.metaToSee, "meta seleccionada")
-    console.log()
-    this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.idProyectoInversion + '/' + this.planId + '/' + rowIndex + '/' + this.indexMeta]);
+    
+    //this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.idProyectoInversion + '/' + this.planId + '/' + rowIndex + '/' + this.indexMeta]);
+  }
+
+  editar(fila): void {
+    this.guardarDisabled = true;
+    if (fila.activo == 'Inactivo') {
+      Swal.fire({
+        title: 'Actividad inactiva',
+        text: `No puede editar una actividad en estado inactivo`,
+        icon: 'info',
+        showConfirmButton: false,
+        timer: 3500
+      });
+    } else {
+      // if (this.planesDesarrollo == undefined) {
+      //   this.cargarPlanesDesarrollo();
+      // }
+      // if (this.planesIndicativos == undefined) {
+      //   this.cargarPlanesIndicativos();
+      // }
+      this.actividades = true;
+      
+      //this.addActividad = true;
+      //this.banderaEdit = true;
+      //this.visualizeObs();
+      this.rowActividad = fila.index;
+      Swal.fire({
+        title: 'Cargando información',
+        timerProgressBar: true,
+        showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+      })
+      this.request.get(environment.PLANES_MID, `inversion/metaspro/` + this.idProyectoInversion).subscribe((data: any) => {
+        if (data.Data) {
+          this.metas = data.Data.metas;
+          this.idSubDetMetasProI = data.Data.id_detalle_meta;
+          console.log(data.Data, "Metas");          
+        }
+      })
+      this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.planId + `/` + fila.index).subscribe((data: any) => {
+        if (data) {
+          Swal.close();
+          //this.onChangePD(this.planesDesarrollo[0]);
+          //this.onChangePI(this.planesIndicativos[0]);
+          //this.estado = this.plan.estado_plan_id;
+          this.steps = data.Data[0]
+          this.json = data.Data[1][0]
+          this.form = this.formBuilder.group(this.json);
+          this.indexMeta = data.Data[2][0].indexMetaSubProI
+          for(let i = 0; i < this.metas.length; i++) {
+            if(this.metas[i].posicion == this.indexMeta) {
+              this.meta = this.metas[i];
+              this.selectedMetaProI = new FormControl(this.metas[i]);
+            }
+          }
+
+          this.onChangeM(this.meta);
+          // let auxAmonizacion = data.Data[2][0]
+          // let strArmonizacion = auxAmonizacion.armo
+          // let len = (strArmonizacion.split(",").length)
+          // this.dataArmonizacionPED = strArmonizacion.split(",", len).filter(((item) => item != ""))
+          // let strArmonizacion2 = auxAmonizacion.armoPI
+          // let len2 = (strArmonizacion2.split(",").length)
+          // this.dataArmonizacionPI = strArmonizacion2.split(",", len2).filter(((item) => item != ""))
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
+    }
+  }
+
+  ocultar() {
+    
+    this.actividades = false;
   }
 
   getTotalPresupuesto() {
@@ -1441,8 +1525,17 @@ export class FormularProyectoInversionComponent implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Creando Nueva Versión del Plan',
+          timerProgressBar: true,
+          showConfirmButton: false,
+          willOpen: () => {
+            Swal.showLoading();
+          },
+        })
         this.request.post(environment.PLANES_MID, `inversion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
           if (data) {
+            Swal.close();
             this.getVersiones(data.Data);
             Swal.fire({
               title: 'Nueva Versión',
@@ -1609,64 +1702,69 @@ export class FormularProyectoInversionComponent implements OnInit {
   //     })
   //   })
   // }
-
-  editar(fila): void {
-    if (fila.activo == 'Inactivo') {
-      Swal.fire({
-        title: 'Actividad inactiva',
-        text: `No puede editar una actividad en estado inactivo`,
-        icon: 'info',
-        showConfirmButton: false,
-        timer: 3500
-      });
-    } else {
-      if (this.planesDesarrollo == undefined) {
-        this.cargarPlanesDesarrollo();
-      }
-      if (this.planesIndicativos == undefined) {
-        this.cargarPlanesIndicativos();
-      }
-      this.addActividad = true;
-      this.banderaEdit = true;
-      //this.visualizeObs();
-      this.rowActividad = fila.index;
-      Swal.fire({
-        title: 'Cargando información',
-        timerProgressBar: true,
-        showConfirmButton: false,
-        willOpen: () => {
-          Swal.showLoading();
-        },
-      })
-      this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.plan._id + `/` + fila.index).subscribe((data: any) => {
-        if (data) {
-          Swal.close();
-          //this.onChangePD(this.planesDesarrollo[0]);
-          //this.onChangePI(this.planesIndicativos[0]);
-          this.estado = this.plan.estado_plan_id;
-          this.steps = data.Data[0]
-          this.json = data.Data[1][0]
-          this.form = this.formBuilder.group(this.json);
-
-          // let auxAmonizacion = data.Data[2][0]
-          // let strArmonizacion = auxAmonizacion.armo
-          // let len = (strArmonizacion.split(",").length)
-          // this.dataArmonizacionPED = strArmonizacion.split(",", len).filter(((item) => item != ""))
-          // let strArmonizacion2 = auxAmonizacion.armoPI
-          // let len2 = (strArmonizacion2.split(",").length)
-          // this.dataArmonizacionPI = strArmonizacion2.split(",", len2).filter(((item) => item != ""))
+  actualizarMeta() {
+    Swal.fire({
+      title: 'Actualizando Meta',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    if (this.metaSelected == true) {
+      console.log("entra if metaSelcted")
+      var formValue = this.form.value;
+        var actividad = {
+          idSubDetalle: this.idSubDetMetasProI,
+          indexMetaSubPro: this.indexMeta,
+          entrada: formValue
         }
-      }, (error) => {
+    this.request.put(environment.PLANES_MID, `inversion/actualizar_meta`, actividad, this.planId + `/` + this.rowIndex).subscribe((data: any) => {      
+      if (data) {
+        Swal.close();
         Swal.fire({
-          title: 'Error en la operación',
-          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2500
+          title: 'Información de actividad actualizada',
+          //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
+          text: 'La actividad se ha actualizado satisfactoriamente',
+          icon: 'success'
+        }).then((result) => {
+          if (result.value) {
+            this.actividades = false;      
+            //this.form.reset();
+            //this.addActividad = false;
+            //this.loadData();
+            //this.idPadre = undefined;
+            //this.tipoPlanId = undefined;
+            //this.idPlanIndicativo = undefined;
+            //this.tipoPlanIndicativo = undefined;
+          }
         })
+      }
+    }), (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No fue posible actualizar la actividad, por favor contactarse con el administrador del sistema`,
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 2500
       })
+  
+      //this.addActividad = false;
+      //this.dataArmonizacionPED = [];
+      //this.dataArmonizacionPI = [];
     }
+    } //else {
+    //   Swal.fire({
+    //     title: 'Error en la operación',
+    //     text: `Debe seleccionar una Meta del Proyecto de Inversión Vigente asociado`,
+    //     icon: 'error',
+    //     showConfirmButton: false,
+    //     timer: 2500
+    //   })
+    // }
+    
   }
+  
   submit() {
     if (!this.banderaEdit) { // ADD NUEVA ACTIVIDAD
       if (this.dataArmonizacionPED.length != 0 && this.dataArmonizacionPI.length != 0 && this.dataArmonizacionPDD.length !=0) {
@@ -1700,6 +1798,7 @@ export class FormularProyectoInversionComponent implements OnInit {
               if (result.value) {
                 this.ajustarData()
                 this.form.reset();
+                this.actividades = false;      
                 this.addActividad = false;                
                 //this.dataArmonizacionPED = [];
                 //this.dataArmonizacionPI = [];

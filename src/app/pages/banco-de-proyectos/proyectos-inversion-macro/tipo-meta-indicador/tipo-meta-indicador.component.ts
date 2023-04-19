@@ -341,6 +341,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
       },
     })
     if (this.metaSelected == true) {
+      console.log("entra if metaSelcted")
       var formValue = this.form.value;
         var actividad = {
           idSubDetalle: this.idSubDetMetasProI,
@@ -357,7 +358,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
           icon: 'success'
         }).then((result) => {
           if (result.value) {
-            this.form.reset();
+            //this.form.reset();
             //this.addActividad = false;
             //this.loadData();
             //this.idPadre = undefined;
