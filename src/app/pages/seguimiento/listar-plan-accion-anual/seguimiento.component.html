@@ -47,7 +47,7 @@
                             <h4>Fechas guía para cada trimestre para la vigencia.</h4>
                             <mat-form-field appearance="fill" [style.width.%]="100">
                                 <mat-label id="tipo-input-label">Seleccione la vigencia</mat-label>
-                                <mat-select (selectionChange)="onChangeV($event.value, rol=='PLANEACION')">
+                                <mat-select (selectionChange)="onChangeV($event.value)">
                                     <mat-option>--</mat-option>
                                     <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
                                         {{vigencia.Nombre}}
@@ -141,8 +141,8 @@
                         <div class="sameRow" style="vertical-align: middle;" [style.width.%]="100">
                             <h4>Plan de Acción</h4>
                             <mat-form-field appearance="fill" [style.width.%]="100">
-                                <mat-label id="tipo-input-label">Seleccione el Plan de interés</mat-label>
-                                <mat-select (selectionChange)="onChangeP($event.value, true)"
+                                <mat-label id="tipo-input-label">Seleccione el plan de interés</mat-label>
+                                <mat-select (selectionChange)="onChangeP($event.value)"
                                     placeholder="Escriba el nombre del plan que desea seleccionar">
                                     <input (keyup)="onKeyP($event.target.value)" class="input-search">
                                     <mat-option>--</mat-option>
