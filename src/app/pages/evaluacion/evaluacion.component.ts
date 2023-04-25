@@ -164,7 +164,7 @@ export class EvaluacionComponent implements OnInit {
 
   getRol() {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';
       this.validarUnidad();
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
