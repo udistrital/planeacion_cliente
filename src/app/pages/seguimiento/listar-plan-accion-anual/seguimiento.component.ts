@@ -408,7 +408,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         await this.getUnidades();
         await this.getEstados();
         await this.getVigencias();
-        await this.getPeriodos();
         await this.evaluarFechasPlan();
       }
     }
@@ -452,7 +451,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               this.planes = data.Data;
               await this.getEstados();
               await this.getVigencias();
-              await this.getPeriodos();
               this.dataSource.data = this.planes;
               this.allPlanes = this.dataSource.data;
               this.loadFechas();
@@ -607,8 +605,9 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       },
     })
     this.auxPeriodos = [];
+
     for (let i = 0; i < this.planes.length; i++) {
-      await new Promise((resolve, reject) => {
+      // await new Promise((resolve, reject) => {
 
         this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planes[i]._id + `,activo:true`).subscribe(async (data: any) => {
           if (data) {
@@ -664,7 +663,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               this.periodoHabilitado = false;
               this.planes[i].periodo = "No disponible";
             }
-            resolve(true);
+            // resolve(true);
           }
         }, (error) => {
           Swal.fire({
@@ -674,11 +673,12 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             showConfirmButton: false,
             timer: 2500
           })
-          reject(false);
+          // reject(false);
         })
-      });
+      // });
     }
     Swal.close();
+
   }
 
   gestionSeguimiento(plan) {

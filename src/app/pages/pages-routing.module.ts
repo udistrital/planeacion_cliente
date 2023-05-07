@@ -10,8 +10,7 @@ import { ConsultarPlanComponent } from './plan/consultar-plan/consultar-plan.com
 import { PlanAnualComponent } from './reportes/reporte-plan-anual/plan-anual.component';
 import { EvaluacionComponent } from './evaluacion/evaluacion.component';
 import { SeguimientoComponentList } from './seguimiento/listar-plan-accion-anual/seguimiento.component';
-import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/gestion-seguimiento.component';
-import { ReportarPeriodoComponent } from './seguimiento/reportar-periodo/reportar-periodo.component';
+import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/gestion-seguimiento.component';  
 import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/generar-trimestre.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
@@ -306,10 +305,6 @@ const routes: Routes = [{
         {
           path: 'gestion-seguimiento/:plan_id/:trimestre',
           component: SeguimientoComponentGestion,
-        },
-        {
-          path: 'reportar-periodo/:plan_id/:index',
-          component: ReportarPeriodoComponent,
         },
         {
           path: 'generar-trimestre/:plan_id/:index/:trimestre_id',
