@@ -277,7 +277,7 @@ export class ContratistasComponent implements OnInit {
     let strValUnitarioInc = (this.dataSource.data[0].valorUnitarioInc.toString()).replace(/\$|,/g, '');
     this.porcentajeIncremento = ((((parseFloat(strValUnitarioInc) - parseInt(strValUnitario)) / parseInt(strValUnitario)) * 100)).toFixed(2);
     if (parseFloat(this.porcentajeIncremento) < 0) {
-      this.porcentajeIncremento = "9.5"
+      this.porcentajeIncremento = "10.22"
       this.actualizarIncremento()
     }
   }
