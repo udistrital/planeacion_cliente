@@ -75,7 +75,7 @@ export class DocentesComponent implements OnInit {
   asociadoUDPrestacionalPOS: any;
   asociadoUDHonorariosPOS: any;
 
-  incrementoInput = new FormControl('9.5');
+  incrementoInput = new FormControl('10.22');
   incremento: number = 0.0;
   incrementoAnterior: number = 0.0;
   niveles:string[] = ["Pregrado", "Posgrado"]
