@@ -1368,7 +1368,6 @@ export class DocentesComponent implements OnInit {
   }
 
   actualizarSueldoMensual(element, rowIndex, tipo, multiplicador) {
-    console.log(element, rowIndex, tipo, multiplicador)
     if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
       if (tipo === "RHF") {
         let sueldoBasico = parseInt(element.sueldoBasico.replace(/\$|,/g, ''));
