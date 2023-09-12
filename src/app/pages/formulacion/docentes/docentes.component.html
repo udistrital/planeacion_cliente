@@ -585,7 +585,7 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Sueldo Básico"
-                                                    [value]="actualizarTotalBasico(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [value]="actualizarTotalBasico(element, rowIndex, step.tipo, element.cantidad, element.cantidad)"
                                                     [(ngModel)]="element.totalBasico"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -600,7 +600,7 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Sueldo Básico"
-                                                    [value]="actualizarTotalBasico(element, rowIndex, step.tipo, 1)"
+                                                    [value]="actualizarTotalBasico(element, rowIndex, step.tipo, 1, element.cantidad)"
                                                     [(ngModel)]="element.totalBasico"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -616,7 +616,7 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Aportes UD"
-                                                    [value]="actualizarTotalAportes(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [value]="actualizarTotalAportes(element, rowIndex, step.tipo, element.cantidad, element.cantidad)"
                                                     [(ngModel)]="element.totalAportes"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -632,7 +632,7 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Aportes UD"
-                                                    [value]="actualizarTotalAportes(element, rowIndex, step.tipo, 1)"
+                                                    [value]="actualizarTotalAportes(element, rowIndex, step.tipo, 1, element.cantidad)"
                                                     [(ngModel)]="element.totalAportes"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -649,7 +649,7 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Recurso"
-                                                    [value]="actualizarTotalRecurso(element, rowIndex, step.tipo, element.cantidad)"
+                                                    [value]="actualizarTotalRecurso(element, rowIndex, step.tipo, element.cantidad, element.cantidad)"
                                                     [(ngModel)]="element.total" [ngModelOptions]="{standalone: true}"
                                                     required readonly>
                                             </mat-form-field>
@@ -666,7 +666,7 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Total Recurso"
-                                                    [value]="actualizarTotalRecurso(element, rowIndex, step.tipo, 1)"
+                                                    [value]="actualizarTotalRecurso(element, rowIndex, step.tipo, 1, element.cantidad)"
                                                     [(ngModel)]="element.total" [ngModelOptions]="{standalone: true}"
                                                     required readonly>
                                             </mat-form-field>
