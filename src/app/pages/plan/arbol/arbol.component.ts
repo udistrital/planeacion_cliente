@@ -30,7 +30,15 @@ interface Nodo {
   descripcion: string;
   id: string;
   level: number;
+  icon?: string;
+  idx?: number;
+  padre_idx?: number | undefined;
+  hijos_idx?: (number | undefined)[];
 }
+
+const Checked: string = 'done';
+const Unchecked: string = 'compare_arrows';
+const No_Aplica: string = "no aplica"
 
 @Component({
   selector: 'app-arbol',
@@ -156,6 +164,7 @@ export class ArbolComponent implements OnInit {
         Swal.close();
       }
       if (this.armonizacionPED || this.armonizacionPI) {
+        this.linksArbol()
         this.expandNodes()
       }
     }
@@ -169,6 +178,21 @@ export class ArbolComponent implements OnInit {
         })
       }
     )
+  }
+
+  linksArbol() {
+    let deepLevelIxd: number[] = [-1,-1,-1];
+    let pastdeepLevelIxd: number[] = deepLevelIxd;
+    this.treeControl.dataNodes.forEach((element, i) => {
+      element.idx = i;
+      deepLevelIxd[element.level] = i;
+      element.padre_idx = pastdeepLevelIxd[element.level-1];
+      pastdeepLevelIxd = deepLevelIxd;
+    })
+    this.treeControl.dataNodes.forEach((elementp, i) => {
+      const idsHijos = this.treeControl.dataNodes.filter(elementh => elementh.padre_idx == i).map((e) => {return e.idx});
+      elementp.hijos_idx = idsHijos;
+    })
   }
 
   selectFile(event) {
@@ -187,35 +211,142 @@ export class ArbolComponent implements OnInit {
     this.grupo.emit({ fila, bandera })
   }
 
-  armonizar(fila, bandera) {
+  async armonizar(fila, bandera) {
+    let planIs: string = "";
     if (this.armonizacionPED) {
-      this.changeIcon(fila)
-      this.grupo.emit({ fila, bandera, plan: "PED" })
+      await this.changeIcon(fila)
+      planIs = "PED";
     } else if (this.armonizacionPI) {
-      this.changeIcon(fila)
-      this.grupo.emit({ fila, bandera, plan: "PI" })
+      await this.changeIcon(fila)
+      planIs = "PI";
     }
-
+    const idsArmo = this.treeControl.dataNodes.filter(elements => elements.icon == Checked).map(element => { return element.id })
+    this.grupo.emit({ fila, bandera, plan: planIs, armonizacionIds: idsArmo })
   }
 
   iconArmonizacion(id): string {
     if (this.dataArmonizacion.length != 0) {
       const found = this.dataArmonizacion.find(element => element === id);
       if (id === found) {
-        return 'done'
+        return Checked
       } else {
-        return 'compare_arrows'
+        return Unchecked
       }
     } else {
-      return 'compare_arrows'
+      return Unchecked
     }
   }
 
-  changeIcon(fila) {
-    if (fila.icon == 'compare_arrows') {
-      fila.icon = 'done'
+  async changeIcon(fila: Nodo) {
+    if (fila.icon == Unchecked) {
+      if (fila.activo != "inactivo") {
+        const accion = new Promise<number>(resolve => {
+          if (fila.nombre.toLowerCase().includes(No_Aplica)) {
+            Swal.fire({
+              title: `Ha elegido: ` + fila.nombre,
+              text: `Si hay más opciones seleccionadas para el nivel actual se quitarán ¿Desea continuar?`,
+              icon: 'warning',
+              confirmButtonText: `Sí`,
+              cancelButtonText: `No`,
+              showCancelButton: true
+            }).then((result) => {
+              if (result.isConfirmed) {
+                resolve(1); // confirma dejar no aplica, quitar resto del nivel
+              } else {
+                resolve(0); // No confirma dejar no aplica, aquí no se hace nada
+              }
+            })
+          } else {
+            resolve(-1); // es un caso normal, no es No aplica
+          }
+        });
+        const response = await accion;
+        const uncheckNoAplicaOnly = (response != 1);
+        if (response != 0) {
+          if (fila.padre_idx != undefined) {
+            this.uncheckHijos(this.treeControl.dataNodes[fila.padre_idx].hijos_idx, uncheckNoAplicaOnly);
+          } else {
+            this.treeControl.dataNodes.filter(ef => ef.padre_idx == undefined).forEach(e => {
+              if (uncheckNoAplicaOnly) {
+                if (e.nombre.toLowerCase().includes(No_Aplica)) {
+                  e.icon = Unchecked;
+                }
+              } else {
+                e.icon = Unchecked;
+                this.uncheckHijos(e.hijos_idx);
+              }
+            })
+          }
+          fila.icon = Checked;
+          this.checkPadres(fila.padre_idx);
+          const idxs = this.treeControl.dataNodes.filter(ef => ef.level == 0).map(e => { return e.idx });
+          this.unCheckNoAplicaHijosIfMulti(idxs);
+        }
+      }
     } else {
-      fila.icon = 'compare_arrows'
+      fila.icon = Unchecked;
+      this.uncheckHijos(fila.hijos_idx);
+      this.uncheckPadres(fila.padre_idx);
+    }
+  }
+
+  checkPadres(idPadre: number) {
+    let listPadres: number[] = [];
+    while (idPadre != undefined) {
+      listPadres.push(idPadre);
+      this.treeControl.dataNodes[idPadre].icon = Checked;
+      idPadre = this.treeControl.dataNodes[idPadre].padre_idx;
+    }
+  }
+
+  uncheckHijos(idHijos: number[], justForNoAplica?: boolean) {
+    justForNoAplica = justForNoAplica || false;
+    idHijos.forEach(id => {
+      if (!justForNoAplica) {
+        this.treeControl.dataNodes[id].icon = Unchecked;
+      } else if (this.treeControl.dataNodes[id].nombre.toLowerCase().includes(No_Aplica)) {
+        this.treeControl.dataNodes[id].icon = Unchecked;
+      }
+      this.uncheckHijos(this.treeControl.dataNodes[id].hijos_idx, justForNoAplica);
+    })
+  }
+
+  uncheckPadres(idPadre: number) {
+    let thereIsMoreChecked = this.isAnotherChecked(this.treeControl.dataNodes[idPadre]?.hijos_idx);
+      while (idPadre != undefined && !thereIsMoreChecked) {
+        this.treeControl.dataNodes[idPadre].icon = Unchecked;
+        idPadre = this.treeControl.dataNodes[idPadre].padre_idx;
+        thereIsMoreChecked = this.isAnotherChecked(this.treeControl.dataNodes[idPadre]?.hijos_idx);
+      }
+  }
+
+  isAnotherChecked(idxs: number[]): boolean {
+    let checked: boolean = false;
+    if (idxs != undefined) {
+      for (let i = 0; i < idxs.length; i++) {
+        if (this.treeControl.dataNodes[idxs[i]].icon == Checked) {
+          checked = true;
+          break;
+        }
+      }
+    }
+    return checked;
+  }
+
+  unCheckNoAplicaHijosIfMulti(idxs: number[]) {
+    let count: number = 0;
+    let idNoAplica: number = undefined;
+    for (let i = 0; i < idxs.length; i++) {
+      if (this.treeControl.dataNodes[idxs[i]].icon == Checked) {
+        this.unCheckNoAplicaHijosIfMulti(this.treeControl.dataNodes[idxs[i]].hijos_idx);
+        count++;
+        if (this.treeControl.dataNodes[idxs[i]].nombre.toLowerCase().includes(No_Aplica)) {
+          idNoAplica = idxs[i];
+        }
+      }
+    }
+    if ((count > 1) && (idNoAplica != undefined)) {
+      this.treeControl.dataNodes[idNoAplica].icon = Unchecked;
     }
   }
 
