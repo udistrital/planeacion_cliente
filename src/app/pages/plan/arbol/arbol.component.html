@@ -168,10 +168,10 @@
           <th mat-header-cell *matHeaderCellDef> 
             <span [style.paddingLeft.px]="40"> Nombre </span>
           </th>
-          <td mat-cell *matCellDef="let data" class="mat-column-nombre"> 
+          <td mat-cell *matCellDef="let data" class="mat-column-nombre" [ngClass]="data.icon == 'done' ? 'highlightSelection' : ''"> 
             <button mat-icon-button 
                     [style.visibility]="!data.expandable ? 'hidden' : ''"
-                    [style.marginLeft.px]="data.level * 4"
+                    [style.marginLeft.px]="data.level * 16"
                     (click)="treeControl.toggle(data)">
               <mat-icon class="mat-icon-rtl-mirror">
                 {{treeControl.isExpanded(data) ? 'expand_more' : 'chevron_right'}}
@@ -184,7 +184,7 @@
             <th mat-header-cell *matHeaderCellDef >
               <span [style.paddingLeft.px]="40"> Descripción </span>
             </th>
-          <td mat-cell *matCellDef="let data" class="mat-column-descripcion"> {{data.descripcion}} </td>
+          <td mat-cell *matCellDef="let data" class="mat-column-descripcion" [ngClass]="data.icon == 'done' ? 'highlightSelection' : ''"> {{data.descripcion}} </td>
         </ng-container> 
         <ng-container matColumnDef="activo">
             <th mat-header-cell *matHeaderCellDef >
