@@ -756,7 +756,7 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
-  editar(fila): void {
+  async editar(fila): Promise<void> {
     if (fila.activo == 'Inactivo') {
       Swal.fire({
         title: 'Actividad inactiva',
@@ -766,6 +766,7 @@ export class FormulacionComponent implements OnInit {
         timer: 3500
       });
     } else {
+      await this.cleanBeforeLoad();
       if (this.planesDesarrollo == undefined) {
         this.cargarPlanesDesarrollo();
       }
@@ -812,6 +813,17 @@ export class FormulacionComponent implements OnInit {
         })
       })
     }
+  }
+
+  cleanBeforeLoad(): Promise<void> {
+    this.addActividad = false;
+    this.dataArmonizacionPED = [];
+    this.dataArmonizacionPI = [];
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 100);
+    });
   }
 
   inhabilitar(fila): void {
