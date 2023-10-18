@@ -1001,7 +1001,7 @@ export class FormulacionComponent implements OnInit {
 
   receiveMessage(event) {
     if (event.bandera === 'armonizar') {
-      var uid_n = event.fila.level;
+      /* var uid_n = event.fila.level;
       var uid = event.fila.id; // id del nivel a editar
       if (uid != this.dataArmonizacionPED.find(id => id === uid)) {
         this.dataArmonizacionPED.push(uid)
@@ -1010,13 +1010,14 @@ export class FormulacionComponent implements OnInit {
         if (index > -1) {
           this.dataArmonizacionPED.splice(index, 1);
         }
-      }
+      } */
+      this.dataArmonizacionPED = event.armonizacionIds;
     }
   }
 
   receiveMessagePI(event) {
     if (event.bandera === 'armonizar') {
-      var uid_n = event.fila.level;
+      /* var uid_n = event.fila.level;
       var uid = event.fila.id; // id del nivel a editar
       if (uid != this.dataArmonizacionPI.find(id => id === uid)) {
         this.dataArmonizacionPI.push(uid)
@@ -1025,9 +1026,11 @@ export class FormulacionComponent implements OnInit {
         if (index > -1) {
           this.dataArmonizacionPI.splice(index, 1);
         }
-      }
+      } */
+      this.dataArmonizacionPI = event.armonizacionIds;
     }
   }
+
   cambiarValor(valorABuscar, valorViejo, valorNuevo, dataS) {
     dataS.forEach(function (elemento) {
       elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
