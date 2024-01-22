@@ -20,7 +20,7 @@ export const environment = {
   PARAMETROS_SERVICE: 'http://pruebasapi.intranetoas.udistrital.edu.co:8510/v1/',
   RESOLUCIONES_DOCENTES_SERVICE: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8529/v1/',
   GESTOR_DOCUMENTAL_MID: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8199/v1/',
-  DOCUMENTO_SERVICE: 'https://pruebasapi.intranetoas.udistrital.edu.co:8094/v1/',
+  DOCUMENTO_SERVICE: 'http://pruebasapi.intranetoas.udistrital.edu.co:8094/v1/',
  //
  //Autenticacion
  //
