@@ -52,6 +52,7 @@ import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-i
 import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component'
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 
+
 const routes: Routes = [{
   path: '',
   component: PagesComponent,
