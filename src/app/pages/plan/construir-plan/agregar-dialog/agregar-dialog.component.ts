@@ -10,7 +10,6 @@ import { MatRadioChange } from '@angular/material/radio';
 })
 
 export class AgregarDialogComponent implements OnInit {
-  
   formAgregar: FormGroup;
   tipos: tipoDato[] = [
     {value: 'numeric', viewValue:'Numérico'},
@@ -82,6 +81,9 @@ export class AgregarDialogComponent implements OnInit {
     }else if (event.value == "true"){
       this.control = { value: '', disabled: false, visible: true }
       this.vBandera = true;
+      this.vObligatorio = false;
+      this.formAgregar.get('bandera').setValue("");
+      this.formAgregar.get('tipoDato').setValue("");
       this.formAgregar.get('tipoDato').enable();
       this.formAgregar.get('requerido').enable();
       if (this.opt){
@@ -97,6 +99,7 @@ export class AgregarDialogComponent implements OnInit {
       this.formAgregar.get('requerido').setValue("true");
     } else if (event == "false"){
       this.vObligatorio = true;
+      this.formAgregar.get('requerido').setValue("");
     }
   }
 }

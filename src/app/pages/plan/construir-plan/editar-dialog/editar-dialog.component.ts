@@ -13,7 +13,6 @@ import Swal from 'sweetalert2';
   styleUrls: ['./editar-dialog.component.scss']
 })
 export class EditarDialogComponent implements OnInit {
-
   formEditar: FormGroup;
   nombre: string;
   descripcion: string;
@@ -130,8 +129,6 @@ export class EditarDialogComponent implements OnInit {
   }
 
   verificarDetalle() {
-    console.log(this.data);
-    
     if (this.data.ban == "plan") {
       this.vTipo = false;
       this.vFormato = true;
@@ -143,19 +140,13 @@ export class EditarDialogComponent implements OnInit {
       this.formEditar.get('tipoDato').disable();
       this.formEditar.get('opciones').disable();
       this.formEditar.get('banderaTabla').disable();
-
     } else if (this.data.ban == "nivel") {
-      console.log(this.tipoDato);
-      console.log(this.tipoDato == 'input' || this.tipoDato == 'numeric');
-      
-
       this.vTipo = true
       this.vFormato = false
       this.opt = false
       this.vTipoPlan = false;
       this.formEditar.get('tipoDato').enable();
       this.formEditar.get('tipo_plan_id').disable();
-
       if (this.tipoDato == 'select') {
         this.opt = true;
         this.vParametros = true;
@@ -163,7 +154,6 @@ export class EditarDialogComponent implements OnInit {
         this.formEditar.get('opciones').enable();
         this.formEditar.get('tipoDato').enable();
         this.formEditar.get('requerido').enable();
-
       } else if (this.tipoDato == 'input' || this.tipoDato == 'numeric') {
         this.opt = false;
         this.vParametros = true;
@@ -206,6 +196,9 @@ export class EditarDialogComponent implements OnInit {
     } else if (event.value == "true") {
       this.vParametros = true;
       this.vBandera = true;
+      this.vObligatorio = false;
+      this.formEditar.get('banderaTabla').setValue("");
+      this.formEditar.get('tipoDato').setValue("");
       this.formEditar.get('tipoDato').enable();
       this.formEditar.get('requerido').enable();
       if (this.opt) {
@@ -221,6 +214,7 @@ export class EditarDialogComponent implements OnInit {
       this.formEditar.get('requerido').setValue("true");
     } else if (event == "false"){
       this.vObligatorio = true;
+      this.formEditar.get('requerido').setValue("");
     }
   }
 
