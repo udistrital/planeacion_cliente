@@ -99,7 +99,6 @@ export class AgregarDialogComponent implements OnInit {
       this.formAgregar.get('requerido').setValue("true");
     } else if (event == "false"){
       this.vObligatorio = true;
-      this.formAgregar.get('requerido').setValue("");
     }
   }
 }

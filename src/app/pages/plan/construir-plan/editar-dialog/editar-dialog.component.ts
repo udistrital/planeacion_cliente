@@ -163,7 +163,7 @@ export class EditarDialogComponent implements OnInit {
         this.formEditar.get('opciones').disable();
       }
     }
-    if (this.tipoDato == "undefined" || this.tipoDato == undefined || this.tipoDato == "") {
+    if (this.tipoDato == "undefined" || this.tipoDato == undefined) {
       this.vTipo = true;
       this.vParametros = false;
       this.formEditar.get('parametro').setValue("false");
@@ -214,7 +214,6 @@ export class EditarDialogComponent implements OnInit {
       this.formEditar.get('requerido').setValue("true");
     } else if (event == "false"){
       this.vObligatorio = true;
-      this.formEditar.get('requerido').setValue("");
     }
   }
 
