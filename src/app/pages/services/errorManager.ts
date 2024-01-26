@@ -6,8 +6,7 @@ import { Injectable, forwardRef, Inject, NgZone } from '@angular/core';
   providedIn: 'root',
 })
 export class HttpErrorManager {
-  constructor(
-   ) {}
+  constructor() {}
 
   public handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
