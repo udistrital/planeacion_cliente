@@ -70,12 +70,14 @@
             </mat-error>
           </mat-form-field>
         </ng-container>
-        <mat-label class="requerido-radio-group-label">Obligatorio:</mat-label>
-        <mat-radio-group formControlName="requerido" class="requerido-radio-group"
-          aria-labelledby="example-radio-group-label" (change)="verificarObligatorio($event.value)"  required>
-          <mat-radio-button class="requerido-radio-button" value="true">Sí</mat-radio-button>
-          <mat-radio-button class="requerido-radio-button" value="false">No</mat-radio-button>
-        </mat-radio-group>
+        <ng-container *ngIf="vObligatorio">
+          <mat-label class="requerido-radio-group-label">Obligatorio:</mat-label>
+          <mat-radio-group formControlName="requerido" class="requerido-radio-group"
+            aria-labelledby="example-radio-group-label" required>
+            <mat-radio-button class="requerido-radio-button" value="true">Sí</mat-radio-button>
+            <mat-radio-button class="requerido-radio-button" value="false">No</mat-radio-button>
+          </mat-radio-group>
+        </ng-container>
       </ng-container>
     </mat-card-content>
     <mat-card-actions style="text-align: center;">

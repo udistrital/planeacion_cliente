@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
@@ -34,6 +34,7 @@ export interface Unidad {
 export class HabilitarReporteComponent implements OnInit {
 
   vigenciaSelected: boolean;
+  vigenciaSelectedInv: boolean;
   unidadSelected: boolean;
   tipoSelected: boolean;
   tipoSelectedInv: boolean;
@@ -41,7 +42,9 @@ export class HabilitarReporteComponent implements OnInit {
   vigencias: any[];
   periodos: any[];
   vigencia: any;
+  vigenciaInv: any;
   tipo: string;
+  tipoInv: string;
   unidad: string;
   periodo: any;
   periodoFormulacion = [Date, Date];
@@ -53,6 +56,11 @@ export class HabilitarReporteComponent implements OnInit {
   dataUnidades: any;
   dataSource = new MatTableDataSource<Unidades>();
 
+  selectVigencia = new FormControl();
+  selectTipo = new FormControl();
+  selectVigenciaInv = new FormControl();
+  selectTipoInv = new FormControl();
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
@@ -62,6 +70,7 @@ export class HabilitarReporteComponent implements OnInit {
   ) {
     this.loadVigencias();
     this.vigenciaSelected = false;
+    this.vigenciaSelectedInv = false;
     this.guardarDisabled = false;
   }
 
@@ -137,7 +146,7 @@ export class HabilitarReporteComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
-      this.loadTrimestres();
+      this.loadTrimestres(this.vigencia);
       if (this.tipoSelected)
         this.loadFechas();
     }
@@ -159,8 +168,8 @@ export class HabilitarReporteComponent implements OnInit {
       this.tipoSelectedInv = false;
     } else {
       this.tipoSelectedInv = true;
-      this.tipo = tipo;
-      this.loadFechas();
+      this.tipoInv = tipo;
+      this.loadFechasInv();
     }
   }
 
@@ -183,17 +192,17 @@ export class HabilitarReporteComponent implements OnInit {
   }
   onChangeI(vigencia: any) {
     if (vigencia == undefined) {
-      this.vigenciaSelected = false;
+      this.vigenciaSelectedInv = false;
     } else {
-      this.vigenciaSelected = true;
-      this.vigencia = vigencia;
-      this.loadTrimestres();
+      this.vigenciaSelectedInv = true;
+      this.vigenciaInv = vigencia;
+      this.loadTrimestres(this.vigenciaInv);
       if (this.tipoSelectedInv)
-        this.loadFechas();
+        this.loadFechasInv();
     }
   }
 
-  loadFechas() {
+  loadFechasInv() {
     Swal.fire({
       title: 'Cargando Fechas',
       timerProgressBar: true,
@@ -202,32 +211,19 @@ export class HabilitarReporteComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    if (this.tipo === 'formulacion') {
-      this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
-        if (data) {
-          if (data.Data.length != 0) {
-            let formulacionSeguimiento = data.Data[0];
-            let fechaInicio = new Date(formulacionSeguimiento["fecha_inicio"]);
-            let fechaFin = new Date(formulacionSeguimiento["fecha_fin"]);
-            this.formFechas.get('fecha9').setValue(fechaInicio);
-            this.formFechas.get('fecha10').setValue(fechaFin);
-            Swal.close();
-          } else {
-            Swal.close();
-          }
-
-        }
-      }, (error) => {
+    if (this.tipoInv === 'formulaciones') {
+      if (this.periodos && this.periodos.length > 0) {
+        this.readUnidadesForm();
+      } else {
+        Swal.close();
         Swal.fire({
           title: 'Error en la operación',
-          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          text: `No se encontraron datos registrados`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
         })
-      })
-    } else if (this.tipo === 'formulaciones') {
-      this.readUnidadesForm();
+      }
       this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,tipo_seguimiento_id:6389efac6a0d190ffb883f71`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
@@ -251,58 +247,10 @@ export class HabilitarReporteComponent implements OnInit {
           timer: 2500
         })
       })
-    } else if (this.tipo === 'seguimiento') {
-      if (this.periodos.length > 0) {
-        for (let i = 0; i < this.periodos.length; i++) {
-          this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id + `,tipo_seguimiento_id:61f236f525e40c582a0840d0`).subscribe((data: any) => {
-            if (data.Data.length != 0) {
-              let seguimiento = data.Data[0];
-              let fechaInicio = new Date(seguimiento["fecha_inicio"]);
-              let fechaFin = new Date(seguimiento["fecha_fin"]);
-
-              if (i == 0) {
-                this.formFechas.get('fecha1').setValue(fechaInicio);
-                this.formFechas.get('fecha2').setValue(fechaFin);
-              } else if (i == 1) {
-                this.formFechas.get('fecha3').setValue(fechaInicio);
-                this.formFechas.get('fecha4').setValue(fechaFin);
-              } else if (i == 2) {
-                this.formFechas.get('fecha5').setValue(fechaInicio);
-                this.formFechas.get('fecha6').setValue(fechaFin);
-              } else if (i == 3) {
-                this.formFechas.get('fecha7').setValue(fechaInicio);
-                this.formFechas.get('fecha8').setValue(fechaFin);
-                Swal.close();
-              }
-
-            } else {
-              Swal.close();
-            }
-          }, (error) => {
-            Swal.fire({
-              title: 'Error en la operación',
-              text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-            })
-          })
-        }
-      } else {
-        Swal.close();
-        Swal.fire({
-          title: 'Error en la operación',
-          text: `No se encuentran tirmestres habilitados para esta vigencia`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
-
 
     } else if (this.tipo === 'seguimientos') {
-      this.readUnidades();
-      if (this.periodos.length > 0) {
+      if (this.periodos && this.periodos.length > 0) {
+        this.readUnidades();
         for (let i = 0; i < this.periodos.length; i++) {
           this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: any) => {
             if (data.Data.length != 0) {
@@ -342,18 +290,99 @@ export class HabilitarReporteComponent implements OnInit {
         Swal.close();
         Swal.fire({
           title: 'Error en la operación',
-          text: `No se encuentran tirmestres habilitados para esta vigencia`,
+          text: `No se encuentran trimestres habilitados para esta vigencia`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
         })
       }
-
-
     }
   }
 
-  loadTrimestres() {
+  loadFechas() {
+    Swal.fire({
+      title: 'Cargando Fechas',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    if (this.tipo === 'formulacion') {
+      this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
+        if (data) {
+          if (data.Data.length != 0) {
+            let formulacionSeguimiento = data.Data[0];
+            let fechaInicio = new Date(formulacionSeguimiento["fecha_inicio"]);
+            let fechaFin = new Date(formulacionSeguimiento["fecha_fin"]);
+            this.formFechas.get('fecha9').setValue(fechaInicio);
+            this.formFechas.get('fecha10').setValue(fechaFin);
+            Swal.close();
+          } else {
+            Swal.close();
+          }
+
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      })
+    } else if (this.tipo === 'seguimiento') {
+      if (this.periodos && this.periodos.length > 0) {
+        for (let i = 0; i < this.periodos.length; i++) {
+          this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id + `,tipo_seguimiento_id:61f236f525e40c582a0840d0`).subscribe((data: any) => {
+            if (data.Data.length != 0) {
+              let seguimiento = data.Data[0];
+              let fechaInicio = new Date(seguimiento["fecha_inicio"]);
+              let fechaFin = new Date(seguimiento["fecha_fin"]);
+
+              if (i == 0) {
+                this.formFechas.get('fecha1').setValue(fechaInicio);
+                this.formFechas.get('fecha2').setValue(fechaFin);
+              } else if (i == 1) {
+                this.formFechas.get('fecha3').setValue(fechaInicio);
+                this.formFechas.get('fecha4').setValue(fechaFin);
+              } else if (i == 2) {
+                this.formFechas.get('fecha5').setValue(fechaInicio);
+                this.formFechas.get('fecha6').setValue(fechaFin);
+              } else if (i == 3) {
+                this.formFechas.get('fecha7').setValue(fechaInicio);
+                this.formFechas.get('fecha8').setValue(fechaFin);
+                Swal.close();
+              }
+
+            } else {
+              Swal.close();
+            }
+          }, (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          })
+        }
+      } else {
+        Swal.close();
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encuentran trimestres habilitados para esta vigencia`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }
+  }
+
+  loadTrimestres(vigencia: any) {
     Swal.fire({
       title: 'Cargando períodos',
       timerProgressBar: true,
@@ -362,7 +391,7 @@ export class HabilitarReporteComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + vigencia.Id).subscribe((data: any) => {
       if (data) {
         if (data.Data != "") {
           this.periodos = data.Data;
@@ -400,12 +429,12 @@ export class HabilitarReporteComponent implements OnInit {
           this.unidadesInteres = JSON.parse(data.Data[0].unidades_interes);
           if (data.Data[0].unidades_interes == undefined) {
             this.unidadesInteres = ' ';
-          }                          
-        } else if (data.Data.length == 0){
-            this.unidadesInteres = ' ';         
+          }
+        } else if (data.Data.length == 0) {
+          this.unidadesInteres = ' ';
         }
       }
-    },(error) => {
+    }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
@@ -424,9 +453,9 @@ export class HabilitarReporteComponent implements OnInit {
           if (data.Data[0].unidades_interes == undefined) {
 
             this.unidadesInteres = ' ';
-          }                          
-        } else if (data.Data.length == 0){
-            this.unidadesInteres = ' ';
+          }
+        } else if (data.Data.length == 0) {
+          this.unidadesInteres = ' ';
         }
       }
     }, (error) => {
@@ -631,10 +660,10 @@ export class HabilitarReporteComponent implements OnInit {
 
 
   guardarInv() {
-    if (this.tipo == 'formulaciones') {
+    if (this.tipoInv == 'formulaciones') {
       Swal.fire({
         title: 'Habilitar Fechas',
-        text: `¿Desea habilitar la formulación de planes para la vigencia ` + this.vigencia.Nombre + ` ?`,
+        text: `¿Desea habilitar la formulación de planes para la vigencia ` + this.vigenciaInv.Nombre + ` ?`,
         showCancelButton: true,
         confirmButtonText: `Sí`,
         cancelButtonText: `No`,
@@ -736,10 +765,10 @@ export class HabilitarReporteComponent implements OnInit {
             timer: 2500
           })
         }
-    } else if (this.tipo == 'seguimientos') {
+    } else if (this.tipoInv == 'seguimientos') {
       Swal.fire({
         title: 'Habilitar Fechas',
-        text: `¿Desea habilitar el seguimiento de planes para la vigencia ` + this.vigencia.Nombre + ` ?`,
+        text: `¿Desea habilitar el seguimiento de planes para la vigencia ` + this.vigenciaInv.Nombre + ` ?`,
         showCancelButton: true,
         confirmButtonText: `Sí`,
         cancelButtonText: `No`,
@@ -798,10 +827,10 @@ export class HabilitarReporteComponent implements OnInit {
       fecha_fin = new Date(this.formFechas.get('fecha8').value);
     }
 
-    if (fecha_fin.getHours() == 19 ) {
-      fecha_fin.setHours(42,59,59);
+    if (fecha_fin.getHours() == 19) {
+      fecha_fin.setHours(42, 59, 59);
     } else {
-      fecha_fin.setHours(18,59,59);
+      fecha_fin.setHours(18, 59, 59);
     }
 
     body = {
@@ -836,33 +865,33 @@ export class HabilitarReporteComponent implements OnInit {
       fecha_Fin = this.formFechas.get('fecha16').value.toISOString();
     } else if (i === 3) {
       fecha_In = this.formFechas.get('fecha17').value.toISOString();
-      fecha_Fin = this.formFechas.get('fecha18').value.toISOString();  
-  } 
-  this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + periodoId + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: any) => {
-    if (data) {
-      let seguimientoFormulacionGlobal = data.Data[0];
-      if (data.Data.length == 0) {
-        let body = {
-          periodo_id: periodoId.toString(),
-          fecha_inicio: fecha_In,
-          fecha_fin: fecha_Fin,
-          activo: true,
-          tipo_seguimiento_id: '6385fa136a0d19d7888837ed',
-          unidades_interes: JSON.stringify(this.unidadesInteres),
-        };
-        this.request.post(environment.PLANES_CRUD, `periodo-seguimiento`, body).subscribe((data: any) => {
-          if (data) {
-            Swal.fire({
-              title: 'Error en la operación',
-              text: `No se creó el registro`,
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-            })
-          }
-        })
-      } else if (data.Data.length > 0) {         
-          seguimientoFormulacionGlobal["fecha_inicio"]= fecha_In;
+      fecha_Fin = this.formFechas.get('fecha18').value.toISOString();
+    }
+    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + periodoId + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: any) => {
+      if (data) {
+        let seguimientoFormulacionGlobal = data.Data[0];
+        if (data.Data.length == 0) {
+          let body = {
+            periodo_id: periodoId.toString(),
+            fecha_inicio: fecha_In,
+            fecha_fin: fecha_Fin,
+            activo: true,
+            tipo_seguimiento_id: '6385fa136a0d19d7888837ed',
+            unidades_interes: JSON.stringify(this.unidadesInteres),
+          };
+          this.request.post(environment.PLANES_CRUD, `periodo-seguimiento`, body).subscribe((data: any) => {
+            if (data) {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: `No se creó el registro`,
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
+          })
+        } else if (data.Data.length > 0) {
+          seguimientoFormulacionGlobal["fecha_inicio"] = fecha_In;
           seguimientoFormulacionGlobal["fecha_fin"] = fecha_Fin;
           seguimientoFormulacionGlobal["tipo_seguimiento_id"] = '6385fa136a0d19d7888837ed';
           seguimientoFormulacionGlobal["unidades_interes"] = JSON.stringify(this.unidadesInteres);
@@ -889,7 +918,37 @@ export class HabilitarReporteComponent implements OnInit {
     })
   }
 
+  limpiarInv() {
+    this.vigenciaInv = undefined;
+    this.vigenciaSelectedInv = false;
+    this.tipoInv = undefined;
+    this.tipoSelectedInv = false;
+    this.selectTipoInv.setValue('');
+    this.selectVigenciaInv.setValue('--');
+
+    if (this.tipoInv === 'formulaciones') {
+      this.formFechas.get('fecha19').setValue("");
+      this.formFechas.get('fecha20').setValue("");
+    } else if (this.tipoInv == 'seguimientos') {
+      this.formFechas.get('fecha11').setValue("");
+      this.formFechas.get('fecha12').setValue("");
+      this.formFechas.get('fecha13').setValue("");
+      this.formFechas.get('fecha14').setValue("");
+      this.formFechas.get('fecha15').setValue("");
+      this.formFechas.get('fecha16').setValue("");
+      this.formFechas.get('fecha17').setValue("");
+      this.formFechas.get('fecha18').setValue("");
+    }
+  }
+
   limpiar() {
+    this.vigenciaSelected = false;
+    this.vigencia = undefined;
+    this.tipo = undefined;
+    this.tipoSelected = false;
+    this.selectTipo.setValue('');
+    this.selectVigencia.setValue('--');
+
     if (this.tipo === 'formulacion') {
       this.formFechas.get('fecha9').setValue("");
       this.formFechas.get('fecha10').setValue("");
@@ -902,18 +961,6 @@ export class HabilitarReporteComponent implements OnInit {
       this.formFechas.get('fecha6').setValue("");
       this.formFechas.get('fecha7').setValue("");
       this.formFechas.get('fecha8').setValue("");
-    } else if (this.tipo === 'formulaciones') {
-      this.formFechas.get('fecha19').setValue("");
-      this.formFechas.get('fecha20').setValue("");
-    } else if (this.tipo == 'seguimientos') {
-      this.formFechas.get('fecha11').setValue("");
-      this.formFechas.get('fecha12').setValue("");
-      this.formFechas.get('fecha13').setValue("");
-      this.formFechas.get('fecha14').setValue("");
-      this.formFechas.get('fecha15').setValue("");
-      this.formFechas.get('fecha16').setValue("");
-      this.formFechas.get('fecha17').setValue("");
-      this.formFechas.get('fecha18').setValue("");
     }
   }
 }
