@@ -14,6 +14,8 @@ import Swal from 'sweetalert2';
 })
 export class EditarDialogComponent implements OnInit {
   formEditar: FormGroup;
+  aplicativoId: string;
+  fechaCreacion: Date;
   nombre: string;
   descripcion: string;
   activoS: string;
@@ -67,7 +69,9 @@ export class EditarDialogComponent implements OnInit {
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<EditarDialogComponent>,
     private request: RequestManager,
-    @Inject(MAT_DIALOG_DATA) public data: any) {      
+    @Inject(MAT_DIALOG_DATA) public data: any) {
+    this.aplicativoId = data.sub.aplicativo_id;
+    this.fechaCreacion = data.sub.fecha_creacion;
     this.nombre = data.sub.nombre;
     this.padre = data.sub.padre;
     this.descripcion = data.sub.descripcion;
@@ -87,6 +91,8 @@ export class EditarDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.formEditar = this.formBuilder.group({
+      aplicativo_id: [this.aplicativoId, Validators.required],
+      fecha_creacion: [this.fechaCreacion, Validators.required],
       descripcion: [this.descripcion, Validators.required],
       nombre: [this.nombre, Validators.required],
       activo: [this.activoS, Validators.required],
@@ -212,7 +218,7 @@ export class EditarDialogComponent implements OnInit {
     if (event == "true") {
       this.vObligatorio = false;
       this.formEditar.get('requerido').setValue("true");
-    } else if (event == "false"){
+    } else if (event == "false") {
       this.vObligatorio = true;
     }
   }
