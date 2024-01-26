@@ -7,29 +7,23 @@ declare let gtag: Function;
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
   loadRouting = false;
   environment = environment;
   loadingRouter: boolean;
   title = 'configuracion-cliente';
-  constructor(
-    private router: Router,
-    private userService: UserService 
-  ) {
-      this.router.events.subscribe(event => {
-         if(event instanceof NavigationEnd){
-           gtag('config', 'G-RBY2GQV40M', 
-                   {
-                     'page_path': event.urlAfterRedirects
-                   }
-                  );
-          }
-       }
-    )}
+  constructor(private router: Router, private userService: UserService) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        gtag('config', 'G-RBY2GQV40M', {
+          page_path: event.urlAfterRedirects,
+        });
+      }
+    });
+  }
 
-  
   ngOnInit(): void {
     const oas = document.querySelector('ng-uui-oas');
 
@@ -42,8 +36,7 @@ export class AppComponent implements OnInit {
 
     oas.addEventListener('option', (event: any) => {
       if (event.detail) {
-        setTimeout(()=>(this.router.navigate([event.detail.Url])),50 )
-        ;
+        setTimeout(() => this.router.navigate([event.detail.Url]), 50);
       }
     });
 
@@ -52,6 +45,5 @@ export class AppComponent implements OnInit {
         console.log(event.detail);
       }
     });
-
   }
 }

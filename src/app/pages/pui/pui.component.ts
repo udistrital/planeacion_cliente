@@ -21,7 +21,6 @@ export class PUIComponent implements OnInit {
   constructor(
     private request: RequestManager,
     public dialog: MatDialog,
-
   ) {
     this.dataSource = new MatTableDataSource();
     this.loadData();
@@ -42,7 +41,6 @@ export class PUIComponent implements OnInit {
         showConfirmButton: false,
         timer: 2500
       })
-
     })
   }
 
@@ -63,17 +61,13 @@ export class PUIComponent implements OnInit {
             showConfirmButton: false,
             timer: 2500
           })
-
         })
     }
   }
 
-
   revisarDocumento(documentoId) {
-
     let header = "data:application/pdf;base64,";
     let documentoBase64: string;
-
     if (documentoId != "") {
       this.loadDocumento(documentoId).then((documento: any) => {
         if (documento["file"] == undefined) {
@@ -90,13 +84,12 @@ export class PUIComponent implements OnInit {
               data: documentoBase64
             });
           }
-
         } else {
           const dialogRef = this.dialog.open(VisualizarDocumentoDialogComponent, {
-            width: '1200',
+            width: '1000px',
             minHeight: 'calc(100vh - 90px)',
             height: '80%',
-            data: documento["file"]
+            data: { "url": header + documento.file, banderaPUI: true}
           });
         }
       })
@@ -120,7 +113,14 @@ export class PUIComponent implements OnInit {
       rejectRef = reject;
     });
     let documento: any;
-
+    Swal.fire({
+      title: 'Cargando documento',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.GESTOR_DOCUMENTAL_MID, `document/` + documentoId).subscribe((data: any) => {
       if (data) {
         documento = {
@@ -143,7 +143,6 @@ export class PUIComponent implements OnInit {
     })
     return dataPromise;
   }
-
 
   ngOnInit(): void {
   }

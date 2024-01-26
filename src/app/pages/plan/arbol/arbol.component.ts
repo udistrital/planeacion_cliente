@@ -154,30 +154,27 @@ export class ArbolComponent implements OnInit {
       },
     })
     this.request.get(environment.PLANES_MID, `arbol/` + this.idPlan).subscribe((data: any) => {
-      this.mostrar = true;
-      if (data.Data != "") {
+      Swal.close();
+      if (data.Data !== null) {
+        this.mostrar = true;
         this.dataSource.data = data.Data;
-        Swal.close();
+        if (this.armonizacionPED || this.armonizacionPI) {
+          this.linksArbol()
+          this.expandNodes()
+        }
       } else {
-        this.mostrar = false;
         this.dataSource.data = [];
-        Swal.close();
       }
-      if (this.armonizacionPED || this.armonizacionPI) {
-        this.linksArbol()
-        this.expandNodes()
-      }
-    }
-      , (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          text: 'No se encontraron datos registrados',
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
-    )
+    }, (error) => {
+      this.dataSource.data = [];
+      Swal.fire({
+        title: 'Error en la operación',
+        text: 'No se encontraron datos registrados',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   linksArbol() {

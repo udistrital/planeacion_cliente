@@ -26,7 +26,7 @@ export class ConsultarDialogPedComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any 
   ) {
     this.nombre = data.sub.nombre;
     this.descripcion = data.sub.descripcion;

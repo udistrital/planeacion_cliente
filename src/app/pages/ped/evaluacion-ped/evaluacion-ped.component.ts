@@ -9,7 +9,7 @@ export class EvaluacionPedComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
+  ngOnInit(): void { 
   }
 
 }
