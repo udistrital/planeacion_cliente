@@ -14,6 +14,7 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
   file: any;
   header = "data:application/pdf;base64,";
   rol: string;
+  banderaPUI: boolean;
   observacion: string;
   observacionText: string;
 
@@ -25,6 +26,7 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
     this.getRol();
     this.observacion = data.Observacion;
     this.observacionText = this.observacion;
+    this.banderaPUI = data.banderaPUI;
     this.file = this.sanitizer.bypassSecurityTrustResourceUrl(data["url"]);
     Swal.close();
   }

@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { RouteConfigLoadEnd, RouteConfigLoadStart, Router } from '@angular/router';
+import {
+  RouteConfigLoadEnd,
+  RouteConfigLoadStart,
+  Router,
+} from '@angular/router';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { RequestManager } from './services/requestManager';
@@ -21,9 +25,7 @@ export class PagesComponent implements OnInit {
   environment: any;
   loadingRouter: boolean;
 
-  constructor(
-    private router: Router,
-  ) {
+  constructor(private router: Router) {
     this.environment = environment;
     router.events.subscribe((event) => {
       if (event instanceof RouteConfigLoadStart) {

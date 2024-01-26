@@ -130,7 +130,7 @@
         </form>
     </mat-card-content>
     <mat-card-footer style="text-align: center;">
-        <mat-card-content>
+        <mat-card-content *ngIf="estadoPlan == 'En formulación' ||(estadoPlan == 'En revisión' && !readonlyObs)">
             <u class="textGuide">
                 Para guardar los cambios de clic en guardar de lo contrario seleccione cerrar
             </u>
@@ -139,7 +139,7 @@
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
                 (click)="ocultarRecursos()">Cerrar</button>
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit"
-                class="col-3 mt-2 mb-3" (click)="guardarRecursos()" >Guardar</button>
+                class="col-3 mt-2 mb-3" (click)="guardarRecursos()" *ngIf="!readonlyObs || estadoPlan === 'En formulación'" >Guardar</button>
         </ng-container>
     </mat-card-footer>
 </mat-card>
