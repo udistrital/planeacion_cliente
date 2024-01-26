@@ -79,7 +79,7 @@ export class FormulacionComponent implements OnInit {
     private formBuilder: FormBuilder,
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
-    private userService: UserService
+    private userService: UserService,
   ) {
     this.loadPlanes();
     this.loadPeriodos();
@@ -100,7 +100,7 @@ export class FormulacionComponent implements OnInit {
       this.loadUnidades();
     } else if (
       roles.__zone_symbol__value.find(
-        (x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA'
+        (x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA',
       )
     ) {
       this.rol = 'JEFE_DEPENDENCIA';
@@ -141,7 +141,7 @@ export class FormulacionComponent implements OnInit {
     if (!this.isChecked) {
       this.dataSource.filterPredicate = function (
         data: any,
-        filterValue: string
+        filterValue: string,
       ) {
         return data.activo === filterValue;
       };
@@ -161,7 +161,7 @@ export class FormulacionComponent implements OnInit {
     this.request
       .get(
         environment.PLANES_CRUD,
-        `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`
+        `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`,
       )
       .subscribe(
         (data: any) => {
@@ -175,7 +175,7 @@ export class FormulacionComponent implements OnInit {
               let strFechaHoy = new Date(auxFechaCol).toISOString();
               let fechaHoy = new Date(strFechaHoy);
               let fechaInicio = new Date(
-                seguimientoFormulacion['fecha_inicio']
+                seguimientoFormulacion['fecha_inicio'],
               );
               let fechaFin = new Date(seguimientoFormulacion['fecha_fin']);
               if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
@@ -205,13 +205,13 @@ export class FormulacionComponent implements OnInit {
           Swal.fire({
             title: 'Error en la operación',
             text: `No se encontraron datos registrados ${JSON.stringify(
-              error
+              error,
             )}`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500,
           });
-        }
+        },
       );
   }
 
@@ -221,14 +221,14 @@ export class FormulacionComponent implements OnInit {
         .get(
           environment.TERCEROS_SERVICE,
           `datos_identificacion/?query=Numero:` +
-            data['userService']['documento']
+            data['userService']['documento'],
         )
         .subscribe((datosInfoTercero: any) => {
           this.request
             .get(
               environment.PLANES_MID,
               `formulacion/vinculacion_tercero/` +
-                datosInfoTercero[0].TerceroId.Id
+                datosInfoTercero[0].TerceroId.Id,
             )
             .subscribe((vinculacion: any) => {
               if (vinculacion['Data'] !== '') {
@@ -236,7 +236,7 @@ export class FormulacionComponent implements OnInit {
                   .get(
                     environment.OIKOS_SERVICE,
                     `dependencia_tipo_dependencia?query=DependenciaId:` +
-                      vinculacion['Data']['DependenciaId']
+                      vinculacion['Data']['DependenciaId'],
                   )
                   .subscribe((dataUnidad: any) => {
                     if (dataUnidad) {
@@ -286,13 +286,13 @@ export class FormulacionComponent implements OnInit {
           Swal.fire({
             title: 'Error en la operación',
             text: `No se encontraron datos registrados ${JSON.stringify(
-              error
+              error,
             )}`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500,
           });
-        }
+        },
       );
   }
 
@@ -300,7 +300,7 @@ export class FormulacionComponent implements OnInit {
     this.request
       .get(
         environment.PARAMETROS_SERVICE,
-        `periodo?query=CodigoAbreviacion:VG,activo:true`
+        `periodo?query=CodigoAbreviacion:VG,activo:true`,
       )
       .subscribe(
         (data: any) => {
@@ -317,7 +317,7 @@ export class FormulacionComponent implements OnInit {
             showConfirmButton: false,
             timer: 2500,
           });
-        }
+        },
       );
   }
 
@@ -335,13 +335,13 @@ export class FormulacionComponent implements OnInit {
           Swal.fire({
             title: 'Error en la operación',
             text: `No se encontraron datos registrados ${JSON.stringify(
-              error
+              error,
             )}`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500,
           });
-        }
+        },
       );
   }
 
@@ -357,7 +357,7 @@ export class FormulacionComponent implements OnInit {
     let filter = value.toLowerCase();
     if (this.unidades != undefined) {
       return this.unidades.filter((option) =>
-        option.Nombre.toLowerCase().startsWith(filter)
+        option.Nombre.toLowerCase().startsWith(filter),
       );
     }
   }
@@ -388,7 +388,7 @@ export class FormulacionComponent implements OnInit {
             environment.PLANES_MID,
             `formulacion/guardar_actividad`,
             actividad,
-            this.plan._id
+            this.plan._id,
           )
           .subscribe(
             (data: any) => {
@@ -416,7 +416,7 @@ export class FormulacionComponent implements OnInit {
             (error) => {
               Swal.fire({
                 title: 'Error en la operación',
-                text: 'No fue posible crear la actividad, por favor contactarse con el administrador del sistema',
+                text: 'No fue possible crear la actividad, por favor contactarse con el administrador del sistema',
                 icon: 'error',
                 showConfirmButton: false,
                 timer: 2500,
@@ -425,7 +425,7 @@ export class FormulacionComponent implements OnInit {
               this.addActividad = false;
               this.dataArmonizacionPED = [];
               this.dataArmonizacionPI = [];
-            }
+            },
           );
       } else {
         Swal.fire({
@@ -455,7 +455,7 @@ export class FormulacionComponent implements OnInit {
             environment.PLANES_MID,
             `formulacion/actualizar_actividad`,
             actividad,
-            this.plan._id + `/` + this.rowActividad
+            this.plan._id + `/` + this.rowActividad,
           )
           .subscribe(
             (data: any) => {
@@ -481,7 +481,7 @@ export class FormulacionComponent implements OnInit {
             (error) => {
               Swal.fire({
                 title: 'Error en la operación',
-                text: `No fue posible actualizar la actividad, por favor contactarse con el administrador del sistema`,
+                text: `No fue possible actualizar la actividad, por favor contactarse con el administrador del sistema`,
                 icon: 'error',
                 showConfirmButton: false,
                 timer: 2500,
@@ -490,7 +490,7 @@ export class FormulacionComponent implements OnInit {
               this.addActividad = false;
               this.dataArmonizacionPED = [];
               this.dataArmonizacionPI = [];
-            }
+            },
           );
       } else {
         Swal.fire({
@@ -514,7 +514,7 @@ export class FormulacionComponent implements OnInit {
 
   filterPlanes(data) {
     var dataAux = data.filter(
-      (e) => e.tipo_plan_id != '611af8464a34b3599e3799a2'
+      (e) => e.tipo_plan_id != '611af8464a34b3599e3799a2',
     );
     return dataAux.filter((e) => e.activo == true);
   }
@@ -707,7 +707,7 @@ export class FormulacionComponent implements OnInit {
             showConfirmButton: false,
             timer: 2500,
           });
-        }
+        },
       );
   }
 
@@ -735,7 +735,7 @@ export class FormulacionComponent implements OnInit {
         environment.PLANES_MID,
         `formulacion/get_plan_versiones/${this.unidad.Id}/${
           this.vigencia.Id
-        }/${plan.nombre.replace(/ /g, '%20')}`
+        }/${plan.nombre.replace(/ /g, '%20')}`,
       )
       .subscribe(
         (data: any) => {
@@ -764,7 +764,7 @@ export class FormulacionComponent implements OnInit {
             showConfirmButton: false,
             timer: 2500,
           });
-        }
+        },
       );
   }
 
@@ -777,7 +777,7 @@ export class FormulacionComponent implements OnInit {
           `,vigencia:` +
           this.vigencia.Id +
           `,formato:false,nombre:` +
-          planB.nombre
+          planB.nombre,
       )
       .subscribe(
         (data: any) => {
@@ -811,13 +811,13 @@ export class FormulacionComponent implements OnInit {
           Swal.fire({
             title: 'Error en la operación',
             text: `No se encontraron datos registrados ${JSON.stringify(
-              error
+              error,
             )}`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500,
           });
-        }
+        },
       );
   }
 
@@ -842,7 +842,7 @@ export class FormulacionComponent implements OnInit {
         environment.PLANES_MID,
         `formulacion/get_all_actividades/` +
           this.plan._id +
-          `?order=asc&sortby=index`
+          `?order=asc&sortby=index`,
       )
       .subscribe(
         (data: any) => {
@@ -854,7 +854,7 @@ export class FormulacionComponent implements OnInit {
               'activo',
               false,
               'Inactivo',
-              this.dataSource.data
+              this.dataSource.data,
             );
             this.displayedColumns = data.Data.displayed_columns;
             this.columnsToDisplay = this.displayedColumns.slice();
@@ -879,13 +879,13 @@ export class FormulacionComponent implements OnInit {
           Swal.fire({
             title: 'Error en la operación',
             text: `No se encontraron datos registrados ${JSON.stringify(
-              error
+              error,
             )}`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500,
           });
-        }
+        },
       );
   }
 
@@ -900,13 +900,17 @@ export class FormulacionComponent implements OnInit {
     });
     this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe(
       (data: any) => {
-        if (data) {
-          Swal.close();
-          this.estado = plan.estado_plan_id;
+        console.log('aqui andamos')
+        Swal.close();
+        this.estado = plan.estado_plan_id;
+        if (data !== null) {
           this.steps = data[0];
           this.json = data[1][0];
-          this.form = this.formBuilder.group(this.json);
+        } else {
+          this.steps = [];
+          this.json = {};
         }
+        this.form = this.formBuilder.group(this.json);
       },
       (error) => {
         Swal.fire({
@@ -916,7 +920,7 @@ export class FormulacionComponent implements OnInit {
           showConfirmButton: false,
           timer: 2500,
         });
-      }
+      },
     );
   }
 
@@ -952,11 +956,11 @@ export class FormulacionComponent implements OnInit {
       this.request
         .get(
           environment.PLANES_MID,
-          `formulacion/get_plan/` + this.plan._id + `/` + fila.index
+          `formulacion/get_plan/` + this.plan._id + `/` + fila.index,
         )
         .subscribe(
           (data: any) => {
-            if (data) {
+            if (data !== null) {
               Swal.close();
               this.onChangePD(this.planesDesarrollo[0]);
               this.onChangePI(this.planesIndicativos[0]);
@@ -976,19 +980,23 @@ export class FormulacionComponent implements OnInit {
               this.dataArmonizacionPI = strArmonizacion2
                 .split(',', len2)
                 .filter((item) => item != '');
+            } else {
+              this.steps = [];
+              this.json = {};
+              this.formBuilder.group(this.json);
             }
           },
           (error) => {
             Swal.fire({
               title: 'Error en la operación',
               text: `No se encontraron datos registrados ${JSON.stringify(
-                error
+                error,
               )}`,
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500,
             });
-          }
+          },
         );
     }
   }
@@ -1032,7 +1040,7 @@ export class FormulacionComponent implements OnInit {
             environment.PLANES_MID,
             `formulacion/delete_actividad`,
             `null`,
-            this.plan._id + `/` + fila.index
+            this.plan._id + `/` + fila.index,
           )
           .subscribe(
             (data: any) => {
@@ -1055,7 +1063,7 @@ export class FormulacionComponent implements OnInit {
                 showConfirmButton: false,
                 timer: 2500,
               });
-            }
+            },
           );
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
@@ -1092,7 +1100,7 @@ export class FormulacionComponent implements OnInit {
         environment.PLANES_CRUD,
         `identificacion?query=plan_id:` +
           this.plan._id +
-          `,tipo_identificacion_id:6184b3e6f6fc97850127bb68`
+          `,tipo_identificacion_id:6184b3e6f6fc97850127bb68`,
       )
       .subscribe((data: any) => {
         if (data.Data.length == 0) {
@@ -1133,7 +1141,7 @@ export class FormulacionComponent implements OnInit {
                   showConfirmButton: false,
                   timer: 2500,
                 });
-              }
+              },
             );
         } else {
           this.identContratistas = true;
@@ -1147,7 +1155,7 @@ export class FormulacionComponent implements OnInit {
         environment.PLANES_CRUD,
         `identificacion?query=plan_id:` +
           this.plan._id +
-          `,tipo_identificacion_id:617b6630f6fc97b776279afa`
+          `,tipo_identificacion_id:617b6630f6fc97b776279afa`,
       )
       .subscribe((data: any) => {
         if (data.Data.length == 0) {
@@ -1191,7 +1199,7 @@ export class FormulacionComponent implements OnInit {
         environment.PLANES_CRUD,
         `identificacion?query=plan_id:` +
           this.plan._id +
-          `,tipo_identificacion_id:61897518f6fc97091727c3c3`
+          `,tipo_identificacion_id:61897518f6fc97091727c3c3`,
       )
       .subscribe((data: any) => {
         if (data.Data.length == 0) {
@@ -1233,7 +1241,7 @@ export class FormulacionComponent implements OnInit {
     this.request
       .get(
         environment.PLANES_CRUD,
-        `plan?query=activo:true,tipo_plan_id:616513b91634adfaffed52bf`
+        `plan?query=activo:true,tipo_plan_id:616513b91634adfaffed52bf`,
       )
       .subscribe((data: any) => {
         if (data) {
@@ -1250,7 +1258,7 @@ export class FormulacionComponent implements OnInit {
     this.request
       .get(
         environment.PLANES_CRUD,
-        `plan?query=tipo_plan_id:6239117116511e20405d408b`
+        `plan?query=tipo_plan_id:6239117116511e20405d408b`,
       )
       .subscribe((data: any) => {
         if (data) {
@@ -1295,8 +1303,8 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
-  cambiarValor(valorABuscar, valorViejo, valorNuevo, dataS) {
-    dataS.forEach(function (elemento) {
+  cambiarValor(valorABuscar, valorViejo, valorNuevo, data) {
+    data.forEach(function (elemento) {
       elemento[valorABuscar] =
         elemento[valorABuscar] == valorViejo
           ? valorNuevo
@@ -1312,7 +1320,7 @@ export class FormulacionComponent implements OnInit {
         {
           dependencia_id: String(this.unidad.Id),
           vigencia: String(this.vigencia.Id),
-        }
+        },
       )
       .subscribe(
         (data: any) => {
@@ -1338,7 +1346,7 @@ export class FormulacionComponent implements OnInit {
             showConfirmButton: false,
             timer: 2500,
           });
-        }
+        },
       );
   }
 
@@ -1433,7 +1441,7 @@ export class FormulacionComponent implements OnInit {
         this.request
           .get(
             environment.PLANES_MID,
-            `formulacion/verificar_identificaciones/` + this.plan._id
+            `formulacion/verificar_identificaciones/` + this.plan._id,
           )
           .subscribe((data: any) => {
             if (data) {
@@ -1454,7 +1462,7 @@ export class FormulacionComponent implements OnInit {
                           environment.PLANES_CRUD,
                           `plan`,
                           this.plan,
-                          this.plan._id
+                          this.plan._id,
                         )
                         .subscribe((data: any) => {
                           if (data) {
@@ -1487,7 +1495,7 @@ export class FormulacionComponent implements OnInit {
                       showConfirmButton: false,
                       timer: 2500,
                     });
-                  }
+                  },
                 );
               } else {
                 Swal.fire({
@@ -1516,7 +1524,7 @@ export class FormulacionComponent implements OnInit {
     this.request
       .get(
         environment.PLANES_MID,
-        `formulacion/ponderacion_actividades/` + this.plan._id
+        `formulacion/ponderacion_actividades/` + this.plan._id,
       )
       .subscribe(
         (data: any) => {
@@ -1553,7 +1561,7 @@ export class FormulacionComponent implements OnInit {
             showConfirmButton: false,
             timer: 2500,
           });
-        }
+        },
       );
     return dataPromise;
   }
@@ -1656,7 +1664,7 @@ export class FormulacionComponent implements OnInit {
           showConfirmButton: false,
           timer: 2500,
         });
-      }
+      },
     );
   }
 
@@ -1674,7 +1682,7 @@ export class FormulacionComponent implements OnInit {
           .post(
             environment.PLANES_MID,
             `formulacion/versionar_plan/` + this.plan._id,
-            this.plan
+            this.plan,
           )
           .subscribe(
             (data: any) => {
@@ -1705,7 +1713,7 @@ export class FormulacionComponent implements OnInit {
                 showConfirmButton: false,
                 timer: 2500,
               });
-            }
+            },
           );
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
@@ -1811,7 +1819,7 @@ export class FormulacionComponent implements OnInit {
                         `seguimiento/crear_reportes/` +
                           this.plan._id +
                           `/61f236f525e40c582a0840d0`,
-                        this.plan
+                        this.plan,
                       )
                       .subscribe((data: any) => {
                         if (!data) {
@@ -1845,7 +1853,7 @@ export class FormulacionComponent implements OnInit {
           showConfirmButton: false,
           timer: 2500,
         });
-      }
+      },
     );
   }
 }

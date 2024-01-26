@@ -67,7 +67,7 @@ export class RequestManager {
 
   /**
    * Perform a POST http request
-   * 
+   *
    * @param path service's path from environment end-point
    * @param endpoint service's end-point
    * @param element data to send as JSON

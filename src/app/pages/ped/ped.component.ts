@@ -191,12 +191,15 @@ export class PedComponent implements OnInit {
       }
     });
   }
+  activar(){
+    console.log("activando...")
+  }
 
   loadData() {
     this.request
       .get(
         environment.PLANES_CRUD,
-        `plan?query=tipo_plan_id:616513b91634adfaffed52bf,activo:true`
+        `plan?query=tipo_plan_id:616513b91634adfaffed52bf`
       )
       .subscribe(
         (data: any) => {

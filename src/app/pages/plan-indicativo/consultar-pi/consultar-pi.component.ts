@@ -195,8 +195,7 @@ export class ConsultarPIComponent implements OnInit {
     this.request
       .get(
         environment.PLANES_CRUD,
-        `plan?query=tipo_plan_id:6239117116511e20405d408b,activo:true`
-        // `plan?query=tipo_plan_id:6239117116511e20405d408b,activo:true`
+        `plan?query=tipo_plan_id:6239117116511e20405d408b`
       )
       .subscribe(
         (data: any) => {
