@@ -618,7 +618,7 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
-  getVersiones(planB) {
+  getVersiones(planB, planRecienCreado: boolean = true) {
     let aux = planB.nombre.replace(/ /g, "%20");
     this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.unidad.Id + `/` + this.vigencia.Id +
       `/` + aux).subscribe((data: any) => {
@@ -635,7 +635,7 @@ export class FormulacionComponent implements OnInit {
           this.planAsignado = true;
           this.clonar = false;
           this.banderaUltimaVersion = true;
-          this.loadData();
+          this.loadData(planRecienCreado);
           this.controlVersion = new FormControl(this.plan);
           this.versionPlan = this.plan.numero;
           this.getEstado();
@@ -684,12 +684,12 @@ export class FormulacionComponent implements OnInit {
       })
   }
 
-  loadData() {
-    this.ajustarData();
+  loadData(planRecienCreado: boolean = false) {
+    this.ajustarData(planRecienCreado);
 
   }
 
-  ajustarData() {
+  ajustarData(planRecienCreado: boolean) {
     if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != '614d3ad301c7a200482fabfd') {
       this.iconEditar = 'search'
     } else if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_PLANEACION') {
@@ -709,18 +709,20 @@ export class FormulacionComponent implements OnInit {
         this.filterActive()
       } else if (data.Data.data_source == null) {
         this.dataT = false;
-        Swal.fire({
-          title: 'Atención en la operación',
-          text: `No hay actividades registradas para el plan`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 3500
-        })
+        if(!planRecienCreado){
+          Swal.fire({
+            title: 'Atención en la operación',
+            text: `No hay actividades registradas para el plan`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 3500
+          })
+        }
       }
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        text: `No se encontraron datos registrados`,
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
@@ -1056,35 +1058,30 @@ export class FormulacionComponent implements OnInit {
     }
     this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/` + this.plan._id, parametros).subscribe((data: any) => {
       if (data) {
-        this.plan.estado_plan_id = "614d3ad301c7a200482fabfd";
-        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
-          if (dataPut) {
-            this.plan = dataPut.Data;
-            Swal.fire({
-              title: 'Formulación nuevo plan',
-              text: `Plan creado satisfactoriamente`,
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 4000
-            })
-            // this.clonar = false;
-            // this.planAsignado = true;
-            // //CARGA TABLA
-            // this.loadData();
-            this.getVersiones(this.plan);
-          }
-        })
-      }
-    }),
-      (error) => {
+        this.plan = data.Data;
         Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
+          title: 'Formulación nuevo plan',
+          text: `Plan creado satisfactoriamente`,
+          icon: 'success',
           showConfirmButton: false,
-          timer: 2500
+          timer: 4000
         })
+        // this.clonar = false;
+        // this.planAsignado = true;
+        // //CARGA TABLA
+        // this.loadData();
+        this.getVersiones(this.plan,true);
+
       }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   ocultar() {
