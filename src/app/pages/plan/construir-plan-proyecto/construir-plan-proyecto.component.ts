@@ -24,6 +24,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
   // tipoPlan: any[];
   // nombreTipoPlan:any;
   plan: any;
+  cargando = true;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -170,21 +171,40 @@ export class ConstruirPlanProyectoComponent implements OnInit {
   }
 
   loadData(){
-    this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe((data: any) => {
-      if (data){
-        this.planes = data.Data;
-        this.ajustarData();
-      }
-    },(error) => {
-      Swal.fire({
-        title: 'Error en la operación', 
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
+    this.mostrarMensajeCarga();
 
-    })
+    this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe(
+      (data: any) => {
+        if (data){
+          this.planes = data.Data;
+          this.ajustarData();
+          this.cerrarMensajeCarga();
+        }
+      },(error) => {
+        Swal.fire({
+          title: 'Error en la operación', 
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    )
+  }
+
+  mostrarMensajeCarga(): void {
+    Swal.fire({
+      title: 'Cargando datos...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  }
+  cerrarMensajeCarga(): void {
+    this.cargando = false;
+    Swal.close();
   }
 
   ajustarData(){
@@ -263,7 +283,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
   }
 
   ngOnInit(): void {
-  
+    this.loadData();
   }
 
 }

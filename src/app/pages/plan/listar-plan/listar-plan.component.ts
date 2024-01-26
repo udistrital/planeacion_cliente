@@ -8,6 +8,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
+import { error } from 'console';
 
 @Component({
   selector: 'app-listar-plan',
@@ -23,6 +24,7 @@ export class ListarPlanComponent implements OnInit {
   // tipoPlan: any[];
   // nombreTipoPlan:any;
   plan: any;
+  cargando = true;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -174,38 +176,58 @@ export class ListarPlanComponent implements OnInit {
   }
 
   loadData() {
-    this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe((data: any) => {
-      if (data) {
-        this.planes = data.Data;
-        // this.request.get(environment.PLANES_CRUD, `tipo-plan?query=_id:${data.Data.tipo_plan_id}`).subscribe((dat: any) => {
-        //   if (dat){
-        //     this.tipoPlan = dat.Data;
-        //     this.nombreTipoPlan = dat.Data.nombre
-        //     this.ajustarData();
-        //   }
-        // },(error) => {
-        //   Swal.fire({
-        //     title: 'Error en la operación', 
-        //     text: 'No se encontraron datos registrados',
-        //     icon: 'warning',
-        //     showConfirmButton: false,
-        //     timer: 2500
-        //   })
+    this.mostrarMensajeCarga();
 
-        // })
-        // this.nombreTipoPlan = this.tipoPlan.nombre
-        this.ajustarData();
+    this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe(
+      (data: any) => {
+        if (data) {
+          this.planes = data.Data;
+          // this.request.get(environment.PLANES_CRUD, `tipo-plan?query=_id:${data.Data.tipo_plan_id}`).subscribe((dat: any) => {
+          //   if (dat){
+          //     this.tipoPlan = dat.Data;
+          //     this.nombreTipoPlan = dat.Data.nombre
+          //     this.ajustarData();
+          //   }
+          // },(error) => {
+          //   Swal.fire({
+          //     title: 'Error en la operación', 
+          //     text: 'No se encontraron datos registrados',
+          //     icon: 'warning',
+          //     showConfirmButton: false,
+          //     timer: 2500
+          //   })
+
+          // })
+          // this.nombreTipoPlan = this.tipoPlan.nombre
+          this.ajustarData();
+          this.cerrarMensajeCarga();
+        }
+      },
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
       }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
+    );
+  }
 
-    })
+  mostrarMensajeCarga(): void {
+    Swal.fire({
+      title: 'Cargando datos...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  }
+  cerrarMensajeCarga(): void {
+    this.cargando = false;
+    Swal.close();
   }
 
   ajustarData() {
@@ -268,6 +290,6 @@ export class ListarPlanComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
+    this.loadData();
   }
 }

@@ -10,7 +10,7 @@ import { environment } from '../../../environments/environment'
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-ped',
+  selector: 'app-ped', 
   templateUrl: './ped.component.html',
   styleUrls: ['./ped.component.scss']
 })
@@ -225,15 +225,25 @@ export class PedComponent implements OnInit {
   consultar(fila): void{
     this.uid = fila._id;
     this.request.get(environment.PLANES_CRUD, `plan/`+this.uid).subscribe((data: any) => {
-      if(data){
+      if (data && data.Data && Array.isArray(data.Data.structuredData)) {
+        // Verifica si hay datos y si data.Data no es nulo ni está vacío
         this.plan = data.Data;
         let subgrupoDetalle={
           type: "",
           required: false
         }
         this.openDialogConsultar(this.plan, subgrupoDetalle);
+      } else {
+        Swal.fire({
+          title: 'No hay datos relacionados',
+          text: 'No existe información para el plan señalado.',
+          icon: 'info',
+          showConfirmButton: false,
+          timer: 2500
+        });
       }
     },(error) => {
+      // Maneja el caso de error en la solicitud HTTP GET
       Swal.fire({
         title: 'Error en la operación',
         text: 'No se encontraron datos registrados',

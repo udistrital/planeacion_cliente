@@ -87,14 +87,17 @@ export class FuentesDeApropiacionComponent implements OnInit {
     });
   }
 
+  /**
+   
   inactivar(row) {
-    Swal.fire({
-      title: 'Inhabilitar fuente',
-      text: `¿Está seguro de inhabilitar la fuente?`,
-      showCancelButton: true,
-      confirmButtonText: `Si`,
-      cancelButtonText: `No`,
-    }).then((result) => {
+  Swal.fire({
+    title: 'Inhabilitar fuente',
+    text: `¿Está seguro de inhabilitar la fuente?`,
+    showCancelButton: true,
+    confirmButtonText: `Si`,
+    cancelButtonText: `No`,
+  }).then((result) => {
+    if (result.isConfirmed) {
       this.fuente = row;
       if (this.fuente["id"] == row["id"]) {
         this.fuente["activo"] = false;
@@ -115,13 +118,65 @@ export class FuentesDeApropiacionComponent implements OnInit {
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500
-          }).then((result) => {
-            if (result.value) {
+          }).then(() => {
+            this.getFuentesApropiacion();
+          });
+        });
+      }
+    } else if (result.isDismissed) {
+      // El usuario seleccionó "No", aquí puedes realizar alguna acción adicional si es necesario.
+    }
+  });
+}
+
+    
+   */
+
+  inactivar(row) {
+    Swal.fire({
+      title: 'Inhabilitar fuente',
+      text: `¿Está seguro de inhabilitar la fuente?`,
+      showCancelButton: true,
+      confirmButtonText: `Si`,
+      cancelButtonText: `No`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.fuente = row;
+        if (this.fuente["id"] == row["id"]) {
+          this.fuente["activo"] = false;
+          this.request.put(environment.PLANES_CRUD, 'fuentes-apropiacion', this.fuente, this.fuente["_id"]).subscribe((data: any) => {
+            if (data) {
+              Swal.fire({
+                title: 'Fuente Inhabilitada',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 2500
+              })
               this.getFuentesApropiacion();
             }
+          }, (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            }).then((result) => {
+              if (result.value) {
+                this.getFuentesApropiacion();
+              }
+            })
           })
+        }
+      } /*else {
+        Swal.fire({
+          title: 'CANCELADO',
+          text: '',
+          icon: 'info',
+          showConfirmButton: false,
+          timer: 2500
         })
-      }
+      }*/
     })
   }
 }
