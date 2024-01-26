@@ -193,7 +193,7 @@ export class HabilitarReporteComponent implements OnInit {
     }
   }
 
-  loadFechas() {
+  loadFechas() {    
     Swal.fire({
       title: 'Cargando Fechas',
       timerProgressBar: true,
@@ -227,7 +227,18 @@ export class HabilitarReporteComponent implements OnInit {
         })
       })
     } else if (this.tipo === 'formulaciones') {
-      this.readUnidadesForm();
+      if (this.periodos && this.periodos.length > 0) {
+        this.readUnidadesForm();
+      }else{
+        Swal.close();
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
       this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,tipo_seguimiento_id:6389efac6a0d190ffb883f71`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
@@ -251,8 +262,9 @@ export class HabilitarReporteComponent implements OnInit {
           timer: 2500
         })
       })
+      
     } else if (this.tipo === 'seguimiento') {
-      if (this.periodos.length > 0) {
+      if (this.periodos && this.periodos.length > 0) {
         for (let i = 0; i < this.periodos.length; i++) {
           this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id + `,tipo_seguimiento_id:61f236f525e40c582a0840d0`).subscribe((data: any) => {
             if (data.Data.length != 0) {
@@ -292,7 +304,7 @@ export class HabilitarReporteComponent implements OnInit {
         Swal.close();
         Swal.fire({
           title: 'Error en la operación',
-          text: `No se encuentran tirmestres habilitados para esta vigencia`,
+          text: `No se encuentran trimestres habilitados para esta vigencia`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
@@ -301,8 +313,8 @@ export class HabilitarReporteComponent implements OnInit {
 
 
     } else if (this.tipo === 'seguimientos') {
-      this.readUnidades();
-      if (this.periodos.length > 0) {
+      if (this.periodos && this.periodos.length > 0) {
+        this.readUnidades();
         for (let i = 0; i < this.periodos.length; i++) {
           this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: any) => {
             if (data.Data.length != 0) {
@@ -342,7 +354,7 @@ export class HabilitarReporteComponent implements OnInit {
         Swal.close();
         Swal.fire({
           title: 'Error en la operación',
-          text: `No se encuentran tirmestres habilitados para esta vigencia`,
+          text: `No se encuentran trimestres habilitados para esta vigencia`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500

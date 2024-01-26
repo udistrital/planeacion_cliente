@@ -1336,7 +1336,7 @@ export class FormulacionComponent implements OnInit {
 
   enviarRevision() {
     Swal.fire({
-      title: 'Iniciar Revisión',
+      title: 'Enviar Revisión',
       text: `¿Desea enviar la revisión?`,
       icon: 'warning',
       confirmButtonText: `Sí`,
@@ -1396,8 +1396,10 @@ export class FormulacionComponent implements OnInit {
               title: 'Nueva Versión',
               text: 'Nueva versión del plan creada, ya puede realizar los ajustes al plan.',
               icon: 'success',
-              showConfirmButton: false,
-              timer: 2500
+            }).then(async (result) => {
+              if (result.value) {
+                await this.cleanBeforeLoad();
+              }
             })
           } else {
             Swal.fire({

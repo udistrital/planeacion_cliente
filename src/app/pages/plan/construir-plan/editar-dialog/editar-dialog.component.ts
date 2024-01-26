@@ -2,6 +2,7 @@ import { Component, OnInit, Inject, AfterContentChecked, DoCheck } from '@angula
 import { FormBuilder, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
+import { log } from 'console';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
@@ -12,7 +13,6 @@ import Swal from 'sweetalert2';
   styleUrls: ['./editar-dialog.component.scss']
 })
 export class EditarDialogComponent implements OnInit {
-
   formEditar: FormGroup;
   nombre: string;
   descripcion: string;
@@ -35,6 +35,7 @@ export class EditarDialogComponent implements OnInit {
   vParametros: boolean;
   vBandera: boolean;
   vTipoPlan: boolean;
+  vObligatorio: boolean;
 
   tipos: tipoDato[] = [
     { value: 'numeric', viewValue: 'Numérico' },
@@ -81,6 +82,7 @@ export class EditarDialogComponent implements OnInit {
     this.opt = false;
     this.vParametros = false;
     this.vBandera = false;
+    this.vObligatorio = false;
   }
 
   ngOnInit(): void {
@@ -138,16 +140,13 @@ export class EditarDialogComponent implements OnInit {
       this.formEditar.get('tipoDato').disable();
       this.formEditar.get('opciones').disable();
       this.formEditar.get('banderaTabla').disable();
-
     } else if (this.data.ban == "nivel") {
       this.vTipo = true
       this.vFormato = false
       this.opt = false
       this.vTipoPlan = false;
-      this.vBandera = true;
       this.formEditar.get('tipoDato').enable();
       this.formEditar.get('tipo_plan_id').disable();
-
       if (this.tipoDato == 'select') {
         this.opt = true;
         this.vParametros = true;
@@ -155,7 +154,6 @@ export class EditarDialogComponent implements OnInit {
         this.formEditar.get('opciones').enable();
         this.formEditar.get('tipoDato').enable();
         this.formEditar.get('requerido').enable();
-
       } else if (this.tipoDato == 'input' || this.tipoDato == 'numeric') {
         this.opt = false;
         this.vParametros = true;
@@ -179,59 +177,44 @@ export class EditarDialogComponent implements OnInit {
     if (this.nivel > 1) {
       this.formEditar.get('banderaTabla').setValue(this.visibleBandera.value);
     }
+    if (this.formEditar.get('parametro').value == "true") {
+      this.vBandera = true;
+    }
+    if (this.formEditar.get('banderaTabla').value == "false") {
+      this.vObligatorio = true;
+    }
   }
 
-
   verificarNivel(event: MatRadioChange) {
-    this.verificarBandera(this.formEditar.get('banderaTabla').value);
     if (event.value == "false") {
       this.vParametros = false;
-      this.vBandera = true;
+      this.vBandera = false;
+      this.formEditar.get('banderaTabla').setValue("false");
       this.formEditar.get('tipoDato').disable();
       this.formEditar.get('requerido').disable();
       this.formEditar.get('opciones').disable();
     } else if (event.value == "true") {
       this.vParametros = true;
       this.vBandera = true;
+      this.vObligatorio = false;
+      this.formEditar.get('banderaTabla').setValue("");
+      this.formEditar.get('tipoDato').setValue("");
       this.formEditar.get('tipoDato').enable();
       this.formEditar.get('requerido').enable();
       if (this.opt) {
         this.formEditar.get('opciones').enable();
       }
     }
+    this.verificarBandera(this.formEditar.get('banderaTabla').value);
   }
 
   verificarBandera(event) {
-    this.verificarObligatorio( this.formEditar.get('requerido').value);
     if (event == "true") {
-      if (this.formEditar.get('parametro').value === "false") {
-        this.formEditar.get('banderaTabla').setValue("false");
-        Swal.fire({
-          title: 'Atención',
-          text: 'Para que el nivel sea un campo en la tabla resumen debe tener parametros',
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 3500
-        })
-      }
+      this.vObligatorio = false;
+      this.formEditar.get('requerido').setValue("true");
+    } else if (event == "false"){
+      this.vObligatorio = true;
     }
-
-  }
-
-  verificarObligatorio(event) {
-    if (event == "false") {
-      if (this.formEditar.get('banderaTabla').value === "true") {
-        this.formEditar.get('requerido').setValue("true");
-        Swal.fire({
-          title: 'Atención',
-          text: 'Para que un nivel pueda estar en la tabla resumen debe ser obligatorio',
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 3500
-        })
-      }
-    }
-
   }
 
   loadTiposPlan() {
@@ -247,11 +230,8 @@ export class EditarDialogComponent implements OnInit {
         showConfirmButton: false,
         timer: 2500
       })
-
     })
   }
-
-
 }
 
 interface tipoDato {

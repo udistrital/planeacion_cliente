@@ -67,7 +67,7 @@
                 <!-- <div *ngIf="nombrePlan == 'Proyecto Universitario Institucional'">
                         <p>holii</p>
                     </div> -->
-                <mat-grid-tile *ngIf="nombrePlan == 'Proyecto Universitario Institucional'">
+                <mat-grid-tile *ngIf="nombrePlan == 'Proyecto Universitario Institucional' || 'Proyecto'">
                     <mat-form-field appearance="fill" [style.width.%]="200">
                         <mat-label id="tipo-input-label">Vigencia</mat-label>
                         <mat-select formControlName="vigencia" required>
@@ -79,7 +79,7 @@
                         <mat-hint>Seleccione la vigencia</mat-hint>
                     </mat-form-field>
                 </mat-grid-tile>
-                <mat-grid-tile *ngIf="nombrePlan == 'Proyecto Universitario Institucional'">
+                <mat-grid-tile *ngIf="nombrePlan == 'Proyecto Universitario Institucional' || 'Proyecto'">
                     <label class="width-label-upload">
                         <input type="file" (change)="onChangeDocumento($event.target)">
                         Adjuntar Documento...
