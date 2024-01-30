@@ -248,7 +248,7 @@ export class HabilitarReporteComponent implements OnInit {
         })
       })
 
-    } else if (this.tipo === 'seguimientos') {
+    } else if (this.tipoInv === 'seguimientos') {
       if (this.periodos && this.periodos.length > 0) {
         this.readUnidades();
         for (let i = 0; i < this.periodos.length; i++) {
