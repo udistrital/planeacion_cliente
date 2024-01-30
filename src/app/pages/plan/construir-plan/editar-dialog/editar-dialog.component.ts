@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, AfterContentChecked, DoCheck } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectorRef, AfterContentChecked, DoCheck } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./editar-dialog.component.scss']
 })
 export class EditarDialogComponent implements OnInit {
+  formularioModificado: boolean = false;
   formEditar: FormGroup;
   aplicativoId: string;
   fechaCreacion: Date;
@@ -67,6 +68,7 @@ export class EditarDialogComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
+    private cdRef: ChangeDetectorRef,
     public dialogRef: MatDialogRef<EditarDialogComponent>,
     private request: RequestManager,
     @Inject(MAT_DIALOG_DATA) public data: any) {
@@ -106,6 +108,12 @@ export class EditarDialogComponent implements OnInit {
     });
     this.verificarDetalle();
     this.loadTiposPlan();
+    // Suscribe a los cambios en el formulario
+    this.formEditar.valueChanges.subscribe(() => {
+      this.formularioModificado = true;
+      // Marca el componente para la detección de cambios
+      this.cdRef.detectChanges();
+    });
   }
 
   close(): void {
@@ -120,8 +128,17 @@ export class EditarDialogComponent implements OnInit {
     }
   }
 
+  isFormularioModificado(): boolean {
+    return this.formularioModificado;
+  }
+
+  resetFormularioModificado(): void {
+    this.formularioModificado = false;
+  }
+
   deshacer() {
     this.formEditar.reset();
+    this.resetFormularioModificado();
   }
 
   onChange(event) {
