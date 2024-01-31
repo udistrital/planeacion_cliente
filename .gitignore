@@ -9,10 +9,7 @@
 
 # dependencies
 /node_modules
-package-lock.json
-package.json
 .env
-environments
 
 # profiling files
 chrome-profiler-events*.json

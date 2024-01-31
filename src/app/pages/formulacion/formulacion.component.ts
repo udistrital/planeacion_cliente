@@ -654,9 +654,9 @@ export class FormulacionComponent implements OnInit {
   }
 
   busquedaPlanes(planB) {
-    //antes de cargar algun plan hago la busqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se buelve true o false
+    //Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
     this.cargaFormato(planB);
-    //validacion con vandera para el estado de los datos de los planes
+    //validación con bandera para el estado de los datos de los planes.
     if (this.banderaEstadoDatos == true) {
       this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
         this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe(
@@ -701,7 +701,6 @@ export class FormulacionComponent implements OnInit {
 
   loadData(planRecienCreado: boolean = false) {
     this.ajustarData(planRecienCreado);
-
   }
 
   ajustarData(planRecienCreado: boolean) {
