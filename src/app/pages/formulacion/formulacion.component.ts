@@ -8,7 +8,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { UserService } from '../services/userService';
-import { flatMap } from 'rxjs/operators';
 
 
 @Component({
@@ -46,6 +45,7 @@ export class FormulacionComponent implements OnInit {
   identDocentes: boolean;
   banderaIdentDocentes: boolean;
   banderaUltimaVersion: boolean;
+  banderaEstadoDatos: boolean;
 
   tipoPlanId: string;
   idPadre: string;
@@ -74,6 +74,7 @@ export class FormulacionComponent implements OnInit {
 
   formArmonizacion: FormGroup;
   formSelect: FormGroup;
+
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -653,35 +654,49 @@ export class FormulacionComponent implements OnInit {
   }
 
   busquedaPlanes(planB) {
-    this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
-      this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe((data: any) => {
-        if (data.Data.length > 0) {
-          this.getVersiones(planB);
-        } else if (data.Data.length == 0) {
-          Swal.fire({
-            title: 'Formulación nuevo plan',
-            html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
-              'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
-              'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
-              '<i>Deberá formular el plan</i>',
-            // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
-            // Deberá formular un nuevo plan`,
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 7000
+    //antes de cargar algun plan hago la busqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se buelve true o false
+    this.cargaFormato(planB);
+    //validacion con vandera para el estado de los datos de los planes
+    if (this.banderaEstadoDatos == true) {
+      this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
+        this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe(
+          (data: any) => {
+            if (data.Data.length > 0) {
+              this.getVersiones(planB);
+            } else if (data.Data.length == 0) {
+              Swal.fire({
+                title: 'Formulación nuevo plan',
+                html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
+                  'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
+                  'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
+                  '<i>Deberá formular el plan</i>',
+                // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
+                // Deberá formular un nuevo plan`,
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 7000
+              })
+              this.clonar = true;
+              this.plan = planB;
+            }
+          }, (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
           })
-          this.clonar = true;
-          this.plan = planB;
-        }
-      }, (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2500
-        })
-      })
+    } else {
+      Swal.fire({
+        title: 'Error',
+        text: 'No se recibieron datos.',
+        icon: 'error',
+        showConfirmButton: true,
+        timer: 3500
+      });
+    }
   }
 
   loadData(planRecienCreado: boolean = false) {
@@ -709,7 +724,7 @@ export class FormulacionComponent implements OnInit {
         this.filterActive()
       } else if (data.Data.data_source == null) {
         this.dataT = false;
-        if(!planRecienCreado){
+        if (!planRecienCreado) {
           Swal.fire({
             title: 'Atención en la operación',
             text: `No hay actividades registradas para el plan`,
@@ -740,12 +755,17 @@ export class FormulacionComponent implements OnInit {
       },
     })
     this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
-      if (data) {
+      //if (data) {
+      // Bloque if: Se ejecutará si data no es null y data[0] no es null, y data[1][0] es un objeto no vacío.  
+      if (data && data[0] !== null && data[1] && data[1][0] && Object.keys(data[1][0]).length > 0) {
         Swal.close();
         this.estado = plan.estado_plan_id;
         this.steps = data[0]
         this.json = data[1][0]
         this.form = this.formBuilder.group(this.json);
+        this.banderaEstadoDatos = true;//bandera validacion de la data
+      } else {
+        this.banderaEstadoDatos = false;//bandera validacion de la data
       }
     }, (error) => {
       Swal.fire({
@@ -1070,7 +1090,7 @@ export class FormulacionComponent implements OnInit {
         // this.planAsignado = true;
         // //CARGA TABLA
         // this.loadData();
-        this.getVersiones(this.plan,true);
+        this.getVersiones(this.plan, true);
 
       }
     }, (error) => {
