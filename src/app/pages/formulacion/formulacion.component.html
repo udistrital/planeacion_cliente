@@ -107,8 +107,7 @@
           <mat-label>Búsqueda</mat-label>
           <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Actividad" #input>
         </mat-form-field>
-        <mat-slide-toggle class="toggle" [(ngModel)]="isChecked" (change)="filterActive()">Ver
-          inactivos</mat-slide-toggle>
+        <mat-slide-toggle class="toggle" [(ngModel)]="isChecked" (change)="filterActive()">Ver inactivos</mat-slide-toggle>
       </div>
       <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
         <ng-container matColumnDef="index" class="td-align-left">
@@ -202,8 +201,8 @@
             </mat-form-field>
             <app-arbol *ngIf="tipoPlanIndicativo !== undefined && tipoPlanIndicativo !== ''"
               [tipoPlanId]="tipoPlanIndicativo" [idPlan]="idPlanIndicativo" [dataArmonizacion]="dataArmonizacionPI"
-              [consulta]="false" [armonizacionPED]="false" [armonizacionPI]="true" [estado]="estadoPlan"
-              (grupo)="receiveMessagePI($event)" [updateSignal]="eventChange"></app-arbol>
+              [consulta]="false" [armonizacionPED]="false" [armonizacionPI]="true" [estado]="estadoPlan" (grupo)="receiveMessagePI($event)"
+              [updateSignal]="eventChange"></app-arbol>
           </ng-container>
         </form>
       </mad-card-content>
@@ -227,8 +226,7 @@
               <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'numeric'">
                 <mat-label>Ingrese el valor:</mat-label>
                 <input type="number" matInput formControlName="{{step.id}}" placeholder="Ingrese el valor numérico"
-                  required="{{step.required}}" readonly="{{readOnlyAll}}" step="0.01" value="0.00"
-                  pattern="^\d*(\.\d{0,2})?$">
+                  required="{{step.required}}" readonly="{{readOnlyAll}}" step="0.01" value="0.00" pattern="^\d*(\.\d{0,2})?$">
                 <mat-icon matSuffix>create</mat-icon>
               </mat-form-field>
               <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="step.type == 'select'">
@@ -299,8 +297,7 @@
                           *ngIf="subpanel.type == 'button'" (click)="budisplayed_columns()">Foo</button>
                         <!-- OBSERVACIÓN -->
                         <ng-container *ngIf="!hiddenObs">
-                          <mat-form-field appearance="outline" [style.width.%]="100"
-                            *ngIf="subpanel.sub == null || subpanel.sub == [] ">
+                          <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subpanel.sub == null || subpanel.sub == [] ">
                             <mat-label>Campo de observación:</mat-label>
                             <textarea matInput formControlName="{{subpanel.id+'_o'}}"
                               placeholder="Escriba la observación" required="false"
@@ -336,8 +333,7 @@
                     *ngIf="subs.type == 'button'" (click)="but()">Foo</button>
                   <!-- OBSERVACIÓN -->
                   <ng-container *ngIf="!hiddenObs">
-                    <mat-form-field appearance="outline" [style.width.%]="100"
-                      *ngIf="subs.sub == null || subs.sub == []">
+                    <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="subs.sub == null || subs.sub == []">
                       <mat-label>Campo de observación:</mat-label>
                       <textarea matInput formControlName="{{subs.id+'_o'}}" placeholder="Escriba la observación"
                         required="false" readonly="{{readonlyObs}}"></textarea>
@@ -388,8 +384,7 @@
   <!-- AGREGAR ACTIVIDAD / IDENTIFICACIÓN / CULMINAR PLAN -->
   <mat-card-footer style="text-align: center;">
     <ng-container>
-      <button mat-raised-button color="primary" (click)="agregarActividad()"
-        [disabled]="addActividad || estadoPlan != 'En formulación'"
+      <button mat-raised-button color="primary" (click)="agregarActividad()" [disabled]="addActividad || estadoPlan != 'En formulación'"
         *ngIsGranted="['JEFE_DEPENDENCIA','ASISTENTE_DEPENDENCIA']">
         Agregar actividad
       </button>
@@ -474,7 +469,7 @@
   </app-recursos>
 </ng-container>
 <ng-container class="card-oas" *ngIf="!clonar && planAsignado && identDocentes">
-  <app-docentes [dataSourceActividades]="dataSource" [dataTabla]="identDocentes" [plan]="plan._id" [rol]="rol"
-    [vigencia]="vigencia" [versiones]="versiones" (acciones)="messageIdentificacion($event)">
+  <app-docentes [dataSourceActividades]="dataSource" [dataTabla]="identDocentes" [plan]="plan._id" [rol]="rol" [vigencia]="vigencia"
+    [versiones]="versiones" (acciones)="messageIdentificacion($event)">
   </app-docentes>
 </ng-container>
