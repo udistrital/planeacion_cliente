@@ -84,10 +84,10 @@
                 <button *ngIf="rol=='JEFE_DEPENDENCIA' && this.estado == 'Con observaciones'" class="background-button"
                     mat-raised-button color="primary" (click)="reportar()">Enviar corrección</button>
 
-                <button *ngIf="rol=='PLANEACION' && estado=='Enviado a revisión'" class="background-button"
+                <button *ngIf="(rol=='PLANEACION' || rol=='JEFE_UNIDAD_PLANEACION') && estado=='Enviado a revisión'" class="background-button"
                     mat-raised-button color="primary" (click)="iniciarRevision()">Iniciar revisión</button>
 
-                <button *ngIf="rol=='PLANEACION' && estado=='En revisión OAPC'" class="background-button"
+                <button *ngIf="(rol=='PLANEACION' || rol=='JEFE_UNIDAD_PLANEACION') && estado=='En revisión OAPC'" class="background-button"
                     mat-raised-button color="primary" (click)="finalizarRevision()">Finalizar revisión</button>
 
             </div>

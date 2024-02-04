@@ -52,7 +52,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.getRol();
     if (this.rol != undefined && this.rol == 'PLANEACION') {
       this.loadPeriodos();
-    } else if (this.rol != undefined && this.rol == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA') {
+    } else if (this.rol != undefined && this.rol == 'JEFE_DEPENDENCIA' || 'ASISTENTE_DEPENDENCIA' || 'JEFE_UNIDAD_PLANEACION') {
       this.loadPeriodos();
       this.validarUnidad();
     }
@@ -85,6 +85,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       this.rol = 'JEFE_DEPENDENCIA'
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
+    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_UNIDAD_PLANEACION')) {
+      this.rol = 'JEFE_UNIDAD_PLANEACION'
     }
   }
 
@@ -251,7 +253,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                       let datos = this.allPlanes.filter(plan => plan.vigencia == this.vigencia.Nombre);
 
                       this.dataSource.data = datos;
-                      if (this.rol != undefined && this.rol == 'JEFE_DEPENDENCIA') {
+                      if (this.rol != undefined && this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
                         this.evaluarFechasPlan();
                       }
                       Swal.close();
@@ -447,7 +449,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: any) => {
           if (data) {
             if (data.Data.length != 0) {
-              data.Data.sort(function (a, b) { return b.vigencia - a.vigencia; });
+              data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });
               this.planes = data.Data;
               await this.getEstados();
               await this.getVigencias();
@@ -485,7 +487,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id}`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
-            data.Data.sort(function (a, b) { return b.vigencia - a.vigencia; });
+            data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });
             this.planes = data.Data;
             this.planes.forEach(plan => {
               let bandera = true;
@@ -609,72 +611,72 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     for (let i = 0; i < this.planes.length; i++) {
       // await new Promise((resolve, reject) => {
 
-        this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planes[i]._id + `,activo:true`).subscribe(async (data: any) => {
-          if (data) {
-            if (data.Data.length != 0) {
-              let seguimiento: any = data.Data[data.Data.length - 1];
+      this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planes[i]._id + `,activo:true`).subscribe(async (data: any) => {
+        if (data) {
+          if (data.Data.length != 0) {
+            let seguimiento: any = data.Data[data.Data.length - 1];
 
-              if (this.auxPeriodos.some(periodo => periodo.id != seguimiento.periodo_seguimiento_id) || this.auxPeriodos.length == 0) {
-                this.auxPeriodos.push({ id: seguimiento.periodo_seguimiento_id });
+            if (this.auxPeriodos.some(periodo => periodo.id != seguimiento.periodo_seguimiento_id) || this.auxPeriodos.length == 0) {
+              this.auxPeriodos.push({ id: seguimiento.periodo_seguimiento_id });
 
-                await new Promise((resolve, reject) => {
-                  this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/` + seguimiento.periodo_seguimiento_id).subscribe((data: any) => {
-                    if (data) {
-                      let auxTrimestre = data.Data;
+              await new Promise((resolve, reject) => {
+                this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/` + seguimiento.periodo_seguimiento_id).subscribe((data: any) => {
+                  if (data) {
+                    let auxTrimestre = data.Data;
 
-                      this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + auxTrimestre.periodo_id).subscribe((data: any) => {
-                        if (data) {
-                          let aux = data.Data[0];
-                          let parametroTemp = { "trimestre": aux.ParametroId.CodigoAbreviacion, "nombre": aux.ParametroId.Nombre, "id": seguimiento.periodo_seguimiento_id }
-                          this.auxPeriodos[this.auxPeriodos.findIndex(periodoInt => periodoInt.id == auxTrimestre._id)].periodo = parametroTemp;
-                          this.planes[i].periodo = aux.ParametroId.Nombre;
-                          this.periodoHabilitado = true;
-                          resolve(true);
-                        }
-                      }, (error) => {
-                        Swal.fire({
-                          title: 'Error en la operación',
-                          text: 'No se encontraron datos registrados',
-                          icon: 'warning',
-                          showConfirmButton: false,
-                          timer: 2500
-                        })
-                        reject(false);
+                    this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + auxTrimestre.periodo_id).subscribe((data: any) => {
+                      if (data) {
+                        let aux = data.Data[0];
+                        let parametroTemp = { "trimestre": aux.ParametroId.CodigoAbreviacion, "nombre": aux.ParametroId.Nombre, "id": seguimiento.periodo_seguimiento_id }
+                        this.auxPeriodos[this.auxPeriodos.findIndex(periodoInt => periodoInt.id == auxTrimestre._id)].periodo = parametroTemp;
+                        this.planes[i].periodo = aux.ParametroId.Nombre;
+                        this.periodoHabilitado = true;
+                        resolve(true);
+                      }
+                    }, (error) => {
+                      Swal.fire({
+                        title: 'Error en la operación',
+                        text: 'No se encontraron datos registrados',
+                        icon: 'warning',
+                        showConfirmButton: false,
+                        timer: 2500
                       })
-                    }
-                  }, (error) => {
-                    Swal.fire({
-                      title: 'Error en la operación',
-                      text: 'No se encontraron datos registrados',
-                      icon: 'warning',
-                      showConfirmButton: false,
-                      timer: 2500
+                      reject(false);
                     })
-                    reject(false);
+                  }
+                }, (error) => {
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    text: 'No se encontraron datos registrados',
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    timer: 2500
                   })
-                });
-              } else {
-                let parametroTemp = this.auxPeriodos.find(periodo => periodo.id == seguimiento.periodo_seguimiento_id).periodo;
-                this.planes[i].periodo = parametroTemp.nombre;
-                this.periodoHabilitado = true;
-              }
-
+                  reject(false);
+                })
+              });
             } else {
-              this.periodoHabilitado = false;
-              this.planes[i].periodo = "No disponible";
+              let parametroTemp = this.auxPeriodos.find(periodo => periodo.id == seguimiento.periodo_seguimiento_id).periodo;
+              this.planes[i].periodo = parametroTemp.nombre;
+              this.periodoHabilitado = true;
             }
-            // resolve(true);
+
+          } else {
+            this.periodoHabilitado = false;
+            this.planes[i].periodo = "No disponible";
           }
-        }, (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            text: 'No se encontraron datos registrados',
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 2500
-          })
-          // reject(false);
+          // resolve(true);
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
         })
+        // reject(false);
+      })
       // });
     }
     Swal.close();
