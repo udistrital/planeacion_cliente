@@ -1099,49 +1099,53 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   verificarActividad() {
+    var mensaje = `¿Desea verificar la actividad?`
+    if (this.veririficarObservaciones()) {
+      mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
+    }
+
     Swal.fire({
-      title: 'Verificar Actividad',
-      text: `Esta a punto de verificar la actividad.`,
+      title: 'Guardar seguimiento',
+      text: mensaje,
       icon: 'warning',
-      confirmButtonText: `Continuar`,
-      cancelButtonText: `Cancelar`,
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        let mod = {
-          SeguimientoId: this.seguimiento._id,
-          informacion: this.seguimiento.informacion,
-          evidencias: this.seguimiento.evidencia,
-          cualitativo: this.seguimiento.cualitativo,
-          cuantitativo: this.seguimiento.cuantitativo,
-          dependencia: this.rol == 'JEFE_DEPENDENCIA'
-        };
-
-        this.request.put(environment.PLANES_MID, `seguimiento/verificar_actividad`, mod, this.indexActividad).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/verificar_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
-            if (data.Success) {
+
+            if (data.Data.Observación) {
               Swal.fire({
-                title: 'Actividad Verificada',
-                icon: 'success',
-              }).then((result) => {
-                if (result.value) {
-                  this.loadData();
-                }
+                title: 'Información de seguimiento actualizada',
+                text: 'Las observaciones hechas al seguimiento se ha guardado satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
               });
             } else {
               Swal.fire({
-                title: 'No es posible verificar la actividad',
-                icon: 'error',
-                showConfirmButton: false,
-                text: data.Data,
-                timer: 4000
-              })
+                title: 'Información de seguimiento actualizada',
+                text: 'La actividad ha sido verificada satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
             }
           }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
         });
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
-          title: 'Verificación de la actividad cancelada',
+          title: 'Generación de seguimiento cancelado',
           icon: 'error',
           showConfirmButton: false,
           timer: 2500

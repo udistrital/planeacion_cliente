@@ -409,7 +409,7 @@
 
       <br>
       <div class="align-button-enviar"
-        *ngIf="rol=='JEFE_DEPENDENCIA' && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC'">
+        *ngIf="rol=='JEFE_DEPENDENCIA' && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC' && estadoSeguimiento!='Revisión Verificada'">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
         <button class="background-button" mat-raised-button color="primary" (click)="guardarSeguimiento()">Guardar
           seguimiento de actividad</button>

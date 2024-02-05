@@ -421,4 +421,64 @@ export class SeguimientoComponentGestion implements OnInit {
         })
       }
   }
+
+  verificarRevision() {
+    Swal.fire({
+      title: 'Verificar revisión',
+      text: `¿Confirma que desea verificar la revisión del seguimiento al Plan de Acción?`,
+      icon: 'warning',
+      confirmButtonText: `Continuar`,
+      cancelButtonText: `Cancelar`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/verificar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
+          if (data) {
+            if (data.Success) {
+              Swal.fire({
+                title: 'El reporte se ha enviado satisfactoriamente',
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  this.loadDataSeguimiento();
+                }
+              });
+            } else {
+              let message: string = '<b>ID - Actividad</b><br/>';
+              let aux: object = data.Data.actividades
+              let keys: string[];
+
+              keys = Object.keys(aux)
+              for (let key of keys) {
+                message = message + key + ' - ' + aux[key] + "<br/>"
+              }
+
+              Swal.fire({
+                title: 'Actividades sin revisar',
+                icon: 'error',
+                showConfirmButton: true,
+                html: 'Debe avalar o realizar las observaciones a las siguientes actividades:<br/>' + message
+              })
+            }
+          }
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Verificación de revisión cancelada',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
 }
