@@ -66,6 +66,10 @@
 </mat-card>
 
 <br><br>
+<!-- TABLA RESUMEN -->
+<ng-container *ngIf="rol == 'PLANEACION' && !planAsignado">
+  <app-tabla-resumen></app-tabla-resumen>
+</ng-container>
 <!-- FORMULACIÓN -->
 <mat-card class="card-oas" *ngIf="!clonar && planAsignado">
   <mat-card-header>
@@ -469,7 +473,7 @@
   </app-recursos>
 </ng-container>
 <ng-container class="card-oas" *ngIf="!clonar && planAsignado && identDocentes">
-  <app-docentes [dataSourceActividades]="dataSource" [dataTabla]="identDocentes" [plan]="plan._id" [rol]="rol" [vigencia]="vigencia"
-    [versiones]="versiones" (acciones)="messageIdentificacion($event)">
+<app-docentes [dataSourceActividades]="dataSource" [dataTabla]="identDocentes" [plan]="plan._id" [rol]="rol" [vigencia]="vigencia"
+[versiones]="versiones" (acciones)="messageIdentificacion($event)">
   </app-docentes>
 </ng-container>
