@@ -5,7 +5,7 @@ export interface ResumenPlan {
   estado_id: string;
   id: string;
   nombre: string;
-  ultima_edicion: Date;
+  ultima_modificacion: Date;
   version: number;
   vigencia: number;
   vigencia_id: string;
