@@ -440,7 +440,7 @@
           revisión</button>
       </div>
 
-      <div class="align-button-enviar"
+      <!--<div class="align-button-enviar"
         *ngIf="rol=='JEFE_UNIDAD_PLANEACION' && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada' )">
         <mat-form-field appearance="fill" style="position: absolute; display: block; margin-top: 1%;">
           <mat-label id="Estado">Estado de la actividad</mat-label>
@@ -453,10 +453,10 @@
         </mat-form-field>
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
         <button class="background-button" mat-raised-button color="primary" (click)="verificarActividad()">Verificar actividad</button>
-      </div>
+      </div>-->
 
       <div class="align-button-enviar"
-        *ngIf="rol=='PLANEACION' && !readonlyObservacion">
+        *ngIf="(rol=='PLANEACION' || rol=='JEFE_UNIDAD_PLANEACION') && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada' )">
         <mat-form-field appearance="fill" style="position: absolute; display: block; margin-top: 1%;">
           <mat-label id="Estado">Estado de la actividad</mat-label>
           <mat-select [disabled]="true" [(value)]="estadoActividad" (selectionChange)="onChangeV($event.value)">
@@ -467,14 +467,14 @@
           </mat-select>
         </mat-form-field>
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-        <button class="background-button" mat-raised-button color="primary" (click)="guardarRevision()" *ngIf="estadoActividad==='Actividad Verificada'">Guardar
-          revisión de actividad</button>
+        <button class="background-button" mat-raised-button color="primary" (click)="guardarRevision()">Guardar
+          revisión de actividad</button> <!--*ngIf="estadoActividad==='Actividad Verificada'"-->
       </div>
 
-      <div class="align-button-enviar"
+      <!--<div class="align-button-enviar"
         *ngIf="rol=='JEFE_UNIDAD_PLANEACION' && estadoActividad==='Actividad Verificada'">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-      </div>
+      </div>-->
 
       <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Observación'">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>

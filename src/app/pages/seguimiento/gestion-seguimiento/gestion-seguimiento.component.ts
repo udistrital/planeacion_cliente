@@ -453,12 +453,21 @@ export class SeguimientoComponentGestion implements OnInit {
                 message = message + key + ' - ' + aux[key] + "<br/>"
               }
 
-              Swal.fire({
-                title: 'Actividades sin revisar',
-                icon: 'error',
-                showConfirmButton: true,
-                html: 'Debe avalar o realizar las observaciones a las siguientes actividades:<br/>' + message
-              })
+              if (this.estado != 'Con observaciones') {
+                Swal.fire({
+                  title: 'Debe reportar las siguientes actividades:',
+                  icon: 'error',
+                  showConfirmButton: true,
+                  html: message
+                })
+              } else {
+                Swal.fire({
+                  title: 'Debe revisar las observaciones de las siguientes actividades:',
+                  icon: 'error',
+                  showConfirmButton: true,
+                  html: message
+                })
+              }
             }
           }
         });

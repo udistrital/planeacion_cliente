@@ -206,7 +206,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      } else if (this.estadoActividad === 'Actividad reportada' || this.estadoActividad === 'Actividad Verificada' || this.estadoActividad === 'Con observaciones') {
+      } else if (this.estadoActividad === 'Actividad reportada' || this.estadoActividad === 'Con observaciones' /*|| this.estadoActividad === 'Actividad Verificada'*/) {
         this.readonlyFormulario = true;
         this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión OAPC');
         this.mostrarObservaciones = true;
@@ -224,7 +224,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      } else if (this.estadoActividad === 'Con observaciones' || this.estadoActividad === 'Actividad Verificada') {
+      } else if (this.estadoActividad === 'Con observaciones'/* || this.estadoActividad === 'Actividad Verificada'*/) {
         this.readonlyFormulario = this.estadoSeguimiento != 'Con observaciones';
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
@@ -468,7 +468,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   guardarCualitativo() {
     var mensaje = `¿Desea guardar la información del componente cualitativo?`
-    if (this.rol === 'PLANEACION' && this.estadoActividad === 'Actividad Verificada') {
+    if (this.rol === 'PLANEACION'/* && this.estadoActividad === 'Actividad Verificada'*/) {
       mensaje = `¿Desea avalar la actividad?`
       if (this.veririficarObservaciones()) {
         mensaje = `¿Desea guardar las observaciones del componente cualitativo?`
@@ -525,7 +525,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   guardarCuantitativo() {
     var mensaje = `¿Desea guardar la información del componente cuantitativo?`
-    if (this.rol === 'PLANEACION' && this.estadoActividad === 'Actividad Verificada') {
+    if (this.rol === 'PLANEACION'/* && this.estadoActividad === 'Actividad Verificada'*/) {
       mensaje = `¿Desea avalar la actividad?`
       if (this.veririficarObservaciones()) {
         mensaje = `¿Desea guardar las observaciones del componente cuantitativo?`
@@ -1098,7 +1098,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
   }
 
-  verificarActividad() {
+  /*verificarActividad() {
     var mensaje = `¿Desea verificar la actividad?`
     if (this.veririficarObservaciones()) {
       mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
@@ -1161,5 +1161,5 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           timer: 2500
         })
       }
-  }
+  }*/
 }
