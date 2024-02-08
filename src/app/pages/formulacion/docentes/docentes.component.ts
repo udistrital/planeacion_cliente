@@ -425,6 +425,17 @@ export class DocentesComponent implements OnInit {
     return data;
   }
 
+  limpiarPublicosyPrivados(data) {
+    if (data.cesantias != "N/A") {
+      data.cesantiasPrivado = ""
+      data.cesantiasPublico = ""
+    }
+    if (data.totalPensiones != "N/A") {
+      data.pensionesPrivado = ""
+      data.pensionesPublico = ""
+    }
+  }
+
   getCalculosDocentes(element, rowIndex, tipo) {
     //Recrear body
     let data = {
@@ -442,8 +453,9 @@ export class DocentesComponent implements OnInit {
       this.banderaCerrar = true
       this.request.post(environment.PLANES_MID, "formulacion/calculos_docentes", data).subscribe((response: any) => {
         if (response) {
-          let data = this.formatData(response.Data)
           const dataSource = this.getDataSource(tipo);
+          let data = this.formatData(response.Data)
+          this.limpiarPublicosyPrivados(data)
           Object.assign(dataSource[rowIndex], data);
           this.banderaCerrar = false
         } else {
@@ -966,11 +978,21 @@ export class DocentesComponent implements OnInit {
   }
 
   onChangeCantidad(element, rowIndex, tipo){
-    this.getCalculosDocentes(element, rowIndex, tipo)
+    if (element.cantidad < 0) {
+      const dataSource = this.getDataSource(tipo)
+      dataSource[rowIndex].cantidad = 0;
+    } else {
+      this.getCalculosDocentes(element, rowIndex, tipo)
+    }
   }
 
   onChangeSemanas(element, rowIndex, tipo){
-    this.getCalculosDocentes(element, rowIndex, tipo)
+    if (element.semanas < 0) {
+      const dataSource = this.getDataSource(tipo)
+      dataSource[rowIndex].semanas = 0;
+    } else {
+      this.getCalculosDocentes(element, rowIndex, tipo)
+    }
   }
 
   onChangeHoras(element, rowIndex, tipo) {
@@ -1244,35 +1266,28 @@ export class DocentesComponent implements OnInit {
   }
 
   verificarTablas(): boolean {
-    var bandera: boolean = false
-    for (let i = 0; i < this.dataSourceRHF.data.length; i++) {
-      let aux = this.dataSourceRHF.data[i];
-      if (aux.pensionesPublico != "" && aux.pensionesPrivado != "" && aux.cesantiasPublico != "" && aux.cesantiasPrivado != "") {
-        bandera = true;
-      } else {
-        return false;
-        break
+    const checkData = (data: any[]) => {
+      for (const item of data) {
+        if (
+          item.pensionesPublico === "" ||
+          item.pensionesPrivado === "" ||
+          item.cesantiasPublico === "" ||
+          item.cesantiasPrivado === "" ||
+          item.cantidad === 0 ||
+          item.semanas === 0 ||
+          item.horas === 0
+        ) {
+          return false;
+        }
       }
-    }
-    for (let i = 0; i < this.dataSourceRHVPRE.data.length; i++) {
-      let aux = this.dataSourceRHVPRE.data[i];
-      if (aux.pensionesPublico != "" && aux.pensionesPrivado != "" && aux.cesantiasPublico != "" && aux.cesantiasPrivado != "") {
-        bandera = true;
-      } else {
-        return false;
-        break
-      }
-    }
-    for (let i = 0; i < this.dataSourceRHVPOS.data.length; i++) {
-      let aux = this.dataSourceRHVPOS.data[i];
-      if (aux.pensionesPublico != "" && aux.pensionesPrivado != "" && aux.cesantiasPublico != "" && aux.cesantiasPrivado != "") {
-        bandera = true;
-      } else {
-        return false;
-        break
-      }
-    }
-    return bandera
+      return true;
+    };
+  
+    return (
+      checkData(this.dataSourceRHF.data) &&
+      checkData(this.dataSourceRHVPRE.data) &&
+      checkData(this.dataSourceRHVPOS.data)
+    );
   }
 
   OnPageChangeRHF(event: PageEvent) {
