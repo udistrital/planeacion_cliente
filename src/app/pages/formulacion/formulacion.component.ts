@@ -105,6 +105,9 @@ export class FormulacionComponent implements OnInit {
     } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
       this.verificarFechas();
+    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_UNIDAD_PLANEACION')) {
+      this.rol = 'JEFE_UNIDAD_PLANEACION'
+      this.verificarFechas();
     }
   }
 
@@ -140,7 +143,7 @@ export class FormulacionComponent implements OnInit {
 
   filterActive() {
     if (!this.isChecked) {
-      this.dataSource.filterPredicate = function (data: any, filterValue: string) {
+      this.dataSource.filterPredicate = function(data: any, filterValue: string) {
         return data.activo === filterValue
       };
       this.dataSource.filter = "Activo"
@@ -559,7 +562,7 @@ export class FormulacionComponent implements OnInit {
         this.hiddenObs = true;
       }
     }
-    if (this.rol == 'PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readOnlyAll = true;
@@ -570,7 +573,7 @@ export class FormulacionComponent implements OnInit {
         this.readonlyObs = false;
         this.hiddenObs = false;
       }
-      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
+      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal' || this.estadoPlan == 'Revisión Verificada') {
         this.readOnlyAll = true;
         this.readonlyObs = true;
         this.hiddenObs = false;
@@ -618,6 +621,8 @@ export class FormulacionComponent implements OnInit {
       this.iconEstado = "done_all"
     } else if (this.plan.estado_plan_id == '615335c501c7a213a12fb2a3') {
       this.iconEstado = "build";
+    } else if (this.plan.estado_plan_id == '65bbf86918f02a27a456d20f') {
+      this.iconEstado = "spellcheck";
     }
   }
 
@@ -706,7 +711,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   ajustarData(planRecienCreado: boolean) {
-    if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != '614d3ad301c7a200482fabfd') {
+    if (this.rol == 'PLANEACION' || this.rol == 'JEFE_UNIDAD_PLANEACION' || this.plan.estado_plan_id != '614d3ad301c7a200482fabfd') {
       this.iconEditar = 'search'
     } else if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_PLANEACION') {
       this.iconEditar = 'edit'
@@ -1067,7 +1072,7 @@ export class FormulacionComponent implements OnInit {
   }
 
   cambiarValor(valorABuscar, valorViejo, valorNuevo, dataS) {
-    dataS.forEach(function (elemento) {
+    dataS.forEach(function(elemento) {
       elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
     })
   }
@@ -1391,6 +1396,51 @@ export class FormulacionComponent implements OnInit {
         timer: 2500
       })
     })
+  }
+
+  verificarRevision() {
+    Swal.fire({
+      title: 'Verificar Revisión',
+      text: `¿Desea verificar la revisión?`,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.plan.estado_plan_id = "65bbf86918f02a27a456d20f";
+        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Revisión Verficada Enviada',
+              icon: 'success',
+            }).then((result) => {
+              if (result.value) {
+                this.busquedaPlanes(data.Data);
+                this.loadData();
+                this.addActividad = false;
+              }
+            })
+          }
+        })
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Envio de Revisión Verificada Cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
   realizarAjustes() {

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -10,13 +10,31 @@ import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import { error } from 'console';
 
+export interface Planes {
+  _id: string
+  activo: string
+  aplicativo_id: string
+  dependencia_id: string
+  descripcion: string
+  formato: boolean
+  nombre: string
+  nombre_tipo_plan: string
+  tipo_plan_id: string
+  vigencia: string
+  iconSelected: string
+}
+
+export interface Plan {
+  _id: string;
+  nombre: string;
+}
+
 @Component({
   selector: 'app-listar-plan',
   templateUrl: './listar-plan.component.html',
   styleUrls: ['./listar-plan.component.scss']
 })
 export class ListarPlanComponent implements OnInit {
-
   displayedColumns: string[] = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
   dataSource: MatTableDataSource<any>;
   uid: number; // id del objeto
@@ -26,13 +44,27 @@ export class ListarPlanComponent implements OnInit {
   plan: any;
   cargando = true;
 
+  iconoPlanesAccionFuncionamiento: string = 'compare_arrows';
+  planesInteres: any;
+  banderaTodosSeleccionados: boolean;
+
+  @Input() banderaPlanesAccionFuncionamiento: boolean;
+  @Output() planesInteresSeleccionados = new EventEmitter<any[]>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+
   constructor(
     public dialog: MatDialog,
     private request: RequestManager,
     private router: Router,
   ) {
+    this.banderaTodosSeleccionados = false;
+    this.planesInteres = [];
+    this.banderaPlanesAccionFuncionamiento = false;
+  }
+
+  ngOnInit(): void {
+    console.log('Inicia el componente Listar Planes/Proyectos');
     this.loadData();
   }
 
@@ -200,6 +232,9 @@ export class ListarPlanComponent implements OnInit {
           // })
           // this.nombreTipoPlan = this.tipoPlan.nombre
           this.ajustarData();
+          if(this.banderaPlanesAccionFuncionamiento){
+            this.planes = data.Data.filter((plan: Planes) => plan.activo == "Activo");
+          }
           this.cerrarMensajeCarga();
         }
       },
@@ -225,7 +260,11 @@ export class ListarPlanComponent implements OnInit {
       }
     });
   }
+
   cerrarMensajeCarga(): void {
+    this.dataSource = new MatTableDataSource(this.planes);
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
     this.cargando = false;
     Swal.close();
   }
@@ -233,9 +272,7 @@ export class ListarPlanComponent implements OnInit {
   ajustarData() {
     this.cambiarValor("activo", true, "Activo")
     this.cambiarValor("activo", false, "Inactivo")
-    this.dataSource = new MatTableDataSource(this.planes);
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.cambiarValor("iconSelected", undefined, "compare_arrows")
   }
 
   editar(fila): void {
@@ -289,7 +326,64 @@ export class ListarPlanComponent implements OnInit {
     })
   }
 
-  ngOnInit(): void {
-    this.loadData();
+  changeIcon(row: Planes) {
+    if(!row.iconSelected){
+      row.iconSelected = this.iconoPlanesAccionFuncionamiento;
+    }
+    if (row.iconSelected == 'compare_arrows') {
+      row.iconSelected = 'done';
+
+      const nuevoPlanProyecto: Plan = {
+        _id: row._id,
+        nombre: row.nombre,
+      };
+
+      this.planesInteres = [...this.planesInteres, nuevoPlanProyecto];
+    } else if (row.iconSelected == 'done') {
+      row.iconSelected = 'compare_arrows';
+      let planProyectoEliminar = row._id;
+      const index = this.planesInteres.findIndex(
+        (x: { Id: any }) => x.Id == planProyectoEliminar
+      );
+      this.planesInteres.splice(index, 1);
+    }
+    console.log('Planes/Proyectos de interés seleccionados: ', this.planesInteres);
+    this.emitirCambiosPlanesInteres();
+  }
+
+  seleccionarTodos() {
+    this.banderaTodosSeleccionados = true;
+    this.planesInteres = this.planes.map((element) => ({
+      _id: element._id,
+      nombre: element.nombre,
+    }));
+
+    // Itera sobre los elementos y cambia el icono
+    this.planes.forEach((element) => {
+      element.iconSelected = 'done';
+    });
+
+    // Emite los cambios
+    console.log('Todos seleccionados: ', this.planesInteres);
+    this.emitirCambiosPlanesInteres();
+  }
+
+  borrarSeleccion() {
+    this.banderaTodosSeleccionados = false;
+    // Itera sobre los elementos y cambia el icono a 'compare_arrows'
+    this.planes.forEach((element) => {
+      element.iconSelected = 'compare_arrows';
+    });
+
+    // Limpia el array de unidades de interés
+    this.planesInteres = [];
+
+    // Emite los cambios
+    console.log('Ninguno seleccionado: ', this.planesInteres);
+    this.emitirCambiosPlanesInteres();
+  }
+
+  emitirCambiosPlanesInteres() {
+    this.planesInteresSeleccionados.emit(this.planesInteres);
   }
 }
