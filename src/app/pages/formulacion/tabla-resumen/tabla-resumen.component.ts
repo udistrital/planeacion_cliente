@@ -1,8 +1,18 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
+import { RequestManager } from '../../services/requestManager';
+import { environment } from 'src/environments/environment';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-tabla-resumen',
@@ -20,14 +30,17 @@ export class TablaResumenComponent implements OnInit, AfterViewInit {
   ];
   informacionTabla: MatTableDataSource<ResumenPlan>;
   inputsFiltros: NodeListOf<HTMLInputElement>;
+  planes: ResumenPlan[];
+
+  @Output() mostrarPlan: EventEmitter<ResumenPlan> = new EventEmitter<ResumenPlan>();
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  constructor() {}
+  constructor(private request: RequestManager) {}
 
-  ngOnInit(): void {
-    const datosPrueba: ResumenPlan[] = [];
-    this.informacionTabla = new MatTableDataSource<ResumenPlan>(datosPrueba);
+  async ngOnInit() {
+    await this.cargarPlanes();
+    this.informacionTabla = new MatTableDataSource<ResumenPlan>(this.planes);
     this.informacionTabla.filterPredicate = (plan: ResumenPlan, _) => {
       let filtrosPasados: number = 0;
       let valoresAComparar = [
@@ -44,11 +57,11 @@ export class TablaResumenComponent implements OnInit, AfterViewInit {
       });
       return filtrosPasados === valoresAComparar.length;
     };
+    this.informacionTabla.paginator = this.paginator;
   }
 
   ngAfterViewInit(): void {
     this.inputsFiltros = document.querySelectorAll('th.mat-header-cell input');
-    this.informacionTabla.paginator = this.paginator;
   }
 
   aplicarFiltro(event: Event): void {
@@ -64,5 +77,46 @@ export class TablaResumenComponent implements OnInit, AfterViewInit {
     }
     // Se debe poner algún valor que no sea vacio  para que se accione el filtro la tabla
     this.informacionTabla.filter = filtro.trim().toLowerCase();
+  }
+
+  async cargarPlanes(): Promise<void> {
+    Swal.fire({
+      title: 'Cargando planes en formulación',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    await new Promise((resolve, reject) => {
+      this.request
+        .get(environment.PRUEBA, `formulacion/planes_formulacion`)
+        .subscribe(
+          (data) => {
+            if (data) {
+              this.planes = data.Data;
+              Swal.close();
+              resolve(this.planes);
+            }
+          },
+          (error) => {
+            Swal.close();
+            this.planes = [];
+            console.error(error);
+            Swal.fire({
+              title: 'Error al intentar obtener los últimos planes',
+              icon: 'error',
+              text: 'Ingresa más tarde',
+              showConfirmButton: false,
+              timer: 2500,
+            });
+            reject();
+          }
+        );
+    });
+  }
+
+  consultar(plan: ResumenPlan): void {
+    this.mostrarPlan.emit(plan);
   }
 }

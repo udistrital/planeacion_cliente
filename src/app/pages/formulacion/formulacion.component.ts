@@ -8,6 +8,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { UserService } from '../services/userService';
+import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 
 
 @Component({
@@ -583,14 +584,14 @@ export class FormulacionComponent implements OnInit {
   }
 
   getEstado() {
-    this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.plan.estado_plan_id).subscribe((data: any) => {
-      if (data) {
-        this.estadoPlan = data.Data.nombre;
-        this.getIconEstado();
-        this.visualizeObs();
-      }
-    }),
-      (error) => {
+    this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.plan.estado_plan_id).subscribe(
+      (data: any) => {
+        if (data) {
+          this.estadoPlan = data.Data.nombre;
+          this.getIconEstado();
+          this.visualizeObs();
+        }
+      }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
@@ -599,6 +600,7 @@ export class FormulacionComponent implements OnInit {
           timer: 2500
         })
       }
+    )
   }
 
   getIconEstado() {
@@ -621,8 +623,8 @@ export class FormulacionComponent implements OnInit {
 
   getVersiones(planB, planRecienCreado: boolean = true) {
     let aux = planB.nombre.replace(/ /g, "%20");
-    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.unidad.Id + `/` + this.vigencia.Id +
-      `/` + aux).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/${this.unidad.Id}/${this.vigencia.Id}/${aux}`).subscribe(
+      (data: any) => {
         if (data) {
           this.versiones = data;
           for (var i in this.versiones) {
@@ -641,8 +643,7 @@ export class FormulacionComponent implements OnInit {
           this.versionPlan = this.plan.numero;
           this.getEstado();
         }
-      }),
-      (error) => {
+      },(error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
@@ -651,6 +652,7 @@ export class FormulacionComponent implements OnInit {
           timer: 2500
         })
       }
+    )
   }
 
   busquedaPlanes(planB) {
@@ -755,7 +757,7 @@ export class FormulacionComponent implements OnInit {
     })
     this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
       //if (data) {
-      // Bloque if: Se ejecutará si data no es null y data[0] no es null, y data[1][0] es un objeto no vacío.  
+      // Bloque if: Se ejecutará si data no es null y data[0] no es null, y data[1][0] es un objeto no vacío.
       if (data && data[0] !== null && data[1] && data[1][0] && Object.keys(data[1][0]).length > 0) {
         Swal.close();
         this.estado = plan.estado_plan_id;
@@ -1124,16 +1126,15 @@ export class FormulacionComponent implements OnInit {
       } else if (result.dismiss === Swal.DismissReason.cancel) {
 
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   messageIdentificacion(event) {
@@ -1228,16 +1229,15 @@ export class FormulacionComponent implements OnInit {
                     timer: 2500
                   })
                 }
-              }),
-                (error) => {
-                  Swal.fire({
-                    title: 'Error en la operación',
-                    icon: 'error',
-                    text: `${JSON.stringify(error)}`,
-                    showConfirmButton: false,
-                    timer: 2500
-                  })
-                }
+              },(error) => {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  icon: 'error',
+                  text: `${JSON.stringify(error)}`,
+                  showConfirmButton: false,
+                  timer: 2500
+                })
+              })
             } else {
               Swal.fire({
                 title: 'Error en la operación',
@@ -1338,16 +1338,15 @@ export class FormulacionComponent implements OnInit {
           timer: 2500
         })
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   enviarRevision() {
@@ -1383,16 +1382,15 @@ export class FormulacionComponent implements OnInit {
           timer: 2500
         })
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   realizarAjustes() {
@@ -1426,7 +1424,6 @@ export class FormulacionComponent implements OnInit {
             })
           }
         })
-
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Envio de Revisión Cancelado',
@@ -1435,16 +1432,15 @@ export class FormulacionComponent implements OnInit {
           timer: 2500
         })
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   preAval() {
@@ -1486,16 +1482,15 @@ export class FormulacionComponent implements OnInit {
           timer: 2500
         })
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
 
@@ -1544,15 +1539,18 @@ export class FormulacionComponent implements OnInit {
           timer: 2500
         })
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: JSON.stringify(error),
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  cargarPlan($event: Event) : void {
+    console.log($event)
   }
 }

@@ -68,7 +68,7 @@
 <br><br>
 <!-- TABLA RESUMEN -->
 <ng-container *ngIf="rol == 'PLANEACION' && !planAsignado">
-  <app-tabla-resumen></app-tabla-resumen>
+  <app-tabla-resumen [planes]="planesFormulacion" (mostrarPlan)="cargarPlan($event)"></app-tabla-resumen>
 </ng-container>
 <!-- FORMULACIÓN -->
 <mat-card class="card-oas" *ngIf="!clonar && planAsignado">
