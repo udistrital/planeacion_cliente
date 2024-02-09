@@ -1603,9 +1603,6 @@ export class FormulacionComponent implements OnInit {
   }
 
   cargarPlan($event: Event) : void {
-    console.log($event)
-    // Cúal es la diferencia entre auxUnidades y Unidades?
-
     this.auxUnidades.filter(
       (unidad) => unidad['Id'] == $event['dependencia_id']
     ).forEach((unidad)=>{

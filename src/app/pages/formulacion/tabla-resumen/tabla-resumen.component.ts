@@ -106,8 +106,8 @@ export class TablaResumenComponent implements OnInit, AfterViewInit {
                 showConfirmButton: false,
                 timer: 2500,
               });
-              resolve(this.planes);
             }
+            resolve(this.planes);
           },
           (error) => {
             Swal.close();
