@@ -34,6 +34,7 @@ export class FormulacionComponent implements OnInit {
   planAux: any;
   unidad: any;
   vigencia: any;
+  versionDesdeTabla: number;
   steps: any[];
   json: any;
   estado: string;
@@ -626,20 +627,21 @@ export class FormulacionComponent implements OnInit {
     }
   }
 
-  getVersiones(planB, planRecienCreado: boolean = true) {
+  getVersiones(planB, planRecienCreado: boolean = false) {
     let aux = planB.nombre.replace(/ /g, "%20");
     this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/${this.unidad.Id}/${this.vigencia.Id}/${aux}`).subscribe(
       (data: any) => {
         if (data) {
           this.versiones = data;
-          for (var i in this.versiones) {
-            var obj = this.versiones[i];
-            var num = +i + 1;
-            obj["numero"] = num.toString();
-          }
-          var len = this.versiones.length;
-          var pos = +len - 1;
-          this.plan = this.versiones[pos];
+          this.versiones.forEach((_, i) => {
+            this.versiones[i]['numero'] = (i + 1).toString();
+          });
+          this.plan =
+            this.versiones[
+              this.versionDesdeTabla == undefined || this.versionDesdeTabla > this.versiones.length
+                ? this.versiones.length - 1
+                : this.versionDesdeTabla - 1
+            ];
           this.planAsignado = true;
           this.clonar = false;
           this.banderaUltimaVersion = true;
@@ -1602,5 +1604,31 @@ export class FormulacionComponent implements OnInit {
 
   cargarPlan($event: Event) : void {
     console.log($event)
+    // Cúal es la diferencia entre auxUnidades y Unidades?
+
+    this.auxUnidades.filter(
+      (unidad) => unidad['Id'] == $event['dependencia_id']
+    ).forEach((unidad)=>{
+      this.formSelect.get('selectUnidad').setValue(unidad);
+      this.onChangeU(unidad)
+    });
+
+    this.vigencias.filter(
+      (vigencia) => vigencia['Id'] == $event['vigencia_id']
+    ).forEach((vigencia)=>{
+      this.formSelect.get('selectVigencia').setValue(vigencia);
+      this.onChangeV(vigencia)
+    });
+
+    // Podría haber un error si 2 o más planes que sean formato tengan el mismo nombre
+    this.planes.filter(
+      (plan) => plan['nombre'] == $event['nombre']
+    ).forEach((plan)=>{
+      this.formSelect.get('selectPlan').setValue(plan);
+      this.onChangeP(plan)
+    });
+
+    // this.controlVersion.setValue()
+    this.versionDesdeTabla = $event['version']
   }
 }

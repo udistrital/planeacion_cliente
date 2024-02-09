@@ -96,6 +96,15 @@ export class TablaResumenComponent implements OnInit, AfterViewInit {
             if (data) {
               this.planes = data.Data;
               Swal.close();
+              if(this.planes.length == 0){
+                Swal.fire({
+                  title: 'No existen registros',
+                  icon: 'info',
+                  text: 'No hay planes en formulación',
+                  showConfirmButton: false,
+                  timer: 2500,
+                });
+              }
               resolve(this.planes);
             }
           },
