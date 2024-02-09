@@ -91,7 +91,7 @@ export class TablaResumenComponent implements OnInit, AfterViewInit {
     });
     await new Promise((resolve, reject) => {
       this.request
-        .get(environment.PRUEBA, `formulacion/planes_formulacion`)
+        .get(environment.PLANES_MID, `formulacion/planes_formulacion`)
         .subscribe(
           (data) => {
             this.planes = data.Data;
