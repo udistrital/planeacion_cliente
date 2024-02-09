@@ -1628,7 +1628,6 @@ export class FormulacionComponent implements OnInit {
       this.onChangeP(plan)
     });
 
-    // this.controlVersion.setValue()
     this.versionDesdeTabla = $event['version']
   }
 }

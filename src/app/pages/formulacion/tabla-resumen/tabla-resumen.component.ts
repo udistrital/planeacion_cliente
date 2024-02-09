@@ -32,7 +32,8 @@ export class TablaResumenComponent implements OnInit, AfterViewInit {
   inputsFiltros: NodeListOf<HTMLInputElement>;
   planes: ResumenPlan[];
 
-  @Output() mostrarPlan: EventEmitter<ResumenPlan> = new EventEmitter<ResumenPlan>();
+  @Output() mostrarPlan: EventEmitter<ResumenPlan> =
+    new EventEmitter<ResumenPlan>();
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -93,18 +94,18 @@ export class TablaResumenComponent implements OnInit, AfterViewInit {
         .get(environment.PRUEBA, `formulacion/planes_formulacion`)
         .subscribe(
           (data) => {
-            if (data) {
-              this.planes = data.Data;
+            this.planes = data.Data;
+            if (this.planes.length != 0) {
               Swal.close();
-              if(this.planes.length == 0){
-                Swal.fire({
-                  title: 'No existen registros',
-                  icon: 'info',
-                  text: 'No hay planes en formulación',
-                  showConfirmButton: false,
-                  timer: 2500,
-                });
-              }
+            } else {
+              Swal.close();
+              Swal.fire({
+                title: 'No existen registros',
+                icon: 'info',
+                text: 'No hay planes en formulación',
+                showConfirmButton: false,
+                timer: 2500,
+              });
               resolve(this.planes);
             }
           },
