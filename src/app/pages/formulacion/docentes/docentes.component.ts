@@ -43,6 +43,7 @@ export class DocentesComponent implements OnInit {
   incrementoInput = new FormControl('10.22');
   incremento: number = 0.0;
   incrementoAnterior: number = 0.0;
+  niveles:string[] = ["Pregrado", "Posgrado"]
   
   @ViewChild(MatPaginator) paginatorRHF: MatPaginator;
   @ViewChild(MatPaginator) paginatorRHVPRE: MatPaginator;
@@ -453,10 +454,10 @@ export class DocentesComponent implements OnInit {
       this.banderaCerrar = true
       this.request.post(environment.PLANES_MID, "formulacion/calculos_docentes", data).subscribe((response: any) => {
         if (response) {
+          let dataResponse = this.formatData(response.Data)
+          this.limpiarPublicosyPrivados(dataResponse)
           const dataSource = this.getDataSource(tipo);
-          let data = this.formatData(response.Data)
-          this.limpiarPublicosyPrivados(data)
-          Object.assign(dataSource[rowIndex], data);
+          Object.assign(dataSource[rowIndex], dataResponse);
           this.banderaCerrar = false
         } else {
           this.readonlyTable = true;
@@ -1034,52 +1035,30 @@ export class DocentesComponent implements OnInit {
 
   checkGeneral_TotalCesantiasPensiones() {
     let modals = [];
-    this.dataSourceRHF.data.forEach((data, i) => {
-      let sumaC = (parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0);
-      let totalC = (parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0);
-      if (sumaC != totalC) {
-        this.banderaCerrar = true;
-        modals.push({ icon: 'warning', title: 'Docentes V.E Ocasionales Pregrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias' })
-      }
-      let sumaP = (parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0);
-      let totalP = (parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0);
-      if (sumaP != totalP) {
-        this.banderaCerrar = true;
-        modals.push({ icon: 'warning', title: 'Docentes V.E Ocasionales Pregrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en pensiones' })
-      }
-    })
-    this.dataSourceRHVPRE.data.forEach((data, i) => {
-      let sumaC = (parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0);
-      let totalC = (parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0);
-      if (sumaC != totalC) {
-        this.banderaCerrar = true;
-        modals.push({ icon: 'warning', title: 'Docentes V.E Hora Cátedra Pregrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias' })
-      }
-      let sumaP = (parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0);
-      let totalP = (parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0);
-      if (sumaP != totalP) {
-        this.banderaCerrar = true;
-        modals.push({ icon: 'warning', title: 'Docentes V.E Hora Cátedra Pregrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en pensiones' })
-      }
-    })
-    this.dataSourceRHVPOS.data.forEach((data, i) => {
-      let sumaC = (parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0);
-      let totalC = (parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0);
-      if (sumaC != totalC) {
-        this.banderaCerrar = true;
-        modals.push({ icon: 'warning', title: 'Docentes V.E Hora Cátedra Posgrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en cesantias' })
-      }
-      let sumaP = (parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0);
-      let totalP = (parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0);
-      if (sumaP != totalP) {
-        this.banderaCerrar = true;
-        modals.push({ icon: 'warning', title: 'Docentes V.E Hora Cátedra Posgrado', text: (i + 1) + ". " + data.tipo + ' ' + data.categoria + ' incongruencia en pensiones' })
-      }
-    })
-
-    Swal.queue(modals)
+    const checkData = (dataSource, title) => {
+      dataSource.forEach((data, i) => {
+        const sumaC = (parseFloat(data.cesantiasPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.cesantiasPublico.replace(/\$|,/g, '')) || 0.0);
+        const totalC = (parseFloat(data.totalCesantias.replace(/\$|,/g, '')) || 0.0);
+        if (sumaC !== totalC) {
+          this.banderaCerrar = true;
+          modals.push({ icon: 'warning', title, text: `${i + 1}. ${data.tipo} ${data.categoria} incongruencia en cesantias` });
+        }
+        const sumaP = (parseFloat(data.pensionesPrivado.replace(/\$|,/g, '')) || 0.0) + (parseFloat(data.pensionesPublico.replace(/\$|,/g, '')) || 0.0);
+        const totalP = (parseFloat(data.totalPensiones.replace(/\$|,/g, '')) || 0.0);
+        if (sumaP !== totalP) {
+          this.banderaCerrar = true;
+          modals.push({ icon: 'warning', title, text: `${i + 1}. ${data.tipo} ${data.categoria} incongruencia en pensiones` });
+        }
+      });
+    };
+  
+    checkData(this.dataSourceRHF.data, 'Docentes V.E Ocasionales Pregrado');
+    checkData(this.dataSourceRHVPRE.data, 'Docentes V.E Hora Cátedra Pregrado');
+    checkData(this.dataSourceRHVPOS.data, 'Docentes V.E Hora Cátedra Posgrado');
+  
+    Swal.queue(modals);
     return this.banderaCerrar;
-  }
+  }  
 
   guardarRecursos() {
     if (this.checkGeneral_TotalCesantiasPensiones()) {
