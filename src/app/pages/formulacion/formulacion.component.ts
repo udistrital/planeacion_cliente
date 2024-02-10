@@ -8,6 +8,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { UserService } from '../services/userService';
+import { ActivatedRoute } from '@angular/router';
+import { VerificarFormulario } from '../services/verificarFormulario'
 
 
 @Component({
@@ -82,7 +84,9 @@ export class FormulacionComponent implements OnInit {
     private formBuilder: FormBuilder,
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
-    private userService: UserService
+    private userService: UserService,
+    private route: ActivatedRoute,
+    private verificarFormulario: VerificarFormulario
   ) {
     this.loadPlanes();
     this.loadPeriodos();
@@ -128,8 +132,20 @@ export class FormulacionComponent implements OnInit {
       selectVigencia: ['',],
       selectPlan: ['',]
     });
-  }
 
+    this.verificarFormulario.formData$.subscribe(formData => {
+      console.log(formData)
+      if (formData.length !== 0) {
+        console.log("ENTRE")
+        this.formSelect.get('selectUnidad').setValue(formData[2]);
+        this.formSelect.get('selectVigencia').setValue(formData[1]);
+        this.onChangeV(formData[1]);
+        this.formSelect.get('selectPlan').setValue(formData[0]);
+        this.onChangeP(formData[0])
+        // console.log("VALOR POSTERIOR: ", this.formSelect.get('selectVigencia').value);
+      }
+    });
+  }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -760,7 +776,7 @@ export class FormulacionComponent implements OnInit {
     })
     this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
       //if (data) {
-      // Bloque if: Se ejecutará si data no es null y data[0] no es null, y data[1][0] es un objeto no vacío.  
+      // Bloque if: Se ejecutará si data no es null y data[0] no es null, y data[1][0] es un objeto no vacío.
       if (data && data[0] !== null && data[1] && data[1][0] && Object.keys(data[1][0]).length > 0) {
         Swal.close();
         this.estado = plan.estado_plan_id;

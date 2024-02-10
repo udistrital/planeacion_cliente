@@ -7,6 +7,8 @@ import { RequestManager } from '../services/requestManager';
 import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
 import { UserService } from '../services/userService';
+import { VerificarFormulario } from '../services/verificarFormulario'
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tabla-pendientes',
@@ -33,12 +35,18 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
   // iconEstado: string;
   // versionPlan: string;
   // banderaEstadoDatos: boolean;
-  // unidad: any;
-  // vigencias: any[];
+  unidad: any;
+  vigencias: any[];
+  planes: any[];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  constructor(private request: RequestManager, private userService: UserService) { }
+  constructor(
+    private request: RequestManager,
+    private userService: UserService,
+    private verificarFormulario: VerificarFormulario,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     // this.loadPeriodos()
@@ -84,6 +92,8 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
   }
 
   async ajustarData(event: any) {
+    this.loadPeriodos()
+    this.loadPlanes()
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
@@ -96,7 +106,7 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
     await new Promise((resolve, reject) => {
       this.request.get(environment.PLANES_MID, `formulacion/planes_formulacion`).subscribe((data: any) => {
         if (data.Data != null) {
-          const filterData = data.Data.filter(unid => unid.dependencia_nombre == event.value && unid.estado === "Revisado");
+          const filterData = data.Data.filter(unid => unid.dependencia_nombre == event.value);
 
           const latestVersions = filterData.reduce((acc, obj) => {
             // Si ya existe un objeto con el mismo nombre y su versión es menor, lo reemplazamos
@@ -108,7 +118,8 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
           }, {} as Record<string, ResumenPlan>);
 
           // Obtenemos los valores del objeto, que representan la data filtrada
-          const filteredData: ResumenPlan[] = Object.values(latestVersions);
+          const auxData = Object.values(latestVersions).filter((obj: ResumenPlan) => obj.estado === "Revisado")
+          const filteredData: ResumenPlan[] = auxData as ResumenPlan[];
 
           this.informacionTabla = new MatTableDataSource(filteredData);
           this.informacionTabla.paginator = this.paginator;
@@ -153,7 +164,7 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
                       }
                     }
                     this.auxUnidades.push(unidad);
-                    // this.unidad = unidad
+                    this.unidad = unidad
                   }
                 })
               } else {
@@ -171,111 +182,48 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
     })
   }
 
-  // consultarPlan(plan) {
-  //   if (plan == undefined) {
-  //     // this.planSelected = false;
-  //   } else {
-  //     this.planAux = plan;
-  //     // this.planSelected = true;
-  //     this.addActividad = false;
-  //     this.identRecursos = false;
-  //     this.identContratistas = false;
-  //     this.estadoPlan = "";
-  //     this.iconEstado = "";
-  //     this.versionPlan = "";
-  //     this.busquedaPlanes(plan);
-  //   }
-  // }
+  consultarPlan(plan) {
+    const vigencia = this.vigencias.filter(vig => vig.Year === plan.vigencia)
+    const auxPlan = this.planes.filter(pl => pl.nombre === plan.nombre)
+    this.verificarFormulario.setFormData(auxPlan[0], vigencia[0], this.unidad);
+    this.router.navigate(['pages/formulacion']);
+  }
 
-  // busquedaPlanes(planB) {
-  //   //Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
-  //   // this.cargaFormato(planB);
-  //   const vigencia = this.vigencias.filter(vg => vg.Year == planB.vigencia)
-  //   //validación con bandera para el estado de los datos de los planes.
-  //   if (this.banderaEstadoDatos == true) {
-  //     this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
-  //       vigencia[0].Id + `,formato:false,nombre:` + planB.nombre).subscribe(
-  //         (data: any) => {
-  //           Swal.fire({
-  //             title: 'Formulación nuevo plan',
-  //             html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
-  //               'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
-  //               'vigencia <b>' + vigencia[0].Nombre + '</b><br></br>' +
-  //               '<i>Deberá formular el plan</i>',
-  //             // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
-  //             // Deberá formular un nuevo plan`,
-  //             icon: 'warning',
-  //             showConfirmButton: false,
-  //             timer: 7000
-  //           })
-  //           // this.clonar = true;
-  //           // this.plan = planB;
-  //         }, (error) => {
-  //           Swal.fire({
-  //             title: 'Error en la operación',
-  //             text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-  //             icon: 'warning',
-  //             showConfirmButton: false,
-  //             timer: 2500
-  //           })
-  //         })
-  //   } else {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'No se recibieron datos.',
-  //       icon: 'error',
-  //       showConfirmButton: true,
-  //       timer: 3500
-  //     });
-  //   }
-  // }
+  loadPlanes() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
+      if (data) {
+        this.planes = data.Data;
+        this.planes = this.filterPlanes(this.planes);
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
 
-  // cargaFormato(plan) {
-  //   Swal.fire({
-  //     title: 'Cargando formato',
-  //     timerProgressBar: true,
-  //     showConfirmButton: false,
-  //     willOpen: () => {
-  //       Swal.showLoading();
-  //     },
-  //   })
-  //   this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
-  //     //if (data) {
-  //     // Bloque if: Se ejecutará si data no es null y data[0] no es null, y data[1][0] es un objeto no vacío.
-  //     if (data && data[0] !== null && data[1] && data[1][0] && Object.keys(data[1][0]).length > 0) {
-  //       Swal.close();
-  //       this.estado = plan.estado_plan_id;
-  //       this.steps = data[0]
-  //       this.json = data[1][0]
-  //       this.form = this.formBuilder.group(this.json);
-  //       this.banderaEstadoDatos = true;//bandera validacion de la data
-  //     } else {
-  //       this.banderaEstadoDatos = false;//bandera validacion de la data
-  //     }
-  //   }, (error) => {
-  //     Swal.fire({
-  //       title: 'Error en la operación',
-  //       text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-  //       icon: 'warning',
-  //       showConfirmButton: false,
-  //       timer: 2500
-  //     })
-  //   })
-  // }
+  filterPlanes(data) {
+    var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
+    return dataAux.filter(e => e.activo == true);
+  }
 
-  // loadPeriodos() {
-  //   this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
-  //     if (data) {
-  //       this.vigencias = data.Data;
-  //     }
-  //   }, (error) => {
-  //     Swal.fire({
-  //       title: 'Error en la operación',
-  //       text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-  //       icon: 'warning',
-  //       showConfirmButton: false,
-  //       timer: 2500
-  //     })
-  //   })
-  // }
+  loadPeriodos() {
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
+      if (data) {
+        this.vigencias = data.Data;
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
 }
