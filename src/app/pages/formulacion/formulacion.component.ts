@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, DoCheck } from '@angular/core';
+import { Component, ViewChild, OnInit, DoCheck, OnDestroy } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
@@ -10,6 +10,7 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
 import { UserService } from '../services/userService';
 import { ActivatedRoute } from '@angular/router';
 import { VerificarFormulario } from '../services/verificarFormulario'
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -17,7 +18,7 @@ import { VerificarFormulario } from '../services/verificarFormulario'
   templateUrl: './formulacion.component.html',
   styleUrls: ['./formulacion.component.scss']
 })
-export class FormulacionComponent implements OnInit {
+export class FormulacionComponent implements OnInit, OnDestroy {
 
   activedStep = 0;
   form: FormGroup;
@@ -76,6 +77,7 @@ export class FormulacionComponent implements OnInit {
 
   formArmonizacion: FormGroup;
   formSelect: FormGroup;
+  private miObservableSubscription: Subscription;
 
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -133,18 +135,22 @@ export class FormulacionComponent implements OnInit {
       selectPlan: ['',]
     });
 
-    this.verificarFormulario.formData$.subscribe(formData => {
-      console.log(formData)
+    this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
       if (formData.length !== 0) {
-        console.log("ENTRE")
         this.formSelect.get('selectUnidad').setValue(formData[2]);
         this.formSelect.get('selectVigencia').setValue(formData[1]);
         this.onChangeV(formData[1]);
         this.formSelect.get('selectPlan').setValue(formData[0]);
         this.onChangeP(formData[0])
-        // console.log("VALOR POSTERIOR: ", this.formSelect.get('selectVigencia').value);
       }
     });
+  }
+
+  ngOnDestroy() {
+    if (this.verificarFormulario.formData$) {
+      this.verificarFormulario.cleanFormData();
+      this.miObservableSubscription.unsubscribe();
+    }
   }
 
   applyFilter(event: Event) {

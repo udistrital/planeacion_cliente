@@ -78,9 +78,9 @@ export class DocentesComponent implements OnInit {
   incrementoInput = new FormControl('10.22');
   incremento: number = 0.0;
   incrementoAnterior: number = 0.0;
-  niveles:string[] = ["Pregrado", "Posgrado"]
+  niveles: string[] = ["Pregrado", "Posgrado"]
   salarioMinimo: number = undefined;
-  
+
   @ViewChild(MatPaginator) paginatorRHF: MatPaginator;
   @ViewChild(MatPaginator) paginatorRHVPRE: MatPaginator;
   @ViewChild(MatPaginator) paginatorRHVPOS: MatPaginator;
@@ -568,7 +568,7 @@ export class DocentesComponent implements OnInit {
       }
     }
 
-    if (this.rol == 'PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
@@ -617,7 +617,7 @@ export class DocentesComponent implements OnInit {
       }
     }
 
-    if (this.rol == 'PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
@@ -2601,7 +2601,7 @@ export class DocentesComponent implements OnInit {
         } else {
           bonificacion = 0;
         }
-        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''))/divisor;
+        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, '')) / divisor;
         let vacaciones = parseInt(element.vacaciones.replace(/\$|,/g, ''));
 
         let totalBasico = (sueldoBasico + primaServicios + primaNavidad + primaVacaciones + bonificacion + totalCesantias + vacaciones).toFixed(0);
@@ -2614,7 +2614,7 @@ export class DocentesComponent implements OnInit {
         let primaNavidad = parseInt(element.primaNavidad.replace(/\$|,/g, ''));
         let primaVacaciones = parseInt(element.primaVacaciones.replace(/\$|,/g, ''));
         let vacaciones = parseInt(element.vacaciones.replace(/\$|,/g, ''));
-        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''))/divisor;
+        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, '')) / divisor;
         let bonificacion;
         if (element.bonificacion != "" && element.bonificacion != "N/A") {
           bonificacion = parseInt(element.bonificacion.replace(/\$|,/g, ''));
@@ -2634,7 +2634,7 @@ export class DocentesComponent implements OnInit {
         let primaNavidad = parseInt(element.primaNavidad.replace(/\$|,/g, ''));
         let primaVacaciones = parseInt(element.primaVacaciones.replace(/\$|,/g, ''));
         let vacaciones = parseInt(element.vacaciones.replace(/\$|,/g, ''));
-        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''))/divisor;
+        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, '')) / divisor;
         let bonificacion;
         if (element.bonificacion != "" && element.bonificacion != "N/A") {
           bonificacion = parseInt(element.bonificacion.replace(/\$|,/g, ''));
@@ -2653,9 +2653,9 @@ export class DocentesComponent implements OnInit {
   actualizarTotalAportes(element, rowIndex, tipo, multiplicador, divisor) {
     if (element.tipo != "" && element.categoria != "" && element.semanas != "" && element.horas != "") {
       if (tipo === "RHF") {
-        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, ''))/divisor;
-        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, ''))/divisor;
-        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, ''))/divisor;
+        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, '')) / divisor;
+        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, '')) / divisor;
+        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, '')) / divisor;
         let caja = parseInt(element.caja.replace(/\$|,/g, ''));
         let icbf = parseInt(element.icbf.replace(/\$|,/g, ''));
 
@@ -2664,9 +2664,9 @@ export class DocentesComponent implements OnInit {
       }
       if (tipo === "RHVPRE") {
         let totalAportes;
-        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, ''))/divisor;
-        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, ''))/divisor;
-        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, ''))/divisor;
+        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, '')) / divisor;
+        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, '')) / divisor;
+        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, '')) / divisor;
         let caja = parseInt(element.caja.replace(/\$|,/g, ''));
         let icbf = parseInt(element.icbf.replace(/\$|,/g, ''));
 
@@ -2678,9 +2678,9 @@ export class DocentesComponent implements OnInit {
       }
       if (tipo === "RHVPOS") {
         let totalAportes;
-        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, ''))/divisor;
-        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, ''))/divisor;
-        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, ''))/divisor;
+        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, '')) / divisor;
+        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, '')) / divisor;
+        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, '')) / divisor;
         let caja = parseInt(element.caja.replace(/\$|,/g, ''));
         let icbf = parseInt(element.icbf.replace(/\$|,/g, ''));
 
@@ -2707,10 +2707,10 @@ export class DocentesComponent implements OnInit {
         } else {
           bonificacion = 0;
         }
-        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''))/divisor;
-        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, ''))/divisor;
-        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, ''))/divisor;
-        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, ''))/divisor;
+        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, '')) / divisor;
+        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, '')) / divisor;
+        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, '')) / divisor;
+        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, '')) / divisor;
         let caja = parseInt(element.caja.replace(/\$|,/g, ''));
         let icbf = parseInt(element.icbf.replace(/\$|,/g, ''));
 
@@ -2730,12 +2730,12 @@ export class DocentesComponent implements OnInit {
         } else {
           bonificacion = 0;
         }
-        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''))/divisor;
-        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, ''))/divisor;
-        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, ''))/divisor;
+        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, '')) / divisor;
+        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, '')) / divisor;
+        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, '')) / divisor;
         let caja = parseInt(element.caja.replace(/\$|,/g, ''));
         let icbf = parseInt(element.icbf.replace(/\$|,/g, ''));
-        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, ''))/divisor;
+        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, '')) / divisor;
         if (element.tipo === "H. Catedra Honorarios")
           total = (sueldoBasico).toFixed(0)
         else
@@ -2755,12 +2755,12 @@ export class DocentesComponent implements OnInit {
         } else {
           bonificacion = 0;
         }
-        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''))/divisor;
-        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, ''))/divisor;
-        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, ''))/divisor;
+        let totalCesantias = parseInt(element.totalCesantias.replace(/\$|,/g, '')) / divisor;
+        let totalSalud = parseInt(element.totalSalud.replace(/\$|,/g, '')) / divisor;
+        let totalArl = parseInt(element.totalArl.replace(/\$|,/g, '')) / divisor;
         let caja = parseInt(element.caja.replace(/\$|,/g, ''));
         let icbf = parseInt(element.icbf.replace(/\$|,/g, ''));
-        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, ''))/divisor;
+        let totalPension = parseInt(element.totalPensiones.replace(/\$|,/g, '')) / divisor;
         if (element.tipo === "H. Catedra Honorarios")
           total = (sueldoBasico).toFixed(0)
         else

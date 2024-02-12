@@ -123,11 +123,22 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
 
           this.informacionTabla = new MatTableDataSource(filteredData);
           this.informacionTabla.paginator = this.paginator;
+          Swal.close();
+          if (this.informacionTabla.filteredData.length == 0) {
+            Swal.fire({
+              title: 'Atención en la operación',
+              text: `No hay planes pendientes para verificar`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 3500
+            })
+          }
           resolve(true);
         } else if (data.Data == null) {
+          Swal.close();
           Swal.fire({
             title: 'Atención en la operación',
-            text: `No hay planes pendientes para verificar`,
+            text: `No hay planes formulados`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 3500
@@ -135,6 +146,7 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
           reject(false);
         }
       }, (error) => {
+        Swal.close();
         Swal.fire({
           title: 'Error en la operación',
           text: `No se encontraron datos registrados`,
@@ -144,7 +156,6 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
         })
       })
     });
-    Swal.close();
   }
 
   validarUnidad() {

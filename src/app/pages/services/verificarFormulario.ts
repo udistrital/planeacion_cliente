@@ -16,4 +16,8 @@ export class VerificarFormulario {
     currentFormData.push(unidad)
     this.formData.next(currentFormData);
   }
+
+  cleanFormData() {
+    this.formData.next([]);
+  }
 }
