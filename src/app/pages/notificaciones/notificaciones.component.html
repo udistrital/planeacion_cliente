@@ -1,0 +1,18 @@
+<div id="notificaciones" ng-class="claseContainer.clase">
+    <div ng-cloak layout-gt-sm="row" layout="column">
+        <div flex-gt-sm="100" flex class="notificacion-input">
+            <input type="text" class="form-control" ng-model="buscador" placeholder="Filtrar Notificación">
+        </div>
+    </div>
+    <br>
+    <div class="notifications-container">
+        <div class="notification-item" ng-if="existenNotificaciones" ng-click="redirect_url()">
+            <div class="notifications-text-container">
+                <p> Cumplidos por revisar</p>
+                <p> Tienes cumplidos por revisar </p>
+                <!-- <p am-time-ago="m.FechaCreacion"> </p> -->
+            </div>
+        </div>
+    </div>
+</div>
+

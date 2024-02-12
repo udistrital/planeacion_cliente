@@ -11,9 +11,9 @@ export const environment = {
   appname: 'PLANEACION',
   appMenu: 'PLANEACION',
   SINTOMAS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/sintomas_crud/v1/',
-  PRUEBA: 'http://localhost:8080/v1/',
+  PRUEBA:'http://localhost:8080/v1/',
   //SERVICES PLANEACIÓN
-  PLANES_CRUD: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8523/',  
+  PLANES_CRUD:'http://pruebasapi2.intranetoas.udistrital.edu.co:8523/',  
   PLANES_MID: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8524/v1/',
   PLANES_MID_PROXY: 'https://autenticacion.portaloas.udistrital.edu.co/go_api/planeacion_mid/v1/',
   OIKOS_SERVICE: 'http://api.intranetoas.udistrital.edu.co:8087/v1/',
@@ -40,6 +40,11 @@ export const environment = {
   CONFIGURACION_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/configuracion_crud_api/v1/',
   CONF_MENU_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/configuracion_crud_api/v1/menu_opcion_padre/ArbolMenus/',
   NOTIFICACION_SERVICE: 'wss://pruebasapi.portaloas.udistrital.edu.co:8116/ws',
+
+  //coneccion a notificaciones
+  NOTIFICACION_MID_SERVICE: "http://pruebasapi.intranetoas.udistrital.edu.co:8527/v1/",
+  ARM_AWS_NOTIFICACIONES:"arn:aws:sns:us-east-1:699001025740:test-Cumplidos",
+
   TOKEN: {
     AUTORIZATION_URL: 'https://autenticacion.portaloas.udistrital.edu.co/oauth2/authorize',
     CLIENTE_ID: 'e36v1MPQk2jbz9KM4SmKhk8Cyw0a',

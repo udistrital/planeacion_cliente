@@ -51,6 +51,7 @@ import { TipoMetaIndicadorComponent } from './banco-de-proyectos/proyectos-inver
 import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-inversion-macro/magnitudes-presupuesto/magnitudes-presupuesto.component';
 import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component'
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
+import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 
 
 const routes: Routes = [{
@@ -317,6 +318,10 @@ const routes: Routes = [{
     {
       path: 'formulacion',
       component: FormulacionComponent,
+    },
+    {
+      path: 'notificaciones',
+      component: NotificacionesComponent,
     },
     {
       path: '', redirectTo: 'dashboard', pathMatch: 'full',
