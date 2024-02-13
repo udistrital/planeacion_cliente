@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, DoCheck } from '@angular/core';
+import { Component, ViewChild, OnInit, DoCheck, OnDestroy } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
@@ -8,7 +8,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { UserService } from '../services/userService';
+import { ActivatedRoute } from '@angular/router';
+import { VerificarFormulario } from '../services/verificarFormulario'
+import { Subscription } from 'rxjs';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
+
 
 
 @Component({
@@ -16,7 +20,7 @@ import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
   templateUrl: './formulacion.component.html',
   styleUrls: ['./formulacion.component.scss']
 })
-export class FormulacionComponent implements OnInit {
+export class FormulacionComponent implements OnInit, OnDestroy {
 
   activedStep = 0;
   form: FormGroup;
@@ -76,6 +80,7 @@ export class FormulacionComponent implements OnInit {
 
   formArmonizacion: FormGroup;
   formSelect: FormGroup;
+  private miObservableSubscription: Subscription;
 
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -84,7 +89,9 @@ export class FormulacionComponent implements OnInit {
     private formBuilder: FormBuilder,
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
-    private userService: UserService
+    private userService: UserService,
+    private route: ActivatedRoute,
+    private verificarFormulario: VerificarFormulario
   ) {
     this.loadPlanes();
     this.loadPeriodos();
@@ -130,8 +137,24 @@ export class FormulacionComponent implements OnInit {
       selectVigencia: ['',],
       selectPlan: ['',]
     });
+
+    this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
+      if (formData.length !== 0) {
+        this.formSelect.get('selectUnidad').setValue(formData[2]);
+        this.formSelect.get('selectVigencia').setValue(formData[1]);
+        this.onChangeV(formData[1]);
+        this.formSelect.get('selectPlan').setValue(formData[0]);
+        this.onChangeP(formData[0])
+      }
+    });
   }
 
+  ngOnDestroy() {
+    if (this.verificarFormulario.formData$) {
+      this.verificarFormulario.cleanFormData();
+      this.miObservableSubscription.unsubscribe();
+    }
+  }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
