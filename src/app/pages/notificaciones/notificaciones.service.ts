@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Injectable({
     providedIn: 'root'
@@ -10,8 +11,18 @@ export class NotificacionesService {
     private path = environment.NOTIFICACION_MID_SERVICE;
     private arm = environment.ARM_AWS_NOTIFICACIONES;
 
+    validarEnvio: FormGroup;
+
     constructor(private http: HttpClient) { }
- 
+
+    onSubmit() {
+        const { asunto, destinatarioId, mensaje, token } = this.validarEnvio.value;
+        console.log(asunto, destinatarioId, mensaje, token);
+
+        const respuesta = this.enviarNotificacion(asunto, destinatarioId, mensaje);
+        console.log(respuesta);
+    }
+
     verificarSuscripcion(token: any): Observable<any> {
         const elemento = {
             Endpoint: token.email,
@@ -42,7 +53,7 @@ export class NotificacionesService {
         return this.http.post(`${this.path}/notificaciones/suscribir`, elemento, { headers: headers });
     }
 
-    enviarNotificacion(asunto: string, destinatarioId: string, mensaje: string, token: any): Observable<any> {
+    enviarNotificacion(asunto: string, destinatarioId: string, mensaje: string): Observable<any> {
         const elemento = {
             ArnTopic: this.arm,
             Asunto: asunto,
@@ -53,10 +64,36 @@ export class NotificacionesService {
             Mensaje: mensaje,
             RemitenteId: '',
         };
+
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': "fa7ee7c62dab1e25447754f665a54c53"
         });
+
+        console.log(elemento, { headers: headers });
+
         return this.http.post(`${this.path}/notificaciones/enviar`, elemento, { headers: headers });
+    }
+
+    traerNotificacion(nombreCola: string): Observable<any> {
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': "fa7ee7c62dab1e25447754f665a54c53"
+        });
+        return this.http.get(this.path + 'colas/mensajes?nombre=' + nombreCola + '&numMax=1', { headers: headers });
+    }
+
+    borrarNotificaciones(nombreCola: string, contratistaId: string): Observable<any> {
+        const elemento = {
+            NombreCola: nombreCola,
+            Filtro: {
+                Remitente: contratistaId,
+            }
+        };
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': "fa7ee7c62dab1e25447754f665a54c53"
+        });
+        return this.http.post(this.path + 'colas/mensajes/', elemento, { headers: headers });
     }
 }

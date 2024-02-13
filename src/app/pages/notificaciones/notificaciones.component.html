@@ -6,11 +6,26 @@
     </div>
     <br>
     <div class="notifications-container">
-        <div class="notification-item" ng-if="existenNotificaciones" ng-click="redirect_url()">
+        <div class="notification-item" ng-if="existenNotificaciones">
             <div class="notifications-text-container">
                 <p> Cumplidos por revisar</p>
                 <p> Tienes cumplidos por revisar </p>
                 <!-- <p am-time-ago="m.FechaCreacion"> </p> -->
+                <form [formGroup]="validarEnvio" (ngSubmit)="onSubmit()">
+                    <label for="asunto">asunto:</label><br>
+                    <input type="text" id="asunto" formControlName="asunto"><br>
+                    <label for="destinatarioId">destinatarioId:</label><br>
+                    <input type="text" id="destinatarioId" formControlName="destinatarioId"><br>
+                    <label for="mensaje">mensaje:</label><br>
+                    <input type="text" id="mensaje" formControlName="mensaje"><br>
+                    
+                    <input type="submit" value="Enviar">
+                  </form>   
+                  <div *ngIf="validarEnvio.value">
+                    <p>Asunto: {{ validarEnvio.value.asunto }}</p>
+                    <p>Destinatario ID: {{ validarEnvio.value.destinatarioId }}</p>
+                    <p>Mensaje: {{ validarEnvio.value.mensaje }}</p>
+                  </div>             
             </div>
         </div>
     </div>

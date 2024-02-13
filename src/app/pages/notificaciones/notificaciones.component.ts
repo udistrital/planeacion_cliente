@@ -1,32 +1,60 @@
 import { Component, OnInit } from '@angular/core';
 import { RequestManager } from '../services/requestManager';
 import { NotificacionesService } from "./notificaciones.service";
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import { FormControl, FormGroup } from '@angular/forms';
 
-@Component({ 
+@Component({
   selector: 'app-notificaciones',
   templateUrl: './notificaciones.component.html',
   styleUrls: ['./notificaciones.component.scss']
 })
+
 export class NotificacionesComponent implements OnInit {
- 
+  rol: string;
+
+  validarEnvio = new FormGroup({
+    asunto: new FormControl(''),
+    destinatarioId: new FormControl(''),
+    mensaje: new FormControl(''),
+    token: new FormControl(''),
+  });
+
   constructor(
     private request: RequestManager,
-    private notificacionesService: NotificacionesService
+    private notificacionRequest: NotificacionesService,
+    private autenticationService: ImplicitAutenticationService,
   ) { }
 
-  ngOnInit(): void {
-    
+  onSubmit() {
+    if (this.validarEnvio.valid) {
+      const { asunto, destinatarioId, mensaje} = this.validarEnvio.value;
+      
+      const respuesta = this.notificacionRequest.enviarNotificacion(asunto, destinatarioId, mensaje);
+      console.log(respuesta);
+
+    } else {
+      console.log('Formulario inválido');
+    }
   }
 
-  function(notificacionRequest, $this, behaviorTheme, token_service, $location) {
+  ngOnInit(): void {
+
+  }
+
+  async function(notificacionRequest, $this, behaviorTheme, token_service, $location) {
     var self = this;
-    $this.roles = token_service.getAppPayload().role;
+    const rol = await this.autenticationService.getRole();
+    console.log('Rol actual:', rol);
+
     $this.notificacion = notificacionRequest;
     $this.notificacion.existeNotificaciones = false;
-
+    /**
+     * manejo de los roles
+     */
     function traerNoticicaciones() {
-      if ($this.roles != null && $this.roles.includes('SUPERVISOR')) {
-        notificacionRequest.traerNotificacion('ColaSupervisor').then(function (response) {
+      /*if (rol === 'SUPERVISOR') {
+        NotificacionesService.traerNotificacion('ColaSupervisor').then(function (response) {
           //console.log(response)
           if (response.data.Data != null) {
             $this.existenNotificaciones = true;
@@ -42,7 +70,7 @@ export class NotificacionesComponent implements OnInit {
         );
       } else {
         //console.log("no tiene el rol")
-      }
+      }*/
 
       if ($this.roles != null && $this.roles.includes('ORDENADOR_DEL_GASTO')) {
         notificacionRequest.traerNotificacion('ColaOrdenador').then(function (response) {
