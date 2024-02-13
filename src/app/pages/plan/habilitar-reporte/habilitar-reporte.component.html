@@ -124,8 +124,12 @@
         </div>
       </ng-container>
       <div class="btnUnidades-PlanesProyectos">
-        <button mat-raised-button matPrefix color="primary" [disabled]="tipo !== 'seguimiento' && tipo !== 'formulacion'" (click)="banderaTabla('unidades')">Unidades a las que desea asignar el proceso</button>
-        <button mat-raised-button matPrefix color="primary" [disabled]="tipo !== 'seguimiento' && tipo !== 'formulacion'" (click)="banderaTabla('planes_proyectos')">Planes/proyectos a las que desea asignar el proceso</button>
+        <button mat-raised-button matPrefix color="primary" [disabled]="tipo !== 'seguimiento' && tipo !== 'formulacion'" 
+          (click)="banderaTabla('unidades')">Unidades a las que desea asignar el proceso
+        </button>
+        <button mat-raised-button matPrefix color="primary" [disabled]="tipo !== 'seguimiento' && tipo !== 'formulacion'"
+          (click)="banderaTabla('planes_proyectos')" >Planes/proyectos a las que desea asignar el proceso
+        </button>
       </div>
       <!-- Tabla Unidades de interés -->
       <mat-card class="card-oas" [style.width.%]="97"
@@ -135,7 +139,8 @@
       <!-- Tabla Planes/Proyectos de interés -->
       <mat-card class="card-oas" [style.width.%]="97"
         *ngIf="(tipo=='seguimiento' || tipo == 'formulacion') && vigenciaSelected && banderaPlanesInteres">
-          <app-listar-plan [banderaPlanesAccionFuncionamiento]="true" (planesInteresSeleccionados)="manejarCambiosPlanesInteres($event)"></app-listar-plan>
+          <app-listar-plan [banderaPlanesAccionFuncionamiento]="true" (planesInteresSeleccionados)="manejarCambiosPlanesInteres($event)"
+          [planesPeriodoSeguimiento]="planesInteresPeriodoSeguimiento"></app-listar-plan>
       </mat-card>
     </form>
   </mat-card-content>

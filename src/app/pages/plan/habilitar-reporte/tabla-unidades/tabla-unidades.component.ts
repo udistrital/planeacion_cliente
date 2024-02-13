@@ -59,6 +59,8 @@ export class TablaUnidadesComponent implements OnInit {
       title: 'Cargando unidades',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },

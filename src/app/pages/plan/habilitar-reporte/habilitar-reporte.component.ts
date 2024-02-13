@@ -35,6 +35,7 @@ export interface PeriodoSeguimiento {
 export interface Unidad {
   Id: string;
   Nombre: string;
+  FechaModificacion: string;
 }
 
 @Component({
@@ -47,6 +48,7 @@ export class HabilitarReporteComponent implements OnInit {
   vigenciaSelectedInv: boolean;
   banderaUnidadesInteres: boolean;
   banderaPlanesInteres: boolean;
+  banderaPlanesInteresPeriodoSeguimiento: boolean;
   tipoSelected: boolean;
   tipoSelectedInv: boolean;
   reporteHabilitado: boolean;
@@ -65,6 +67,10 @@ export class HabilitarReporteComponent implements OnInit {
   displayedColumns: string[] = ['index', 'Nombre', 'actions'];
   unidadesInteres: any;
   planesInteres: any;
+  unidadesInteresPeriodoSeguimiento: any;
+  planesInteresPeriodoSeguimiento: any;
+  seguimientoFormulacionPAF: any;
+  periodoSeguimientoFormulacionPAF: any;
   dataUnidades: any;
   dataSource = new MatTableDataSource<Unidades>();
 
@@ -84,6 +90,7 @@ export class HabilitarReporteComponent implements OnInit {
     this.vigenciaSelected = false;
     this.vigenciaSelectedInv = false;
     this.guardarDisabled = false;
+    this.banderaPlanesInteresPeriodoSeguimiento = false;
   }
 
   ngOnInit(): void {
@@ -109,14 +116,38 @@ export class HabilitarReporteComponent implements OnInit {
       fecha19: ['',],
       fecha20: ['',]
     });
+    this.unidadesInteres = [];
   }
 
   manejarCambiosUnidadesInteres(nuevasUnidades: any[]) {
     this.unidadesInteres = nuevasUnidades;
+    
+    // Aquí se comparan this.unidadesInteres con las unidadesInteres del registro en la base de datos
+    this.banderaPlanesInteresPeriodoSeguimiento = this.hayRegistrosIguales(this.unidadesInteres, this.unidadesInteresPeriodoSeguimiento);
+    if(this.banderaPlanesInteresPeriodoSeguimiento){
+      this.planesInteresPeriodoSeguimiento = JSON.parse(this.periodoSeguimientoFormulacionPAF['planes_interes']);
+      this.planesInteresPeriodoSeguimiento.forEach(plan => {
+        plan.fecha_modificacion = this.periodoSeguimientoFormulacionPAF['fecha_modificacion']; // Puedes establecer la fecha que desees
+      });
+      console.log("SI hay planes de interes: ", this.planesInteresPeriodoSeguimiento);
+    } else {
+      this.planesInteresPeriodoSeguimiento = [];
+      console.log("NO hay planes de interes asociados a la unidades seleccionadas");
+    }
   }
 
   manejarCambiosPlanesInteres(nuevosPlanes: any[]) {
     this.planesInteres = nuevosPlanes;
+  }
+
+  // Función para comparar dos registros de la interfaz Unidad
+  sonIguales(unidad1: Unidad, unidad2: Unidad): boolean {
+    return unidad1.Id === unidad2.Id && unidad1.Nombre === unidad2.Nombre;
+  }
+
+  // Función para verificar si hay dos registros iguales en los arrays
+  hayRegistrosIguales(arr1: Unidad[], arr2: Unidad[]): boolean {
+    return arr1.some((unidad1) => arr2.some((unidad2) => this.sonIguales(unidad1, unidad2)));
   }
 
   loadVigencias() {
@@ -306,11 +337,18 @@ export class HabilitarReporteComponent implements OnInit {
       this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
         if (data) {
           if (data.Data.length != 0) {
-            let formulacionSeguimiento = data.Data[0];
-            let fechaInicio = new Date(formulacionSeguimiento["fecha_inicio"]);
-            let fechaFin = new Date(formulacionSeguimiento["fecha_fin"]);
-            this.formFechas.get('fecha9').setValue(fechaInicio);
-            this.formFechas.get('fecha10').setValue(fechaFin);
+            this.seguimientoFormulacionPAF = data.Data[0];
+            this.formFechas.get('fecha9').setValue(new Date(this.seguimientoFormulacionPAF["fecha_inicio"]));
+            this.formFechas.get('fecha10').setValue(new Date(this.seguimientoFormulacionPAF["fecha_fin"]));
+            this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,_id:${this.seguimientoFormulacionPAF["periodo_seguimiento_id"]}`).subscribe((data: any) => {
+              if(data){
+                if(data.Data.length > 0){
+                  this.periodoSeguimientoFormulacionPAF = data.Data[0];
+                  this.unidadesInteresPeriodoSeguimiento = JSON.parse(this.periodoSeguimientoFormulacionPAF['unidades_interes']);
+                  Swal.close();
+                }
+              }
+            })
             Swal.close();
           } else {
             Swal.close();
@@ -331,9 +369,10 @@ export class HabilitarReporteComponent implements OnInit {
           this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id + `,tipo_seguimiento_id:61f236f525e40c582a0840d0`).subscribe((data: any) => {
             if (data.Data.length != 0) {
               let seguimiento = data.Data[0];
-                  let fechaInicio = new Date(seguimiento['fecha_inicio']);
-                  let fechaFin = new Date(seguimiento['fecha_fin']);
-
+              this.periodoSeguimientoFormulacionPAF = data.Data[0];
+              let fechaInicio = new Date(seguimiento['fecha_inicio']);
+              let fechaFin = new Date(seguimiento['fecha_fin']);
+              this.unidadesInteresPeriodoSeguimiento = JSON.parse(this.periodoSeguimientoFormulacionPAF['unidades_interes']);
               if (i == 0) {
                 this.formFechas.get('fecha1').setValue(fechaInicio);
                 this.formFechas.get('fecha2').setValue(fechaFin);
@@ -471,7 +510,7 @@ export class HabilitarReporteComponent implements OnInit {
   }
 
   guardar() {
-    if(this.unidadesInteres == undefined){
+    if(this.unidadesInteres == undefined || this.unidadesInteres.length == 0){
       Swal.fire({
         title: 'Error en la operación',
         text: `Por favor seleccione las unidades de interés para continuar`,
@@ -481,7 +520,7 @@ export class HabilitarReporteComponent implements OnInit {
       });
       return;
     }
-    if(this.planesInteres == undefined){
+    if(this.planesInteres == undefined || this.planesInteres.length == 0){
       Swal.fire({
         title: 'Error en la operación',
         text: `Por favor seleccione los planes de interés para continuar`,
