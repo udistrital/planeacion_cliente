@@ -78,7 +78,7 @@ export class FormulacionComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  
+
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
@@ -657,61 +657,62 @@ export class FormulacionComponent implements OnInit {
 
   async busquedaPlanes(planB) {
     //if (this.banderaEstadoDatos == undefined) {
-      try {
-        // Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
-        await this.cargaFormato(planB);        
-        //validación con bandera para el estado de los datos de los planes.
-        if (this.banderaEstadoDatos === true) {
-          this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
-            this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe(
-              (data: any) => {
-                if (data.Data.length > 0) {
-                  this.getVersiones(planB);
-                } else if (data.Data.length == 0) {
-                  Swal.fire({
-                    title: 'Formulación nuevo plan',
-                    html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
-                      'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
-                      'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
-                      '<i>Deberá formular el plan</i>',
-                    // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
-                    // Deberá formular un nuevo plan`,
-                    icon: 'warning',
-                    showConfirmButton: false,
-                    timer: 7000
-                  })
-                  this.clonar = true;
-                  this.plan = planB;
-                }
-              }, (error) => {
+    try {
+      // Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
+      await this.cargaFormato(planB);
+      //validación con bandera para el estado de los datos de los planes.
+      if (this.banderaEstadoDatos === true) {
+        this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
+          this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe(
+            (data: any) => {
+              if (data.Data.length > 0) {
+                this.getVersiones(planB);
+              } else if (data.Data.length == 0) {
                 Swal.fire({
-                  title: 'Error en la operación',
-                  icon: 'error',
-                  text: `${JSON.stringify(error)}`,
+                  title: 'Formulación nuevo plan',
+                  html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
+                    'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
+                    'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
+                    '<i>Deberá formular el plan</i>',
+                  // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
+                  // Deberá formular un nuevo plan`,
+                  icon: 'warning',
                   showConfirmButton: false,
-                  timer: 2500
-                });
-              })
-        } else {
-          Swal.fire({
-            title: 'No hay datos',
-            html: 'No existen datos para el plan <b>' + planB.nombre + '</b> <br>' +
-              'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
-              'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>',
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 7000
-          });
-        }
-      } catch(error) {
+                  timer: 7000
+                })
+              }
+            }, (error) => {
+              Swal.fire({
+                title: 'Error en la operación',
+                icon: 'error',
+                text: `${JSON.stringify(error)}`,
+                showConfirmButton: false,
+                timer: 2500
+              });
+            })
+      } else {
+        this.dataT = false;
+        //this.planAsignado = false;
+        //this.clonar = true;
         Swal.fire({
-          title: 'Error en la operación',
-          text: `error de busquedaPlanes catch No se encontraron datos registrados ${JSON.stringify(error)}`,
+          title: 'No hay datos',
+          html: 'No existen datos para el plan <b>' + planB.nombre + '</b> <br>' +
+            'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
+            'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>',
           icon: 'warning',
           showConfirmButton: false,
-          timer: 2500
-        })
+          timer: 7000
+        });
       }
+    } catch (error) {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `error de busquedaPlanes catch No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    }
     //}   
   }
 
@@ -737,8 +738,15 @@ export class FormulacionComponent implements OnInit {
         this.dataSource.sort = this.sort;
         this.dataT = true;
         this.filterActive()
-      } else if (data.Data.data_source == null) {
+      } else if (!data.data_source && !data.displayed_columns) {
         this.dataT = false;
+        Swal.fire({
+          title: 'Atención en la operación',
+          text: `No hay actividades registradas para el plan \n por favor agrege actividad`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 3500
+        })
         if (!planRecienCreado) {
           Swal.fire({
             title: 'Atención en la operación',
@@ -760,35 +768,34 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
-  cargaFormato(plan): Promise<void> {    
+  cargaFormato(plan): Promise<void> {
     return new Promise<void>(async (resolve) => {
+      Swal.fire({
+        title: 'Cargando formato',
+        timerProgressBar: true,
+        showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+      })
       try {
-        Swal.fire({
-          title: 'Cargando formato',
-          timerProgressBar: true,
-          showConfirmButton: false,
-          willOpen: () => {
-            Swal.showLoading();
-          },
-        })
-
-        // Realiza la operación asincrónica, una llamada a una API `${variableEntorno}formato/${datoId}`
+        // Realiza la operación asincrónica, una llamada a una API (ruta peticioon)`${variableEntorno}formato/${datoId}`
         const data: any = await this.http.get(`${environment.PLANES_MID}formato/${plan._id}`).toPromise();
-        //console.log("data[0]: ", Array.isArray(data[0]), "data[0]", Object.keys(data[0]));
-        
-        // Modifica this.banderaEstadoDatos según sea necesario
-        if (data && data[0] !== null && data[1] && data[1][0] && Object.keys(data[1][0]).length > 0) {
+
+        if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
+          data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
+          this.banderaEstadoDatos = false;
+        } else {
           this.banderaEstadoDatos = true;//bandera validacion de la data
           Swal.close();
           this.estado = plan.estado_plan_id;
           this.steps = data[0];
           this.json = data[1][0];
           this.form = this.formBuilder.group(this.json);
-        } else {
-          this.banderaEstadoDatos = false;
         }
-
-        resolve();
+        setTimeout(() => {
+          resolve();
+        }, 1000);
       } catch (error) {
         console.error('Error en cargaFormato:', error);
         // Llama a reject() en caso de error, y maneja el error según tus necesidades
@@ -800,9 +807,6 @@ export class FormulacionComponent implements OnInit {
           timer: 2500
         })
       }
-      setTimeout(() => {
-        resolve();
-      }, 1000);
     });
   }
 
