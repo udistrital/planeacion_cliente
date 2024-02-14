@@ -97,6 +97,7 @@ import { TipoMetaIndicadorComponent } from './banco-de-proyectos/proyectos-inver
 import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-inversion-macro/magnitudes-presupuesto/magnitudes-presupuesto.component';
 import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component';
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
+import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 import { TablaResumenComponent } from './formulacion/tabla-resumen/tabla-resumen.component';
 import { TablaPendientesComponent } from './pendientes/tabla-pendientes.component';
 
@@ -220,6 +221,7 @@ const MY_FORMATS = {
     MagnitudesPresupuestoComponent,
     IdentificacionActividadesRecursosComponent,
     ProgramacionPresupuestalComponent,
+    NotificacionesComponent,
     TablaResumenComponent,
     TablaPendientesComponent,
   ],
