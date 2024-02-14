@@ -13,30 +13,11 @@ import { FormControl, FormGroup } from '@angular/forms';
 export class NotificacionesComponent implements OnInit {
   rol: string;
 
-  validarEnvio = new FormGroup({
-    asunto: new FormControl(''),
-    destinatarioId: new FormControl(''),
-    mensaje: new FormControl(''),
-    token: new FormControl(''),
-  });
-
   constructor(
     private request: RequestManager,
     private notificacionRequest: NotificacionesService,
     private autenticationService: ImplicitAutenticationService,
   ) { }
-
-  onSubmit() {
-    if (this.validarEnvio.valid) {
-      const { asunto, destinatarioId, mensaje} = this.validarEnvio.value;
-      
-      const respuesta = this.notificacionRequest.enviarNotificacion(asunto, destinatarioId, mensaje);
-      console.log(respuesta);
-
-    } else {
-      console.log('Formulario inválido');
-    }
-  }
 
   ngOnInit(): void {
 
@@ -45,7 +26,6 @@ export class NotificacionesComponent implements OnInit {
   async function(notificacionRequest, $this, behaviorTheme, token_service, $location) {
     var self = this;
     const rol = await this.autenticationService.getRole();
-    console.log('Rol actual:', rol);
 
     $this.notificacion = notificacionRequest;
     $this.notificacion.existeNotificaciones = false;

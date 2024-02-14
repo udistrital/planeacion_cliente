@@ -17,10 +17,9 @@ export class NotificacionesService {
 
     onSubmit() {
         const { asunto, destinatarioId, mensaje, token } = this.validarEnvio.value;
-        console.log(asunto, destinatarioId, mensaje, token);
 
         const respuesta = this.enviarNotificacion(asunto, destinatarioId, mensaje);
-        console.log(respuesta);
+        
     }
 
     verificarSuscripcion(token: any): Observable<any> {
@@ -69,8 +68,6 @@ export class NotificacionesService {
             'Content-Type': 'application/json',
             'Authorization': "fa7ee7c62dab1e25447754f665a54c53"
         });
-
-        console.log(elemento, { headers: headers });
 
         return this.http.post(`${this.path}/notificaciones/enviar`, elemento, { headers: headers });
     }

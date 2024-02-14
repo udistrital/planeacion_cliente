@@ -692,8 +692,6 @@ export class FormulacionComponent implements OnInit {
             })
       } else {
         this.dataT = false;
-        //this.planAsignado = false;
-        //this.clonar = true;
         Swal.fire({
           title: 'No hay datos',
           html: 'No existen datos para el plan <b>' + planB.nombre + '</b> <br>' +
