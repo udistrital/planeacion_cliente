@@ -10,7 +10,7 @@ import { ConsultarPlanComponent } from './plan/consultar-plan/consultar-plan.com
 import { PlanAnualComponent } from './reportes/reporte-plan-anual/plan-anual.component';
 import { EvaluacionComponent } from './evaluacion/evaluacion.component';
 import { SeguimientoComponentList } from './seguimiento/listar-plan-accion-anual/seguimiento.component';
-import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/gestion-seguimiento.component';  
+import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/gestion-seguimiento.component';
 import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/generar-trimestre.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
@@ -52,6 +52,8 @@ import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-i
 import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component'
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
+import { TablaPendientesComponent } from './pendientes/tabla-pendientes.component';
+
 
 
 const routes: Routes = [{
@@ -322,6 +324,10 @@ const routes: Routes = [{
     {
       path: 'notificaciones',
       component: NotificacionesComponent,
+    },
+    {
+      path: 'pendientes',
+      component: TablaPendientesComponent,
     },
     {
       path: '', redirectTo: 'dashboard', pathMatch: 'full',
