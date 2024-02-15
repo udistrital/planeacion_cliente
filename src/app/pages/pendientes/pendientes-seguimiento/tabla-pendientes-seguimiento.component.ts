@@ -1,8 +1,6 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
@@ -99,9 +97,6 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
       await this.loadPeriodos()
       await this.loadPlanes()
       await this.obtenerEstado()
-      console.log(this.trimestreEstado);
-      console.log("VG ", this.vigencias)
-      console.log(event)
 
       //Lógica filtro
       const filteredData = []
@@ -115,7 +110,6 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
           }
         }
       })
-      console.log("filter", filteredData)
 
       this.informacionTabla = new MatTableDataSource(filteredData);
       this.informacionTabla.paginator = this.paginator;
@@ -133,58 +127,6 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
       console.error('Error al ajustar datos:', error);
       Swal.close();
     }
-    // } finally {
-    //   await new Promise((resolve, reject) => {
-    //     if (true) {
-    //
-    //       console.log(this.trimestreEstado)
-    //       // const auxData = this.trimestreEstado
-    //       // const auxData = []
-    //       // auxData.push([{
-    //       //   dependencia_nombre: this.unidad.Nombre,
-    //       //   vigencia: "2023",
-    //       //   nombre: "JEJEJJE",
-    //       //   version: 3,
-    //       //   estado: "NOSE"
-    //       // }, {
-    //       //   dependencia_nombre: this.unidad.Nombre,
-    //       //   vigencia: "2023",
-    //       //   nombre: "JEJEJJE",
-    //       //   version: 3,
-    //       //   estado: "NOSE"
-    //       // }])
-    //       // const filteredData = auxData;
-    //       //
-    //       this.informacionTabla = new MatTableDataSource(this.trimestreEstado);
-    //       this.informacionTabla.paginator = this.paginator;
-    //       Swal.close();
-    //       if (this.informacionTabla.filteredData.length == 0) {
-    //         Swal.fire({
-    //           title: 'Atención en la operación',
-    //           text: `No hay planes pendientes para verificar`,
-    //           icon: 'warning',
-    //           showConfirmButton: false,
-    //           timer: 3500
-    //         })
-    //       }
-    //       resolve(true);
-    //     } else if (this.planes != null && this.periodos != null && this.vigencias != null) {
-    //       Swal.close();
-    //       Swal.fire({
-    //         title: 'Atención en la operación',
-    //         text: `No hay planes formulados`,
-    //         icon: 'warning',
-    //         showConfirmButton: false,
-    //         timer: 3500
-    //       })
-    //       reject(false);
-    //     }
-    //   });
-    // }
-
-
-
-
   }
 
   validarUnidad() {
@@ -223,10 +165,9 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
   }
 
   consultarPlan(plan) {
-    const vigencia = this.vigencias.filter(vig => vig.Year === plan.vigencia)
-    const auxPlan = this.planes.filter(pl => pl.nombre === plan.nombre)
-    this.verificarFormulario.setFormData(auxPlan[0], vigencia[0], this.unidad);
-    this.router.navigate(['pages/formulacion']);
+    const auxId = plan["plan_id"]["_id"]
+    const auxTrimestres = plan["periodo_seguimiento_id"]["periodo_nombre"]
+    this.router.navigate([`pages/seguimiento/gestion-seguimiento/` + auxId + `/` + auxTrimestres]);
   }
 
   loadPlanes(): Promise<void> {
@@ -239,8 +180,6 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
           Swal.showLoading();
         },
       })
-
-      // this.auxEstadosPlanes = [];
 
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,dependencia_id:${this.unidad.Id}`).subscribe(async (data: any) => {
         if (data) {
@@ -272,11 +211,6 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
     })
   }
 
-  // filterPlanes(data) {
-  //   var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
-  //   return dataAux.filter(e => e.activo == true);
-  // }
-
   loadPeriodos(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
@@ -298,48 +232,6 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
 
   }
 
-  // loadTrimetres(vigencia): Promise<void> {
-  //   return new Promise((resolve, reject) => {
-  //     Swal.fire({
-  //       title: 'Cargando períodos',
-  //       timerProgressBar: true,
-  //       showConfirmButton: false,
-  //       willOpen: () => {
-  //         Swal.showLoading();
-  //       },
-  //     })
-  //
-  //     this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + vigencia.Id).subscribe(async (data: any) => {
-  //       if (data) {
-  //         if (data.Data != "" && data.Data != null) {
-  //           this.periodos = data.Data;
-  //           for (let i = 0; i < this.periodos.length; i++) {
-  //             this.nombresPeriodos.push(this.periodos[i]["ParametroId"].CodigoAbreviacion)
-  //           }
-  //         } else {
-  //           Swal.fire({
-  //             title: 'Error en la operación',
-  //             text: `No se encontraron trimestres para esta vigencia`,
-  //             icon: 'warning',
-  //             showConfirmButton: false,
-  //             timer: 2500
-  //           });
-  //           resolve()
-  //         }
-  //       }
-  //     }, (error) => {
-  //       Swal.fire({
-  //         title: 'Error en la operación',
-  //         text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-  //         icon: 'warning',
-  //         showConfirmButton: false,
-  //         timer: 2500
-  //       })
-  //       reject()
-  //     })
-  //   })
-  // }
-
   obtenerEstado(): Promise<void> {
     return new Promise((resolve, reject) => {
       const auxPlanesTrimestre: any[] = [];
@@ -351,14 +243,6 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
               if (data) {
                 if (data.Data != '' && data.Data != null) {
                   auxPlanesTrimestre.push(data.Data);
-                } else {
-                  Swal.fire({
-                    title: 'Error en la operación',
-                    text: `No se pudo obtener estado del trimestre`,
-                    icon: 'warning',
-                    showConfirmButton: false,
-                    timer: 2500
-                  });
                 }
               }
               innerResolve(auxPlanesTrimestre);
@@ -385,34 +269,6 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
         .catch((error) => {
           reject(error);
         });
-
-      // for (let i = 0; i < this.planes.length; i++) {
-      //   this.request.get(environment.PLANES_MID, `seguimiento/get_estado_trimestres/` + this.planes[i]._id).subscribe((data: any) => {
-      //     if (data) {
-      //       if (data.Data != "" && data.Data != null) {
-      //         auxPlanesTrimestre.push(data.Data);
-      //       } else {
-      //         Swal.fire({
-      //           title: 'Error en la operación',
-      //           text: `No se pudo obtener estado del trimestre`,
-      //           icon: 'warning',
-      //           showConfirmButton: false,
-      //           timer: 2500
-      //         });
-      //       }
-      //     }
-      //   }, (error) => {
-      //     Swal.fire({
-      //       title: 'Error en la operación',
-      //       text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-      //       icon: 'warning',
-      //       showConfirmButton: false,
-      //       timer: 25
-      //     })
-      //   });
-      // }
-      // this.trimestreEstado = auxPlanesTrimestre
-      // resolve()
     })
   }
 }

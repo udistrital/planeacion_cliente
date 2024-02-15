@@ -8,7 +8,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { UserService } from '../services/userService';
-import { ActivatedRoute } from '@angular/router';
 import { VerificarFormulario } from '../services/verificarFormulario'
 import { Subscription } from 'rxjs';
 
@@ -78,6 +77,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   formArmonizacion: FormGroup;
   formSelect: FormGroup;
   private miObservableSubscription: Subscription;
+  pendienteCheck: boolean;
 
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -87,7 +87,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
     private userService: UserService,
-    private route: ActivatedRoute,
     private verificarFormulario: VerificarFormulario
   ) {
     this.loadPlanes();
@@ -103,6 +102,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.dataT = false;
     this.moduloVisible = false;
     this.isChecked = true;
+    this.pendienteCheck = false;
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
@@ -137,10 +137,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
     this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
       if (formData.length !== 0) {
-        this.formSelect.get('selectUnidad').setValue(formData[2]);
-        this.formSelect.get('selectVigencia').setValue(formData[1]);
+        this.pendienteCheck = true;
         this.onChangeV(formData[1]);
-        this.formSelect.get('selectPlan').setValue(formData[0]);
         this.onChangeP(formData[0])
       }
     });
