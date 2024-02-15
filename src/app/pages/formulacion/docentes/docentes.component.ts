@@ -998,7 +998,7 @@ export class DocentesComponent implements OnInit {
   }
 
   onChangeSemanas(element, rowIndex, tipo){
-    if (element.semanas <= 0) {
+    if (element.semanas < 1 || !Number.isInteger(element.semanas)) {
       this.mostrarMensajeValorInvalido()
       const dataSource = this.getDataSource(tipo)
       dataSource[rowIndex].semanas = "";
