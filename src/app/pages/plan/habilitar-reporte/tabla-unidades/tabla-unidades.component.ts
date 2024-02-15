@@ -50,9 +50,7 @@ export class TablaUnidadesComponent implements OnInit {
     this.banderaTodosSeleccionados = false;
   }
 
-  ngOnInit(): void {
-    console.log('Inicia el componente Tabla-Unidades');
-  }
+  ngOnInit(): void { }
 
   async loadUnidades() {
     const loadingSwal = Swal.fire({
@@ -156,7 +154,6 @@ export class TablaUnidadesComponent implements OnInit {
       );
       this.unidadesInteres.splice(index, 1);
     }
-    console.log('Unidades de interes seleccionadas: ', this.unidadesInteres);
     this.emitirCambiosUnidadesInteres();
   }
 
@@ -173,7 +170,6 @@ export class TablaUnidadesComponent implements OnInit {
     });
 
     // Emite los cambios
-    console.log('Todos seleccionados: ', this.unidadesInteres);
     this.emitirCambiosUnidadesInteres();
   }
 
@@ -188,7 +184,6 @@ export class TablaUnidadesComponent implements OnInit {
     this.unidadesInteres = [];
 
     // Emite los cambios
-    console.log('Ninguno seleccionado: ', this.unidadesInteres);
     this.emitirCambiosUnidadesInteres();
   }
 

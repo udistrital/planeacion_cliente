@@ -84,7 +84,6 @@ export class FormulacionComponent implements OnInit {
     private autenticationService: ImplicitAutenticationService,
     private userService: UserService
   ) {
-    this.loadPlanes();
     this.loadPeriodos();
     this.addActividad = false;
     this.planSelected = false;
@@ -275,11 +274,20 @@ export class FormulacionComponent implements OnInit {
   }
 
   loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
+    Swal.fire({
+      title: 'Cargando datos...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,dependencia_id:${this.unidad.Id},formato:false,vigencia:${this.vigencia.Id}`).subscribe((data: any) => {
       if (data) {
         this.planes = data.Data;
         this.planes = this.filterPlanes(this.planes);
       }
+      this.loadPlanesPeriodoSeguimiento();
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
@@ -288,6 +296,29 @@ export class FormulacionComponent implements OnInit {
         showConfirmButton: false,
         timer: 2500
       })
+    })
+  }
+
+  loadPlanesPeriodoSeguimiento(){
+    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/buscar-unidad/${this.unidad.Id}`).subscribe((data: any) => {
+      if (data) {
+        Swal.close();
+        data.Data.forEach(elemento => {
+          if (elemento.planes_interes) {
+            if (typeof elemento.planes_interes === 'string') {
+              try {
+                const planesInteresArray = JSON.parse(elemento.planes_interes);
+                this.planes = [...this.planes, ...planesInteresArray];
+                Swal.close();
+              } catch (error) {
+                console.error('Error al analizar JSON en planes_interes:', error);
+              }
+            } else {
+              console.error('El elemento no tiene una cadena JSON en planes_interes:', elemento);
+            }
+          }
+        });
+      }
     })
   }
 
@@ -433,7 +464,7 @@ export class FormulacionComponent implements OnInit {
 
   filterPlanes(data) {
     var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
-    return dataAux.filter(e => e.activo == true);
+    return dataAux;
   }
 
   onChangeU(unidad) {
@@ -474,6 +505,12 @@ export class FormulacionComponent implements OnInit {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
+      this.loadPlanes();
+      this.banderaEstadoDatos = false;
+      this.planSelected = false;
+      this.plan = undefined;
+      this.planAsignado = false;
+      this.dataT = false;
       if (this.unidadSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
       }
@@ -492,12 +529,13 @@ export class FormulacionComponent implements OnInit {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
+      this.banderaEstadoDatos = false;
+      this.plan = undefined;
+      this.planAsignado = false;
+      this.dataT = false;
+      this.isChecked = true;
       this.busquedaPlanes(plan);
     }
-  }
-
-  onChangeSelect(opcion) {
-
   }
 
   onChangePD(planD) {
@@ -658,9 +696,9 @@ export class FormulacionComponent implements OnInit {
       }
   }
 
-  busquedaPlanes(planB) {
+  async busquedaPlanes(planB) {
     //Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
-    this.cargaFormato(planB);
+    await this.cargaFormato(planB);
     //validación con bandera para el estado de los datos de los planes.
     if (this.banderaEstadoDatos == true) {
       this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
@@ -684,6 +722,7 @@ export class FormulacionComponent implements OnInit {
               this.clonar = true;
               this.plan = planB;
             }
+            this.banderaEstadoDatos = false;
           }, (error) => {
             Swal.fire({
               title: 'Error en la operación',
@@ -749,37 +788,47 @@ export class FormulacionComponent implements OnInit {
     })
   }
 
-  cargaFormato(plan) {
+  async cargaFormato(plan) {
     Swal.fire({
       title: 'Cargando formato',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
-    })
-    this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
-      //if (data) {
-      // Bloque if: Se ejecutará si data no es null y data[0] no es null, y data[1][0] es un objeto no vacío.  
-      if (data && data[0] !== null && data[1] && data[1][0] && Object.keys(data[1][0]).length > 0) {
-        Swal.close();
-        this.estado = plan.estado_plan_id;
-        this.steps = data[0]
-        this.json = data[1][0]
-        this.form = this.formBuilder.group(this.json);
-        this.banderaEstadoDatos = true;//bandera validacion de la data
+    });
+  
+    try {
+      const response = await fetch(`${environment.PLANES_MID}/formato/${plan._id}`);
+  
+      if (response.ok) {
+        const data: any = await response.json();
+  
+        if (data && data[0] !== null && data[1] && data[1][0] && Object.keys(data[1][0]).length > 0) {
+          Swal.close();
+          this.estado = plan.estado_plan_id;
+          this.steps = data[0];
+          this.json = data[1][0];
+          this.form = this.formBuilder.group(this.json);
+          this.banderaEstadoDatos = true; // bandera validación de la data
+        } else {
+          this.banderaEstadoDatos = false; // bandera validación de la data
+        }
       } else {
-        this.banderaEstadoDatos = false;//bandera validacion de la data
+        throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
       }
-    }, (error) => {
+    } catch (error) {
+      console.error('Error en cargaFormato:', error);
       Swal.fire({
         title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        text: `No se encontraron datos registrados ${error.message || JSON.stringify(error)}`,
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
-      })
-    })
+      });
+    }
   }
 
   async editar(fila): Promise<void> {
@@ -1076,6 +1125,14 @@ export class FormulacionComponent implements OnInit {
   }
 
   formularPlan() {
+    Swal.fire({
+      title: 'Formulando plan...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
     let parametros = {
       "dependencia_id": String(this.unidad.Id),
       "vigencia": String(this.vigencia.Id)
