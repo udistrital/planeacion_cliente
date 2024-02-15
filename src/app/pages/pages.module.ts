@@ -98,7 +98,8 @@ import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-i
 import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component';
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 import { TablaResumenComponent } from './formulacion/tabla-resumen/tabla-resumen.component';
-import { TablaPendientesComponent } from './pendientes/tabla-pendientes.component';
+import { TablaPendientesFormulacionComponent } from './pendientes/pendientes-formulacion/tabla-pendientes-formulacion.component';
+import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seguimiento/tabla-pendientes-seguimiento.component';
 
 
 const pagesComponents = [
@@ -119,7 +120,8 @@ const pagesComponents = [
   EditarDialogComponent,
   ArbolComponent,
   PlanAnualComponent,
-  TablaPendientesComponent,
+  TablaPendientesFormulacionComponent,
+  TablaPendientesSeguimientoComponent,
 ];
 
 const materialModules = [
@@ -221,7 +223,8 @@ const MY_FORMATS = {
     IdentificacionActividadesRecursosComponent,
     ProgramacionPresupuestalComponent,
     TablaResumenComponent,
-    TablaPendientesComponent,
+    TablaPendientesFormulacionComponent,
+    TablaPendientesSeguimientoComponent,
   ],
   imports: [
     HttpClientModule,
