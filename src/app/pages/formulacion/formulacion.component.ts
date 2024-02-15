@@ -284,8 +284,10 @@ export class FormulacionComponent implements OnInit {
     });
     this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,dependencia_id:${this.unidad.Id},formato:false,vigencia:${this.vigencia.Id}`).subscribe((data: any) => {
       if (data) {
-        this.planes = data.Data;
-        this.planes = this.filterPlanes(this.planes);
+        if(data.Data.length > 0){
+          this.planes = data.Data;
+          this.planes = this.filterPlanes(this.planes);
+        }
       }
       this.loadPlanesPeriodoSeguimiento();
     }, (error) => {
@@ -302,7 +304,6 @@ export class FormulacionComponent implements OnInit {
   loadPlanesPeriodoSeguimiento(){
     this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/buscar-unidad/${this.unidad.Id}`).subscribe((data: any) => {
       if (data) {
-        Swal.close();
         data.Data.forEach(elemento => {
           if (elemento.planes_interes) {
             if (typeof elemento.planes_interes === 'string') {
@@ -319,7 +320,20 @@ export class FormulacionComponent implements OnInit {
           }
         });
       }
+      Swal.close();
+      if(this.planes.length == 0){
+        Swal.fire({
+          title: 'Planes no encontrados',
+          html: 'No tiene asignados planes/proyectos asociados para la dependencia <b>'
+            + this.unidad.Nombre + '</b> y la <br> vigencia <b>' + this.vigencia.Nombre
+            + '</b><br></br>',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 7000
+        })
+      }
     })
+    
   }
 
   onKey(value) {
