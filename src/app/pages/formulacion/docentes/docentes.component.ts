@@ -451,7 +451,7 @@ export class DocentesComponent implements OnInit {
       "vigencia": this.vigenciaConsulta
     }    
     
-    if (data.tipo != "" && data.categoria != "" && data.cantidad !=0 && data.semanas != 0 && data.horas != 0) {
+    if (data.tipo != "" && data.categoria != "" && data.cantidad != 0 && data.semanas != 0 && data.horas != 0) {
       this.banderaCerrar = true
       this.request.post(environment.PLANES_MID, "formulacion/calculos_docentes", data).subscribe((response: any) => {
         if (response) {
@@ -979,19 +979,30 @@ export class DocentesComponent implements OnInit {
     this.getCalculosDocentes(element, rowIndex, tipo)
   }
 
+  mostrarMensajeValorInvalido() {
+    Swal.fire({
+      title: 'El valor ingresado no es válido',
+      icon: 'error',
+      showConfirmButton: false,
+      timer: 2500
+    })
+  }
+
   onChangeCantidad(element, rowIndex, tipo){
-    if (element.cantidad < 0) {
+    if (element.cantidad < 1 || !Number.isInteger(element.cantidad)) {
+      this.mostrarMensajeValorInvalido()
       const dataSource = this.getDataSource(tipo)
-      dataSource[rowIndex].cantidad = 0;
+      dataSource[rowIndex].cantidad = "";
     } else {
       this.getCalculosDocentes(element, rowIndex, tipo)
     }
   }
 
   onChangeSemanas(element, rowIndex, tipo){
-    if (element.semanas < 0) {
+    if (element.semanas < 1 || !Number.isInteger(element.semanas)) {
+      this.mostrarMensajeValorInvalido()
       const dataSource = this.getDataSource(tipo)
-      dataSource[rowIndex].semanas = 0;
+      dataSource[rowIndex].semanas = "";
     } else {
       this.getCalculosDocentes(element, rowIndex, tipo)
     }
@@ -2769,9 +2780,8 @@ export class DocentesComponent implements OnInit {
           item.pensionesPrivado === "" ||
           item.cesantiasPublico === "" ||
           item.cesantiasPrivado === "" ||
-          item.cantidad === 0 ||
-          item.semanas === 0 ||
-          item.horas === 0
+          item.cantidad === "" ||
+          item.semanas === ""
         ) {
           return false;
         }
