@@ -167,6 +167,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
   consultarPlan(plan) {
     const auxId = plan["plan_id"]["_id"]
     const auxTrimestres = plan["periodo_seguimiento_id"]["periodo_nombre"]
+    this.verificarFormulario.setEstadoLista(true);
     this.router.navigate([`pages/seguimiento/gestion-seguimiento/` + auxId + `/` + auxTrimestres]);
   }
 
