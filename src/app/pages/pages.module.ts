@@ -99,6 +99,8 @@ import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 import { TablaUnidadesComponent } from './plan/habilitar-reporte/tabla-unidades/tabla-unidades.component';
 import { TablaResumenComponent } from './formulacion/tabla-resumen/tabla-resumen.component';
+import { FuncionamientoComponent } from './plan/habilitar-reporte/funcionamiento/funcionamiento.component';
+import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion.component';
 
 
 const pagesComponents = [
@@ -221,6 +223,8 @@ const MY_FORMATS = {
     ProgramacionPresupuestalComponent,
     TablaUnidadesComponent,
     TablaResumenComponent,
+    FuncionamientoComponent,
+    InversionComponent,
   ],
   imports: [
     HttpClientModule,
