@@ -6,7 +6,7 @@
     <ng-container>
       <div>
         <div>
-          <u class="textGuide">
+          <u class="textGuide"> 
             A continuación encontrará un listado de unidades y vigencia, usted debe realizar la selección en cada una de
             las listas correspondientes.
           </u>
@@ -147,7 +147,6 @@
                   }">
                   {{abs(((row.meta)/100) - row.trimestre1.meta) | percent:'1.1-2':'es'}}
                 </div>
-
                 <div *ngIf="row.trimestre2 && row.unidad =='Porcentaje'" [ngClass]="{
                     'brecha-verde': abs(((row.meta)/100) - row.trimestre2.meta) <= 0.10,
                     'brecha-amarillo': abs(((row.meta)/100) - row.trimestre2.meta) > 0.10 && (( (row.meta)/100) - row.trimestre2.meta) <= 0.20,
@@ -155,7 +154,6 @@
                   }">
                   {{abs(((row.meta)/100) - row.trimestre2.meta) | percent:'1.1-2':'es'}}
                 </div>
-
                 <div *ngIf="row.trimestre3 && row.unidad =='Porcentaje'" [ngClass]="{
                     'brecha-verde': abs(( (row.meta)/100) - row.trimestre3.meta) <= 0.10,
                     'brecha-amarillo': abs(( (row.meta)/100) - row.trimestre3.meta) > 0.10 && (( (row.meta)/100) - row.trimestre3.meta) <= 0.20,
@@ -163,7 +161,6 @@
                   }">
                   {{abs(((row.meta)/100) - row.trimestre3.meta) | percent:'1.1-2':'es'}}
                 </div>
-
                 <div *ngIf="row.trimestre4 && row.unidad =='Porcentaje'" [ngClass]="{
                     'brecha-verde': abs(( (row.meta)/100) - row.trimestre4.meta) <= 0.10,
                     'brecha-amarillo': abs(( (row.meta)/100) - row.trimestre4.meta) > 0.10 && (( (row.meta)/100) - row.trimestre4.meta) <= 0.20,
@@ -180,7 +177,6 @@
                   }">
                   {{abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
                 </div>
-
                 <div *ngIf="row.trimestre2 && row.unidad =='Unidad'" [ngClass]="{
                     'brecha-verde': abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  <= 0.10,
                     'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  > 0.10 && (((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  <= 0.20,
@@ -188,7 +184,6 @@
                   }">
                   {{abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
                 </div>
-
                 <div *ngIf="row.trimestre3 && row.unidad =='Unidad'" [ngClass]="{
                     'brecha-verde': abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100)) <= 0.10,
                     'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100))  > 0.10 && (((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100))  <= 0.20,
@@ -196,7 +191,6 @@
                   }">
                   {{(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
                 </div>
-
                 <div *ngIf="row.trimestre4 && row.unidad =='Unidad'" [ngClass]="{
                     'brecha-verde': abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) <= 0.10,
                     'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) > 0.10 && (((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) <= 0.20,
@@ -213,7 +207,6 @@
                   }">
                   {{abs((row.meta - row.trimestre1.meta)) | percent:'1.1-2':'es'}}
                 </div>
-
                 <div *ngIf="row.trimestre2 && row.unidad =='Tasa'" [ngClass]="{
                     'brecha-verde': abs(row.meta - row.trimestre2.meta) <= 0.10,
                     'brecha-amarillo': abs(row.meta - row.trimestre2.meta) > 0.10 && (row.meta - row.trimestre2.meta) <= 0.20,
@@ -221,7 +214,6 @@
                   }">
                   {{abs(row.meta - row.trimestre2.meta) | percent:'1.1-2':'es'}}
                 </div>
-
                 <div *ngIf="row.trimestre3 && row.unidad =='Tasa'" [ngClass]="{
                     'brecha-verde': abs(row.meta - row.trimestre3.meta) <= 0.10,
                     'brecha-amarillo': abs(row.meta - row.trimestre3.meta) > 0.10 && (row.meta - row.trimestre3.meta) <= 0.20,
@@ -229,7 +221,6 @@
                   }">
                   {{abs(row.meta - row.trimestre3.meta) | percent:'1.1-2':'es'}}
                 </div>
-
                 <div *ngIf="row.trimestre4 && row.unidad =='Tasa'" [ngClass]="{
                     'brecha-verde': abs(row.meta - row.trimestre4.meta) <= 0.10,
                     'brecha-amarillo': abs(row.meta - row.trimestre4.meta) > 0.10 && (row.meta - row.trimestre4.meta) <= 0.20,

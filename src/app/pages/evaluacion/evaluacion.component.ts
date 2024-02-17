@@ -99,9 +99,9 @@ export class EvaluacionComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<any>;
 
   constructor(
-    private request: RequestManager,
-    private autenticationService: ImplicitAutenticationService,
-    private userService: UserService,
+    private request: RequestManager,  
+    private autenticationService: ImplicitAutenticationService, 
+    private userService: UserService, 
     private router: Router
   ) {
     this.loadVigencias();
@@ -182,7 +182,7 @@ export class EvaluacionComponent implements OnInit {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
-            .subscribe((vinculacion: any) => {
+            .subscribe((vinculacion: any) => { 
               if (vinculacion["Data"] != "") {
                 this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
                   if (dataUnidad) {
