@@ -89,7 +89,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
     private userService: UserService,
-    private http: HttpClient
+    private http: HttpClient,
     private route: ActivatedRoute,
     private verificarFormulario: VerificarFormulario
   ) {
