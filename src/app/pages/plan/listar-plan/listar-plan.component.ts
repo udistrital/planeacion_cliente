@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -8,7 +8,24 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
-import { error } from 'console';
+export interface Planes {
+  _id: string
+  activo: string
+  aplicativo_id: string
+  dependencia_id: string
+  descripcion: string
+  formato: boolean
+  nombre: string
+  nombre_tipo_plan: string
+  tipo_plan_id: string
+  vigencia: string
+  iconSelected: string
+}
+
+export interface Plan {
+  _id: string;
+  nombre: string;
+}
 
 @Component({
   selector: 'app-listar-plan',
@@ -16,8 +33,7 @@ import { error } from 'console';
   styleUrls: ['./listar-plan.component.scss']
 })
 export class ListarPlanComponent implements OnInit {
-
-  displayedColumns: string[] = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
+  displayedColumns: string[];
   dataSource: MatTableDataSource<any>;
   uid: number; // id del objeto
   planes: any[];
@@ -26,13 +42,36 @@ export class ListarPlanComponent implements OnInit {
   plan: any;
   cargando = true;
 
+  iconoPlanesAccionFuncionamiento: string = 'compare_arrows';
+  planesInteres: any;
+  banderaTodosSeleccionados: boolean;
+  planesMostrar: Planes[];
+  textBotonMostrarData: string = 'Mostrar Planes Interés Habilitados/Reporte';
+  
+  @Input() planesPeriodoSeguimiento: any;
+  @Input() banderaPlanesAccionFuncionamiento: boolean;
+  @Output() planesInteresSeleccionados = new EventEmitter<any[]>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+
   constructor(
     public dialog: MatDialog,
     private request: RequestManager,
     private router: Router,
   ) {
+    this.banderaTodosSeleccionados = false;
+    this.planesInteres = [];
+    this.banderaPlanesAccionFuncionamiento = false;
+  }
+
+  ngOnInit(): void {
+    console.log('Inicia el componente Listar Planes/Proyectos');
+    this.planesMostrar = [];
+    if(this.banderaPlanesAccionFuncionamiento){
+      this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'fecha_modificacion', 'actions']
+    } else {
+      this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
+    }
     this.loadData();
   }
 
@@ -177,28 +216,10 @@ export class ListarPlanComponent implements OnInit {
 
   loadData() {
     this.mostrarMensajeCarga();
-
     this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe(
       (data: any) => {
         if (data) {
           this.planes = data.Data;
-          // this.request.get(environment.PLANES_CRUD, `tipo-plan?query=_id:${data.Data.tipo_plan_id}`).subscribe((dat: any) => {
-          //   if (dat){
-          //     this.tipoPlan = dat.Data;
-          //     this.nombreTipoPlan = dat.Data.nombre
-          //     this.ajustarData();
-          //   }
-          // },(error) => {
-          //   Swal.fire({
-          //     title: 'Error en la operación', 
-          //     text: 'No se encontraron datos registrados',
-          //     icon: 'warning',
-          //     showConfirmButton: false,
-          //     timer: 2500
-          //   })
-
-          // })
-          // this.nombreTipoPlan = this.tipoPlan.nombre
           this.ajustarData();
           this.cerrarMensajeCarga();
         }
@@ -225,17 +246,24 @@ export class ListarPlanComponent implements OnInit {
       }
     });
   }
+
   cerrarMensajeCarga(): void {
+    this.dataSource = new MatTableDataSource(this.planesMostrar);
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
     this.cargando = false;
     Swal.close();
   }
 
   ajustarData() {
-    this.cambiarValor("activo", true, "Activo")
-    this.cambiarValor("activo", false, "Inactivo")
-    this.dataSource = new MatTableDataSource(this.planes);
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.cambiarValor("activo", true, "Activo");
+    if(this.banderaPlanesAccionFuncionamiento){
+      this.planes = this.planes.filter((plan: Planes) => plan.activo == "Activo");
+      this.cambiarValor("iconSelected", undefined, "compare_arrows");
+    } else {
+      this.cambiarValor("activo", false, "Inactivo");
+    }
+    this.planesMostrar = this.planes;
   }
 
   editar(fila): void {
@@ -289,7 +317,88 @@ export class ListarPlanComponent implements OnInit {
     })
   }
 
-  ngOnInit(): void {
-    this.loadData();
+  changeIcon(row: Planes) {
+    if(!row.iconSelected){
+      row.iconSelected = this.iconoPlanesAccionFuncionamiento;
+    }
+    if (row.iconSelected == 'compare_arrows') {
+      row.iconSelected = 'done';
+
+      const nuevoPlanProyecto: Plan = {
+        _id: row._id,
+        nombre: row.nombre,
+      };
+
+      this.planesInteres = [...this.planesInteres, nuevoPlanProyecto];
+    } else if (row.iconSelected == 'done') {
+      row.iconSelected = 'compare_arrows';
+      let planProyectoEliminar = row._id;
+      const index = this.planesInteres.findIndex(
+        (x: { Id: any }) => x.Id == planProyectoEliminar
+      );
+      this.planesInteres.splice(index, 1);
+    }
+    console.log('Planes/Proyectos de interés seleccionados: ', this.planesInteres);
+    this.emitirCambiosPlanesInteres();
+  }
+
+  seleccionarTodos() {
+    this.banderaTodosSeleccionados = true;
+    this.planesInteres = this.planesMostrar.map((element) => ({
+      _id: element._id,
+      nombre: element.nombre,
+    }));
+    // Itera sobre los elementos y cambia el icono
+    this.planes.forEach((element) => {
+      element.iconSelected = 'done';
+    });
+    this.emitirCambiosPlanesInteres();
+  }
+
+  borrarSeleccion() {
+    this.banderaTodosSeleccionados = false;
+    // Itera sobre los elementos y cambia el icono a 'compare_arrows'
+    this.planes.forEach((element) => {
+      element.iconSelected = 'compare_arrows';
+    });
+    // Limpia el array de unidades de interés
+    this.planesInteres = [];
+    this.emitirCambiosPlanesInteres();
+  }
+
+  emitirCambiosPlanesInteres() {
+    this.planesInteresSeleccionados.emit(this.planesInteres);
+  }
+
+  cambiarDataTabla(){
+    if(this.planesPeriodoSeguimiento.length >= 0 
+      && this.textBotonMostrarData === 'Mostrar Planes Interés Habilitados/Reporte'){
+      this.textBotonMostrarData = 'Mostrar todos los planes';
+      this.planesMostrar = this.planes.filter(plan1 => {
+        const plan2 = this.planesPeriodoSeguimiento.find(plan => plan._id === plan1._id);
+        if (plan2) {
+            plan1.fecha_modificacion = this.formatearFecha(plan2['fecha_modificacion']);
+        }
+        return this.planesPeriodoSeguimiento.some(plan2 => plan2._id === plan1._id);
+      });
+      this.dataSource = new MatTableDataSource(this.planesMostrar);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    } else {
+      this.textBotonMostrarData = 'Mostrar Planes Interés Habilitados/Reporte';
+      this.dataSource = new MatTableDataSource(this.planes);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }
+  }
+
+  formatearFecha(fechaOriginal: string): string {
+    const fechaObjeto = new Date(fechaOriginal);
+
+    const dia = fechaObjeto.getDate().toString().padStart(2, '0');
+    const mes = (fechaObjeto.getMonth() + 1).toString().padStart(2, '0');
+    const anio = fechaObjeto.getFullYear();
+
+    return `${dia}/${mes}/${anio}`;
   }
 }

@@ -12,7 +12,7 @@
       <!-- <mat-card>
       <p>lo que sea</p>
       <mat-divider inset></mat-divider>
-    </mat-card> -->
+      </mat-card> -->
       <ng-container>
         <mat-form-field appearance="fill" [style.width.%]="100">
           <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
@@ -66,6 +66,10 @@
 </mat-card>
 
 <br><br>
+<!-- TABLA RESUMEN -->
+<ng-container *ngIf="rol == 'PLANEACION' && !planAsignado">
+  <app-tabla-resumen [planes]="planesFormulacion" (mostrarPlan)="cargarPlan($event)"></app-tabla-resumen>
+</ng-container>
 <!-- FORMULACIÓN -->
 <mat-card class="card-oas" *ngIf="!clonar && planAsignado">
   <mat-card-header>
@@ -372,7 +376,7 @@
         por la oficina de planeación, y no podrá realizar modificaciones hasta que sea retornado con observaciones
       </u>
     </mat-card-content>
-    <mat-card-content *ngIsGranted="['PLANEACION']">
+    <mat-card-content *ngIsGranted="['JEFE_DEPENDENCIA', 'ASISTENTE_DEPENDENCIA']">
       <u class="textGuide"
         *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03' || plan.estado_plan_id === '615335c501c7a213a12fb2a3'">
         Para iniciar el ajuste del plan por favor seleccione el botón REALIZAR AJUSTE, ubicado en la parte inferior de
@@ -405,16 +409,22 @@
             Culminar plan
           </button>
         </ng-container>
-        <ng-container *ngIsGranted="['PLANEACION']">
+        <ng-container *ngIsGranted="['PLANEACION', 'JEFE_UNIDAD_PLANEACION']">
           <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3aeb01c7a245952fabff'" mat-raised-button
             color="primary" (click)="iniciarRevision()" [disabled]="!dataT">
             Iniciar Revisión
           </button>
         </ng-container>
-        <ng-container *ngIsGranted="['PLANEACION']">
+        <ng-container *ngIsGranted="['PLANEACION', 'JEFE_UNIDAD_PLANEACION']">
           <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b0301c7a2a44e2fac01'" mat-raised-button
             color="primary" (click)="enviarRevision()" [disabled]="!dataT">
             Enviar Revisión
+          </button>
+        </ng-container>
+        <ng-container *ngIsGranted="['JEFE_UNIDAD_PLANEACION']">
+          <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03'" mat-raised-button
+            color="primary" (click)="verificarRevision()" [disabled]="!dataT"> <!--AGREGAR ID-->
+            Verificar Revisión
           </button>
         </ng-container>
         <ng-container *ngIsGranted="['JEFE_DEPENDENCIA', 'ASISTENTE_DEPENDENCIA']">
@@ -425,7 +435,7 @@
           </button>
         </ng-container>
         <ng-container *ngIsGranted="['PLANEACION']">
-          <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03'" mat-raised-button
+          <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '65bbf86918f02a27a456d20f'" mat-raised-button
             color="primary" (click)="preAval()" [disabled]="!dataT">
             Dar Pre-Aval
           </button>
@@ -436,14 +446,14 @@
             Remitir Ajuste Plan de Acción
           </button>
         </ng-container>
-        <ng-container *ngIsGranted="['PLANEACION']">
+        <ng-container *ngIsGranted="['PLANEACION', 'JEFE_UNIDAD_PLANEACION']">
           <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b4401c7a222052fac05'" mat-raised-button
             color="primary" (click)="avalar()" [disabled]="!dataT">
             Dar Aval
           </button>
         </ng-container>
       </ng-container>
-    
+
     </ng-container>
     <br><br>
   </mat-card-footer>
@@ -463,7 +473,7 @@
   </app-recursos>
 </ng-container>
 <ng-container class="card-oas" *ngIf="!clonar && planAsignado && identDocentes">
-  <app-docentes [dataSourceActividades]="dataSource" [dataTabla]="identDocentes" [plan]="plan._id" [rol]="rol" [vigencia]="vigencia" 
-    [versiones]="versiones" (acciones)="messageIdentificacion($event)">
+<app-docentes [dataSourceActividades]="dataSource" [dataTabla]="identDocentes" [plan]="plan._id" [rol]="rol" [vigencia]="vigencia"
+[versiones]="versiones" (acciones)="messageIdentificacion($event)">
   </app-docentes>
 </ng-container>
