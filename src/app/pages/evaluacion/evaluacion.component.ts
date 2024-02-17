@@ -59,14 +59,14 @@ export class EvaluacionComponent implements OnInit {
   lineChartData = [['', 0, 'color: rgb(143, 27, 0)', '', '']];
 
   displayedColumns: string[] = [
-    "id", "ponderacion", "actividad", "indicador", "formula", "meta",
+    "id", "ponderacion", "actividad", "indicador", "formula", "meta", "Brecha",
     "numt1", "dent1", "pert1", "acut1", "metat1", "actividadt1",
     "numt2", "dent2", "pert2", "acut2", "metat2", "actividadt2",
     "numt3", "dent3", "pert3", "acut3", "metat3", "actividadt3",
     "numt4", "dent4", "pert4", "acut4", "metat4", "actividadt4",];
 
   displayedHeaders: string[] = [
-    "idP", "ponderacionP", "actividadP", "indicadorP", "formulaP", "metaP",
+    "idP", "ponderacionP", "actividadP", "indicadorP", "formulaP", "metaP", "BrechaP",
     "trimestre1", "trimestre2", "trimestre3", "trimestre4"];
 
   planes: any[];
@@ -171,6 +171,10 @@ export class EvaluacionComponent implements OnInit {
       this.rol = 'PLANEACION';
       this.loadUnidades();
     }
+  }
+
+  abs(value: number): number {
+    return Math.abs(value);
   }
 
   validarUnidad() {

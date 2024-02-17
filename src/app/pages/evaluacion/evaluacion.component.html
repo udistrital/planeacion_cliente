@@ -106,16 +106,18 @@
             </ng-container>
 
             <ng-container matColumnDef="indicador" sticky style="border-collapse: separate">
-              <th mat-header-cell style="min-width: 250px;width: 300px; max-width:  300px;" *matHeaderCellDef [style.text-align]="center"
-                [ngStyle]="{'display': 'none'}"></th>
-              <td mat-cell [ngClass]="item.class" style="min-width: 250px;width: 300px; max-width:  300px;" *matCellDef="let item">
+              <th mat-header-cell style="min-width: 250px;width: 300px; max-width:  300px;" *matHeaderCellDef
+                [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell [ngClass]="item.class" style="min-width: 250px;width: 300px; max-width:  300px;"
+                *matCellDef="let item">
                 {{item.indicador}}</td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
             <ng-container matColumnDef="formula" sticky>
-              <th mat-header-cell style="min-width: 250px;width: 300px; max-width:  300px;" *matHeaderCellDef [style.text-align]="center"
-                [ngStyle]="{'display': 'none'}"></th>
-              <td mat-cell [ngClass]="row.class" style="min-width: 250px;width: 300px; max-width:  300px;" *matCellDef="let row">
+              <th mat-header-cell style="min-width: 250px;width: 300px; max-width:  300px;" *matHeaderCellDef
+                [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell [ngClass]="row.class" style="min-width: 250px;width: 300px; max-width:  300px;"
+                *matCellDef="let row">
                 {{row.formula}} </td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
@@ -134,16 +136,122 @@
               </td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
+            <ng-container matColumnDef="Brecha" sticky>
+              <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class">
+                <!-- porcentaje -->
+                <div *ngIf="row.trimestre1 && row.unidad =='Porcentaje'" [ngClass]="{
+                    'brecha-verde': abs(( (row.meta)/100) - row.trimestre1.meta) <= 0.10,
+                    'brecha-amarillo': abs(( (row.meta)/100) - row.trimestre1.meta) > 0.10 && (( (row.meta)/100) - row.trimestre1.meta) <= 0.20,
+                    'brecha-rojo': abs(( (row.meta)/100) - row.trimestre1.meta) > 0.20
+                  }">
+                  {{abs(((row.meta)/100) - row.trimestre1.meta) | percent:'1.1-2':'es'}}
+                </div>
+
+                <div *ngIf="row.trimestre2 && row.unidad =='Porcentaje'" [ngClass]="{
+                    'brecha-verde': abs(((row.meta)/100) - row.trimestre2.meta) <= 0.10,
+                    'brecha-amarillo': abs(((row.meta)/100) - row.trimestre2.meta) > 0.10 && (( (row.meta)/100) - row.trimestre2.meta) <= 0.20,
+                    'brecha-rojo': abs(((row.meta)/100) - row.trimestre2.meta) > 0.20
+                  }">
+                  {{abs(((row.meta)/100) - row.trimestre2.meta) | percent:'1.1-2':'es'}}
+                </div>
+
+                <div *ngIf="row.trimestre3 && row.unidad =='Porcentaje'" [ngClass]="{
+                    'brecha-verde': abs(( (row.meta)/100) - row.trimestre3.meta) <= 0.10,
+                    'brecha-amarillo': abs(( (row.meta)/100) - row.trimestre3.meta) > 0.10 && (( (row.meta)/100) - row.trimestre3.meta) <= 0.20,
+                    'brecha-rojo': abs(( (row.meta)/100) - row.trimestre3.meta) > 0.20
+                  }">
+                  {{abs(((row.meta)/100) - row.trimestre3.meta) | percent:'1.1-2':'es'}}
+                </div>
+
+                <div *ngIf="row.trimestre4 && row.unidad =='Porcentaje'" [ngClass]="{
+                    'brecha-verde': abs(( (row.meta)/100) - row.trimestre4.meta) <= 0.10,
+                    'brecha-amarillo': abs(( (row.meta)/100) - row.trimestre4.meta) > 0.10 && (( (row.meta)/100) - row.trimestre4.meta) <= 0.20,
+                    'brecha-rojo': abs(( (row.meta)/100) - row.trimestre4.meta) > 0.20
+                  }">
+                  {{abs(((row.meta)/100) - row.trimestre4.meta) | percent:'1.1-2':'es'}}
+                </div>
+
+                <!-- Unidad -->
+                <div *ngIf="row.trimestre1 && row.unidad =='Unidad'" [ngClass]="{
+                    'brecha-verde': abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) <= 0.10,
+                    'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) > 0.10 && (((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) <= 0.20,
+                    'brecha-rojo': abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) > 0.20
+                  }">
+                  {{abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                </div>
+
+                <div *ngIf="row.trimestre2 && row.unidad =='Unidad'" [ngClass]="{
+                    'brecha-verde': abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  <= 0.10,
+                    'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  > 0.10 && (((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  <= 0.20,
+                    'brecha-rojo': abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  > 0.20
+                  }">
+                  {{abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                </div>
+
+                <div *ngIf="row.trimestre3 && row.unidad =='Unidad'" [ngClass]="{
+                    'brecha-verde': abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100)) <= 0.10,
+                    'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100))  > 0.10 && (((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100))  <= 0.20,
+                    'brecha-rojo': abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100)) > 0.20
+                  }">
+                  {{(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                </div>
+
+                <div *ngIf="row.trimestre4 && row.unidad =='Unidad'" [ngClass]="{
+                    'brecha-verde': abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) <= 0.10,
+                    'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) > 0.10 && (((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) <= 0.20,
+                    'brecha-rojo': abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) > 0.20
+                  }">
+                  {{abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                </div>
+
+                <!-- Tasa -->
+                <div *ngIf="row.trimestre1 && row.unidad =='Tasa'" [ngClass]="{
+                    'brecha-verde': abs(row.meta - row.trimestre1.meta) <= 0.10,
+                    'brecha-amarillo': abs(row.meta - row.trimestre1.meta) > 0.10 && (row.meta - row.trimestre1.meta) <= 0.20,
+                    'brecha-rojo': abs(row.meta - row.trimestre1.meta) > 0.20
+                  }">
+                  {{abs((row.meta - row.trimestre1.meta)) | percent:'1.1-2':'es'}}
+                </div>
+
+                <div *ngIf="row.trimestre2 && row.unidad =='Tasa'" [ngClass]="{
+                    'brecha-verde': abs(row.meta - row.trimestre2.meta) <= 0.10,
+                    'brecha-amarillo': abs(row.meta - row.trimestre2.meta) > 0.10 && (row.meta - row.trimestre2.meta) <= 0.20,
+                    'brecha-rojo': abs(row.meta - row.trimestre2.meta) > 0.20
+                  }">
+                  {{abs(row.meta - row.trimestre2.meta) | percent:'1.1-2':'es'}}
+                </div>
+
+                <div *ngIf="row.trimestre3 && row.unidad =='Tasa'" [ngClass]="{
+                    'brecha-verde': abs(row.meta - row.trimestre3.meta) <= 0.10,
+                    'brecha-amarillo': abs(row.meta - row.trimestre3.meta) > 0.10 && (row.meta - row.trimestre3.meta) <= 0.20,
+                    'brecha-rojo': abs(row.meta - row.trimestre3.meta) > 0.20
+                  }">
+                  {{abs(row.meta - row.trimestre3.meta) | percent:'1.1-2':'es'}}
+                </div>
+
+                <div *ngIf="row.trimestre4 && row.unidad =='Tasa'" [ngClass]="{
+                    'brecha-verde': abs(row.meta - row.trimestre4.meta) <= 0.10,
+                    'brecha-amarillo': abs(row.meta - row.trimestre4.meta) > 0.10 && (row.meta - row.trimestre4.meta) <= 0.20,
+                    'brecha-rojo': abs(row.meta - row.trimestre4.meta) > 0.20
+                  }">
+                  {{abs(row.meta - row.trimestre4.meta) | percent:'1.1-2':'es'}}
+                </div>
+              </td>
+              <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
+            </ng-container>
 
             <!-- trimestre 1 -->
             <ng-container matColumnDef="numt1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Numerador </th>
-              <td mat-cell *matCellDef="let row" [ngClass]="row.class"> {{row.trimestre1.numerador | number: '1.0-2':'es'}} </td>
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class"> {{row.trimestre1.numerador | number:
+                '1.0-2':'es'}} </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="dent1">
               <th mat-header-cell class="header2" *matHeaderCellDef> Denominador </th>
-              <td mat-cell *matCellDef="let row" [ngClass]="row.class"> {{row.trimestre1.denominador| number: '1.0-2':'es'}} </td>
+              <td mat-cell *matCellDef="let row" [ngClass]="row.class"> {{row.trimestre1.denominador| number:
+                '1.0-2':'es'}} </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="pert1">
@@ -476,6 +584,11 @@
             <ng-container matColumnDef="metaP" sticky>
               <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef [style.text-align]="center"
                 [attr.rowspan]="2">Meta</th>
+            </ng-container>
+
+            <ng-container matColumnDef="BrechaP" sticky>
+              <th id="col-combinado" class="header1" mat-header-cell *matHeaderCellDef [style.text-align]="center"
+                [attr.rowspan]="2">Brecha</th>
             </ng-container>
 
             <ng-container matColumnDef="trimestre1">
