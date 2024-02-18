@@ -8,7 +8,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { UserService } from '../services/userService';
-import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { VerificarFormulario } from '../services/verificarFormulario'
 import { Subscription } from 'rxjs';
@@ -808,7 +807,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       })
       try {
         // Realiza la operación asincrónica, una llamada a una API (ruta peticioon)`${variableEntorno}formato/${datoId}`
-        const data: any = await this.http.get(`${environment.PLANES_MID}formato/${plan._id}`).toPromise();
+        const data: any = await this.request.get(environment.PLANES_MID, `formato/` + plan._id).toPromise();
 
         if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
           data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
