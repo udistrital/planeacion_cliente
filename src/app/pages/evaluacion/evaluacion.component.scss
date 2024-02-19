@@ -62,6 +62,7 @@ th {
   overflow-x: auto;
 
   .mat-table {
+
     width: 100%;
     max-width: 100%;
     margin-bottom: 1rem;
@@ -72,12 +73,14 @@ th {
 
   .mat-row,
   .mat-header-row {
+
     display: table-row;
     text-align: center;
   }
 
   .mat-cell,
   .mat-header-cell {
+
     text-align: center;
     word-wrap: initial;
     display: table-cell;
@@ -91,6 +94,7 @@ th {
 
 
   .mat-cell {
+
     text-align: center;
     word-wrap: initial;
     display: table-cell;
@@ -104,6 +108,7 @@ th {
   }
 
   .mat-footer-cell {
+
     background-color: var(--primary);
     color: white;
     text-align: center;
@@ -144,17 +149,34 @@ th.mat-header-cell {
   background-color: white;
 }
 
-.brecha-verde { 
-  background-color: green;
-  padding: 10px;
+.cdk-column-Brecha {
+  padding: 0 !important;
+  
+  .brecha-verde { 
+    background-color: #c0e19b;
+    width: 100%;
+    height: 6vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .brecha-amarillo { 
+    background-color: #ffff7c;
+    width: 100%;
+    height: 6vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .brecha-rojo { 
+    background-color: #a36463;
+    width: 100%;
+    height: 6vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
-.brecha-amarillo { 
-  background-color: yellow;
-  padding: 10px;
-}
-
-.brecha-rojo { 
-  background-color: red;
-  padding: 10px; 
-}
