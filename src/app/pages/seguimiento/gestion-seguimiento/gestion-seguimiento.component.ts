@@ -81,7 +81,6 @@ export class SeguimientoComponentGestion implements OnInit {
   ngOnDestroy() {
     if (this.verificarFormulario.estadoLista$) {
       this.verificarFormulario.setEstadoLista(false);
-      this.miObservableSubscription.unsubscribe();
     }
   }
 
