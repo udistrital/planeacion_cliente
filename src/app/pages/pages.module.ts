@@ -100,6 +100,7 @@ import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyecto
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 import { TablaResumenComponent } from './formulacion/tabla-resumen/tabla-resumen.component';
 import { TablaPendientesComponent } from './pendientes/tabla-pendientes.component';
+import { PlanAccionComponent } from './plan-accion/plan-accion.component';
 
 
 const pagesComponents = [
@@ -224,6 +225,7 @@ const MY_FORMATS = {
     NotificacionesComponent,
     TablaResumenComponent,
     TablaPendientesComponent,
+    PlanAccionComponent,
   ],
   imports: [
     HttpClientModule,
