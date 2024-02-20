@@ -12,7 +12,7 @@
       <!-- <mat-card>
       <p>lo que sea</p>
       <mat-divider inset></mat-divider>
-    </mat-card> -->
+      </mat-card> -->
       <ng-container>
         <mat-form-field appearance="fill" [style.width.%]="100">
           <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
@@ -68,7 +68,7 @@
 <br><br>
 <!-- TABLA RESUMEN -->
 <ng-container *ngIf="rol == 'PLANEACION' && !planAsignado">
-  <app-tabla-resumen></app-tabla-resumen>
+  <app-tabla-resumen [planes]="planesFormulacion" (mostrarPlan)="cargarPlan($event)"></app-tabla-resumen>
 </ng-container>
 <!-- FORMULACIÓN -->
 <mat-card class="card-oas" *ngIf="!clonar && planAsignado">
