@@ -239,7 +239,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
 
       const promises = this.planes.map((plan) => {
         return new Promise((innerResolve, innerReject) => {
-          this.request.get(environment.PLANES_MID, `seguimiento/get_estado_trimestres/` + plan._id).subscribe(
+          this.request.get(environment.PLANES_MID, `seguimiento/estado_trimestres/` + plan._id).subscribe(
             (data: any) => {
               if (data) {
                 if (data.Data != '' && data.Data != null) {
