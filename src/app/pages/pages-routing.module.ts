@@ -53,6 +53,9 @@ import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 import { TablaPendientesFormulacionComponent } from './pendientes/pendientes-formulacion/tabla-pendientes-formulacion.component';
 import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seguimiento/tabla-pendientes-seguimiento.component';
+import { NotificacionesComponent } from './notificaciones/notificaciones.component';
+import { TablaPendientesComponent } from './pendientes/tabla-pendientes.component';
+
 
 
 const routes: Routes = [{
@@ -327,6 +330,12 @@ const routes: Routes = [{
     {
       path: 'pendientes-seguimiento',
       component: TablaPendientesSeguimientoComponent,
+      path: 'notificaciones',
+      component: NotificacionesComponent,
+    },
+    {
+      path: 'pendientes',
+      component: TablaPendientesComponent,
     },
     {
       path: '', redirectTo: 'dashboard', pathMatch: 'full',

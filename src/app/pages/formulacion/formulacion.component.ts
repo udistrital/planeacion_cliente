@@ -8,9 +8,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { UserService } from '../services/userService';
+import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { VerificarFormulario } from '../services/verificarFormulario'
 import { Subscription } from 'rxjs';
-
+import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 
 @Component({
   selector: 'app-formulacion',
@@ -35,6 +37,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   planAux: any;
   unidad: any;
   vigencia: any;
+  versionDesdeTabla: number;
   steps: any[];
   json: any;
   estado: string;
@@ -79,9 +82,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   private miObservableSubscription: Subscription;
   pendienteCheck: boolean;
 
-
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
@@ -89,7 +92,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private verificarFormulario: VerificarFormulario
   ) {
-    this.loadPlanes();
     this.loadPeriodos();
     this.addActividad = false;
     this.planSelected = false;
@@ -295,11 +297,22 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
-      if (data) {
-        this.planes = data.Data;
-        this.planes = this.filterPlanes(this.planes);
+    Swal.fire({
+      title: 'Cargando datos...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
       }
+    });
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,dependencia_id:${this.unidad.Id},formato:false,vigencia:${this.vigencia.Id}`).subscribe((data: any) => {
+      if (data) {
+        if(data.Data.length > 0){
+          this.planes = data.Data;
+          this.planes = this.filterPlanes(this.planes);
+        }
+      }
+      this.loadPlanesPeriodoSeguimiento();
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
@@ -309,6 +322,41 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         timer: 2500
       })
     })
+  }
+
+  loadPlanesPeriodoSeguimiento(){
+    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/buscar-unidad/${this.unidad.Id}`).subscribe((data: any) => {
+      if (data) {
+        data.Data.forEach(elemento => {
+          if (elemento.planes_interes) {
+            if (typeof elemento.planes_interes === 'string') {
+              try {
+                const planesInteresArray = JSON.parse(elemento.planes_interes);
+                this.planes = [...this.planes, ...planesInteresArray];
+                Swal.close();
+              } catch (error) {
+                console.error('Error al analizar JSON en planes_interes:', error);
+              }
+            } else {
+              console.error('El elemento no tiene una cadena JSON en planes_interes:', elemento);
+            }
+          }
+        });
+      }
+      Swal.close();
+      if(this.planes.length == 0){
+        Swal.fire({
+          title: 'Planes no encontrados',
+          html: 'No tiene asignados planes/proyectos asociados para la dependencia <b>'
+            + this.unidad.Nombre + '</b> y la <br> vigencia <b>' + this.vigencia.Nombre
+            + '</b><br></br>',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 7000
+        })
+      }
+    })
+    
   }
 
   onKey(value) {
@@ -453,7 +501,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
   filterPlanes(data) {
     var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
-    return dataAux.filter(e => e.activo == true);
+    return dataAux;
   }
 
   onChangeU(unidad) {
@@ -494,6 +542,12 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
+      this.loadPlanes();
+      this.banderaEstadoDatos = false;
+      this.planSelected = false;
+      this.plan = undefined;
+      this.planAsignado = false;
+      this.dataT = false;
       if (this.unidadSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
       }
@@ -512,12 +566,13 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
+      this.banderaEstadoDatos = false;
+      this.plan = undefined;
+      this.planAsignado = false;
+      this.dataT = false;
+      this.isChecked = true;
       this.busquedaPlanes(plan);
     }
-  }
-
-  onChangeSelect(opcion) {
-
   }
 
   onChangePD(planD) {
@@ -606,14 +661,14 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   getEstado() {
-    this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.plan.estado_plan_id).subscribe((data: any) => {
-      if (data) {
-        this.estadoPlan = data.Data.nombre;
-        this.getIconEstado();
-        this.visualizeObs();
-      }
-    }),
-      (error) => {
+    this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.plan.estado_plan_id).subscribe(
+      (data: any) => {
+        if (data) {
+          this.estadoPlan = data.Data.nombre;
+          this.getIconEstado();
+          this.visualizeObs();
+        }
+      }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
@@ -622,6 +677,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           timer: 2500
         })
       }
+    )
   }
 
   getIconEstado() {
@@ -644,20 +700,21 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     }
   }
 
-  getVersiones(planB, planRecienCreado: boolean = true) {
+  getVersiones(planB, planRecienCreado: boolean = false) {
     let aux = planB.nombre.replace(/ /g, "%20");
-    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/` + this.unidad.Id + `/` + this.vigencia.Id +
-      `/` + aux).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formulacion/get_plan_versiones/${this.unidad.Id}/${this.vigencia.Id}/${aux}`).subscribe(
+      (data: any) => {
         if (data) {
           this.versiones = data;
-          for (var i in this.versiones) {
-            var obj = this.versiones[i];
-            var num = +i + 1;
-            obj["numero"] = num.toString();
-          }
-          var len = this.versiones.length;
-          var pos = +len - 1;
-          this.plan = this.versiones[pos];
+          this.versiones.forEach((_, i) => {
+            this.versiones[i]['numero'] = (i + 1).toString();
+          });
+          this.plan =
+            this.versiones[
+              this.versionDesdeTabla == undefined || this.versionDesdeTabla > this.versiones.length
+                ? this.versiones.length - 1
+                : this.versionDesdeTabla - 1
+            ];
           this.planAsignado = true;
           this.clonar = false;
           this.banderaUltimaVersion = true;
@@ -666,44 +723,58 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           this.versionPlan = this.plan.numero;
           this.getEstado();
         }
-      }),
-      (error) => {
+      },(error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
           text: `${JSON.stringify(error)}`,
           showConfirmButton: false,
           timer: 2500
-        })
+        });
       }
+    )
   }
 
-  busquedaPlanes(planB) {
-    //Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
-    this.cargaFormato(planB);
-    //validación con bandera para el estado de los datos de los planes.
-    if (this.banderaEstadoDatos == true) {
-      this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
-        this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe(
-          (data: any) => {
-            if (data.Data.length > 0) {
-              this.getVersiones(planB);
-            } else if (data.Data.length == 0) {
+  async busquedaPlanes(planB) {
+    try {
+      // Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
+      await this.cargaFormato(planB);
+      console.log(this.banderaEstadoDatos);
+      //validación con bandera para el estado de los datos de los planes.
+      if (this.banderaEstadoDatos === true) {
+        this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
+          this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe(
+            (data: any) => {
+              if (data.Data.length > 0) {
+                this.getVersiones(planB);
+              } else if (data.Data.length == 0) {
+                Swal.fire({
+                  title: 'Formulación nuevo plan',
+                  html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
+                    'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
+                    'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
+                    '<i>Deberá formular el plan</i>',
+                  // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
+                  // Deberá formular un nuevo plan`,
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 7000
+                })
+                this.clonar = true;
+                this.planAsignado = true;
+              }
+            }, (error) => {
               Swal.fire({
-                title: 'Formulación nuevo plan',
-                html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
-                  'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
-                  'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
-                  '<i>Deberá formular el plan</i>',
-                // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
-                // Deberá formular un nuevo plan`,
-                icon: 'warning',
+                title: 'Error en la operación',
+                icon: 'error',
+                text: `${JSON.stringify(error)}`,
                 showConfirmButton: false,
                 timer: 7000
               })
               this.clonar = true;
               this.plan = planB;
             }
+            this.banderaEstadoDatos = false;
           }, (error) => {
             Swal.fire({
               title: 'Error en la operación',
@@ -711,17 +782,30 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500
+
             })
-          })
-    } else {
+      } else {
+        this.dataT = false;
+        Swal.fire({
+          title: 'No hay datos',
+          html: 'No existen datos para el plan <b>' + planB.nombre + '</b> <br>' +
+            'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
+            'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 7000
+        });
+      }
+    } catch (error) {
       Swal.fire({
-        title: 'Error',
-        text: 'No se recibieron datos.',
-        icon: 'error',
-        showConfirmButton: true,
-        timer: 3500
-      });
+        title: 'Error en la operación',
+        text: `error de busquedaPlanes catch No se encontraron datos registrados ${JSON.stringify(error)}`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
     }
+
   }
 
   loadData(planRecienCreado: boolean = false) {
@@ -746,8 +830,15 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.dataSource.sort = this.sort;
         this.dataT = true;
         this.filterActive()
-      } else if (data.Data.data_source == null) {
+      } else if (!data.data_source && !data.displayed_columns) {
         this.dataT = false;
+        Swal.fire({
+          title: 'Atención en la operación',
+          text: `No hay actividades registradas para el plan \n por favor agrege actividad`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 3500
+        })
         if (!planRecienCreado) {
           Swal.fire({
             title: 'Atención en la operación',
@@ -769,37 +860,46 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     })
   }
 
-  cargaFormato(plan) {
+
+  cargaFormato(plan): Promise<void> {
     Swal.fire({
       title: 'Cargando formato',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
-      //if (data) {
-      // Bloque if: Se ejecutará si data no es null y data[0] no es null, y data[1][0] es un objeto no vacío.
-      if (data && data[0] !== null && data[1] && data[1][0] && Object.keys(data[1][0]).length > 0) {
-        Swal.close();
-        this.estado = plan.estado_plan_id;
-        this.steps = data[0]
-        this.json = data[1][0]
-        this.form = this.formBuilder.group(this.json);
-        this.banderaEstadoDatos = true;//bandera validacion de la data
-      } else {
-        this.banderaEstadoDatos = false;//bandera validacion de la data
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
+    return new Promise((resolve) => {
+      this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
+        console.log("en peticion: ", data);
+        if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
+          data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
+          this.banderaEstadoDatos = false;
+          resolve();
+        } else {
+          this.banderaEstadoDatos = true;//bandera validacion de la data
+          Swal.close();
+          this.estado = plan.estado_plan_id;
+          this.steps = data[0];
+          this.json = data[1][0];
+          this.form = this.formBuilder.group(this.json);
+          resolve(data);
+        }
+
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        });
+        resolve();
       })
-    })
+    });
   }
 
   async editar(fila): Promise<void> {
@@ -1096,6 +1196,14 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   formularPlan() {
+    Swal.fire({
+      title: 'Formulando plan...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
     let parametros = {
       "dependencia_id": String(this.unidad.Id),
       "vigencia": String(this.vigencia.Id)
@@ -1149,16 +1257,15 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       } else if (result.dismiss === Swal.DismissReason.cancel) {
 
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   messageIdentificacion(event) {
@@ -1253,16 +1360,15 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                     timer: 2500
                   })
                 }
-              }),
-                (error) => {
-                  Swal.fire({
-                    title: 'Error en la operación',
-                    icon: 'error',
-                    text: `${JSON.stringify(error)}`,
-                    showConfirmButton: false,
-                    timer: 2500
-                  })
-                }
+              },(error) => {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  icon: 'error',
+                  text: `${JSON.stringify(error)}`,
+                  showConfirmButton: false,
+                  timer: 2500
+                })
+              })
             } else {
               Swal.fire({
                 title: 'Error en la operación',
@@ -1363,16 +1469,15 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           timer: 2500
         })
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   enviarRevision() {
@@ -1408,16 +1513,15 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           timer: 2500
         })
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   verificarRevision() {
@@ -1496,7 +1600,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
             })
           }
         })
-
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Envio de Revisión Cancelado',
@@ -1505,16 +1608,15 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           timer: 2500
         })
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
   preAval() {
@@ -1556,16 +1658,15 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           timer: 2500
         })
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 
 
@@ -1614,15 +1715,40 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           timer: 2500
         })
       }
-    }),
-      (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          icon: 'error',
-          text: `${JSON.stringify(error)}`,
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
+    },(error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: JSON.stringify(error),
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  cargarPlan($event: Event) : void {
+    this.auxUnidades.filter(
+      (unidad) => unidad['Id'] == $event['dependencia_id']
+    ).forEach((unidad)=>{
+      this.formSelect.get('selectUnidad').setValue(unidad);
+      this.onChangeU(unidad)
+    });
+
+    this.vigencias.filter(
+      (vigencia) => vigencia['Id'] == $event['vigencia_id']
+    ).forEach((vigencia)=>{
+      this.formSelect.get('selectVigencia').setValue(vigencia);
+      this.onChangeV(vigencia)
+    });
+
+    // Podría haber un error si 2 o más planes que sean formato tengan el mismo nombre
+    this.planes.filter(
+      (plan) => plan['nombre'] == $event['nombre']
+    ).forEach((plan)=>{
+      this.formSelect.get('selectPlan').setValue(plan);
+      this.onChangeP(plan)
+    });
+
+    this.versionDesdeTabla = $event['version']
   }
 }
