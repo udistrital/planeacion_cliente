@@ -77,7 +77,7 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
 
   async cargarPlanes(): Promise<void> {
     Swal.fire({
-      title: 'Cargando planes en formulación',
+      title: 'Cargando planes de acción',
       timerProgressBar: true,
       showConfirmButton: false,
       willOpen: () => {
@@ -86,7 +86,7 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
     });
     await new Promise((resolve, reject) => {
       this.request
-        .get(environment.PRUEBA, `planes_accion`)
+        .get(environment.PLANES_MID, `planes_accion`)
         .subscribe(
           (data) => {
             this.planes = data.Data;
