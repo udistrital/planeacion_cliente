@@ -9,6 +9,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { RequestManager } from '../services/requestManager';
 import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
+import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 
 @Component({
   selector: 'app-plan-accion',
@@ -25,9 +26,9 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
     'estado',
     'acciones',
   ];
-  informacionTabla: MatTableDataSource<any>;
+  informacionTabla: MatTableDataSource<ResumenPlan>;
   inputsFiltros: NodeListOf<HTMLInputElement>;
-  planes: any[];
+  planes: ResumenPlan[];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -35,8 +36,8 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
 
   async ngOnInit() {
     await this.cargarPlanes();
-    this.informacionTabla = new MatTableDataSource<any>(this.planes);
-    this.informacionTabla.filterPredicate = (plan: any, _) => {
+    this.informacionTabla = new MatTableDataSource<ResumenPlan>(this.planes);
+    this.informacionTabla.filterPredicate = (plan: ResumenPlan, _) => {
       let filtrosPasados: number = 0;
       let valoresAComparar = [
         plan.dependencia_nombre.toLowerCase(),

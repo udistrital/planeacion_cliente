@@ -6,7 +6,8 @@ export interface ResumenPlan {
   id: string;
   nombre: string;
   ultima_modificacion: Date;
-  version: number;
+  version?: number;
+  fase?: string;
   vigencia: number;
   vigencia_id: string;
 }
