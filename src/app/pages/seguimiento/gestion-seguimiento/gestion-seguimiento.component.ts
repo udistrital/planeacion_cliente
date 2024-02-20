@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -8,6 +8,8 @@ import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { Location } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
+import { VerificarFormulario } from '../../services/verificarFormulario'
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-seguimiento',
@@ -32,6 +34,7 @@ export class SeguimientoComponentGestion implements OnInit {
   trimestres: any[] = [];
   allActividades: any[];
   estado: string;
+  private miObservableSubscription: Subscription;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -39,7 +42,8 @@ export class SeguimientoComponentGestion implements OnInit {
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
     private router: Router,
-    private _location: Location
+    private _location: Location,
+    private verificarFormulario: VerificarFormulario
   ) {
     activatedRoute.params.subscribe(prm => {
       this.planId = prm['plan_id'];
@@ -74,6 +78,12 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
+  ngOnDestroy() {
+    if (this.verificarFormulario.estadoLista$) {
+      this.verificarFormulario.setEstadoLista(false);
+    }
+  }
+
   getRol() {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
@@ -86,7 +96,13 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   backClicked() {
-    this.router.navigate(['pages/seguimiento/listar-plan-accion-anual/'])
+    this.miObservableSubscription = this.verificarFormulario.estadoLista$.subscribe(estadoLista => {
+      if (estadoLista === true) {
+        this.router.navigate(['pages/pendientes-seguimiento/'])
+      } else {
+        this.router.navigate(['pages/seguimiento/listar-plan-accion-anual/'])
+      }
+    });
   }
 
   applyFilter(event: Event) {
