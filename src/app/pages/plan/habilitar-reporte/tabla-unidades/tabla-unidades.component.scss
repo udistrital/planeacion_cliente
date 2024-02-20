@@ -1,68 +1,60 @@
-table {
+table,
+.paginator {
   width: 80%;
   margin-left: 10%;
 }
 
 th {
   color: white;
-  text-align: center;
+  text-align: center !important;
 }
 
-.btnUnidades-PlanesProyectos {
+.unidades {
   display: flex;
   justify-content: center;
 }
 
-.mat-column-nombre {
-  word-wrap: break-word !important;
-  white-space: unset !important;
-  flex: 0 0 34% !important;
-  width: 34% !important;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
+// .nombre-unidad {
+//   word-wrap: break-word !important;
+//   white-space: unset !important;
+//   flex: 0 0 34% !important;
+//   width: 20% !important;
+//   overflow-wrap: break-word;
+//   word-break: break-word;
+//   -ms-hyphens: auto;
+//   -moz-hyphens: auto;
+//   -webkit-hyphens: auto;
+//   hyphens: auto;
+// }
 
-  word-break: break-word;
-
-  -ms-hyphens: auto;
-  -moz-hyphens: auto;
-  -webkit-hyphens: auto;
-  hyphens: auto;
-}
-
-.mat-column-position {
+.mat-column-index {
   word-wrap: break-word !important;
   white-space: unset !important;
   flex: 0 0 6% !important;
-  width: 15% !important;
   overflow-wrap: break-word;
   word-wrap: break-word;
-
   word-break: break-word;
-
   -ms-hyphens: auto;
   -moz-hyphens: auto;
   -webkit-hyphens: auto;
   hyphens: auto;
-
-  text-align: center;
-  justify-content: center;
+  // text-align: center;
+  // justify-content: center;
 }
 
 .mat-column-actions {
+  // background-color: red;
   word-wrap: break-word !important;
   white-space: unset !important;
   flex: 0 0 6% !important;
   width: 10% !important;
   overflow-wrap: break-word;
   word-wrap: break-word;
-
   word-break: break-word;
-
   -ms-hyphens: auto;
   -moz-hyphens: auto;
   -webkit-hyphens: auto;
   hyphens: auto;
-
   text-align: center;
   justify-content: flex-end;
 }
@@ -136,6 +128,7 @@ th {
   margin: 0% 2% 0% 3%;
 }
 
-.num {
+.num, .col-seleccion {
   width: 10%;
+  text-align: center !important;
 }

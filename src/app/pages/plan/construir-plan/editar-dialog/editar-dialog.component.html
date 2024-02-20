@@ -102,7 +102,7 @@
     </mat-card-content>
     <mat-card-actions style="text-align: center;">
       <ng-container>
-        <button [disabled]="!formEditar.valid" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
+        <button [disabled]="!isFormularioModificado()" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
           [mat-dialog-close]="formEditar.value">
           Guardar
         </button>

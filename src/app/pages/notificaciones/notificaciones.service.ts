@@ -15,13 +15,6 @@ export class NotificacionesService {
 
     constructor(private http: HttpClient) { }
 
-    onSubmit() {
-        const { asunto, destinatarioId, mensaje, token } = this.validarEnvio.value;
-
-        const respuesta = this.enviarNotificacion(asunto, destinatarioId, mensaje);
-        
-    }
-
     verificarSuscripcion(token: any): Observable<any> {
         const elemento = {
             Endpoint: token.email,
