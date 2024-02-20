@@ -101,6 +101,9 @@ import { TablaUnidadesComponent } from './plan/habilitar-reporte/tabla-unidades/
 import { TablaResumenComponent } from './formulacion/tabla-resumen/tabla-resumen.component';
 import { FuncionamientoComponent } from './plan/habilitar-reporte/funcionamiento/funcionamiento.component';
 import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion.component';
+import { NotificacionesComponent } from './notificaciones/notificaciones.component';
+import { TablaPendientesComponent } from './pendientes/tabla-pendientes.component';
+
 
 
 const pagesComponents = [
@@ -121,6 +124,7 @@ const pagesComponents = [
   EditarDialogComponent,
   ArbolComponent,
   PlanAnualComponent,
+  TablaPendientesComponent,
 ];
 
 const materialModules = [
@@ -225,6 +229,8 @@ const MY_FORMATS = {
     TablaResumenComponent,
     FuncionamientoComponent,
     InversionComponent,
+    NotificacionesComponent,
+    TablaPendientesComponent,
   ],
   imports: [
     HttpClientModule,
