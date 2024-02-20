@@ -104,7 +104,6 @@ import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seg
 import { FuncionamientoComponent } from './plan/habilitar-reporte/funcionamiento/funcionamiento.component';
 import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
-import { TablaPendientesComponent } from './pendientes/tabla-pendientes.component';
 
 
 
@@ -235,7 +234,6 @@ const MY_FORMATS = {
     FuncionamientoComponent,
     InversionComponent,
     NotificacionesComponent,
-    TablaPendientesComponent,
   ],
   imports: [
     HttpClientModule,
