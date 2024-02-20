@@ -97,9 +97,13 @@ import { TipoMetaIndicadorComponent } from './banco-de-proyectos/proyectos-inver
 import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-inversion-macro/magnitudes-presupuesto/magnitudes-presupuesto.component';
 import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component';
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
-import { NotificacionesComponent } from './notificaciones/notificaciones.component';
+import { TablaUnidadesComponent } from './plan/habilitar-reporte/tabla-unidades/tabla-unidades.component';
 import { TablaResumenComponent } from './formulacion/tabla-resumen/tabla-resumen.component';
+import { FuncionamientoComponent } from './plan/habilitar-reporte/funcionamiento/funcionamiento.component';
+import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion.component';
+import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 import { TablaPendientesComponent } from './pendientes/tabla-pendientes.component';
+
 
 
 const pagesComponents = [
@@ -221,8 +225,11 @@ const MY_FORMATS = {
     MagnitudesPresupuestoComponent,
     IdentificacionActividadesRecursosComponent,
     ProgramacionPresupuestalComponent,
-    NotificacionesComponent,
+    TablaUnidadesComponent,
     TablaResumenComponent,
+    FuncionamientoComponent,
+    InversionComponent,
+    NotificacionesComponent,
     TablaPendientesComponent,
   ],
   imports: [

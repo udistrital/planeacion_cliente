@@ -10,22 +10,7 @@ import { RequestManager } from '../../../services/requestManager';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import Swal from 'sweetalert2';
-
-export interface Unidades {
-  CorreoElectronico: string;
-  DependenciaTipoDependencia: string;
-  Id: number;
-  Nombre: string;
-  TelefonoDependencia: string;
-  TipoDependencia: any;
-  iconSelected: string;
-  posicion: string;
-}
-
-export interface Unidad {
-  Id: string;
-  Nombre: string;
-}
+import { Unidades } from '../utils/models-habilitar-reporte';
 
 @Component({
   selector: 'app-tabla-unidades',
@@ -50,9 +35,7 @@ export class TablaUnidadesComponent implements OnInit {
     this.banderaTodosSeleccionados = false;
   }
 
-  ngOnInit(): void {
-    console.log('Inicia el componente Tabla-Unidades');
-  }
+  ngOnInit(): void { }
 
   async loadUnidades() {
     const loadingSwal = Swal.fire({
@@ -156,7 +139,6 @@ export class TablaUnidadesComponent implements OnInit {
       );
       this.unidadesInteres.splice(index, 1);
     }
-    console.log('Unidades de interes seleccionadas: ', this.unidadesInteres);
     this.emitirCambiosUnidadesInteres();
   }
 
@@ -173,7 +155,6 @@ export class TablaUnidadesComponent implements OnInit {
     });
 
     // Emite los cambios
-    console.log('Todos seleccionados: ', this.unidadesInteres);
     this.emitirCambiosUnidadesInteres();
   }
 
@@ -188,7 +169,6 @@ export class TablaUnidadesComponent implements OnInit {
     this.unidadesInteres = [];
 
     // Emite los cambios
-    console.log('Ninguno seleccionado: ', this.unidadesInteres);
     this.emitirCambiosUnidadesInteres();
   }
 
