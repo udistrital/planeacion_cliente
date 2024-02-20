@@ -10,7 +10,6 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
 import { UserService } from '../services/userService';
 import { HttpClient } from '@angular/common/http';
 
-
 @Component({
   selector: 'app-formulacion',
   templateUrl: './formulacion.component.html',
@@ -656,10 +655,11 @@ export class FormulacionComponent implements OnInit {
   }
 
   async busquedaPlanes(planB) {
-    //if (this.banderaEstadoDatos == undefined) {
+
     try {
       // Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
       await this.cargaFormato(planB);
+      console.log(this.banderaEstadoDatos);
       //validación con bandera para el estado de los datos de los planes.
       if (this.banderaEstadoDatos === true) {
         this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
@@ -680,6 +680,8 @@ export class FormulacionComponent implements OnInit {
                   showConfirmButton: false,
                   timer: 7000
                 })
+                this.clonar = true;
+                this.planAsignado = true;
               }
             }, (error) => {
               Swal.fire({
@@ -711,7 +713,7 @@ export class FormulacionComponent implements OnInit {
         timer: 2500
       })
     }
-    //}   
+
   }
 
   loadData(planRecienCreado: boolean = false) {
@@ -767,22 +769,22 @@ export class FormulacionComponent implements OnInit {
   }
 
   cargaFormato(plan): Promise<void> {
-    return new Promise<void>(async (resolve) => {
-      Swal.fire({
-        title: 'Cargando formato',
-        timerProgressBar: true,
-        showConfirmButton: false,
-        willOpen: () => {
-          Swal.showLoading();
-        },
-      })
-      try {
-        // Realiza la operación asincrónica, una llamada a una API (ruta peticioon)`${variableEntorno}formato/${datoId}`
-        const data: any = await this.http.get(`${environment.PLANES_MID}formato/${plan._id}`).toPromise();
+    Swal.fire({
+      title: 'Cargando formato',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    return new Promise((resolve) => {
+      this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
+        console.log("en peticion: ", data);
 
         if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
           data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
           this.banderaEstadoDatos = false;
+          resolve();
         } else {
           this.banderaEstadoDatos = true;//bandera validacion de la data
           Swal.close();
@@ -790,21 +792,19 @@ export class FormulacionComponent implements OnInit {
           this.steps = data[0];
           this.json = data[1][0];
           this.form = this.formBuilder.group(this.json);
+          resolve(data);
         }
-        setTimeout(() => {
-          resolve();
-        }, 1000);
-      } catch (error) {
-        console.error('Error en cargaFormato:', error);
-        // Llama a reject() en caso de error, y maneja el error según tus necesidades
+
+      }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
           text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
-        })
-      }
+        });
+        resolve();
+      })
     });
   }
 
