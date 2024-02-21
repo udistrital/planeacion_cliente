@@ -769,21 +769,10 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                 icon: 'error',
                 text: `${JSON.stringify(error)}`,
                 showConfirmButton: false,
-                timer: 7000
-              })
-              this.clonar = true;
-              this.plan = planB;
+                timer: 2500
+              });
             }
-            this.banderaEstadoDatos = false;
-          }, (error) => {
-            Swal.fire({
-              title: 'Error en la operación',
-              text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-
-            })
+          )   
       } else {
         this.dataT = false;
         Swal.fire({
@@ -805,7 +794,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         timer: 2500
       })
     }
-
   }
 
   loadData(planRecienCreado: boolean = false) {
@@ -881,14 +869,16 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           resolve();
         } else {
           this.banderaEstadoDatos = true;//bandera validacion de la data
-          Swal.close();
+          // Espera 8 segundos antes de cerrar la ventana
+          setTimeout(() => {
+            Swal.close();
+          }, 8000);
           this.estado = plan.estado_plan_id;
           this.steps = data[0];
           this.json = data[1][0];
           this.form = this.formBuilder.group(this.json);
           resolve(data);
         }
-
       }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
