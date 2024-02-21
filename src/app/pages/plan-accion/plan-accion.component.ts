@@ -1,15 +1,11 @@
-import {
-  AfterViewInit,
-  Component,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { RequestManager } from '../services/requestManager';
 import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 @Component({
   selector: 'app-plan-accion',
@@ -30,9 +26,29 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
   inputsFiltros: NodeListOf<HTMLInputElement>;
   planes: ResumenPlan[];
 
+  rol: string;
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  constructor(private request: RequestManager) {}
+  constructor(
+    private request: RequestManager,
+    private autenticationService: ImplicitAutenticationService
+  ) {
+    let roles: any = this.autenticationService.getRole();
+    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION';
+    } else if (
+      roles.__zone_symbol__value.find(
+        (x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA'
+      )
+    ) {
+      this.rol = 'JEFE_DEPENDENCIA';
+    } else if (
+      roles.__zone_symbol__value.find((x) => x == 'JEFE_UNIDAD_PLANEACION')
+    ) {
+      this.rol = 'JEFE_UNIDAD_PLANEACION';
+    }
+  }
 
   async ngOnInit() {
     await this.cargarPlanes();
@@ -43,7 +59,7 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
         plan.dependencia_nombre.toLowerCase(),
         plan.vigencia.toString(),
         plan.nombre.toLowerCase(),
-        plan.version == undefined ? 'n/a': plan.version.toString(),
+        plan.version == undefined ? 'n/a' : plan.version.toString(),
         plan.fase.toLowerCase(),
         plan.estado.toLowerCase(),
       ];
@@ -86,9 +102,8 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
       },
     });
     await new Promise((resolve, reject) => {
-      this.request
-        .get(environment.PLANES_MID, `planes_accion`)
-        .subscribe(
+      if (this.rol == 'PLANEACION' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+        this.request.get(environment.PLANES_MID, `planes_accion`).subscribe(
           (data) => {
             this.planes = data.Data;
             if (this.planes.length != 0) {
@@ -119,9 +134,125 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
             reject();
           }
         );
+      } else {
+        // 'JEFE_DEPENDENCIA'
+        //let documento: string = this.autenticationService.getDocument()['__zone_symbol__value'];
+        let documento: string =
+          this.autenticationService.getPayload()['documento'];
+        let idTercero: number;
+        let idDependencia: string;
+        this.request
+          .get(
+            environment.TERCEROS_SERVICE,
+            'datos_identificacion/?query=Numero:' + documento
+          )
+          .subscribe(
+            (data) => {
+              if (data.length == 0) {
+                Swal.close();
+                Swal.fire({
+                  title:
+                    'Han habido problemas trayendo información del usuario',
+                  icon: 'info',
+                  text: 'Intente más tarde',
+                  showConfirmButton: false,
+                  timer: 2500,
+                });
+              } else {
+                idTercero = data[0]['TerceroId']['Id'];
+                this.request
+                  .get(
+                    environment.PLANES_MID,
+                    'formulacion/vinculacion_tercero/' + idTercero
+                  )
+                  .subscribe(
+                    (data) => {
+                      if (data.Data == null) {
+                        Swal.close();
+                        Swal.fire({
+                          title:
+                            'Han habido problemas trayendo información del usuario',
+                          icon: 'info',
+                          text: 'Intente más tarde',
+                          showConfirmButton: false,
+                          timer: 2500,
+                        });
+                      } else {
+                        idDependencia = data.Data['DependenciaId'];
+                        this.request
+                          .get(
+                            environment.PLANES_MID,
+                            `planes_accion/${idDependencia}`
+                          )
+                          .subscribe(
+                            (data) => {
+                              this.planes = data.Data;
+                              if (this.planes.length != 0) {
+                                Swal.close();
+                              } else {
+                                Swal.close();
+                                Swal.fire({
+                                  title: 'No existen registros',
+                                  icon: 'info',
+                                  text: 'No hay planes en formulación',
+                                  showConfirmButton: false,
+                                  timer: 2500,
+                                });
+                              }
+                              resolve(this.planes);
+                            },
+                            (error) => {
+                              Swal.close();
+                              this.planes = [];
+                              console.error(error);
+                              Swal.fire({
+                                title:
+                                  'Error al intentar obtener los planes de acción',
+                                icon: 'error',
+                                text: 'Ingresa más tarde',
+                                showConfirmButton: false,
+                                timer: 2500,
+                              });
+                              reject();
+                            }
+                          );
+                      }
+                    },
+                    (error) => {
+                      Swal.close();
+                      this.planes = [];
+                      console.error(error);
+                      Swal.fire({
+                        title:
+                          'Error al intentar traer información del usuario',
+                        icon: 'error',
+                        text: 'Ingresa más tarde',
+                        showConfirmButton: false,
+                        timer: 2500,
+                      });
+                      reject();
+                    }
+                  );
+              }
+            },
+            (error) => {
+              Swal.close();
+              this.planes = [];
+              console.error(error);
+              Swal.fire({
+                title: 'Error al intentar traer información del usuario',
+                icon: 'error',
+                text: 'Ingresa más tarde',
+                showConfirmButton: false,
+                timer: 2500,
+              });
+              reject();
+            }
+          );
+      }
     });
   }
-  consultar(plan){
-    console.log(plan.ultima_modificacion)
+  consultar(plan) {
+    console.log(plan.ultima_modificacion);
   }
 }
