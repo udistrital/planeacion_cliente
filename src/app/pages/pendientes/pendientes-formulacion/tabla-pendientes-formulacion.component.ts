@@ -3,19 +3,19 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
-import { RequestManager } from '../services/requestManager';
-import { environment } from '../../../environments/environment';
+import { RequestManager } from '../../services/requestManager';
+import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
-import { UserService } from '../services/userService';
-import { VerificarFormulario } from '../services/verificarFormulario'
+import { UserService } from '../../services/userService';
+import { VerificarFormulario } from '../../services/verificarFormulario'
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-tabla-pendientes',
-  templateUrl: './tabla-pendientes.component.html',
-  styleUrls: ['./tabla-pendientes.component.scss'],
+  selector: 'app-tabla-pendientes-formulacion',
+  templateUrl: './tabla-pendientes-formulacion.component.html',
+  styleUrls: ['./tabla-pendientes-formulacion.component.scss'],
 })
-export class TablaPendientesComponent implements OnInit, AfterViewInit {
+export class TablaPendientesFormulacionComponent implements OnInit, AfterViewInit {
   columnasMostradas: string[] = [
     'dependencia',
     'vigencia',
@@ -27,14 +27,6 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
   informacionTabla: MatTableDataSource<ResumenPlan>;
   inputsFiltros: NodeListOf<HTMLInputElement>;
   auxUnidades: any[] = [];
-  // planAux: any;
-  // estadoPlan: string;
-  // addActividad: boolean;
-  // identContratistas: boolean;
-  // identRecursos: boolean;
-  // iconEstado: string;
-  // versionPlan: string;
-  // banderaEstadoDatos: boolean;
   unidad: any;
   vigencias: any[];
   planes: any[];
@@ -49,7 +41,6 @@ export class TablaPendientesComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-    // this.loadPeriodos()
     this.validarUnidad()
     const datosPrueba: ResumenPlan[] = [];
     this.informacionTabla = new MatTableDataSource<ResumenPlan>(datosPrueba);
