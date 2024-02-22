@@ -80,6 +80,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   formSelect: FormGroup;
   private miObservableSubscription: Subscription;
 
+  activedRoute: ActivatedRoute
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
@@ -88,10 +90,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
     private userService: UserService,
-    private route: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
     private verificarFormulario: VerificarFormulario
   ) {
-    this.loadPlanes();
     this.loadPeriodos();
     this.addActividad = false;
     this.planSelected = false;
@@ -115,6 +116,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.rol = 'JEFE_UNIDAD_PLANEACION'
       this.verificarFechas();
     }
+    this.activatedRoute = activatedRoute
   }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -124,7 +126,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   columnsToDisplay: string[]
   dataSource: MatTableDataSource<any>;
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    await this.loadPlanes();
     this.formArmonizacion = this.formBuilder.group({
       selectPED: ['',],
       selectPI: ['',]
@@ -143,6 +146,28 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.onChangeV(formData[1]);
         this.formSelect.get('selectPlan').setValue(formData[0]);
         this.onChangeP(formData[0])
+      }
+    });
+    // dependencia_id, vigencia_id, nombre, version
+    this.activatedRoute.params.subscribe(prm => {
+      let dependencia_id = prm["dependencia_id"]
+      let nombre = prm["nombre"]
+      let vigencia_id = prm["vigencia_id"]
+      let version = prm["version"]
+      console.log(dependencia_id,nombre,vigencia_id,version)
+      if(dependencia_id != undefined && vigencia_id != undefined && version != undefined && nombre != undefined && this.planes != undefined){
+        this.planes.filter((plan)=>{
+          return plan["nombre"] === nombre && plan["dependencia_id"] === dependencia_id && plan["vigencia_id"] === vigencia_id
+        }).forEach((plan)=>{
+          console.log(plan["_id"])
+          let auxPlan: ResumenPlan = {
+            dependencia_id,
+            nombre,
+            vigencia_id,
+            version,
+          };
+          this.cargarPlan(auxPlan)
+        })
       }
     });
   }
@@ -297,19 +322,22 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     })
   }
 
-  loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
-      if (data) {
-        this.planes = data.Data;
-        this.planes = this.filterPlanes(this.planes);
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
+  async loadPlanes() : Promise<void>{
+    await new Promise((resolve,reject)=>{
+      this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
+        if (data) {
+          this.planes = data.Data.filter(plan => plan.tipo_plan_id != "611af8464a34b3599e3799a2");
+          resolve(data.Data)
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+        reject()
       })
     })
   }
@@ -452,11 +480,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     } else {
       return 'Introduzca un valor válido';
     }
-  }
-
-  filterPlanes(data) {
-    var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
-    return dataAux.filter(e => e.activo == true);
   }
 
   onChangeU(unidad) {
@@ -739,7 +762,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         timer: 2500
       })
     }
-    //}   
+    //}
   }
 
   loadData(planRecienCreado: boolean = false) {
@@ -1652,29 +1675,29 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     })
   }
 
-  cargarPlan($event: Event) : void {
+  cargarPlan(planACargar: ResumenPlan) : void {
     this.auxUnidades.filter(
-      (unidad) => unidad['Id'] == $event['dependencia_id']
+      (unidad) => unidad['Id'] == planACargar.dependencia_id
     ).forEach((unidad)=>{
       this.formSelect.get('selectUnidad').setValue(unidad);
       this.onChangeU(unidad)
+      this.vigencias.filter(
+        (vigencia) => vigencia['Id'] == planACargar.vigencia_id
+      ).forEach((vigencia)=>{
+        this.formSelect.get('selectVigencia').setValue(vigencia);
+        this.onChangeV(vigencia)
+        // Podría haber un error si 2 o más planes que sean formato tengan el mismo nombre
+        this.planes.filter(
+          (plan) => plan['nombre'] == planACargar.nombre
+        ).forEach((plan)=>{
+          this.formSelect.get('selectPlan').setValue(plan);
+          this.onChangeP(plan)
+        });
+
+      this.versionDesdeTabla = planACargar.version
+      });
     });
 
-    this.vigencias.filter(
-      (vigencia) => vigencia['Id'] == $event['vigencia_id']
-    ).forEach((vigencia)=>{
-      this.formSelect.get('selectVigencia').setValue(vigencia);
-      this.onChangeV(vigencia)
-    });
 
-    // Podría haber un error si 2 o más planes que sean formato tengan el mismo nombre
-    this.planes.filter(
-      (plan) => plan['nombre'] == $event['nombre']
-    ).forEach((plan)=>{
-      this.formSelect.get('selectPlan').setValue(plan);
-      this.onChangeP(plan)
-    });
-
-    this.versionDesdeTabla = $event['version']
   }
 }

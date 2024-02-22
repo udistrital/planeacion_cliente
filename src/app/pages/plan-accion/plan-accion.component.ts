@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-plan-accion',
@@ -32,7 +33,8 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
 
   constructor(
     private request: RequestManager,
-    private autenticationService: ImplicitAutenticationService
+    private autenticationService: ImplicitAutenticationService,
+    private router: Router
   ) {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
@@ -252,7 +254,26 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
       }
     });
   }
-  consultar(plan) {
-    console.log(plan.ultima_modificacion);
+  consultar(plan: ResumenPlan) {
+    console.log(plan)
+    if (plan.fase.includes('Formulación')) {
+      console.log("hey you");
+
+      this.router.navigate([
+        'pages/formulacion/' + plan.dependencia_id
+        + "/" + plan.nombre
+        + "/" + plan.vigencia_id
+        + "/" + plan.version
+      ]);
+    } else if (plan.fase == 'Seguimiento') {
+      this.router.navigate([
+        'pages/plan/consultar-plan/' +
+          plan.id +
+          '/' +
+          plan.nombre +
+          '/' +
+          /* tipo_plan_id*/ '61639b8c1634adf976ed4b4c',
+      ]);
+    }
   }
 }

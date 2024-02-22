@@ -327,6 +327,10 @@ const routes: Routes = [{
       component: FormulacionComponent,
     },
     {
+      path: 'formulacion/:dependencia_id/:nombre/:vigencia_id/:version',
+      component: FormulacionComponent,
+    },
+    {
       path: 'notificaciones',
       component: NotificacionesComponent,
     },
