@@ -54,7 +54,6 @@ import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyecto
 import { TablaPendientesFormulacionComponent } from './pendientes/pendientes-formulacion/tabla-pendientes-formulacion.component';
 import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seguimiento/tabla-pendientes-seguimiento.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
-import { TablaPendientesComponent } from './pendientes/tabla-pendientes.component';
 
 
 
@@ -330,12 +329,10 @@ const routes: Routes = [{
     {
       path: 'pendientes-seguimiento',
       component: TablaPendientesSeguimientoComponent,
-      path: 'notificaciones',
-      component: NotificacionesComponent,
     },
     {
-      path: 'pendientes',
-      component: TablaPendientesComponent,
+      path: 'notificaciones',
+      component: NotificacionesComponent,
     },
     {
       path: '', redirectTo: 'dashboard', pathMatch: 'full',
