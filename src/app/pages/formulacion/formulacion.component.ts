@@ -161,12 +161,12 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         vigencia_id,
         version,
       };
-      console.log(auxPlan)
+      //console.log(auxPlan)
       if(dependencia_id != undefined && vigencia_id != undefined && version != undefined && nombre != undefined && this.planes != undefined){
         this.planes.filter((plan)=>{
           return plan["nombre"] === nombre && plan["dependencia_id"] === dependencia_id && plan["vigencia"] === vigencia_id
         }).forEach((plan)=>{
-          console.log(plan)
+          console.log("Se obtuvo el formato que coincide con el plan: ",plan)
           this.cargarPlan(auxPlan)
         })
       }
@@ -772,6 +772,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       // Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
       await this.cargaFormato(planB);
       console.log(this.banderaEstadoDatos);
+      console.log(this.unidad.Id);
+      console.log(this.vigencia.Id);
       //validación con bandera para el estado de los datos de los planes.
       if (this.banderaEstadoDatos === true) {
         this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
@@ -1755,12 +1757,15 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     ).forEach((unidad)=>{
       this.formSelect.get('selectUnidad').setValue(unidad);
       this.onChangeU(unidad)
+      console.log('unidad', unidad);
+
     });
     this.vigencias.filter(
       (vigencia) => vigencia['Id'] == planACargar.vigencia_id
     ).forEach((vigencia)=>{
       this.formSelect.get('selectVigencia').setValue(vigencia);
       this.onChangeV(vigencia)
+      console.log('vigencia', vigencia);
     });
     // Podría haber un error si 2 o más planes que sean formato tengan el mismo nombre
     this.planes.filter(
@@ -1768,7 +1773,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     ).forEach((plan)=>{
       this.formSelect.get('selectPlan').setValue(plan);
       this.onChangeP(plan)
+      console.log('plan', plan)
     });
     this.versionDesdeTabla = planACargar.version
+    console.log('version', this.versionDesdeTabla)
   }
 }
