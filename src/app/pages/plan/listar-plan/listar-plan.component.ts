@@ -65,7 +65,6 @@ export class ListarPlanComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('Inicia el componente Listar Planes/Proyectos');
     this.planesMostrar = [];
     if(this.banderaPlanesAccionFuncionamiento){
       this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'fecha_modificacion', 'actions']
@@ -338,7 +337,6 @@ export class ListarPlanComponent implements OnInit {
       );
       this.planesInteres.splice(index, 1);
     }
-    console.log('Planes/Proyectos de interés seleccionados: ', this.planesInteres);
     this.emitirCambiosPlanesInteres();
   }
 

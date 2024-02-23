@@ -80,6 +80,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   formArmonizacion: FormGroup;
   formSelect: FormGroup;
   private miObservableSubscription: Subscription;
+  pendienteCheck: boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -89,10 +90,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
     private userService: UserService,
-    private route: ActivatedRoute,
     private verificarFormulario: VerificarFormulario
   ) {
-    this.loadPlanes();
     this.loadPeriodos();
     this.addActividad = false;
     this.planSelected = false;
@@ -105,6 +104,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.dataT = false;
     this.moduloVisible = false;
     this.isChecked = true;
+    this.pendienteCheck = false;
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
@@ -139,10 +139,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
     this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
       if (formData.length !== 0) {
-        this.formSelect.get('selectUnidad').setValue(formData[2]);
-        this.formSelect.get('selectVigencia').setValue(formData[1]);
+        this.pendienteCheck = true;
+        this.onChangeU(formData[2]);
         this.onChangeV(formData[1]);
-        this.formSelect.get('selectPlan').setValue(formData[0]);
         this.onChangeP(formData[0])
       }
     });
@@ -299,11 +298,22 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
-      if (data) {
-        this.planes = data.Data;
-        this.planes = this.filterPlanes(this.planes);
+    Swal.fire({
+      title: 'Cargando datos...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
       }
+    });
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,dependencia_id:${this.unidad.Id},formato:false,vigencia:${this.vigencia.Id}`).subscribe((data: any) => {
+      if (data) {
+        if (data.Data.length > 0) {
+          this.planes = data.Data;
+          this.planes = this.filterPlanes(this.planes);
+        }
+      }
+      this.loadPlanesPeriodoSeguimiento();
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
@@ -313,6 +323,41 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         timer: 2500
       })
     })
+  }
+
+  loadPlanesPeriodoSeguimiento() {
+    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/buscar-unidad/${this.unidad.Id}`).subscribe((data: any) => {
+      if (data) {
+        data.Data.forEach(elemento => {
+          if (elemento.planes_interes) {
+            if (typeof elemento.planes_interes === 'string') {
+              try {
+                const planesInteresArray = JSON.parse(elemento.planes_interes);
+                this.planes = [...this.planes, ...planesInteresArray];
+                Swal.close();
+              } catch (error) {
+                console.error('Error al analizar JSON en planes_interes:', error);
+              }
+            } else {
+              console.error('El elemento no tiene una cadena JSON en planes_interes:', elemento);
+            }
+          }
+        });
+      }
+      Swal.close();
+      if (this.planes.length == 0) {
+        Swal.fire({
+          title: 'Planes no encontrados',
+          html: 'No tiene asignados planes/proyectos asociados para la dependencia <b>'
+            + this.unidad.Nombre + '</b> y la <br> vigencia <b>' + this.vigencia.Nombre
+            + '</b><br></br>',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 7000
+        })
+      }
+    })
+
   }
 
   onKey(value) {
@@ -457,7 +502,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
   filterPlanes(data) {
     var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
-    return dataAux.filter(e => e.activo == true);
+    return dataAux;
   }
 
   onChangeU(unidad) {
@@ -498,6 +543,12 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
+      this.loadPlanes();
+      this.banderaEstadoDatos = false;
+      this.planSelected = false;
+      this.plan = undefined;
+      this.planAsignado = false;
+      this.dataT = false;
       if (this.unidadSelected && this.planSelected) {
         this.busquedaPlanes(this.planAux);
       }
@@ -516,12 +567,13 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
+      this.banderaEstadoDatos = false;
+      this.plan = undefined;
+      this.planAsignado = false;
+      this.dataT = false;
+      this.isChecked = true;
       this.busquedaPlanes(plan);
     }
-  }
-
-  onChangeSelect(opcion) {
-
   }
 
   onChangePD(planD) {
@@ -660,9 +712,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           });
           this.plan =
             this.versiones[
-              this.versionDesdeTabla == undefined || this.versionDesdeTabla > this.versiones.length
-                ? this.versiones.length - 1
-                : this.versionDesdeTabla - 1
+            this.versionDesdeTabla == undefined || this.versionDesdeTabla > this.versiones.length
+              ? this.versiones.length - 1
+              : this.versionDesdeTabla - 1
             ];
           this.planAsignado = true;
           this.clonar = false;
@@ -672,7 +724,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           this.versionPlan = this.plan.numero;
           this.getEstado();
         }
-      },(error) => {
+      }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
@@ -685,11 +737,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   async busquedaPlanes(planB) {
-
     try {
       // Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
       await this.cargaFormato(planB);
-      console.log(this.banderaEstadoDatos);
       //validación con bandera para el estado de los datos de los planes.
       if (this.banderaEstadoDatos === true) {
         this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
@@ -719,8 +769,10 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                 icon: 'error',
                 text: `${JSON.stringify(error)}`,
                 showConfirmButton: false,
-                timer: 2500
-              });
+                timer: 7000
+              })
+              this.clonar = true;
+              this.plan = planB;
             })
       } else {
         this.dataT = false;
@@ -743,7 +795,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         timer: 2500
       })
     }
-
   }
 
   loadData(planRecienCreado: boolean = false) {
@@ -798,32 +849,36 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     })
   }
 
+
   cargaFormato(plan): Promise<void> {
     Swal.fire({
       title: 'Cargando formato',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
     })
     return new Promise((resolve) => {
       this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
-        console.log("en peticion: ", data);
         if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
           data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
           this.banderaEstadoDatos = false;
           resolve();
         } else {
           this.banderaEstadoDatos = true;//bandera validacion de la data
-          Swal.close();
+          // Espera 8 segundos antes de cerrar la ventana
+          setTimeout(() => {
+            Swal.close();
+          }, 8000);
           this.estado = plan.estado_plan_id;
           this.steps = data[0];
           this.json = data[1][0];
           this.form = this.formBuilder.group(this.json);
           resolve(data);
         }
-
       }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
@@ -1131,6 +1186,14 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   formularPlan() {
+    Swal.fire({
+      title: 'Formulando plan...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
     let parametros = {
       "dependencia_id": String(this.unidad.Id),
       "vigencia": String(this.vigencia.Id)
@@ -1184,7 +1247,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       } else if (result.dismiss === Swal.DismissReason.cancel) {
 
       }
-    },(error) => {
+    }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
         icon: 'error',
@@ -1287,7 +1350,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                     timer: 2500
                   })
                 }
-              },(error) => {
+              }, (error) => {
                 Swal.fire({
                   title: 'Error en la operación',
                   icon: 'error',
@@ -1642,7 +1705,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           timer: 2500
         })
       }
-    },(error) => {
+    }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
         icon: 'error',
@@ -1653,17 +1716,17 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     })
   }
 
-  cargarPlan($event: Event) : void {
+  cargarPlan($event: Event): void {
     this.auxUnidades.filter(
       (unidad) => unidad['Id'] == $event['dependencia_id']
-    ).forEach((unidad)=>{
+    ).forEach((unidad) => {
       this.formSelect.get('selectUnidad').setValue(unidad);
       this.onChangeU(unidad)
     });
 
     this.vigencias.filter(
       (vigencia) => vigencia['Id'] == $event['vigencia_id']
-    ).forEach((vigencia)=>{
+    ).forEach((vigencia) => {
       this.formSelect.get('selectVigencia').setValue(vigencia);
       this.onChangeV(vigencia)
     });
@@ -1671,7 +1734,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     // Podría haber un error si 2 o más planes que sean formato tengan el mismo nombre
     this.planes.filter(
       (plan) => plan['nombre'] == $event['nombre']
-    ).forEach((plan)=>{
+    ).forEach((plan) => {
       this.formSelect.get('selectPlan').setValue(plan);
       this.onChangeP(plan)
     });
