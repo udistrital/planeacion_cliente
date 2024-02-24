@@ -8,8 +8,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { UserService } from '../services/userService';
-import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
 import { VerificarFormulario } from '../services/verificarFormulario'
 import { Subscription } from 'rxjs';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
@@ -328,7 +326,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/buscar-unidad/${this.unidad.Id}`).subscribe((data: any) => {
       if (data) {
         data.Data.forEach(elemento => {
-          if (elemento.planes_interes) {
+          if (elemento.planes_interes && elemento.planes_interes.length > 0 && elemento.periodo_id == '46') {
             if (typeof elemento.planes_interes === 'string') {
               try {
                 const planesInteresArray = JSON.parse(elemento.planes_interes);
