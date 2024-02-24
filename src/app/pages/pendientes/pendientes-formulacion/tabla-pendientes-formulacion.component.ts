@@ -23,13 +23,17 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
     'version',
     'estado',
     'acciones',
+    'seleccionar'
   ];
-  informacionTabla: MatTableDataSource<ResumenPlan>;
+  informacionTabla: MatTableDataSource<any>;
   inputsFiltros: NodeListOf<HTMLInputElement>;
   auxUnidades: any[] = [];
   unidad: any;
   vigencias: any[];
   planes: any[];
+  planesInteres: any;
+  banderaTodosSeleccionados: boolean;
+  datosCargados: boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -38,13 +42,17 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
     private userService: UserService,
     private verificarFormulario: VerificarFormulario,
     private router: Router
-  ) { }
+  ) {
+    this.planesInteres = [];
+    this.banderaTodosSeleccionados = false;
+    this.datosCargados = false;
+  }
 
   ngOnInit(): void {
     this.validarUnidad()
-    const datosPrueba: ResumenPlan[] = [];
-    this.informacionTabla = new MatTableDataSource<ResumenPlan>(datosPrueba);
-    this.informacionTabla.filterPredicate = (plan: ResumenPlan, _) => {
+    const datosPrueba: any[] = [];
+    this.informacionTabla = new MatTableDataSource<any>(datosPrueba);
+    this.informacionTabla.filterPredicate = (plan: any, _) => {
       let filtrosPasados: number = 0;
       let valoresAComparar = [
         plan.dependencia_nombre.toLowerCase(),
@@ -106,16 +114,23 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
               acc[key] = obj;
             }
             return acc;
-          }, {} as Record<string, ResumenPlan>);
+          }, {} as Record<string, any>);
 
           // Obtenemos los valores del objeto, que representan la data filtrada
-          const auxData = Object.values(latestVersions).filter((obj: ResumenPlan) => obj.estado === "Revisado")
-          const filteredData: ResumenPlan[] = auxData as ResumenPlan[];
+          const auxData = Object.values(latestVersions).filter((obj: any) => obj.estado === "Revisado")
+          const filteredData: any[] = auxData;
 
-          this.informacionTabla = new MatTableDataSource(filteredData);
+          const estadoSeleccion = filteredData.map(pl => ({
+            ...pl,
+            seleccionado: false
+          }));
+
+          this.informacionTabla = new MatTableDataSource(estadoSeleccion);
           this.informacionTabla.paginator = this.paginator;
+          this.datosCargados = true;
           Swal.close();
           if (this.informacionTabla.filteredData.length == 0) {
+            this.datosCargados = false;
             Swal.fire({
               title: 'Atención en la operación',
               text: `No hay planes pendientes para verificar`,
@@ -227,5 +242,138 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
         timer: 2500
       })
     })
+  }
+
+  seleccionarPlan(plan) {
+    if (!plan.seleccionado) {
+      plan.seleccionado = true;
+      this.planesInteres = [...this.planesInteres, plan];
+    } else if (plan.seleccionado) {
+      if (this.banderaTodosSeleccionados) {
+        this.borrarSeleccion()
+      } else {
+        plan.seleccionado = false;
+        let unidadEliminar = plan.id;
+        const index = this.planesInteres.findIndex(
+          (x: { id: any }) => x.id == unidadEliminar
+        );
+        this.planesInteres.splice(index, 1);
+
+        this.banderaTodosSeleccionados = false;
+      }
+    }
+  }
+
+  seleccionarTodos() {
+    Swal.fire({
+      title: 'Seleccionar Todos los planes/proyectos',
+      text: `¿Desea seleccionar todos los planes/proyectos?`,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.banderaTodosSeleccionados = true;
+        this.planesInteres = this.informacionTabla.data
+
+        // Itera sobre los elementos y cambia el icono
+        for (const plan of this.informacionTabla.data) {
+          plan.seleccionado = true;
+        }
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Selección de todos los planes/proyectos cancelada',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  borrarSeleccion() {
+    this.banderaTodosSeleccionados = false;
+    // Itera sobre los elementos y cambia el icono a 'compare_arrows'
+    for (const plan of this.informacionTabla.data) {
+      plan.seleccionado = false;
+    }
+
+    // Limpia el array de unidades de interés
+    this.planesInteres = [];
+  }
+
+  verificarSeleccion() {
+    Swal.fire({
+      title: 'Verificar Revisión',
+      text: `¿Desea verificar la revisión de los planes/proyectos seleccionados?`,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.planesInteres.forEach(plan => {
+          const auxPlan = {
+            fecha_creacion: plan.fecha_creacion,
+            activo: plan.activo,
+            aplicativo_id: plan.aplicativo_id,
+            tipo_plan_id: plan.tipo_plan_id,
+            descripcion: plan.descripcion,
+            estado_plan_id: "65bbf86918f02a27a456d20f",
+            _id: plan.id,
+            nombre: plan.nombre
+          }
+          this.request.put(environment.PLANES_CRUD, `plan`, auxPlan, auxPlan._id).subscribe((data: any) => {
+            if (data) {
+              Swal.fire({
+                title: 'Revisión Verficada Enviada',
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  const actualUrl = this.router.url;
+                  this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                    this.router.navigate([actualUrl]);
+                  });
+                }
+              })
+            }
+          }, (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              icon: 'error',
+              text: `El plan ${plan.nombre} está generando error en su aprobación, intente más tarde o comuniquese con la OATI`,
+              showConfirmButton: false,
+              timer: 2500
+            })
+          })
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Envio de Revisión Verificada Cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 }
