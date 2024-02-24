@@ -100,7 +100,7 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
   loadData() {
     this.mostrarMensajeCarga();
     this.loadVigencias();
-    this.request.get(environment.PARAMETROS_SERVICE, `/parametro_periodo?query=ParametroId.TipoParametroId.CodigoAbreviacion%3AP_SISGPLAN`).subscribe(
+    this.request.get(environment.PARAMETROS_SERVICE, `/parametro_periodo?query=ParametroId.TipoParametroId.CodigoAbreviacion:P_SISGPLAN,Activo:true`).subscribe(
       (data: DataRequest) => {
         if (data) {
           this.parametros = data.Data;
@@ -126,8 +126,8 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
 
   inactivar(parametroPeriodo: ParametroPeriodo) {
     Swal.fire({
-      title: 'Inhabilitar Parámetro',
-      text: `¿Está seguro de inhabilitar el parámetro?`,
+      title: 'Inactivar Parámetro',
+      text: `¿Está seguro de inactivar el parámetro?`,
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
