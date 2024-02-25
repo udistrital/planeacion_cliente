@@ -82,8 +82,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   private miObservableSubscription: Subscription;
   pendienteCheck: boolean;
 
-  activedRoute: ActivatedRoute
-
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
@@ -95,18 +93,16 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private verificarFormulario: VerificarFormulario
   ) {
-    this.loadPeriodos();
-    let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
-      this.rol = 'PLANEACION'
-      this.loadUnidades();
-    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
-      this.rol = 'JEFE_DEPENDENCIA'
-      this.verificarFechas();
-    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_UNIDAD_PLANEACION')) {
-      this.rol = 'JEFE_UNIDAD_PLANEACION'
-      this.verificarFechas();
-    }
+   this.loadPeriodos();
+    this.formArmonizacion = this.formBuilder.group({
+      selectPED: ['',],
+      selectPI: ['',]
+    });
+    this.formSelect = this.formBuilder.group({
+      selectUnidad: ['',],
+      selectVigencia: ['',],
+      selectPlan: ['',]
+    });
     this.addActividad = false;
     this.planSelected = false;
     this.unidadSelected = false;
@@ -119,7 +115,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.moduloVisible = false;
     this.isChecked = true;
     this.pendienteCheck = false;
-    this.activatedRoute = activatedRoute
   }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -129,18 +124,24 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   columnsToDisplay: string[]
   dataSource: MatTableDataSource<any>;
 
-  async ngOnInit() {
-    await this.loadPlanes();
-    this.formArmonizacion = this.formBuilder.group({
-      selectPED: ['',],
-      selectPI: ['',]
-    });
-
-    this.formSelect = this.formBuilder.group({
-      selectUnidad: ['',],
-      selectVigencia: ['',],
-      selectPlan: ['',]
-    });
+  async ngOnInit(){
+    let roles: any = this.autenticationService.getRole();
+    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION';
+      await this.loadUnidades();
+    } else if (
+      roles.__zone_symbol__value.find(
+        (x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA'
+      )
+    ) {
+      this.rol = 'JEFE_DEPENDENCIA';
+      await this.verificarFechas();
+    } else if (
+      roles.__zone_symbol__value.find((x) => x == 'JEFE_UNIDAD_PLANEACION')
+    ) {
+      this.rol = 'JEFE_UNIDAD_PLANEACION';
+      await this.verificarFechas();
+    }
 
     this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
       if (formData.length !== 0) {
@@ -151,25 +152,23 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       }
     });
     // dependencia_id, vigencia_id, nombre, version
-    this.activatedRoute.params.subscribe(prm => {
-      let dependencia_id = prm["dependencia_id"]
-      let nombre = prm["nombre"]
-      let vigencia_id = prm["vigencia_id"]
-      let version = prm["version"]
-      let auxPlan: ResumenPlan = {
-        dependencia_id,
-        nombre,
-        vigencia_id,
-        version,
-      };
-      //console.log(auxPlan)
-      if(dependencia_id != undefined && vigencia_id != undefined && version != undefined && nombre != undefined && this.planes != undefined){
-        this.planes.filter((plan)=>{
-          return plan["nombre"] === nombre && plan["dependencia_id"] === dependencia_id && plan["vigencia"] === vigencia_id
-        }).forEach((plan)=>{
-          console.log("Se obtuvo el formato que coincide con el plan: ",plan)
-          this.cargarPlan(auxPlan)
-        })
+    this.activatedRoute.params.subscribe(async (prm) => {
+      let dependencia_id = prm['dependencia_id'];
+      let vigencia_id = prm['vigencia_id'];
+      let nombre = prm['nombre'];
+      let version = prm['version'];
+      if (
+        dependencia_id != undefined &&
+        vigencia_id != undefined &&
+        nombre != undefined &&
+        version != undefined
+      ) {
+        await this.cargarPlan({
+          dependencia_id,
+          vigencia_id,
+          nombre,
+          version,
+        } as ResumenPlan);
       }
     });
   }
@@ -207,105 +206,156 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     }
   }
 
-  verificarFechas() {
-    this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: any) => {
-      if (data) {
-        if (data.Data.length != 0) {
-          let seguimientoFormulacion = data.Data[0];
-          let auxFecha = new Date();
-          let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
-          let strFechaHoy = new Date(auxFechaCol).toISOString();
-          let fechaHoy = new Date(strFechaHoy);
-          let fechaInicio = new Date(seguimientoFormulacion["fecha_inicio"]);
-          let fechaFin = new Date(seguimientoFormulacion["fecha_fin"]);
-          if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
-            this.validarUnidad();
-          } else {
-            this.moduloVisible = false;
-            Swal.fire({
-              title: 'Error en la operación',
-              text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
-              icon: 'warning',
-              showConfirmButton: true,
-              timer: 10000
-            })
-          }
-        } else {
-          Swal.fire({
-            title: 'Error en la operación',
-            text: `No se encuentran fechas establecidas para la formulación. Intente más tarde.`,
-            icon: 'warning',
-            showConfirmButton: true,
-            timer: 10000
-          })
-        }
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
-  }
-
-  validarUnidad() {
-    this.userService.user$.subscribe((data) => {
-      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
-        .subscribe((datosInfoTercero: any) => {
-          this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
-            .subscribe((vinculacion: any) => {
-              if (vinculacion["Data"] != "") {
-                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
-                  if (dataUnidad) {
-                    let unidad = dataUnidad[0]["DependenciaId"]
-                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
-                    for (let i = 0; i < dataUnidad.length; i++) {
-                      if (dataUnidad[i]["TipoDependenciaId"]["Id"] === 2) {
-                        unidad["TipoDependencia"] = dataUnidad[i]["TipoDependenciaId"]["Id"]
-                      }
-                    }
-                    this.unidades.push(unidad);
-                    this.auxUnidades.push(unidad);
-                    this.formSelect.get('selectUnidad').setValue(unidad);
-                    this.onChangeU(unidad);
-                    this.moduloVisible = true;
-                  }
-                })
+  async verificarFechas() {
+    return await new Promise((resolve, reject) => {
+      this.request
+        .get(
+          environment.PLANES_CRUD,
+          `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`
+        )
+        .subscribe(
+          async (data: any) => {
+            if (data) {
+              if (data.Data.length != 0) {
+                let seguimientoFormulacion = data.Data[0];
+                let auxFecha = new Date();
+                let auxFechaCol = auxFecha.toLocaleString('en-US', {
+                  timeZone: 'America/Mexico_City',
+                });
+                let strFechaHoy = new Date(auxFechaCol).toISOString();
+                let fechaHoy = new Date(strFechaHoy);
+                let fechaInicio = new Date(
+                  seguimientoFormulacion['fecha_inicio']
+                );
+                let fechaFin = new Date(seguimientoFormulacion['fecha_fin']);
+                if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
+                  await this.validarUnidad();
+                  resolve(this.auxUnidades);
+                } else {
+                  this.moduloVisible = false;
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
+                    icon: 'warning',
+                    showConfirmButton: true,
+                    timer: 10000,
+                  });
+                  reject();
+                }
               } else {
-                this.moduloVisible = false;
                 Swal.fire({
                   title: 'Error en la operación',
-                  text: `No cuenta con los permisos requeridos para acceder a este módulo`,
+                  text: `No se encuentran fechas establecidas para la formulación. Intente más tarde.`,
                   icon: 'warning',
-                  showConfirmButton: false,
-                  timer: 4000
-                })
+                  showConfirmButton: true,
+                  timer: 10000,
+                });
+                reject();
               }
-            })
-        })
-
-    })
+            }
+          },
+          (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron datos registrados ${JSON.stringify(
+                error
+              )}`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500,
+            });
+          }
+        );
+    });
   }
 
-  loadUnidades() {
-    this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
-      if (data) {
-        this.unidades = data.Data;
-        this.auxUnidades = data.Data;
-        this.moduloVisible = true;
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
+  async validarUnidad() {
+    return await new Promise((resolve, reject) => {
+      this.userService.user$.subscribe((data) => {
+        this.request
+          .get(
+            environment.TERCEROS_SERVICE,
+            `datos_identificacion/?query=Numero:` +
+              data['userService']['documento']
+          )
+          .subscribe((datosInfoTercero: any) => {
+            this.request
+              .get(
+                environment.PLANES_MID,
+                `formulacion/vinculacion_tercero/` +
+                  datosInfoTercero[0].TerceroId.Id
+              )
+              .subscribe((vinculacion: any) => {
+                if (vinculacion['Data'] != '') {
+                  this.request
+                    .get(
+                      environment.OIKOS_SERVICE,
+                      `dependencia_tipo_dependencia?query=DependenciaId:` +
+                        vinculacion['Data']['DependenciaId']
+                    )
+                    .subscribe((dataUnidad: any) => {
+                      if (dataUnidad) {
+                        let unidad = dataUnidad[0]['DependenciaId'];
+                        unidad['TipoDependencia'] =
+                          dataUnidad[0]['TipoDependenciaId']['Id'];
+                        for (let i = 0; i < dataUnidad.length; i++) {
+                          if (dataUnidad[i]['TipoDependenciaId']['Id'] === 2) {
+                            unidad['TipoDependencia'] =
+                              dataUnidad[i]['TipoDependenciaId']['Id'];
+                          }
+                        }
+                        this.unidades.push(unidad);
+                        this.auxUnidades.push(unidad);
+                        this.formSelect.get('selectUnidad').setValue(unidad);
+                        this.onChangeU(unidad);
+                        this.moduloVisible = true;
+                        resolve(unidad);
+                      }
+                    });
+                } else {
+                  this.moduloVisible = false;
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    text: `No cuenta con los permisos requeridos para acceder a este módulo`,
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    timer: 4000,
+                  });
+                  reject();
+                }
+              });
+          });
+      });
+    });
+  }
+
+  async loadUnidades() {
+    return new Promise((resolve, reject) => {
+      this.request
+        .get(environment.PLANES_MID, `formulacion/get_unidades`)
+        .subscribe(
+          (data: any) => {
+            if (data) {
+              this.unidades = data.Data;
+              this.auxUnidades = data.Data;
+              this.moduloVisible = true;
+              resolve(this.unidades);
+            }
+          },
+          (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron datos registrados ${JSON.stringify(
+                error
+              )}`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500,
+            });
+            reject(error);
+          }
+        );
+    });
   }
 
   loadPeriodos() {
@@ -324,7 +374,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     })
   }
 
-  async loadPlanes() : Promise<void>{
+  async loadPlanes() {
     Swal.fire({
       title: 'Cargando datos...',
       allowEscapeKey: false,
@@ -333,58 +383,80 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         Swal.showLoading();
       }
     });
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,formato:false`/*+`dependencia_id:${this.unidad.Id},,vigencia:${this.vigencia.Id}`*/).subscribe((data: any) => {
-      if (data) {
-        if(data.Data.length > 0){
-          this.planes = data.Data;
-          this.planes = this.filterPlanes(this.planes);
+    return await new Promise((resolve,reject)=>{
+      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,dependencia_id:${this.unidad.Id},formato:false,vigencia:${this.vigencia.Id}`).subscribe(async (data: any) => {
+        if ( data?.Data.length > 0 ) {
+          this.planes = data.Data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
         }
-      }
-      this.loadPlanesPeriodoSeguimiento();
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
+        await this.loadPlanesPeriodoSeguimiento();
+        resolve(this.planes)
+      }, (error) => {
+        Swal.close()
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+        reject(error)
       })
     })
   }
 
-  loadPlanesPeriodoSeguimiento(){
-    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/buscar-unidad/${this.unidad.Id}`).subscribe((data: any) => {
-      if (data) {
-        data.Data.forEach(elemento => {
-          if (elemento.planes_interes) {
-            if (typeof elemento.planes_interes === 'string') {
-              try {
-                const planesInteresArray = JSON.parse(elemento.planes_interes);
-                this.planes = [...this.planes, ...planesInteresArray];
-                Swal.close();
-              } catch (error) {
-                console.error('Error al analizar JSON en planes_interes:', error);
+  async loadPlanesPeriodoSeguimiento(){
+    return await new Promise((resolve, reject) => {
+      this.request
+        .get(
+          environment.PLANES_CRUD,
+          `periodo-seguimiento/buscar-unidad/${this.unidad.Id}`
+        )
+        .subscribe((data: any) => {
+          if (data) {
+            data.Data.forEach((elemento) => {
+              if (elemento.planes_interes) {
+                if (typeof elemento.planes_interes === 'string') {
+                  try {
+                    const planesInteresArray = JSON.parse(
+                      elemento.planes_interes
+                    );
+                    this.planes = [...this.planes, ...planesInteresArray];
+                    Swal.close();
+                    resolve(this.planes);
+                  } catch (error) {
+                    console.error(
+                      'Error al analizar JSON en planes_interes:',
+                      error
+                    );
+                    reject(error);
+                  }
+                } else {
+                  console.error(
+                    'El elemento no tiene una cadena JSON en planes_interes:',
+                    elemento
+                  );
+                  reject();
+                }
               }
-            } else {
-              console.error('El elemento no tiene una cadena JSON en planes_interes:', elemento);
-            }
+            });
+          }
+          Swal.close();
+          if (this.planes.length == 0) {
+            Swal.fire({
+              title: 'Planes no encontrados',
+              html:
+                'No tiene asignados planes/proyectos asociados para la dependencia <b>' +
+                this.unidad.Nombre +
+                '</b> y la <br> vigencia <b>' +
+                this.vigencia.Nombre +
+                '</b><br></br>',
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 7000,
+            });
           }
         });
-      }
-      Swal.close();
-      if (this.planes.length == 0) {
-        Swal.fire({
-          title: 'Planes no encontrados',
-          html: 'No tiene asignados planes/proyectos asociados para la dependencia <b>'
-            + this.unidad.Nombre + '</b> y la <br> vigencia <b>' + this.vigencia.Nombre
-            + '</b><br></br>',
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 7000
-        })
-      }
-    })
-
+    });
   }
 
   onKey(value) {
@@ -527,12 +599,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     }
   }
 
-  filterPlanes(data) {
-    var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
-    return dataAux;
-  }
-
-  onChangeU(unidad) {
+  async onChangeU(unidad) {
     if (unidad == undefined) {
       this.unidadSelected = false;
     } else {
@@ -542,11 +609,11 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.identRecursos = false;
       this.identContratistas = false;
       this.banderaIdentDocentes = this.mostrarIdentDocente(unidad);
-      this.estadoPlan = "";
-      this.iconEstado = "";
-      this.versionPlan = "";
+      this.estadoPlan = '';
+      this.iconEstado = '';
+      this.versionPlan = '';
       if (this.vigenciaSelected && this.planSelected) {
-        this.busquedaPlanes(this.planAux);
+        await this.busquedaPlanes(this.planAux);
       }
     }
   }
@@ -558,7 +625,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     else return false
   }
 
-  onChangeV(vigencia) {
+  async onChangeV(vigencia) {
     if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
@@ -570,14 +637,14 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
-      this.loadPlanes();
+      await this.loadPlanes();
       this.banderaEstadoDatos = false;
       this.planSelected = false;
       this.plan = undefined;
       this.planAsignado = false;
       this.dataT = false;
       if (this.unidadSelected && this.planSelected) {
-        this.busquedaPlanes(this.planAux);
+        await this.busquedaPlanes(this.planAux);
       }
     }
   }
@@ -888,22 +955,19 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         Swal.showLoading();
       },
     })
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
         if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
           data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
           this.banderaEstadoDatos = false;
-          resolve();
+          reject()
         } else {
           this.banderaEstadoDatos = true;//bandera validacion de la data
-          // Espera 8 segundos antes de cerrar la ventana
-          setTimeout(() => {
-            Swal.close();
-          }, 8000);
           this.estado = plan.estado_plan_id;
           this.steps = data[0];
           this.json = data[1][0];
           this.form = this.formBuilder.group(this.json);
+          Swal.close()
           resolve(data);
         }
       }, (error) => {
@@ -914,7 +978,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           showConfirmButton: false,
           timer: 2500
         });
-        resolve();
+        reject();
       })
     });
   }
@@ -1742,32 +1806,59 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       })
     })
   }
+  /**
+   * Obtiene el elemento filtrado por los valores dados y actualiza su campo respectivo
+   * @param arreglo Lista de elementos en los cuales se va a buscar un elemento teniendo en cuenta un parametro de busqueda y el valor esperado
+   * @param parametroFiltro parametro de busqueda por el cual se buscará
+   * @param selectFormulario select relacionado al formulario de el elemento
+   * @param valor valor por el cual se filtrará
+   * @returns elemento que cumpla con los valores dados
+   */
+  obtenerElemento(arreglo: any[], parametroFiltro:string, selectFormulario:string, valor: string|number): any{
+    let elementos = arreglo.filter((elemento) => elemento[parametroFiltro] == valor)
+    if(elementos.length > 0){
+      this.formSelect.get(selectFormulario).setValue(elementos[0]);
+      return elementos[0]
+    } else {
+      console.error(
+        'No se encontró un elemento con los valores dados, verifique que los datos esten bien'
+      );
+      return null;
+    }
+  }
 
-  cargarPlan(planACargar: ResumenPlan) : void {
-    this.auxUnidades.filter(
-      (unidad) => unidad['Id'] == planACargar.dependencia_id
-    ).forEach((unidad) => {
-      this.formSelect.get('selectUnidad').setValue(unidad);
-      this.onChangeU(unidad)
-      console.log('unidad', unidad);
-
-    });
-    this.vigencias.filter(
-      (vigencia) => vigencia['Id'] == planACargar.vigencia_id
-    ).forEach((vigencia) => {
-      this.formSelect.get('selectVigencia').setValue(vigencia);
-      this.onChangeV(vigencia)
-      console.log('vigencia', vigencia);
-    });
-    // Podría haber un error si 2 o más planes que sean formato tengan el mismo nombre
-    this.planes.filter(
-      (plan) => plan['nombre'] == planACargar.nombre
-    ).forEach((plan) => {
-      this.formSelect.get('selectPlan').setValue(plan);
-      this.onChangeP(plan)
-      console.log('plan', plan)
-    });
-
-    this.versionDesdeTabla = planACargar.version
+  async cargarPlan(planACargar: ResumenPlan) {
+    // Se obtiene la unidad especificada para cargarla en los desplegables
+    await this.onChangeU(
+      this.obtenerElemento(
+        this.auxUnidades,
+        'Id',
+        'selectUnidad',
+        Number(planACargar.dependencia_id)
+      )
+    );
+    // Se obtiene la vigencia especificada para cargarla en los desplegables
+    await this.onChangeV(
+      this.obtenerElemento(
+        this.vigencias,
+        'Id',
+        'selectVigencia',
+        planACargar.vigencia_id
+      )
+    );
+    // En este punto se deben haber cargado los planes por la función 'onChangeV'
+    if (this.planes != undefined) {
+      this.onChangeP(
+        this.obtenerElemento(
+          this.planes,
+          'nombre',
+          'selectPlan',
+          planACargar.nombre
+        )
+      );
+      this.versionDesdeTabla = planACargar.version;
+    } else {
+      console.error('No se han cargado los planes');
+    }
   }
 }

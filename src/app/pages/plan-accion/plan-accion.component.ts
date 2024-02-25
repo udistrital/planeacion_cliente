@@ -257,8 +257,6 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
   consultar(plan: ResumenPlan) {
     console.log(plan)
     if (plan.fase.includes('Formulación')) {
-      console.log("hey you");
-
       this.router.navigate([
         'pages/formulacion/' + plan.dependencia_id
         + "/" + plan.nombre
@@ -266,6 +264,7 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
         + "/" + plan.version
       ]);
     } else if (plan.fase == 'Seguimiento') {
+      console.log("Nos vamos pa seguimiento");
       this.router.navigate([
         'pages/plan/consultar-plan/' +
           plan.id +
