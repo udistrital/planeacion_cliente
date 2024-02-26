@@ -313,6 +313,10 @@ const routes: Routes = [{
           component: SeguimientoComponentList,
         },
         {
+          path: 'listar-plan-accion-anual/:vigencia_id/:nombre_plan/:unidad_id',
+          component: SeguimientoComponentList,
+        },
+        {
           path: 'gestion-seguimiento/:plan_id/:trimestre',
           component: SeguimientoComponentGestion,
         },
