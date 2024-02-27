@@ -960,7 +960,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
           data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
           this.banderaEstadoDatos = false;
-          reject()
+          reject();
         } else {
           this.banderaEstadoDatos = true;//bandera validacion de la data
           this.estado = plan.estado_plan_id;
