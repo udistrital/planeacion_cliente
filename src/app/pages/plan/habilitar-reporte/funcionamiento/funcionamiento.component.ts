@@ -86,6 +86,8 @@ export class FuncionamientoComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
+      this.loadTrimestres(this.vigencia);
+      if (this.tipoSelected) this.loadFechas();
     }
   }
 
