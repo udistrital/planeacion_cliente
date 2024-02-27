@@ -55,6 +55,7 @@ import { TablaPendientesFormulacionComponent } from './pendientes/pendientes-for
 import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seguimiento/tabla-pendientes-seguimiento.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 
+import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
 
 
 const routes: Routes = [{
@@ -96,6 +97,10 @@ const routes: Routes = [{
         {
           path: 'habilitar-reporte',
           component: HabilitarReporteComponent,
+        },
+        {
+          path: 'gestion-parametros',
+          component: GestionParametrosComponent
         }
       ]
     },
