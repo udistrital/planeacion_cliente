@@ -99,6 +99,7 @@ import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 import { TablaUnidadesComponent } from './plan/habilitar-reporte/tabla-unidades/tabla-unidades.component';
 import { TablaResumenComponent } from './formulacion/tabla-resumen/tabla-resumen.component';
+import { PlanAccionComponent } from './plan-accion/plan-accion.component';
 import { TablaPendientesFormulacionComponent } from './pendientes/pendientes-formulacion/tabla-pendientes-formulacion.component';
 import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seguimiento/tabla-pendientes-seguimiento.component';
 import { FuncionamientoComponent } from './plan/habilitar-reporte/funcionamiento/funcionamiento.component';
@@ -106,8 +107,6 @@ import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion
 import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
 import { FormParametrosComponent } from './plan/gestion-parametros/form-parametros/form-parametros.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
-
-
 
 const pagesComponents = [
   DashboardComponent,
@@ -231,6 +230,7 @@ const MY_FORMATS = {
     ProgramacionPresupuestalComponent,
     TablaUnidadesComponent,
     TablaResumenComponent,
+    PlanAccionComponent,
     TablaPendientesFormulacionComponent,
     TablaPendientesSeguimientoComponent,
     FuncionamientoComponent,
