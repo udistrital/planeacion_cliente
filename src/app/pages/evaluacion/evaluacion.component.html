@@ -139,95 +139,80 @@
             <ng-container matColumnDef="Brecha" sticky>
               <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [ngStyle]="{'display': 'none'}"></th>
               <td mat-cell *matCellDef="let row" [ngClass]="[row.class, campoBrecha]">
-                <!-- porcentaje -->
-                <div *ngIf="row.trimestre1 && row.unidad =='Porcentaje' && row.trimestre1.meta" [ngClass]=" {
-                    'brecha-verde': abs(( (row.meta)/100) - row.trimestre1.meta) <= 0.10,
-                    'brecha-amarillo': abs(( (row.meta)/100) - row.trimestre1.meta) > 0.10 && (( (row.meta)/100) - row.trimestre1.meta) <= 0.20,
-                    'brecha-rojo': abs(( (row.meta)/100) - row.trimestre1.meta) > 0.20 || row.trimestre1.meta > (row.meta)/100
-                  }">
-                  {{abs(((row.meta)/100) - row.trimestre1.meta) | percent:'1.1-2':'es'}}
+                <!--Porcentaje-->
+                <div *ngIf="row.trimestre1 && row.unidad =='Porcentaje' && row.trimestre1.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre1.meta !== 0; else noAplicaContent">
+                    {{abs(((row.meta)/100) - row.trimestre1.meta) | percent:'1.1-2':'es'}}
+                  </ng-container>
                 </div>
-                <div *ngIf="row.trimestre2 && row.unidad =='Porcentaje' && row.trimestre2.meta" [ngClass]="{
-                    'brecha-verde': abs(((row.meta)/100) - row.trimestre2.meta) <= 0.10,
-                    'brecha-amarillo': abs(((row.meta)/100) - row.trimestre2.meta) > 0.10 && (( (row.meta)/100) - row.trimestre2.meta) <= 0.20,
-                    'brecha-rojo': abs(((row.meta)/100) - row.trimestre2.meta) > 0.20
-                  }">
-                  {{abs(((row.meta)/100) - row.trimestre2.meta) | percent:'1.1-2':'es'}}
+                <div *ngIf="row.trimestre2 && row.unidad =='Porcentaje' && row.trimestre2.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre2.meta !== 0; else noAplicaContent">
+                    {{abs(((row.meta)/100) - row.trimestre2.meta) | percent:'1.1-2':'es'}}                
+                  </ng-container>
                 </div>
-                <div *ngIf="row.trimestre3 && row.unidad =='Porcentaje' && row.trimestre3.meta" [ngClass]="{
-                    'brecha-verde': abs(( (row.meta)/100) - row.trimestre3.meta) <= 0.10,
-                    'brecha-amarillo': abs(( (row.meta)/100) - row.trimestre3.meta) > 0.10 && (( (row.meta)/100) - row.trimestre3.meta) <= 0.20,
-                    'brecha-rojo': abs(( (row.meta)/100) - row.trimestre3.meta) > 0.20
-                  }">
-                  {{abs(((row.meta)/100) - row.trimestre3.meta) | percent:'1.1-2':'es'}}
+                
+                <div *ngIf="row.trimestre3 && row.unidad =='Porcentaje' && row.trimestre3.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre3.meta !== 0; else noAplicaContent">
+                    {{abs(((row.meta)/100) - row.trimestre3.meta) | percent:'1.1-2':'es'}}               
+                  </ng-container>
                 </div>
-                <div *ngIf="row.trimestre4 && row.unidad =='Porcentaje' && row.trimestre4.meta" [ngClass]="{
-                    'brecha-verde': abs(( (row.meta)/100) - row.trimestre4.meta) <= 0.10,
-                    'brecha-amarillo': abs(( (row.meta)/100) - row.trimestre4.meta) > 0.10 && (( (row.meta)/100) - row.trimestre4.meta) <= 0.20,
-                    'brecha-rojo': abs(( (row.meta)/100) - row.trimestre4.meta) > 0.20
-                  }">
-                  {{abs(((row.meta)/100) - row.trimestre4.meta) | percent:'1.1-2':'es'}}
+
+                <div *ngIf="row.trimestre4 && row.unidad =='Porcentaje' && row.trimestre4.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre4.meta !== 0; else noAplicaContent">
+                    {{abs(((row.meta)/100) - row.trimestre4.meta) | percent:'1.1-2':'es'}}               
+                  </ng-container>
                 </div>
 
                 <!-- Unidad -->
-                <div *ngIf="row.trimestre1 && row.unidad =='Unidad'  && row.trimestre1.meta" [ngClass]="{
-                    'brecha-verde': abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) <= 0.10,
-                    'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) > 0.10 && (((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) <= 0.20,
-                    'brecha-rojo': abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) > 0.20
-                  }">
-                  {{abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                <div *ngIf="row.trimestre1 && row.unidad =='Unidad' && row.trimestre1.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre1.meta !== 0; else noAplicaContent">
+                    {{abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                  </ng-container>
                 </div>
-                <div *ngIf="row.trimestre2 && row.unidad =='Unidad' && row.trimestre2.meta" [ngClass]="{
-                    'brecha-verde': abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  <= 0.10,
-                    'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  > 0.10 && (((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  <= 0.20,
-                    'brecha-rojo': abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100))  > 0.20
-                  }">
-                  {{abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                <div *ngIf="row.trimestre2 && row.unidad =='Unidad' && row.trimestre2.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre2.meta !== 0; else noAplicaContent">
+                    {{abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                  </ng-container>
                 </div>
-                <div *ngIf="row.trimestre3 && row.unidad =='Unidad' && row.trimestre3.meta" [ngClass]="{
-                    'brecha-verde': abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100)) <= 0.10,
-                    'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100))  > 0.10 && (((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100))  <= 0.20,
-                    'brecha-rojo': abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100)) > 0.20
-                  }">
-                  {{(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+
+                <div *ngIf="row.trimestre3 && row.unidad === 'Unidad' && row.trimestre3.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre3.meta !== 0; else noAplicaContent">
+                    {{abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                  </ng-container>
                 </div>
-                <div *ngIf="row.trimestre4 && row.unidad =='Unidad' && row.trimestre4.meta" [ngClass]="{
-                    'brecha-verde': abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) <= 0.10,
-                    'brecha-amarillo': abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) > 0.10 && (((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) <= 0.20,
-                    'brecha-rojo': abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) > 0.20
-                  }">
-                  {{abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                                
+                <div *ngIf="row.trimestre4 && row.unidad =='Unidad' && row.trimestre4.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre4.meta !== 0; else noAplicaContent">
+                    {{abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
+                  </ng-container>
                 </div>
 
                 <!-- Tasa -->
-                <div *ngIf="row.trimestre1 && row.unidad =='Tasa'  && row.trimestre1.meta" [ngClass]="{
-                    'brecha-verde': abs(row.meta - row.trimestre1.meta) <= 0.10,
-                    'brecha-amarillo': abs(row.meta - row.trimestre1.meta) > 0.10 && (row.meta - row.trimestre1.meta) <= 0.20,
-                    'brecha-rojo': abs(row.meta - row.trimestre1.meta) > 0.20
-                  }">
-                  {{abs((row.meta - row.trimestre1.meta)) | percent:'1.1-2':'es'}}
+                <div *ngIf="row.trimestre1 && row.unidad =='Tasa' && row.trimestre1.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre1.meta !== 0; else noAplicaContent">
+                    {{ abs((row.meta - row.trimestre1.meta)) | percent:'1.1-2':'es'}}
+                  </ng-container>
                 </div>
-                <div *ngIf="row.trimestre2 && row.unidad =='Tasa' && row.trimestre2.meta" [ngClass]="{
-                    'brecha-verde': abs(row.meta - row.trimestre2.meta) <= 0.10,
-                    'brecha-amarillo': abs(row.meta - row.trimestre2.meta) > 0.10 && (row.meta - row.trimestre2.meta) <= 0.20,
-                    'brecha-rojo': abs(row.meta - row.trimestre2.meta) > 0.20
-                  }">
-                  {{abs(row.meta - row.trimestre2.meta) | percent:'1.1-2':'es'}}
+                <div *ngIf="row.trimestre2 && row.unidad =='Tasa' && row.trimestre2.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre2.meta !== 0; else noAplicaContent">
+                    {{ abs((row.meta - row.trimestre2.meta)) | percent:'1.1-2':'es'}} 
+                  </ng-container>
                 </div>
-                <div *ngIf="row.trimestre3 && row.unidad =='Tasa' && row.trimestre3.meta" [ngClass]="{
-                    'brecha-verde': abs(row.meta - row.trimestre3.meta) <= 0.10,
-                    'brecha-amarillo': abs(row.meta - row.trimestre3.meta) > 0.10 && (row.meta - row.trimestre3.meta) <= 0.20,
-                    'brecha-rojo': abs(row.meta - row.trimestre3.meta) > 0.20
-                  }">
-                  {{abs(row.meta - row.trimestre3.meta) | percent:'1.1-2':'es'}}
+                <div *ngIf="row.trimestre3 && row.unidad =='Tasa' && row.trimestre3.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre3.meta !== 0; else noAplicaContent">
+                    {{ row.trimestre3.meta | percent:'1.1-2':'es'}}
+                  </ng-container>
                 </div>
-                <div *ngIf="row.trimestre4 && row.unidad =='Tasa' && row.trimestre4.meta" [ngClass]="{
-                    'brecha-verde': abs(row.meta - row.trimestre4.meta) <= 0.10,
-                    'brecha-amarillo': abs(row.meta - row.trimestre4.meta) > 0.10 && (row.meta - row.trimestre4.meta) <= 0.20,
-                    'brecha-rojo': abs(row.meta - row.trimestre4.meta) > 0.20
-                  }">
-                  {{abs(row.meta - row.trimestre4.meta) | percent:'1.1-2':'es'}}
+                <div *ngIf="row.trimestre4 && row.unidad =='Tasa' && row.trimestre4.meta >= 0" [ngClass]="calcularBrecha(row)">
+                  <ng-container *ngIf="row.trimestre4.meta !== 0; else noAplicaContent">
+                    {{ abs((row.meta - row.trimestre4.meta)) | percent:'1.1-2':'es'}}
+                  </ng-container>
                 </div>
+
+                <ng-template #noAplicaContent>
+                  NA
+                </ng-template>
+
               </td>
               <td mat-footer-cell *matFooterCellDef [ngStyle]="{'display': 'none'}"></td>
             </ng-container>
