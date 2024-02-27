@@ -104,6 +104,8 @@ import { TablaPendientesFormulacionComponent } from './pendientes/pendientes-for
 import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seguimiento/tabla-pendientes-seguimiento.component';
 import { FuncionamientoComponent } from './plan/habilitar-reporte/funcionamiento/funcionamiento.component';
 import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion.component';
+import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
+import { FormParametrosComponent } from './plan/gestion-parametros/form-parametros/form-parametros.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 
 const pagesComponents = [
@@ -233,6 +235,8 @@ const MY_FORMATS = {
     TablaPendientesSeguimientoComponent,
     FuncionamientoComponent,
     InversionComponent,
+    GestionParametrosComponent,
+    FormParametrosComponent,
     NotificacionesComponent,
   ],
   imports: [

@@ -149,21 +149,25 @@ th.mat-header-cell {
   background-color: white;
 }
 
+.cdk-column-BrechaP {
+  padding: 0 10px !important;
+}
+
 .cdk-column-Brecha {
   padding: 0 !important;
-
-  .column-Brecha {
+    
+  /*.column-Brecha {
     width: 100%;
-    height: 6vh;
+    height: 8vh;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
+  }*/
   
   .brecha-verde { 
     background-color: #c0e19b;   
     width: 100%;
-    height: 6vh;
+    min-height: 12vh;
     display: flex;
     align-items: center;
     justify-content: center; 
@@ -172,7 +176,7 @@ th.mat-header-cell {
   .brecha-amarillo { 
     background-color: #ffff7c;
     width: 100%;
-    height: 6vh;
+    min-height: 12vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -181,7 +185,7 @@ th.mat-header-cell {
   .brecha-rojo { 
     background-color: #a36463;
     width: 100%;
-    height: 6vh;
+    min-height: 12vh;
     display: flex;
     align-items: center;
     justify-content: center;

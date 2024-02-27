@@ -10,7 +10,7 @@ import { RequestManager } from '../../../services/requestManager';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import Swal from 'sweetalert2';
-import { Unidades } from '../utils/models-habilitar-reporte';
+import { Unidades } from '../utils/habilitar-reporte.models';
 
 @Component({
   selector: 'app-tabla-unidades',
