@@ -17,7 +17,7 @@ import es from '@angular/common/locales/es';
 export class EvaluacionComponent implements OnInit {
   pieTitle = 'Cumplimiento general Plan de Acción -';
   pieType = 'PieChart';
-  columnType = 'ColumnChart';
+  columnType = 'ColumnChart'; 
   spans = [];
 
   pieChartColumns = [
@@ -173,8 +173,81 @@ export class EvaluacionComponent implements OnInit {
     }
   }
 
+  //convertir a entero en vista
   abs(value: number): number {
     return Math.abs(value);
+  }
+
+  //agregar color al campo Brecha
+  colorBrecha(brecha: number): string {
+    if (brecha <= 0.10) {
+      return 'brecha-verde';
+    } else if (brecha > 0.10 && brecha <= 0.20) {
+      return 'brecha-amarillo';
+    } else {
+      return 'brecha-rojo';
+    }
+  }
+
+  //calculos y validaciones Brecha
+  calcularBrecha(row: any): string {
+    if (row.trimestre1 && row.trimestre1.meta) {
+      if(row.unidad === 'Porcentaje'){
+        const brecha = Math.abs((row.meta / 100) - row.trimestre1.meta);
+        return this.colorBrecha(brecha);
+      } else if (row.unidad === 'Unidad') {
+        const brecha = Math.abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100));
+        return this.colorBrecha(brecha);
+      } else if (row.unidad === 'Tasa') {
+        const brecha = Math.abs((row.meta - row.trimestre1.meta));
+        return this.colorBrecha(brecha);
+      } else {
+        return '';
+      }
+    }
+    if (row.trimestre2 && row.trimestre2.meta) {
+      if(row.unidad === 'Porcentaje'){
+        const brecha = Math.abs((row.meta / 100) - row.trimestre2.meta);
+        return this.colorBrecha(brecha);
+      } else if (row.unidad === 'Unidad') {
+        const brecha = Math.abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100));
+        return this.colorBrecha(brecha);
+      } else if (row.unidad === 'Tasa') {
+        const brecha = Math.abs((row.meta - row.trimestre2.meta));
+        return this.colorBrecha(brecha);
+      } else {
+        return '';
+      }
+    }
+    if (row.trimestre3 && row.trimestre3.meta) {
+      if(row.unidad === 'Porcentaje'){
+        const brecha = Math.abs((row.meta / 100) - row.trimestre3.meta);
+        return this.colorBrecha(brecha);
+      } else if (row.unidad === 'Unidad') {
+        const brecha = Math.abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100));
+        return this.colorBrecha(brecha);
+      } else if (row.unidad === 'Tasa') {
+        const brecha = Math.abs((row.meta - row.trimestre3.meta));
+        return this.colorBrecha(brecha);
+      } else {
+        return '';
+      }
+    }
+    if (row.trimestre4 && row.trimestre4.meta) {
+      if(row.unidad === 'Porcentaje'){
+        const brecha = Math.abs((row.meta / 100) - row.trimestre4.meta);
+        return this.colorBrecha(brecha);
+      } else if (row.unidad === 'Unidad') {
+        const brecha = Math.abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100));
+        return this.colorBrecha(brecha);
+      } else if (row.unidad === 'Tasa') {
+        const brecha = Math.abs((row.meta - row.trimestre4.meta));
+        return this.colorBrecha(brecha);
+      } else {
+        return '';
+      }
+    }
+    return ''; //si no se cumple ninguna condición
   }
 
   validarUnidad() {
