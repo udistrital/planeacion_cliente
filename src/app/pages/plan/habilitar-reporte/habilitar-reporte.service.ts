@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
-import { Vigencia } from './utils/models-habilitar-reporte';
+import { Vigencia } from './utils/habilitar-reporte.models';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 
 @Injectable({
