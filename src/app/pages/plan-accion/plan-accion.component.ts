@@ -255,7 +255,6 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
     });
   }
   consultar(plan: ResumenPlan) {
-    console.log(plan)
     if (plan.fase.includes('Formulación')) {
       this.router.navigate([
         'pages/formulacion/' + plan.dependencia_id
@@ -264,57 +263,11 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
         + "/" + plan.version
       ]);
     } else if (plan.fase == 'Seguimiento') {
-      console.log("Nos vamos pa seguimiento");
-      console.log(plan)
-      // listar-plan-accion-anual/:vigencia_id/:nombre_plan/:unidad_id
       this.router.navigate([
         'pages/seguimiento/listar-plan-accion-anual/' + plan.vigencia_id
         + "/" + plan.nombre
         + "/" + plan.dependencia_id
       ]);
-
-      // // gestion-seguimiento/:plan_id/:trimestre abreviatura
-      // this.request
-      //   .get(environment.PLANES_CRUD, `seguimiento?query=plan_id:${plan.id}`)
-      //   .subscribe(
-      //     (data) => {
-      //       if (data?.Data.length > 0) {
-      //         let planesEnSeguimiento: any[] = data.Data;
-      //         let planElegido = planesEnSeguimiento[0]
-      //         this.request
-      //           .get(
-      //             environment.PLANES_CRUD,
-      //             `periodo-seguimiento?query=_id:${planElegido["periodo_seguimiento_id"]}`
-      //           )
-      //           .subscribe(
-      //             (data) => {
-      //               if (data?.Data.length > 0){
-      //                 let periodoSeguimiento = data.Data[0]
-      //                 this.request
-      //                   .get(
-      //                     environment.PARAMETROS_SERVICE,
-      //                     `parametro_periodo?query=Id:${periodoSeguimiento['periodo_id']}`
-      //                   ).subscribe((data)=>{
-      //                     if(data?.Data.length > 0){
-      //                       this.router.navigate([
-      //                         `pages/seguimiento/gestion-seguimiento/${plan.id}/${data['Data'][0]['ParametroId']['CodigoAbreviacion']}`,
-      //                       ]);
-
-      //                     }
-      //                   })
-      //               }
-      //             },
-      //             (error) => {
-      //               console.error(error);
-      //             }
-      //           );
-      //       }
-      //     },
-      //     (error) => {
-      //       console.error(error);
-      //     }
-      //   );
-
     }
   }
 }

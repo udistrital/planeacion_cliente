@@ -231,7 +231,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     })
   }
 
-  loadFechas() {
+  async loadFechas() {
     if (this.vigencia) {
       Swal.fire({
         title: 'Cargando períodos',
@@ -241,101 +241,110 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
           Swal.showLoading();
         },
       })
+      await new Promise((resolve,reject)=>{
+        this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe(async (data: any) => {
+          if (data) {
+            if (data.Data != "" && data.Data != null) {
+              let periodos = data.Data;
+              if (periodos.length > 0) {
+                this.trimestres = { t1: {}, t2: {}, t3: {}, t4: {} }
+                for (let i = 0; i < periodos.length; i++) {
+                  await new Promise((resolve,reject)=>{
+                    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe(async (data: any) => {
+                      if (data && data.Data != "") {
+                        let seguimiento = data.Data[0];
 
-      this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe(async (data: any) => {
-        if (data) {
-          if (data.Data != "" && data.Data != null) {
-            let periodos = data.Data;
+                        let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
+                        let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
 
-            if (periodos.length > 0) {
-              this.trimestres = { t1: {}, t2: {}, t3: {}, t4: {} }
-              for (let i = 0; i < periodos.length; i++) {
-                await this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe((data: any) => {
-                  if (data && data.Data != "") {
-                    let seguimiento = data.Data[0];
+                        if (i == 0) {
+                          this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
+                          this.formFechas.get('fecha2').setValue(fechaFin.toLocaleDateString());
+                          this.trimestres.t1 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                        } else if (i == 1) {
+                          this.formFechas.get('fecha3').setValue(fechaInicio.toLocaleDateString());
+                          this.formFechas.get('fecha4').setValue(fechaFin.toLocaleDateString());
+                          this.trimestres.t2 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                        } else if (i == 2) {
+                          this.formFechas.get('fecha5').setValue(fechaInicio.toLocaleDateString());
+                          this.formFechas.get('fecha6').setValue(fechaFin.toLocaleDateString());
+                          this.trimestres.t3 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                        } else if (i == 3) {
+                          this.formFechas.get('fecha7').setValue(fechaInicio.toLocaleDateString());
+                          this.formFechas.get('fecha8').setValue(fechaFin.toLocaleDateString());
+                          this.trimestres.t4 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                        }
 
-                    let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
-                    let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
+                        if (Object.keys(this.trimestres.t1).length !== 0 &&
+                          Object.keys(this.trimestres.t2).length !== 0 &&
+                          Object.keys(this.trimestres.t3).length !== 0 &&
+                          Object.keys(this.trimestres.t4).length !== 0) {
+                          let datos = this.allPlanes.filter(plan => plan.vigencia == this.vigencia.Nombre);
 
-                    if (i == 0) {
-                      this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
-                      this.formFechas.get('fecha2').setValue(fechaFin.toLocaleDateString());
-                      this.trimestres.t1 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                    } else if (i == 1) {
-                      this.formFechas.get('fecha3').setValue(fechaInicio.toLocaleDateString());
-                      this.formFechas.get('fecha4').setValue(fechaFin.toLocaleDateString());
-                      this.trimestres.t2 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                    } else if (i == 2) {
-                      this.formFechas.get('fecha5').setValue(fechaInicio.toLocaleDateString());
-                      this.formFechas.get('fecha6').setValue(fechaFin.toLocaleDateString());
-                      this.trimestres.t3 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                    } else if (i == 3) {
-                      this.formFechas.get('fecha7').setValue(fechaInicio.toLocaleDateString());
-                      this.formFechas.get('fecha8').setValue(fechaFin.toLocaleDateString());
-                      this.trimestres.t4 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                    }
-
-                    if (Object.keys(this.trimestres.t1).length !== 0 &&
-                      Object.keys(this.trimestres.t2).length !== 0 &&
-                      Object.keys(this.trimestres.t3).length !== 0 &&
-                      Object.keys(this.trimestres.t4).length !== 0) {
-                      let datos = this.allPlanes.filter(plan => plan.vigencia == this.vigencia.Nombre);
-
-                      this.dataSource.data = datos;
-                      if (this.rol != undefined && this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
-                        this.evaluarFechasPlan();
+                          this.dataSource.data = datos;
+                          if (this.rol != undefined && this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+                            await this.evaluarFechasPlan();
+                          }
+                          Swal.close();
+                          resolve(true)
+                        }
+                      } else {
+                        Swal.fire({
+                          title: 'Error en la operación',
+                          text: `No se encontraron datos registrados`,
+                          icon: 'warning',
+                          showConfirmButton: false,
+                          timer: 2500
+                        });
+                        this.limpiarCampoFechas();
+                        reject()
                       }
-                      Swal.close();
-                    }
-                  } else {
-                    Swal.fire({
-                      title: 'Error en la operación',
-                      text: `No se encontraron datos registrados`,
-                      icon: 'warning',
-                      showConfirmButton: false,
-                      timer: 2500
-                    });
-                    this.limpiarCampoFechas();
-                  }
-                }, (error) => {
-                  Swal.fire({
-                    title: 'Error en la operación',
-                    text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-                    icon: 'warning',
-                    showConfirmButton: false,
-                    timer: 2500
-                  });
-                  this.limpiarCampoFechas();
-                })
+                    }, (error) => {
+                      Swal.fire({
+                        title: 'Error en la operación',
+                        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+                        icon: 'warning',
+                        showConfirmButton: false,
+                        timer: 2500
+                      });
+                      this.limpiarCampoFechas();
+                      reject(error)
+                    })
+                  })
+                }
+                resolve(true)
+              } else {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No se encuentran tirmestres habilitados para esta vigencia`,
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 2500
+                });
+                this.limpiarCampoFechas();
+                reject()
               }
             } else {
               Swal.fire({
                 title: 'Error en la operación',
-                text: `No se encuentran tirmestres habilitados para esta vigencia`,
+                text: `No se encontraron trimestres para esta vigencia`,
                 icon: 'warning',
                 showConfirmButton: false,
                 timer: 2500
               });
               this.limpiarCampoFechas();
+              reject()
             }
-          } else {
-            Swal.fire({
-              title: 'Error en la operación',
-              text: `No se encontraron trimestres para esta vigencia`,
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-            });
-            this.limpiarCampoFechas();
           }
-        }
-      }, (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2500
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+          reject(error)
         })
       })
     } else {
@@ -366,7 +375,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       }
       const plan = this.dataSource.data[index];
       for (let trimestre in this.trimestres) {
-        await new Promise((resolve, reject) => {
+        await new Promise(async (resolve, reject) => {
           this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,plan_id:` + plan._id + `,periodo_seguimiento_id:` + this.trimestres[trimestre]["id"]).subscribe(async (data: any) => {
             if (data.Data.length != 0) {
               let estadoTemp;
@@ -409,8 +418,10 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               }
               this.dataSource.data[index][trimestre + "estado"] = estadoTemp;
               this.allPlanes = this.dataSource.data;
+              resolve(true);
+            } else {
+              reject()
             }
-            resolve(true);
           });
         });
       }
@@ -443,6 +454,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       }
     }
     this.allPlanes = this.dataSource.data;
+    this.dataSource.filter = ""
     this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
   }
 
@@ -450,6 +462,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.limpiarCampoFechas();
     this.vigencia = vigencia;
     this.dataSource.data = this.planes;
+    this.dataSource.filter = ""; // Quita los filtros de la tabla
     this.auxPlanes = [];
     this.plan = undefined;
     if (!(this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined))) {
@@ -459,9 +472,10 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         await this.loadPlanes("unidad");
       }
     }
+
   }
 
-  async loadPlanes(tipo) {
+  async loadPlanes(tipo: string) {
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
@@ -483,7 +497,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             await this.getVigencias();
             this.dataSource.data = this.planes;
             this.allPlanes = this.dataSource.data;
-            this.loadFechas();
+            await this.loadFechas();
             this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
             Swal.close();
             resolve(true);
@@ -503,6 +517,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             reject(false);
           }
         }, (error) => {
+          Swal.close();
           Swal.fire({
             title: 'Error en la operación',
             text: 'No se encontraron datos registrados',
@@ -510,13 +525,12 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             showConfirmButton: false,
             timer: 2500
           })
-          Swal.close();
           reject(error)
         })
       });
     } else if (tipo == 'vigencia') {
       return await new Promise((resolve,reject)=>{
-        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id}`).subscribe((data: any) => {
+        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id}`).subscribe(async (data: any) => {
           if (data) {
             if (data.Data.length != 0) {
               data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });
@@ -532,7 +546,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                   this.auxPlanes.push(plan);
                 }
               });
-              this.loadFechas();
+              await this.loadFechas();
               this.dataSource.data = this.planes;
               this.allPlanes = this.dataSource.data;
               this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
@@ -560,7 +574,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             showConfirmButton: false,
             timer: 2500
           })
-          reject();
+          reject(error);
         })
       })
     }
@@ -686,7 +700,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                         showConfirmButton: false,
                         timer: 2500
                       })
-                      reject(false);
+                      reject(error);
                     })
                   }
                 }, (error) => {
@@ -697,7 +711,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                     showConfirmButton: false,
                     timer: 2500
                   })
-                  reject(false);
+                  reject(error);
                 })
               });
             } else {
@@ -785,30 +799,19 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     let elementos = arreglo.filter((elemento) => elemento[parametroFiltro] == valor)
     if(elementos.length > 0){
       form.get(selectFormulario).setValue(elementos[0]);
-      console.log("Elemento encontrado con las mismas propiedades:", elementos[0])
       return elementos[0]
-    } else {
-      console.error(
-        'No se encontró un elemento con los valores dados, verifique que los datos esten bien'
-      );
-      return null;
     }
   }
 
   async cargarPlan(planACargar: ResumenPlan){
-    // console.log(`Plan a cargar:`, planACargar);
-    // console.log(this.vigencias);
-    let vigencia = this.obtenerElemento(
+    await this.onChangeV(this.obtenerElemento(
       this.vigencias,
       'Id',
       this.formFechas,
       'selectVigencia',
       Number(planACargar.vigencia_id)
-    )
-    // console.log(vigencia)
-    await this.onChangeV(vigencia);
-    // console.log(this.auxPlanes)
-    this.onChangeP(
+    ));
+    await this.onChangeP(
       this.obtenerElemento(
         this.auxPlanes,
         'nombre',
@@ -819,7 +822,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     );
     this.dataSource.filter = planACargar.nombre
     this.dataSource.filterPredicate = (plan, _) => {
-       return plan["nombre"] === planACargar.nombre
+      return plan["nombre"] === planACargar.nombre && planACargar.dependencia_id === plan["dependencia_id"]
     }
   }
 }
