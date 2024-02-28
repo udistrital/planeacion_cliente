@@ -56,6 +56,7 @@ import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seg
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 import { PlanAccionComponent } from './plan-accion/plan-accion.component';
 
+import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
 
 
 const routes: Routes = [{
@@ -102,6 +103,10 @@ const routes: Routes = [{
           path: 'consultar-plan',
           component: PlanAccionComponent,
         },
+        {
+          path: 'gestion-parametros',
+          component: GestionParametrosComponent
+        }
       ]
     },
     {

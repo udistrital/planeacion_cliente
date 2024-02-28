@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
 import { DataRequest } from '../../../../@core/models/interfaces/DataRequest.interface';
-import { Periodo, PeriodoSeguimiento, Unidad, Vigencia } from '../utils/models-habilitar-reporte';
+import { Periodo, PeriodoSeguimiento, Unidad, Vigencia } from '../utils/habilitar-reporte.models';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { HabilitarReporteService } from '../habilitar-reporte.service';
 import { PROCESO_INVERSION_FORMULACION, PROCESO_INVERSION_SEGUIMIENTO } from '../utils/constantes';
