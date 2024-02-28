@@ -215,9 +215,9 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
         if (data) {
           this.vigencias = data.Data;
-          Swal.close();
           resolve(this.vigencias)
         }
+        Swal.close();
       }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
@@ -285,9 +285,9 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                           if (this.rol != undefined && this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
                             await this.evaluarFechasPlan();
                           }
-                          Swal.close();
-                          resolve(true)
                         }
+                        Swal.close();
+                        resolve(true)
                       } else {
                         Swal.fire({
                           title: 'Error en la operación',
