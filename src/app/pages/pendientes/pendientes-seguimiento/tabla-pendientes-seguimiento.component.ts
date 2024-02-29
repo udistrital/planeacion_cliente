@@ -384,11 +384,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
                   Swal.fire({
                     title: 'El reporte se ha enviado satisfactoriamente',
                     icon: 'success',
-                  }).then((result) => {
-                    if (result.value) {
-                      console.log("RESULTO?")
-                    }
-                  });
+                  })
                 } else {
                   planesNoVerificables.push(plan["plan_id"]["nombre"])
                 }
@@ -398,7 +394,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
               Swal.fire({
                 title: 'Error en la operación',
                 icon: 'error',
-                text: `${JSON.stringify(error)}`,
+                text: `El plan ${plan["plan_id"]["nombre"]} está generando error en su aprobación, intente más tarde o comuniquese con la OATI`,
                 showConfirmButton: false,
                 timer: 2500
               })
@@ -409,28 +405,33 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
 
         Promise.all(promises)
           .then(() => {
+            const actualUrl = this.router.url;
             if (planesNoVerificables.length != 0) {
               let message: string = '<b>Planes/Proyectos</b><br/>';
               for (let i = 0; i < planesNoVerificables.length; i++) {
                 message = message + (i + 1).toString() + ' - ' + planesNoVerificables[i] + "<br/>"
               }
               Swal.fire({
-                title: 'Los siguientes planes/proyectos no son verificables:',
-                icon: 'error',
+                title: 'Los siguientes planes/proyectos no son verificables (revisar sus respectivas actividades):',
+                icon: 'warning',
                 showConfirmButton: true,
                 html: message
+              }).then((result) => {
+                this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                  this.router.navigate([actualUrl]);
+                });
               })
             } else {
               Swal.fire({
                 title: 'Todos los planes/proyectos fueron verificados satisfactoriamente',
                 icon: 'success',
+                showConfirmButton: true,
+              }).then((result) => {
+                this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                  this.router.navigate([actualUrl]);
+                });
               })
             }
-            //REVISAR
-            const actualUrl = this.router.url;
-            this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-              this.router.navigate([actualUrl]);
-            });
           })
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
