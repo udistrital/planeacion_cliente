@@ -146,7 +146,8 @@ textarea {
   resize: none;
   text-align: center;
   white-space: pre-line;
-  -moz-text-align-last: left;
+  text-align-last: left;
+  height: auto;
 }
 
 .align-button-enviar {
@@ -280,5 +281,4 @@ ng-container {
   background: inherit;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
-  resize: vertical;
 }

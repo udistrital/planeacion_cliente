@@ -13,6 +13,7 @@ import { Location, registerLocaleData } from '@angular/common';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
 import es from '@angular/common/locales/es';
+import { toArray } from 'rxjs/operators';
 
 export interface Indicador {
   nombre: string;
@@ -197,6 +198,48 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         showConfirmButton: false,
         timer: 2500
       })
+    })
+  }
+  ajustarTextArea(textArea){
+    console.log(typeof textArea)
+    console.log("hey")
+    textArea.style.height = "1px";
+    textArea.style.height = (25+textArea.scrollHeight)+"px";
+    // let tamanioFuentePx = 15;
+    // let anchoTA = textArea.style.width;
+    // let caracteres = textArea.textLength
+    // console.log(textArea)
+    // console.log(textArea.classList)
+
+    // console.log("tamanioFuentePx",tamanioFuentePx)
+    // console.log("anchoTA",anchoTA)
+    // console.log("caracteres",caracteres)
+
+    // // console.log('offset antes',textArea.offsetHeight)
+    // // console.log('client antes',textArea.clientHeight)
+    // // console.log('scroll antes',textArea.scrollHeight)
+    // console.log('Primero:',textArea.style.height);
+    // textArea.style.height = `${textArea.scrollHeight}px`
+    // console.log('Segundo:',textArea.style.height);
+    // // textArea.style.height = textArea.scrollHeight + 'px' ;
+    // // console.log('Tercero:',textArea.style.height);
+
+
+    // console.log('offset',textArea.offsetHeight)
+    // console.log('client',textArea.clientHeight)
+    // console.log('scroll',textArea.scrollHeight)
+
+  }
+  ajustarTextAreas(){
+    // window.addEventListener("DOMContentLoaded", () => {
+    //   textAreas.forEach((textArea) => {
+
+    //   })
+    // })
+    let textAreas = document.querySelectorAll(".textareaContenido") as NodeListOf<HTMLTextAreaElement>
+
+    textAreas.forEach(textArea=>{
+      this.ajustarTextArea(textArea)
     })
   }
 
@@ -456,6 +499,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         Swal.close();
       }
     }, (error) => {
+      console.error(error)
+      Swal.close();
       Swal.fire({
         title: 'Error en la operación',
         text: `No se encontraron datos registrados`,
@@ -463,7 +508,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         showConfirmButton: false,
         timer: 2500
       })
-    }, () => Swal.close())
+    })
   }
 
   guardarCualitativo() {

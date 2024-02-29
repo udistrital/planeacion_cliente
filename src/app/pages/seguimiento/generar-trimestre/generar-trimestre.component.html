@@ -48,10 +48,8 @@
         <br> <br>
         <div class="contenedor3c">
           <div class="content-border" style="grid-column: 1/1; margin: 0px; height: -webkit-fill-available;">
-            <h2 style="padding: 1%;margin-top: -24px;">&nbsp;&nbsp;&nbsp;&nbsp;Productos
-              asociados&nbsp;&nbsp;&nbsp;&nbsp;</h2>
-            <textarea style="height: 70%;" class="textareaContenido"
-              [readonly]="true">{{seguimiento.informacion.producto}}</textarea>
+            <h2 style="padding: 1%;margin-top: -24px;">&nbsp;&nbsp;&nbsp;&nbsp;Productos asociados&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+            <textarea style="height: 70%;" class="textareaContenido" onkeyup="ajustarTextArea(this)" style="overflow:hidden" [readonly]="true">{{seguimiento.informacion.producto}}</textarea>
           </div>
 
           <div class="content-border" style="grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">

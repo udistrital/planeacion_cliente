@@ -63,7 +63,8 @@ const routes: Routes = [{
   children: [
     {
       path: 'dashboard',
-      component: DashboardComponent,
+      redirectTo: 'seguimiento/generar-trimestre/63b5fecb1598303a848fe7b8/1/635b1f995073f2675157dc7f',
+      // component: DashboardComponent,
     },
     {
       path: 'informacion_basica',
