@@ -374,7 +374,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        let planesNoVerificables: string[] = [];
+        let planesNoVerificables: any[] = [];
 
         const promises = this.planesInteres.map((plan) => {
           return new Promise((innerResolve, innerReject) => {
@@ -386,7 +386,12 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
                     icon: 'success',
                   })
                 } else {
-                  planesNoVerificables.push(plan["plan_id"]["nombre"])
+                  planesNoVerificables.push(
+                    {
+                      nombre: plan["plan_id"]["nombre"],
+                      periodo: plan["periodo_seguimiento_id"]["periodo_nombre"]
+                    }
+                  )
                 }
               }
               innerResolve("Verificado");
@@ -409,7 +414,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
             if (planesNoVerificables.length != 0) {
               let message: string = '<b>Planes/Proyectos</b><br/>';
               for (let i = 0; i < planesNoVerificables.length; i++) {
-                message = message + (i + 1).toString() + ' - ' + planesNoVerificables[i] + "<br/>"
+                message = message + (i + 1).toString() + '. ' + planesNoVerificables[i].nombre + ' - ' + planesNoVerificables[i].periodo + "<br/>"
               }
               Swal.fire({
                 title: 'Los siguientes planes/proyectos no son verificables (revisar sus respectivas actividades):',
