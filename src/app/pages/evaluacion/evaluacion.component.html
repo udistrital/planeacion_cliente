@@ -6,7 +6,7 @@
     <ng-container>
       <div>
         <div>
-          <u class="textGuide"> 
+          <u class="textGuide">
             A continuación encontrará un listado de unidades y vigencia, usted debe realizar la selección en cada una de
             las listas correspondientes.
           </u>
@@ -15,11 +15,11 @@
       </div>
     </ng-container>
     <mat-form-field class="selectorPlanStyle" appearance="fill">
-      <mat-label id="tipo-input-label">Seleccione la unidad</mat-label>
-      <mat-select [(value)]="unidad" (selectionChange)="onChangeU($event.value)">
+      <mat-label id="tipo-input-label">Seleccione el Plan de Acción</mat-label>
+      <mat-select (selectionChange)="onChangeP($event.value)">
         <mat-option>--</mat-option>
-        <mat-option *ngFor="let unidad of unidades" [value]="unidad">
-          {{unidad.Nombre}}
+        <mat-option *ngFor="let plan of planes" [value]="plan">
+          {{plan.plan}}
         </mat-option>
       </mat-select>
     </mat-form-field>
@@ -35,11 +35,11 @@
 
     <div *ngIf="vigenciaSelected && unidadSelected">
       <mat-form-field class="selectorPlanStyle" appearance="fill">
-        <mat-label id="tipo-input-label">Seleccione el Plan de Acción</mat-label>
-        <mat-select (selectionChange)="onChangeP($event.value)">
+        <mat-label id="tipo-input-label">Seleccione la unidad</mat-label>
+        <mat-select [(value)]="unidad" (selectionChange)="onChangeU($event.value)">
           <mat-option>--</mat-option>
-          <mat-option *ngFor="let plan of planes" [value]="plan">
-            {{plan.plan}}
+          <mat-option *ngFor="let unidad of unidades" [value]="unidad">
+            {{unidad.Nombre}}
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -147,19 +147,19 @@
                 </div>
                 <div *ngIf="row.trimestre2 && row.unidad =='Porcentaje' && row.trimestre2.meta >= 0" [ngClass]="calcularBrecha(row)">
                   <ng-container *ngIf="row.trimestre2.meta !== 0; else noAplicaContent">
-                    {{abs(((row.meta)/100) - row.trimestre2.meta) | percent:'1.1-2':'es'}}                
+                    {{abs(((row.meta)/100) - row.trimestre2.meta) | percent:'1.1-2':'es'}}
                   </ng-container>
                 </div>
-                
+
                 <div *ngIf="row.trimestre3 && row.unidad =='Porcentaje' && row.trimestre3.meta >= 0" [ngClass]="calcularBrecha(row)">
                   <ng-container *ngIf="row.trimestre3.meta !== 0; else noAplicaContent">
-                    {{abs(((row.meta)/100) - row.trimestre3.meta) | percent:'1.1-2':'es'}}               
+                    {{abs(((row.meta)/100) - row.trimestre3.meta) | percent:'1.1-2':'es'}}
                   </ng-container>
                 </div>
 
                 <div *ngIf="row.trimestre4 && row.unidad =='Porcentaje' && row.trimestre4.meta >= 0" [ngClass]="calcularBrecha(row)">
                   <ng-container *ngIf="row.trimestre4.meta !== 0; else noAplicaContent">
-                    {{abs(((row.meta)/100) - row.trimestre4.meta) | percent:'1.1-2':'es'}}               
+                    {{abs(((row.meta)/100) - row.trimestre4.meta) | percent:'1.1-2':'es'}}
                   </ng-container>
                 </div>
 
@@ -180,7 +180,7 @@
                     {{abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
                   </ng-container>
                 </div>
-                                
+
                 <div *ngIf="row.trimestre4 && row.unidad =='Unidad' && row.trimestre4.meta >= 0" [ngClass]="calcularBrecha(row)">
                   <ng-container *ngIf="row.trimestre4.meta !== 0; else noAplicaContent">
                     {{abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100)) | percent:'1.1-2':'es'}}
@@ -195,7 +195,7 @@
                 </div>
                 <div *ngIf="row.trimestre2 && row.unidad =='Tasa' && row.trimestre2.meta >= 0" [ngClass]="calcularBrecha(row)">
                   <ng-container *ngIf="row.trimestre2.meta !== 0; else noAplicaContent">
-                    {{ abs((row.meta - row.trimestre2.meta)) | percent:'1.1-2':'es'}} 
+                    {{ abs((row.meta - row.trimestre2.meta)) | percent:'1.1-2':'es'}}
                   </ng-container>
                 </div>
                 <div *ngIf="row.trimestre3 && row.unidad =='Tasa' && row.trimestre3.meta >= 0" [ngClass]="calcularBrecha(row)">
