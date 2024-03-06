@@ -107,6 +107,7 @@ import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion
 import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
 import { FormParametrosComponent } from './plan/gestion-parametros/form-parametros/form-parametros.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
+import { AutoResizeDirective } from './directives/resize.directive';
 
 const pagesComponents = [
   DashboardComponent,
@@ -166,6 +167,7 @@ const MY_FORMATS = {
     ...pagesComponents,
     OasGridColsDirective,
     NgIsGrantedDirective,
+    AutoResizeDirective,
     CrearPlanComponent,
     ListarPlanComponent,
     ConstruirPlanComponent,
