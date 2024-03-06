@@ -104,6 +104,7 @@ import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seg
 import { FuncionamientoComponent } from './plan/habilitar-reporte/funcionamiento/funcionamiento.component';
 import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
+import { AutoResizeDirective } from './directives/resize.directive';
 
 
 
@@ -165,6 +166,7 @@ const MY_FORMATS = {
     ...pagesComponents,
     OasGridColsDirective,
     NgIsGrantedDirective,
+    AutoResizeDirective,
     CrearPlanComponent,
     ListarPlanComponent,
     ConstruirPlanComponent,
