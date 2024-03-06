@@ -200,48 +200,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       })
     })
   }
-  ajustarTextArea(textArea){
-    console.log(typeof textArea)
-    console.log("hey")
-    textArea.style.height = "1px";
-    textArea.style.height = (25+textArea.scrollHeight)+"px";
-    // let tamanioFuentePx = 15;
-    // let anchoTA = textArea.style.width;
-    // let caracteres = textArea.textLength
-    // console.log(textArea)
-    // console.log(textArea.classList)
-
-    // console.log("tamanioFuentePx",tamanioFuentePx)
-    // console.log("anchoTA",anchoTA)
-    // console.log("caracteres",caracteres)
-
-    // // console.log('offset antes',textArea.offsetHeight)
-    // // console.log('client antes',textArea.clientHeight)
-    // // console.log('scroll antes',textArea.scrollHeight)
-    // console.log('Primero:',textArea.style.height);
-    // textArea.style.height = `${textArea.scrollHeight}px`
-    // console.log('Segundo:',textArea.style.height);
-    // // textArea.style.height = textArea.scrollHeight + 'px' ;
-    // // console.log('Tercero:',textArea.style.height);
-
-
-    // console.log('offset',textArea.offsetHeight)
-    // console.log('client',textArea.clientHeight)
-    // console.log('scroll',textArea.scrollHeight)
-
-  }
-  ajustarTextAreas(){
-    // window.addEventListener("DOMContentLoaded", () => {
-    //   textAreas.forEach((textArea) => {
-
-    //   })
-    // })
-    let textAreas = document.querySelectorAll(".textareaContenido") as NodeListOf<HTMLTextAreaElement>
-
-    textAreas.forEach(textArea=>{
-      this.ajustarTextArea(textArea)
-    })
-  }
 
   verificarFormulario() {
     if (this.rol === 'PLANEACION' || this.rol === 'JEFE_UNIDAD_PLANEACION') {
