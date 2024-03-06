@@ -8,12 +8,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
-import { element } from 'protractor';
 import { Location, registerLocaleData } from '@angular/common';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
 import es from '@angular/common/locales/es';
-import { toArray } from 'rxjs/operators';
 
 export interface Indicador {
   nombre: string;
