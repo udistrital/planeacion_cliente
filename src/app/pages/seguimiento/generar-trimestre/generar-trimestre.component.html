@@ -40,7 +40,7 @@
           <div class="content-border"
             style="grid-row: 1/4; grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">
             <h2>&nbsp;&nbsp;&nbsp;&nbsp;Descripción de la actividad general&nbsp;&nbsp;&nbsp;&nbsp;</h2>
-            <textarea class="textareaContenido" [readonly]="true"
+            <textarea class="textareaContenido" autoresize [readonly]="true"
               placeholder="* Descripción de la actividad general seleccionada">{{seguimiento.informacion.descripcion}}</textarea>
           </div>
         </div>
@@ -48,15 +48,13 @@
         <br> <br>
         <div class="contenedor3c">
           <div class="content-border" style="grid-column: 1/1; margin: 0px; height: -webkit-fill-available;">
-            <h2 style="padding: 1%;margin-top: -24px;">&nbsp;&nbsp;&nbsp;&nbsp;Productos
-              asociados&nbsp;&nbsp;&nbsp;&nbsp;</h2>
-            <textarea style="height: 70%;" class="textareaContenido"
-              [readonly]="true">{{seguimiento.informacion.producto}}</textarea>
+            <h2 style="padding: 1%;margin-top: -24px;">&nbsp;&nbsp;&nbsp;&nbsp;Productos asociados&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+            <textarea style="height: 70%;" class="textareaContenido" autoresize style="overflow:hidden" [readonly]="true">{{seguimiento.informacion.producto}}</textarea>
           </div>
 
           <div class="content-border" style="grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">
             <h2>&nbsp;&nbsp;&nbsp;&nbsp;Actividades específicas&nbsp;&nbsp;&nbsp;&nbsp;</h2>
-            <textarea class="textareaContenido" [readonly]="true"
+            <textarea class="textareaContenido" autoresize [readonly]="true"
               placeholder="* Tareas asociadas a la actividad general">{{seguimiento.informacion.tarea}}</textarea>
           </div>
         </div>
@@ -77,7 +75,7 @@
         <div class="contentCuantitativo">
           <div class="container-border">
             <h4>&nbsp;&nbsp;&nbsp;&nbsp;Digite la información *&nbsp;&nbsp;&nbsp;&nbsp;</h4>
-            <textarea class="textareaContenido" id="reporte"
+            <textarea class="textareaContenido" autoresize id="reporte"
               placeholder="* Describa las acciones implementadas en el marco de la actividad general, así como  los logros obtenidos."
               required [value]="datosCualitativo.reporte" [(ngModel)]="datosCualitativo.reporte"
               [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
@@ -97,7 +95,7 @@
           style="padding-left: 24px;display: flex;flex-wrap: nowrap;align-items: center;gap: 1%;">
           <div class="container-border" style="width: 80%; margin-left: 0px;">
             <h4>&nbsp;&nbsp;&nbsp;&nbsp;Digite la información *&nbsp;&nbsp;&nbsp;&nbsp;</h4>
-            <textarea class="textareaContenido" id="productos"
+            <textarea class="textareaContenido" autoresize id="productos"
               placeholder="* Enliste los productos y evidencias resultantes de las acciones establecidas en el espacio anterior, tenga en cuenta que las evidencias deberán estar cargadas."
               required [value]="datosCualitativo.productos" [(ngModel)]="datosCualitativo.productos"
               [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
@@ -136,7 +134,7 @@
         <div class="contentCuantitativo">
           <div class="container-border">
             <h4>&nbsp;&nbsp;&nbsp;&nbsp;Digite la información *&nbsp;&nbsp;&nbsp;&nbsp;</h4>
-            <textarea class="textareaContenido" id="dificultades"
+            <textarea class="textareaContenido" autoresize id="dificultades"
               placeholder="* Establezca en caso de existir, las dificultades asociadas a la implementación de la actividad general y la consecución de las metas planteadas."
               required [value]="datosCualitativo.dificultades" [(ngModel)]="datosCualitativo.dificultades"
               [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
@@ -146,7 +144,7 @@
         <div class="container-border" *ngIf="mostrarObservaciones">
           <h4>&nbsp;&nbsp;&nbsp;&nbsp;Observaciones Oficina Asesora de Planeación y
             Control&nbsp;&nbsp;&nbsp;&nbsp;</h4>
-          <textarea class="textareaContenido" id="observaciones"
+          <textarea class="textareaContenido" autoresize id="observaciones"
             placeholder="* Observaciones realizadas desde la OAPC a la unidad para el componente cualitativo."
             formControlName="observaciones" required [value]="datosCualitativo.observaciones"
             [ngModelOptions]="{standalone: true}" [(ngModel)]="datosCualitativo.observaciones"

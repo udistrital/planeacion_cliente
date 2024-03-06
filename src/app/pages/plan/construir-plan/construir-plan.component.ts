@@ -42,6 +42,64 @@ export class ConstruirPlanComponent implements OnInit {
     // this.loadPlanes(); 
   }
 
+  actualizarEstructuraPlanes() {    
+    Swal.fire({
+      title: 'Actualizar Planes',
+      text: `¿Desea actualizar las estructuras de los planes que están asociados a esta plantilla?`,
+      icon: 'question',
+      confirmButtonText: `Aceptar`,
+      cancelButtonText: `Cancelar`,
+      allowOutsideClick: false,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Actualizando Planes',
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          willOpen: () => {
+            Swal.showLoading();
+          },
+        })
+        this.request.put(environment.PLANES_MID, 'formulacion/estructura_planes', null, this.planId).subscribe(
+          (data: any) => {
+            if (data) {
+              Swal.close()
+              Swal.fire({
+                title: 'Actualización correcta',
+                text: 'Se actualizaron las estructuras actuales de los planes asociados a la plantilla',
+                icon: 'info',
+                showConfirmButton: false,
+                timer: 2500
+              }).then(() => {
+                this.eventChange.emit(true);
+              });
+            }
+          },
+          (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              icon: 'error',
+              text: `${JSON.stringify(error)}`,
+              showConfirmButton: false,
+              timer: 2500
+            });
+          }
+        )
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          text: 'Se mantuvieron las estructuras actuales de los planes asociados a la plantilla',
+          icon: 'info',
+          showConfirmButton: false,
+          timer: 2500
+        }).then(() => {
+          this.eventChange.emit(true);
+        });
+      }
+    });
+  }
+
+
   openDialogAgregar(): void {
     const dialogRef = this.dialog.open(AgregarDialogComponent, {
       width: 'calc(80vw - 60px)',
@@ -128,7 +186,7 @@ export class ConstruirPlanComponent implements OnInit {
             icon: 'success',
           }).then((result) => {
             if (result.value) {
-              this.eventChange.emit(true);
+              this.actualizarEstructuraPlanes()
             }
           })
         }
@@ -210,7 +268,7 @@ export class ConstruirPlanComponent implements OnInit {
                     icon: 'success',
                   }).then((result) => {
                     if (result.value) {
-                      this.eventChange.emit(true);
+                      this.actualizarEstructuraPlanes()
                     }
                   })
                 }
@@ -224,7 +282,7 @@ export class ConstruirPlanComponent implements OnInit {
                     icon: 'success',
                   }).then((result) => {
                     if (result.value) {
-                      this.eventChange.emit(true);
+                      this.actualizarEstructuraPlanes()
                     }
                   })
                 }
@@ -249,7 +307,7 @@ export class ConstruirPlanComponent implements OnInit {
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.eventChange.emit(true);
+                this.actualizarEstructuraPlanes()
               }
             })
           }
