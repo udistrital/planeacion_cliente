@@ -17,7 +17,7 @@ import es from '@angular/common/locales/es';
 export class EvaluacionComponent implements OnInit {
   pieTitle = 'Cumplimiento general Plan de Acción -';
   pieType = 'PieChart';
-  columnType = 'ColumnChart'; 
+  columnType = 'ColumnChart';
   spans = [];
 
   pieChartColumns = [
@@ -69,7 +69,7 @@ export class EvaluacionComponent implements OnInit {
     "idP", "ponderacionP", "actividadP", "indicadorP", "formulaP", "metaP", "BrechaP",
     "trimestre1", "trimestre2", "trimestre3", "trimestre4"];
 
-  planes: any[];
+  nombresPlanes: string[];
   periodos: any[];
   bandera: boolean;
   vigencias: any[];
@@ -86,11 +86,8 @@ export class EvaluacionComponent implements OnInit {
   tr4: boolean = true;
   actividades: any
   rol: string;
-  plan = {
-    "periodos": [],
-    "plan": "",
-    "id": ""
-  };
+  nombrePlanSeleccionado:string;
+  idPlanSeleccionado:string;
   avanceTr1 = 0;
   avanceTr2 = 0;
   avanceTr3 = 0;
@@ -99,19 +96,33 @@ export class EvaluacionComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<any>;
 
   constructor(
-    private request: RequestManager,  
-    private autenticationService: ImplicitAutenticationService, 
-    private userService: UserService, 
+    private request: RequestManager,
+    private autenticationService: ImplicitAutenticationService,
+    private userService: UserService,
     private router: Router
   ) {
+    this.loadPlanes();
     this.loadVigencias();
     this.unidadSelected = false;
     this.vigenciaSelected = false;
+    this.nombrePlanSeleccionado = "";
   }
 
   ngAfterViewChecked(): void {
     if (this.table) {
       this.table.updateStickyColumnStyles();
+    }
+  }
+
+  onChangeP(plan) {
+    if (plan == undefined) {
+      this.planSelected = false;
+    } else {
+      this.planSelected = true;
+      this.nombrePlanSeleccionado = plan;
+      if(this.vigenciaSelected && this.unidadSelected){
+        this.loadPeriodos();
+      }
     }
   }
 
@@ -121,8 +132,8 @@ export class EvaluacionComponent implements OnInit {
     } else {
       this.unidadSelected = true;
       this.unidad = unidad;
-      if (this.vigenciaSelected) {
-        this.loadPlanes();
+      if (this.planSelected && this.vigenciaSelected) {
+        this.loadPeriodos();
       }
     }
   }
@@ -133,19 +144,9 @@ export class EvaluacionComponent implements OnInit {
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
-      if (this.unidadSelected) {
-        this.loadPlanes();
+      if (this.planSelected && this.unidadSelected) {
+        this.loadPeriodos();
       }
-    }
-  }
-
-  onChangeP(plan) {
-    if (plan == undefined) {
-      this.planSelected = false;
-    } else {
-      this.planSelected = true;
-      plan.periodos.forEach(periodo => {periodo.nombre = periodo.nombre[0].toUpperCase() + periodo.nombre.substring(1).toLowerCase()})
-      this.plan = plan;
     }
   }
 
@@ -255,7 +256,7 @@ export class EvaluacionComponent implements OnInit {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
-            .subscribe((vinculacion: any) => { 
+            .subscribe((vinculacion: any) => {
               if (vinculacion["Data"] != "") {
                 this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
                   if (dataUnidad) {
@@ -298,13 +299,13 @@ export class EvaluacionComponent implements OnInit {
     this.bandera = true;
     this.actividades = [];
     this.spans = [];
-    this.request.get(environment.PLANES_MID, `evaluacion/` + this.vigencia.Id + `/` + this.plan.id + `/` + this.periodo.id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `evaluacion/` + this.vigencia.Id + `/` + this.idPlanSeleccionado + `/` + this.periodo.id).subscribe((data: any) => {
       if (data) {
         this.actividades = data.Data;
         this.actividades.forEach(actividad => {
           actividad.class = actividad.numero % 2 == 0 ? "claro" : "oscuro";
         });
-        this.pieTitle = "Cumplimiento general " + this.plan.plan + " - " + this.unidad.Nombre;
+        this.pieTitle = "Cumplimiento general " + this.nombrePlanSeleccionado + " - " + this.unidad.Nombre;
         this.cacheSpan('numero', d => d.numero);
         this.cacheSpan('ponderado', d => d.numero + d.ponderado);
         this.cacheSpan('periodo', d => d.numero + d.ponderado + d.periodo);
@@ -363,40 +364,9 @@ export class EvaluacionComponent implements OnInit {
     });
   }
 
-  loadPeriodo() {
-    Swal.fire({
-      title: 'Cargando información',
-      timerProgressBar: true,
-      showConfirmButton: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-    });
-    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
-      if (data) {
-        this.periodos = data.Data;
-      }
-    }, (error) => {
-      this.bandera = false;
-      this.periodoSelected = false;
-      this.planes = [];
-      this.plan = { "periodos": [], "plan": "", "id": "" };
-      this.tr2 = false;
-      this.tr3 = false;
-      this.tr4 = false;
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      });
-    });
-  }
-
   loadUnidades() {
     Swal.fire({
-      title: 'Cargando información',
+      title: 'Cargando Unidades',
       timerProgressBar: true,
       showConfirmButton: false,
       willOpen: () => {
@@ -421,7 +391,44 @@ export class EvaluacionComponent implements OnInit {
 
   loadPlanes() {
     Swal.fire({
-      title: 'Cargando información',
+      title: 'Cargando planes',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    this.request.get(environment.PLANES_MID, `evaluacion/planes/`).subscribe((data: any) => {
+      if (data) {
+        if (data.Data != null) {
+          this.nombresPlanes = data.Data;
+          Swal.close();
+        } else {
+          Swal.fire({
+            title: 'No se lograron obtuvieron los planes avalados para seguimiento',
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 2500
+          });
+          this.nombresPlanes = [];
+          this.nombrePlanSeleccionado = "";
+        }
+      }
+    }, (error) => {
+      this.nombresPlanes = [];
+      this.nombrePlanSeleccionado = "";
+      Swal.fire({
+        title: 'No se lograron obtener planes avalados para seguimiento',
+        icon: 'info',
+        showConfirmButton: false,
+        timer: 2500
+      });
+    });
+  }
+
+  loadPeriodos(){
+    Swal.fire({
+      title: 'Cargando Periodos',
       timerProgressBar: true,
       showConfirmButton: false,
       willOpen: () => {
@@ -431,13 +438,30 @@ export class EvaluacionComponent implements OnInit {
     this.request.get(environment.PLANES_MID, `evaluacion/planes_periodo/` + this.vigencia.Id + `/` + this.unidad.Id).subscribe((data: any) => {
       if (data) {
         if (data.Data != null) {
-          this.planes = data.Data;
+          let periodosCargados = false;
+          for (let pos = 0; pos < data.Data.length; pos++) {
+            const elemento = data.Data[pos];
+            if(elemento["plan"] === this.nombrePlanSeleccionado) {
+              this.idPlanSeleccionado = elemento["id"]
+              this.periodos = elemento["periodos"]
+              this.periodos.forEach((periodo)=>{
+                periodo.nombre = periodo.nombre[0].toUpperCase() + periodo.nombre.substring(1).toLowerCase()
+              })
+              periodosCargados = true
+            }
+          }
           Swal.close();
+          if(!periodosCargados){
+            Swal.fire({
+              title: 'El plan seleccionado no corresponde a la vigencia o unidad. Seleccione otro plan.',
+              icon: 'info',
+              showConfirmButton: false,
+              timer: 2500
+            });
+          }
         } else {
           this.bandera = false;
           this.periodoSelected = false;
-          this.planes = [];
-          this.plan = { "periodos": [], "plan": "", "id": "" };
           this.tr2 = false;
           this.tr3 = false;
           this.tr4 = false;
@@ -452,8 +476,6 @@ export class EvaluacionComponent implements OnInit {
     }, (error) => {
       this.bandera = false;
       this.periodoSelected = false;
-      this.planes = [];
-      this.plan = { "periodos": [], "plan": "", "id": "" };
       this.tr2 = false;
       this.tr3 = false;
       this.tr4 = false;
