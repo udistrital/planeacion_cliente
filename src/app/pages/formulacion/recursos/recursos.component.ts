@@ -8,7 +8,6 @@ import { FormArray, FormBuilder, FormGroup, NgForm, FormControl, Validators, Abs
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import { localeData } from 'moment';
-import { read } from 'fs';
 import { formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from './rubros';
 

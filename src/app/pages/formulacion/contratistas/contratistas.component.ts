@@ -8,9 +8,7 @@ import Swal from 'sweetalert2';
 import { isNumeric } from "rxjs/internal-compatibility";
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
-import { request } from 'http';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import { read } from 'fs';
 import { CurrencyPipe, formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from '../recursos/rubros';
 
