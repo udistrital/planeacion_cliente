@@ -149,67 +149,24 @@ th.mat-header-cell {
   background-color: white;
 }
 
-.cdk-column-BrechaP {
-  padding: 0 10px !important;
-}
-
 // Colores para Cumplimiento por meta
-.brecha-rojo { 
+.meta-rojo { 
   background-color: #c71a1b;
   color: #fff;
 }
 
-.brecha-piel { 
+.meta-piel { 
   background-color: #ffa99e;
 }
 
-.brecha-naranja { 
+.meta-naranja { 
   background-color: #fdc100;
 }
 
-.brecha-amarillo { 
+.meta-amarillo { 
   background-color: #fffe00;
 }
 
-.brecha-verde { 
+.meta-verde { 
   background-color: #72ac41;
 }
-
-// .cdk-column-Brecha {
-//   padding: 0 !important;
-    
-//   .column-Brecha {
-//     width: 100%;
-//     height: 8vh;
-//     display: flex;
-//     align-items: center;
-//     justify-content: center;
-//   }
-  
-//   .brecha-verde { 
-//     background-color: #88ff00;   
-//     width: 100%;
-//     min-height: 12vh;
-//     display: flex;
-//     align-items: center;
-//     justify-content: center; 
-//   }
-  
-//   .brecha-amarillo { 
-//     background-color: #ffff00;
-//     width: 100%;
-//     min-height: 12vh;
-//     display: flex;
-//     align-items: center;
-//     justify-content: center;
-//   }
-  
-//   .brecha-rojo { 
-//     background-color: #ff0400;
-//     width: 100%;
-//     min-height: 12vh;
-//     display: flex;
-//     align-items: center;
-//     justify-content: center;
-//   }
-// }

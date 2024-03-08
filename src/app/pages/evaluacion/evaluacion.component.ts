@@ -182,81 +182,20 @@ export class EvaluacionComponent implements OnInit {
   colorCM(rowTrimestreMeta): string {
     if (rowTrimestreMeta < 1) {
       if (rowTrimestreMeta >= 0 && rowTrimestreMeta <= 0.2) {
-        return 'brecha-rojo'; 
+        return 'meta-rojo'; 
       } else if (rowTrimestreMeta >= 0.21 && rowTrimestreMeta <= 0.4) {
-        return 'brecha-piel';
+        return 'meta-piel';
       } else if (rowTrimestreMeta >= 0.41 && rowTrimestreMeta <= 0.6) {
-        return 'brecha-naranja';
+        return 'meta-naranja';
       } else if (rowTrimestreMeta >= 0.61 && rowTrimestreMeta <= 0.8) {
-        return 'brecha-amarillo';
+        return 'meta-amarillo';
       } else if (rowTrimestreMeta >= 0.81 && rowTrimestreMeta <= 0.99) {
-        return 'brecha-verde';
+        return 'meta-verde';
       }
     } else {
-      return 'brecha-verde';
+      return 'meta-verde';
     }
   }
-
-  //calculos y validaciones Brecha
-  // calcularBrecha(row: any): string {
-  //   if (row.trimestre1 && row.trimestre1.meta) {
-  //     if(row.unidad === 'Porcentaje'){
-  //       const brecha = Math.abs((row.meta / 100) - row.trimestre1.meta);
-  //       return this.colorBrecha(brecha);
-  //     } else if (row.unidad === 'Unidad') {
-  //       const brecha = Math.abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100));
-  //       return this.colorBrecha(brecha);
-  //     } else if (row.unidad === 'Tasa') {
-  //       const brecha = Math.abs((row.meta - row.trimestre1.meta));
-  //       return this.colorBrecha(brecha);
-  //     } else {
-  //       return '';
-  //     }
-  //   }
-  //   if (row.trimestre2 && row.trimestre2.meta) {
-  //     if(row.unidad === 'Porcentaje'){
-  //       const brecha = Math.abs((row.meta / 100) - row.trimestre2.meta);
-  //       return this.colorBrecha(brecha);
-  //     } else if (row.unidad === 'Unidad') {
-  //       const brecha = Math.abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100));
-  //       return this.colorBrecha(brecha);
-  //     } else if (row.unidad === 'Tasa') {
-  //       const brecha = Math.abs((row.meta - row.trimestre2.meta));
-  //       return this.colorBrecha(brecha);
-  //     } else {
-  //       return '';
-  //     }
-  //   }
-  //   if (row.trimestre3 && row.trimestre3.meta) {
-  //     if(row.unidad === 'Porcentaje'){
-  //       const brecha = Math.abs((row.meta / 100) - row.trimestre3.meta);
-  //       return this.colorBrecha(brecha);
-  //     } else if (row.unidad === 'Unidad') {
-  //       const brecha = Math.abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100));
-  //       return this.colorBrecha(brecha);
-  //     } else if (row.unidad === 'Tasa') {
-  //       const brecha = Math.abs((row.meta - row.trimestre3.meta));
-  //       return this.colorBrecha(brecha);
-  //     } else {
-  //       return '';
-  //     }
-  //   }
-  //   if (row.trimestre4 && row.trimestre4.meta) {
-  //     if(row.unidad === 'Porcentaje'){
-  //       const brecha = Math.abs((row.meta / 100) - row.trimestre4.meta);
-  //       return this.colorBrecha(brecha);
-  //     } else if (row.unidad === 'Unidad') {
-  //       const brecha = Math.abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100));
-  //       return this.colorBrecha(brecha);
-  //     } else if (row.unidad === 'Tasa') {
-  //       const brecha = Math.abs((row.meta - row.trimestre4.meta));
-  //       return this.colorBrecha(brecha);
-  //     } else {
-  //       return '';
-  //     }
-  //   }
-  //   return ''; //si no se cumple ninguna condición
-  // }
 
   validarUnidad() {
     this.userService.user$.subscribe((data) => {
