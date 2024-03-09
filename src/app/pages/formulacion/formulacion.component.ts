@@ -12,6 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 import { VerificarFormulario } from '../services/verificarFormulario'
 import { Subscription } from 'rxjs';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
+import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 
 @Component({
   selector: 'app-formulacion',
@@ -25,6 +26,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   planes: any[];
   unidades: any[] = [];
   auxUnidades: any[] = [];
+  planesInteresArray: any[] = []
   vigencias: any[];
   planSelected: boolean;
   planAsignado: boolean;
@@ -50,7 +52,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   banderaIdentDocentes: boolean;
   banderaUltimaVersion: boolean;
   banderaEstadoDatos: boolean;
-
+  planEnArray: boolean;
   tipoPlanId: string;
   idPadre: string;
   tipoPlanIndicativo: string;
@@ -92,7 +94,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private verificarFormulario: VerificarFormulario
   ) {
-   this.loadPeriodos();
+  this.loadPeriodos();
     this.formArmonizacion = this.formBuilder.group({
       selectPED: ['',],
       selectPI: ['',]
@@ -134,12 +136,14 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       )
     ) {
       this.rol = 'JEFE_DEPENDENCIA';
-      await this.verificarFechas();
+      await this.validarUnidad()
+      // await this.verificarFechas();
     } else if (
       roles.__zone_symbol__value.find((x) => x == 'JEFE_UNIDAD_PLANEACION')
     ) {
       this.rol = 'JEFE_UNIDAD_PLANEACION';
-      await this.verificarFechas();
+      await this.validarUnidad()
+      // await this.verificarFechas();
     }
 
     this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
@@ -205,67 +209,86 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     }
   }
 
-  async verificarFechas() {
-    return await new Promise((resolve, reject) => {
-      this.request
-        .get(
-          environment.PLANES_CRUD,
-          `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`
-        )
-        .subscribe(
-          async (data: any) => {
-            if (data) {
-              if (data.Data.length != 0) {
-                let seguimientoFormulacion = data.Data[0];
-                let auxFecha = new Date();
-                let auxFechaCol = auxFecha.toLocaleString('en-US', {
-                  timeZone: 'America/Mexico_City',
-                });
-                let strFechaHoy = new Date(auxFechaCol).toISOString();
-                let fechaHoy = new Date(strFechaHoy);
-                let fechaInicio = new Date(
-                  seguimientoFormulacion['fecha_inicio']
-                );
-                let fechaFin = new Date(seguimientoFormulacion['fecha_fin']);
-                if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
-                  await this.validarUnidad();
-                  resolve(this.auxUnidades);
-                } else {
-                  this.moduloVisible = false;
-                  Swal.fire({
-                    title: 'Error en la operación',
-                    text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
-                    icon: 'warning',
-                    showConfirmButton: true,
-                    timer: 10000,
-                  });
-                  reject();
-                }
-              } else {
-                Swal.fire({
-                  title: 'Error en la operación',
-                  text: `No se encuentran fechas establecidas para la formulación. Intente más tarde.`,
-                  icon: 'warning',
-                  showConfirmButton: true,
-                  timer: 10000,
-                });
-                reject();
-              }
-            }
-          },
-          (error) => {
-            Swal.fire({
-              title: 'Error en la operación',
-              text: `No se encontraron datos registrados ${JSON.stringify(
-                error
-              )}`,
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500,
-            });
-          }
-        );
+  async verificarFechas(plan: any) {
+    Swal.fire({
+      title: 'Validando fechas de formulación para plan seleccionado...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
     });
+    if(!this.planEnArray){
+      console.log("NO HACE LA CONSULTA")
+      this.moduloVisible = true;
+      Swal.close()
+    } else {
+      var unidad_interes = {
+        "Id": this.unidad.Id,
+        "Nombre": this.unidad.Nombre
+      }
+      var plan_interes = {
+        "_id": plan._id,
+        "nombre": plan.nombre
+      }
+      var periodo_seguimiento: any = {
+        unidades_interes: JSON.stringify([unidad_interes]),
+        planes_interes: JSON.stringify([plan_interes]),
+        periodo_id: this.vigencia.Id.toString(),
+        tipo_seguimiento_id: '6260e975ebe1e6498f7404ee'
+      }
+      return await new Promise((resolve, reject) => {
+        this.request
+          .post(environment.PLANES_CRUD,`periodo-seguimiento/buscar-unidad-planes/3`, periodo_seguimiento)
+          .subscribe(
+            async (data: DataRequest) => {
+              if (data) {
+                if (data.Data.length != 0) {
+                  let seguimientoFormulacion = data.Data[0];
+                  console.log("DATA ENCONTRADA: ", seguimientoFormulacion)
+                  let auxFecha = new Date();
+                  let auxFechaCol = auxFecha.toLocaleString('en-US', {
+                    timeZone: 'America/Mexico_City',
+                  });
+                  let strFechaHoy = new Date(auxFechaCol).toISOString();
+                  let fechaHoy = new Date(strFechaHoy);
+                  let fechaInicio = new Date(
+                    seguimientoFormulacion['fecha_inicio']
+                  );
+                  let fechaFin = new Date(seguimientoFormulacion['fecha_fin']);
+                  if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
+                    // await this.validarUnidad();
+                    console.log("FECHAS VALIDAS!")
+                    this.moduloVisible = true;
+                    Swal.close()
+                    resolve(true);
+                  } else {
+                    this.moduloVisible = false;
+                    Swal.fire({
+                      title: 'Error en la operación',
+                      text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
+                      icon: 'warning',
+                      showConfirmButton: true,
+                      timer: 10000,
+                    });
+                    reject();
+                  }
+                }
+              }
+            }, (error) => {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: `No se encontraron datos registrados ${JSON.stringify(
+                  error
+                )}`,
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500,
+              });
+            }
+          );
+      });
+    }
   }
 
   async validarUnidad() {
@@ -404,21 +427,28 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   async loadPlanesPeriodoSeguimiento(){
+    var unidad_interes = {
+      "Id": this.unidad.Id,
+      "Nombre": this.unidad.Nombre
+    }
+    var periodo_seguimiento: any = {
+      unidades_interes: JSON.stringify([unidad_interes]),
+      periodo_id: this.vigencia.Id.toString(),
+      tipo_seguimiento_id: '6260e975ebe1e6498f7404ee'
+    }
     return await new Promise((resolve, reject) => {
       this.request
-        .get(
-          environment.PLANES_CRUD,
-          `periodo-seguimiento/buscar-unidad/${this.unidad.Id}`
-        )
-        .subscribe((data: any) => {
-          if (data) {
+        .post(environment.PLANES_CRUD,`periodo-seguimiento/buscar-unidad-planes/3`,periodo_seguimiento)
+        .subscribe((data: DataRequest) => {
+          if (data && data.Data.length > 0) {
             data.Data.forEach((elemento) => {
               if (elemento.planes_interes) {
                 if (typeof elemento.planes_interes === 'string') {
                   try {
-                    const planesInteresArray = JSON.parse(
+                    var planesInteresArray = JSON.parse(
                       elemento.planes_interes
                     );
+                    this.planesInteresArray = [...this.planesInteresArray, ...planesInteresArray];
                     this.planes = [...this.planes, ...planesInteresArray];
                     Swal.close();
                     resolve(this.planes);
@@ -612,7 +642,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.iconEstado = '';
       this.versionPlan = '';
       if (this.vigenciaSelected && this.planSelected) {
-        await this.busquedaPlanes(this.planAux);
+        await this.busquedaPlanes(this.planAux, false);
       }
     }
   }
@@ -643,12 +673,12 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.planAsignado = false;
       this.dataT = false;
       if (this.unidadSelected && this.planSelected) {
-        await this.busquedaPlanes(this.planAux);
+        await this.busquedaPlanes(this.planAux, false);
       }
     }
   }
 
-  onChangeP(plan) {
+  async onChangeP(plan) {
     if (plan == undefined) {
       this.planSelected = false;
     } else {
@@ -661,11 +691,13 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.iconEstado = "";
       this.versionPlan = "";
       this.banderaEstadoDatos = false;
-      this.plan = undefined;
+      this.plan = plan;
       this.planAsignado = false;
       this.dataT = false;
       this.isChecked = true;
-      this.busquedaPlanes(plan);
+      this.planEnArray = this.planesInteresArray.some(item => item._id === plan._id);
+      await this.verificarFechas(plan);
+      this.busquedaPlanes(plan, this.planEnArray);
     }
   }
 
@@ -829,10 +861,10 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     )
   }
 
-  async busquedaPlanes(planB) {
+  async busquedaPlanes(planB, bandera: boolean) {
     try {
       // Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
-      await this.cargaFormato(planB);
+      await this.cargaFormato(planB, bandera);
       //validación con bandera para el estado de los datos de los planes.
       if (this.banderaEstadoDatos === true) {
         this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
@@ -847,8 +879,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                     'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
                     'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
                     '<i>Deberá formular el plan</i>',
-                  // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
-                  // Deberá formular un nuevo plan`,
                   icon: 'warning',
                   showConfirmButton: false,
                   timer: 7000
@@ -943,7 +973,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
 
-  cargaFormato(plan): Promise<void> {
+  cargaFormato(plan, bandera: boolean): Promise<void> {
     Swal.fire({
       title: 'Cargando formato',
       timerProgressBar: true,
@@ -954,32 +984,36 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         Swal.showLoading();
       },
     })
-    return new Promise((resolve, reject) => {
-      this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
-        if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
-          data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
-          this.banderaEstadoDatos = false;
+    if(bandera) {
+      this.banderaEstadoDatos = true;
+    } else {
+      return new Promise((resolve, reject) => {
+        this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
+          if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
+            data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
+            this.banderaEstadoDatos = false;
+            reject();
+          } else {
+            this.banderaEstadoDatos = true;//bandera validacion de la data
+            this.estado = plan.estado_plan_id;
+            this.steps = data[0];
+            this.json = data[1][0];
+            this.form = this.formBuilder.group(this.json);
+            Swal.close()
+            resolve(data);
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          });
           reject();
-        } else {
-          this.banderaEstadoDatos = true;//bandera validacion de la data
-          this.estado = plan.estado_plan_id;
-          this.steps = data[0];
-          this.json = data[1][0];
-          this.form = this.formBuilder.group(this.json);
-          Swal.close()
-          resolve(data);
-        }
-      }, (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2500
-        });
-        reject();
-      })
-    });
+        })
+      });
+    }
   }
 
   async editar(fila): Promise<void> {
@@ -1114,7 +1148,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     if (this.tipoPlanIndicativo === undefined && this.idPlanIndicativo === undefined) {
       this.cargarPlanesIndicativos();
     }
-    this.cargaFormato(this.plan);
+    this.cargaFormato(this.plan, false);
     this.addActividad = true;
     this.banderaEdit = false;
     this.visualizeObs();
@@ -1425,7 +1459,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                         icon: 'success',
                       }).then((result) => {
                         if (result.value) {
-                          this.busquedaPlanes(data.Data);
+                          this.busquedaPlanes(data.Data, false);
                           this.loadData();
                           this.addActividad = false;
                         }
@@ -1528,7 +1562,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.busquedaPlanes(data.Data);
+                this.busquedaPlanes(data.Data, false);
                 this.loadData();
                 this.addActividad = false;
               }
@@ -1578,7 +1612,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.busquedaPlanes(data.Data);
+                this.busquedaPlanes(data.Data, false);
                 this.loadData();
                 this.addActividad = false;
               }
@@ -1622,7 +1656,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.busquedaPlanes(data.Data);
+                this.busquedaPlanes(data.Data, false);
                 this.loadData();
                 this.addActividad = false;
               }
@@ -1717,7 +1751,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.busquedaPlanes(data.Data);
+                this.busquedaPlanes(data.Data, false);
                 this.loadData();
                 this.addActividad = false;
               }
@@ -1768,7 +1802,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.busquedaPlanes(data.Data);
+                this.busquedaPlanes(data.Data, false);
                 this.loadData();
                 this.addActividad = false;
                 let aux = {}
