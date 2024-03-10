@@ -25,7 +25,7 @@
     </mat-form-field>
     <mat-form-field class="selectorVigenciaStyle" appearance="fill">
       <mat-label id="tipo-input-label">Seleccione la vigencia</mat-label>
-      <mat-select (selectionChange)="onChangeV($event.value)">
+      <mat-select (selectionChange)="onChangeV($event.value)" [disabled]="!planSelected">
         <mat-option>--</mat-option>
         <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
           {{vigencia.Nombre}}
@@ -36,8 +36,9 @@
     <div *ngIf='vigenciaSelected && planSelected'>
       <mat-form-field class="selectorPlanStyle" appearance="fill">
         <mat-label id="tipo-input-label">Seleccione la unidad</mat-label>
-        <mat-select [(value)]="unidad" (selectionChange)="onChangeU($event.value)">
+        <mat-select [(value)]="unidad" (selectionChange)="onChangeU($event.value)" [disabled]="!vigenciaSelected">
           <mat-option>--</mat-option>
+          <mat-option [value]="'TODAS'">TODAS LAS UNIDADES</mat-option>
           <mat-option *ngFor="let unidad of unidades" [value]="unidad">
             {{unidad.Nombre}}
           </mat-option>
@@ -46,7 +47,7 @@
 
       <mat-form-field class="selectorVigenciaStyle" appearance="fill">
         <mat-label id="tipo-input-label">Seleccione el periodo</mat-label>
-        <mat-select (selectionChange)="onChangePe($event.value)">
+        <mat-select (selectionChange)="onChangePe($event.value)" [disabled]="!unidadSelected || unidad === 'TODAS'">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let periodo of periodos" [value]="periodo">
             {{periodo.nombre}}
@@ -56,13 +57,15 @@
     </div>
 
     <div class="align-button-ingresar">
-      <button *ngIf="unidadSelected != false && vigenciaSelected != false"
-        [disabled]="!(planSelected && periodoSelected)" (click)="ingresarEvaluacion()" class="btn-gestion-seg"
+      <button *ngIf="unidadSelected"
+        [disabled]="!(planSelected && vigenciaSelected && unidadSelected && periodoSelected) && unidad !== 'TODAS'" (click)="ingresarEvaluacion()" class="btn-gestion-seg"
         mat-raised-button color="primary">Consultar evaluación</button>
     </div>
-    <br>
-    <div>
-      <div *ngIf="bandera === true">
+  </mat-card-content>
+</mat-card>
+<br>
+<mat-card class="card-oas" *ngIf="bandera === true">
+      <div *ngIf="unidad !== 'TODAS'">
 
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <google-chart [title]="pieTitle" [type]="pieType" style="width: 30%;" height="400" [data]="pieChartData"
@@ -606,6 +609,7 @@
           <button class="btn-gestion-seg" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
         </div>
       </div>
-    </div>
-  </mat-card-content>
+      <div *ngIf="unidad === 'TODAS'">
+        Se seleccionaron todos los planes
+      </div>
 </mat-card>

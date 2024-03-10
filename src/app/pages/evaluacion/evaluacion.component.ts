@@ -105,6 +105,8 @@ export class EvaluacionComponent implements OnInit {
     this.loadVigencias();
     this.unidadSelected = false;
     this.vigenciaSelected = false;
+    this.planSelected = false;
+    this.periodoSelected = false;
     this.nombrePlanSeleccionado = "";
   }
 
@@ -114,43 +116,61 @@ export class EvaluacionComponent implements OnInit {
     }
   }
 
-  onChangeP(plan) {
+  onChangeP(plan :string) {
     if (plan == undefined) {
       this.planSelected = false;
     } else {
       this.planSelected = true;
       this.nombrePlanSeleccionado = plan;
-      if(this.vigenciaSelected && this.unidadSelected){
-        this.loadPeriodos();
+      this.periodos = []
+      this.periodoSelected = false
+      this.bandera = false;
+      if (this.vigenciaSelected) {
+        this.loadUnidades();
+        if( this.rol === 'PLANEACION'){
+          this.unidadSelected = false
+        } else {
+          this.onChangeU(this.unidades[0])
+        }
       }
     }
   }
 
   onChangeU(unidad) {
+    this.periodos = [];
+    this.periodoSelected = false;
+    this.bandera = false;
     if (unidad == undefined) {
       this.unidadSelected = false;
+      this.unidad = '';
     } else {
       this.unidadSelected = true;
-      this.unidad = unidad;
-      if (this.planSelected && this.vigenciaSelected) {
-        this.loadPeriodos();
+      this.unidad = unidad
+      if(unidad === 'TODAS'){
+        console.log("En procesooo")
+      } else {
+        if (this.planSelected && this.vigenciaSelected) {
+          this.loadPeriodos();
+        }
       }
     }
   }
 
   onChangeV(vigencia) {
+    this.bandera = false;
     if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
-      if (this.planSelected && this.unidadSelected) {
-        this.loadPeriodos();
+      if (this.planSelected) {
+        this.loadUnidades();
       }
     }
   }
 
   onChangePe(periodo) {
+    this.bandera = false;
     if (periodo == undefined) {
       this.periodoSelected = false;
     } else {
@@ -170,7 +190,6 @@ export class EvaluacionComponent implements OnInit {
       this.validarUnidad();
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
-      this.loadUnidades();
     }
   }
 
@@ -268,7 +287,6 @@ export class EvaluacionComponent implements OnInit {
                       }
                     }
                     this.unidades = [unidad];
-                    this.onChangeU(unidad);
                     Swal.close();
                   }
                 })
@@ -299,53 +317,55 @@ export class EvaluacionComponent implements OnInit {
     this.bandera = true;
     this.actividades = [];
     this.spans = [];
-    this.request.get(environment.PLANES_MID, `evaluacion/` + this.vigencia.Id + `/` + this.idPlanSeleccionado + `/` + this.periodo.id).subscribe((data: any) => {
-      if (data) {
-        this.actividades = data.Data;
-        this.actividades.forEach(actividad => {
-          actividad.class = actividad.numero % 2 == 0 ? "claro" : "oscuro";
-        });
-        this.pieTitle = "Cumplimiento general " + this.nombrePlanSeleccionado + " - " + this.unidad.Nombre;
-        this.cacheSpan('numero', d => d.numero);
-        this.cacheSpan('ponderado', d => d.numero + d.ponderado);
-        this.cacheSpan('periodo', d => d.numero + d.ponderado + d.periodo);
-        this.cacheSpan('actividad', d => d.numero + d.ponderado + d.periodo + d.actividad);
-        this.cacheSpan('actividadt1', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1);
-        this.cacheSpan('actividadt2', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2);
-        this.cacheSpan('actividadt3', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3);
-        this.cacheSpan('actividadt4', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4);
+    if( this.unidad !== 'TODAS' ){
+      this.request.get(environment.PLANES_MID, `evaluacion/` + this.vigencia.Id + `/` + this.idPlanSeleccionado + `/` + this.periodo.id).subscribe((data: any) => {
+        if (data) {
+          this.actividades = data.Data;
+          this.actividades.forEach(actividad => {
+            actividad.class = actividad.numero % 2 == 0 ? "claro" : "oscuro";
+          });
+          this.pieTitle = "Cumplimiento general " + this.nombrePlanSeleccionado + " - " + this.unidad.Nombre;
+          this.cacheSpan('numero', d => d.numero);
+          this.cacheSpan('ponderado', d => d.numero + d.ponderado);
+          this.cacheSpan('periodo', d => d.numero + d.ponderado + d.periodo);
+          this.cacheSpan('actividad', d => d.numero + d.ponderado + d.periodo + d.actividad);
+          this.cacheSpan('actividadt1', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1);
+          this.cacheSpan('actividadt2', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2);
+          this.cacheSpan('actividadt3', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3);
+          this.cacheSpan('actividadt4', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4);
 
-        if (this.periodo.nombre == "Trimestre dos") {
-          this.tr2 = true;
-          this.tr3 = false;
-          this.tr4 = false;
-        } else if (this.periodo.nombre == "Trimestre tres") {
-          this.tr2 = true;
-          this.tr3 = true;
-          this.tr4 = false;
-        } else if (this.periodo.nombre == "Trimestre cuatro") {
-          this.tr2 = true;
-          this.tr3 = true;
-          this.tr4 = true;
-        } else {
-          this.tr2 = false;
-          this.tr3 = false;
-          this.tr4 = false;
+          if (this.periodo.nombre == "Trimestre dos") {
+            this.tr2 = true;
+            this.tr3 = false;
+            this.tr4 = false;
+          } else if (this.periodo.nombre == "Trimestre tres") {
+            this.tr2 = true;
+            this.tr3 = true;
+            this.tr4 = false;
+          } else if (this.periodo.nombre == "Trimestre cuatro") {
+            this.tr2 = true;
+            this.tr3 = true;
+            this.tr4 = true;
+          } else {
+            this.tr2 = false;
+            this.tr3 = false;
+            this.tr4 = false;
+          }
+          this.calcularAvanceGeneral();
+          this.graficarBarras();
+          this.graficarCircular();
+          Swal.close();
         }
-        this.calcularAvanceGeneral();
-        this.graficarBarras();
-        this.graficarCircular();
-        Swal.close();
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      });
-    })
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        });
+      })
+    }
   }
 
   loadVigencias() {
@@ -356,7 +376,7 @@ export class EvaluacionComponent implements OnInit {
     }, (error) => {
       Swal.fire({
         title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+        text: `No se encontraron vigencias registradas`,
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
@@ -364,6 +384,9 @@ export class EvaluacionComponent implements OnInit {
     });
   }
 
+  /**
+   * Carga las unidades que le hacen seguimiento al plan y vigencia seleccionados
+   */
   loadUnidades() {
     Swal.fire({
       title: 'Cargando Unidades',
@@ -373,20 +396,47 @@ export class EvaluacionComponent implements OnInit {
         Swal.showLoading();
       },
     });
-    this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
-      if (data) {
-        this.unidades = data.Data;
-        Swal.close();
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      });
-    });
+    this.request
+      .get(
+        environment.PLANES_MID,
+        `evaluacion/unidades/${this.nombrePlanSeleccionado}/${this.vigencia.Id}`
+      )
+      .subscribe(
+        (data: any) => {
+          if (data) {
+            if (this.rol === 'PLANEACION') {
+              if (data.Data.length === 0) {
+                Swal.close();
+                Swal.fire({
+                  title: 'Verifica las selecciones',
+                  text: `No existen unidades con registros en fase de seguimiento asociados al plan de acción y vigencia seleccionados`,
+                  icon: 'warning',
+                  showConfirmButton: true,
+                });
+              } else {
+                this.unidades = data.Data;
+                Swal.close();
+              }
+            }
+            // else {
+            //   let datos:any[] = data.Data
+            //   this.unidades = datos.filter(()=> {
+
+            //   })
+            // }
+          }
+        },
+        (error) => {
+          Swal.close();
+          Swal.fire({
+            title: 'Verifica las selecciones',
+            text: `No existen unidades con registros en fase de seguimiento asociados al plan de acción y vigencia seleccionados`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        }
+      );
   }
 
   loadPlanes() {
@@ -460,8 +510,6 @@ export class EvaluacionComponent implements OnInit {
             });
           }
         } else {
-          this.bandera = false;
-          this.periodoSelected = false;
           this.tr2 = false;
           this.tr3 = false;
           this.tr4 = false;
@@ -474,8 +522,6 @@ export class EvaluacionComponent implements OnInit {
         }
       }
     }, (error) => {
-      this.bandera = false;
-      this.periodoSelected = false;
       this.tr2 = false;
       this.tr3 = false;
       this.tr4 = false;
