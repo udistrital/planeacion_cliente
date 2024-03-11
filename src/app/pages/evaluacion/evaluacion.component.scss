@@ -149,46 +149,24 @@ th.mat-header-cell {
   background-color: white;
 }
 
-.cdk-column-BrechaP {
-  padding: 0 10px !important;
+// Colores para Cumplimiento por meta
+.meta-rojo { 
+  background-color: #c71a1b;
+  color: #fff;
 }
 
-.cdk-column-Brecha {
-  padding: 0 !important;
-    
-  /*.column-Brecha {
-    width: 100%;
-    height: 8vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }*/
-  
-  .brecha-verde { 
-    background-color: #c0e19b;   
-    width: 100%;
-    min-height: 12vh;
-    display: flex;
-    align-items: center;
-    justify-content: center; 
-  }
-  
-  .brecha-amarillo { 
-    background-color: #ffff7c;
-    width: 100%;
-    min-height: 12vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .brecha-rojo { 
-    background-color: #a36463;
-    width: 100%;
-    min-height: 12vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.meta-piel { 
+  background-color: #ffa99e;
 }
 
+.meta-naranja { 
+  background-color: #fdc100;
+}
+
+.meta-amarillo { 
+  background-color: #fffe00;
+}
+
+.meta-verde { 
+  background-color: #72ac41;
+}
