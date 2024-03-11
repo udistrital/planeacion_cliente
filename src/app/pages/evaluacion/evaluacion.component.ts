@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { RequestManager } from '../services/requestManager';
 import { environment } from 'src/environments/environment';
-import { MatTable } from '@angular/material/table';
 import Swal from 'sweetalert2';
 import { UserService } from '../services/userService';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { Router } from '@angular/router';
 import { registerLocaleData } from '@angular/common';
 import es from '@angular/common/locales/es';
+import { EvaluacionPlanComponent } from './evaluacion-plan/evaluacion-plan.component';
 
 @Component({
   selector: 'app-evaluacion',
@@ -15,60 +15,6 @@ import es from '@angular/common/locales/es';
   styleUrls: ['./evaluacion.component.scss']
 })
 export class EvaluacionComponent implements OnInit {
-  pieTitle = 'Cumplimiento general Plan de Acción -';
-  pieType = 'PieChart';
-  columnType = 'ColumnChart';
-  spans = [];
-
-  pieChartColumns = [
-    'Effort',
-    'Amount given'
-  ];
-
-  pieChartData = [
-    ['', 75],
-    ['', 25],
-  ];
-
-  pieChartOptions = {
-    pieHole: 0.5,
-    pieSliceTextStyle: {
-      color: 'black',
-    },
-    pieSliceBorderColor: "gray",
-    slices: {
-      1: { color: 'transparent' }
-    },
-    legend: 'none'
-  };
-
-  lineChartOptions = {
-    tooltip: { isHtml: true },
-    legend: 'none',
-    vAxis: {minValue: 0, maxValue: 100}
-  };
-
-  lineChartColumnNames = [
-    'Actividad',
-    'Avance',
-    { role: 'style' },
-    { role: 'annotation' },
-    { type: 'string', role: 'tooltip' },
-  ];
-
-  lineChartData = [['', 0, 'color: rgb(143, 27, 0)', '', '']];
-
-  displayedColumns: string[] = [
-    "id", "ponderacion", "actividad", "indicador", "formula", "meta", "Brecha",
-    "numt1", "dent1", "pert1", "acut1", "metat1", "actividadt1",
-    "numt2", "dent2", "pert2", "acut2", "metat2", "actividadt2",
-    "numt3", "dent3", "pert3", "acut3", "metat3", "actividadt3",
-    "numt4", "dent4", "pert4", "acut4", "metat4", "actividadt4",];
-
-  displayedHeaders: string[] = [
-    "idP", "ponderacionP", "actividadP", "indicadorP", "formulaP", "metaP", "BrechaP",
-    "trimestre1", "trimestre2", "trimestre3", "trimestre4"];
-
   nombresPlanes: string[];
   periodos: any[];
   bandera: boolean;
@@ -81,19 +27,11 @@ export class EvaluacionComponent implements OnInit {
   periodoSelected: boolean;
   periodo: any;
   planSelected: boolean;
-  tr2: boolean = true;
-  tr3: boolean = true;
-  tr4: boolean = true;
-  actividades: any
   rol: string;
   nombrePlanSeleccionado:string;
   idPlanSeleccionado:string;
-  avanceTr1 = 0;
-  avanceTr2 = 0;
-  avanceTr3 = 0;
-  avanceTr4 = 0;
 
-  @ViewChild(MatTable) table: MatTable<any>;
+  @ViewChild(EvaluacionPlanComponent) seguimientoComponent: EvaluacionPlanComponent;
 
   constructor(
     private request: RequestManager,
@@ -108,12 +46,6 @@ export class EvaluacionComponent implements OnInit {
     this.planSelected = false;
     this.periodoSelected = false;
     this.nombrePlanSeleccionado = "";
-  }
-
-  ngAfterViewChecked(): void {
-    if (this.table) {
-      this.table.updateStickyColumnStyles();
-    }
   }
 
   onChangeP(plan :string) {
@@ -179,10 +111,6 @@ export class EvaluacionComponent implements OnInit {
     }
   }
 
-  backClicked() {
-    this.router.navigate(['pages/dashboard']);
-  }
-
   getRol() {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
@@ -191,83 +119,6 @@ export class EvaluacionComponent implements OnInit {
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
     }
-  }
-
-  //convertir a entero en vista
-  abs(value: number): number {
-    return Math.abs(value);
-  }
-
-  //agregar color al campo Brecha
-  colorBrecha(brecha: number): string {
-    if (brecha <= 0.10) {
-      return 'brecha-verde';
-    } else if (brecha > 0.10 && brecha <= 0.20) {
-      return 'brecha-amarillo';
-    } else {
-      return 'brecha-rojo';
-    }
-  }
-
-  //calculos y validaciones Brecha
-  calcularBrecha(row: any): string {
-    if (row.trimestre1 && row.trimestre1.meta) {
-      if(row.unidad === 'Porcentaje'){
-        const brecha = Math.abs((row.meta / 100) - row.trimestre1.meta);
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Unidad') {
-        const brecha = Math.abs(((row.meta)/100) - (row.trimestre1.meta * (row.meta)/100));
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Tasa') {
-        const brecha = Math.abs((row.meta - row.trimestre1.meta));
-        return this.colorBrecha(brecha);
-      } else {
-        return '';
-      }
-    }
-    if (row.trimestre2 && row.trimestre2.meta) {
-      if(row.unidad === 'Porcentaje'){
-        const brecha = Math.abs((row.meta / 100) - row.trimestre2.meta);
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Unidad') {
-        const brecha = Math.abs(((row.meta)/100) - (row.trimestre2.meta * (row.meta)/100));
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Tasa') {
-        const brecha = Math.abs((row.meta - row.trimestre2.meta));
-        return this.colorBrecha(brecha);
-      } else {
-        return '';
-      }
-    }
-    if (row.trimestre3 && row.trimestre3.meta) {
-      if(row.unidad === 'Porcentaje'){
-        const brecha = Math.abs((row.meta / 100) - row.trimestre3.meta);
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Unidad') {
-        const brecha = Math.abs(((row.meta)/100) - (row.trimestre3.meta * (row.meta)/100));
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Tasa') {
-        const brecha = Math.abs((row.meta - row.trimestre3.meta));
-        return this.colorBrecha(brecha);
-      } else {
-        return '';
-      }
-    }
-    if (row.trimestre4 && row.trimestre4.meta) {
-      if(row.unidad === 'Porcentaje'){
-        const brecha = Math.abs((row.meta / 100) - row.trimestre4.meta);
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Unidad') {
-        const brecha = Math.abs(((row.meta)/100) - (row.trimestre4.meta * (row.meta)/100));
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Tasa') {
-        const brecha = Math.abs((row.meta - row.trimestre4.meta));
-        return this.colorBrecha(brecha);
-      } else {
-        return '';
-      }
-    }
-    return ''; //si no se cumple ninguna condición
   }
 
   validarUnidad() {
@@ -306,66 +157,11 @@ export class EvaluacionComponent implements OnInit {
   }
 
   ingresarEvaluacion() {
-    Swal.fire({
-      title: 'Cargando información',
-      timerProgressBar: true,
-      showConfirmButton: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-    });
     this.bandera = true;
-    this.actividades = [];
-    this.spans = [];
-    if( this.unidad !== 'TODAS' ){
-      this.request.get(environment.PLANES_MID, `evaluacion/` + this.vigencia.Id + `/` + this.idPlanSeleccionado + `/` + this.periodo.id).subscribe((data: any) => {
-        if (data) {
-          this.actividades = data.Data;
-          this.actividades.forEach(actividad => {
-            actividad.class = actividad.numero % 2 == 0 ? "claro" : "oscuro";
-          });
-          this.pieTitle = "Cumplimiento general " + this.nombrePlanSeleccionado + " - " + this.unidad.Nombre;
-          this.cacheSpan('numero', d => d.numero);
-          this.cacheSpan('ponderado', d => d.numero + d.ponderado);
-          this.cacheSpan('periodo', d => d.numero + d.ponderado + d.periodo);
-          this.cacheSpan('actividad', d => d.numero + d.ponderado + d.periodo + d.actividad);
-          this.cacheSpan('actividadt1', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1);
-          this.cacheSpan('actividadt2', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2);
-          this.cacheSpan('actividadt3', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3);
-          this.cacheSpan('actividadt4', d => d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4);
-
-          if (this.periodo.nombre == "Trimestre dos") {
-            this.tr2 = true;
-            this.tr3 = false;
-            this.tr4 = false;
-          } else if (this.periodo.nombre == "Trimestre tres") {
-            this.tr2 = true;
-            this.tr3 = true;
-            this.tr4 = false;
-          } else if (this.periodo.nombre == "Trimestre cuatro") {
-            this.tr2 = true;
-            this.tr3 = true;
-            this.tr4 = true;
-          } else {
-            this.tr2 = false;
-            this.tr3 = false;
-            this.tr4 = false;
-          }
-          this.calcularAvanceGeneral();
-          this.graficarBarras();
-          this.graficarCircular();
-          Swal.close();
-        }
-      }, (error) => {
-        Swal.fire({
-          title: 'Error en la operación',
-          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2500
-        });
-      })
-    }
+    // if(this.unidad !== 'TODAS'){
+    //   //Cargar Datos de evaluación de el plan
+    //   this.seguimientoComponent.cargarDatos();
+    // }
   }
 
   loadVigencias() {
@@ -510,9 +306,6 @@ export class EvaluacionComponent implements OnInit {
             });
           }
         } else {
-          this.tr2 = false;
-          this.tr3 = false;
-          this.tr4 = false;
           Swal.fire({
             title: 'La unidad no tiene planes con seguimientos avalados para la vigencia selecionada',
             icon: 'info',
@@ -522,9 +315,6 @@ export class EvaluacionComponent implements OnInit {
         }
       }
     }, (error) => {
-      this.tr2 = false;
-      this.tr3 = false;
-      this.tr4 = false;
       Swal.fire({
         title: 'La unidad no tiene planes con seguimientos avalados para la vigencia selecionada',
         icon: 'info',
@@ -546,107 +336,7 @@ export class EvaluacionComponent implements OnInit {
     });
     this.getRol();
   }
-
-  cacheSpan(key, accessor) {
-    for (let i = 0; i < this.actividades.length;) {
-      let currentValue = accessor(this.actividades[i]);
-      let count = 1;
-
-      for (let j = i + 1; j < this.actividades.length; j++) {
-        if (currentValue != accessor(this.actividades[j])) {
-          break;
-        }
-        count++;
-      }
-
-      if (!this.spans[i]) {
-        this.spans[i] = {};
-      }
-
-      this.spans[i][key] = count;
-      i += count;
-    }
-  }
-
-  getRowSpan(col, index) {
-    return this.spans[index] && this.spans[index][col];
-  }
-
-  calcularAvanceGeneral() {
-    let numero = 0;
-    this.avanceTr1 = 0;
-    this.avanceTr2 = 0;
-    this.avanceTr3 = 0;
-    this.avanceTr4 = 0;
-
-    for (let index = 0; index < this.actividades.length; index++) {
-      const actividad = this.actividades[index];
-      if (numero != actividad.numero) {
-        numero = actividad.numero;
-      } else {
-        continue;
-      }
-
-      if (actividad.trimestre1.actividad) {
-        this.avanceTr1 += actividad.ponderado / 100 * (actividad.trimestre1.actividad <= 1 ? actividad.trimestre1.actividad : 1);
-      }
-
-      if (actividad.trimestre2.actividad) {
-        this.avanceTr2 += actividad.ponderado / 100 * (actividad.trimestre2.actividad <= 1 ? actividad.trimestre2.actividad : 1);
-      }
-
-      if (actividad.trimestre3.actividad) {
-        this.avanceTr3 += actividad.ponderado / 100 * (actividad.trimestre3.actividad <= 1 ? actividad.trimestre3.actividad : 1);
-      }
-
-      if (actividad.trimestre4.actividad) {
-        this.avanceTr4 += actividad.ponderado / 100 * (actividad.trimestre4.actividad <= 1 ? actividad.trimestre4.actividad : 1);
-      }
-    }
-  }
-
-  graficarBarras() {
-    let numero = 0;
-    let actividades = [];
-
-    for (let index = 0; index < this.actividades.length; index++) {
-      const actividad = this.actividades[index];
-      if (numero != actividad.numero) {
-        numero = actividad.numero;
-      } else {
-        continue;
-      }
-
-      let actividadValor
-      if (this.avanceTr4) {
-        actividadValor = Math.round((actividad.trimestre4.actividad * 100) * 100) / 100
-      } else if (this.avanceTr3) {
-        actividadValor = Math.round((actividad.trimestre3.actividad * 100) * 100) / 100
-      } else if (this.avanceTr2) {
-        actividadValor = Math.round((actividad.trimestre2.actividad * 100) * 100) / 100
-      } else if (this.avanceTr1) {
-        actividadValor = Math.round((actividad.trimestre1.actividad * 100) * 100) / 100
-      }
-
-      actividades.push([actividad.numero, actividadValor, 'color: rgb(143, 27, 0)', String(actividadValor) + '%', actividad.actividad]);
-    }
-
-    this.lineChartData = actividades;
-  }
-
-  graficarCircular() {
-    let avance = 0;
-    if (this.tr4) {
-      avance = this.avanceTr4;
-    } else if (this.tr3) {
-      avance = this.avanceTr3;
-    } else if (this.tr2) {
-      avance = this.avanceTr2;
-    } else {
-      avance = this.avanceTr1;
-    }
-
-    this.pieChartData = [['Avance', avance * 100],
-    ['Restante', 100 - avance * 100]];
+  backClicked() {
+    this.router.navigate(['#/pages/dashboard']);
   }
 }

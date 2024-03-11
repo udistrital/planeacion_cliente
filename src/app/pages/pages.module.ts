@@ -107,6 +107,7 @@ import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion
 import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
 import { FormParametrosComponent } from './plan/gestion-parametros/form-parametros/form-parametros.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
+import { EvaluacionPlanComponent } from './evaluacion/evaluacion-plan/evaluacion-plan.component';
 
 const pagesComponents = [
   DashboardComponent,
@@ -238,6 +239,7 @@ const MY_FORMATS = {
     GestionParametrosComponent,
     FormParametrosComponent,
     NotificacionesComponent,
+    EvaluacionPlanComponent,
   ],
   imports: [
     HttpClientModule,
