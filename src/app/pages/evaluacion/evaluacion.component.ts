@@ -78,12 +78,8 @@ export class EvaluacionComponent implements OnInit {
     } else {
       this.unidadSelected = true;
       this.unidad = unidad
-      if(unidad === 'TODAS'){
-        console.log("En procesooo")
-      } else {
-        if (this.planSelected && this.vigenciaSelected) {
-          this.loadPeriodos();
-        }
+      if(unidad !== 'TODAS' && this.planSelected && this.vigenciaSelected) {
+        this.loadPeriodos();
       }
     }
   }
@@ -158,10 +154,6 @@ export class EvaluacionComponent implements OnInit {
 
   ingresarEvaluacion() {
     this.bandera = true;
-    // if(this.unidad !== 'TODAS'){
-    //   //Cargar Datos de evaluación de el plan
-    //   this.seguimientoComponent.cargarDatos();
-    // }
   }
 
   loadVigencias() {

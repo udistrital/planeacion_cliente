@@ -108,6 +108,7 @@ import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-pa
 import { FormParametrosComponent } from './plan/gestion-parametros/form-parametros/form-parametros.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 import { EvaluacionPlanComponent } from './evaluacion/evaluacion-plan/evaluacion-plan.component';
+import { ResumenComponent } from './evaluacion/resumen/resumen.component';
 
 const pagesComponents = [
   DashboardComponent,
@@ -240,6 +241,7 @@ const MY_FORMATS = {
     FormParametrosComponent,
     NotificacionesComponent,
     EvaluacionPlanComponent,
+    ResumenComponent,
   ],
   imports: [
     HttpClientModule,

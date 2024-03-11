@@ -66,16 +66,19 @@
 <br>
 <mat-card class="card-oas" *ngIf="bandera === true">
   <app-evaluacion-plan
-   *ngIf=" unidad !== 'TODAS' "
-   [idVigencia]=" vigencia.Id "
-   [plan]=" { id: idPlanSeleccionado, nombre: nombrePlanSeleccionado} "
-   [periodo]=" periodo "
-   [nombreUnidad]=" unidad.Nombre "
+    *ngIf=" unidad !== 'TODAS' "
+    [idVigencia]=" vigencia.Id "
+    [plan]=" { id: idPlanSeleccionado, nombre: nombrePlanSeleccionado} "
+    [periodo]=" periodo "
+    [nombreUnidad]=" unidad.Nombre "
   >
   </app-evaluacion-plan>
-  <div *ngIf="unidad === 'TODAS'">
-    Se seleccionaron todos los planes
-  </div>
+  <app-resumen
+    *ngIf="unidad === 'TODAS'"
+    [plan]=" { id: idPlanSeleccionado, nombre: nombrePlanSeleccionado} "
+    [idVigencia]=" vigencia.Id "
+    [unidades]="unidades">
+  </app-resumen>
   <br>
   <div class="align-button-ingresar">
     <button
