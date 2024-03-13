@@ -228,7 +228,7 @@ export class TablaUnidadesComponent implements OnInit {
                 this.dataSource.paginator = this.paginator;
                 Swal.fire({
                   title: 'Error en la operación',
-                  text: 'No se encontraron unidades de interés habilitadas para los planes seleccionados',
+                  text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas',
                   icon: 'warning',
                   showConfirmButton: false,
                   timer: 2500
@@ -243,7 +243,7 @@ export class TablaUnidadesComponent implements OnInit {
             } else {
               Swal.fire({
                 title: 'Error en la operación',
-                text: 'No se encontraron unidades de interés habilitadas para los planes seleccionados',
+                text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas',
                 icon: 'warning',
                 showConfirmButton: false,
                 timer: 2500

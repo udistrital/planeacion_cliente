@@ -412,7 +412,7 @@ export class ListarPlanComponent implements OnInit {
             } else {
               Swal.fire({
                 title: 'Error en la operación',
-                text: 'No se encontraron planes de interés habilitados para el periodo de seguimiento seleccionado',
+                text: 'Las unidades escogidas no cuentan con planes/proyectos con fechas parametrizadas',
                 icon: 'warning',
                 showConfirmButton: false,
                 timer: 2500
