@@ -20,6 +20,9 @@ export class FuncionamientoComponent implements OnInit {
   banderaPlanesInteres: boolean;
   banderaPlanesInteresPeriodoSeguimiento: boolean;
   tipoSelected: boolean;
+  filtroSelected: boolean;
+  filtroUnidad: boolean;
+  filtroPlan: boolean;
   reporteHabilitado: boolean;
   periodos: Periodo[];
   vigencia: Vigencia;
@@ -31,9 +34,12 @@ export class FuncionamientoComponent implements OnInit {
   planesInteresPeriodoSeguimiento: PlanInteres[];
   seguimiento: Seguimiento;
   periodoSeguimiento: PeriodoSeguimiento;
+  periodoSeguimientoListarPlan: PeriodoSeguimiento;
+  periodoSeguimientoListarUnidades: PeriodoSeguimiento;
 
   selectVigencia = new FormControl();
   selectTipo = new FormControl();
+  selectFiltro = new FormControl();
 
   @Input() formFechas: FormGroup; // Propiedad que se recibe desde el componente padre (habilitar-reporte.component.ts)
   @Input() vigencias: Vigencia[]; // Propiedad que se recibe desde el componente padre (habilitar-reporte.component.ts)
@@ -44,7 +50,10 @@ export class FuncionamientoComponent implements OnInit {
   ) {
     this.vigenciaSelected = false;
     this.guardarDisabled = false;
+    this.filtroSelected = false;
     this.banderaPlanesInteresPeriodoSeguimiento = false;
+    this.periodoSeguimientoListarPlan = {} as PeriodoSeguimiento;
+    this.periodoSeguimientoListarUnidades = {} as PeriodoSeguimiento;
   }
 
   ngOnInit(): void { }
@@ -52,22 +61,29 @@ export class FuncionamientoComponent implements OnInit {
   // Función para manejar los cambios en las unidades de interés
   manejarCambiosUnidadesInteres(nuevasUnidades: Unidad[]) {
     this.unidadesInteres = nuevasUnidades;
-    
-    // Aquí se comparan this.unidadesInteres con las unidadesInteres del registro en la base de datos
-    this.banderaPlanesInteresPeriodoSeguimiento = this.hayRegistrosIguales(this.unidadesInteres, this.unidadesInteresPeriodoSeguimiento);
-    if(this.banderaPlanesInteresPeriodoSeguimiento){
-      this.planesInteresPeriodoSeguimiento = JSON.parse(this.periodoSeguimiento.planes_interes);
-      this.planesInteresPeriodoSeguimiento.forEach(plan => {
-        plan.fecha_modificacion = this.periodoSeguimiento.fecha_modificacion;
-      });
+    if(this.tipo == PROCESO_FUNCIONAMIENTO_FORMULACION) {
+      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = "6260e975ebe1e6498f7404ee";
+      this.periodoSeguimientoListarPlan.periodo_id = this.vigencia.Id.toString();
     } else {
-      this.planesInteresPeriodoSeguimiento = [];
+      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = "61f236f525e40c582a0840d0";
+      this.periodoSeguimientoListarPlan.periodo_id = this.periodos[0].Id.toString();
     }
+    this.periodoSeguimientoListarPlan.unidades_interes = JSON.stringify(this.unidadesInteres);
+    this.periodoSeguimientoListarPlan.activo = true;
   }
 
   // Función para manejar los cambios en los planes de interés
   manejarCambiosPlanesInteres(nuevosPlanes: PlanInteres[]) {
     this.planesInteres = nuevosPlanes;
+    if(this.tipo == PROCESO_FUNCIONAMIENTO_FORMULACION) {
+      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = "6260e975ebe1e6498f7404ee";
+      this.periodoSeguimientoListarUnidades.periodo_id = this.vigencia.Id.toString();
+    } else {
+      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = "61f236f525e40c582a0840d0";
+      this.periodoSeguimientoListarUnidades.periodo_id = this.periodos[0].Id.toString();
+    }
+    this.periodoSeguimientoListarUnidades.planes_interes = JSON.stringify(this.planesInteres);
+    this.periodoSeguimientoListarUnidades.activo = true;
   }
 
   // Función para comparar dos registros de la interfaz Unidad
@@ -87,7 +103,7 @@ export class FuncionamientoComponent implements OnInit {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
       this.loadTrimestres(this.vigencia);
-      if (this.tipoSelected) this.loadFechas();
+      // if (this.tipoSelected) this.loadFechas();
     }
   }
 
@@ -97,7 +113,21 @@ export class FuncionamientoComponent implements OnInit {
     } else {
       this.tipoSelected = true;
       this.tipo = tipo;
-      this.loadFechas();
+      // this.loadFechas();
+    }
+  }
+
+  onChangeFiltro(filtro: string) {
+    if (filtro == undefined) {
+      this.filtroSelected = false;
+    } else {
+      if (filtro === 'unidad') {
+        this.filtroUnidad = true;
+        this.filtroPlan = false;
+      } else if (filtro === 'plan') {
+        this.filtroPlan = true;
+        this.filtroUnidad = false;
+      }
     }
   }
 
@@ -280,7 +310,6 @@ export class FuncionamientoComponent implements OnInit {
             periodo_seguimiento_formulacion.unidades_interes = JSON.stringify(this.unidadesInteres);
             periodo_seguimiento_formulacion.planes_interes = JSON.stringify(this.planesInteres);
             periodo_seguimiento_formulacion.activo = true;
-            console.log("Periodo seguimiento formulación: ", periodo_seguimiento_formulacion)
             this.request.post(environment.PLANES_MID, 'formulacion/habilitar_fechas_funcionamiento', periodo_seguimiento_formulacion)
             .subscribe(
               (data: DataRequest) => {
@@ -397,7 +426,6 @@ export class FuncionamientoComponent implements OnInit {
     periodo_seguimiento_seguimiento.unidades_interes = JSON.stringify(this.unidadesInteres);
     periodo_seguimiento_seguimiento.planes_interes = JSON.stringify(this.planesInteres);
     periodo_seguimiento_seguimiento.activo = true;
-    console.log("Periodo seguimiento seguimiento: ", periodo_seguimiento_seguimiento)
 
     this.request.post(environment.PLANES_MID, `formulacion/habilitar_fechas_funcionamiento`, periodo_seguimiento_seguimiento).subscribe((data: DataRequest) => {
       if (data) {
@@ -429,6 +457,10 @@ export class FuncionamientoComponent implements OnInit {
     this.selectVigencia.setValue('--');
     this.unidadesInteres = undefined;
     this.planesInteres = undefined;
+    this.selectFiltro.setValue('');
+    this.filtroSelected = false;
+    this.filtroPlan = false;
+    this.filtroUnidad = false;
     if (this.tipo === PROCESO_FUNCIONAMIENTO_FORMULACION) {
       this.formFechas.get('fecha9').setValue('');
       this.formFechas.get('fecha10').setValue('');
