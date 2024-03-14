@@ -8,6 +8,8 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
+import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
+import { PeriodoSeguimiento } from '../habilitar-reporte/utils/habilitar-reporte.models';
 export interface Planes {
   _id: string
   activo: string
@@ -48,7 +50,8 @@ export class ListarPlanComponent implements OnInit {
   planesMostrar: Planes[];
   textBotonMostrarData: string = 'Mostrar Planes Interés Habilitados/Reporte';
   
-  @Input() planesPeriodoSeguimiento: any;
+  @Input() periodoSeguimiento: PeriodoSeguimiento;
+  @Input() filtroPlan: boolean;
   @Input() banderaPlanesAccionFuncionamiento: boolean;
   @Output() planesInteresSeleccionados = new EventEmitter<any[]>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -61,13 +64,18 @@ export class ListarPlanComponent implements OnInit {
   ) {
     this.banderaTodosSeleccionados = false;
     this.planesInteres = [];
+    this.filtroPlan = false;
     this.banderaPlanesAccionFuncionamiento = false;
   }
 
   ngOnInit(): void {
     this.planesMostrar = [];
-    if(this.banderaPlanesAccionFuncionamiento){
-      this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'fecha_modificacion', 'actions']
+    if(this.banderaPlanesAccionFuncionamiento === true){
+      if(this.filtroPlan === true){
+        this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
+      } else {
+        this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'fecha_modificacion', 'actions']
+      }
     } else {
       this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
     }
@@ -369,19 +377,59 @@ export class ListarPlanComponent implements OnInit {
   }
 
   cambiarDataTabla(){
-    if(this.planesPeriodoSeguimiento.length >= 0 
-      && this.textBotonMostrarData === 'Mostrar Planes Interés Habilitados/Reporte'){
-      this.textBotonMostrarData = 'Mostrar todos los planes';
-      this.planesMostrar = this.planes.filter(plan1 => {
-        const plan2 = this.planesPeriodoSeguimiento.find(plan => plan._id === plan1._id);
-        if (plan2) {
-            plan1.fecha_modificacion = this.formatearFecha(plan2['fecha_modificacion']);
+    if(this.textBotonMostrarData === 'Mostrar Planes Interés Habilitados/Reporte'){
+      Swal.fire({
+        title: 'Cargando datos...',
+        allowEscapeKey: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
         }
-        return this.planesPeriodoSeguimiento.some(plan2 => plan2._id === plan1._id);
       });
-      this.dataSource = new MatTableDataSource(this.planesMostrar);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
+      this.request.post(environment.PLANES_CRUD, 'periodo-seguimiento/buscar-unidad-planes/5', this.periodoSeguimiento).subscribe(
+        (data: DataRequest) => {
+          if (data) {
+            if(data.Data !== null){
+              var periodoSeguimiento = data.Data;
+              this.textBotonMostrarData = 'Mostrar todos los planes';
+              let planesMostrar = [];
+
+              periodoSeguimiento.forEach((element) => {
+                element.planes_interes = JSON.parse(element.planes_interes);
+                let planesFiltrados = this.planes.filter(plan => element.planes_interes.some(planInteres => planInteres._id === plan._id));
+                planesFiltrados.forEach(planFiltrado => {
+                  planFiltrado.fecha_modificacion = this.formatearFecha(element.fecha_modificacion);
+                });
+                planesMostrar = planesMostrar.concat(planesFiltrados);
+              });
+  
+              planesMostrar = [...new Set(planesMostrar)];
+              this.planesMostrar = planesMostrar;
+              this.dataSource = new MatTableDataSource(this.planesMostrar);
+              this.dataSource.paginator = this.paginator;
+              this.dataSource.sort = this.sort;
+              Swal.close();
+            } else {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: 'Las unidades escogidas no cuentan con planes/proyectos con fechas parametrizadas',
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
+          }
+        },
+        (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: 'No se encontraron datos registrados',
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+      );
     } else {
       this.textBotonMostrarData = 'Mostrar Planes Interés Habilitados/Reporte';
       this.dataSource = new MatTableDataSource(this.planes);
