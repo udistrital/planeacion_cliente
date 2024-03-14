@@ -1,11 +1,28 @@
-<div style="display: flex; justify-content: space-between; align-items: center; width:100%">
+<div
+  style="
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  "
+>
   <google-chart
-      [type]="columnType"
-      [data]="lineChartData"
-      style="width: 70%"
-      dynamicResize="true"
-      height="400"
-      [columns]="lineChartColumnNames"
-      [options]="lineChartOptions"
-    ></google-chart>
+    [type]="columnType"
+    [data]="lineChartData"
+    style="width: 70%"
+    dynamicResize="true"
+    height="400"
+    [columns]="lineChartColumnNames"
+    [options]="lineChartOptions"
+  ></google-chart>
 </div>
+<!-- <br>
+<mat-card-title>
+  Reporte avance promedio del plan: {{ plan.nombre.toUpperCase() }}
+</mat-card-title>
+<br> -->
+<!-- <app-tabla-resumen-evaluacion
+  *ngIf="infoTabla.length > 0"
+  [dataSource]="infoTabla"
+  style="width: 100%"
+></app-tabla-resumen-evaluacion> -->

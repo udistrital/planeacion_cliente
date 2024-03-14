@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
+import Swal from 'sweetalert2';
 
 type Dato = { id: string; nombre: string };
 
@@ -16,149 +17,111 @@ export class ResumenComponent implements OnInit {
   columnType = 'ColumnChart';
   lineChartOptions = {
     title: 'Avance ponderado por planes',
-    // tooltip: { isHtml: true },
     legend: 'none',
-    vAxis: { minValue: 0, maxValue: 100 },
+    hAxis: { title: 'Unidad' },
+    vAxis: { title: 'Avance', minValue: 0, maxValue: 100 },
   };
 
-  lineChartColumnNames = ['Plan', 'Avance', { role: 'style' }];
+  lineChartColumnNames = [
+    'Unidad',
+    'Avance',
+    { role: 'style' },
+  ];
 
   lineChartData = [['', 0, 'color: rgb(143, 27, 0)']];
+  auxLineChartData = [];
+
+  infoTabla = [];
 
   constructor(private request: RequestManager) {}
 
-  ngOnInit(): void {
-    if (this.idVigencia && this.unidades && this.plan) {
-      this.calcularAvanceGeneral();
-    }
+  async ngOnInit() {
+    await this.calcularAvanceGeneral();
   }
 
-  calcularAvanceGeneral() {
-    this.unidades.forEach((unidad) => {
+  async obtenerDatosUnidad(unidad: { Id: string; Nombre: string }) {
+    return await new Promise((resolve, reject) => {
       this.request
         .get(
           environment.PLANES_MID,
-          `evaluacion/planes_periodo/${this.idVigencia}/${unidad.Id}`
+          `evaluacion/avance/${this.plan.nombre}/${this.idVigencia}/${unidad.Id}`
         )
-        .subscribe((data: any) => {
-          if (data?.Data != null) {
-            data.Data.filter((plan) => {
-              return plan['plan'] === this.plan.nombre;
-            }).forEach((plan) => {
-              let periodos = plan['periodos'];
-              console.log(`Plan:`, plan);
-              periodos.forEach((periodo) => {
-                console.log('periodo:', periodo);
-                let tr2: boolean = true;
-                let tr3: boolean = true;
-                let tr4: boolean = true;
-                let numero = 0;
-                let avanceTr1: number = 0;
-                let avanceTr2: number = 0;
-                let avanceTr3: number = 0;
-                let avanceTr4: number = 0;
-                if (periodo.nombre == 'Trimestre dos') {
-                  tr2 = true;
-                  tr3 = false;
-                  tr4 = false;
-                } else if (periodo.nombre == 'Trimestre tres') {
-                  tr2 = true;
-                  tr3 = true;
-                  tr4 = false;
-                } else if (periodo.nombre == 'Trimestre cuatro') {
-                  tr2 = true;
-                  tr3 = true;
-                  tr4 = true;
-                } else {
-                  tr2 = false;
-                  tr3 = false;
-                  tr4 = false;
-                }
-                this.request
-                  .get(
-                    environment.PLANES_MID,
-                    `evaluacion/${this.idVigencia}/${plan.id}/${periodo.id}`
-                  )
-                  .subscribe((data) => {
-                    if (data) {
-                      console.log(data);
-                      data.Data.forEach((actividad) => {
-                        console.log(actividad);
-                        if (numero != actividad.numero) {
-                          numero = actividad.numero;
-                          if (actividad.trimestre1.actividad) {
-                            avanceTr1 +=
-                              (actividad.ponderado / 100) *
-                              (actividad.trimestre1.actividad <= 1
-                                ? actividad.trimestre1.actividad
-                                : 1);
-                          }
-
-                          if (actividad.trimestre2.actividad) {
-                            avanceTr2 +=
-                              (actividad.ponderado / 100) *
-                              (actividad.trimestre2.actividad <= 1
-                                ? actividad.trimestre2.actividad
-                                : 1);
-                          }
-
-                          if (actividad.trimestre3.actividad) {
-                            avanceTr3 +=
-                              (actividad.ponderado / 100) *
-                              (actividad.trimestre3.actividad <= 1
-                                ? actividad.trimestre3.actividad
-                                : 1);
-                          }
-
-                          if (actividad.trimestre4.actividad) {
-                            avanceTr4 +=
-                              (actividad.ponderado / 100) *
-                              (actividad.trimestre4.actividad <= 1
-                                ? actividad.trimestre4.actividad
-                                : 1);
-                          }
-                        }
-                      });
-                    }
-                  });
-                // Desde aquí quedé sin poder entrar :(
-                console.log('avanceTr1:', avanceTr1);
-                console.log('avanceTr2:', avanceTr2);
-                console.log('avanceTr3:', avanceTr3);
-                console.log('avanceTr4:', avanceTr4);
-                let avancePromedio =
-                  (avanceTr1 + avanceTr2 + avanceTr3 + avanceTr4) / 4;
-                // Tal vez no sea necesario
-                avancePromedio = Math.round(avancePromedio * 100 * 100) / 100;
-                console.log('avancePonderado:', avancePromedio);
-                let color: string;
-                if (avancePromedio <= 20) {
-                  //  0,0 -  20  % #c50820
-                  color = '#c50820';
-                } else if (avancePromedio > 20 && avancePromedio <= 40) {
-                  // 20,1 -  40  % #faa99c
-                  color = '#faa99c';
-                } else if (avancePromedio > 40 && avancePromedio <= 60) {
-                  // 40,1 -  60  % #fac11d
-                  color = '#fac11d';
-                } else if (avancePromedio > 60 && avancePromedio <= 80) {
-                  // 60,1 -  80  % #fdff21
-                  color = '#fdff21';
-                } else {
-                  // 80,1 - 100  % #73af49
-                  color = '#73af49';
-                }
-                this.lineChartData.push([
-                  unidad.Nombre,
-                  avancePromedio,
-                  `color: ${color}`,
-                ]);
-
-
+        .subscribe(
+          (data: any) => {
+            if (data) {
+              console.log(data.Data);
+              let auxDataBarra: [string, number, string] = ['', 0, ''];
+              auxDataBarra[0] = unidad.Nombre;
+              let avanceGeneral = data.Data.Promedio;
+              let color: string;
+              if (avanceGeneral <= 20) {
+                //  0,0 -  20  % #c50820
+                color = '#c50820';
+              } else if (avanceGeneral > 20 && avanceGeneral <= 40) {
+                // 20,1 -  40  % #faa99c
+                color = '#faa99c';
+              } else if (avanceGeneral > 40 && avanceGeneral <= 60) {
+                // 40,1 -  60  % #fac11d
+                color = '#fac11d';
+              } else if (avanceGeneral > 60 && avanceGeneral <= 80) {
+                // 60,1 -  80  % #fdff21
+                color = '#fdff21';
+              } else {
+                // 80,1 - 100  % #73af49
+                color = '#73af49';
+              }
+              auxDataBarra[1] = avanceGeneral;
+              auxDataBarra[2] = `color: ${color}`;
+              this.infoTabla.push({
+                idVigencia: this.idVigencia,
+                plan: data.Data.plan,
+                periodo: data.Data.periodo,
+                nombreUnidad: unidad.Nombre,
+                avanceTr1: data.Data.Trimestres['1'],
+                avanceTr2: data.Data.Trimestres['2'],
+                avanceTr3: data.Data.Trimestres['3'],
+                avanceTr4: data.Data.Trimestres['4'],
+                avanceGeneral,
               });
+              this.auxLineChartData.push(auxDataBarra);
+              resolve(auxDataBarra);
+            }
+          },
+          (error) => {
+            Swal.close();
+            Swal.fire({
+              title: 'Error al obtener los datos',
+              text: `No se encontró el avance de la Unidad`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500,
             });
+            reject(error);
           }
-        });
+        );
     });
+  }
+
+  async calcularAvanceGeneral() {
+    Swal.fire({
+      title: 'Cargando datos de las unidades...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    this.auxLineChartData = [];
+    for (let index = 0; index < this.unidades.length; index++) {
+      const unidad = this.unidades[index];
+      await this.obtenerDatosUnidad(unidad);
+    }
+    Swal.close();
+    if (this.auxLineChartData.length > 0) {
+      console.log('se agrego a los datos');
+      this.lineChartData = this.auxLineChartData;
+    } else {
+      console.log('NO se agrego a los datos');
+    }
   }
 }

@@ -49,38 +49,23 @@ export class EvaluacionComponent implements OnInit {
   }
 
   onChangeP(plan :string) {
+    this.bandera = false;
     if (plan == undefined) {
       this.planSelected = false;
     } else {
       this.planSelected = true;
       this.nombrePlanSeleccionado = plan;
-      this.periodos = []
-      this.periodoSelected = false
-      this.bandera = false;
       if (this.vigenciaSelected) {
-        this.loadUnidades();
-        if( this.rol === 'PLANEACION'){
-          this.unidadSelected = false
+        if( this.rol === 'PLANEACION' ) {
+          this.unidadSelected = false;
+          this.loadUnidades();
         } else {
-          this.onChangeU(this.unidades[0])
+          this.unidadSelected = true;
+          this.onChangeU(this.unidades[0]);
         }
       }
-    }
-  }
-
-  onChangeU(unidad) {
-    this.periodos = [];
-    this.periodoSelected = false;
-    this.bandera = false;
-    if (unidad == undefined) {
-      this.unidadSelected = false;
-      this.unidad = '';
-    } else {
-      this.unidadSelected = true;
-      this.unidad = unidad
-      if(unidad !== 'TODAS' && this.planSelected && this.vigenciaSelected) {
-        this.loadPeriodos();
-      }
+      this.periodos = []
+      this.periodoSelected = false
     }
   }
 
@@ -92,7 +77,33 @@ export class EvaluacionComponent implements OnInit {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
       if (this.planSelected) {
-        this.loadUnidades();
+        if(this.rol === 'PLANEACION') {
+          this.unidadSelected = false;
+          this.loadUnidades();
+        } else {
+          this.unidadSelected = true;
+          this.onChangeU(this.unidades[0]);
+        }
+      }
+      this.periodos = [];
+      this.periodoSelected = false;
+    }
+  }
+
+  onChangeU(unidad) {
+    this.bandera = false;
+    this.periodos = [];
+    this.periodoSelected = false;
+    if (unidad == undefined) {
+      this.unidadSelected = false;
+      this.unidad = '';
+    } else {
+      this.unidadSelected = true;
+      this.unidad = unidad
+      this.periodos = []
+      this.periodoSelected = false
+      if(unidad !== 'TODAS' && this.planSelected && this.vigenciaSelected && this.unidadSelected) {
+        this.loadPeriodos();
       }
     }
   }
@@ -195,6 +206,7 @@ export class EvaluacionComponent implements OnInit {
             if (this.rol === 'PLANEACION') {
               if (data.Data.length === 0) {
                 Swal.close();
+                this.unidades = [];
                 Swal.fire({
                   title: 'Verifica las selecciones',
                   text: `No existen unidades con registros en fase de seguimiento asociados al plan de acción y vigencia seleccionados`,
@@ -206,16 +218,11 @@ export class EvaluacionComponent implements OnInit {
                 Swal.close();
               }
             }
-            // else {
-            //   let datos:any[] = data.Data
-            //   this.unidades = datos.filter(()=> {
-
-            //   })
-            // }
           }
         },
         (error) => {
           Swal.close();
+          this.unidades = [];
           Swal.fire({
             title: 'Verifica las selecciones',
             text: `No existen unidades con registros en fase de seguimiento asociados al plan de acción y vigencia seleccionados`,

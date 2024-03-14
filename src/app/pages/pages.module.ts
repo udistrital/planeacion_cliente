@@ -109,6 +109,7 @@ import { FormParametrosComponent } from './plan/gestion-parametros/form-parametr
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 import { EvaluacionPlanComponent } from './evaluacion/evaluacion-plan/evaluacion-plan.component';
 import { ResumenComponent } from './evaluacion/resumen/resumen.component';
+import { TablaResumenEvaluacionComponent } from './evaluacion/tabla-resumen-evaluacion/tabla-resumen-evaluacion.component';
 
 const pagesComponents = [
   DashboardComponent,
@@ -242,6 +243,7 @@ const MY_FORMATS = {
     NotificacionesComponent,
     EvaluacionPlanComponent,
     ResumenComponent,
+    TablaResumenEvaluacionComponent,
   ],
   imports: [
     HttpClientModule,

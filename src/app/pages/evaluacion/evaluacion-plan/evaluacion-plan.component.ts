@@ -3,6 +3,13 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
 import { MatTable } from '@angular/material/table';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 
 type Dato = { id: string; nombre: string };
 
@@ -10,6 +17,16 @@ type Dato = { id: string; nombre: string };
   selector: 'app-evaluacion-plan',
   templateUrl: './evaluacion-plan.component.html',
   styleUrls: ['./evaluacion-plan.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition(
+        'expanded <=> collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
+      ),
+    ]),
+  ],
 })
 export class EvaluacionPlanComponent implements OnInit {
   @Input() idVigencia: string;
@@ -117,12 +134,7 @@ export class EvaluacionPlanComponent implements OnInit {
 
   @ViewChild(MatTable) table: MatTable<any>;
 
-  constructor(private request: RequestManager) {
-    console.log(this.idVigencia);
-    console.log(this.plan);
-    console.log(this.periodo);
-    console.log(this.nombreUnidad);
-  }
+  constructor(private request: RequestManager) { }
 
   ngAfterViewChecked(): void {
     if (this.table) {
