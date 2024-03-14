@@ -16,13 +16,13 @@
     [options]="lineChartOptions"
   ></google-chart>
 </div>
-<!-- <br>
-<mat-card-title>
+<br>
+<mat-card-title *ngIf="mostrarTabla">
   Reporte avance promedio del plan: {{ plan.nombre.toUpperCase() }}
 </mat-card-title>
-<br> -->
-<!-- <app-tabla-resumen-evaluacion
-  *ngIf="infoTabla.length > 0"
+<br>
+<app-tabla-resumen-evaluacion
+  *ngIf="mostrarTabla"
   [dataSource]="infoTabla"
   style="width: 100%"
-></app-tabla-resumen-evaluacion> -->
+></app-tabla-resumen-evaluacion>

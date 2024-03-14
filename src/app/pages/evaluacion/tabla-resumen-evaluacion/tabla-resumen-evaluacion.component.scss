@@ -2,6 +2,52 @@ table {
   width: 100%;
 }
 
+th {
+  color: white;
+}
+
+th.mat-header-cell div {
+  margin-bottom: 10px;
+}
+
+
+th input {
+  background-color: var(--color0);
+  color: var(--color3);
+  font-size: 10px;
+  padding: 5px;
+  width: calc(100% - 16px);
+
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  appearance: textfield;
+}
+
+td.mat-cell,
+th.mat-header-cell {
+  padding: 16px 10px;
+}
+
+// tr td.mat-cell:last-child {
+//   text-align: right;
+//   justify-content: flex-end;
+// }
+// tr th.mat-header-cell:last-child {
+//   padding-right: 24px;
+//   text-align: right;
+// }
+
+th.mat-column-Avance-Trimestre-1, th.mat-column-Avance-Trimestre-2, th.mat-column-Avance-Trimestre-3, th.mat-column-Avance-Trimestre-4, .mat-column-Avance-General {
+  width: 12.5%;
+}
+
 tr.example-detail-row {
   height: 0;
 }
@@ -16,30 +62,6 @@ tr.example-element-row:not(.example-expanded-row):active {
 
 .example-element-row td {
   border-bottom-width: 0;
-}
-
-.example-element-detail {
-  overflow: hidden;
-  display: flex;
-}
-
-.example-element-diagram {
-  min-width: 80px;
-  border: 2px solid black;
-  padding: 8px;
-  font-weight: lighter;
-  margin: 8px 0;
-  height: 104px;
-}
-
-.example-element-symbol {
-  font-weight: bold;
-  font-size: 40px;
-  line-height: normal;
-}
-
-.example-element-description {
-  padding: 16px;
 }
 
 .example-element-description-attribution {

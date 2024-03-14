@@ -32,6 +32,7 @@ export class ResumenComponent implements OnInit {
   auxLineChartData = [];
 
   infoTabla = [];
+  mostrarTabla: boolean = false;
 
   constructor(private request: RequestManager) {}
 
@@ -119,5 +120,6 @@ export class ResumenComponent implements OnInit {
     if (this.auxLineChartData.length > 0) {
       this.lineChartData = this.auxLineChartData;
     }
+    this.mostrarTabla = true
   }
 }
