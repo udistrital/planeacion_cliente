@@ -113,15 +113,11 @@ export class ResumenComponent implements OnInit {
     });
     this.auxLineChartData = [];
     for (let index = 0; index < this.unidades.length; index++) {
-      const unidad = this.unidades[index];
-      await this.obtenerDatosUnidad(unidad);
+      await this.obtenerDatosUnidad(this.unidades[index]);
     }
     Swal.close();
     if (this.auxLineChartData.length > 0) {
-      console.log('se agrego a los datos');
       this.lineChartData = this.auxLineChartData;
-    } else {
-      console.log('NO se agrego a los datos');
     }
   }
 }
