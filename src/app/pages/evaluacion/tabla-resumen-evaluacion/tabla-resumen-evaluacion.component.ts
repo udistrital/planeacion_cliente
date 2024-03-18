@@ -9,19 +9,19 @@ export class TablaResumenEvaluacionComponent implements OnInit {
   @Input() dataSource: any[] = [];
   columnsToDisplay = [
     'Unidad Academico/Administrativa',
-    'Avance Trimestre 1',
-    'Avance Trimestre 2',
-    'Avance Trimestre 3',
-    'Avance Trimestre 4',
-    'Avance General',
+    'Trimestre 1',
+    'Trimestre 2',
+    'Trimestre 3',
+    'Trimestre 4',
+    'General',
   ];
   equivalentesAColumnas = {
     'Unidad Academico/Administrativa': 'nombreUnidad',
-    'Avance Trimestre 1': 'avanceTr1',
-    'Avance Trimestre 2': 'avanceTr2',
-    'Avance Trimestre 3': 'avanceTr3',
-    'Avance Trimestre 4': 'avanceTr4',
-    'Avance General': 'avanceGeneral',
+    'Trimestre 1': 'avanceTr1',
+    'Trimestre 2': 'avanceTr2',
+    'Trimestre 3': 'avanceTr3',
+    'Trimestre 4': 'avanceTr4',
+    'General': 'avanceGeneral',
   };
   expandedElement: any | null;
 

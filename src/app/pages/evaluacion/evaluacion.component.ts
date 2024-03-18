@@ -58,6 +58,7 @@ export class EvaluacionComponent implements OnInit {
       if (this.vigenciaSelected) {
         if( this.rol === 'PLANEACION' ) {
           this.unidadSelected = false;
+          this.unidad = '';
           this.loadUnidades();
         } else {
           this.unidadSelected = true;
@@ -77,11 +78,11 @@ export class EvaluacionComponent implements OnInit {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
       if (this.planSelected) {
+        this.unidadSelected = false;
+        this.unidad = ''
         if(this.rol === 'PLANEACION') {
-          this.unidadSelected = false;
           this.loadUnidades();
         } else {
-          this.unidadSelected = true;
           this.onChangeU(this.unidades[0]);
         }
       }

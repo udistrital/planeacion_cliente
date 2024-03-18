@@ -6,50 +6,28 @@ th {
   color: white;
 }
 
-th.mat-header-cell div {
-  margin-bottom: 10px;
-}
-
-
-th input {
-  background-color: var(--color0);
-  color: var(--color3);
-  font-size: 10px;
-  padding: 5px;
-  width: calc(100% - 16px);
-
-}
-
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  appearance: textfield;
-}
-
 td.mat-cell,
 th.mat-header-cell {
   padding: 16px 10px;
 }
 
-// tr td.mat-cell:last-child {
-//   text-align: right;
-//   justify-content: flex-end;
-// }
-// tr th.mat-header-cell:last-child {
-//   padding-right: 24px;
-//   text-align: right;
-// }
-
-th.mat-column-Avance-Trimestre-1, th.mat-column-Avance-Trimestre-2, th.mat-column-Avance-Trimestre-3, th.mat-column-Avance-Trimestre-4, .mat-column-Avance-General {
+th.mat-column-Avance-Trimestre-1,
+th.mat-column-Avance-Trimestre-2,
+th.mat-column-Avance-Trimestre-3,
+th.mat-column-Avance-Trimestre-4,
+.mat-column-Avance-General {
   width: 12.5%;
+}
+.mat-column-Unidad-Academico-Administrativa {
+  width: 37.5%;
 }
 
 tr.example-detail-row {
   height: 0;
+}
+
+.mat-row {
+  background-color: white;
 }
 
 tr.example-element-row:not(.example-expanded-row):hover {
@@ -57,7 +35,7 @@ tr.example-element-row:not(.example-expanded-row):hover {
 }
 
 tr.example-element-row:not(.example-expanded-row):active {
-  background: #efefef;
+  background: #e7d6d6;
 }
 
 .example-element-row td {
