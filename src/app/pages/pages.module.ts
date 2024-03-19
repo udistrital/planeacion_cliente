@@ -110,6 +110,8 @@ import { NotificacionesComponent } from './notificaciones/notificaciones.compone
 import { EvaluacionPlanComponent } from './evaluacion/evaluacion-plan/evaluacion-plan.component';
 import { ResumenComponent } from './evaluacion/resumen/resumen.component';
 import { TablaResumenEvaluacionComponent } from './evaluacion/tabla-resumen-evaluacion/tabla-resumen-evaluacion.component';
+import { AutoResizeDirective } from './directives/resize.directive';
+import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
 
 const pagesComponents = [
   DashboardComponent,
@@ -169,6 +171,7 @@ const MY_FORMATS = {
     ...pagesComponents,
     OasGridColsDirective,
     NgIsGrantedDirective,
+    AutoResizeDirective,
     CrearPlanComponent,
     ListarPlanComponent,
     ConstruirPlanComponent,
@@ -244,6 +247,7 @@ const MY_FORMATS = {
     EvaluacionPlanComponent,
     ResumenComponent,
     TablaResumenEvaluacionComponent,
+    GestionUsuariosComponent,
   ],
   imports: [
     HttpClientModule,

@@ -128,7 +128,6 @@ export class EvaluacionComponent implements OnInit {
       this.rol = 'PLANEACION';
     }
   }
-
   validarUnidad() {
     this.userService.user$.subscribe((data) => {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])

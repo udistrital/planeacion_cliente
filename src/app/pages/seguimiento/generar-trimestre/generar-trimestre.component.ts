@@ -8,7 +8,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
-import { element } from 'protractor';
 import { Location, registerLocaleData } from '@angular/common';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
@@ -456,6 +455,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         Swal.close();
       }
     }, (error) => {
+      console.error(error)
+      Swal.close();
       Swal.fire({
         title: 'Error en la operación',
         text: `No se encontraron datos registrados`,
@@ -463,7 +464,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         showConfirmButton: false,
         timer: 2500
       })
-    }, () => Swal.close())
+    })
   }
 
   guardarCualitativo() {

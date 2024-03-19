@@ -7,9 +7,10 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { UserService } from '../../services/userService';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
+import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 
 @Component({
   selector: 'app-seguimiento',
@@ -22,6 +23,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   dataSource: MatTableDataSource<any>;
   planes: any[];
   allPlanes: any[] = [];
+  planesMostrar: any[] = [];
   unidades: any[] = [];
   auxUnidades: any[] = [];
   auxPlanes: any[] = [];
@@ -40,6 +42,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   formFechas: FormGroup;
   formPlanes: FormGroup;
   formSelect: FormGroup;
+  selectUnidad = new FormControl();
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
@@ -60,7 +63,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       this.rol = 'JEFE_UNIDAD_PLANEACION';
     }
     this.unidadSelected = false;
-    this.dataSource = new MatTableDataSource<any>();
+    
     this.formFechas = this.formBuilder.group({
       selectVigencia: null,
       fecha1: null,
@@ -76,24 +79,26 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       selectPlan: null,
     });
     this.formSelect = this.formBuilder.group({
-      selectUnidad: ['',],
+      selectUnidad: null,
     });
   }
 
   ngAfterViewInit(): void {
+    this.dataSource = new MatTableDataSource<any>();
     this.dataSource.data = [];
   }
 
   async ngOnInit() {
-    await this.loadPeriodos();
     if (
       this.rol == 'JEFE_DEPENDENCIA' ||
       this.rol == 'ASISTENTE_DEPENDENCIA' ||
       this.rol == 'JEFE_UNIDAD_PLANEACION'
     ) {
       await this.validarUnidad();
+    } else {
+      await this.loadUnidades();
     }
-    // listar-plan-accion-anual/:vigencia_id/:nombre_plan/:unidad_id
+    await this.loadPeriodos();
     this.activatedRoute.params.subscribe(async (prm) => {
       let vigencia_id = prm['vigencia_id'];
       let nombre = prm['nombre_plan'];
@@ -113,6 +118,16 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   async validarUnidad() {
+    Swal.fire({
+      title: 'Validando unidad',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     await new Promise((resolve) => {
       this.userService.user$.subscribe((data) => {
         this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
@@ -128,6 +143,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                     this.auxUnidades.push(unidad);
                     this.formSelect.get('selectUnidad').setValue(unidad);
                     this.onChangeU(unidad);
+                    Swal.close();
                     resolve(unidad)
                   }
                 })
@@ -150,19 +166,34 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     }
   }
 
-  loadUnidades() {
-    this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: any) => {
-      if (data) {
-        this.unidades = data.Data;
-        this.auxUnidades = data.Data;
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
+  async loadUnidades() {
+    Swal.fire({
+      title: 'Cargando unidades',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    await new Promise((resolve,reject)=>{
+      this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: DataRequest) => {
+        if (data) {
+          this.unidades = data.Data;
+          this.auxUnidades = data.Data;
+          Swal.close();
+          resolve(this.unidades)
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+        reject(error)
       })
     })
   }
@@ -197,6 +228,13 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     }
   }
 
+  searchPlanById(value:string) {
+    let filtro = value.toLowerCase();
+    if (this.planes != undefined) {
+      return this.planes.filter(plan => plan._id.toLowerCase().includes(filtro));
+    }
+  }
+
   filterPlanes(data) {
     var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
     return dataAux.filter(e => e.activo == true);
@@ -207,17 +245,19 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       title: 'Cargando períodos',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
     })
     await new Promise((resolve,reject)=>{
-      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
+      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: DataRequest) => {
         if (data) {
           this.vigencias = data.Data;
-          Swal.close();
           resolve(this.vigencias)
         }
+        Swal.close();
       }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
@@ -242,7 +282,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         },
       })
       await new Promise((resolve,reject)=>{
-        this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe(async (data: any) => {
+        this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe(async (data: DataRequest) => {
           if (data) {
             if (data.Data != "" && data.Data != null) {
               let periodos = data.Data;
@@ -250,7 +290,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                 this.trimestres = { t1: {}, t2: {}, t3: {}, t4: {} }
                 for (let i = 0; i < periodos.length; i++) {
                   await new Promise((resolve,reject)=>{
-                    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe(async (data: any) => {
+                    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe(async (data: DataRequest) => {
                       if (data && data.Data != "") {
                         let seguimiento = data.Data[0];
 
@@ -279,15 +319,12 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                           Object.keys(this.trimestres.t2).length !== 0 &&
                           Object.keys(this.trimestres.t3).length !== 0 &&
                           Object.keys(this.trimestres.t4).length !== 0) {
-                          let datos = this.allPlanes.filter(plan => plan.vigencia == this.vigencia.Nombre);
-
-                          this.dataSource.data = datos;
-                          if (this.rol != undefined && this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+                          if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
                             await this.evaluarFechasPlan();
                           }
-                          Swal.close();
-                          resolve(true)
                         }
+                        Swal.close();
+                        resolve(true)
                       } else {
                         Swal.fire({
                           title: 'Error en la operación',
@@ -376,14 +413,14 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       const plan = this.dataSource.data[index];
       for (let trimestre in this.trimestres) {
         await new Promise(async (resolve, reject) => {
-          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,plan_id:` + plan._id + `,periodo_seguimiento_id:` + this.trimestres[trimestre]["id"]).subscribe(async (data: any) => {
+          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,plan_id:` + plan._id + `,periodo_seguimiento_id:` + this.trimestres[trimestre]["id"]).subscribe(async (data: DataRequest) => {
             if (data.Data.length != 0) {
               let estadoTemp;
               if (this.auxEstadosSeguimientos.some(estado => estado.id == data.Data[0].estado_seguimiento_id) && this.auxEstadosSeguimientos.length > 0) {
                 estadoTemp = this.auxEstadosSeguimientos.find(estado => estado.id == data.Data[0].estado_seguimiento_id).nombre;
               } else {
                 await new Promise((resolve, reject) => {
-                  this.request.get(environment.PLANES_CRUD, `estado-seguimiento/` + data.Data[0].estado_seguimiento_id).subscribe((estado: any) => {
+                  this.request.get(environment.PLANES_CRUD, `estado-seguimiento/` + data.Data[0].estado_seguimiento_id).subscribe((estado: DataRequest) => {
                     if (estado && estado.Data != null) {
                       estadoTemp = estado.Data.nombre;
                       this.auxEstadosSeguimientos.push({ id: estado.Data._id, nombre: estado.Data.nombre });
@@ -445,13 +482,15 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     if (plan == undefined || (plan == undefined && this.vigencia == undefined)) {
       this.dataSource.data = this.planes;
     } else {
-      this.dataSource.data = this.searchP(plan.nombre);
+      this.planesMostrar = this.searchPlanById(plan._id);
+      this.dataSource = new MatTableDataSource(this.planesMostrar);
       if (this.rol != undefined && this.rol == 'PLANEACION') {
         await this.getUnidades();
         await this.getEstados();
         await this.getVigencias();
-        await this.evaluarFechasPlan();
+        // await this.evaluarFechasPlan();
       }
+      await this.loadFechas()
     }
     this.allPlanes = this.dataSource.data;
     this.dataSource.filter = ""
@@ -489,15 +528,15 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
     if (tipo == "unidad") {
       return await new Promise((resolve, reject) => {
-        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: any) => {
+        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: DataRequest) => {
           if (data?.Data.length != 0) {
             data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });
             this.planes = data.Data;
+            this.auxPlanes = this.planes;
             await this.getEstados();
             await this.getVigencias();
-            this.dataSource.data = this.planes;
+            this.dataSource.data = [];
             this.allPlanes = this.dataSource.data;
-            await this.loadFechas();
             this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
             Swal.close();
             resolve(true);
@@ -509,7 +548,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
             Swal.fire({
               title: 'No se encontraron planes',
               icon: 'error',
-              text: `No se encontraron planes para realizar el seguimiento`,
+              text: `No se encontraron planes para realizar seguimiento`,
               showConfirmButton: false,
               timer: 3500
             })
@@ -530,7 +569,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       });
     } else if (tipo == 'vigencia') {
       return await new Promise((resolve,reject)=>{
-        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id}`).subscribe(async (data: any) => {
+        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: DataRequest) => {
           if (data) {
             if (data.Data.length != 0) {
               data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });
@@ -546,7 +585,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                   this.auxPlanes.push(plan);
                 }
               });
-              await this.loadFechas();
+              // await this.loadFechas();
               this.dataSource.data = this.planes;
               this.allPlanes = this.dataSource.data;
               this.OnPageChange({ length: 0, pageIndex: 0, pageSize: 5 });
@@ -583,7 +622,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   async getUnidades() {
     return await new Promise((resolve,reject)=>{
       for (let i = 0; i < this.planes.length; i++) {
-        this.request.get(environment.OIKOS_SERVICE, `dependencia?query=Id:` + this.planes[i].dependencia_id).subscribe((data: any) => {
+        this.request.get(environment.OIKOS_SERVICE, `dependencia?query=Id:` + this.planes[i].dependencia_id).subscribe((data: DataRequest) => {
           if (data) {
             let unidad: any = data[0];
             this.planes[i].unidad = unidad.Nombre;
@@ -608,7 +647,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       if (this.auxEstadosPlanes.some(estado => { estado._id != this.planes[i].estado_plan_id }) || this.auxEstadosPlanes.length == 0) {
         this.auxEstadosPlanes.push({ _id: this.planes[i].estado_plan_id })
         return await new Promise((resolve, reject) => {
-          this.request.get(environment.PLANES_CRUD, `estado-plan?query=_id:` + this.planes[i].estado_plan_id).subscribe((data: any) => {
+          this.request.get(environment.PLANES_CRUD, `estado-plan?query=_id:` + this.planes[i].estado_plan_id).subscribe((data: DataRequest) => {
             if (data) {
               let estado: any = data.Data[0];
               this.auxEstadosPlanes[this.auxEstadosPlanes.findIndex(estadoInt => estadoInt._id == estado._id)] = estado;
@@ -635,7 +674,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
   async getVigencias() {
     return new Promise((resolve, reject)=>{
-      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Id:` + this.planes[0].vigencia).subscribe((data: any) => {
+      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Id:` + this.planes[0].vigencia).subscribe((data: DataRequest) => {
         if (data) {
           let vigencia: any = data.Data[0];
           for (let index = 0; index < this.planes.length; index++) {
@@ -670,7 +709,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     for (let i = 0; i < this.planes.length; i++) {
       // await new Promise((resolve, reject) => {
 
-      this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planes[i]._id + `,activo:true`).subscribe(async (data: any) => {
+      this.request.get(environment.PLANES_CRUD, `seguimiento?query=plan_id:` + this.planes[i]._id + `,activo:true`).subscribe(async (data: DataRequest) => {
         if (data) {
           if (data.Data.length != 0) {
             let seguimiento: any = data.Data[data.Data.length - 1];
@@ -679,11 +718,11 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               this.auxPeriodos.push({ id: seguimiento.periodo_seguimiento_id });
 
               await new Promise((resolve, reject) => {
-                this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/` + seguimiento.periodo_seguimiento_id).subscribe((data: any) => {
+                this.request.get(environment.PLANES_CRUD, `periodo-seguimiento/` + seguimiento.periodo_seguimiento_id).subscribe((data: DataRequest) => {
                   if (data) {
                     let auxTrimestre = data.Data;
 
-                    this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + auxTrimestre.periodo_id).subscribe((data: any) => {
+                    this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=Id:` + auxTrimestre.periodo_id).subscribe((data: DataRequest) => {
                       if (data) {
                         let aux = data.Data[0];
                         let parametroTemp = { "trimestre": aux.ParametroId.CodigoAbreviacion, "nombre": aux.ParametroId.Nombre, "id": seguimiento.periodo_seguimiento_id }

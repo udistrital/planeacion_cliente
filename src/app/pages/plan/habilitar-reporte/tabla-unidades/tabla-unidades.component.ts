@@ -1,6 +1,7 @@
 import {
   Component,
   EventEmitter,
+  Input,
   OnInit,
   Output,
   ViewChild,
@@ -10,7 +11,8 @@ import { RequestManager } from '../../../services/requestManager';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import Swal from 'sweetalert2';
-import { Unidades } from '../utils/habilitar-reporte.models';
+import { PeriodoSeguimiento, Unidades } from '../utils/habilitar-reporte.models';
+import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 
 @Component({
   selector: 'app-tabla-unidades',
@@ -21,11 +23,15 @@ export class TablaUnidadesComponent implements OnInit {
 
   dataUnidades: any;
   unidadesInteres: any;
-  displayedColumns: string[] = ['index', 'Nombre', 'actions'];
+  displayedColumns: string[];unidadesMostrar: any[];
+;
   dataSource = new MatTableDataSource<Unidades>();
   banderaTodosSeleccionados: boolean;
   filtroDeBusquedaUnidades: string = '';
+  textBotonMostrarData: string = 'Mostrar Unidades Interés Habilitadas/Reporte';
 
+  @Input() periodoSeguimiento: PeriodoSeguimiento;
+  @Input() filtroPlan: boolean;
   @Output() unidadesInteresSeleccionadas = new EventEmitter<any[]>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -35,7 +41,9 @@ export class TablaUnidadesComponent implements OnInit {
     this.banderaTodosSeleccionados = false;
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.displayedColumns = ['index', 'Nombre', 'actions'];
+  }
 
   async loadUnidades() {
     const loadingSwal = Swal.fire({
@@ -92,7 +100,8 @@ export class TablaUnidadesComponent implements OnInit {
                   }
                 }
               }
-              this.dataSource = new MatTableDataSource(this.dataUnidades);
+              this.unidadesMostrar = this.dataUnidades;
+              this.dataSource = new MatTableDataSource(this.unidadesMostrar);
               this.dataSource.paginator = this.paginator;
             }
           }
@@ -144,13 +153,13 @@ export class TablaUnidadesComponent implements OnInit {
 
   seleccionarTodos() {
     this.banderaTodosSeleccionados = true;
-    this.unidadesInteres = this.dataUnidades.map((element) => ({
+    this.unidadesInteres = this.unidadesMostrar.map((element) => ({
       Id: element.Id,
       Nombre: element.Nombre,
     }));
 
     // Itera sobre los elementos y cambia el icono
-    this.dataUnidades.forEach((element) => {
+    this.unidadesMostrar.forEach((element) => {
       element.iconSelected = 'done';
     });
 
@@ -161,7 +170,7 @@ export class TablaUnidadesComponent implements OnInit {
   borrarSeleccion() {
     this.banderaTodosSeleccionados = false;
     // Itera sobre los elementos y cambia el icono a 'compare_arrows'
-    this.dataUnidades.forEach((element) => {
+    this.unidadesMostrar.forEach((element) => {
       element.iconSelected = 'compare_arrows';
     });
 
@@ -175,4 +184,104 @@ export class TablaUnidadesComponent implements OnInit {
   emitirCambiosUnidadesInteres() {
     this.unidadesInteresSeleccionadas.emit(this.unidadesInteres);
   }
+
+  cambiarDataTabla() {
+    
+    if(this.textBotonMostrarData === 'Mostrar Unidades Interés Habilitadas/Reporte'){
+      Swal.fire({
+        title: 'Cargando datos...',
+        allowEscapeKey: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      this.request.post(environment.PLANES_CRUD, 'periodo-seguimiento/buscar-unidad-planes/6', this.periodoSeguimiento).subscribe(
+        (data: DataRequest) => {
+          if (data) {
+            if(data.Data !== null){
+              var periodoSeguimiento = data.Data;
+              this.textBotonMostrarData = 'Mostrar todas las unidades';
+              let unidadesMostrar = [];
+
+              const unidadesDeInteres = periodoSeguimiento.map(registro => {
+                const unidades = JSON.parse(registro.unidades_interes);
+                unidades.forEach(unidad => {
+                    unidad.fecha_modificacion = this.formatearFecha(registro.fecha_modificacion);
+                    unidad.iconSelected = 'compare_arrows';
+                    unidad.Id = unidad.Id;
+                });
+                return unidades;
+              });
+
+              // Encontrar la intersección de las unidades de interés
+              unidadesMostrar = unidadesDeInteres.reduce((acumulador, unidades, index) => {
+                if (index === 0) {
+                    return unidades;
+                }
+                return acumulador.filter(item => unidades.some(unidad => unidad.Id === item.Id));
+              }, []);
+              if(unidadesMostrar.length === 0){
+                this.unidadesMostrar = this.dataUnidades;
+                this.textBotonMostrarData = 'Mostrar Unidades Interés Habilitadas/Reporte';
+                this.dataSource = new MatTableDataSource(this.unidadesMostrar);
+                this.dataSource.paginator = this.paginator;
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas',
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 2500
+                })
+              } else {
+                unidadesMostrar = [...new Set(unidadesMostrar)];
+                this.unidadesMostrar = unidadesMostrar;
+                this.dataSource = new MatTableDataSource(this.unidadesMostrar);
+                this.dataSource.paginator = this.paginator;
+                Swal.close();
+              }
+            } else {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas',
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
+          }
+        },
+        (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: 'No se encontraron datos registrados',
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+      );
+    } else {
+      this.unidadesMostrar = this.dataUnidades;
+      this.textBotonMostrarData = 'Mostrar Unidades Interés Habilitadas/Reporte';
+      this.dataSource = new MatTableDataSource(this.unidadesMostrar);
+      this.dataSource.paginator = this.paginator;
+    }
+  }
+
+  formatearFecha(fechaOriginal: string): string {
+    const fechaObjeto = new Date(fechaOriginal);
+
+    const dia = fechaObjeto.getDate().toString().padStart(2, '0');
+    const mes = (fechaObjeto.getMonth() + 1).toString().padStart(2, '0');
+    const anio = fechaObjeto.getFullYear();
+
+    return `${dia}/${mes}/${anio}`;
+  }
+
+  encontrarInterseccion(arr1, arr2) {
+    const idsArray1 = arr1.map(item => item.Id);
+    const interseccion = arr2.filter(item => idsArray1.includes(item.Id));
+    return interseccion;
+}
 }
