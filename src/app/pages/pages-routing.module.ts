@@ -57,6 +57,7 @@ import { NotificacionesComponent } from './notificaciones/notificaciones.compone
 import { PlanAccionComponent } from './plan-accion/plan-accion.component';
 
 import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
+import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
 
 
 const routes: Routes = [{
@@ -105,7 +106,11 @@ const routes: Routes = [{
         },
         {
           path: 'gestion-parametros',
-          component: GestionParametrosComponent
+          component: GestionParametrosComponent,
+        },
+        {
+          path: 'gestion-usuarios',
+          component: GestionUsuariosComponent,
         }
       ]
     },

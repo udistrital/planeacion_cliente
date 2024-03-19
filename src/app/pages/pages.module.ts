@@ -108,6 +108,7 @@ import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-pa
 import { FormParametrosComponent } from './plan/gestion-parametros/form-parametros/form-parametros.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 import { AutoResizeDirective } from './directives/resize.directive';
+import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
 
 const pagesComponents = [
   DashboardComponent,
@@ -240,6 +241,7 @@ const MY_FORMATS = {
     GestionParametrosComponent,
     FormParametrosComponent,
     NotificacionesComponent,
+    GestionUsuariosComponent,
   ],
   imports: [
     HttpClientModule,
