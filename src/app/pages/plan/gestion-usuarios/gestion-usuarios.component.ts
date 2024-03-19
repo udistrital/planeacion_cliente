@@ -18,25 +18,27 @@ export class GestionUsuariosComponent implements OnInit {
   formUsuarios: FormGroup;
   displayedColumns: string[];
   usuario: Usuario;
+  usuarios: Usuario[];
   banderaTabla: boolean;
   roles: string[];
   rol: string;
   rolSelected: boolean;
-  dataSource: MatTableDataSource<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  dataSource: MatTableDataSource<any>;
   constructor(
     private request: RequestManager,
     private fb: FormBuilder,) {
       this.formUsuarios = this.fb.group({
         correo: ['', Validators.required],
-        selectRol: ['', Validators.required]
+        selectRol: ['']
       });
     }
 
   ngOnInit(): void {
     this.displayedColumns = ['Usuario', 'Roles', 'actions'];
     this.roles = ['JEFE_DEPENDENCIA', 'PLANEACION', 'ASISTENTE_DEPENDENCIA', 'JEFE_UNIDAD_PLANEACION'];
+    this.usuarios = [];
     this.banderaTabla = false;
   }
 
@@ -52,12 +54,10 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   cerrarMensajeCarga(): void {
-    let array = [];
-    array.push(this.usuario);
-    this.dataSource = new MatTableDataSource(array);
+    this.banderaTabla = true;
+    this.dataSource = new MatTableDataSource(this.usuarios);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    this.banderaTabla = true;
     Swal.close();
   }
 
@@ -79,7 +79,8 @@ export class GestionUsuariosComponent implements OnInit {
       this.request.post(environment.TOKEN.AUTENTICACION_MID, '', body).subscribe(
         (data: any) => {
           if (data != null && data != undefined && data != "") {
-            this.usuario = data;
+            this.usuarios = [];
+            this.usuarios.push(data);
             this.cerrarMensajeCarga()
           }
         }, (error) => {
@@ -118,7 +119,8 @@ export class GestionUsuariosComponent implements OnInit {
     this.banderaTabla = false;
     this.rol = undefined;
     this.rolSelected = false;
-    this.dataSource = new MatTableDataSource([]);
+    this.usuarios = [];
+    this.dataSource.data = this.usuarios;
   }
 
   applyFilter(event: Event) {
