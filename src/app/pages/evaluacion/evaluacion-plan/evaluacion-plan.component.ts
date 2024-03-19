@@ -59,38 +59,11 @@ export class EvaluacionPlanComponent implements OnInit {
   lineChartData = [['', 0, 'color: rgb(143, 27, 0)', '', '']];
 
   displayedColumns: string[] = [
-    'id',
-    'ponderacion',
-    'actividad',
-    'indicador',
-    'formula',
-    'meta',
-    'Brecha',
-    'numt1',
-    'dent1',
-    'pert1',
-    'acut1',
-    'metat1',
-    'actividadt1',
-    'numt2',
-    'dent2',
-    'pert2',
-    'acut2',
-    'metat2',
-    'actividadt2',
-    'numt3',
-    'dent3',
-    'pert3',
-    'acut3',
-    'metat3',
-    'actividadt3',
-    'numt4',
-    'dent4',
-    'pert4',
-    'acut4',
-    'metat4',
-    'actividadt4',
-  ];
+    "id", "ponderacion", "actividad", "indicador", "formula", "meta",
+    "numt1", "dent1", "pert1", "acut1", "metat1", "brecha1", "actividadt1",
+    "numt2", "dent2", "pert2", "acut2", "metat2", "brecha2", "actividadt2",
+    "numt3", "dent3", "pert3", "acut3", "metat3", "brecha3", "actividadt3",
+    "numt4", "dent4", "pert4", "acut4", "metat4", "brecha4", "actividadt4",];
 
   displayedHeaders: string[] = [
     'idP',
@@ -99,7 +72,6 @@ export class EvaluacionPlanComponent implements OnInit {
     'indicadorP',
     'formulaP',
     'metaP',
-    'BrechaP',
     'trimestre1',
     'trimestre2',
     'trimestre3',
@@ -376,83 +348,22 @@ export class EvaluacionPlanComponent implements OnInit {
     return Math.abs(value);
   }
 
-  //agregar color al campo Brecha
-  colorBrecha(brecha: number): string {
-    if (brecha <= 0.1) {
-      return 'brecha-verde';
-    } else if (brecha > 0.1 && brecha <= 0.2) {
-      return 'brecha-amarillo';
+  //agregar color al Cumplimiento por Meta
+  colorCM(rowTrimestreMeta): string {
+    if (rowTrimestreMeta < 1) {
+      if (rowTrimestreMeta >= 0 && rowTrimestreMeta <= 0.2) {
+        return 'meta-rojo';
+      } else if (rowTrimestreMeta >= 0.21 && rowTrimestreMeta <= 0.4) {
+        return 'meta-piel';
+      } else if (rowTrimestreMeta >= 0.41 && rowTrimestreMeta <= 0.6) {
+        return 'meta-naranja';
+      } else if (rowTrimestreMeta >= 0.61 && rowTrimestreMeta <= 0.8) {
+        return 'meta-amarillo';
+      } else if (rowTrimestreMeta >= 0.81 && rowTrimestreMeta <= 0.99) {
+        return 'meta-verde';
+      }
     } else {
-      return 'brecha-rojo';
+      return 'meta-verde';
     }
-  }
-
-  //calculos y validaciones Brecha
-  calcularBrecha(row: any): string {
-    if (row.trimestre1 && row.trimestre1.meta) {
-      if (row.unidad === 'Porcentaje') {
-        const brecha = Math.abs(row.meta / 100 - row.trimestre1.meta);
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Unidad') {
-        const brecha = Math.abs(
-          row.meta / 100 - (row.trimestre1.meta * row.meta) / 100
-        );
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Tasa') {
-        const brecha = Math.abs(row.meta - row.trimestre1.meta);
-        return this.colorBrecha(brecha);
-      } else {
-        return '';
-      }
-    }
-    if (row.trimestre2 && row.trimestre2.meta) {
-      if (row.unidad === 'Porcentaje') {
-        const brecha = Math.abs(row.meta / 100 - row.trimestre2.meta);
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Unidad') {
-        const brecha = Math.abs(
-          row.meta / 100 - (row.trimestre2.meta * row.meta) / 100
-        );
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Tasa') {
-        const brecha = Math.abs(row.meta - row.trimestre2.meta);
-        return this.colorBrecha(brecha);
-      } else {
-        return '';
-      }
-    }
-    if (row.trimestre3 && row.trimestre3.meta) {
-      if (row.unidad === 'Porcentaje') {
-        const brecha = Math.abs(row.meta / 100 - row.trimestre3.meta);
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Unidad') {
-        const brecha = Math.abs(
-          row.meta / 100 - (row.trimestre3.meta * row.meta) / 100
-        );
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Tasa') {
-        const brecha = Math.abs(row.meta - row.trimestre3.meta);
-        return this.colorBrecha(brecha);
-      } else {
-        return '';
-      }
-    }
-    if (row.trimestre4 && row.trimestre4.meta) {
-      if (row.unidad === 'Porcentaje') {
-        const brecha = Math.abs(row.meta / 100 - row.trimestre4.meta);
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Unidad') {
-        const brecha = Math.abs(
-          row.meta / 100 - (row.trimestre4.meta * row.meta) / 100
-        );
-        return this.colorBrecha(brecha);
-      } else if (row.unidad === 'Tasa') {
-        const brecha = Math.abs(row.meta - row.trimestre4.meta);
-        return this.colorBrecha(brecha);
-      } else {
-        return '';
-      }
-    }
-    return ''; //si no se cumple ninguna condición
   }
 }
