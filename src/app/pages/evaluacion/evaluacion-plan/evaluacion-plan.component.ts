@@ -3,13 +3,6 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
 import { MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
 
 type Dato = { id: string; nombre: string };
 
@@ -17,22 +10,13 @@ type Dato = { id: string; nombre: string };
   selector: 'app-evaluacion-plan',
   templateUrl: './evaluacion-plan.component.html',
   styleUrls: ['./evaluacion-plan.component.scss'],
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '100%' })),
-      transition(
-        'expanded <=> collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-    ]),
-  ],
 })
 export class EvaluacionPlanComponent implements OnInit {
   @Input() idVigencia: string;
   @Input() plan: Dato;
   @Input() periodo: Dato;
   @Input() nombreUnidad: string;
+  @Input() mostrarGraficos: boolean;
 
   pieTitle = 'Cumplimiento general Plan de Acción -';
   pieType = 'PieChart';
@@ -134,7 +118,7 @@ export class EvaluacionPlanComponent implements OnInit {
 
   @ViewChild(MatTable) table: MatTable<any>;
 
-  constructor(private request: RequestManager) { }
+  constructor(private request: RequestManager) {}
 
   ngAfterViewChecked(): void {
     if (this.table) {
@@ -219,15 +203,15 @@ export class EvaluacionPlanComponent implements OnInit {
                 d.actividadt4
             );
 
-            if (this.periodo.nombre == 'Trimestre dos') {
+            if (this.periodo.nombre.toLowerCase() == 'trimestre dos') {
               this.tr2 = true;
               this.tr3 = false;
               this.tr4 = false;
-            } else if (this.periodo.nombre == 'Trimestre tres') {
+            } else if (this.periodo.nombre.toLowerCase() == 'trimestre tres') {
               this.tr2 = true;
               this.tr3 = true;
               this.tr4 = false;
-            } else if (this.periodo.nombre == 'Trimestre cuatro') {
+            } else if (this.periodo.nombre.toLowerCase() == 'trimestre cuatro') {
               this.tr2 = true;
               this.tr3 = true;
               this.tr4 = true;
@@ -237,17 +221,17 @@ export class EvaluacionPlanComponent implements OnInit {
               this.tr4 = false;
             }
             this.calcularAvanceGeneral();
-            this.graficarBarras();
-            this.graficarCircular();
+            if (this.mostrarGraficos) {
+              this.graficarBarras();
+              this.graficarCircular();
+            }
             Swal.close();
           }
         },
         (error) => {
           Swal.fire({
             title: 'Error en la operación',
-            text: `No se encontraron datos registrados ${JSON.stringify(
-              error
-            )}`,
+            text: `No se encontraron datos registrados`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500,

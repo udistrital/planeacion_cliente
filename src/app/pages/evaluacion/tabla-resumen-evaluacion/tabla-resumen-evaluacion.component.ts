@@ -1,12 +1,20 @@
 import { Component, Input, OnInit } from '@angular/core';
+import {animate, state, style, transition, trigger} from '@angular/animations';
 
 @Component({
   selector: 'app-tabla-resumen-evaluacion',
   templateUrl: './tabla-resumen-evaluacion.component.html',
   styleUrls: ['./tabla-resumen-evaluacion.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
-export class TablaResumenEvaluacionComponent implements OnInit {
-  @Input() dataSource: any[] = [];
+export class TablaResumenEvaluacionComponent {
+  @Input() dataSource: any[];
   columnsToDisplay = [
     'Unidad Academico/Administrativa',
     'Trimestre 1',
@@ -24,8 +32,4 @@ export class TablaResumenEvaluacionComponent implements OnInit {
     'General': 'avanceGeneral',
   };
   expandedElement: any | null;
-
-  constructor() {}
-
-  ngOnInit(): void {}
 }

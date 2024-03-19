@@ -1,4 +1,6 @@
-<div style="display: flex; justify-content: space-between; align-items: center">
+<div
+  style="display: flex; justify-content: space-between; align-items: center"
+  *ngIf="mostrarGraficos">
   <google-chart
     [title]="pieTitle"
     [type]="pieType"
@@ -183,7 +185,7 @@
         [style.text-align]="center"
         [ngStyle]="{ display: 'none' }"
       ></th>
-      <td mat-cell *matCellDef="let row" [ngClass]="[row.class, campoBrecha]">
+      <td mat-cell *matCellDef="let row" [ngClass]="(row?.class + ' ' + campoBrecha)">
         <!--Porcentaje-->
         <div
           *ngIf="

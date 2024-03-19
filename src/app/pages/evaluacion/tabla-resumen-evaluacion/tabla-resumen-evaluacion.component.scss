@@ -42,6 +42,12 @@ tr.example-element-row:not(.example-expanded-row):active {
   border-bottom-width: 0;
 }
 
-.example-element-description-attribution {
-  opacity: 0.5;
+td.mat-column-expandedDetail {
+  padding: 0px 0px 0px 0px;
+}
+
+.example-element-detail {
+  max-width: 94vw;
+  overflow: hidden;
+  // overflow-x: scroll;
 }

@@ -208,6 +208,8 @@ export class EvaluacionComponent implements OnInit {
               if (data.Data.length === 0) {
                 Swal.close();
                 this.unidades = [];
+                this.vigenciaSelected = false;
+                this.vigencia = '';
                 Swal.fire({
                   title: 'Verifica las selecciones',
                   text: `No existen unidades con registros en fase de seguimiento asociados al plan de acción y vigencia seleccionados`,
@@ -224,6 +226,8 @@ export class EvaluacionComponent implements OnInit {
         (error) => {
           Swal.close();
           this.unidades = [];
+          this.vigenciaSelected = false;
+          this.vigencia = '';
           Swal.fire({
             title: 'Verifica las selecciones',
             text: `No existen unidades con registros en fase de seguimiento asociados al plan de acción y vigencia seleccionados`,
@@ -251,7 +255,7 @@ export class EvaluacionComponent implements OnInit {
           Swal.close();
         } else {
           Swal.fire({
-            title: 'No se lograron obtuvieron los planes avalados para seguimiento',
+            title: 'No se lograron obtener planes avalados para seguimiento',
             icon: 'info',
             showConfirmButton: false,
             timer: 2500

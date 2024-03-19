@@ -50,7 +50,6 @@ export class ResumenComponent implements OnInit {
         .subscribe(
           (data: any) => {
             if (data) {
-              console.log(data.Data);
               let auxDataBarra: [string, number, string] = ['', 0, ''];
               auxDataBarra[0] = unidad.Nombre;
               let avanceGeneral = data.Data.Promedio;
