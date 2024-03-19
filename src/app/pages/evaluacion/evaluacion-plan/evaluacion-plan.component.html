@@ -1,4 +1,4 @@
-<div style="display: flex; justify-content: space-between; align-items: center;">
+<div *ngIf="mostrarGraficos" style="display: flex; justify-content: space-between; align-items: center;">
   <google-chart [title]="pieTitle" [type]="pieType" style="width: 30%;" height="400" [data]="pieChartData"
     [columns]="pieChartColumns" [options]="pieChartOptions"></google-chart>
 
