@@ -26,6 +26,8 @@ export class GestionUsuariosComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
+  banderaFormEdicion: boolean;
+
   constructor(
     private request: RequestManager,
     private fb: FormBuilder,) {
@@ -40,6 +42,8 @@ export class GestionUsuariosComponent implements OnInit {
     this.roles = ['JEFE_DEPENDENCIA', 'PLANEACION', 'ASISTENTE_DEPENDENCIA', 'JEFE_UNIDAD_PLANEACION'];
     this.usuarios = [];
     this.banderaTabla = false;
+    this.rolSelected = false;
+    this.banderaFormEdicion = false;
   }
 
   mostrarMensajeCarga(): void {
@@ -71,6 +75,7 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   buscar(){
+    this.banderaFormEdicion = false;
     if(this.validarEmail(this.formUsuarios.get('correo').value)){
       let body = {
         "user": this.formUsuarios.get('correo').value
@@ -120,7 +125,8 @@ export class GestionUsuariosComponent implements OnInit {
     this.rol = undefined;
     this.rolSelected = false;
     this.usuarios = [];
-    this.dataSource.data = this.usuarios;
+    this.dataSource = new MatTableDataSource(this.usuarios);
+    this.banderaFormEdicion = false;
   }
 
   applyFilter(event: Event) {
@@ -133,7 +139,9 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   editar(usuario: Usuario) {
-    console.log("Editar Usuario: ", usuario);
+    this.usuario = usuario;
+    this.banderaFormEdicion = true;
+    // console.log("Editar Usuario: ", this.usuario);
   }
 
 }

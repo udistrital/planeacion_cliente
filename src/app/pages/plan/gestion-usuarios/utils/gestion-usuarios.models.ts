@@ -7,3 +7,8 @@ export interface Usuario {
   Codigo:              string;
   Estado:              string;
 }
+
+export interface Rol {
+  rol: string;
+  selected: boolean;
+};
