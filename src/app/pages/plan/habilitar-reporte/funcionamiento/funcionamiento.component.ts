@@ -3,10 +3,9 @@ import { FormControl, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
-import { Periodo, PeriodoSeguimiento, PlanInteres, Seguimiento, Unidad, Vigencia } from '../utils/habilitar-reporte.models';
-import { PROCESO_FUNCIONAMIENTO_FORMULACION, PROCESO_FUNCIONAMIENTO_SEGUIMIENTO } from '../utils/constantes';
 import { HabilitarReporteService } from '../habilitar-reporte.service';
 import { DataRequest } from '../../../../@core/models/interfaces/DataRequest.interface';
+import { PROCESO_FUNCIONAMIENTO_FORMULACION, PROCESO_FUNCIONAMIENTO_SEGUIMIENTO, Periodo, PeriodoSeguimiento, PlanInteres, Seguimiento, Unidad, Vigencia } from '../utils';
 
 @Component({
   selector: 'app-funcionamiento',
