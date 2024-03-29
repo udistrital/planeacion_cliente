@@ -1,5 +1,5 @@
 <!-- SELECCIÓN MENÚ PRINCIPAL -->
-<mat-card class="card-oas" *ngIf="moduloVisible && !pendienteCheck">
+<mat-card class="card-oas" *ngIf="!pendienteCheck">
   <mat-card-header>
     <mat-card-title>Formulación de Planes</mat-card-title>
   </mat-card-header>
@@ -50,7 +50,7 @@
       </ng-container>
     </form>
   </mat-card-content>
-  <mat-card-footer *ngIf="clonar" style="text-align: center;">
+  <mat-card-footer *ngIf="clonar && moduloVisible" style="text-align: center;">
     <mat-card-content>
       <u class="textGuide">
         Seleccione el siguiente botón para iniciar con la formulación
@@ -71,7 +71,7 @@
   <app-tabla-resumen [planes]="planesFormulacion" (mostrarPlan)="cargarPlan($event)"></app-tabla-resumen>
 </ng-container>
 <!-- FORMULACIÓN -->
-<mat-card class="card-oas" *ngIf="!clonar && planAsignado">
+<mat-card class="card-oas" *ngIf="!clonar && planAsignado && moduloVisible">
   <mat-card-header>
     <mat-card-title *ngIf="plan != undefined">Formulación {{plan.nombre}}</mat-card-title>
   </mat-card-header>

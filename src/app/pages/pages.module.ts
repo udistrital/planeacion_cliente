@@ -30,6 +30,7 @@ import { OasGridColsDirective } from './directives/oas-grid-cols.directive';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { CrearPlanComponent } from './plan/crear-plan/crear-plan.component';
@@ -107,7 +108,12 @@ import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion
 import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
 import { FormParametrosComponent } from './plan/gestion-parametros/form-parametros/form-parametros.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
+import { EvaluacionPlanComponent } from './evaluacion/evaluacion-plan/evaluacion-plan.component';
+import { ResumenComponent } from './evaluacion/resumen/resumen.component';
+import { TablaResumenEvaluacionComponent } from './evaluacion/tabla-resumen-evaluacion/tabla-resumen-evaluacion.component';
 import { AutoResizeDirective } from './directives/resize.directive';
+import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
+import { FormUsuariosComponent } from './plan/gestion-usuarios/form-usuarios/form-usuarios.component';
 
 const pagesComponents = [
   DashboardComponent,
@@ -147,7 +153,8 @@ const materialModules = [
   MatStepperModule,
   MatSlideToggleModule,
   MatRadioModule,
-  MatMomentDateModule
+  MatMomentDateModule,
+  MatMenuModule,
 ];
 
 const MY_FORMATS = {
@@ -240,6 +247,11 @@ const MY_FORMATS = {
     GestionParametrosComponent,
     FormParametrosComponent,
     NotificacionesComponent,
+    EvaluacionPlanComponent,
+    ResumenComponent,
+    TablaResumenEvaluacionComponent,
+    GestionUsuariosComponent,
+    FormUsuariosComponent,
   ],
   imports: [
     HttpClientModule,

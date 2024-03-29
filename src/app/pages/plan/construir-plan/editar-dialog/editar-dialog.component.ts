@@ -2,7 +2,6 @@ import { Component, OnInit, Inject, ChangeDetectorRef, AfterContentChecked, DoCh
 import { FormBuilder, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
-import { log } from 'console';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
