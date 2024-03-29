@@ -1,5 +1,5 @@
 .container-border {
-  margin: 3% 0% 0% 0%;
+  margin: 0% 0% 0% 0%;
   border: 1px solid var(--primary);
   padding: 1%;
   border-radius: 15px 15px 15px 15px;
@@ -9,9 +9,6 @@
   width: 70%;
   margin: auto;
   box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.2);
-  // justify-content: center !important; /* Centrar horizontalmente */
-  // align-items: center !important; /* Centrar verticalmente */
-  // text-align: center !important;
 }
 
 .textGuide {
@@ -40,5 +37,5 @@ td {
 }
 
 .mat-raised-button {
-  margin: 2% 0% 2% 2%;
+  margin: 2% 0% 0% 2%;
 }
