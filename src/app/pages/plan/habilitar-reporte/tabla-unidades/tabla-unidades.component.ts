@@ -101,6 +101,8 @@ export class TablaUnidadesComponent implements OnInit {
                 }
               }
               this.unidadesMostrar = this.dataUnidades;
+              this.unidadesMostrar = [...new Set(this.unidadesMostrar)];
+              this.unidadesMostrar.sort(this.ordenarPorId);
               this.dataSource = new MatTableDataSource(this.unidadesMostrar);
               this.dataSource.paginator = this.paginator;
             }
@@ -140,6 +142,7 @@ export class TablaUnidadesComponent implements OnInit {
       };
 
       this.unidadesInteres = [...this.unidadesInteres, nuevaUnidad];
+      this.unidadesInteres.sort(this.ordenarPorId);
     } else if (row.iconSelected == 'done') {
       row.iconSelected = 'compare_arrows';
       let unidadEliminar = row.Id;
@@ -162,6 +165,7 @@ export class TablaUnidadesComponent implements OnInit {
     this.unidadesMostrar.forEach((element) => {
       element.iconSelected = 'done';
     });
+    this.unidadesInteres.sort(this.ordenarPorId);
 
     // Emite los cambios
     this.emitirCambiosUnidadesInteres();
@@ -283,5 +287,9 @@ export class TablaUnidadesComponent implements OnInit {
     const idsArray1 = arr1.map(item => item.Id);
     const interseccion = arr2.filter(item => idsArray1.includes(item.Id));
     return interseccion;
-}
+  }
+
+  ordenarPorId(unidadA, unidadB) {
+    return unidadA.Id - unidadB.Id;
+  }
 }

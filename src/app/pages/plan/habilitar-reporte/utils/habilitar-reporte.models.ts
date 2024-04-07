@@ -63,6 +63,7 @@ export interface PeriodoSeguimiento {
   activo:               boolean
   unidades_interes:     string
   planes_interes:       string
+  usuario_modificacion?: string
   fecha_creacion:       string
   fecha_modificacion:   string
   __v?:                 number;
@@ -127,4 +128,32 @@ export interface PeriodoId {
   InicioVigencia:    string;
   Nombre:            string;
   Year:              number;
+}
+
+export interface Usuario {
+  user:        User;
+  userService: UserService;
+}
+
+export interface User {
+  at_hash: string;
+  sub:     string;
+  aud:     string[];
+  role:    string[];
+  azp:     string;
+  iss:     string;
+  exp:     number;
+  nonce:   string;
+  iat:     number;
+  email:   string;
+}
+
+export interface UserService {
+  role:                string[];
+  documento:           string;
+  documento_compuesto: string;
+  email:               string;
+  FamilyName:          string;
+  Codigo:              string;
+  Estado:              string;
 }
