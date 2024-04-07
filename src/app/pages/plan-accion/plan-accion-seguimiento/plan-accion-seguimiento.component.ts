@@ -9,6 +9,56 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
 import { Router } from '@angular/router';
 import { TrimestreDialogComponent } from '../trimestre-dialog/trimestre-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import * as XLSX from 'sheetjs-style';
+
+const jsonData = [
+  {
+    make: 'Plan de acción 2023 Prod',
+    model: 'FACULTAD DE INGENIERIA',
+    year: 2023,
+    specifications: {
+      specifications1: {
+        mileage: 56.21,
+        trim: 'En revisión OAPC',
+      },
+      specifications2: {
+        mileage: 56.21,
+        trim: 'En revisión OAPC',
+      },
+      specifications3: {
+        mileage: 56.21,
+        trim: 'En revisión OAPC',
+      },
+      specifications4: {
+        mileage: 56.21,
+        trim: 'En revisión OAPC',
+      },
+    },
+  },
+  {
+    make: 'Plan de acción 2023 Prod',
+    model: 'FACULTAD DE INGENIERIA',
+    year: 2023,
+    specifications: {
+      specifications1: {
+        mileage: 56.21,
+        trim: 'En revisión OAPC',
+      },
+      specifications2: {
+        mileage: 56.21,
+        trim: 'En revisión OAPC',
+      },
+      specifications3: {
+        mileage: 56.21,
+        trim: 'En revisión OAPC',
+      },
+      specifications4: {
+        mileage: 56.21,
+        trim: 'En revisión OAPC',
+      },
+    },
+  },
+];
 
 @Component({
   selector: 'app-plan-accion-seguimiento',
@@ -104,6 +154,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
         Swal.showLoading();
       },
     });
+    this.estadoDescarga = true;
     await new Promise((resolve, reject) => {
       if (this.rol == 'PLANEACION') {
         this.request.get(environment.PLANES_MID, `planes_accion`).subscribe(
@@ -486,7 +537,6 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
   }
 
   async ajustarData(event: any) {
-    this.estadoDescarga = true;
     await this.cargarPlanes(event.value);
     this.informacionTabla = new MatTableDataSource<ResumenPlan>(this.planes);
     this.informacionTabla.filterPredicate = (plan: ResumenPlan, _) => {
@@ -509,6 +559,133 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
   }
 
   descargarData() {
+    const data = jsonData.map(item => {
+      return {
+        Make: item.make,
+        Model: item.model,
+        Year: item.year,
+        Specifications1_Mileage: item.specifications.specifications1.mileage,
+        Specifications1_Trim: item.specifications.specifications1.trim,
+        Specifications2_Mileage: item.specifications.specifications2.mileage,
+        Specifications2_Trim: item.specifications.specifications2.trim,
+        Specifications3_Mileage: item.specifications.specifications3.mileage,
+        Specifications3_Trim: item.specifications.specifications3.trim,
+        Specifications4_Mileage: item.specifications.specifications4.mileage,
+        Specifications4_Trim: item.specifications.specifications4.trim,
+      };
+    });
 
+    const headerStyles = {
+      alignment: {
+        horizontal: 'center',
+        vertical: 'center',
+      },
+      fill: { fgColor: { rgb: '731514' } },
+      font: {
+        bold: true,
+        sz: '13',
+        color: { rgb: 'FFFFFF' }
+      },
+      border: {
+        bottom: { style: 'medium', color: { rgb: 'FFFFFF' } },
+        left: { style: 'medium', color: { rgb: 'FFFFFF' } },
+        right: { style: 'medium', color: { rgb: 'FFFFFF' } }
+      }
+    };
+
+    //Crear un libro de trabajo
+    const workbook = XLSX.utils.book_new();
+
+    // Crear una hoja de trabajo
+    const worksheet = XLSX.utils.aoa_to_sheet([[]]);
+    XLSX.utils.sheet_add_json(worksheet, data, { origin: 'A6' });
+
+    XLSX.utils.sheet_add_aoa(worksheet, [[
+      'Plan de acción',
+      'Unidad',
+      'Vigencia',
+      'Brecha',
+      'Estado',
+      'Brecha',
+      'Estado',
+      'Brecha',
+      'Estado',
+      'Brecha',
+      'Estado',
+    ]], { origin: "A6" });
+
+    worksheet['D5'] = { v: 'Trimestre Uno', t: 's' };
+    worksheet['F5'] = { v: 'Trimestre Dos', t: 's' };
+    worksheet['H5'] = { v: 'Trimestre Tres', t: 's' };
+    worksheet['J5'] = { v: 'Trimestre Cuatro', t: 's' };
+
+    worksheet['!merges'] = [
+      { s: { r: 4, c: 3 }, e: { r: 4, c: 4 } },
+      { s: { r: 4, c: 5 }, e: { r: 4, c: 6 } },
+      { s: { r: 4, c: 7 }, e: { r: 4, c: 8 } },
+      { s: { r: 4, c: 9 }, e: { r: 4, c: 10 } },
+    ];
+
+    worksheet['!cols'] = [
+      { width: 40 },
+      { width: 40 },
+      { width: 20 },
+      { width: 20 },
+      { width: 20 },
+      { width: 20 },
+      { width: 20 },
+      { width: 20 },
+      { width: 20 },
+      { width: 20 },
+      { width: 20 },
+    ]
+
+    //Estilo alto de las celdas
+    const defaultRowHeight = 20;
+    const filas = [];
+    const regex = /(\d+)$/;
+    const resultado = regex.exec(worksheet['!ref']);
+    const filaFinal = parseInt(resultado[1]);
+    for (let i = 0; i < filaFinal; i++) {
+      filas.push({ hpx: defaultRowHeight });
+    }
+    if (filas.length > 0) {
+      worksheet['!rows'] = filas;
+    }
+
+    //Estilo color celdas
+    for (let j = 0; j < 11; j++) {
+      const cellAddressF = XLSX.utils.encode_cell({ r: 4, c: j });
+      const cellAddressH = XLSX.utils.encode_cell({ r: 5, c: j });
+      if (j >= 3) {
+        if (worksheet[cellAddressF]) {
+          worksheet[cellAddressF].s = headerStyles;
+        }
+        worksheet[cellAddressH].s = {
+          alignment: {
+            horizontal: 'center',
+            vertical: 'center',
+          },
+          fill: { fgColor: { rgb: '753E3D' } },
+          font: {
+            bold: true,
+            sz: '13',
+            color: { rgb: 'FFFFFF' }
+          },
+          border: {
+            top: { style: 'medium', color: { rgb: 'FFFFFF' } },
+            bottom: { style: 'medium', color: { rgb: 'FFFFFF' } },
+            left: { style: 'medium', color: { rgb: 'FFFFFF' } },
+            right: { style: 'medium', color: { rgb: 'FFFFFF' } }
+          }
+        };
+      } else {
+        worksheet[cellAddressH].s = headerStyles;
+      }
+    }
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Procesos de seguimiento');
+
+    XLSX.writeFile(workbook, 'Procesos de seguimiento.xlsx');
   }
 }
