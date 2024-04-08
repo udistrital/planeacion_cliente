@@ -81,7 +81,7 @@ export class GestionUsuariosComponent implements OnInit {
         "user": this.formUsuarios.get('correo').value
       }
       this.mostrarMensajeCarga();
-      this.request.post(environment.TOKEN.AUTENTICACION_MID, '', body).subscribe(
+      this.request.post(`${environment.AUTENTICACION_MID}userRol`, '', body).subscribe(
         (data: any) => {
           if (data != null && data != undefined && data != "") {
             this.usuarios = [];
