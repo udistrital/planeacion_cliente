@@ -1,28 +1,77 @@
+.headerFather {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.titlePlan,
+.unidad {
+  margin: 0 0 10px;
+  font-weight: 500;
+}
+
+.titlePlan {
+  font-size: 1.5em;
+}
+
+.unidad {
+  font-size: 1.1em;
+}
+
+table {
+  width: 100%;
+}
+
+th {
+  color: white;
+}
+
+th.mat-header-cell div {
+  font-weight: bold;
+}
+
+tr td.mat-cell:last-child {
+  text-align: right;
+  justify-content: flex-end;
+}
+
+td.mat-cell,
+th.mat-header-cell {
+  padding: 16px 10px;
+}
+
+tr th.mat-header-cell:last-child {
+  padding-right: 24px;
+  text-align: right;
+}
+
 .example-radio-group {
-    display: flex;
-    flex-direction: column;
-    margin: 1px 30px;
-    // position: absolute;
-    // left: 2px;
+  display: flex;
+  flex-direction: column;
+  margin: 1px 30px;
+  // position: absolute;
+  // left: 2px;
 }
-  
+
 .example-radio-button {
-    margin: 20px;
+  margin: 20px;
 }
 
-.requerido-radio-group-label{
-    padding-left: 50px;
+.requerido-radio-group-label {
+  padding-left: 50px;
 }
 
-.requerido-radio-button{
-    margin: 20px;
+.requerido-radio-button {
+  margin: 20px;
 }
 
-#ng-container{
-    margin-top: 2%;
+#ng-container {
+  margin-top: 2%;
 }
 
-.mat-form-field{
-    display: block;
-    margin: 2%;
+.mat-form-field {
+  display: block;
+  margin: 2%;
 }

@@ -27,7 +27,6 @@ export class TrimestreDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<TrimestreDialogComponent>,
     private router: Router,
     @Inject(MAT_DIALOG_DATA) public data: any) {
-    console.log("ENTRO DIALOG: ", data.plan);
     this.plan = data.plan;
     this.trimestres = data.trimestres;
     this.informacionTabla = new MatTableDataSource<any>(this.trimestres);

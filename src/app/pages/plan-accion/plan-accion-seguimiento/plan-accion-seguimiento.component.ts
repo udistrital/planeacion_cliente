@@ -11,55 +11,6 @@ import { TrimestreDialogComponent } from '../trimestre-dialog/trimestre-dialog.c
 import { MatDialog } from '@angular/material/dialog';
 import * as XLSX from 'sheetjs-style';
 
-const jsonData = [
-  {
-    make: 'Plan de acción 2023 Prod',
-    model: 'FACULTAD DE INGENIERIA',
-    year: 2023,
-    specifications: {
-      specifications1: {
-        mileage: 56.21,
-        trim: 'En revisión OAPC',
-      },
-      specifications2: {
-        mileage: 56.21,
-        trim: 'En revisión OAPC',
-      },
-      specifications3: {
-        mileage: 56.21,
-        trim: 'En revisión OAPC',
-      },
-      specifications4: {
-        mileage: 56.21,
-        trim: 'En revisión OAPC',
-      },
-    },
-  },
-  {
-    make: 'Plan de acción 2023 Prod',
-    model: 'FACULTAD DE INGENIERIA',
-    year: 2023,
-    specifications: {
-      specifications1: {
-        mileage: 56.21,
-        trim: 'En revisión OAPC',
-      },
-      specifications2: {
-        mileage: 56.21,
-        trim: 'En revisión OAPC',
-      },
-      specifications3: {
-        mileage: 56.21,
-        trim: 'En revisión OAPC',
-      },
-      specifications4: {
-        mileage: 56.21,
-        trim: 'En revisión OAPC',
-      },
-    },
-  },
-];
-
 @Component({
   selector: 'app-plan-accion-seguimiento',
   templateUrl: './plan-accion-seguimiento.component.html',
@@ -77,6 +28,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
   informacionTabla: MatTableDataSource<ResumenPlan>;
   inputsFiltros: NodeListOf<HTMLInputElement>;
   planes: any[];
+  periodos: any[] = [];
   auxUnidades: any[] = [];
   estadoDescarga: boolean = false;
 
@@ -314,22 +266,24 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
       }
     });
   }
-  async consultar(plan: any) {
-    Swal.fire({
-      title: 'Cargando Trimestres',
-      timerProgressBar: true,
-      showConfirmButton: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-    });
+  async consultar(plan: any, mostrar: boolean): Promise<any[]> {
+    if (mostrar) {
+      Swal.fire({
+        title: 'Cargando Trimestres',
+        timerProgressBar: true,
+        showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+      });
+    }
+    const trimestres = []
     await new Promise((resolve, reject) => {
       this.request
         .get(environment.PLANES_MID, `seguimiento/get_periodos/` + plan.vigencia_id)
         .subscribe(
           (data: any) => {
-            if (data) {
-              const trimestres = []
+            if (data.Data) {
               data.Data.forEach(element => {
                 const trimestre = {
                   codigo: element["ParametroId"].CodigoAbreviacion,
@@ -346,7 +300,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                       }
                       innerResolve("Success")
                     }, (error) => {
-                      Swal.close();
+                      if (mostrar) { Swal.close(); }
                       Swal.fire({
                         title: 'Error en la operación',
                         text: `No se encontraron datos registrados ${JSON.stringify(
@@ -362,7 +316,6 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                 });
               });
               Promise.all(promises).then(() => {
-                console.log(trimestres);
                 this.request.get(environment.PLANES_MID, `evaluacion/unidades/` + plan.nombre + "/" + plan.vigencia_id).subscribe(
                   (datosEval: any) => {
                     if (datosEval) {
@@ -371,69 +324,85 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                           (datosP: any) => {
                             if (datosP.Data.length !== 0) {
                               const planEspecifico = datosP.Data.find(objeto => objeto.plan === plan.nombre);
-                              const idUltimoTrimestre = planEspecifico["periodos"][planEspecifico["periodos"].length - 1].id;
-                              this.request.get(environment.PLANES_MID, `evaluacion/` + plan.vigencia_id + "/" + datosP.Data[0].id + "/" + idUltimoTrimestre).subscribe(
-                                (datosB: any) => {
-                                  if (datosB) {
-                                    console.log(datosB.Data);
-                                    const brechasT1 = [];
-                                    const brechasT2 = [];
-                                    const brechasT3 = [];
-                                    const brechasT4 = [];
-                                    datosB.Data.map(br => {
-                                      if (br.trimestre1 && Object.keys(br.trimestre1).length !== 0) {
-                                        brechasT1.push(br.trimestre1.brecha);
+                              if (planEspecifico) {
+                                const idUltimoTrimestre = planEspecifico["periodos"][planEspecifico["periodos"].length - 1].id;
+                                this.request.get(environment.PLANES_MID, `evaluacion/` + plan.vigencia_id + "/" + datosP.Data[0].id + "/" + idUltimoTrimestre).subscribe(
+                                  (datosB: any) => {
+                                    if (datosB) {
+                                      const brechasT1 = [];
+                                      const brechasT2 = [];
+                                      const brechasT3 = [];
+                                      const brechasT4 = [];
+                                      datosB.Data.map(br => {
+                                        if (br.trimestre1 && Object.keys(br.trimestre1).length !== 0) {
+                                          brechasT1.push(br.trimestre1.brecha);
+                                        }
+                                        if (br.trimestre2 && Object.keys(br.trimestre2).length !== 0) {
+                                          brechasT2.push(br.trimestre2.brecha);
+                                        }
+                                        if (br.trimestre3 && Object.keys(br.trimestre3).length !== 0) {
+                                          brechasT3.push(br.trimestre3.brecha);
+                                        }
+                                        if (br.trimestre4 && Object.keys(br.trimestre4).length !== 0) {
+                                          brechasT4.push(br.trimestre4.brecha);
+                                        }
+                                      });
+                                      trimestres.map(tri => {
+                                        if (tri.codigo === 'T1' && brechasT1.length !== 0) {
+                                          tri.promedioBrechas = ((brechasT1.reduce((total, numero) => total + numero, 0)) / brechasT1.length).toFixed(2);
+                                        }
+                                        else if (tri.codigo === 'T2' && brechasT2.length !== 0) {
+                                          tri.promedioBrechas = ((brechasT2.reduce((total, numero) => total + numero, 0)) / brechasT2.length).toFixed(2);
+                                        }
+                                        else if (tri.codigo === 'T3' && brechasT3.length !== 0) {
+                                          tri.promedioBrechas = ((brechasT3.reduce((total, numero) => total + numero, 0)) / brechasT3.length).toFixed(2);
+                                        }
+                                        else if (tri.codigo === 'T4' && brechasT4.length !== 0) {
+                                          tri.promedioBrechas = ((brechasT4.reduce((total, numero) => total + numero, 0)) / brechasT4.length).toFixed(2);
+                                        } else {
+                                          tri.promedioBrechas = 0;
+                                        }
+                                      });
+                                      this.periodos.push(trimestres);
+                                      if (mostrar) {
+                                        this.dialog.open(TrimestreDialogComponent, {
+                                          width: 'calc(85vw - 65px)',
+                                          height: 'calc(45vw - 65px)',
+                                          data: { plan, trimestres }
+                                        });
                                       }
-                                      if (br.trimestre2 && Object.keys(br.trimestre2).length !== 0) {
-                                        brechasT2.push(br.trimestre2.brecha);
-                                      }
-                                      if (br.trimestre3 && Object.keys(br.trimestre3).length !== 0) {
-                                        brechasT3.push(br.trimestre3.brecha);
-                                      }
-                                      if (br.trimestre4 && Object.keys(br.trimestre4).length !== 0) {
-                                        brechasT4.push(br.trimestre4.brecha);
-                                      }
+                                      if (mostrar) { Swal.close(); }
+                                    }
+                                  }, (error) => {
+                                    if (mostrar) { Swal.close(); }
+                                    Swal.fire({
+                                      title: 'Error en la operación',
+                                      text: `No se encontraron datos registrados ${JSON.stringify(
+                                        error
+                                      )}`,
+                                      icon: 'warning',
+                                      showConfirmButton: false,
+                                      timer: 2500,
                                     });
-                                    trimestres.map(tri => {
-                                      if (tri.codigo === 'T1' && brechasT1.length !== 0) {
-                                        tri.promedioBrechas = ((brechasT1.reduce((total, numero) => total + numero, 0)) / brechasT1.length).toFixed(2);
-                                      }
-                                      else if (tri.codigo === 'T2' && brechasT2.length !== 0) {
-                                        tri.promedioBrechas = ((brechasT2.reduce((total, numero) => total + numero, 0)) / brechasT2.length).toFixed(2);
-                                      }
-                                      else if (tri.codigo === 'T3' && brechasT3.length !== 0) {
-                                        tri.promedioBrechas = ((brechasT3.reduce((total, numero) => total + numero, 0)) / brechasT3.length).toFixed(2);
-                                      }
-                                      else if (tri.codigo === 'T4' && brechasT4.length !== 0) {
-                                        tri.promedioBrechas = ((brechasT4.reduce((total, numero) => total + numero, 0)) / brechasT4.length).toFixed(2);
-                                      } else {
-                                        tri.promedioBrechas = 0;
-                                      }
-                                    });
-                                    const dialogRef = this.dialog.open(TrimestreDialogComponent, {
-                                      width: 'calc(85vw - 65px)',
-                                      height: 'calc(45vw - 65px)',
-                                      data: { plan, trimestres }
-                                    });
-                                    console.log("FINAL: ", trimestres)
-                                    Swal.close();
                                   }
-                                }, (error) => {
-                                  Swal.close();
-                                  Swal.fire({
-                                    title: 'Error en la operación',
-                                    text: `No se encontraron datos registrados ${JSON.stringify(
-                                      error
-                                    )}`,
-                                    icon: 'warning',
-                                    showConfirmButton: false,
-                                    timer: 2500,
+                                )
+                              } else {
+                                trimestres.map(tri => {
+                                  tri.promedioBrechas = 0;
+                                });
+                                this.periodos.push(trimestres);
+                                if (mostrar) {
+                                  this.dialog.open(TrimestreDialogComponent, {
+                                    width: 'calc(85vw - 65px)',
+                                    height: 'calc(45vw - 65px)',
+                                    data: { plan, trimestres }
                                   });
                                 }
-                              )
+                                if (mostrar) { Swal.close(); }
+                              }
                             }
                           }, (error) => {
-                            Swal.close();
+                            if (mostrar) { Swal.close(); }
                             Swal.fire({
                               title: 'Error en la operación',
                               text: `No se encontraron datos registrados ${JSON.stringify(
@@ -449,16 +418,19 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                         trimestres.map(tri => {
                           tri.promedioBrechas = 0;
                         });
-                        const dialogRef = this.dialog.open(TrimestreDialogComponent, {
-                          width: 'calc(85vw - 65px)',
-                          height: 'calc(45vw - 65px)',
-                          data: { plan, trimestres }
-                        });
-                        Swal.close();
+                        this.periodos.push(trimestres);
+                        if (mostrar) {
+                          this.dialog.open(TrimestreDialogComponent, {
+                            width: 'calc(85vw - 65px)',
+                            height: 'calc(45vw - 65px)',
+                            data: { plan, trimestres }
+                          });
+                        }
+                        if (mostrar) { Swal.close(); }
                       }
                     }
                   }, (error) => {
-                    Swal.close();
+                    if (mostrar) { Swal.close(); }
                     Swal.fire({
                       title: 'Error en la operación',
                       text: `No se encontraron datos registrados ${JSON.stringify(
@@ -470,12 +442,25 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                     });
                   }
                 )
+                return trimestres;
               })
+              resolve("trimestres");
+            } else {
+              this.periodos.push(trimestres);
+              if (mostrar) {
+                Swal.close();
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: 'No se encontraron trimestres para esta vigencia',
+                  icon: 'warning',
+                  showConfirmButton: true,
+                });
+              }
               resolve("trimestres");
             }
           },
           (error) => {
-            Swal.close();
+            if (mostrar) { Swal.close(); }
             Swal.fire({
               title: 'Error en la operación',
               text: `No se encontraron datos registrados ${JSON.stringify(
@@ -489,15 +474,8 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
           }
         );
     });
+    return trimestres;
   }
-
-  // async obtenerBrecha(periodos: any[]) {
-  //   const promises = periodos[0].periodos.map(pe => {
-  //     return new Promise((innerResolve, innerReject) => {
-  //       this.request.get(path, endpoint)
-  //     })
-  //   })
-  // }
 
   async loadUnidades() {
     Swal.fire({
@@ -558,23 +536,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
     this.informacionTabla.paginator = this.paginator;
   }
 
-  descargarData() {
-    const data = jsonData.map(item => {
-      return {
-        Make: item.make,
-        Model: item.model,
-        Year: item.year,
-        Specifications1_Mileage: item.specifications.specifications1.mileage,
-        Specifications1_Trim: item.specifications.specifications1.trim,
-        Specifications2_Mileage: item.specifications.specifications2.mileage,
-        Specifications2_Trim: item.specifications.specifications2.trim,
-        Specifications3_Mileage: item.specifications.specifications3.mileage,
-        Specifications3_Trim: item.specifications.specifications3.trim,
-        Specifications4_Mileage: item.specifications.specifications4.mileage,
-        Specifications4_Trim: item.specifications.specifications4.trim,
-      };
-    });
-
+  prepararDocumento(data: any) {
     const headerStyles = {
       alignment: {
         horizontal: 'center',
@@ -614,12 +576,26 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
       'Estado',
     ]], { origin: "A6" });
 
+    worksheet['A2'] = {
+      v: 'Tabla de procesos de seguimiento realizados', t: 's', s: {
+        font: {
+          bold: true,
+          sz: '20',
+          color: { rgb: '731514' }
+        },
+        alignment: {
+          horizontal: 'center',
+          vertical: 'center',
+        }
+      }
+    };
     worksheet['D5'] = { v: 'Trimestre Uno', t: 's' };
     worksheet['F5'] = { v: 'Trimestre Dos', t: 's' };
     worksheet['H5'] = { v: 'Trimestre Tres', t: 's' };
     worksheet['J5'] = { v: 'Trimestre Cuatro', t: 's' };
 
     worksheet['!merges'] = [
+      { s: { r: 1, c: 0 }, e: { r: 2, c: 1 } },
       { s: { r: 4, c: 3 }, e: { r: 4, c: 4 } },
       { s: { r: 4, c: 5 }, e: { r: 4, c: 6 } },
       { s: { r: 4, c: 7 }, e: { r: 4, c: 8 } },
@@ -687,5 +663,77 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Procesos de seguimiento');
 
     XLSX.writeFile(workbook, 'Procesos de seguimiento.xlsx');
+  }
+
+  async descargarData() {
+    Swal.fire({
+      title: 'Preparando Documento',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    const listaPlanes = [];
+    const auxPlanes = [];
+    const malos = [];
+
+    // Array de promesas de consultas
+    const promesasConsultas = this.planes.map(pl => {
+      const planDañado = pl.nombre !== "Plan de acción 2023 Prod Seguimiento" || pl.dependencia_nombre !== "VICERRECTORIA ACADEMICA";
+      if (pl.vigencia !== 0 && planDañado) {
+        auxPlanes.push(pl);
+        return this.consultar(pl, false);
+      } else {
+        malos.push(pl.nombre + " " + pl.vigencia);
+        return Promise.resolve([]);
+      }
+    });
+
+    // Esperar a que todas las consultas se completen
+    const resultadosConsultas = await Promise.all(promesasConsultas);
+
+    for (const [index, pl] of auxPlanes.entries()) {
+      let sinTrimestres = {};
+      const trimestres = resultadosConsultas[index]; // Obtener los trimestres para el plan actual
+      if (trimestres.length !== 0) {
+        sinTrimestres = {
+          t1_brecha: trimestres[0].promedioBrechas === 0 ? "N/A" : trimestres[0].promedioBrechas,
+          t1_estado: trimestres[0].estado,
+          t2_brecha: trimestres[1].promedioBrechas === 0 ? "N/A" : trimestres[1].promedioBrechas,
+          t2_estado: trimestres[1].estado,
+          t3_brecha: trimestres[2].promedioBrechas === 0 ? "N/A" : trimestres[2].promedioBrechas,
+          t3_estado: trimestres[2].estado,
+          t4_brecha: trimestres[3].promedioBrechas === 0 ? "N/A" : trimestres[3].promedioBrechas,
+          t4_estado: trimestres[3].estado
+        };
+      } else {
+        sinTrimestres = {
+          t1_brecha: "N/A",
+          t1_estado: "N/A",
+          t2_brecha: "N/A",
+          t2_estado: "N/A",
+          t3_brecha: "N/A",
+          t3_estado: "N/A",
+          t4_brecha: "N/A",
+          t4_estado: "N/A",
+        };
+      }
+
+      listaPlanes.push({
+        nombre: pl.nombre,
+        unidad: pl.dependencia_nombre,
+        vigencia: pl.vigencia.toString(),
+        ...sinTrimestres
+      });
+    }
+
+    this.prepararDocumento(listaPlanes);
+    Swal.close();
+    const actualUrl = this.router.url;
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate([actualUrl]);
+    });
   }
 }
