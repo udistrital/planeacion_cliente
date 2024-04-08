@@ -101,8 +101,7 @@ export class TablaUnidadesComponent implements OnInit {
                 }
               }
               this.unidadesMostrar = this.dataUnidades;
-              this.unidadesMostrar = [...new Set(this.unidadesMostrar)];
-              this.unidadesMostrar.sort(this.ordenarPorId);
+              this.unidadesMostrar = this.eliminarDuplicadosYOrdenar(this.unidadesMostrar);
               this.dataSource = new MatTableDataSource(this.unidadesMostrar);
               this.dataSource.paginator = this.paginator;
             }
@@ -142,7 +141,7 @@ export class TablaUnidadesComponent implements OnInit {
       };
 
       this.unidadesInteres = [...this.unidadesInteres, nuevaUnidad];
-      this.unidadesInteres.sort(this.ordenarPorId);
+      this.unidadesInteres = this.eliminarDuplicadosYOrdenar(this.unidadesInteres);
     } else if (row.iconSelected == 'done') {
       row.iconSelected = 'compare_arrows';
       let unidadEliminar = row.Id;
@@ -165,8 +164,7 @@ export class TablaUnidadesComponent implements OnInit {
     this.unidadesMostrar.forEach((element) => {
       element.iconSelected = 'done';
     });
-    this.unidadesInteres.sort(this.ordenarPorId);
-
+    this.unidadesInteres = this.eliminarDuplicadosYOrdenar(this.unidadesInteres);
     // Emite los cambios
     this.emitirCambiosUnidadesInteres();
   }
@@ -283,13 +281,21 @@ export class TablaUnidadesComponent implements OnInit {
     return `${dia}/${mes}/${anio}`;
   }
 
-  encontrarInterseccion(arr1, arr2) {
-    const idsArray1 = arr1.map(item => item.Id);
-    const interseccion = arr2.filter(item => idsArray1.includes(item.Id));
-    return interseccion;
-  }
+  eliminarDuplicadosYOrdenar(array: Array<any>) {
+    const mapa = {};
+    const arraySinDuplicados = [];
 
-  ordenarPorId(unidadA, unidadB) {
-    return unidadA.Id - unidadB.Id;
+    for (const item of array) {
+        const key = JSON.stringify(item);
+        if (!mapa[key]) {
+            arraySinDuplicados.push(item);
+            mapa[key] = true;
+        }
+    }
+
+    // Ordenar el array por Id
+    arraySinDuplicados.sort((unidadA, unidadB) => unidadA.Id - unidadB.Id);
+
+    return arraySinDuplicados;
   }
 }

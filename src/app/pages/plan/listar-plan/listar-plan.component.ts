@@ -411,7 +411,6 @@ export class ListarPlanComponent implements OnInit {
               }
   
               planesMostrar = [...new Set(planesMostrar)];
-              console.log("Planes Mostrar: ", planesMostrar);
               this.planesMostrar = planesMostrar;
               this.dataSource = new MatTableDataSource(this.planesMostrar);
               this.dataSource.paginator = this.paginator;
@@ -463,7 +462,6 @@ export class ListarPlanComponent implements OnInit {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + documento_usuario)
         .subscribe((datosInfoTercero: any) => {
           if(datosInfoTercero[0].TerceroId) {
-            console.log("Datos Tercero: ", datosInfoTercero[0]);
             nombreCompleto = datosInfoTercero[0].TerceroId.NombreCompleto;
             resolve(datosInfoTercero[0].TerceroId.NombreCompleto);
           }
