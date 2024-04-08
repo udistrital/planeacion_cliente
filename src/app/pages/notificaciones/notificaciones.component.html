@@ -1,18 +1,36 @@
-<div id="notificaciones" ng-class="claseContainer.clase">
-    <div ng-cloak layout-gt-sm="row" layout="column">
-        <div flex-gt-sm="100" flex class="notificacion-input">
-            <input type="text" class="form-control" ng-model="buscador" placeholder="Filtrar Notificación">
-        </div>
-    </div>
-    <br>
-    <div class="notifications-container">
-        <div class="notification-item" ng-if="existenNotificaciones">
-            <div class="notifications-text-container">
-                <p> Cumplidos por revisar</p>
-                <p> Tienes cumplidos por revisar </p>
-                <!-- <p am-time-ago="m.FechaCreacion"> </p> -->                                            
-            </div>
-        </div>
-    </div>
-</div>
+<h2>Registrar notificaciones</h2>
+<form [formGroup]="formularioRegistro" (ngSubmit)="onSubmitformularioRegistro()">
+  <mat-form-field>
+    <input matInput placeholder="Asunto" formControlName="asunto" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Destinatario" formControlName="destinatario" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Mensaje" formControlName="mensaje" />
+  </mat-form-field>
+  <button mat-raised-button color="primary" type="submit">Registrar notificacion</button>
+</form>
 
+<br><hr><br>
+
+<h2>Borrar notificaciones</h2>
+<form [formGroup]="formularioBorrar" (ngSubmit)="onSubmitformularioBorrar()">
+  <mat-form-field>
+    <input matInput placeholder="Nombre de cola" formControlName="nameCola" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Id de la notificación" formControlName="idNotificacion" />
+  </mat-form-field>
+  <button mat-raised-button color="primary" type="submit">Borrar notificacion</button>
+</form>
+
+<br><hr><br>
+
+<h2>Consultar notificaciones</h2>
+<form [formGroup]="formularioConsulta" (ngSubmit)="onSubmitformularioConsulta()">
+    <mat-form-field>
+        <input matInput placeholder="Nombre de la cola" formControlName="nombreCola" />
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit">Consultar notificación</button>
+</form>
