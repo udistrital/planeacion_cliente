@@ -7,6 +7,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Usuario } from './utils/gestion-usuarios.models';
+import { ROL_ASISTENTE_DEPENDENCIA, ROL_JEFE_DEPENDENCIA, ROL_JEFE_UNIDAD_PLANEACION, ROL_PLANEACION } from './utils';
 
 @Component({
   selector: 'app-gestion-usuarios',
@@ -39,7 +40,7 @@ export class GestionUsuariosComponent implements OnInit {
 
   ngOnInit(): void {
     this.displayedColumns = ['Usuario', 'Roles', 'actions'];
-    this.roles = ['JEFE_DEPENDENCIA', 'PLANEACION', 'ASISTENTE_DEPENDENCIA', 'JEFE_UNIDAD_PLANEACION'];
+    this.roles = [ROL_PLANEACION, ROL_JEFE_UNIDAD_PLANEACION, ROL_JEFE_DEPENDENCIA, ROL_ASISTENTE_DEPENDENCIA];
     this.usuarios = [];
     this.banderaTabla = false;
     this.rolSelected = false;
@@ -109,9 +110,10 @@ export class GestionUsuariosComponent implements OnInit {
     }
   }
 
-  formatearRoles(roles: string): string {
+  formatearRoles(roles: Array<any>): string {
+    roles = roles.filter(role => this.roles.includes(role));
     return roles.toString().split(',').join(', ');
-}
+  }
 
   validarEmail(email: string) { // Función para validar el email, devuelve true si es correcto y false si no lo es
     const emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -141,7 +143,6 @@ export class GestionUsuariosComponent implements OnInit {
   editar(usuario: Usuario) {
     this.usuario = usuario;
     this.banderaFormEdicion = true;
-    // console.log("Editar Usuario: ", this.usuario);
   }
 
 }

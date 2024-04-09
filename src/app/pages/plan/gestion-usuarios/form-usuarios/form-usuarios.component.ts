@@ -88,29 +88,15 @@ export class FormUsuariosComponent implements OnInit {
                   this.rolesUsuario.push({ ...response.rolUsuario });
                 }
                 this.rolesSistema = this.rolesSistema.filter(item => !item.selected);
-                this.rolesSistema.forEach(item => {
-                  if (item.rol === response.rolUsuario.rol) {
-                      item.selected = false;
-                  }
-                });
                 await this.mostrarMensajeExito(response.rolUsuario.rol, 'vincular');
               } else if (response.Status === '200' && response.Success == false) {
                 this.mostrarMensajeError(`El usuario ya tiene el rol ${response.rolUsuario.rol} asignado`);
-                this.rolesSistema.forEach(item => {
-                  if (item.rol === response.rolUsuario.rol) {
-                      item.selected = true;
-                  }
-                });
               } else {
                 this.mostrarMensajeError(`No se pudo vincular el rol ${response.rolUsuario.rol} al usuario`);
-                this.rolesSistema.forEach(item => {
-                  if (item.rol === response.rolUsuario.rol) {
-                      item.selected = true;
-                  }
-                });
               }
             }
           }
+          this.clearSelection();
         })
         .catch(error => {
           console.error("Error al vincular roles:", error);
@@ -178,29 +164,15 @@ export class FormUsuariosComponent implements OnInit {
                   this.rolesSistema.push({ ...response.rolUsuario });
                 }
                 this.rolesUsuario = this.rolesUsuario.filter(item => !item.selected);
-                this.rolesUsuario.forEach(item => {
-                  if (item.rol === response.rolUsuario.rol) {
-                      item.selected = false;
-                  }
-                });
                 await this.mostrarMensajeExito(response.rolUsuario.rol, 'desvincular');
               } else if ((response.Status === '200' || response.Status === '400') && response.Success == false) {
                 this.mostrarMensajeError(`El usuario no tiene el rol ${response.rolUsuario.rol} asignado`);
-                this.rolesUsuario.forEach(item => {
-                  if (item.rol === response.rolUsuario.rol) {
-                      item.selected = true;
-                  }
-                });
               } else {
                 this.mostrarMensajeError(`No se pudo desvincular el rol ${response.rolUsuario.rol} del usuario`);
-                this.rolesUsuario.forEach(item => {
-                  if (item.rol === response.rolUsuario.rol) {
-                      item.selected = true;
-                  }
-                });
               }
             }
           }
+          this.clearSelection();
         })
         .catch(error => {
           console.error("Error al desvincular roles:", error);
@@ -238,7 +210,6 @@ export class FormUsuariosComponent implements OnInit {
     return new Promise(resolve => {
       Swal.fire({
         title: 'Operación exitosa',
-        
         text: mensaje,
         icon: 'success',
         showConfirmButton: false,
