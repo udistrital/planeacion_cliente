@@ -45,6 +45,7 @@ import { EvidenciasDialogComponent } from './seguimiento/evidencias/evidencias-d
 import { ArbolComponent } from './plan/arbol/arbol.component';
 import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agregar-dialog.component';
 import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
+import { TrimestreDialogComponent } from './plan-accion/trimestre-dialog/trimestre-dialog.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { ContratistasComponent } from './formulacion/contratistas/contratistas.component';
 import { RecursosComponent } from './formulacion/recursos/recursos.component';
@@ -100,7 +101,8 @@ import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 import { TablaUnidadesComponent } from './plan/habilitar-reporte/tabla-unidades/tabla-unidades.component';
 import { TablaResumenComponent } from './formulacion/tabla-resumen/tabla-resumen.component';
-import { PlanAccionComponent } from './plan-accion/plan-accion.component';
+import { PlanAccionFormulacionComponent } from './plan-accion/plan-accion-formulacion/plan-accion-formulacion.component';
+import { PlanAccionSeguimientoComponent } from './plan-accion/plan-accion-seguimiento/plan-accion-seguimiento.component';
 import { TablaPendientesFormulacionComponent } from './pendientes/pendientes-formulacion/tabla-pendientes-formulacion.component';
 import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seguimiento/tabla-pendientes-seguimiento.component';
 import { FuncionamientoComponent } from './plan/habilitar-reporte/funcionamiento/funcionamiento.component';
@@ -131,8 +133,11 @@ const pagesComponents = [
   FormulacionComponent,
   AgregarDialogComponent,
   EditarDialogComponent,
+  TrimestreDialogComponent,
   ArbolComponent,
   PlanAnualComponent,
+  PlanAccionFormulacionComponent,
+  PlanAccionSeguimientoComponent,
   TablaPendientesFormulacionComponent,
   TablaPendientesSeguimientoComponent,
 ];
@@ -187,6 +192,7 @@ const MY_FORMATS = {
     ArbolComponent,
     AgregarDialogComponent,
     EditarDialogComponent,
+    TrimestreDialogComponent,
     FormulacionComponent,
     ContratistasComponent,
     RecursosComponent,
@@ -239,7 +245,8 @@ const MY_FORMATS = {
     ProgramacionPresupuestalComponent,
     TablaUnidadesComponent,
     TablaResumenComponent,
-    PlanAccionComponent,
+    PlanAccionFormulacionComponent,
+    PlanAccionSeguimientoComponent,
     TablaPendientesFormulacionComponent,
     TablaPendientesSeguimientoComponent,
     FuncionamientoComponent,
