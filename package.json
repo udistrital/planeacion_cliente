@@ -37,6 +37,7 @@
     "ngx-material-file-input": "^2.1.1",
     "popper.js": "^1.16.1",
     "rxjs": "~6.6.0",
+    "sheetjs-style": "^0.15.8",
     "sweetalert2": "^10.15.5",
     "ts-md5": "^1.2.10",
     "tslib": "^2.0.0",
