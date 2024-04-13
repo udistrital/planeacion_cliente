@@ -5,7 +5,7 @@ import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import { HabilitarReporteService } from '../habilitar-reporte.service';
 import { DataRequest } from '../../../../@core/models/interfaces/DataRequest.interface';
-import { PROCESO_FUNCIONAMIENTO_FORMULACION, PROCESO_FUNCIONAMIENTO_SEGUIMIENTO, Periodo, PeriodoSeguimiento, PlanInteres, Seguimiento, Unidad, Vigencia } from '../utils';
+import { PROCESO_FUNCIONAMIENTO_FORMULACION, PROCESO_FUNCIONAMIENTO_SEGUIMIENTO, Periodo, PeriodoSeguimiento, PlanInteres, Seguimiento, Unidad, Usuario, Vigencia } from '../utils';
 
 @Component({
   selector: 'app-funcionamiento',
@@ -35,6 +35,7 @@ export class FuncionamientoComponent implements OnInit {
   periodoSeguimiento: PeriodoSeguimiento;
   periodoSeguimientoListarPlan: PeriodoSeguimiento;
   periodoSeguimientoListarUnidades: PeriodoSeguimiento;
+  user: Usuario;
 
   selectVigencia = new FormControl();
   selectTipo = new FormControl();
@@ -55,7 +56,9 @@ export class FuncionamientoComponent implements OnInit {
     this.periodoSeguimientoListarUnidades = {} as PeriodoSeguimiento;
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.user = JSON.parse(atob(localStorage.getItem('user')));
+  }
 
   // Función para manejar los cambios en las unidades de interés
   manejarCambiosUnidadesInteres(nuevasUnidades: Unidad[]) {
@@ -308,6 +311,7 @@ export class FuncionamientoComponent implements OnInit {
             periodo_seguimiento_formulacion.tipo_seguimiento_id = "6260e975ebe1e6498f7404ee";
             periodo_seguimiento_formulacion.unidades_interes = JSON.stringify(this.unidadesInteres);
             periodo_seguimiento_formulacion.planes_interes = JSON.stringify(this.planesInteres);
+            periodo_seguimiento_formulacion.usuario_modificacion = this.user.userService.documento ? this.user.userService.documento : '';
             periodo_seguimiento_formulacion.activo = true;
             this.request.post(environment.PLANES_MID, 'formulacion/habilitar_fechas_funcionamiento', periodo_seguimiento_formulacion)
             .subscribe(
@@ -424,6 +428,7 @@ export class FuncionamientoComponent implements OnInit {
     periodo_seguimiento_seguimiento.tipo_seguimiento_id = "61f236f525e40c582a0840d0";
     periodo_seguimiento_seguimiento.unidades_interes = JSON.stringify(this.unidadesInteres);
     periodo_seguimiento_seguimiento.planes_interes = JSON.stringify(this.planesInteres);
+    periodo_seguimiento_seguimiento.usuario_modificacion = this.user.userService.documento ? this.user.userService.documento : '';
     periodo_seguimiento_seguimiento.activo = true;
 
     this.request.post(environment.PLANES_MID, `formulacion/habilitar_fechas_funcionamiento`, periodo_seguimiento_seguimiento).subscribe((data: DataRequest) => {
@@ -460,18 +465,19 @@ export class FuncionamientoComponent implements OnInit {
     this.filtroSelected = false;
     this.filtroPlan = false;
     this.filtroUnidad = false;
-    if (this.tipo === PROCESO_FUNCIONAMIENTO_FORMULACION) {
-      this.formFechas.get('fecha9').setValue('');
-      this.formFechas.get('fecha10').setValue('');
-    } else if (this.tipo == PROCESO_FUNCIONAMIENTO_SEGUIMIENTO) {
-      this.formFechas.get('fecha1').setValue('');
-      this.formFechas.get('fecha2').setValue('');
-      this.formFechas.get('fecha3').setValue('');
-      this.formFechas.get('fecha4').setValue('');
-      this.formFechas.get('fecha5').setValue('');
-      this.formFechas.get('fecha6').setValue('');
-      this.formFechas.get('fecha7').setValue('');
-      this.formFechas.get('fecha8').setValue('');
-    }
+    
+    // Limpieza de fechas para proceso de formulacion
+    this.formFechas.get('fecha9').setValue('');
+    this.formFechas.get('fecha10').setValue('');
+
+    // Limpieza de fechas para proceso de seguimiento
+    this.formFechas.get('fecha1').setValue('');
+    this.formFechas.get('fecha2').setValue('');
+    this.formFechas.get('fecha3').setValue('');
+    this.formFechas.get('fecha4').setValue('');
+    this.formFechas.get('fecha5').setValue('');
+    this.formFechas.get('fecha6').setValue('');
+    this.formFechas.get('fecha7').setValue('');
+    this.formFechas.get('fecha8').setValue('');
   }
 }
