@@ -1,89 +1,121 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { FormControl, FormGroup } from '@angular/forms';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotificacionesService {
-    private path = environment.NOTIFICACION_MID_SERVICE;
-    private arm = environment.ARM_AWS_NOTIFICACIONES;
+  private path = environment.NOTIFICACION_MID_SERVICE;
+  private arm = environment.ARM_AWS_NOTIFICACIONES;
 
-    validarEnvio: FormGroup;
+  constructor(
+    private autenticationService: ImplicitAutenticationService,
+    private http: HttpClient
+  ) {}
 
-    constructor(private http: HttpClient) { }
+  //Enviar notificaciones a un usuario (en la sección de atributos)
+  enviarNotificacion(
+    idCola: string,
+    asunto: string,
+    mensaje: string,
+    usuarioDestino: string
+  ) {
+    var documento: any = this.autenticationService.getDocument();
+    const datos = {
+      ArnTopic: this.arm,
+      Asunto: asunto,
+      Atributos: {
+        IdUsuario: usuarioDestino,
+      },
+      DestinatarioId: [idCola],
+      IdDeduplicacion: new Date().getTime().toString(),
+      IdGrupoMensaje: usuarioDestino,
+      Mensaje: mensaje,
+      RemitenteId: documento.__zone_symbol__value || 'pruebasplaneacion',
+    };
+    return new Promise((resolve, reject) => {
+      this.http.post(this.path + 'notificaciones/enviar', datos).subscribe(
+        (data: any) => {
+          if (data.Data != null) {
+            resolve(data.Data);
+          } else {
+            reject('Error al registrar notificación');
+          }
+        },
+        (error: any) => {
+          reject(error);
+        }
+      );
+    });
+  }
 
-    verificarSuscripcion(token: any): Observable<any> {
-        const elemento = {
-            Endpoint: token.email,
-            ArnTopic: this.arm
-        };
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        });
-        return this.http.post(`${this.path}/notificaciones/suscripcion`, elemento, { headers: headers });
-    }
-
-    suscripcion(token: any): Observable<any> {
-        const elemento = {
-            ArnTopic: this.arm,
-            Suscritos: [
-                {
-                    Endpoint: token.email,
-                    Id: token.documento,
-                    Protocolo: 'email'
-                }
-            ]
-        };
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        });
-        return this.http.post(`${this.path}/notificaciones/suscribir`, elemento, { headers: headers });
-    }
-
-    enviarNotificacion(asunto: string, destinatarioId: string, mensaje: string): Observable<any> {
-        const elemento = {
-            ArnTopic: this.arm,
-            Asunto: asunto,
-            Atributos: {},
-            DestinatarioId: [destinatarioId],
-            IdDeduplicacion: '',
-            IdGrupoMensaje: '',
-            Mensaje: mensaje,
-            RemitenteId: '',
-        };
-
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': "fa7ee7c62dab1e25447754f665a54c53"
-        });
-
-        return this.http.post(`${this.path}/notificaciones/enviar`, elemento, { headers: headers });
-    }
-
-    traerNotificacion(nombreCola: string): Observable<any> {
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': "fa7ee7c62dab1e25447754f665a54c53"
-        });
-        return this.http.get(this.path + 'colas/mensajes?nombre=' + nombreCola + '&numMax=1', { headers: headers });
-    }
-
-    borrarNotificaciones(nombreCola: string, contratistaId: string): Observable<any> {
-        const elemento = {
-            NombreCola: nombreCola,
-            Filtro: {
-                Remitente: contratistaId,
+  //Lista las notificaciones vinculadas a un usuario
+  consultarNotificaciones(nombreCola: string) {
+    var documento: any = this.autenticationService.getDocument();
+    var documentoValor = documento.__zone_symbol__value || 'pruebasplaneacion';
+    return new Promise((resolve, reject) => {
+      this.http
+        .get(
+          this.path +
+            'colas/mensajes/espera?nombre=' +
+            nombreCola +
+            '&tiempoEspera=1&cantidad=10&filtro=IdUsuario:' +
+            documentoValor
+        )
+        .subscribe(
+          (data: any) => {
+            if (data.Data != null) {
+              resolve(data.Data);
+            } else {
+              reject('Error al obtener notificaciones');
             }
-        };
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': "fa7ee7c62dab1e25447754f665a54c53"
-        });
-        return this.http.post(this.path + 'colas/mensajes/', elemento, { headers: headers });
-    }
+          },
+          (error: any) => {
+            reject(error);
+          }
+        );
+    });
+  }
+
+  //Borrar una notificacion por id
+  borrarNotificacion(nombreCola: string, idNotificacion: string) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .get(this.path + 'colas/mensajes?nombre=' + nombreCola + '&numMax=10')
+        .subscribe(
+          (data: any) => {
+            if (data.Data != null) {
+              const notificacionBorrar = data.Data.filter(
+                (notificacion: any) =>
+                  notificacion.Body.MessageId === idNotificacion
+              );
+              this.http
+                .post(
+                  this.path + 'colas/mensajes/' + nombreCola,
+                  notificacionBorrar[0]
+                )
+                .subscribe(
+                  (data: any) => {
+                    if (data.Data != null) {
+                      resolve('Notificación eliminada');
+                    } else {
+                      reject('Error al eliminar notificación');
+                    }
+                  },
+                  (error: any) => {
+                    reject(error);
+                  }
+                );
+            } else {
+              reject('Error al obtener notificaciones');
+            }
+          },
+          (error: any) => {
+            reject(error);
+          }
+        );
+    });
+  }
 }

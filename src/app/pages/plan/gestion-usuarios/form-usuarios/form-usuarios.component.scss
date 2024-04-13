@@ -53,6 +53,11 @@
   height: fit-content; /* Asegura que el contenedor ocupe toda la altura */
 }
 
+.azul-oscuro {
+  background-color: #0058a5;
+  color: white;
+}
+
 @media screen and (max-width: 910px) {
   .menu {
     flex-direction: column;

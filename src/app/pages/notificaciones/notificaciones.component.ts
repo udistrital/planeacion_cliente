@@ -1,85 +1,77 @@
 import { Component, OnInit } from '@angular/core';
-import { RequestManager } from '../services/requestManager';
-import { NotificacionesService } from "./notificaciones.service";
-import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import { FormControl, FormGroup } from '@angular/forms';
+import { NotificacionesService } from './notificaciones.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-notificaciones',
   templateUrl: './notificaciones.component.html',
-  styleUrls: ['./notificaciones.component.scss']
+  styleUrls: ['./notificaciones.component.scss'],
 })
-
 export class NotificacionesComponent implements OnInit {
-  rol: string;
+  formularioRegistro: FormGroup;
+  formularioBorrar: FormGroup;
+  formularioConsulta: FormGroup;
 
   constructor(
-    private request: RequestManager,
     private notificacionRequest: NotificacionesService,
-    private autenticationService: ImplicitAutenticationService,
-  ) { }
+    private formBuilder: FormBuilder
+  ) {
+    this.formularioRegistro = this.formBuilder.group({
+      asunto: ['', Validators.required],
+      destinatario: ['', [Validators.required]],
+      mensaje: ['', [Validators.required]],
+    });
 
-  ngOnInit(): void {
+    this.formularioBorrar = this.formBuilder.group({
+      nameCola: ['', Validators.required],
+      idNotificacion: ['', Validators.required],
+    });
 
+    this.formularioConsulta = this.formBuilder.group({
+      nombreCola: ['', Validators.required],
+    });
   }
 
-  async function(notificacionRequest, $this, behaviorTheme, token_service, $location) {
-    var self = this;
-    const rol = await this.autenticationService.getRole();
+  ngOnInit(): void {}
 
-    $this.notificacion = notificacionRequest;
-    $this.notificacion.existeNotificaciones = false;
-    /**
-     * manejo de los roles
-     */
-    function traerNoticicaciones() {
-      /*if (rol === 'SUPERVISOR') {
-        NotificacionesService.traerNotificacion('ColaSupervisor').then(function (response) {
-          //console.log(response)
-          if (response.data.Data != null) {
-            $this.existenNotificaciones = true;
-            $this.notificacion.existeNotificaciones = true;
-            $this.url_redirect = response.data.Data[0].Body.Message;
-          } else {
-            $this.existenNotificaciones = false;
-          }
-        }).catch(
-          function (error) {
-            //console.log(error)
-          }
-        );
-      } else {
-        //console.log("no tiene el rol")
-      }*/
-
-      if ($this.roles != null && $this.roles.includes('ORDENADOR_DEL_GASTO')) {
-        notificacionRequest.traerNotificacion('ColaOrdenador').then(function (response) {
-          //console.log(response)
-          if (response.data.Data != null) {
-            $this.existenNotificaciones = true;
-            $this.notificacion.existeNotificaciones = true;
-            $this.url_redirect = response.data.Data[0].Body.Message;
-          } else {
-            $this.existenNotificaciones = false;
-          }
-        }).catch(
-          function (error) {
-            //console.log(error)
-          }
-        );
-      } else {
-        //console.log("no tiene el rol")
-      }
+  onSubmitformularioRegistro() {
+    if (this.formularioRegistro.valid) {
+      console.log(
+        this.notificacionRequest.enviarNotificacion(
+          "idcola",
+          this.formularioRegistro.value.asunto,
+          this.formularioRegistro.value.mensaje,
+          this.formularioRegistro.value.destinatario
+        )
+      );
+    } else {
     }
+  }
 
-    $this.claseContainer = behaviorTheme.notificacion;
-    $this.redirect_url = function () {
-      $location.path($this.url_redirect);
-      behaviorTheme.toogleNotificacion();
-      traerNoticicaciones()
-    };
+  onSubmitformularioBorrar() {
+    if (this.formularioBorrar.valid) {
+      console.log(
+        this.notificacionRequest.borrarNotificacion(
+          this.formularioBorrar.value.nameCola + '.fifo',
+          this.formularioBorrar.value.idNotificacion
+        )
+      );
+    } else {
+    }
+  }
 
-    traerNoticicaciones()
-
+  onSubmitformularioConsulta() {
+    if (this.formularioConsulta.valid) {
+      this.notificacionRequest.consultarNotificaciones(
+        this.formularioConsulta.value.nombreCola + '.fifo'
+      ).then((resultado) => {
+        console.log(resultado);
+        // Aquí puedes realizar cualquier otra operación con el resultado si es necesario
+      }).catch((error) => {
+        console.error('Error al consultar notificaciones:', error);
+      });
+    } else {
+      // Manejo de formulario no válido si es necesario
+    }
   }
 }
