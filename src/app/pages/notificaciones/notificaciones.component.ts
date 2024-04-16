@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NotificacionesService } from './notificaciones.service';
+import { NotificacionesService } from '../services/notificaciones';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
@@ -38,10 +38,9 @@ export class NotificacionesComponent implements OnInit {
     if (this.formularioRegistro.valid) {
       console.log(
         this.notificacionRequest.enviarNotificacion(
-          "idcola",
-          this.formularioRegistro.value.asunto,
           this.formularioRegistro.value.mensaje,
-          this.formularioRegistro.value.destinatario
+          ["idcola"],
+          {nose:"nose"}
         )
       );
     } else {

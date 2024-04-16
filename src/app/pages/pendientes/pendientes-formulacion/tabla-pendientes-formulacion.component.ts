@@ -4,6 +4,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 import { RequestManager } from '../../services/requestManager';
+import { NotificacionesService } from "../../services/notificaciones";
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { UserService } from '../../services/userService';
@@ -39,6 +40,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
 
   constructor(
     private request: RequestManager,
+    private notificacionesService: NotificacionesService,
     private userService: UserService,
     private verificarFormulario: VerificarFormulario,
     private router: Router
@@ -335,6 +337,16 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
           }
           this.request.put(environment.PLANES_CRUD, `plan`, auxPlan, auxPlan._id).subscribe((data: any) => {
             if (data) {
+              //NOTIFICACION(E)
+              this.notificacionesService.enviarNotificacion(
+                "E", ["asistente unidad", "asistente planeacion", "jefe planeacion"],
+                {
+                  unidadId: plan.dependencia_id,
+                  nombreUnidad: plan.dependencia_nombre, 
+                  nombrePlan: plan.nombre, 
+                  vigencia: plan.vigencia
+                }
+              )
               Swal.fire({
                 title: 'Revisión Verficada Enviada',
                 icon: 'success',
