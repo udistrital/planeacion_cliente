@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { RequestManager } from '../services/requestManager';
-import { NotificacionesService } from "../services/notificaciones";
+import { Notificaciones } from "../services/notificaciones";
 import { environment } from '../../../environments/environment';
 import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
@@ -91,7 +91,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
-    private notificacionesService: NotificacionesService,
+    private notificacionesService: Notificaciones,
     private userService: UserService,
     private activatedRoute: ActivatedRoute,
     private verificarFormulario: VerificarFormulario
@@ -1313,12 +1313,13 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
   enviarNotificacion(itemMensaje:string, listaRemitentes:string[]){
     let datos = {
+      item: itemMensaje,
       unidadId: this.unidad.Id,
       nombreUnidad: this.unidad.Nombre, 
       nombrePlan:this.plan.nombre, 
       vigencia: this.vigencia.Nombre
     }
-    this.notificacionesService.enviarNotificacion(itemMensaje, listaRemitentes, datos)
+    this.notificacionesService.enviarNotificacion(listaRemitentes, datos)
   }
 
   formularPlan() {
@@ -1337,8 +1338,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/` + this.plan._id, parametros).subscribe((data: any) => {
       if (data) {
         this.plan = data.Data;
-        //NOTIFICACION(A)
-        this.enviarNotificacion("A", ["jefe unidad"])
+        //NOTIFICACION(FA)
+        this.enviarNotificacion("FA", ["jefe unidad"])
         Swal.fire({
           title: 'Formulación nuevo plan',
           text: `Plan creado satisfactoriamente`,
@@ -1468,8 +1469,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                   this.plan.estado_plan_id = "614d3aeb01c7a245952fabff";
                   this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
                     if (data) {
-                      //NOTIFICACION(B)
-                      this.enviarNotificacion("B", ["jefe unidad"])
+                      //NOTIFICACION(FB)
+                      this.enviarNotificacion("FB", ["jefe unidad"])
                       Swal.fire({
                         title: 'Plan enviado',
                         icon: 'success',
@@ -1573,8 +1574,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.plan.estado_plan_id = "614d3b0301c7a2a44e2fac01";
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
-            //NOTIFICACION(C)
-            this.enviarNotificacion("C", ["asistente unidad", "jefe unidad"])
+            //NOTIFICACION(FC)
+            this.enviarNotificacion("FC", ["asistente unidad", "jefe unidad"])
             Swal.fire({
               title: 'Plan En Revisión',
               icon: 'success',
@@ -1625,8 +1626,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.plan.estado_plan_id = "614d3b1e01c7a265372fac03";
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
-            //NOTIFICACION(D)
-            this.enviarNotificacion("D", ["asistente unidad", "jefe unidad"])
+            //NOTIFICACION(FD)
+            this.enviarNotificacion("FD", ["asistente unidad", "jefe unidad"])
             Swal.fire({
               title: 'Revisión Enviada',
               icon: 'success',
@@ -1766,8 +1767,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.plan.estado_plan_id = "614d3b4401c7a222052fac05";
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
-            //NOTIFICACION(F)
-            this.enviarNotificacion( "F", ["asistente unidad", "jefe unidad"])
+            //NOTIFICACION(FF)
+            this.enviarNotificacion( "FF", ["asistente unidad", "jefe unidad"])
             Swal.fire({
               title: 'Plan pre avalado',
               icon: 'success',
@@ -1819,8 +1820,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.plan.estado_plan_id = "6153355601c7a2365b2fb2a1";
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
-            //NOTIFICACION(H)
-            this.enviarNotificacion("H", ["asistente unidad", "jefe unidad", "asistente planeacion"])
+            //NOTIFICACION(FH)
+            this.enviarNotificacion("FH", ["asistente unidad", "jefe unidad", "asistente planeacion"])
             Swal.fire({
               title: 'Plan Avalado',
               icon: 'success',

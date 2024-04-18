@@ -7,7 +7,7 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
 @Injectable({
   providedIn: 'root',
 })
-export class NotificacionesService {
+export class Notificaciones {
   private path = environment.NOTIFICACION_MID_SERVICE;
   private arm = environment.ARM_AWS_NOTIFICACIONES;
 
@@ -17,15 +17,25 @@ export class NotificacionesService {
     private http: HttpClient
   ) {}
 
-  mensajesFormulacion = {
-    A: "El asistente de [Nombre de la Unidad] ha comenzado la formulación del plan [Nombre del plan] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Formulación.",
-    B: "El asistente de [Nombre de la Unidad] ha finalizado la formulación del plan [Nombre del plan] de la vigencia [VIGENCIA]. El plan se encuentra en estado Formulado.",
-    C: "El asistente de planeación ha comenzado la revision del plan [Nombre del plan] en la unidad [Nombre de la Unidad] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Revisión.",
-    D: "El asistente de planeación ha finalizado la revisión; en el proceso de formulación del plan [Nombre del plan] en la unidad [Nombre de la Unidad] para la vigencia [VIGENCIA].",
-    E: "El jefe de [Nombre de la Unidad] ha realizado la Verificación de la formulación para el plan [Nombre del plan] en la vigencia [VIGENCIA]. El plan se encuentra en estado Verificado",
-    F: "El Jefe de planeación ha finalizado la revisión; en el proceso de formulación del plan [Nombre del plan] de la unidad [Nombre de la Unidad] en la vigencia [VIGENCIA].",
-    G: "El asistente de [Nombre de la Unidad] ha realizado los ajustes y ha enviado la formulación del plan [Nombre del plan] en la vigencia [VIGENCIA]. El plan se encuentra en estado pre avalado.",
-    H: "El jefe de planeación ha finalizado la revisión; aceptando la formulación y asignando aval para el plan [Nombre del plan] de la unidad [Nombre de la Unidad] en la vigencia [VIGENCIA]. El plan se encuentra en estado Avalado",
+  //Lista de mensajes
+  //El prefijo pertenece al modulo (F:Formulacion/S:Seguimiento)
+  mensajes = {
+    FA: "El asistente de [Nombre de la Unidad] ha comenzado la formulación del plan [Nombre del plan] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Formulación.",
+    FB: "El asistente de [Nombre de la Unidad] ha finalizado la formulación del plan [Nombre del plan] de la vigencia [VIGENCIA]. El plan se encuentra en estado Formulado.",
+    FC: "El asistente de planeación ha comenzado la revision del plan [Nombre del plan] en la unidad [Nombre de la Unidad] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Revisión.",
+    FD: "El asistente de planeación ha finalizado la revisión; en el proceso de formulación del plan [Nombre del plan] en la unidad [Nombre de la Unidad] para la vigencia [VIGENCIA].",
+    FE: "El jefe de [Nombre de la Unidad] ha realizado la Verificación de la formulación para el plan [Nombre del plan] en la vigencia [VIGENCIA]. El plan se encuentra en estado Verificado.",
+    FF: "El Jefe de planeación ha finalizado la revisión; en el proceso de formulación del plan [Nombre del plan] de la unidad [Nombre de la Unidad] en la vigencia [VIGENCIA].",
+    FG: "El asistente de [Nombre de la Unidad] ha realizado los ajustes y ha enviado la formulación del plan [Nombre del plan] en la vigencia [VIGENCIA]. El plan se encuentra en estado pre avalado.",
+    FH: "El jefe de planeación ha finalizado la revisión; aceptando la formulación y asignando aval para el plan [Nombre del plan] de la unidad [Nombre de la Unidad] en la vigencia [VIGENCIA]. El plan se encuentra en estado Avalado.",
+    SA: "El asistente [Nombre de la Unidad]  ha comenzado el seguimiento del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Habilitado.",
+    SB: "El asistente [Nombre de la Unidad]  ha comenzado el seguimiento del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En reporte.",
+    SC: "El jefe de unidad [Nombre de la Unidad] ha finalizado la revisión del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Enviado a revisión.",
+    SD: "El jefe de [Nombre de la Unidad] ha realizado la verificación del seguimiento para el plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado en verificacion.",
+    SE1: "El asistente de planeación ha finalizado la revisión; aceptando el seguimiento para el plan [Nombre del plan] en la unidad [Nombre de la Unidad] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Reporte Avalado.",
+    SE2: "El jefe de planeación ha finalizado la revisión; devolviendo y asignando observaciones al seguimiento del plan [Nombre del plan] en la unidad [Nombre de la Unidad] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado con observaciones.",
+    SF: "El asistente de [Nombre de la Unidad] ha realizado los ajustes y ha enviado el seguimiento del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En Revisión OAP.",
+    SG: "El  jefe de planeación ha finalizado la revisión; aceptando el seguimiento y asignando aval para el plan [Nombre del plan] en la unidad [Nombre de la Unidad] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Reporte avalado.",
   }
 
   obtenerColas(rolesRemitentes:string[]) : string[] {
@@ -37,7 +47,7 @@ export class NotificacionesService {
     return listaColas
   }
 
-  enviarNotificacion(itemMensaje:string, rolesRemitentes:string[], datos: any) {
+  enviarNotificacion(rolesRemitentes:string[], datosMensaje: any) {
     let codigosAbreviacion = []
     if (rolesRemitentes.some(str => str.includes("jefe"))) {
       codigosAbreviacion.push("JO")
@@ -53,7 +63,7 @@ export class NotificacionesService {
           let idsCargos = data.Data.map((element:any) => element.Id);
 
           //Añadir dependencia de planeación si aplica
-          let dependencias:string = datos.unidadId.toString()
+          let dependencias:string = datosMensaje.unidadId.toString()
           if (rolesRemitentes.some(str => str.includes("planeacion"))) {
             dependencias += "|11" //id dependencia planeacion
           }
@@ -87,10 +97,13 @@ export class NotificacionesService {
                     documentos = documentos.filter(doc => doc !== null);
                     // En este punto, todos los documentos están disponibles
                     // Enviar la notificación
-                    var mensajeFinal = this.mensajesFormulacion[itemMensaje]
-                      .replace("[Nombre de la Unidad]", datos.nombreUnidad)
-                      .replace("[Nombre del plan]", datos.nombrePlan)
-                      .replace("[VIGENCIA]", datos.vigencia);
+                    let mensajeFinal = this.mensajes[datosMensaje.item]
+                        .replace("[Nombre de la Unidad]", datosMensaje.nombreUnidad)
+                        .replace("[Nombre del plan]", datosMensaje.nombrePlan)
+                        .replace("[VIGENCIA]", datosMensaje.vigencia)
+                    if (datosMensaje.item[0] == "S") {
+                      mensajeFinal = mensajeFinal .replace("[TRIMESTRE]", datosMensaje.trimestre);
+                    }
                     const colas = this.obtenerColas(rolesRemitentes);
                     this.publicarNotificacion(colas, "Sin asunto", mensajeFinal, documentos);
                   })
