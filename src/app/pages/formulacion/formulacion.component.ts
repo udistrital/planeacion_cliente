@@ -1522,10 +1522,10 @@ export class FormulacionComponent implements OnInit {
             const mensaje = error.error.Data ? error.error.Data : error.message
             Swal.fire({
               title: 'Error en la operación',
-              text: `${mensaje}`,
+              text: `${mensaje}, por favor diríjase al módulo de administración y diligencie las fechas correspondientes al periodo de seguimiento para la vigencia requerida.`,
               icon: 'warning',
               showConfirmButton: false,
-              timer: 2500
+              timer: 4000
             });
             reject();
           })
