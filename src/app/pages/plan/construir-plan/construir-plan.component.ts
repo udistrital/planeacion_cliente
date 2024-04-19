@@ -61,7 +61,7 @@ export class ConstruirPlanComponent implements OnInit {
             Swal.showLoading();
           },
         })
-        this.request.put(environment.PLANES_MID, 'formulacion/estructura_planes', null, this.planId).subscribe(
+        this.request.put(environment.PLANES_MID, 'formulacion/estructura_planes', {}, this.planId).subscribe(
           (data: any) => {
             if (data) {
               Swal.close()
