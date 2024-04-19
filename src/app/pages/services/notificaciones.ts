@@ -19,24 +19,104 @@ export class Notificaciones {
 
   //Lista de mensajes
   //El prefijo pertenece al modulo (F:Formulacion/S:Seguimiento)
-  mensajes = {
-    FA: "El asistente de [Nombre de la Unidad] ha comenzado la formulación del plan [Nombre del plan] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Formulación.",
-    FB: "El asistente de [Nombre de la Unidad] ha finalizado la formulación del plan [Nombre del plan] de la vigencia [VIGENCIA]. El plan se encuentra en estado Formulado.",
-    FC: "El asistente de planeación ha comenzado la revision del plan [Nombre del plan] en la unidad [Nombre de la Unidad] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Revisión.",
-    FD: "El asistente de planeación ha finalizado la revisión; en el proceso de formulación del plan [Nombre del plan] en la unidad [Nombre de la Unidad] para la vigencia [VIGENCIA].",
-    FE: "El jefe de [Nombre de la Unidad] ha realizado la Verificación de la formulación para el plan [Nombre del plan] en la vigencia [VIGENCIA]. El plan se encuentra en estado Verificado.",
-    FF: "El Jefe de planeación ha finalizado la revisión; en el proceso de formulación del plan [Nombre del plan] de la unidad [Nombre de la Unidad] en la vigencia [VIGENCIA].",
-    FG: "El asistente de [Nombre de la Unidad] ha realizado los ajustes y ha enviado la formulación del plan [Nombre del plan] en la vigencia [VIGENCIA]. El plan se encuentra en estado pre avalado.",
-    FH: "El jefe de planeación ha finalizado la revisión; aceptando la formulación y asignando aval para el plan [Nombre del plan] de la unidad [Nombre de la Unidad] en la vigencia [VIGENCIA]. El plan se encuentra en estado Avalado.",
-    SA: "El asistente [Nombre de la Unidad]  ha comenzado el seguimiento del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Habilitado.",
-    SB: "El asistente [Nombre de la Unidad]  ha comenzado el seguimiento del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En reporte.",
-    SC: "El jefe de unidad [Nombre de la Unidad] ha finalizado la revisión del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Enviado a revisión.",
-    SD: "El jefe de [Nombre de la Unidad] ha realizado la verificación del seguimiento para el plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado en verificacion.",
-    SE1: "El asistente de planeación ha finalizado la revisión; aceptando el seguimiento para el plan [Nombre del plan] en la unidad [Nombre de la Unidad] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Reporte Avalado.",
-    SE2: "El jefe de planeación ha finalizado la revisión; devolviendo y asignando observaciones al seguimiento del plan [Nombre del plan] en la unidad [Nombre de la Unidad] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado con observaciones.",
-    SF: "El asistente de [Nombre de la Unidad] ha realizado los ajustes y ha enviado el seguimiento del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En Revisión OAP.",
-    SG: "El  jefe de planeación ha finalizado la revisión; aceptando el seguimiento y asignando aval para el plan [Nombre del plan] en la unidad [Nombre de la Unidad] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Reporte avalado.",
-  }
+  notificaciones = [
+    {
+      "id": "",
+      "mensaje": "El asistente de [Nombre de la Unidad] ha comenzado la formulación del plan [Nombre del plan] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Formulación.",
+      "destinatarios": ["jefe unidad"],
+      "codigo": "FA"
+    },
+    {
+      "id": "",
+      "mensaje": "El asistente de [Nombre de la Unidad] ha finalizado la formulación del plan [Nombre del plan] de la vigencia [VIGENCIA]. El plan se encuentra en estado Formulado.",
+      "destinatarios": ["jefe unidad"],
+      "codigo": "FB"
+    },
+    {
+      "id": "",
+      "mensaje": "El asistente de planeación ha comenzado la revision del plan [Nombre del plan] en la unidad [Nombre de la Unidad] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Revisión.",
+      "destinatarios": ["asistente unidad", "jefe unidad"],
+      "codigo": "FC"
+    },
+    {
+      "id": "",
+      "mensaje": "El asistente de planeación ha finalizado la revisión; en el proceso de formulación del plan [Nombre del plan] en la unidad [Nombre de la Unidad] para la vigencia [VIGENCIA].",
+      "destinatarios": ["asistente unidad", "jefe unidad"],
+      "codigo": "FD"
+    },
+    {
+      "id": "",
+      "mensaje": "El jefe de [Nombre de la Unidad] ha realizado la Verificación de la formulación para el plan [Nombre del plan] en la vigencia [VIGENCIA]. El plan se encuentra en estado Verificado.",
+      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
+      "codigo": "FE"
+    },
+    {
+      "id": "",
+      "mensaje": "El Jefe de planeación ha finalizado la revisión; en el proceso de formulación del plan [Nombre del plan] de la unidad [Nombre de la Unidad] en la vigencia [VIGENCIA].",
+      "destinatarios": ["asistente unidad", "jefe unidad"],
+      "codigo": "FF"
+    },
+    {
+      "id": "",
+      "mensaje": "El asistente de [Nombre de la Unidad] ha realizado los ajustes y ha enviado la formulación del plan [Nombre del plan] en la vigencia [VIGENCIA]. El plan se encuentra en estado pre avalado.",
+      "destinatarios": ["jefe unidad", "asistente planeacion", "jefe planeacion"],
+      "codigo": "FG"
+    },
+    {
+      "id": "",
+      "mensaje": "El jefe de planeación ha finalizado la revisión; aceptando la formulación y asignando aval para el plan [Nombre del plan] de la unidad [Nombre de la Unidad] en la vigencia [VIGENCIA]. El plan se encuentra en estado Avalado.",
+      "destinatarios": ["asistente unidad", "jefe unidad", "asistente planeacion"],
+      "codigo": "FH"
+    },
+    {
+      "id": "",
+      "mensaje": "El asistente [Nombre de la Unidad]  ha comenzado el seguimiento del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Habilitado.",
+      "destinatarios": ["jefe unidad"],
+      "codigo": "SA"
+    },
+    {
+      "id": "",
+      "mensaje": "El asistente [Nombre de la Unidad]  ha comenzado el seguimiento del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En reporte.",
+      "destinatarios": ["jefe unidad"],
+      "codigo": "SB"
+    },
+    {
+      "id": "",
+      "mensaje": "El jefe de unidad [Nombre de la Unidad] ha finalizado la revisión del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Enviado a revisión.",
+      "destinatarios": ["asistente unidad", "asistente planeacion"],
+      "codigo": "SC"
+    },
+    {
+      "id": "",
+      "mensaje": "El jefe de [Nombre de la Unidad] ha realizado la verificación del seguimiento para el plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado en verificacion.",
+      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
+      "codigo": "SD"
+    },
+    {
+      "id": "",
+      "mensaje": "El asistente de planeación ha finalizado la revisión; aceptando el seguimiento para el plan [Nombre del plan] en la unidad [Nombre de la Unidad] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Reporte Avalado.",
+      "destinatarios": ["asistente unidad", "jefe unidad"],
+      "codigo": "SE1"
+    },
+    {
+      "id": "",
+      "mensaje": "El jefe de planeación ha finalizado la revisión; devolviendo y asignando observaciones al seguimiento del plan [Nombre del plan] en la unidad [Nombre de la Unidad] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado con observaciones.",
+      "destinatarios": ["asistente unidad", "jefe unidad"],
+      "codigo": "SE2"
+    },
+    {
+      "id": "",
+      "mensaje": "El asistente de [Nombre de la Unidad] ha realizado los ajustes y ha enviado el seguimiento del plan [Nombre del plan] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En Revisión OAP.",
+      "destinatarios": ["jefe unidad", "asistente planeacion", "jefe planeacion"],
+      "codigo": "SF"
+    },
+    {
+      "id": "",
+      "mensaje": "El  jefe de planeación ha finalizado la revisión; aceptando el seguimiento y asignando aval para el plan [Nombre del plan] en la unidad [Nombre de la Unidad] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Reporte avalado.",
+      "destinatarios": ["asistente unidad", "jefe unidad", "asistente planeacion"],
+      "codigo": "SG"
+    }
+  ]
 
   obtenerColas(rolesRemitentes:string[]) : string[] {
     let listaColas = rolesRemitentes.map(elemento => {
@@ -47,12 +127,15 @@ export class Notificaciones {
     return listaColas
   }
 
-  enviarNotificacion(rolesRemitentes:string[], datosMensaje: any) {
+  enviarNotificacion(datosMensaje: any) {
+    //Obtener la notificación por codigo de abreviación
+    const notificacion = this.notificaciones.find(objeto => objeto.codigo === datosMensaje.item)
+
     let codigosAbreviacion = []
-    if (rolesRemitentes.some(str => str.includes("jefe"))) {
+    if (notificacion.destinatarios.some(str => str.includes("jefe"))) {
       codigosAbreviacion.push("JO")
     } 
-    if (rolesRemitentes.some(str => str.includes("asistente"))) {
+    if (notificacion.destinatarios.some(str => str.includes("asistente"))) {
       codigosAbreviacion.push("AS_D", "NR")
     }
     
@@ -64,7 +147,7 @@ export class Notificaciones {
 
           //Añadir dependencia de planeación si aplica
           let dependencias:string = datosMensaje.unidadId.toString()
-          if (rolesRemitentes.some(str => str.includes("planeacion"))) {
+          if (notificacion.destinatarios.some(str => str.includes("planeacion"))) {
             dependencias += "|11" //id dependencia planeacion
           }
 
@@ -82,7 +165,7 @@ export class Notificaciones {
                         if (userData && typeof userData[0].Numero === "string" && userData[0].Numero !== "") {
                           resolve(userData[0].Numero);
                         } else {
-                          resolve(null); // O rechaza la promesa si no hay datos válidos
+                          resolve(null);
                         }
                       }, (error) => {
                         reject(error);
@@ -94,17 +177,17 @@ export class Notificaciones {
                 // Esperar a que todas las promesas se resuelvan
                 Promise.all(promises)
                   .then((documentos) => {
-                    documentos = documentos.filter(doc => doc !== null);
-                    // En este punto, todos los documentos están disponibles
+                    documentos = documentos.filter(doc => doc !== null); //Filtrar por documentos no nulos
+
                     // Enviar la notificación
-                    let mensajeFinal = this.mensajes[datosMensaje.item]
+                    let mensajeFinal = notificacion.mensaje
                         .replace("[Nombre de la Unidad]", datosMensaje.nombreUnidad)
                         .replace("[Nombre del plan]", datosMensaje.nombrePlan)
                         .replace("[VIGENCIA]", datosMensaje.vigencia)
                     if (datosMensaje.item[0] == "S") {
                       mensajeFinal = mensajeFinal .replace("[TRIMESTRE]", datosMensaje.trimestre);
                     }
-                    const colas = this.obtenerColas(rolesRemitentes);
+                    const colas = this.obtenerColas(notificacion.destinatarios);
                     this.publicarNotificacion(colas, "Sin asunto", mensajeFinal, documentos);
                   })
                   .catch((error) => {

@@ -783,7 +783,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
   gestionSeguimiento(plan) {
     if (plan.trimestre != undefined) {
-      this.router.navigate(['pages/seguimiento/gestion-seguimiento/' + plan._id + '/' + plan.trimestre])
+      // this.router.navigate(['pages/seguimiento/gestion-seguimiento/' + plan._id + '/' + plan.trimestre])
+      this.router.navigate(['pages/seguimiento/gestion-seguimiento/', plan._id, plan.trimestre], { queryParams: { vigencia: this.vigencia.Nombre } });
     } else {
       Swal.fire({
         title: 'Seleccione el trimestre',

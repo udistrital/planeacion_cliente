@@ -1311,7 +1311,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     })
   }
 
-  enviarNotificacion(itemMensaje:string, listaRemitentes:string[]){
+  enviarNotificacion(itemMensaje:string){
     let datos = {
       item: itemMensaje,
       unidadId: this.unidad.Id,
@@ -1319,7 +1319,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       nombrePlan:this.plan.nombre, 
       vigencia: this.vigencia.Nombre
     }
-    this.notificacionesService.enviarNotificacion(listaRemitentes, datos)
+    this.notificacionesService.enviarNotificacion(datos)
   }
 
   formularPlan() {
@@ -1339,7 +1339,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       if (data) {
         this.plan = data.Data;
         //NOTIFICACION(FA)
-        this.enviarNotificacion("FA", ["jefe unidad"])
+        this.enviarNotificacion("FA")
         Swal.fire({
           title: 'Formulación nuevo plan',
           text: `Plan creado satisfactoriamente`,
@@ -1470,7 +1470,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                   this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
                     if (data) {
                       //NOTIFICACION(FB)
-                      this.enviarNotificacion("FB", ["jefe unidad"])
+                      this.enviarNotificacion("FB")
                       Swal.fire({
                         title: 'Plan enviado',
                         icon: 'success',
@@ -1575,7 +1575,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             //NOTIFICACION(FC)
-            this.enviarNotificacion("FC", ["asistente unidad", "jefe unidad"])
+            this.enviarNotificacion("FC")
             Swal.fire({
               title: 'Plan En Revisión',
               icon: 'success',
@@ -1627,7 +1627,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             //NOTIFICACION(FD)
-            this.enviarNotificacion("FD", ["asistente unidad", "jefe unidad"])
+            this.enviarNotificacion("FD")
             Swal.fire({
               title: 'Revisión Enviada',
               icon: 'success',
@@ -1768,7 +1768,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             //NOTIFICACION(FF)
-            this.enviarNotificacion( "FF", ["asistente unidad", "jefe unidad"])
+            this.enviarNotificacion("FF")
             Swal.fire({
               title: 'Plan pre avalado',
               icon: 'success',
@@ -1821,7 +1821,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             //NOTIFICACION(FH)
-            this.enviarNotificacion("FH", ["asistente unidad", "jefe unidad", "asistente planeacion"])
+            this.enviarNotificacion("FH")
             Swal.fire({
               title: 'Plan Avalado',
               icon: 'success',

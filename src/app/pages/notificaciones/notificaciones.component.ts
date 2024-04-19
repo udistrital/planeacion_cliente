@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NotificacionesService } from '../services/notificaciones';
+import { Notificaciones } from '../services/notificaciones';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
@@ -13,7 +13,7 @@ export class NotificacionesComponent implements OnInit {
   formularioConsulta: FormGroup;
 
   constructor(
-    private notificacionRequest: NotificacionesService,
+    private notificacionRequest: Notificaciones,
     private formBuilder: FormBuilder
   ) {
     this.formularioRegistro = this.formBuilder.group({
@@ -33,19 +33,6 @@ export class NotificacionesComponent implements OnInit {
   }
 
   ngOnInit(): void {}
-
-  onSubmitformularioRegistro() {
-    if (this.formularioRegistro.valid) {
-      console.log(
-        this.notificacionRequest.enviarNotificacion(
-          this.formularioRegistro.value.mensaje,
-          ["idcola"],
-          {nose:"nose"}
-        )
-      );
-    } else {
-    }
-  }
 
   onSubmitformularioBorrar() {
     if (this.formularioBorrar.valid) {
