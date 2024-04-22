@@ -27,8 +27,10 @@ export class HabilitarReporteService {
       },
     })
     this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + vigencia.Id).subscribe((data: DataRequest) => {
-      if (data) {
+      if (data.Data != null) {
         this.trimestresSubject.next(data);
+      } else {
+        this.trimestresSubject.next(null);
       }
     }, (error) => {
       this.trimestresSubject.next(null);
