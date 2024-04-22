@@ -28,6 +28,7 @@ export class GestionUsuariosComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   banderaFormEdicion: boolean;
+  errorEnPeticion: boolean;
 
   constructor(
     private request: RequestManager,
@@ -45,6 +46,7 @@ export class GestionUsuariosComponent implements OnInit {
     this.banderaTabla = false;
     this.rolSelected = false;
     this.banderaFormEdicion = false;
+    this.errorEnPeticion = false;
   }
 
   mostrarMensajeCarga(): void {
@@ -76,13 +78,14 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   buscar(){
+    this.errorEnPeticion = false;
     this.banderaFormEdicion = false;
     if(this.validarEmail(this.formUsuarios.get('correo').value)){
       let body = {
         "user": this.formUsuarios.get('correo').value
       }
       this.mostrarMensajeCarga();
-      this.request.post(`${environment.AUTENTICACION_MID}userRol`, '', body).subscribe(
+      this.request.post(`${environment.AUTENTICACION_MID}token/userRol`, '', body).subscribe(
         (data: any) => {
           if (data != null && data != undefined && data != "") {
             this.usuarios = [];
@@ -141,8 +144,13 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   editar(usuario: Usuario) {
+    this.errorEnPeticion = false;
     this.usuario = usuario;
     this.banderaFormEdicion = true;
+  }
+
+  recibirErrorPeticion(error: any) {
+    this.errorEnPeticion = error;
   }
 
 }

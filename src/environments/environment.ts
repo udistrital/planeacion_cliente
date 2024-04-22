@@ -14,7 +14,7 @@ export const environment = {
   //SERVICES PLANEACIÓN
   PLANES_CRUD: 'http://localhost:8080/',
   PLANES_MID: 'http://localhost:8081/v1/',
-  AUTENTICACION_MID: 'http://localhost:8082/v1/token/',
+  AUTENTICACION_MID: 'http://pruebasapi.intranetoas.udistrital.edu.co:8110/v1/',
   // PLANES_CRUD: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8523/',
   // PLANES_MID: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8524/v1/',
   PLANES_MID_PROXY: 'https://autenticacion.portaloas.udistrital.edu.co/go_api/planeacion_mid/v1/',
