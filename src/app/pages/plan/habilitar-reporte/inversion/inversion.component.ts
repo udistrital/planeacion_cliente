@@ -343,7 +343,7 @@ export class InversionComponent implements OnInit {
       }).then((result) => {
         if (result.isConfirmed) {
           if (this.formFechas.get('fecha19').value != "" && this.formFechas.get('fecha20').value != "") {
-            periodo_seguimiento_inversion.periodo_id = this.periodos[0].Id.toString();
+            periodo_seguimiento_inversion.periodo_id = this.vigencia.Id.toString();
             periodo_seguimiento_inversion.fecha_inicio = this.formFechas.get('fecha19').value.toISOString();
             periodo_seguimiento_inversion.fecha_fin = this.formFechas.get('fecha20').value.toISOString();
             periodo_seguimiento_inversion.tipo_seguimiento_id = tipo_seguimiento_id;
