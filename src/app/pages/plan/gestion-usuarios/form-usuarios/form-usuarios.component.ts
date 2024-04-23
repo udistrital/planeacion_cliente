@@ -1,9 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import Swal from 'sweetalert2';
 import { Rol, ROL_ASISTENTE_DEPENDENCIA, ROL_JEFE_DEPENDENCIA, ROL_JEFE_UNIDAD_PLANEACION, ROL_PLANEACION, Usuario } from '../utils';
 import { environment } from 'src/environments/environment';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-form-usuarios',
@@ -19,9 +20,11 @@ export class FormUsuariosComponent implements OnInit {
     { rol: ROL_ASISTENTE_DEPENDENCIA, selected: false },
   ];
   @Input() usuario: Usuario;
+  @Output() errorEnPeticion = new EventEmitter<any>();
 
   constructor(
     private request: RequestManager,
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -58,7 +61,7 @@ export class FormUsuariosComponent implements OnInit {
               };
               this.mostrarMensajeCarga();
         
-              this.request.post(`${environment.AUTENTICACION_MID}addRol`, '', body)
+              this.request.post(`${environment.AUTENTICACION_MID}/rol/add`, '', body)
                 .subscribe((data: any) => {
                   if (data != null && data != undefined && data != "") {
                     this.cerrarMensajeCarga();
@@ -69,12 +72,13 @@ export class FormUsuariosComponent implements OnInit {
                 }, (error) => {
                   Swal.fire({
                     title: 'Error en la operación',
-                    text: 'No se pudo vincular el rol al usuario',
+                    text: `No se pudo vincular el rol ${rol.rol} al usuario`,
                     icon: 'warning',
                     showConfirmButton: false,
                     timer: 2500
+                  }).then(() => {
+                    this.enviarErrorPeticion();
                   });
-                  console.error("Error al vincular roles:", error);
                   reject(error);
                 });
             });
@@ -83,13 +87,13 @@ export class FormUsuariosComponent implements OnInit {
         .then(async () => {
           for (const response of successfulResponses) {
             if (response != null && response != undefined) {
-              if (response.Data != "" && response.Status === '201') {
+              if (response.data != "" && response.status === 200) {
                 if (!this.rolesUsuario.find(i => i.rol === response.rolUsuario.rol)) {
                   this.rolesUsuario.push({ ...response.rolUsuario });
                 }
                 this.rolesSistema = this.rolesSistema.filter(item => !item.selected);
                 await this.mostrarMensajeExito(response.rolUsuario.rol, 'vincular');
-              } else if (response.Status === '200' && response.Success == false) {
+              } else if (response.status === 400 && response.success == false) {
                 this.mostrarMensajeError(`El usuario ya tiene el rol ${response.rolUsuario.rol} asignado`);
               } else {
                 this.mostrarMensajeError(`No se pudo vincular el rol ${response.rolUsuario.rol} al usuario`);
@@ -99,7 +103,6 @@ export class FormUsuariosComponent implements OnInit {
           this.clearSelection();
         })
         .catch(error => {
-          console.error("Error al vincular roles:", error);
         });
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
@@ -134,7 +137,7 @@ export class FormUsuariosComponent implements OnInit {
               };
               this.mostrarMensajeCarga();
   
-              this.request.post(`${environment.AUTENTICACION_MID}deleteRol`, '', body)
+              this.request.post(`${environment.AUTENTICACION_MID}/rol/remove`, '', body)
                 .subscribe((data: any) => {
                   if (data != null && data != undefined && data != "") {
                     this.cerrarMensajeCarga();
@@ -149,8 +152,9 @@ export class FormUsuariosComponent implements OnInit {
                     icon: 'warning',
                     showConfirmButton: false,
                     timer: 2500
-                  });
-                  console.error("Error al desvincular roles:", error);
+                  }).then(() => {
+                    this.enviarErrorPeticion();
+                  });;
                   reject(error);
                 });
             });
@@ -159,13 +163,13 @@ export class FormUsuariosComponent implements OnInit {
         .then(async () => {
           for (const response of successfulResponses) {
             if (response != null && response != undefined) {
-              if (response.Data != "" && response.Status === '201') {
+              if (response.data != "" && response.status === 200) {
                 if (!this.rolesSistema.find(i => i.rol === response.rolUsuario.rol)) {
                   this.rolesSistema.push({ ...response.rolUsuario });
                 }
                 this.rolesUsuario = this.rolesUsuario.filter(item => !item.selected);
                 await this.mostrarMensajeExito(response.rolUsuario.rol, 'desvincular');
-              } else if ((response.Status === '200' || response.Status === '400') && response.Success == false) {
+              } else if (response.status === 400 && response.success == false) {
                 this.mostrarMensajeError(`El usuario no tiene el rol ${response.rolUsuario.rol} asignado`);
               } else {
                 this.mostrarMensajeError(`No se pudo desvincular el rol ${response.rolUsuario.rol} del usuario`);
@@ -175,7 +179,6 @@ export class FormUsuariosComponent implements OnInit {
           this.clearSelection();
         })
         .catch(error => {
-          console.error("Error al desvincular roles:", error);
         });
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
@@ -245,5 +248,9 @@ export class FormUsuariosComponent implements OnInit {
 
     // Filtra los roles del sistema excluyendo los del usuario
     this.rolesSistema = rolesSistema.filter(role => !rolesSet.has(JSON.stringify(role)));
+  }
+
+  enviarErrorPeticion() {
+    this.errorEnPeticion.emit(true);
   }
 }

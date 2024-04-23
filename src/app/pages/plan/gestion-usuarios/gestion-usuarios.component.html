@@ -45,7 +45,7 @@
 				<button mat-raised-button color="primary" (click)="limpiarForm()">Limpiar</button>
 			</div>
 		</mat-card-content>
-		<mat-card-content>
+		<mat-card-content *ngIf="!errorEnPeticion">
 			<div class="container-border" [hidden]="!banderaTabla">
 				<mat-card-header *ngIf="banderaTabla">
 					<mat-card-title>Usuarios encontrados</mat-card-title>
@@ -90,5 +90,5 @@
 			</div>
 		</mat-card-content>
 	</div>
-	<app-form-usuarios *ngIf="banderaFormEdicion" [usuario]="usuario"></app-form-usuarios>
+	<app-form-usuarios *ngIf="banderaFormEdicion && !errorEnPeticion" (errorEnPeticion)="recibirErrorPeticion($event)" [usuario]="usuario"></app-form-usuarios>
 </mat-card>

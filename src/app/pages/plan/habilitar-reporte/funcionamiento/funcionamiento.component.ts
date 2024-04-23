@@ -100,6 +100,7 @@ export class FuncionamientoComponent implements OnInit {
 
   onChangeVigencia(vigencia: Vigencia) {
     if (vigencia == undefined) {
+      this.guardarDisabled = true;
       this.vigenciaSelected = false;
     } else {
       this.vigenciaSelected = true;
@@ -243,11 +244,7 @@ export class FuncionamientoComponent implements OnInit {
     this.habilitarReporteService.loadTrimestres(vigencia);
     this.habilitarReporteService.getTrimestresSubject().subscribe(
       (data: DataRequest) => {
-        if (data.Data != "") {
-          this.periodos = data.Data;
-          this.guardarDisabled = false;
-          Swal.close();
-        } else {
+        if(data == null) {
           this.guardarDisabled = true;
           this.periodos = [];
           Swal.close();
@@ -258,6 +255,10 @@ export class FuncionamientoComponent implements OnInit {
             showConfirmButton: false,
             timer: 2500
           })
+        } else if (data.Data != null) {
+          this.periodos = data.Data;
+          this.guardarDisabled = false;
+          Swal.close();
         }
       },
       (error) => {
@@ -295,6 +296,7 @@ export class FuncionamientoComponent implements OnInit {
     }
 
     if (this.tipo == PROCESO_FUNCIONAMIENTO_FORMULACION) {
+      const tipo_seguimiento_id: string = "6260e975ebe1e6498f7404ee"
       var periodo_seguimiento_formulacion: PeriodoSeguimiento = {} as PeriodoSeguimiento;
       Swal.fire({
         title: 'Habilitar Fechas',
@@ -308,7 +310,7 @@ export class FuncionamientoComponent implements OnInit {
             periodo_seguimiento_formulacion.periodo_id = this.vigencia.Id.toString();
             periodo_seguimiento_formulacion.fecha_inicio = this.formFechas.get('fecha9').value;
             periodo_seguimiento_formulacion.fecha_fin = this.formFechas.get('fecha10').value;
-            periodo_seguimiento_formulacion.tipo_seguimiento_id = "6260e975ebe1e6498f7404ee";
+            periodo_seguimiento_formulacion.tipo_seguimiento_id = tipo_seguimiento_id;
             periodo_seguimiento_formulacion.unidades_interes = JSON.stringify(this.unidadesInteres);
             periodo_seguimiento_formulacion.planes_interes = JSON.stringify(this.planesInteres);
             periodo_seguimiento_formulacion.usuario_modificacion = this.user.userService.documento ? this.user.userService.documento : '';
@@ -387,19 +389,21 @@ export class FuncionamientoComponent implements OnInit {
             });
           }
         }
-      }), (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            icon: 'error',
-            text: `${JSON.stringify(error)}`,
-            showConfirmButton: false,
-            timer: 2500,
-          });
-        };
+      }), 
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500,
+        });
+      };
     }
   }
 
   actualizarPeriodo(i: number, periodoId: number) {
+    const tipo_seguimiento_id: string = "61f236f525e40c582a0840d0"
     var periodo_seguimiento_seguimiento: PeriodoSeguimiento = {} as PeriodoSeguimiento;
     let fecha_inicio, fecha_fin;
     if (i === 0) {
@@ -425,7 +429,7 @@ export class FuncionamientoComponent implements OnInit {
     periodo_seguimiento_seguimiento.periodo_id = periodoId.toString();
     periodo_seguimiento_seguimiento.fecha_inicio = fecha_inicio.toISOString();
     periodo_seguimiento_seguimiento.fecha_fin = fecha_fin.toISOString();
-    periodo_seguimiento_seguimiento.tipo_seguimiento_id = "61f236f525e40c582a0840d0";
+    periodo_seguimiento_seguimiento.tipo_seguimiento_id = tipo_seguimiento_id;
     periodo_seguimiento_seguimiento.unidades_interes = JSON.stringify(this.unidadesInteres);
     periodo_seguimiento_seguimiento.planes_interes = JSON.stringify(this.planesInteres);
     periodo_seguimiento_seguimiento.usuario_modificacion = this.user.userService.documento ? this.user.userService.documento : '';
