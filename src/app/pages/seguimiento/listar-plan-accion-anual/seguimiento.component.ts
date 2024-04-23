@@ -94,17 +94,18 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         .subscribe((datosInfoTercero: any) => {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
             .subscribe((vinculacion: any) => {
-              this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
-                if (dataUnidad) {
-                  let unidad = dataUnidad[0]["DependenciaId"]
-                  unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
-
-                  this.unidades.push(unidad);
-                  this.auxUnidades.push(unidad);
-                  this.formSelect.get('selectUnidad').setValue(unidad);
-                  this.onChangeU(unidad);
-                }
-              })
+              for (let aux = 0; aux < vinculacion.Data.length; aux++){
+                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion.Data[aux]["DependenciaId"]).subscribe((dataUnidad: any) => {
+                  if (dataUnidad) {
+                    let unidad = dataUnidad[0]["DependenciaId"]
+                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+                    this.unidades.push(unidad);
+                    this.auxUnidades.push(unidad);
+                    this.formSelect.get('selectUnidad').setValue(unidad);
+                    this.onChangeU(unidad);
+                  }
+                })
+              }
             })
         })
     })
@@ -396,6 +397,13 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       this.unidad = unidad;
     }
     this.allPlanes = this.dataSource.data;
+    if (!(this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined))) {
+      if (this.rol != undefined && this.rol == 'PLANEACION') {
+        this.loadPlanes("vigencia");
+      } else {
+        this.loadPlanes("unidad");
+      }
+    }
   }
 
   async onChangeP(plan) {

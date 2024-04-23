@@ -203,23 +203,25 @@ export class FormulacionComponent implements OnInit {
         .subscribe((datosInfoTercero: any) => {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
             .subscribe((vinculacion: any) => {
-              if (vinculacion["Data"] != "") {
-                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
-                  if (dataUnidad) {
-                    let unidad = dataUnidad[0]["DependenciaId"]
-                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
-                    for (let i = 0; i < dataUnidad.length; i++) {
-                      if (dataUnidad[i]["TipoDependenciaId"]["Id"] === 2) {
-                        unidad["TipoDependencia"] = dataUnidad[i]["TipoDependenciaId"]["Id"]
+              if (vinculacion["Data"] != null) {
+                for (let aux = 0; aux < vinculacion.Data.length; aux++){
+                  this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion.Data[aux]["DependenciaId"]).subscribe((dataUnidad: any) => {
+                    if (dataUnidad) {
+                      let unidad = dataUnidad[0]["DependenciaId"]
+                      unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+                      for (let i = 0; i < dataUnidad.length; i++) {
+                        if (dataUnidad[i]["TipoDependenciaId"]["Id"] === 2) {
+                          unidad["TipoDependencia"] = dataUnidad[i]["TipoDependenciaId"]["Id"]
+                        }
                       }
+                      this.unidades.push(unidad);
+                      this.auxUnidades.push(unidad);
+                      this.formSelect.get('selectUnidad').setValue(unidad);
+                      this.onChangeU(unidad);
+                      this.moduloVisible = true;
                     }
-                    this.unidades.push(unidad);
-                    this.auxUnidades.push(unidad);
-                    this.formSelect.get('selectUnidad').setValue(unidad);
-                    this.onChangeU(unidad);
-                    this.moduloVisible = true;
-                  }
-                })
+                  })
+                }
               } else {
                 this.moduloVisible = false;
                 Swal.fire({

@@ -39,7 +39,19 @@
                 </u>
                 <br>
             </ng-container>
-
+            <ng-container>
+                <mat-form-field appearance="fill" [style.width.%]="100">
+                  <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
+                  <mat-select (selectionChange)="onChangeU($event.value)" formControlName="selectUnidad">
+                    <input (keyup)="onKey($event.target.value)" class="input-search"
+                      placeholder="Escriba el nombre de la unidad que desea seleccionar">
+                    <mat-option>--</mat-option>
+                    <mat-option *ngFor="let unidad of auxUnidades" [value]="unidad">
+                      {{unidad.Nombre}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </ng-container>
             <form [formGroup]="formFechas">
                 <ng-container>
                     <div class="flex">
