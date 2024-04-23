@@ -6,8 +6,7 @@ import { Injectable, forwardRef, Inject, NgZone } from '@angular/core';
   providedIn: 'root',
 })
 export class HttpErrorManager {
-  constructor(
-   ) {}
+  constructor() {}
 
   public handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
@@ -23,6 +22,7 @@ export class HttpErrorManager {
     return throwError({
       status: error.status?error.status:'Error',
       message: 'Something bad happened; please try again later.',
+      error: error.error,
     });
   };
 }

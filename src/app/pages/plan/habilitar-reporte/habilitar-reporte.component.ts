@@ -7,6 +7,7 @@ import { RequestManager } from '../../services/requestManager';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
+import { mergeMap } from 'rxjs/operators';
 
 export interface Unidades {
   posicion: string;
@@ -32,7 +33,7 @@ export interface Unidad {
   styleUrls: ['./habilitar-reporte.component.scss']
 })
 export class HabilitarReporteComponent implements OnInit {
-
+  controlTrimestres: boolean;
   vigenciaSelected: boolean;
   unidadSelected: boolean;
   tipoSelected: boolean;
@@ -61,6 +62,7 @@ export class HabilitarReporteComponent implements OnInit {
     private formBuilder: FormBuilder,
   ) {
     this.loadVigencias();
+    this.controlTrimestres = false;
     this.vigenciaSelected = false;
     this.guardarDisabled = false;
   }
@@ -131,36 +133,52 @@ export class HabilitarReporteComponent implements OnInit {
     }
   }
 
-  onChangeV(vigencia: any) {
+  async onChangeV(vigencia: any) {
+    await this.limpiarFechas();
     if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
-      this.loadTrimestres();
-      if (this.tipoSelected)
-        this.loadFechas();
+      if (this.tipoSelected){
+        await this.loadTrimestres();
+        if(!this.controlTrimestres){
+          this.loadFechas();
+        }
+      }
     }
   }
 
 
-  onChange(tipo: string) {
+  async onChange(tipo: string) {
+    await this.limpiarFechas();
     if (tipo == undefined) {
       this.tipoSelected = false;
     } else {
       this.tipoSelected = true;
       this.tipo = tipo;
-      this.loadFechas();
+      if (this.tipoSelected){
+        await this.loadTrimestres();
+        if(!this.controlTrimestres){
+          this.loadFechas();
+        }
+      }
     }
   }
 
-  onChangeInv(tipo: string) {
+  async onChangeInv(tipo: string) {
+    await this.limpiarFechas();
     if (tipo == undefined) {
       this.tipoSelectedInv = false;
     } else {
       this.tipoSelectedInv = true;
       this.tipo = tipo;
-      this.loadFechas();
+      if (this.tipoSelectedInv){
+        await this.loadTrimestres();
+        if(!this.controlTrimestres){
+          this.loadFechas();
+        }
+      }
     }
   }
 
@@ -181,15 +199,20 @@ export class HabilitarReporteComponent implements OnInit {
       let aux: Date = event.value;
     }
   }
-  onChangeI(vigencia: any) {
+
+  async onChangeI(vigencia: any) {
+    await this.limpiarFechas();
     if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
       this.vigenciaSelected = true;
       this.vigencia = vigencia;
-      this.loadTrimestres();
-      if (this.tipoSelectedInv)
-        this.loadFechas();
+      if (this.tipoSelectedInv){
+        await this.loadTrimestres();
+        if(!this.controlTrimestres){
+          this.loadFechas();
+        }
+      }
     }
   }
 
@@ -292,7 +315,7 @@ export class HabilitarReporteComponent implements OnInit {
         Swal.close();
         Swal.fire({
           title: 'Error en la operación',
-          text: `No se encuentran tirmestres habilitados para esta vigencia`,
+          text: `No se encuentran trimestres habilitados para esta vigencia`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
@@ -342,7 +365,7 @@ export class HabilitarReporteComponent implements OnInit {
         Swal.close();
         Swal.fire({
           title: 'Error en la operación',
-          text: `No se encuentran tirmestres habilitados para esta vigencia`,
+          text: `No se encuentran trimestres habilitados para esta vigencia`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
@@ -353,7 +376,7 @@ export class HabilitarReporteComponent implements OnInit {
     }
   }
 
-  loadTrimestres() {
+  async loadTrimestres() {
     Swal.fire({
       title: 'Cargando períodos',
       timerProgressBar: true,
@@ -362,7 +385,59 @@ export class HabilitarReporteComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe((data: any) => {
+    await new Promise((resolve, reject) => {
+      this.request.get(environment.PLANES_MID, `seguimiento/trimestres/` + this.vigencia.Id).subscribe((data: any) => {
+        Swal.close();
+        if (data.Success == true) {
+          this.periodos = data.Data;
+          this.guardarDisabled = false;
+          this.controlTrimestres = false;
+          resolve(data);
+        } else {
+          this.guardarDisabled = true;
+          this.controlTrimestres = true;
+          this.periodos = [];
+          Swal.close();
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron trimestres para esta vigencia`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+          reject();
+        }
+      }, (error) => {
+        Swal.close();
+        if(this.tipo == 'formulacion' || this.tipo == 'formulaciones'){
+          this.controlTrimestres = false;
+          this.guardarDisabled = false;
+        } else {
+          this.controlTrimestres = true;
+          this.guardarDisabled = true;
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron datos registrados: ${JSON.stringify(error.error.Data)}, por favor comunicarse con computo@udistrital.edu.co`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 3000
+          })
+        }
+        reject();
+      })
+    })
+  }
+  
+  loadTrimestres1() {
+    Swal.fire({
+      title: 'Cargando períodos',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
+    this.request.get(environment.PLANES_MID, `seguimiento/trimestres/` + this.vigencia.Id).subscribe((data: any) => {
       if (data) {
         if (data.Data != "") {
           this.periodos = data.Data;
@@ -383,13 +458,20 @@ export class HabilitarReporteComponent implements OnInit {
         }
       }
     }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
+      Swal.close();
+      this.controlTrimestres = true;
+      if(this.tipo == 'formulacion' || this.tipo == 'formulaciones'){
+        this.guardarDisabled = false;
+      } else {
+        this.guardarDisabled = true;
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados: ${JSON.stringify(error.error.Data)}, por favor comunicarse con computo@udistrital.edu.co`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 3000
+        })
+      }
     })
   }
 
@@ -917,5 +999,37 @@ export class HabilitarReporteComponent implements OnInit {
       this.formFechas.get('fecha18').setValue("");
     }
   }
+
+  limpiarFechas(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.tipo === 'formulacion') {
+        this.formFechas.get('fecha9').setValue("");
+        this.formFechas.get('fecha10').setValue("");
+      } else if (this.tipo == 'seguimiento') {
+        this.formFechas.get('fecha1').setValue("");
+        this.formFechas.get('fecha2').setValue("");
+        this.formFechas.get('fecha3').setValue("");
+        this.formFechas.get('fecha4').setValue("");
+        this.formFechas.get('fecha5').setValue("");
+        this.formFechas.get('fecha6').setValue("");
+        this.formFechas.get('fecha7').setValue("");
+        this.formFechas.get('fecha8').setValue("");
+      } else if (this.tipo === 'formulaciones') {
+        this.formFechas.get('fecha19').setValue("");
+        this.formFechas.get('fecha20').setValue("");
+      } else if (this.tipo == 'seguimientos') {
+        this.formFechas.get('fecha11').setValue("");
+        this.formFechas.get('fecha12').setValue("");
+        this.formFechas.get('fecha13').setValue("");
+        this.formFechas.get('fecha14').setValue("");
+        this.formFechas.get('fecha15').setValue("");
+        this.formFechas.get('fecha16').setValue("");
+        this.formFechas.get('fecha17').setValue("");
+        this.formFechas.get('fecha18').setValue("");
+      }
+      resolve();
+    });
+  }
+
 }
 
