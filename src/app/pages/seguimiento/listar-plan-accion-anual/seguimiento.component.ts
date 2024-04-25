@@ -272,6 +272,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   async loadFechas() {
+    this.limpiarCampoFechas();
     if (this.vigencia) {
       Swal.fire({
         title: 'Cargando períodos',
@@ -289,65 +290,142 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               if (periodos.length > 0) {
                 this.trimestres = { t1: {}, t2: {}, t3: {}, t4: {} }
                 for (let i = 0; i < periodos.length; i++) {
-                  await new Promise((resolve,reject)=>{
-                    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe(async (data: DataRequest) => {
-                      if (data && data.Data != "") {
-                        let seguimiento = data.Data[0];
-
-                        let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
-                        let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
-
-                        if (i == 0) {
-                          this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
-                          this.formFechas.get('fecha2').setValue(fechaFin.toLocaleDateString());
-                          this.trimestres.t1 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                        } else if (i == 1) {
-                          this.formFechas.get('fecha3').setValue(fechaInicio.toLocaleDateString());
-                          this.formFechas.get('fecha4').setValue(fechaFin.toLocaleDateString());
-                          this.trimestres.t2 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                        } else if (i == 2) {
-                          this.formFechas.get('fecha5').setValue(fechaInicio.toLocaleDateString());
-                          this.formFechas.get('fecha6').setValue(fechaFin.toLocaleDateString());
-                          this.trimestres.t3 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                        } else if (i == 3) {
-                          this.formFechas.get('fecha7').setValue(fechaInicio.toLocaleDateString());
-                          this.formFechas.get('fecha8').setValue(fechaFin.toLocaleDateString());
-                          this.trimestres.t4 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                        }
-
-                        if (Object.keys(this.trimestres.t1).length !== 0 &&
-                          Object.keys(this.trimestres.t2).length !== 0 &&
-                          Object.keys(this.trimestres.t3).length !== 0 &&
-                          Object.keys(this.trimestres.t4).length !== 0) {
-                          if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
-                            await this.evaluarFechasPlan();
+                  if(this.plan.nueva_estructura) {
+                    let plan = {
+                      _id: this.plan.formato_id,
+                      nombre: this.plan.nombre
+                    }
+                    let body = {
+                      periodo_id: periodos[i].Id,
+                      tipo_seguimiento_id: '61f236f525e40c582a0840d0',
+                      planes_interes: JSON.stringify([plan]),
+                      activo: true
+                    }
+                    await new Promise((resolve, reject) => {
+                      this.request.post(environment.PLANES_CRUD,`periodo-seguimiento/buscar-unidad-planes/7`, body)
+                        .subscribe(
+                          async (data: DataRequest) => {
+                            if (data) {
+                              if (data.Data.length != 0) {
+                                let seguimiento = data.Data[0];
+                                
+                                let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
+                                let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
+        
+                                if (i == 0) {
+                                  this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
+                                  this.formFechas.get('fecha2').setValue(fechaFin.toLocaleDateString());
+                                  this.trimestres.t1 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                                } else if (i == 1) {
+                                  this.formFechas.get('fecha3').setValue(fechaInicio.toLocaleDateString());
+                                  this.formFechas.get('fecha4').setValue(fechaFin.toLocaleDateString());
+                                  this.trimestres.t2 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                                } else if (i == 2) {
+                                  this.formFechas.get('fecha5').setValue(fechaInicio.toLocaleDateString());
+                                  this.formFechas.get('fecha6').setValue(fechaFin.toLocaleDateString());
+                                  this.trimestres.t3 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                                } else if (i == 3) {
+                                  this.formFechas.get('fecha7').setValue(fechaInicio.toLocaleDateString());
+                                  this.formFechas.get('fecha8').setValue(fechaFin.toLocaleDateString());
+                                  this.trimestres.t4 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                                }
+        
+                                if (Object.keys(this.trimestres.t1).length !== 0 &&
+                                  Object.keys(this.trimestres.t2).length !== 0 &&
+                                  Object.keys(this.trimestres.t3).length !== 0 &&
+                                  Object.keys(this.trimestres.t4).length !== 0) {
+                                  if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+                                    await this.evaluarFechasPlan();
+                                  }
+                                }
+                                Swal.close();
+                                resolve(true)
+                              } else {
+                                Swal.fire({
+                                  title: 'Error en la operación',
+                                  text: `No se encontraron datos registrados`,
+                                  icon: 'warning',
+                                  showConfirmButton: false,
+                                  timer: 2500
+                                });
+                                this.limpiarCampoFechas();
+                                reject()
+                              }
+                            }
+                          }, (error) => {
+                            Swal.fire({
+                              title: 'Error en la operación',
+                              text: `No se encontraron datos registrados ${JSON.stringify(
+                                error
+                              )}`,
+                              icon: 'warning',
+                              showConfirmButton: false,
+                              timer: 2500,
+                            });
                           }
+                        );
+                    });
+                  } else {
+                    await new Promise((resolve,reject) => {
+                      this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe(async (data: DataRequest) => {
+                        if (data && data.Data != "") {
+                          let seguimiento = data.Data[0];
+  
+                          let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
+                          let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
+  
+                          if (i == 0) {
+                            this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
+                            this.formFechas.get('fecha2').setValue(fechaFin.toLocaleDateString());
+                            this.trimestres.t1 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                          } else if (i == 1) {
+                            this.formFechas.get('fecha3').setValue(fechaInicio.toLocaleDateString());
+                            this.formFechas.get('fecha4').setValue(fechaFin.toLocaleDateString());
+                            this.trimestres.t2 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                          } else if (i == 2) {
+                            this.formFechas.get('fecha5').setValue(fechaInicio.toLocaleDateString());
+                            this.formFechas.get('fecha6').setValue(fechaFin.toLocaleDateString());
+                            this.trimestres.t3 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                          } else if (i == 3) {
+                            this.formFechas.get('fecha7').setValue(fechaInicio.toLocaleDateString());
+                            this.formFechas.get('fecha8').setValue(fechaFin.toLocaleDateString());
+                            this.trimestres.t4 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                          }
+  
+                          if (Object.keys(this.trimestres.t1).length !== 0 &&
+                            Object.keys(this.trimestres.t2).length !== 0 &&
+                            Object.keys(this.trimestres.t3).length !== 0 &&
+                            Object.keys(this.trimestres.t4).length !== 0) {
+                            if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+                              await this.evaluarFechasPlan();
+                            }
+                          }
+                          Swal.close();
+                          resolve(true)
+                        } else {
+                          Swal.fire({
+                            title: 'Error en la operación',
+                            text: `No se encontraron datos registrados`,
+                            icon: 'warning',
+                            showConfirmButton: false,
+                            timer: 2500
+                          });
+                          this.limpiarCampoFechas();
+                          reject()
                         }
-                        Swal.close();
-                        resolve(true)
-                      } else {
+                      }, (error) => {
                         Swal.fire({
                           title: 'Error en la operación',
-                          text: `No se encontraron datos registrados`,
+                          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
                           icon: 'warning',
                           showConfirmButton: false,
                           timer: 2500
                         });
                         this.limpiarCampoFechas();
-                        reject()
-                      }
-                    }, (error) => {
-                      Swal.fire({
-                        title: 'Error en la operación',
-                        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-                        icon: 'warning',
-                        showConfirmButton: false,
-                        timer: 2500
-                      });
-                      this.limpiarCampoFechas();
-                      reject(error)
+                        reject(error)
+                      })
                     })
-                  })
+                  }
                 }
                 resolve(true)
               } else {
@@ -411,7 +489,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         Swal.showLoading();
       }
       const plan = this.dataSource.data[index];
-      for (let trimestre in this.trimestres) {
+      for (let trimestre in this.trimestres) { 
         await new Promise(async (resolve, reject) => {
           this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,plan_id:` + plan._id + `,periodo_seguimiento_id:` + this.trimestres[trimestre]["id"]).subscribe(async (data: DataRequest) => {
             if (data.Data.length != 0) {
@@ -674,7 +752,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
   async getVigencias() {
     return new Promise((resolve, reject)=>{
-      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Id:` + this.planes[0].vigencia).subscribe((data: DataRequest) => {
+      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Id:` + this.vigencia.Id.toString()).subscribe((data: DataRequest) => {
         if (data) {
           let vigencia: any = data.Data[0];
           for (let index = 0; index < this.planes.length; index++) {
