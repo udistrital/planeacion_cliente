@@ -143,12 +143,12 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   getRol() {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';
+    } else if (roles.__zone_symbol__value.find(x => x == 'ASISTENTE_DEPENDENCIA')) {
+      this.rol = 'ASISTENTE_DEPENDENCIA';
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
-    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_UNIDAD_PLANEACION')) {
-      this.rol = 'JEFE_UNIDAD_PLANEACION';
     }
   }
 

@@ -77,14 +77,14 @@
                     (click)="backClicked()">Regresar</button>
 
                 <button
-                    *ngIf="rol=='JEFE_DEPENDENCIA' && this.estado != 'Enviado a revisión' && this.estado != 'En revisión OAPC' && this.estado != 'Reporte Avalado' && this.estado != 'Con observaciones' && this.estado != 'En reporte'"
+                    *ngIf="rol=='JEFE_DEPENDENCIA' && this.estado != 'Enviado a revisión' && this.estado != 'En revisión OAPC' && this.estado != 'Reporte Avalado' && this.estado != 'Con observaciones' && this.estado != 'Habilitado'"
                     class="background-button" mat-raised-button color="primary" (click)="reportar()">Enviar
                     reporte</button>
 
                 <button *ngIf="rol=='JEFE_DEPENDENCIA' && this.estado == 'Con observaciones'" class="background-button"
                     mat-raised-button color="primary" (click)="reportar()">Enviar corrección</button>
 
-                <button *ngIf="rol=='PLANEACION' && estado=='Enviado a revisión'" class="background-button"
+                <button *ngIf="rol=='PLANEACION' && estado=='Revisión Verificada'" class="background-button"
                     mat-raised-button color="primary" (click)="iniciarRevision()">Iniciar revisión</button>
 
                 <button *ngIf="rol=='PLANEACION' && estado=='En reporte'" class="background-button"

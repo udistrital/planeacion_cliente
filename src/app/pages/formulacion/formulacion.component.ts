@@ -220,7 +220,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       }
     });
     if(!this.planEnArray){
-      console.log("NO HACE LA CONSULTA")
       this.moduloVisible = true;
       Swal.close()
     } else {
@@ -246,7 +245,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               if (data) {
                 if (data.Data.length != 0) {
                   let seguimientoFormulacion = data.Data[0];
-                  console.log("DATA ENCONTRADA: ", seguimientoFormulacion)
                   let auxFecha = new Date();
                   let auxFechaCol = auxFecha.toLocaleString('en-US', {
                     timeZone: 'America/Mexico_City',
@@ -259,7 +257,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                   let fechaFin = new Date(seguimientoFormulacion['fecha_fin']);
                   if (fechaHoy >= fechaInicio && fechaHoy <= fechaFin) {
                     // await this.validarUnidad();
-                    console.log("FECHAS VALIDAS!")
                     this.moduloVisible = true;
                     Swal.close()
                     resolve(true);
@@ -274,6 +271,15 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                     });
                     reject();
                   }
+                } else {
+                  this.moduloVisible = false;
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    text: `No se encontraron datos registrados`,
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    timer: 2500,
+                  });
                 }
               }
             }, (error) => {
@@ -441,34 +447,36 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.request
         .post(environment.PLANES_CRUD,`periodo-seguimiento/buscar-unidad-planes/3`,periodo_seguimiento)
         .subscribe((data: DataRequest) => {
-          if (data && data.Data.length > 0) {
-            data.Data.forEach((elemento) => {
-              if (elemento.planes_interes) {
-                if (typeof elemento.planes_interes === 'string') {
-                  try {
-                    var planesInteresArray = JSON.parse(
-                      elemento.planes_interes
-                    );
-                    this.planesInteresArray = [...this.planesInteresArray, ...planesInteresArray];
-                    this.planes = [...this.planes, ...planesInteresArray];
-                    Swal.close();
-                    resolve(this.planes);
-                  } catch (error) {
+          if (data && data.Data) {
+            if(data.Data.length != 0){
+              data.Data.forEach((elemento) => {
+                if (elemento.planes_interes) {
+                  if (typeof elemento.planes_interes === 'string') {
+                    try {
+                      var planesInteresArray = JSON.parse(
+                        elemento.planes_interes
+                      );
+                      this.planesInteresArray = [...this.planesInteresArray, ...planesInteresArray];
+                      this.planes = [...this.planes, ...planesInteresArray];
+                      Swal.close();
+                      resolve(this.planes);
+                    } catch (error) {
+                      console.error(
+                        'Error al analizar JSON en planes_interes:',
+                        error
+                      );
+                      reject(error);
+                    }
+                  } else {
                     console.error(
-                      'Error al analizar JSON en planes_interes:',
-                      error
+                      'El elemento no tiene una cadena JSON en planes_interes:',
+                      elemento
                     );
-                    reject(error);
+                    reject();
                   }
-                } else {
-                  console.error(
-                    'El elemento no tiene una cadena JSON en planes_interes:',
-                    elemento
-                  );
-                  reject();
                 }
-              }
-            });
+              });
+            }
           }
           Swal.close();
           if (this.planes.length == 0) {
@@ -698,7 +706,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.isChecked = true;
       this.planEnArray = this.planesInteresArray.some(item => item._id === plan._id);
       await this.verificarFechas(plan);
-      this.busquedaPlanes(plan, this.planEnArray);
+      await this.busquedaPlanes(plan, this.planEnArray);
     }
   }
 
@@ -947,7 +955,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.dataT = false;
         Swal.fire({
           title: 'Atención en la operación',
-          text: `No hay actividades registradas para el plan \n por favor agrege actividad`,
+          text: `No hay actividades registradas para el plan \n por favor agregue actividades`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 3500
@@ -994,6 +1002,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
             data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
             this.banderaEstadoDatos = false;
+            Swal.close()
             reject();
           } else {
             this.banderaEstadoDatos = true;//bandera validacion de la data
