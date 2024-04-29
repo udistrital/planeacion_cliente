@@ -1818,32 +1818,43 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = "6153355601c7a2365b2fb2a1";
-        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
-          if (data) {
-            Swal.fire({
-              title: 'Plan Avalado',
-              icon: 'success',
-            }).then((result) => {
-              if (result.value) {
-                this.busquedaPlanes(data.Data, false);
+        return new Promise((resolve, reject) => {
+          this.request.post(environment.PLANES_MID, `seguimiento/avalar/` + this.plan._id, {}).subscribe((data: any) => {
+            if (data.Success == true) {
+              Swal.fire({
+                title: 'Plan Avalado',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 2500
+              }).then((result) => {
+                this.plan.estado_plan_id = "6153355601c7a2365b2fb2a1";
+                this.busquedaPlanes(this.plan, false);
                 this.loadData();
                 this.addActividad = false;
-                let aux = {}
-                this.request.post(environment.PLANES_MID, `seguimiento/crear_reportes/` + this.plan._id + `/61f236f525e40c582a0840d0`, this.plan).subscribe((data: any) => {
-                  if (!data) {
-                    Swal.fire({
-                      title: 'Error en la operación',
-                      icon: 'error',
-                      text: `Error creando reportes de seguimiento`,
-                      showConfirmButton: false,
-                      timer: 2500
-                    })
-                  }
-                })
-              }
-            })
-          }
+              })
+              resolve(data);
+            } else {
+              Swal.fire({
+                title: 'Error en la operación',
+                icon: 'error',
+                text: `Error creando reportes de seguimiento`,
+                showConfirmButton: false,
+                timer: 2500
+              })
+              reject();
+            }
+          }, (error) => {
+            Swal.close();
+            const mensaje = error.error.Data ? error.error.Data : error.message
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `${mensaje}, por favor diríjase al módulo de administración y diligencie las fechas correspondientes al periodo de seguimiento para la vigencia requerida.`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 4000
+            });
+            reject();
+          })
         })
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
