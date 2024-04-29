@@ -295,10 +295,15 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                       _id: this.plan.formato_id,
                       nombre: this.plan.nombre
                     }
+                    let unidad = {
+                      Id: this.unidad.Id,
+                      Nombre: this.unidad.Nombre
+                    }
                     let body = {
                       periodo_id: periodos[i].Id,
                       tipo_seguimiento_id: '61f236f525e40c582a0840d0',
                       planes_interes: JSON.stringify([plan]),
+                      unidades_interes: JSON.stringify([unidad]),
                       activo: true
                     }
                     await new Promise((resolve, reject) => {
