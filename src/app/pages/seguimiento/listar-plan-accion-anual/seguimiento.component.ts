@@ -283,7 +283,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         },
       })
       await new Promise((resolve,reject)=>{
-        this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe(async (data: DataRequest) => {
+        this.request.get(environment.PLANES_MID, `seguimiento/trimestres/` + this.vigencia.Id).subscribe(async (data: DataRequest) => {
           if (data) {
             if (data.Data != "" && data.Data != null) {
               let periodos = data.Data;

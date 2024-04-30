@@ -1796,7 +1796,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
   avalar() {
     Swal.fire({
-      title: 'Pre Aval',
+      title: 'Aval',
       text: `¿Desea darle Aval a este plan?`,
       icon: 'warning',
       confirmButtonText: `Sí`,
@@ -1804,8 +1804,10 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mostrarMensajeCarga();
         return new Promise((resolve, reject) => {
           this.request.post(environment.PLANES_MID, `seguimiento/avalar/` + this.plan._id, {}).subscribe((data: any) => {
+            Swal.close();
             if (data.Success == true) {
               Swal.fire({
                 title: 'Plan Avalado',
@@ -1850,14 +1852,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           timer: 2500
         })
       }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        icon: 'error',
-        text: JSON.stringify(error),
-        showConfirmButton: false,
-        timer: 2500
-      })
     })
   }
   /**
@@ -1914,5 +1908,16 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     } else {
       console.error('No se han cargado los planes');
     }
+  }
+
+  mostrarMensajeCarga(): void {
+    Swal.fire({
+      title: 'Procesando petición...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
   }
 }
