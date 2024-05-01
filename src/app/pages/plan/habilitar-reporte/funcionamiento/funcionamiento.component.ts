@@ -240,31 +240,43 @@ export class FuncionamientoComponent implements OnInit {
     }
   }
 
-  loadTrimestres(vigencia: Vigencia) {
-    this.habilitarReporteService.loadTrimestres(vigencia);
+  async loadTrimestres(vigencia: Vigencia) {
+    await this.habilitarReporteService.loadTrimestres(vigencia);
     this.habilitarReporteService.getTrimestresSubject().subscribe(
-      (data: DataRequest) => {
-        if(data == null) {
+      (data: any) => {
+        if(data.error) {
           this.guardarDisabled = true;
           this.periodos = [];
           Swal.close();
           Swal.fire({
             title: 'Error en la operación',
-            text: `No se encontraron trimestres para esta vigencia`,
+            text: `No se encontraron datos registrados: ${data.error.Data}, por favor comunicarse con computo@udistrital.edu.co`,
             icon: 'warning',
             showConfirmButton: false,
-            timer: 2500
+            timer: 3000
           })
-        } else if (data.Data != null) {
-          this.periodos = data.Data;
-          this.guardarDisabled = false;
-          Swal.close();
+        } else {
+          if(data == null) {
+            this.guardarDisabled = true;
+            this.periodos = [];
+            Swal.close();
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron trimestres para esta vigencia, por favor comunicarse con computo@udistrital.edu.co`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 3000
+            })
+          } else if (data.Data != null) {
+            this.periodos = data.Data;
+            this.guardarDisabled = false;
+            Swal.close();
+          }
         }
-      },
-      (error) => {
+      }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
-          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}, por favor comunicarse con computo@udistrital.edu.co`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
