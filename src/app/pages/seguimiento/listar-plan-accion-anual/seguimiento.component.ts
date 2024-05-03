@@ -91,8 +91,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   async ngOnInit() {
     if (
       this.rol == 'JEFE_DEPENDENCIA' ||
-      this.rol == 'ASISTENTE_DEPENDENCIA' ||
-      this.rol == 'JEFE_UNIDAD_PLANEACION'
+      this.rol == 'ASISTENTE_DEPENDENCIA'
     ) {
       await this.validarUnidad();
     } else {
@@ -339,7 +338,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                                   Object.keys(this.trimestres.t2).length !== 0 &&
                                   Object.keys(this.trimestres.t3).length !== 0 &&
                                   Object.keys(this.trimestres.t4).length !== 0) {
-                                  if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+                                  if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA') {
                                     await this.evaluarFechasPlan();
                                   }
                                 }
@@ -401,7 +400,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                             Object.keys(this.trimestres.t2).length !== 0 &&
                             Object.keys(this.trimestres.t3).length !== 0 &&
                             Object.keys(this.trimestres.t4).length !== 0) {
-                            if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+                            if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA') {
                               await this.evaluarFechasPlan();
                             }
                           }
