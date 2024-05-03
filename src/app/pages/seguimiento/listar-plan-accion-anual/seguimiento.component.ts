@@ -91,8 +91,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   async ngOnInit() {
     if (
       this.rol == 'JEFE_DEPENDENCIA' ||
-      this.rol == 'ASISTENTE_DEPENDENCIA' ||
-      this.rol == 'JEFE_UNIDAD_PLANEACION'
+      this.rol == 'ASISTENTE_DEPENDENCIA'
     ) {
       await this.validarUnidad();
     } else {
@@ -339,7 +338,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                                   Object.keys(this.trimestres.t2).length !== 0 &&
                                   Object.keys(this.trimestres.t3).length !== 0 &&
                                   Object.keys(this.trimestres.t4).length !== 0) {
-                                  if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+                                  if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA') {
                                     await this.evaluarFechasPlan();
                                   }
                                 }
@@ -371,8 +370,14 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                         );
                     });
                   } else {
-                    await new Promise((resolve,reject) => {
-                      this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe(async (data: DataRequest) => {
+                    let body = {
+                      periodo_id: periodos[i].Id,
+                      tipo_seguimiento_id: '61f236f525e40c582a0840d0',
+                      activo: true,
+                    }
+                    await new Promise((resolve, reject) => {
+                      this.request.post(environment.PLANES_CRUD,`periodo-seguimiento/buscar-unidad-planes/8`, body)
+                        .subscribe(async (data: DataRequest) => {
                         if (data && data.Data != "") {
                           let seguimiento = data.Data[0];
   
@@ -401,7 +406,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                             Object.keys(this.trimestres.t2).length !== 0 &&
                             Object.keys(this.trimestres.t3).length !== 0 &&
                             Object.keys(this.trimestres.t4).length !== 0) {
-                            if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+                            if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA') {
                               await this.evaluarFechasPlan();
                             }
                           }
