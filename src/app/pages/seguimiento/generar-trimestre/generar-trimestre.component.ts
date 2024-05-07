@@ -231,6 +231,24 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
+      } 
+    } else if (this.rol == 'ASISTENTE_DEPENDENCIA') {
+      if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Habilitado' || this.estadoActividad === 'Sin reporte') {
+        this.readonlyFormulario = false;
+        this.readonlyObservacion = true;
+        this.mostrarObservaciones = false;
+      } else if (this.estadoActividad === 'Actividad reportada') {
+        this.readonlyFormulario = true;
+        this.readonlyObservacion = true;
+        this.mostrarObservaciones = false;
+      } else if (this.estadoActividad === 'Con observaciones'/* || this.estadoActividad === 'Actividad Verificada'*/) {
+        this.readonlyFormulario = this.estadoSeguimiento != 'Con observaciones';
+        this.readonlyObservacion = true;
+        this.mostrarObservaciones = true;
+      } else if (this.estadoActividad === 'Actividad avalada') {
+        this.readonlyFormulario = true;
+        this.readonlyObservacion = true;
+        this.mostrarObservaciones = true;
       }
     }
   }
@@ -431,7 +449,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         for (let index = 0; index < this.datosIndicadores.length; index++) {
           const indicador = this.datosIndicadores[index];
           if (this.estadoActividad != "Sin reporte") {
-            if ((indicador.observaciones == "" || indicador.observaciones == undefined) && this.rol != "JEFE_DEPENDENCIA") {
+            if ((indicador.observaciones == "" || indicador.observaciones == undefined) && (this.rol != "JEFE_DEPENDENCIA" && this.rol != "ASISTENTE_DEPENDENCIA")) {
               this.datosIndicadores[index].observaciones = "";
             }
           }

@@ -101,7 +101,7 @@
               [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
           </div>
 
-          <div style="margin: 10px 0px 20px 0px; width: 15%;" *ngIf="rol=='JEFE_DEPENDENCIA' && !readonlyFormulario">
+          <div style="margin: 10px 0px 20px 0px; width: 15%;" *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && !readonlyFormulario">
             <div class="container-border" style="margin: 0px;width: 100%;padding: 10px;">
               <button class="background-button" style="font-weight: bold; margin: 0px 0px 5px 0px; width: 100%;"
                 mat-raised-button color="primary" (click)="onSeeDocumentos()">Visualizar</button>
@@ -289,7 +289,7 @@
           </table>
         </div>
         <button class="background-button"
-          *ngIf="rol=='JEFE_DEPENDENCIA' && (mostrarObservaciones || readonlyObservacion)"
+          *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && (mostrarObservaciones || readonlyObservacion)"
           style="width: auto; display:block; margin-left: auto; margin-right: auto;" mat-raised-button color="primary"
           (click)="calcularResultado()">Calcular indicadores</button>
 
@@ -407,17 +407,17 @@
 
       <br>
       <div class="align-button-enviar"
-        *ngIf="rol=='JEFE_DEPENDENCIA' && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC' && estadoSeguimiento!='Revisión Verificada'">
+        *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC' && estadoSeguimiento!='Revisión Verificada'">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
         <button class="background-button" mat-raised-button color="primary" (click)="guardarSeguimiento()">Guardar
           seguimiento de actividad</button>
       </div>
-      <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Actividad en reporte'">
+      <div class="align-button-enviar" *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && estadoActividad==='Actividad en reporte'">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
         <button class="background-button" mat-raised-button color="primary" (click)="generarReporte()">Generar
           reporte</button>
       </div>
-      <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && readonlyFormulario">
+      <div class="align-button-enviar" *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && readonlyFormulario">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
       </div>
 
@@ -474,7 +474,7 @@
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
       </div>-->
 
-      <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Observación'">
+      <div class="align-button-enviar" *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && estadoActividad==='Observación'">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
         <button class="background-button" mat-raised-button color="primary" (click)="ajustarReporte()">Reenviar
           reporte</button>
