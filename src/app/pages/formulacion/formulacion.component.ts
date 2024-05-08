@@ -13,6 +13,7 @@ import { VerificarFormulario } from '../services/verificarFormulario'
 import { Subscription } from 'rxjs';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-formulacion',
@@ -92,7 +93,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private autenticationService: ImplicitAutenticationService,
     private userService: UserService,
     private activatedRoute: ActivatedRoute,
-    private verificarFormulario: VerificarFormulario
+    private verificarFormulario: VerificarFormulario,
+    private codigosService: CodigosService
   ) {
   this.loadPeriodos();
     this.formArmonizacion = this.formBuilder.group({
@@ -127,6 +129,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   dataSource: MatTableDataSource<any>;
 
   async ngOnInit(){
+    await this.codigosService.cargarIdentificadores();
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';

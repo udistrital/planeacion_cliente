@@ -66,7 +66,7 @@ const routes: Routes = [{
   children: [
     {
       path: 'dashboard',
-      component: DashboardComponent,
+      component: FormulacionComponent,
     },
     {
       path: 'informacion_basica',
@@ -348,7 +348,7 @@ const routes: Routes = [{
     {
       path: 'formulacion/:dependencia_id/:nombre/:vigencia_id/:version',
       component: FormulacionComponent,
-    }, 
+    },
     {
       path: 'pendientes-formulacion',
       component: TablaPendientesFormulacionComponent,
