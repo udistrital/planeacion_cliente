@@ -1,9 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import Swal from 'sweetalert2';
-import { Rol, ROL_ASISTENTE_DEPENDENCIA, ROL_JEFE_DEPENDENCIA, ROL_JEFE_UNIDAD_PLANEACION, ROL_PLANEACION, Usuario } from '../utils';
+import { Rol, ROL_ASISTENTE_DEPENDENCIA, ROL_ASISTENTE_PLANEACION, Usuario } from '../utils';
 import { environment } from 'src/environments/environment';
-import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 import { Router } from '@angular/router';
 
 @Component({
@@ -18,6 +17,7 @@ export class FormUsuariosComponent implements OnInit {
     // { rol: ROL_JEFE_UNIDAD_PLANEACION, selected: false },
     // { rol: ROL_JEFE_DEPENDENCIA, selected: false },
     { rol: ROL_ASISTENTE_DEPENDENCIA, selected: false },
+    { rol: ROL_ASISTENTE_PLANEACION, selected: false }
   ];
   @Input() usuario: Usuario;
   @Output() errorEnPeticion = new EventEmitter<any>();

@@ -149,6 +149,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       this.rol = 'ASISTENTE_DEPENDENCIA';
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
+    } else if (roles.__zone_symbol__value.find(x => x == 'ASISTENTE_PLANEACION')) {
+      this.rol = 'ASISTENTE_PLANEACION';
     }
   }
 
@@ -200,7 +202,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   verificarFormulario() {
-    if (this.rol === 'PLANEACION') {
+    if (this.rol === 'PLANEACION' || this.rol === 'ASISTENTE_PLANEACION') {
       if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Sin reporte') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
@@ -487,7 +489,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   guardarCualitativo() {
     var mensaje = `¿Desea guardar la información del componente cualitativo?`
-    if (this.rol === 'PLANEACION'/* && this.estadoActividad === 'Actividad Verificada'*/) {
+    if (this.rol === 'PLANEACION' || this.rol === 'ASISTENTE_PLANEACION') {
       mensaje = `¿Desea avalar la actividad?`
       if (this.veririficarObservaciones()) {
         mensaje = `¿Desea guardar las observaciones del componente cualitativo?`
@@ -544,7 +546,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   guardarCuantitativo() {
     var mensaje = `¿Desea guardar la información del componente cuantitativo?`
-    if (this.rol === 'PLANEACION'/* && this.estadoActividad === 'Actividad Verificada'*/) {
+    if (this.rol === 'PLANEACION' || this.rol === 'ASISTENTE_PLANEACION') {
       mensaje = `¿Desea avalar la actividad?`
       if (this.veririficarObservaciones()) {
         mensaje = `¿Desea guardar las observaciones del componente cuantitativo?`

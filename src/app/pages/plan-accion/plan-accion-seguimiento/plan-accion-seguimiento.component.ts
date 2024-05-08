@@ -47,14 +47,12 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
 
   async ngOnInit() {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
+    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION' || x == 'ASISTENTE_PLANEACION')) {
       this.rol = 'PLANEACION';
       await this.loadUnidades()
     } else {
       if (roles.__zone_symbol__value.find((x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
         this.rol = 'JEFE_DEPENDENCIA';
-      } else if (roles.__zone_symbol__value.find((x) => x == 'JEFE_UNIDAD_PLANEACION')) {
-        this.rol = 'JEFE_UNIDAD_PLANEACION';
       }
       await this.cargarPlanes("");
       this.informacionTabla = new MatTableDataSource<ResumenPlan>(this.planes);

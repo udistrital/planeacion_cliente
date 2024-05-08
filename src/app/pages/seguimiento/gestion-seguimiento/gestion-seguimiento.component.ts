@@ -92,6 +92,8 @@ export class SeguimientoComponentGestion implements OnInit {
       this.rol = 'ASISTENTE_DEPENDENCIA'
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
+    } else if (roles.__zone_symbol__value.find(x => x == 'ASISTENTE_PLANEACION')) {
+      this.rol = 'ASISTENTE_PLANEACION'
     }
   }
 
@@ -325,7 +327,7 @@ export class SeguimientoComponentGestion implements OnInit {
     let fechaInicio = new Date(this.seguimiento.periodo_seguimiento_id["fecha_inicio"].replace("Z", ""));
     let fechaFin = new Date(this.seguimiento.periodo_seguimiento_id["fecha_fin"].replace("Z", ""));
 
-    if ((fechaHoy >= fechaInicio && fechaHoy <= fechaFin) || row.estado.nombre == "Actividad avalada" || this.rol == 'PLANEACION') {
+    if ((fechaHoy >= fechaInicio && fechaHoy <= fechaFin) || row.estado.nombre == "Actividad avalada" || (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION')) {
       this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + row.index + '/' + this.seguimiento.periodo_seguimiento_id["_id"]])
     } else {
       Swal.fire({
