@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Consulta } from './Codigos/Consulta';
-import { ConsultaPlanes } from './Codigos/ConsultaPlanesCRUD';
+import { Consulta } from './ConsultaCodigos/Consulta';
+import { ConsultaPlanes } from './ConsultaCodigos/ConsultaPlanesCRUD';
 import { RequestManager } from 'src/app/pages/services/requestManager';
-import { ConsultaParametrosTipo } from './Codigos/ConsultaParametro';
+import { ConsultaParametrosTipo } from './ConsultaCodigos/ConsultaParametro';
 
 enum rutas {
   PLANES_CRUD,

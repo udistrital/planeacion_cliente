@@ -2,6 +2,7 @@ import { RequestManager } from "src/app/pages/services/requestManager";
 import { DataRequest } from "../../models/interfaces/DataRequest.interface";
 import { TipoParametro, TipoPlanesCRUD } from "../../models/tipo";
 
+// template-method
 export abstract class Consulta {
   constructor(private request: RequestManager, private endpoint:string) {}
   abstract obtenerPath(): string;
