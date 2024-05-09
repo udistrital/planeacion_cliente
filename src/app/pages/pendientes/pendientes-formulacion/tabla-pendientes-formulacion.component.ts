@@ -340,11 +340,11 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
               //NOTIFICACION(FE)
               this.notificacionesService.enviarNotificacion(
                 {
-                  item: "FE",
-                  unidadId: plan.dependencia_id,
-                  nombreUnidad: plan.dependencia_nombre, 
-                  nombrePlan: plan.nombre, 
-                  vigencia: plan.vigencia
+                  codigo: "FE",
+                  id_unidad: plan.dependencia_id,
+                  nombre_unidad: plan.dependencia_nombre, 
+                  nombre_plan: plan.nombre, 
+                  nombre_vigencia: plan.vigencia
                 }
               )
               Swal.fire({

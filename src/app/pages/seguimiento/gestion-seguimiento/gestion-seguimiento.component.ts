@@ -47,17 +47,7 @@ export class SeguimientoComponentGestion implements OnInit {
     private router: Router,
     private _location: Location,
     private verificarFormulario: VerificarFormulario
-  ) {
-    activatedRoute.params.subscribe(prm => {
-      this.planId = prm['plan_id'];
-      this.trimestreId = prm['trimestre'];
-    });
-    activatedRoute.queryParams.subscribe(params => {
-      this.vigencia = params.vigencia
-    });
-    this.dataSource = new MatTableDataSource<any>();
-    this.loadDataSeguimiento();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.formGestionSeguimiento = this.formBuilder.group({
@@ -71,6 +61,12 @@ export class SeguimientoComponentGestion implements OnInit {
       tarea: ['', Validators.required],
     });
     this.getRol();
+    this.activatedRoute.params.subscribe(prm => {
+      this.planId = prm['plan_id'];
+      this.trimestreId = prm['trimestre'];
+      this.loadDataSeguimiento();
+    });
+    this.dataSource = new MatTableDataSource<any>();
   }
 
   ngAfterViewInit() {
@@ -134,6 +130,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.seguimiento = data.Data;
         this.estado = this.seguimiento.estado_seguimiento_id.nombre;
         await this.loadUnidad(this.seguimiento.plan_id.dependencia_id);
+        this.loadVigencia(this.seguimiento.plan_id.vigencia)
       }
     }, (error) => {
       Swal.fire({
@@ -144,6 +141,17 @@ export class SeguimientoComponentGestion implements OnInit {
         timer: 2500
       })
     })
+  }
+
+  loadVigencia(vigencia_id) {
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,Id:${vigencia_id},activo:true`)
+      .subscribe(
+        (data: any) => {
+          if (data) {
+            this.vigencia = data.Data[0];
+          }
+        }, (error) => {}
+      )
   }
 
   loadUnidad(dependencia_id) {
@@ -196,11 +204,11 @@ export class SeguimientoComponentGestion implements OnInit {
 
   enviarNotificacion(itemMensaje:string){
     let datos = {
-      item: itemMensaje,
-      unidadId: this.unidad.Id,
-      nombreUnidad: this.unidad.Nombre,
-      nombrePlan: this.seguimiento.plan_id.nombre,
-      vigencia: this.vigencia,
+      codigo: itemMensaje,
+      id_unidad: this.unidad.Id,
+      nombre_unidad: this.unidad.Nombre,
+      nombre_plan: this.seguimiento.plan_id.nombre,
+      nombre_vigencia: this.vigencia,
       trimestre: this.trimestreId
     }
     this.notificacionesService.enviarNotificacion(datos)

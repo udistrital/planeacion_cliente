@@ -165,8 +165,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       if (
         dependencia_id != undefined &&
         vigencia_id != undefined &&
-        nombre != undefined &&
-        version != undefined
+        nombre != undefined
       ) {
         await this.cargarPlan({
           dependencia_id,
@@ -1323,11 +1322,11 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
   enviarNotificacion(itemMensaje:string){
     let datos = {
-      item: itemMensaje,
-      unidadId: this.unidad.Id,
-      nombreUnidad: this.unidad.Nombre, 
-      nombrePlan:this.plan.nombre, 
-      vigencia: this.vigencia.Nombre
+      codigo: itemMensaje,
+      id_unidad: this.unidad.Id,
+      nombre_unidad: this.unidad.Nombre, 
+      nombre_plan:this.plan.nombre, 
+      nombre_vigencia: this.vigencia.Nombre
     }
     this.notificacionesService.enviarNotificacion(datos)
   }
@@ -1924,7 +1923,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           planACargar.nombre
         )
       );
-      this.versionDesdeTabla = planACargar.version;
+      if (planACargar.version) {
+        this.versionDesdeTabla = planACargar.version
+      }
     } else {
       console.error('No se han cargado los planes');
     }
