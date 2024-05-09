@@ -11,6 +11,7 @@ import { environment } from 'src/environments/environment';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { CurrencyPipe, formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from '../recursos/rubros';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-contratistas',
@@ -56,10 +57,12 @@ export class ContratistasComponent implements OnInit {
   constructor(
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
-    private currencyPipe: CurrencyPipe
+    private currencyPipe: CurrencyPipe,
+    private codigosService: CodigosService
   ) { }
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    await this.codigosService.cargarIdentificadores();
     this.loadPlan();
     this.dataSource = new MatTableDataSource<any>();
     this.loadPerfiles();
@@ -198,7 +201,7 @@ export class ContratistasComponent implements OnInit {
 
 
   verificarVersiones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')));
     if (preAval.length != 0) {
       return true;
     } else {
@@ -206,7 +209,7 @@ export class ContratistasComponent implements OnInit {
     }
   }
   verificarObservaciones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b1e01c7a265372fac03'));
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP')));
     if (preAval.length != 0) {
       return true;
     } else {
@@ -235,7 +238,7 @@ export class ContratistasComponent implements OnInit {
 
   loadTabla() {
     if (this.dataTabla) {
-      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/` + this.plan + `/6184b3e6f6fc97850127bb68`).subscribe((dataG: any) => {
+      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/${this.plan}/${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((dataG: any) => {
         if (dataG.Data != null) {
           this.dataSource.data = dataG.Data;
           this.rubroSeleccionado = rubros_aux[rubros_aux.findIndex((e: any) => e.Codigo === this.dataSource.data[0].rubro)]
@@ -246,7 +249,7 @@ export class ContratistasComponent implements OnInit {
   }
 
   loadPerfiles() {
-    this.request.get(environment.PARAMETROS_SERVICE, `parametro?query=TipoParametroId:36`).subscribe((data: any) => {
+    this.request.get(environment.PARAMETROS_SERVICE,`parametro?query=TipoParametroId:${this.codigosService.getId("PARAMETROS_SERVICE", "tipo_parametro", "PC")}`).subscribe((data: any) => {
       if (data) {
         this.perfiles = data.Data
       }
@@ -509,7 +512,7 @@ export class ContratistasComponent implements OnInit {
           obj["index"] = num.toString();
         }
         let dataS = JSON.stringify(Object.assign({}, data))
-        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, this.plan + `/6184b3e6f6fc97850127bb68`).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, `${this.plan}/${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Guardado exitoso',

@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { UserService } from '../../services/userService';
 import { VerificarFormulario } from '../../services/verificarFormulario'
 import { Router } from '@angular/router';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-tabla-pendientes-formulacion',
@@ -41,14 +42,16 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
     private request: RequestManager,
     private userService: UserService,
     private verificarFormulario: VerificarFormulario,
-    private router: Router
+    private router: Router,
+    private codigosService: CodigosService
   ) {
     this.planesInteres = [];
     this.banderaTodosSeleccionados = false;
     this.datosCargados = false;
   }
 
-  ngOnInit(): void {
+  async ngOnInit(){
+    await this.codigosService.cargarIdentificadores();
     this.validarUnidad()
     const datosPrueba: any[] = [];
     this.informacionTabla = new MatTableDataSource<any>(datosPrueba);
@@ -224,7 +227,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
   }
 
   filterPlanes(data) {
-    var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
+    var dataAux = data.filter(e => e.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP'));
     return dataAux.filter(e => e.activo == true);
   }
 
@@ -329,7 +332,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
             aplicativo_id: plan.aplicativo_id,
             tipo_plan_id: plan.tipo_plan_id,
             descripcion: plan.descripcion,
-            estado_plan_id: "65bbf86918f02a27a456d20f",
+            estado_plan_id: this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP'),
             _id: plan.id,
             nombre: plan.nombre
           }

@@ -21,6 +21,14 @@ import { CodigosService } from 'src/app/@core/services/codigos.service';
   styleUrls: ['./formulacion.component.scss']
 })
 export class FormulacionComponent implements OnInit, OnDestroy {
+  ID_ESTADO_EN_FORMULACION: string;
+  ID_ESTADO_FORMULADO: string;
+  ID_ESTADO_EN_REVISION: string;
+  ID_ESTADO_REVISADO: string;
+  ID_ESTADO_PRE_AVAL:string;
+  ID_ESTADO_AVAL:string;
+  ID_ESTADO_AJUSTE_PRESUPUESTAL:string;
+  ID_ESTADO_REVISION_VERIFICADA:string;
 
   activedStep = 0;
   planes: any[];
@@ -130,7 +138,14 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
   async ngOnInit(){
     await this.codigosService.cargarIdentificadores();
-    let roles: any = this.autenticationService.getRole();
+    this.ID_ESTADO_EN_FORMULACION = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
+    this.ID_ESTADO_FORMULADO = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP');
+    this.ID_ESTADO_EN_REVISION = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP');
+    this.ID_ESTADO_REVISADO = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
+    this.ID_ESTADO_PRE_AVAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
+    this.ID_ESTADO_AVAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
+    this.ID_ESTADO_AJUSTE_PRESUPUESTAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP');
+    this.ID_ESTADO_REVISION_VERIFICADA = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
       await this.loadUnidades();
@@ -238,7 +253,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         unidades_interes: JSON.stringify([unidad_interes]),
         planes_interes: JSON.stringify([plan_interes]),
         periodo_id: this.vigencia.Id.toString(),
-        tipo_seguimiento_id: '6260e975ebe1e6498f7404ee'
+        tipo_seguimiento_id: this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP")
       }
       return await new Promise((resolve, reject) => {
         this.request
@@ -418,7 +433,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     return await new Promise((resolve,reject)=>{
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,dependencia_id:${this.unidad.Id},formato:false,vigencia:${this.vigencia.Id}`).subscribe(async (data: any) => {
         if ( data?.Data.length > 0 ) {
-          this.planes = data.Data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
+          this.planes = data.Data.filter(e => e.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP'));
         }
         await this.loadPlanesPeriodoSeguimiento();
         resolve(this.planes)
@@ -444,7 +459,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     var periodo_seguimiento: any = {
       unidades_interes: JSON.stringify([unidad_interes]),
       periodo_id: this.vigencia.Id.toString(),
-      tipo_seguimiento_id: '6260e975ebe1e6498f7404ee'
+      tipo_seguimiento_id: this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP")
     }
     return await new Promise((resolve, reject) => {
       this.request
@@ -819,21 +834,21 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   getIconEstado() {
-    if (this.plan.estado_plan_id == '614d3ad301c7a200482fabfd') {
+    if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP')) {
       this.iconEstado = "create";
-    } else if (this.plan.estado_plan_id == '614d3aeb01c7a245952fabff') {
+    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP')) {
       this.iconEstado = "assignment_turned_in";
-    } else if (this.plan.estado_plan_id == '614d3b0301c7a2a44e2fac01') {
+    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP')) {
       this.iconEstado = "pageview";
-    } else if (this.plan.estado_plan_id == '614d3b1e01c7a265372fac03') {
+    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP')) {
       this.iconEstado = "assignment_return";
-    } else if (this.plan.estado_plan_id == '614d3b4401c7a222052fac05') {
+    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')) {
       this.iconEstado = "done";
-    } else if (this.plan.estado_plan_id == '6153355601c7a2365b2fb2a1') {
+    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')) {
       this.iconEstado = "done_all"
-    } else if (this.plan.estado_plan_id == '615335c501c7a213a12fb2a3') {
+    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP')) {
       this.iconEstado = "build";
-    } else if (this.plan.estado_plan_id == '65bbf86918f02a27a456d20f') {
+    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP')) {
       this.iconEstado = "spellcheck";
     }
   }
@@ -937,7 +952,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   ajustarData(planRecienCreado: boolean) {
-    if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != '614d3ad301c7a200482fabfd') {
+    if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP')) {
       this.iconEditar = 'search'
     } else if (this.rol == 'JEFE_DEPENDENCIA') {
       this.iconEditar = 'edit'
@@ -1171,7 +1186,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   identificarContratistas() {
-    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan._id + `,tipo_identificacion_id:6184b3e6f6fc97850127bb68`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan._id},tipo_identificacion_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((data: any) => {
       if (data.Data.length == 0) {
         var str1 = 'Identificación de Contratistas ' + this.plan.nombre
         var str2 = 'Identificación de Contratistas ' + this.plan.nombre + ' ' + this.unidad.Nombre
@@ -1180,7 +1195,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           "descripcion": String(str2),
           "plan_id": String(this.plan._id),
           "dato": "{}",
-          "tipo_identificacion_id": "6184b3e6f6fc97850127bb68",
+          "tipo_identificacion_id": this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP'),
           "activo": true
         }
         this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
@@ -1202,7 +1217,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   identificarRecursos() {
-    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan._id + `,tipo_identificacion_id:617b6630f6fc97b776279afa`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan._id},tipo_identificacion_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP')}`).subscribe((data: any) => {
       if (data.Data.length == 0) {
         var str1 = 'Identificación de Recursos ' + this.plan.nombre
         var str2 = 'Identificación de Recursos ' + this.plan.nombre + ' ' + this.unidad.Nombre
@@ -1211,7 +1226,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           "descripcion": String(str2),
           "plan_id": String(this.plan._id),
           "dato": "{}",
-          "tipo_identificacion_id": "617b6630f6fc97b776279afa",
+          "tipo_identificacion_id": this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP'),
           "activo": true
         }
         this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
@@ -1234,7 +1249,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
   identificarDocentes() {
 
-    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan._id + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan._id},tipo_identificacion_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'ID_SP')}`).subscribe((data: any) => {
       if (data.Data.length == 0) {
         var str1 = 'Identificación de Docentes ' + this.plan.nombre
         var str2 = 'Identificación de Docentes ' + this.plan.nombre + ' ' + this.unidad.Nombre
@@ -1243,7 +1258,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           "descripcion": String(str2),
           "plan_id": String(this.plan._id),
           "dato": "{}",
-          "tipo_identificacion_id": "61897518f6fc97091727c3c3",
+          "tipo_identificacion_id": this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'ID_SP'),
           "activo": false
         }
         this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
@@ -1265,7 +1280,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   cargarPlanesDesarrollo() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
       if (data) {
         this.planesDesarrollo = data.Data;
         this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
@@ -1275,7 +1290,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   cargarPlanesIndicativos() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
       if (data) {
         this.planesIndicativos = data.Data;
         this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
@@ -1465,7 +1480,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                 showCancelButton: true
               }).then((result) => {
                 if (result.isConfirmed) {
-                  this.plan.estado_plan_id = "614d3aeb01c7a245952fabff";
+                  this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP');
                   this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
                     if (data) {
                       Swal.fire({
@@ -1568,7 +1583,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = "614d3b0301c7a2a44e2fac01";
+        this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -1618,7 +1633,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = "614d3b1e01c7a265372fac03";
+        this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -1672,7 +1687,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           showCancelButton: true
         }).then((result) => {
           if (result.isConfirmed) {
-            this.plan.estado_plan_id = "65bbf86918f02a27a456d20f";
+            this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
             this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
               if (data) {
                 Swal.fire({
@@ -1776,7 +1791,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = "614d3b4401c7a222052fac05";
+        this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -1832,7 +1847,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                 showConfirmButton: false,
                 timer: 2500
               }).then((result) => {
-                this.plan.estado_plan_id = "6153355601c7a2365b2fb2a1";
+                this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
                 this.busquedaPlanes(this.plan, false);
                 this.loadData();
                 this.addActividad = false;

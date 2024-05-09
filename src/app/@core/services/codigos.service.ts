@@ -9,13 +9,13 @@ import { ConsultaPascalCase } from './ConsultaCodigos/ConsultaPascalCase';
   providedIn: 'root',
 })
 export class CodigosService {
-  private CONSULTAS: {
+  private consultas: {
     [key: string]: { [key: string]: { [key: string]: string } };
   } = {
+    PARAMETROS_SERVICE: {
+      tipo_parametro: { PC: '' },
+    },
     PLANES_CRUD: {
-      'tipo-seguimiento': { F_SP: '' },
-      'tipo-identificacion': { IC_SP: '', IR_SP: '', ID_SP: '' },
-      'tipo-plan': { PR_SP: '', PD_SP: '', PLI_SP: '' },
       'estado-plan': {
         EF_SP: '',
         F_SP: '',
@@ -24,11 +24,23 @@ export class CodigosService {
         PA_SP: '',
         A_SP: '',
         AP_SP: '',
+        APR_SP: '',
         RV_SP: '',
       },
-    },
-    PARAMETROS_SERVICE: {
-      tipo_parametro: { PC: '' },
+      'tipo-identificacion': { IC_SP: '', IR_SP: '', ID_SP: '' },
+      'tipo-plan': {
+        PR_SP: '',
+        PAF_SP: '',
+        PAI_SP: '',
+        PD_SP: '',
+        PLI_SP: '',
+        PUI_SP: '',
+        PRI_SP: '',
+        MPAI_SP: '',
+        PDD_SP: '',
+        API_SP: '',
+      },
+      'tipo-seguimiento': { F_SP: '', S_SP: '', SI_SP: '', FI_SP: '' },
     },
   };
 
@@ -37,12 +49,12 @@ export class CodigosService {
   public async cargarIdentificadores() {
     let promesas: Promise<void>[] = [];
     let consultaTipo: ConsultaIdentificador;
-    const rutas = Object.keys(this.CONSULTAS);
+    const rutas = Object.keys(this.consultas);
     rutas.forEach((ruta) => {
-      const endpoints = Object.keys(this.CONSULTAS[ruta]);
+      const endpoints = Object.keys(this.consultas[ruta]);
       endpoints.forEach((endpoint) => {
-        const abreviaciones = Object.keys(this.CONSULTAS[ruta][endpoint]);
-        abreviaciones.forEach(async (abreviacion) => {
+        const abreviaciones = Object.keys(this.consultas[ruta][endpoint]);
+        abreviaciones.forEach((abreviacion) => {
           if (ruta == 'PLANES_CRUD') {
             consultaTipo = new ConsultaSnakeCase(
               this.request,
@@ -61,14 +73,19 @@ export class CodigosService {
           const promesa = consultaTipo
             .obtenerCodigo()
             .then((codigo: string) => {
-              this.CONSULTAS[ruta][endpoint][abreviacion] = codigo;
+              this.consultas[ruta][endpoint][abreviacion] = codigo;
+              // if (endpoint == 'tipo-plan') {
+              //   console.log(
+              //     `${codigo}\nthis.codigosService.getId('${ruta}', '${endpoint}', '${abreviacion}')`
+              //   );
+              // }
             });
           promesas.push(promesa);
         });
       });
     });
     await Promise.all(promesas);
-    console.log(this.CONSULTAS);
+    console.log(this.consultas);
   }
 
   /**
@@ -79,6 +96,6 @@ export class CodigosService {
    * @returns codigo del objeto
    */
   public getId(ruta: string, endpoint: string, abreviacion: string) {
-    return this.CONSULTAS[ruta][endpoint][abreviacion];
+    return this.consultas[ruta][endpoint][abreviacion];
   }
 }

@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { HabilitarReporteService } from '../habilitar-reporte.service';
 import { DataRequest } from '../../../../@core/models/interfaces/DataRequest.interface';
 import { PROCESO_FUNCIONAMIENTO_FORMULACION, PROCESO_FUNCIONAMIENTO_SEGUIMIENTO, Periodo, PeriodoSeguimiento, PlanInteres, Seguimiento, Unidad, Usuario, Vigencia } from '../utils';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-funcionamiento',
@@ -47,6 +48,7 @@ export class FuncionamientoComponent implements OnInit {
   constructor(
     private request: RequestManager,
     private habilitarReporteService: HabilitarReporteService,
+    private codigosService:CodigosService
   ) {
     this.vigenciaSelected = false;
     this.guardarDisabled = false;
@@ -56,18 +58,20 @@ export class FuncionamientoComponent implements OnInit {
     this.periodoSeguimientoListarUnidades = {} as PeriodoSeguimiento;
   }
 
-  ngOnInit(): void {
+  async ngOnInit(){
     this.user = JSON.parse(atob(localStorage.getItem('user')));
+    await this.codigosService.cargarIdentificadores();
   }
 
   // Función para manejar los cambios en las unidades de interés
   manejarCambiosUnidadesInteres(nuevasUnidades: Unidad[]) {
     this.unidadesInteres = nuevasUnidades;
     if(this.tipo == PROCESO_FUNCIONAMIENTO_FORMULACION) {
-      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = "6260e975ebe1e6498f7404ee";
+      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP");
       this.periodoSeguimientoListarPlan.periodo_id = this.vigencia.Id.toString();
     } else {
-      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = "61f236f525e40c582a0840d0";
+      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')
+;
       this.periodoSeguimientoListarPlan.periodo_id = this.periodos[0].Id.toString();
     }
     this.periodoSeguimientoListarPlan.unidades_interes = JSON.stringify(this.unidadesInteres);
@@ -78,10 +82,11 @@ export class FuncionamientoComponent implements OnInit {
   manejarCambiosPlanesInteres(nuevosPlanes: PlanInteres[]) {
     this.planesInteres = nuevosPlanes;
     if(this.tipo == PROCESO_FUNCIONAMIENTO_FORMULACION) {
-      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = "6260e975ebe1e6498f7404ee";
+      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP");
       this.periodoSeguimientoListarUnidades.periodo_id = this.vigencia.Id.toString();
     } else {
-      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = "61f236f525e40c582a0840d0";
+      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')
+;
       this.periodoSeguimientoListarUnidades.periodo_id = this.periodos[0].Id.toString();
     }
     this.periodoSeguimientoListarUnidades.planes_interes = JSON.stringify(this.planesInteres);
@@ -159,7 +164,7 @@ export class FuncionamientoComponent implements OnInit {
       },
     });
     if (this.tipo === PROCESO_FUNCIONAMIENTO_FORMULACION) {
-      this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: DataRequest) => {
+      this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:${this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP")}`).subscribe((data: DataRequest) => {
         if (data) {
           if (data.Data.length != 0) {
             this.seguimiento = data.Data[0];
@@ -193,7 +198,8 @@ export class FuncionamientoComponent implements OnInit {
     } else if (this.tipo === PROCESO_FUNCIONAMIENTO_SEGUIMIENTO) {
       if (this.periodos && this.periodos.length > 0) {
         for (let i = 0; i < this.periodos.length; i++) {
-          this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id + `,tipo_seguimiento_id:61f236f525e40c582a0840d0`).subscribe((data: DataRequest) => {
+          this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:${this.periodos[i].Id},tipo_seguimiento_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')}
+`).subscribe((data: DataRequest) => {
             if (data.Data.length != 0) {
               let seguimiento: PeriodoSeguimiento = data.Data[0];
               this.periodoSeguimiento = data.Data[0];
@@ -308,7 +314,7 @@ export class FuncionamientoComponent implements OnInit {
     }
 
     if (this.tipo == PROCESO_FUNCIONAMIENTO_FORMULACION) {
-      const tipo_seguimiento_id: string = "6260e975ebe1e6498f7404ee"
+      const tipo_seguimiento_id: string = this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP")
       var periodo_seguimiento_formulacion: PeriodoSeguimiento = {} as PeriodoSeguimiento;
       Swal.fire({
         title: 'Habilitar Fechas',
@@ -339,7 +345,7 @@ export class FuncionamientoComponent implements OnInit {
                   });
                   this.limpiarForm()
                 } else {
-                  
+
                 }
               }, (error) => {
                 Swal.fire({
@@ -401,7 +407,7 @@ export class FuncionamientoComponent implements OnInit {
             });
           }
         }
-      }), 
+      }),
       (error) => {
         Swal.fire({
           title: 'Error en la operación',
@@ -415,7 +421,8 @@ export class FuncionamientoComponent implements OnInit {
   }
 
   actualizarPeriodo(i: number, periodoId: number) {
-    const tipo_seguimiento_id: string = "61f236f525e40c582a0840d0"
+    const tipo_seguimiento_id: string = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')
+
     var periodo_seguimiento_seguimiento: PeriodoSeguimiento = {} as PeriodoSeguimiento;
     let fecha_inicio, fecha_fin;
     if (i === 0) {
@@ -481,7 +488,7 @@ export class FuncionamientoComponent implements OnInit {
     this.filtroSelected = false;
     this.filtroPlan = false;
     this.filtroUnidad = false;
-    
+
     // Limpieza de fechas para proceso de formulacion
     this.formFechas.get('fecha9').setValue('');
     this.formFechas.get('fecha10').setValue('');

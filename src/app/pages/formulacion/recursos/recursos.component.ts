@@ -10,6 +10,7 @@ import { environment } from '../../../../environments/environment';
 import { localeData } from 'moment';
 import { formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from './rubros';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-recursos',
@@ -43,12 +44,13 @@ export class RecursosComponent implements OnInit {
   @Input() versiones: any[];
 
   @Output() acciones = new EventEmitter<any>();
-  constructor(private request: RequestManager,) {
+  constructor(private request: RequestManager,private codigosService: CodigosService) {
   }
 
   rubros: any[];
 
-  ngOnInit(): void {
+  async ngOnInit(){
+    await this.codigosService.cargarIdentificadores();
     this.loadPlan();
     this.loadRubros();
     this.dataSource = new MatTableDataSource<any>();
@@ -133,7 +135,7 @@ export class RecursosComponent implements OnInit {
   }
 
   verificarVersiones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')));
     if (preAval.length != 0) {
       return true;
     } else {
@@ -142,7 +144,7 @@ export class RecursosComponent implements OnInit {
   }
 
   verificarObservaciones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b1e01c7a265372fac03'));
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP')));
     if (preAval.length != 0) {
       return true;
     } else {
@@ -172,7 +174,7 @@ export class RecursosComponent implements OnInit {
 
   loadTabla() {
     if (this.dataTabla) {
-      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/` + this.plan + `/617b6630f6fc97b776279afa`).subscribe((dataG: any) => {
+      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/${this.plan}/${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP')}`).subscribe((dataG: any) => {
         if (dataG.Data != null) {
           this.dataSource.data = dataG.Data
         }
@@ -319,7 +321,7 @@ export class RecursosComponent implements OnInit {
         obj["index"] = num.toString();
       }
       let dataS = JSON.stringify(Object.assign({}, data))
-      this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, this.plan + `/617b6630f6fc97b776279afa`).subscribe((data: any) => {
+      this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, `${this.plan}/${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP')}`).subscribe((data: any) => {
         if (data) {
           Swal.fire({
             title: 'Guardado exitoso',
