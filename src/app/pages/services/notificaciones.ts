@@ -206,6 +206,22 @@ export class Notificaciones {
     return idsColas
   }
 
+  // Convertir un objeto JSON en una cadena de texto con formato personalizado
+  getTextoDeJson(jsonData:any) {
+    return Object.entries(jsonData).map(([key, value]) => `${key}:${value}`).join(",");
+  }
+
+  // Convertir la cadena de texto con formato personalizado en un objeto JSON
+  getJsonDeTexto(texto:string) {
+    const partes = texto.split(',');
+    const objeto = {};
+    partes.forEach(part => {
+      const [key, value] = part.split(':');
+      objeto[key] = value;
+    });
+    return objeto
+  }
+
   // Constuir el body del mensaje(notificación)
   getBodyMensaje(notificacion:any, datosMensaje:any, documentos:string[]) {
     const cod_modulo = datosMensaje.codigo[0]
@@ -235,18 +251,26 @@ export class Notificaciones {
     // Obtener el documento del usuario autenticado
     var docUsuarioAuth: any = this.autenticationService.getDocument();
 
+    // Construir data del sistema (información necesaria para planeacion_cliente)
+    const jsonSistema = {
+      modulo: cod_modulo == "F" ? "formulacion" : "seguimiento",
+      nombre_unidad,
+      nombre_plan,
+      nombre_vigencia,
+    }
+    if (cod_modulo == "S") {
+      jsonSistema["trimestre"] = datosMensaje.trimestre
+    }
+    const dataSistema = this.getTextoDeJson(jsonSistema)
+
     // Cuerpo del mensaje
     const bodyMensaje = {
       ArnTopic: this.arm,
       Asunto: "Sin asunto",
       Atributos: {
-        DocumentosUsuarios: documentos, 
-        EstadoMensaje: "pendiente", 
-        Modulo: cod_modulo == "F" ? "formulacion" : "seguimiento",
-        Unidad: nombre_unidad,
-        Plan: nombre_plan,
-        Vigencia: nombre_vigencia,
-        Trimestre: cod_modulo == "S" ? datosMensaje.trimestre : "N/A"
+        UsuariosDestino: documentos,
+        EstadoMensaje: "pendiente",
+        Data: dataSistema
       },
       DestinatarioId: idsColas,
       IdDeduplicacion: new Date().getTime().toString(),
@@ -268,35 +292,63 @@ export class Notificaciones {
     });
   }
 
-  // Obtener plan por nombre, unidad y vigencia
-  // async getPlan(nombre_plan: string, dependencia_id: string, vigencia_id:string) {
-  //   return await new Promise((resolve, reject) => {
-  //     this.request.get(environment.PLANES_CRUD, `plan?query=nombre:${nombre_plan},dependencia_id:${dependencia_id},vigencia:${vigencia_id},activo:true,formato:false`)
-  //       .subscribe(
-  //         (data: any) => resolve(data),
-  //         (error: any) => reject(error)
-  //       );
-  //   });
-  // }
+  // Obtener id de la unidad por nombre
+  async getIdUnidad(nombre_unidad: string) {
+    const unidad:any = await new Promise((resolve, reject) => {
+      this.request.get(environment.OIKOS_SERVICE, `dependencia?query=Nombre:${nombre_unidad}`)
+        .subscribe(
+          (data: any) => resolve(data),
+          (error: any) => reject(error)
+        );
+    });
+    return unidad[0].Id
+  }
+
+  // Obtener el id de la vigencia por nombre
+  async getIdVigencia(nombre_vigencia: string) {
+    const vigencia:any = await new Promise((resolve, reject) => {
+      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,Nombre:${nombre_vigencia},activo:true`)
+        .subscribe(
+          (data: any) => resolve(data),
+          (error: any) => reject(error)
+        );
+    });
+    return vigencia.Data[0].Id
+  }
+
+  // Obtener id del plan por nombre, unidad y vigencia
+  async getIdPlan(nombre_plan: string, dependencia_id: string, vigencia_id:string) {
+    const plan:any = await new Promise((resolve, reject) => {
+      this.request.get(environment.PLANES_CRUD, `plan?query=nombre:${nombre_plan},dependencia_id:${dependencia_id},vigencia:${vigencia_id},activo:true,formato:false`)
+        .subscribe(
+          (data: any) => resolve(data),
+          (error: any) => reject(error)
+        );
+    });
+    return plan.Data[0]._id
+  }
 
   // Regirigir al modulo (página del componente)
   async redirigir(notificacion: any) {
-    console.log(notificacion);
+    const atributos = notificacion.Body.MessageAttributes
+    const dataSistema:any = this.getJsonDeTexto(atributos.Data.Value)
+
+    console.log(dataSistema);
     
-    // const atributos = notificacion.Body.MessageAttributes
-    // const modulo = atributos.Modulo.Value;
-    // const nombre_plan = atributos.Plan.Value
-    // const nombre_unidad = atributos.Unidad.Value
-    // const nombre_vigencia = atributos.Vigencia.Value
+    const modulo = dataSistema.modulo;
+    const nombre_plan = dataSistema.nombre_plan
+    const id_unidad = await this.getIdUnidad(dataSistema.nombre_unidad)
+    const id_vigencia = await this.getIdVigencia(dataSistema.nombre_vigencia)
     
-    // let url: string;
-    // if (modulo === "formulacion") {
-    //   url = `${dependencia_id}/${nombre_plan}/${vigencia_id}`
-    // } else if (modulo == "seguimiento") {
-    //   const plan:any = await this.getPlan(nombre_plan, dependencia_id, vigencia_id)
-    //   const plan_id = plan.Data[0]._id
-    //   url = `gestion-seguimiento/${plan_id}/${atributos.Trimestre.Value}`
-    // }
-    // setTimeout(() => this.router.navigate([`pages/${modulo}/${url}`]), 50);
+    if (id_vigencia && id_unidad) {
+      let url: string;
+      if (modulo === "formulacion") {
+        url = `${id_unidad}/${nombre_plan}/${id_vigencia}`
+      } else if (modulo == "seguimiento") {
+        const plan_id = await this.getIdPlan(nombre_plan, id_unidad, id_vigencia)
+        url = `gestion-seguimiento/${plan_id}/${dataSistema.trimestre}`
+      }
+      setTimeout(() => this.router.navigate([`pages/${modulo}/${url}`]), 50);
+    }
   }
 }
