@@ -1,19 +1,15 @@
 import { RequestManager } from 'src/app/pages/services/requestManager';
-import { environment } from 'src/environments/environment';
 import { TipoParametro } from '../../models/tipo';
-import { Consulta } from './Consulta';
+import { ConsultaIdentificador } from './ConsultaIdentificador';
 
-
-export class ConsultaParametrosTipo extends Consulta {
+export class ConsultaPascalCase extends ConsultaIdentificador {
   constructor(
     request: RequestManager,
+    path: string,
     endpoint: string,
     private codigoAbreviacion: string
   ) {
-    super(request, endpoint);
-  }
-  obtenerPath(): string {
-    return environment.PARAMETROS_SERVICE;
+    super(request, path, endpoint);
   }
   obtenerFiltros(): string {
     return `CodigoAbreviacion:${this.codigoAbreviacion},Activo:true`;

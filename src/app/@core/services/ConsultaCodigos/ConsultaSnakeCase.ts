@@ -1,18 +1,16 @@
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import { TipoPlanesCRUD } from '../../models/tipo';
-import { Consulta } from './Consulta';
+import { ConsultaIdentificador } from './ConsultaIdentificador';
 
-export class ConsultaPlanes extends Consulta {
+export class ConsultaSnakeCase extends ConsultaIdentificador {
   constructor(
     request: RequestManager,
+    path: string,
     endpoint: string,
     private codigoAbreviacion: string
   ) {
-    super(request, endpoint);
-  }
-  obtenerPath(): string {
-    return environment.PLANES_CRUD;
+    super(request, path, endpoint);
   }
   obtenerFiltros(): string {
     return `codigo_abreviacion:${this.codigoAbreviacion},activo:true`;
