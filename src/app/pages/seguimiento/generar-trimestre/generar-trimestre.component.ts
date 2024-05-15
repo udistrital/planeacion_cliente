@@ -87,6 +87,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   denominadorOriginal: number[] = [];
   calcular: boolean = true;
   abrirDocs: boolean = true;
+  txtObservaciones: string;
+  txtPlaceHolderObservaciones: string;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -128,6 +130,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.formCualitativo = this.formBuilder.group(this.datosCualitativo)
     this.indicadorSelected = false;
     this.mostrarObservaciones = false;
+    this.txtObservaciones = '';
+    this.txtPlaceHolderObservaciones = '';
   }
 
   ngAfterViewInit() {
@@ -207,11 +211,11 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      } else if (this.estadoActividad === 'Actividad reportada' || this.estadoActividad === 'Con observaciones' /*|| this.estadoActividad === 'Actividad Verificada'*/) {
+      } else if (this.estadoActividad === 'Actividad reportada' || this.estadoActividad === 'Con observaciones' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión OAPC');
         this.mostrarObservaciones = true;
-      } else if (this.estadoActividad === 'Actividad avalada') {
+      } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
@@ -223,17 +227,32 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.mostrarObservaciones = false;
       } else if (this.estadoActividad === 'Actividad reportada') {
         this.readonlyFormulario = true;
-        this.readonlyObservacion = true;
-        this.mostrarObservaciones = false;
+        if(this.estadoSeguimiento === 'En revisión JU') {
+          this.readonlyFormulario = true;
+          this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión JU');
+          this.mostrarObservaciones = true;
+        } else {
+          this.readonlyObservacion = true;
+          this.mostrarObservaciones = false;
+        }
       } else if (this.estadoActividad === 'Con observaciones'/* || this.estadoActividad === 'Actividad Verificada'*/) {
-        this.readonlyFormulario = this.estadoSeguimiento != 'Con observaciones';
-        this.readonlyObservacion = true;
-        this.mostrarObservaciones = true;
-      } else if (this.estadoActividad === 'Actividad avalada') {
+        if (this.estadoSeguimiento === 'Con observaciones' || this.estadoSeguimiento === 'Revisión Verificada con Observaciones') {
+          this.readonlyFormulario = false;
+        } else {
+          this.readonlyFormulario = true;
+        }
+        if(this.estadoSeguimiento === 'En revisión JU') {
+          this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión JU');
+          this.mostrarObservaciones = true;
+        } else {
+          this.readonlyObservacion = true;
+          this.mostrarObservaciones = true;
+        }
+      } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-      } 
+      }
     } else if (this.rol == 'ASISTENTE_DEPENDENCIA') {
       if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Habilitado' || this.estadoActividad === 'Sin reporte') {
         this.readonlyFormulario = false;
@@ -244,14 +263,26 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
       } else if (this.estadoActividad === 'Con observaciones'/* || this.estadoActividad === 'Actividad Verificada'*/) {
-        this.readonlyFormulario = this.estadoSeguimiento != 'Con observaciones';
+        if (this.estadoSeguimiento === 'Con observaciones' || this.estadoSeguimiento === 'Revisión Verificada con Observaciones') {
+          this.readonlyFormulario = false;
+        } else {
+          this.readonlyFormulario = true;
+        }
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-      } else if (this.estadoActividad === 'Actividad avalada') {
+      } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
       }
+    }
+
+    if (this.estadoSeguimiento === 'Habilitado' || this.estadoSeguimiento === 'En reporte' || this.estadoSeguimiento === 'Enviado a revisión' || this.estadoSeguimiento === 'En revisión JU' || this.estadoSeguimiento === 'Revisión Verificada' || this.estadoSeguimiento === 'Revisión Verificada con Observaciones') {
+      this.txtObservaciones = 'Observaciones Jefe Dependencia'
+      this.txtPlaceHolderObservaciones = '* Observaciones realizadas por parte del Jefe de Dependencia para el componente cualitativo.'
+    } else if (this.estadoSeguimiento === 'Con observaciones' || this.estadoSeguimiento === 'En revisión OAPC' || this.estadoSeguimiento === 'Reporte Avalado') {
+      this.txtObservaciones = 'Observaciones Oficina Asesora de Planeación y Control'
+      this.txtPlaceHolderObservaciones = '* Observaciones realizadas desde la OAPC a la unidad para el componente cualitativo.'
     }
   }
 
@@ -983,6 +1014,70 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.abrirDocs = true;
   }
 
+  guardarRevisionJefeDependencia() {
+    var mensaje = `¿Desea verificar la actividad?`
+    if (this.veririficarObservaciones()) {
+      mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
+    }
+
+    Swal.fire({
+      title: 'Guardar seguimiento',
+      text: mensaje,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/revision_actividad_jefe_dependencia`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+            if (data.Data.Observación) {
+              Swal.fire({
+                title: 'Información de seguimiento actualizada',
+                text: 'Las observaciones hechas al seguimiento se ha guardado satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
+            } else {
+              Swal.fire({
+                title: 'Información de seguimiento actualizada',
+                text: 'La actividad ha sido verificada satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
+            }
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Generación de seguimiento cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
   guardarRevision() {
     var mensaje = `¿Desea avalar la actividad?`
     if (this.veririficarObservaciones()) {
@@ -1000,7 +1095,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/revision_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
-
             if (data.Data.Observación) {
               Swal.fire({
                 title: 'Información de seguimiento actualizada',
@@ -1073,7 +1167,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   retornarRevision() {
     Swal.fire({
       title: 'Retornar estado',
-      text: `¿Desea retornar la actividad al estado Actividad reportada?`,
+      text: `¿Desea retornar la actividad al estado Actividad Verificada?`,
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
@@ -1081,6 +1175,55 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/retornar_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Información de seguimiento actualizada',
+              text: 'Se ha actualizado el estado de la actividad satisfactoriamente',
+              icon: 'success'
+            }).then(res => {
+              this.loadData();
+            });
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible retornar el estado`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cambio de estado cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  retornarRevisionJefeDependencia() {
+    Swal.fire({
+      title: 'Retornar estado',
+      text: `¿Desea retornar la actividad al estado Actividad reportada?`,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/retornar_actividad_jefe_dependencia`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Información de seguimiento actualizada',

@@ -142,10 +142,9 @@
         </div>
 
         <div class="container-border" *ngIf="mostrarObservaciones">
-          <h4>&nbsp;&nbsp;&nbsp;&nbsp;Observaciones Oficina Asesora de Planeación y
-            Control&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+          <h4>&nbsp;&nbsp;&nbsp;&nbsp;{{txtObservaciones}}&nbsp;&nbsp;&nbsp;&nbsp;</h4>
           <textarea class="textareaContenido" autoresize id="observaciones"
-            placeholder="* Observaciones realizadas desde la OAPC a la unidad para el componente cualitativo."
+            [placeholder]="txtPlaceHolderObservaciones"
             formControlName="observaciones" required [value]="datosCualitativo.observaciones"
             [ngModelOptions]="{standalone: true}" [(ngModel)]="datosCualitativo.observaciones"
             [readonly]="readonlyObservacion"></textarea>
@@ -234,7 +233,7 @@
 
             <ng-container matColumnDef="header-row-observacion">
               <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [attr.rowspan]="2">
-                Observaciones Oficina Asesora de Planeación y Control
+                {{txtObservaciones}}
               </th>
             </ng-container>
 
@@ -406,8 +405,19 @@
       </div>
 
       <br>
+      <div class="align-button-enviar">
+        <mat-form-field appearance="fill" style="position: absolute; display: block; margin-top: 1%;">
+          <mat-label id="Estado">Estado de la actividad</mat-label>
+          <mat-select [disabled]="true" [(value)]="estadoActividad">
+            <mat-option>--</mat-option>
+            <mat-option *ngFor="let estado of estados" [value]="estado.nombre">
+              {{estado.nombre}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
       <div class="align-button-enviar"
-        *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC' && estadoSeguimiento!='Revisión Verificada'">
+        *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC' && estadoSeguimiento!='En revisión JU' &&  estadoSeguimiento!='Revisión Verificada'">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
         <button class="background-button" mat-raised-button color="primary" (click)="guardarSeguimiento()">Guardar
           seguimiento de actividad</button>
@@ -417,68 +427,44 @@
         <button class="background-button" mat-raised-button color="primary" (click)="generarReporte()">Generar
           reporte</button>
       </div>
-      <div class="align-button-enviar" *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && readonlyFormulario">
+      <div class="align-button-enviar" *ngIf="rol=='ASISTENTE_DEPENDENCIA' && readonlyFormulario">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
       </div>
 
       <div class="align-button-enviar"
         *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && (readonlyObservacion || estadoActividad==='Sin reporte' || estadoActividad==='Actividad en reporte' || estadoActividad==='Actividad avalada')">
-        <mat-form-field appearance="fill" style="position: absolute; display: block; margin-top: 1%;">
-          <mat-label id="Estado">Estado de la actividad</mat-label>
-          <mat-select [disabled]="true" [(value)]="estadoActividad" (selectionChange)="onChangeV($event.value)">
-            <mat-option>--</mat-option>
-            <mat-option *ngFor="let estado of estados" [value]="estado.nombre">
-              {{estado.nombre}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
         <button class="background-button" mat-raised-button color="primary"
           *ngIf="estadoActividad==='Actividad avalada'" (click)="retornarRevision()">Retornar a
           revisión</button>
       </div>
 
-      <!--<div class="align-button-enviar"
-        *ngIf="rol=='JEFE_DEPENDENCIA' && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada' )">
-        <mat-form-field appearance="fill" style="position: absolute; display: block; margin-top: 1%;">
-          <mat-label id="Estado">Estado de la actividad</mat-label>
-          <mat-select [disabled]="true" [(value)]="estadoActividad" (selectionChange)="onChangeV($event.value)">
-            <mat-option>--</mat-option>
-            <mat-option *ngFor="let estado of estados" [value]="estado.nombre">
-              {{estado.nombre}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-        <button class="background-button" mat-raised-button color="primary" (click)="verificarActividad()">Verificar actividad</button>
-      </div>-->
+      <div class="align-button-enviar"
+        *ngIf="rol=='JEFE_DEPENDENCIA' && (readonlyObservacion || estadoActividad==='Actividad Verificada')">
+        <button class="background-button" *ngIf="estadoActividad != 'Con observaciones' && estadoSeguimiento!=='En reporte'" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
+        <button class="background-button" mat-raised-button color="primary"
+          *ngIf="estadoActividad==='Actividad Verificada' && estadoSeguimiento==='En revisión JU'" (click)="retornarRevisionJefeDependencia()">Retornar a
+          revisión</button>
+      </div>
 
       <div class="align-button-enviar"
-        *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada' )">
-        <mat-form-field appearance="fill" style="position: absolute; display: block; margin-top: 1%;">
-          <mat-label id="Estado">Estado de la actividad</mat-label>
-          <mat-select [disabled]="true" [(value)]="estadoActividad" (selectionChange)="onChangeV($event.value)">
-            <mat-option>--</mat-option>
-            <mat-option *ngFor="let estado of estados" [value]="estado.nombre">
-              {{estado.nombre}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+        *ngIf="rol=='JEFE_DEPENDENCIA' && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada')">
+        <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
+        <button class="background-button" *ngIf="estadoActividad!=='Actividad Verificada'" mat-raised-button color="primary" (click)="guardarRevisionJefeDependencia()">Guardar
+          revisión de actividad</button>
+      </div>
+
+      <div class="align-button-enviar"
+        *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad Verificada' )">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
         <button class="background-button" mat-raised-button color="primary" (click)="guardarRevision()">Guardar
           revisión de actividad</button> <!--*ngIf="estadoActividad==='Actividad Verificada'"-->
       </div>
 
-      <!--<div class="align-button-enviar"
-        *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Actividad Verificada'">
+      <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Actividad reportada' && estadoSeguimiento=='En reporte'">
         <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-      </div>-->
-
-      <div class="align-button-enviar" *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && estadoActividad==='Observación'">
-        <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-        <button class="background-button" mat-raised-button color="primary" (click)="ajustarReporte()">Reenviar
-          reporte</button>
       </div>
+
     </form>
   </mat-card-content>
 </mat-card>
