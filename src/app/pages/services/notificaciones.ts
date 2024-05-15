@@ -173,9 +173,8 @@ export class Notificaciones {
     });
   }
   
-  //Obtener los usuarios filtrados por dependencia y cargo
+  // Obtener los usuarios filtrados por dependencia y cargo
   async getUsuarios(dependencias: string, idsCargos: string) {
-    idsCargos = "319" // CAMBIAR !!!
     return await new Promise((resolve, reject) => {
       this.request.get(environment.TERCEROS_SERVICE, `vinculacion?query=DependenciaId__in:${dependencias},CargoId__in:${idsCargos}`)
         .subscribe(
@@ -284,7 +283,7 @@ export class Notificaciones {
   // Publicar notificación
   publicarNotificacion(data: any) {
     return new Promise((resolve, reject) => {
-      this.request.post(environment.NOTIFICACION_SERVICE, 'notificaciones/enviar', data)
+      this.request.post(environment.NOTIFICACION_MID_SERVICE, 'notificaciones/enviar', data)
         .subscribe(
           (data: any) => resolve(data),
           (error: any) => reject(error)
@@ -332,8 +331,6 @@ export class Notificaciones {
   async redirigir(notificacion: any) {
     const atributos = notificacion.Body.MessageAttributes
     const dataSistema:any = this.getJsonDeTexto(atributos.Data.Value)
-
-    console.log(dataSistema);
     
     const modulo = dataSistema.modulo;
     const nombre_plan = dataSistema.nombre_plan
