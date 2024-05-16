@@ -7,7 +7,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Usuario } from './utils/gestion-usuarios.models';
-import { ROL_ASISTENTE_DEPENDENCIA, ROL_JEFE_DEPENDENCIA, ROL_JEFE_UNIDAD_PLANEACION, ROL_PLANEACION } from './utils';
+import { ROL_ASISTENTE_DEPENDENCIA, ROL_ASISTENTE_PLANEACION, ROL_JEFE_DEPENDENCIA, ROL_JEFE_UNIDAD_PLANEACION, ROL_PLANEACION } from './utils';
 
 @Component({
   selector: 'app-gestion-usuarios',
@@ -41,7 +41,7 @@ export class GestionUsuariosComponent implements OnInit {
 
   ngOnInit(): void {
     this.displayedColumns = ['Usuario', 'Roles', 'actions'];
-    this.roles = [ROL_PLANEACION, ROL_JEFE_UNIDAD_PLANEACION, ROL_JEFE_DEPENDENCIA, ROL_ASISTENTE_DEPENDENCIA];
+    this.roles = [ROL_PLANEACION, ROL_JEFE_UNIDAD_PLANEACION, ROL_JEFE_DEPENDENCIA, ROL_ASISTENTE_DEPENDENCIA, ROL_ASISTENTE_PLANEACION];
     this.usuarios = [];
     this.banderaTabla = false;
     this.rolSelected = false;
