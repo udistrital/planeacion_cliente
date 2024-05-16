@@ -303,8 +303,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                     }
                     let body = {
                       periodo_id: periodos[i].Id,
-                      tipo_seguimiento_id: this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')
-,
+                      tipo_seguimiento_id: this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP'),
                       planes_interes: JSON.stringify([plan]),
                       unidades_interes: JSON.stringify([unidad]),
                       activo: true
@@ -376,8 +375,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                   } else {
                     let body = {
                       periodo_id: periodos[i].Id,
-                      tipo_seguimiento_id: this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')
-,
+                      tipo_seguimiento_id: this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP'),
                       activo: true,
                     }
                     await new Promise((resolve, reject) => {

@@ -70,8 +70,7 @@ export class FuncionamientoComponent implements OnInit {
       this.periodoSeguimientoListarPlan.tipo_seguimiento_id = this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP");
       this.periodoSeguimientoListarPlan.periodo_id = this.vigencia.Id.toString();
     } else {
-      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')
-;
+      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP');
       this.periodoSeguimientoListarPlan.periodo_id = this.periodos[0].Id.toString();
     }
     this.periodoSeguimientoListarPlan.unidades_interes = JSON.stringify(this.unidadesInteres);
@@ -421,8 +420,6 @@ export class FuncionamientoComponent implements OnInit {
   }
 
   actualizarPeriodo(i: number, periodoId: number) {
-    const tipo_seguimiento_id: string = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')
-
     var periodo_seguimiento_seguimiento: PeriodoSeguimiento = {} as PeriodoSeguimiento;
     let fecha_inicio, fecha_fin;
     if (i === 0) {
@@ -448,7 +445,7 @@ export class FuncionamientoComponent implements OnInit {
     periodo_seguimiento_seguimiento.periodo_id = periodoId.toString();
     periodo_seguimiento_seguimiento.fecha_inicio = fecha_inicio.toISOString();
     periodo_seguimiento_seguimiento.fecha_fin = fecha_fin.toISOString();
-    periodo_seguimiento_seguimiento.tipo_seguimiento_id = tipo_seguimiento_id;
+    periodo_seguimiento_seguimiento.tipo_seguimiento_id = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP');
     periodo_seguimiento_seguimiento.unidades_interes = JSON.stringify(this.unidadesInteres);
     periodo_seguimiento_seguimiento.planes_interes = JSON.stringify(this.planesInteres);
     periodo_seguimiento_seguimiento.usuario_modificacion = this.user.userService.documento ? this.user.userService.documento : '';
