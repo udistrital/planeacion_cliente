@@ -352,7 +352,7 @@ const routes: Routes = [{
     {
       path: 'formulacion/:dependencia_id/:nombre/:vigencia_id/:version',
       component: FormulacionComponent,
-    },
+    }, 
     {
       path: 'pendientes-formulacion',
       component: TablaPendientesFormulacionComponent,

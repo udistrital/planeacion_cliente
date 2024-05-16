@@ -143,12 +143,12 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   getRol() {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';
+    } else if (roles.__zone_symbol__value.find(x => x == 'ASISTENTE_DEPENDENCIA')) {
+      this.rol = 'ASISTENTE_DEPENDENCIA';
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
-    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_UNIDAD_PLANEACION')) {
-      this.rol = 'JEFE_UNIDAD_PLANEACION';
     }
   }
 
@@ -200,7 +200,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   verificarFormulario() {
-    if (this.rol === 'PLANEACION' || this.rol === 'JEFE_UNIDAD_PLANEACION') {
+    if (this.rol === 'PLANEACION') {
       if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Sin reporte') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
@@ -253,7 +253,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           let documentoPorSubir = {
             documento: null,
             evidencia: documentos,
-            unidad: this.rol != 'PLANEACION' && this.rol != 'JEFE_UNIDAD_PLANEACION',
+            unidad: this.rol != 'PLANEACION',
             _id: this.seguimiento.id
           };
 
@@ -330,7 +330,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           let documentoPorSubir = {
             documento: documento,
             evidencia: this.documentos,
-            unidad: this.rol != 'PLANEACION' && this.rol != 'JEFE_UNIDAD_PLANEACION',
+            unidad: this.rol != 'PLANEACION',
             _id: this.seguimiento.id
           };
 
