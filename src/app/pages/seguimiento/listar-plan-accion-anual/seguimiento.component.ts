@@ -59,9 +59,10 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       this.rol = 'JEFE_DEPENDENCIA'
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
-    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_UNIDAD_PLANEACION')) {
-      this.rol = 'JEFE_UNIDAD_PLANEACION';
+    } else if (roles.__zone_symbol__value.find(x => x == 'ASISTENTE_PLANEACION')) {
+      this.rol = 'ASISTENTE_PLANEACION'
     }
+
     this.unidadSelected = false;
     
     this.formFechas = this.formBuilder.group({
@@ -338,7 +339,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                                   Object.keys(this.trimestres.t2).length !== 0 &&
                                   Object.keys(this.trimestres.t3).length !== 0 &&
                                   Object.keys(this.trimestres.t4).length !== 0) {
-                                  if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA') {
+                                  if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION' || this.rol == 'JEFE_DEPENDENCIA') {
                                     await this.evaluarFechasPlan();
                                   }
                                 }
@@ -406,7 +407,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                             Object.keys(this.trimestres.t2).length !== 0 &&
                             Object.keys(this.trimestres.t3).length !== 0 &&
                             Object.keys(this.trimestres.t4).length !== 0) {
-                            if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA') {
+                            if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION' || this.rol == 'JEFE_DEPENDENCIA') {
                               await this.evaluarFechasPlan();
                             }
                           }
@@ -491,7 +492,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.auxEstadosSeguimientos = [];
 
     for (let index = 0; index < this.dataSource.data.length; index++) {
-      if (this.rol != undefined && this.rol == 'PLANEACION') {
+      if (this.rol != undefined && (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION')) {
         Swal.update({
           text: `${index + 1} de ${this.dataSource.data.length}`,
 
@@ -572,7 +573,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     } else {
       this.planesMostrar = this.searchPlanById(plan._id);
       this.dataSource = new MatTableDataSource(this.planesMostrar);
-      if (this.rol != undefined && this.rol == 'PLANEACION') {
+      if (this.rol != undefined && (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION')) {
         await this.getUnidades();
         await this.getEstados();
         await this.getVigencias();
@@ -593,7 +594,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.auxPlanes = [];
     this.plan = undefined;
     if (!(this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined))) {
-      if (this.rol != undefined && this.rol == 'PLANEACION') {
+      if (this.rol != undefined && (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION')) {
         await this.loadPlanes("vigencia");
       } else {
         await this.loadPlanes("unidad");

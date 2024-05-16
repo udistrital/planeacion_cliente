@@ -133,6 +133,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
       await this.loadUnidades();
+    } else if (roles.__zone_symbol__value.find((x) => x == 'ASISTENTE_PLANEACION')) {
+      this.rol = 'ASISTENTE_PLANEACION';
+      await this.loadUnidades();
     } else if (
       roles.__zone_symbol__value.find(
         (x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA'
@@ -140,13 +143,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     ) {
       this.rol = 'JEFE_DEPENDENCIA';
       await this.validarUnidad()
-      // await this.verificarFechas();
-    } else if (
-      roles.__zone_symbol__value.find((x) => x == 'JEFE_UNIDAD_PLANEACION')
-    ) {
-      this.rol = 'JEFE_UNIDAD_PLANEACION';
-      await this.validarUnidad()
-      // await this.verificarFechas();
     }
 
     this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
@@ -772,7 +768,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.hiddenObs = true;
       }
     }
-    if (this.rol == 'PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readOnlyAll = true;
         this.readonlyObs = true;
