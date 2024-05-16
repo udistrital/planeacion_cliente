@@ -3,6 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RequestManager } from '../../services/requestManager';
+import { Notificaciones } from "../../services/notificaciones";
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
@@ -22,6 +23,7 @@ export class SeguimientoComponentGestion implements OnInit {
   planId: string;
   trimestreId: string;
   unidad: any;
+  vigencia: any;
   seguimiento: any;
   formGestionSeguimiento: FormGroup;
   dataActividad: any;
@@ -40,18 +42,12 @@ export class SeguimientoComponentGestion implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private request: RequestManager,
+    private notificacionesService: Notificaciones,
     private autenticationService: ImplicitAutenticationService,
     private router: Router,
     private _location: Location,
     private verificarFormulario: VerificarFormulario
-  ) {
-    activatedRoute.params.subscribe(prm => {
-      this.planId = prm['plan_id'];
-      this.trimestreId = prm['trimestre'];
-    });
-    this.dataSource = new MatTableDataSource<any>();
-    this.loadDataSeguimiento();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.formGestionSeguimiento = this.formBuilder.group({
@@ -65,6 +61,12 @@ export class SeguimientoComponentGestion implements OnInit {
       tarea: ['', Validators.required],
     });
     this.getRol();
+    this.activatedRoute.params.subscribe(prm => {
+      this.planId = prm['plan_id'];
+      this.trimestreId = prm['trimestre'];
+      this.loadDataSeguimiento();
+    });
+    this.dataSource = new MatTableDataSource<any>();
   }
 
   ngAfterViewInit() {
@@ -128,6 +130,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.seguimiento = data.Data;
         this.estado = this.seguimiento.estado_seguimiento_id.nombre;
         await this.loadUnidad(this.seguimiento.plan_id.dependencia_id);
+        this.loadVigencia(this.seguimiento.plan_id.vigencia)
       }
     }, (error) => {
       Swal.fire({
@@ -138,6 +141,17 @@ export class SeguimientoComponentGestion implements OnInit {
         timer: 2500
       })
     })
+  }
+
+  loadVigencia(vigencia_id) {
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,Id:${vigencia_id},activo:true`)
+      .subscribe(
+        (data: any) => {
+          if (data) {
+            this.vigencia = data.Data[0];
+          }
+        }, (error) => {}
+      )
   }
 
   loadUnidad(dependencia_id) {
@@ -188,6 +202,18 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
+  enviarNotificacion(itemMensaje:string){
+    let datos = {
+      codigo: itemMensaje,
+      id_unidad: this.unidad.Id,
+      nombre_unidad: this.unidad.Nombre,
+      nombre_plan: this.seguimiento.plan_id.nombre,
+      nombre_vigencia: this.vigencia,
+      trimestre: this.trimestreId
+    }
+    this.notificacionesService.enviarNotificacion(datos)
+  }
+
   reportar() {
     Swal.fire({
       title: 'Enviar Reporte',
@@ -201,6 +227,13 @@ export class SeguimientoComponentGestion implements OnInit {
         this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
+              if (this.estado == 'Con observaciones') {
+                //NOTIFICACION(SF)
+                this.enviarNotificacion("SF")
+              } else {
+                //NOTIFICACION(SB)
+                this.enviarNotificacion("SB")
+              }
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
@@ -270,6 +303,14 @@ export class SeguimientoComponentGestion implements OnInit {
         this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
+              this.loadDataSeguimiento();
+              if (this.estado == 'Con observaciones') {
+                //NOTIFICACION(SE2)
+                this.enviarNotificacion("SE2")
+              } else {
+                //NOTIFICACION(SE1)
+                this.enviarNotificacion("SE1")
+              }
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
