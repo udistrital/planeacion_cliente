@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 import { PeriodoSeguimiento } from '../habilitar-reporte/utils/habilitar-reporte.models';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 export interface Planes {
   _id: string
   activo: string
@@ -49,7 +50,7 @@ export class ListarPlanComponent implements OnInit {
   banderaTodosSeleccionados: boolean;
   planesMostrar: Planes[];
   textBotonMostrarData: string = 'Mostrar Planes Interés Habilitados/Reporte';
-  
+
   @Input() periodoSeguimiento: PeriodoSeguimiento;
   @Input() filtroPlan: boolean;
   @Input() banderaPlanesAccionFuncionamiento: boolean;
@@ -61,6 +62,7 @@ export class ListarPlanComponent implements OnInit {
     public dialog: MatDialog,
     private request: RequestManager,
     private router: Router,
+    private codigosService: CodigosService
   ) {
     this.banderaTodosSeleccionados = false;
     this.planesInteres = [];
@@ -68,7 +70,7 @@ export class ListarPlanComponent implements OnInit {
     this.banderaPlanesAccionFuncionamiento = false;
   }
 
-  ngOnInit(): void {
+  async ngOnInit(){
     this.planesMostrar = [];
     if(this.banderaPlanesAccionFuncionamiento === true){
       if(this.filtroPlan === true){
@@ -79,6 +81,7 @@ export class ListarPlanComponent implements OnInit {
     } else {
       this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
     }
+    await this.codigosService.cargarIdentificadores();
     this.loadData();
   }
 
@@ -299,9 +302,9 @@ export class ListarPlanComponent implements OnInit {
   inactivar(fila): void {
     this.uid = fila._id;
     if (fila.activo == 'Activo') {
-      if (fila.tipo_plan_id != '611af8464a34b3599e3799a2') {
+      if (fila.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
         this.deleteData();
-      } else if (fila.tipo_plan_id == '611af8464a34b3599e3799a2') {
+      } else if (fila.tipo_plan_id == this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
         let res = {
           activo: false,
         }
@@ -396,20 +399,20 @@ export class ListarPlanComponent implements OnInit {
               for (const element of periodoSeguimiento) {
                 element.planes_interes = JSON.parse(element.planes_interes);
                 let planesFiltrados = this.planes.filter(plan => element.planes_interes.some(planInteres => planInteres._id === plan._id));
-                
+
                 for (const planFiltrado of planesFiltrados) {
                   planFiltrado.fecha_modificacion = this.formatearFecha(element.fecha_modificacion);
                   planFiltrado.fecha_inicial = this.formatearFecha(element.fecha_inicio);
                   planFiltrado.fecha_final = this.formatearFecha(element.fecha_fin);
-            
+
                   if (element.usuario_modificacion) {
                     planFiltrado.usuario_modificacion = await this.validarNombreUsuario(element.usuario_modificacion);
                   }
                 }
-                
+
                 planesMostrar = planesMostrar.concat(planesFiltrados);
               }
-  
+
               planesMostrar = [...new Set(planesMostrar)];
               this.planesMostrar = planesMostrar;
               this.dataSource = new MatTableDataSource(this.planesMostrar);

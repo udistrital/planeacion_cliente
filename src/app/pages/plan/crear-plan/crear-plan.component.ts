@@ -8,6 +8,7 @@ import { environment } from '../../../../environments/environment'
 import Swal from 'sweetalert2';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { VisualizarDocumentoDialogComponent } from '../../seguimiento/generar-trimestre/visualizar-documento-dialog/visualizar-documento-dialog.component';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-crear-plan',
@@ -32,7 +33,8 @@ export class CrearPlanComponent implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private diagog: MatDialog,
-    private dialogRef: MatDialogRef<CrearPlanComponent>
+    private dialogRef: MatDialogRef<CrearPlanComponent>,
+    private codigosService: CodigosService
   ) {
     this.loadTipos();
 
@@ -126,7 +128,7 @@ export class CrearPlanComponent implements OnInit {
 
   select(tipo) {
     this.tipoPlan = tipo;
-    if (tipo._id !== "611af8464a34b3599e3799a2" && tipo._id !== "623cb06616511e41ef5d798c") { // diferente de proyecto
+    if (tipo._id !== this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP') && tipo._id !== this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PUI_SP')) { // diferente de proyecto
       this.nombrePlan = tipo.nombre;
       this.banderaFormato = true;
       this.formCrearPlan.get('radioFormato').enable();
@@ -270,7 +272,8 @@ export class CrearPlanComponent implements OnInit {
   }
 
 
-  ngOnInit(): void {
+  async ngOnInit(){
+    await this.codigosService.cargarIdentificadores();
     this.formCrearPlan = this.formBuilder.group({
       nombre: ['', Validators.required],
       desc: ['', Validators.required],

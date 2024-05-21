@@ -6,6 +6,7 @@ import { DataRequest } from '../../../../@core/models/interfaces/DataRequest.int
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { HabilitarReporteService } from '../habilitar-reporte.service';
 import { Periodo, PeriodoSeguimiento, PlanInteres, PROCESO_INVERSION_FORMULACION, PROCESO_INVERSION_SEGUIMIENTO, Unidad, Usuario, Vigencia } from '../utils';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-inversion',
@@ -43,6 +44,7 @@ export class InversionComponent implements OnInit {
   constructor(
     private request: RequestManager,
     private habilitarReporteService: HabilitarReporteService,
+    private codigosService: CodigosService
   ) {
     this.filtroSelected = false;
     this.vigenciaSelected = false;
@@ -52,17 +54,18 @@ export class InversionComponent implements OnInit {
     this.periodoSeguimientoListarUnidades = {} as PeriodoSeguimiento;
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.user = JSON.parse(atob(localStorage.getItem('user')));
+    await this.codigosService.cargarIdentificadores();
   }
 
   manejarCambiosUnidadesInteres(nuevasUnidades: Unidad[]) {
     this.unidadesInteres = nuevasUnidades;
     if(this.tipo == PROCESO_INVERSION_FORMULACION) {
-      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = "6389efac6a0d190ffb883f71";
+      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'FI_SP');
       this.periodoSeguimientoListarPlan.periodo_id = this.vigencia.Id.toString();
     } else {
-      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = "6385fa136a0d19d7888837ed";
+      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'SI_SP');
       this.periodoSeguimientoListarPlan.periodo_id = this.periodos[0].Id.toString();
     }
     this.periodoSeguimientoListarPlan.unidades_interes = JSON.stringify(this.unidadesInteres);
@@ -73,10 +76,10 @@ export class InversionComponent implements OnInit {
   manejarCambiosPlanesInteres(nuevosPlanes: PlanInteres[]) {
     this.planesInteres = nuevosPlanes;
     if(this.tipo == PROCESO_INVERSION_FORMULACION) {
-      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = "6389efac6a0d190ffb883f71";
+      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'FI_SP');
       this.periodoSeguimientoListarUnidades.periodo_id = this.vigencia.Id.toString();
     } else {
-      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = "6385fa136a0d19d7888837ed";
+      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'SI_SP');
       this.periodoSeguimientoListarUnidades.periodo_id = this.periodos[0].Id.toString();
     }
     this.periodoSeguimientoListarUnidades.planes_interes = JSON.stringify(this.planesInteres);
@@ -156,7 +159,7 @@ export class InversionComponent implements OnInit {
           timer: 2500,
         });
       }
-      this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,tipo_seguimiento_id:6389efac6a0d190ffb883f71`).subscribe((data: DataRequest) => {
+      this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,tipo_seguimiento_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'FI_SP')}`).subscribe((data: DataRequest) => {
         if (data) {
           if (data.Data.length != 0) {
             let formulacionSeguimiento: PeriodoSeguimiento = data.Data[0];
@@ -182,7 +185,7 @@ export class InversionComponent implements OnInit {
       if (this.periodos && this.periodos.length > 0) {
         this.readUnidades();
         for (let i = 0; i < this.periodos.length; i++) {
-          this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: DataRequest) => {
+          this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:${this.periodos[i].Id},tipo_seguimiento_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'SI_SP')}`).subscribe((data: DataRequest) => {
             if (data.Data.length != 0) {
               let seguimiento: PeriodoSeguimiento = data.Data[0];
               let fechaInicio = new Date(seguimiento.fecha_inicio);
@@ -275,7 +278,7 @@ export class InversionComponent implements OnInit {
   }
 
   readUnidadesForm() {
-    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[0].Id + `,tipo_seguimiento_id:6389efac6a0d190ffb883f71`).subscribe((data: DataRequest) => {
+    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:${this.periodos[0].Id},tipo_seguimiento_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'FI_SP')}`).subscribe((data: DataRequest) => {
       if (data) {
         if (data.Data.length != 0) {
           this.unidadesInteres = JSON.parse(data.Data[0].unidades_interes);
@@ -298,7 +301,7 @@ export class InversionComponent implements OnInit {
   }
 
   readUnidades() {
-    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[0].Id + `,tipo_seguimiento_id:6385fa136a0d19d7888837ed`).subscribe((data: DataRequest) => {
+    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:${this.periodos[0].Id},tipo_seguimiento_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'SI_SP')}`).subscribe((data: DataRequest) => {
       if (data) {
         if (data.Data.length != 0) {
           this.unidadesInteres = JSON.parse(data.Data[0].unidades_interes);
@@ -344,9 +347,9 @@ export class InversionComponent implements OnInit {
     }
 
     if (this.tipo == PROCESO_INVERSION_FORMULACION) {
-      const tipo_seguimiento_id: string = "6389efac6a0d190ffb883f71";
+      const tipo_seguimiento_id: string = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'FI_SP');
       var periodo_seguimiento_inversion: PeriodoSeguimiento = {} as PeriodoSeguimiento; // Declara el objeto periodo_seguimiento_inversion
-      
+
       Swal.fire({
         title: 'Habilitar Fechas',
         text: `¿Desea habilitar la formulación de planes para la vigencia ` + this.vigencia.Nombre + ` ?`,
@@ -364,7 +367,7 @@ export class InversionComponent implements OnInit {
             periodo_seguimiento_inversion.planes_interes = JSON.stringify(this.planesInteres);
             periodo_seguimiento_inversion.usuario_modificacion = this.user.userService.documento ? this.user.userService.documento : '';
             periodo_seguimiento_inversion.activo = true;
-    
+
             this.request.post(environment.PLANES_MID, 'formulacion/habilitar_fechas_funcionamiento', periodo_seguimiento_inversion).subscribe((data: DataRequest) => {
               if (data) {
                 Swal.fire({
@@ -456,7 +459,7 @@ export class InversionComponent implements OnInit {
   }
 
   actualizarPeriodo(i: number, periodoId: number) {
-    const tipo_seguimiento_id: string = "6385fa136a0d19d7888837ed"
+    const tipo_seguimiento_id: string = this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'SI_SP')
     var periodo_seguimiento_seguimiento: PeriodoSeguimiento = {} as PeriodoSeguimiento;
     let fecha_inicio: any;
     let fecha_fin: any;
