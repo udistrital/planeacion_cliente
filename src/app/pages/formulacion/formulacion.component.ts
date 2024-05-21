@@ -52,7 +52,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   banderaIdentDocentes: boolean;
   banderaUltimaVersion: boolean;
   banderaEstadoDatos: boolean;
-  planEnArray: boolean;
   tipoPlanId: string;
   idPadre: string;
   tipoPlanIndicativo: string;
@@ -207,7 +206,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     }
   }
 
-  async verificarFechas(plan: any) {
+  async verificarFechas(plan: any, bandera:boolean) {
     Swal.fire({
       title: 'Validando fechas de formulación para plan seleccionado...',
       allowEscapeKey: false,
@@ -216,7 +215,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         Swal.showLoading();
       }
     });
-    if(!this.planEnArray){
+    if(!bandera){
       this.moduloVisible = true;
       Swal.close()
     } else {
@@ -412,7 +411,14 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     return await new Promise((resolve,reject)=>{
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,dependencia_id:${this.unidad.Id},formato:false,vigencia:${this.vigencia.Id}`).subscribe(async (data: any) => {
         if ( data?.Data.length > 0 ) {
-          this.planes = data.Data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
+          let planes  = data.Data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
+          let planesSinRepetir = []
+          planes.forEach(plan => {
+            if (!this.existePlan(planesSinRepetir, plan.nombre)){
+              planesSinRepetir = [...planesSinRepetir, plan]
+            }
+          });
+          this.planes = planesSinRepetir;
         }
         await this.loadPlanesPeriodoSeguimiento();
         resolve(this.planes)
@@ -430,6 +436,10 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     })
   }
 
+  existePlan(arreglo: any[], nombre:string) :boolean {
+    return arreglo.some((plan) => plan.nombre === nombre);
+  }
+
   async loadPlanesPeriodoSeguimiento(){
     var unidad_interes = {
       "Id": this.unidad.Id,
@@ -444,36 +454,45 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.request
         .post(environment.PLANES_CRUD,`periodo-seguimiento/buscar-unidad-planes/3`,periodo_seguimiento)
         .subscribe((data: DataRequest) => {
-          if (data && data.Data) {
-            if(data.Data.length != 0){
-              data.Data.forEach((elemento) => {
-                if (elemento.planes_interes) {
-                  if (typeof elemento.planes_interes === 'string') {
-                    try {
-                      var planesInteresArray = JSON.parse(
-                        elemento.planes_interes
-                      );
-                      this.planesInteresArray = [...this.planesInteresArray, ...planesInteresArray];
-                      this.planes = [...this.planes, ...planesInteresArray];
-                      Swal.close();
-                      resolve(this.planes);
-                    } catch (error) {
-                      console.error(
-                        'Error al analizar JSON en planes_interes:',
-                        error
-                      );
-                      reject(error);
+          if (data?.Data?.length != 0) {
+            data.Data.forEach((elemento) => {
+              if (
+                elemento.planes_interes &&
+                typeof elemento.planes_interes === 'string'
+              ) {
+                try {
+                  const planesInteresArray = JSON.parse(elemento.planes_interes);
+                  // Recorre los planes en Interes y solo agrega los que no existian
+                  planesInteresArray.forEach((plan) => {
+                    if (
+                      !this.existePlan(this.planesInteresArray, plan.nombre)
+                    ) {
+                      this.planesInteresArray = [
+                        ...this.planesInteresArray,
+                        plan,
+                      ];
                     }
-                  } else {
-                    console.error(
-                      'El elemento no tiene una cadena JSON en planes_interes:',
-                      elemento
-                    );
-                    reject();
-                  }
+                    if (!this.existePlan(this.planes, plan.nombre)) {
+                      this.planes = [...this.planes, plan];
+                    }
+                  });
+                  Swal.close();
+                  resolve(this.planes);
+                } catch (error) {
+                  console.error(
+                    'Error al analizar JSON en planes_interes:',
+                    error
+                  );
+                  reject(error);
                 }
-              });
-            }
+              } else {
+                console.error(
+                  'El elemento no tiene una cadena JSON en planes_interes:',
+                  elemento
+                );
+                reject();
+              }
+            });
           }
           Swal.close();
           if (this.planes.length == 0) {
@@ -648,7 +667,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.iconEstado = '';
       this.versionPlan = '';
       if (this.vigenciaSelected && this.planSelected) {
-        await this.busquedaPlanes(this.planAux, false);
+        await this.busquedaPlanes(this.planAux);
       }
     }
   }
@@ -679,7 +698,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.planAsignado = false;
       this.dataT = false;
       if (this.unidadSelected && this.planSelected) {
-        await this.busquedaPlanes(this.planAux, false);
+        await this.busquedaPlanes(this.planAux);
       }
     }
   }
@@ -701,9 +720,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.planAsignado = false;
       this.dataT = false;
       this.isChecked = true;
-      this.planEnArray = this.planesInteresArray.some(item => item._id === plan._id);
-      await this.verificarFechas(plan);
-      await this.busquedaPlanes(plan, this.planEnArray);
+      let planEnArrayDePlantillas = this.existePlan(this.planesInteresArray, plan.nombre);
+      await this.verificarFechas(plan, planEnArrayDePlantillas);
+      await this.busquedaPlanes(plan, planEnArrayDePlantillas);
     }
   }
 
@@ -867,7 +886,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     )
   }
 
-  async busquedaPlanes(planB, bandera: boolean) {
+  async busquedaPlanes(planB, bandera: boolean = false) {
     try {
       // Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
       await this.cargaFormato(planB, bandera);
@@ -1036,10 +1055,10 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     } else {
       await this.cleanBeforeLoad();
       if (this.planesDesarrollo == undefined) {
-        this.cargarPlanesDesarrollo();
+        await this.cargarPlanesDesarrollo();
       }
       if (this.planesIndicativos == undefined) {
-        this.cargarPlanesIndicativos();
+        await this.cargarPlanesIndicativos();
       }
       this.addActividad = true;
       this.banderaEdit = true;
@@ -1259,23 +1278,28 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   cargarPlanesDesarrollo() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
-      if (data) {
-        this.planesDesarrollo = data.Data;
-        this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
-        this.onChangePD(this.planesDesarrollo[0]);
-      }
+    return new Promise((resolve)=>{
+      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
+        if (data) {
+          this.planesDesarrollo = data.Data;
+          this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
+          this.onChangePD(this.planesDesarrollo[0]);
+          resolve(this.planesDesarrollo);
+        }
+      })
     })
   }
 
   cargarPlanesIndicativos() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b`).subscribe((data: any) => {
-      if (data) {
-        this.planesIndicativos = data.Data;
-        this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
-        this.onChangePI(this.planesIndicativos[0]);
-
-      }
+    return new Promise((resolve)=>{
+      this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b`).subscribe((data: any) => {
+        if (data) {
+          this.planesIndicativos = data.Data;
+          this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
+          this.onChangePI(this.planesIndicativos[0]);
+          resolve(this.planesIndicativos);
+        }
+      })
     })
   }
 
@@ -1482,7 +1506,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                         icon: 'success',
                       }).then((result) => {
                         if (result.value) {
-                          this.busquedaPlanes(data.Data, false);
+                          this.busquedaPlanes(data.Data);
                           this.loadData();
                           this.addActividad = false;
                         }
@@ -1587,7 +1611,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.busquedaPlanes(data.Data, false);
+                this.busquedaPlanes(data.Data);
                 this.loadData();
                 this.addActividad = false;
               }
@@ -1639,7 +1663,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.busquedaPlanes(data.Data, false);
+                this.busquedaPlanes(data.Data);
                 this.loadData();
                 this.addActividad = false;
               }
@@ -1693,7 +1717,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                   icon: 'success',
                 }).then((result) => {
                   if (result.value) {
-                    this.busquedaPlanes(data.Data, false);
+                    this.busquedaPlanes(data.Data);
                     this.loadData();
                     this.addActividad = false;
                   }
@@ -1739,27 +1763,23 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
-          if (data) {
-            this.getVersiones(data.Data);
-            Swal.fire({
-              title: 'Nueva Versión',
-              text: 'Nueva versión del plan creada, ya puede realizar los ajustes al plan.',
-              icon: 'success',
-            }).then(async (result) => {
-              if (result.value) {
-                await this.cleanBeforeLoad();
-              }
-            })
-          } else {
-            Swal.fire({
-              title: 'Error al versionar el plan. Por favor intente de nuevo',
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-            })
-          }
-        })
+        if(this.plan.estado_plan_id == "614d3b4401c7a222052fac05"){
+          this.request.put(environment.PLANES_CRUD, `plan`, {...this.plan, estado_plan_id: "615335c501c7a213a12fb2a3"},this.plan._id).subscribe((data:any)=>{
+            if(data){
+              this.crearNuevaVersion();
+            } else {
+              Swal.fire({
+                title: 'Error al modificar el plan actual. Por favor intente de nuevo',
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
+          })
+        } else {
+          this.crearNuevaVersion();
+        }
+
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Envio de Ajustes Cancelado',
@@ -1776,6 +1796,30 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         showConfirmButton: false,
         timer: 2500
       })
+    })
+  }
+
+  crearNuevaVersion(){
+    this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
+      if (data) {
+        this.getVersiones(data.Data);
+        Swal.fire({
+          title: 'Nueva Versión',
+          text: 'Nueva versión del plan creada, ya puede realizar los ajustes al plan.',
+          icon: 'success',
+        }).then(async (result) => {
+          if (result.value) {
+            await this.cleanBeforeLoad();
+          }
+        })
+      } else {
+        Swal.fire({
+          title: 'Error al versionar el plan. Por favor intente de nuevo',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
     })
   }
 
@@ -1799,7 +1843,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               icon: 'success',
             }).then((result) => {
               if (result.value) {
-                this.busquedaPlanes(data.Data, false);
+                this.busquedaPlanes(data.Data);
                 this.loadData();
                 this.addActividad = false;
               }
@@ -1850,7 +1894,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                 timer: 2500
               }).then((result) => {
                 this.plan.estado_plan_id = "6153355601c7a2365b2fb2a1";
-                this.busquedaPlanes(this.plan, false);
+                this.busquedaPlanes(this.plan);
                 this.loadData();
                 this.addActividad = false;
               })
