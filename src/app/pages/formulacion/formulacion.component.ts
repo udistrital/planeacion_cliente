@@ -430,13 +430,12 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,dependencia_id:${this.unidad.Id},formato:false,vigencia:${this.vigencia.Id}`).subscribe(async (data: any) => {
         if ( data?.Data.length > 0 ) {
           let planes  = data.Data.filter(e => e.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP'));
-          let planesSinRepetir = []
+          this.planes = []
           planes.forEach(plan => {
-            if (!this.existePlan(planesSinRepetir, plan.nombre)){
-              planesSinRepetir = [...planesSinRepetir, plan]
+            if (!this.existePlan(this.planes, plan.nombre)){
+              this.planes = [...this.planes, plan]
             }
           });
-          this.planes = planesSinRepetir;
         }
         await this.loadPlanesPeriodoSeguimiento();
         resolve(this.planes)
@@ -472,8 +471,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.request
         .post(environment.PLANES_CRUD,`periodo-seguimiento/buscar-unidad-planes/3`,periodo_seguimiento)
         .subscribe((data: DataRequest) => {
+          this.planesInteresArray = [];
           if (data?.Data?.length != 0) {
-            data.Data.forEach((elemento) => {
+            for (const elemento of data.Data) {
               if (
                 elemento.planes_interes &&
                 typeof elemento.planes_interes === 'string'
@@ -489,13 +489,11 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                         ...this.planesInteresArray,
                         plan,
                       ];
-                    }
-                    if (!this.existePlan(this.planes, plan.nombre)) {
-                      this.planes = [...this.planes, plan];
+                      if(this.existePlan(this.planes, plan.nombre)){
+                        this.planes = this.planes.filter((p)=> p.nombre !== plan.nombre)
+                      }
                     }
                   });
-                  Swal.close();
-                  resolve(this.planes);
                 } catch (error) {
                   console.error(
                     'Error al analizar JSON en planes_interes:',
@@ -510,8 +508,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                 );
                 reject();
               }
-            });
+            };
           }
+          this.planes = [...this.planes, ...this.planesInteresArray]
           Swal.close();
           if (this.planes.length == 0) {
             Swal.fire({
@@ -527,6 +526,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               timer: 7000,
             });
           }
+          resolve(this.planes);
         });
     });
   }
@@ -1363,8 +1363,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     let datos = {
       codigo: itemMensaje,
       id_unidad: this.unidad.Id,
-      nombre_unidad: this.unidad.Nombre, 
-      nombre_plan:this.plan.nombre, 
+      nombre_unidad: this.unidad.Nombre,
+      nombre_plan:this.plan.nombre,
       nombre_vigencia: this.vigencia.Nombre
     }
     this.notificacionesService.enviarNotificacion(datos)
