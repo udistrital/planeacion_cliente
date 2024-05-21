@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ControlContainer, FormBuilder, FormGroup } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 
@@ -19,7 +20,7 @@ export interface Fuentes {
   iconSelected: string;
 }
 
-export interface PDD {  
+export interface PDD {
   niveles: string;
   iconSelected: string;
 }
@@ -82,19 +83,19 @@ export class FormulacionPlanInversionComponent implements OnInit {
   displayedProyects: string[] = ['codigo', 'nombre', 'actions'];
   displayedPDD: string[] = ['niveles', 'actions'];
   displayedPED: string[] = ['index','nombre', 'actions'];
-  displayedPI: string[] = ['index','nombre', 'actions']; 
+  displayedPI: string[] = ['index','nombre', 'actions'];
   dataProyectos: any;
-  dataProyects = new MatTableDataSource<Fuentes>(INFO);  
+  dataProyects = new MatTableDataSource<Fuentes>(INFO);
   dataPlanDD: any;
-  dataPDD = new MatTableDataSource<PDD>(NIVELES); 
+  dataPDD = new MatTableDataSource<PDD>(NIVELES);
   dataPlanED: any;
-  dataPED = new MatTableDataSource<PED>(PLANI); 
+  dataPED = new MatTableDataSource<PED>(PLANI);
   dataPlanI: any;
-  dataPI = new MatTableDataSource<PLIN>(PI); 
+  dataPI = new MatTableDataSource<PLIN>(PI);
   dataMetasP: any;
-  dataMetas = new MatTableDataSource<Metas>(TABLA); 
+  dataMetas = new MatTableDataSource<Metas>(TABLA);
   unidadesInteres: any;
-  id_formato: string;  
+  id_formato: string;
   newPlanId: string;
   totalPresupuesto: any;
   idPlanIndicativo: string;
@@ -117,7 +118,7 @@ export class FormulacionPlanInversionComponent implements OnInit {
   dataArmonizacionPI: string[] = [];
   dataArmonizacionPDD: string[] = [];
   formArmonizacion: FormGroup;
-  
+
 
 
   constructor(
@@ -125,27 +126,29 @@ export class FormulacionPlanInversionComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private request: RequestManager,
-  ) { 
+    private codigosService:CodigosService
+  ) {
     activatedRoute.params.subscribe(prm => {
 
       this.id_formato = prm['id_formato'];
       this.newPlanId = prm['this.newPlanId'];
-      
-    }); 
+
+    });
     this.cargarPlanesDesarrolloDistrital();
     this.cargarProyectosInversion();
     this.cargarPlanesDesarrollo();
-    this.cargarPlanesIndicativos();   
+    this.cargarPlanesIndicativos();
   }
 
-  ngOnInit(): void {
+  async ngOnInit(){
+    await this.codigosService.cargarIdentificadores();
     this.formArmonizacion = this.formBuilder.group({
       selectPDD: ['',],
       selectPED: ['',],
       selectPI: ['',],
       selectPrIn: ['',]
     });
-    this.getTotalPresupuesto();    
+    this.getTotalPresupuesto();
   }
 
   onChange(value) {
@@ -181,7 +184,7 @@ export class FormulacionPlanInversionComponent implements OnInit {
     //console.log(this.id_formato);
     this.router.navigate(['/pages/proyectos-macro/tipo-meta-indicador/' + this.id_formato + '/' + this.idProyectoInversion + '/' + this.newPlanId]);
     // if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true){
-    //   console.log("entró al if");      
+    //   console.log("entró al if");
     //   this.router.navigate(['/pages/proyectos-macro/formulacion-plan-inversion']);
     // }else{
     //   Swal.fire({
@@ -192,15 +195,15 @@ export class FormulacionPlanInversionComponent implements OnInit {
     //   })
     // };
   }
-  getTotalPresupuesto() {    
+  getTotalPresupuesto() {
     return this.totalPresupuesto = TABLA.map(t => t.Presupuesto).reduce((acc, value) => acc + value, 0);
-    
+
   }
   programarMagnitudes() {
-    this.router.navigate(['/pages/proyectos-macro/magnitudes-presupuesto']);    
+    this.router.navigate(['/pages/proyectos-macro/magnitudes-presupuesto']);
   }
   programarIdentificacion() {
-    this.router.navigate(['/pages/proyectos-macro/identificacion-actividades-recursos']);    
+    this.router.navigate(['/pages/proyectos-macro/identificacion-actividades-recursos']);
   }
 
   onChangePDD(planDD) {
@@ -255,7 +258,7 @@ export class FormulacionPlanInversionComponent implements OnInit {
   }
 
   cargarPlanesDesarrolloDistrital() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:63e23832ccee49220d83f5d0`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PDD_SP')}`).subscribe((data: any) => {
       if (data) {
         this.planesDesarrolloDistrital = data.Data;
         //this.formArmonizacion.get('selectPDD').setValue(this.planesDesarrolloDistrital[0])
@@ -264,7 +267,7 @@ export class FormulacionPlanInversionComponent implements OnInit {
     })
   }
   cargarPlanesDesarrollo() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
       if (data) {
         this.planesDesarrollo = data.Data;
         //this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
@@ -272,9 +275,9 @@ export class FormulacionPlanInversionComponent implements OnInit {
       }
     })
   }
-  
+
   cargarProyectosInversion() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:63ca86f1b6c0e5725a977dae`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PRI_SP')}`).subscribe((data: any) => {
       if (data) {
         this.proyectosInversion = data.Data;
         console.log(this.proyectosInversion)
@@ -285,7 +288,7 @@ export class FormulacionPlanInversionComponent implements OnInit {
     })
   }
   cargarPlanesIndicativos() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
       if (data) {
         this.planesIndicativos = data.Data;
         //this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
