@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Router, NavigationEnd } from '@angular/router';
 import { UserService } from './pages/services/userService';
+import { Notificaciones } from './pages/services/notificaciones';
 declare let gtag: Function;
 
 @Component({
@@ -14,7 +15,12 @@ export class AppComponent implements OnInit {
   environment = environment;
   loadingRouter: boolean;
   title = 'configuracion-cliente';
-  constructor(private router: Router, private userService: UserService) {
+
+  constructor(
+    private router: Router,
+    private userService: UserService,
+    private notificacionesService: Notificaciones
+  ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         gtag('config', 'G-RBY2GQV40M', {
@@ -26,6 +32,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     const oas = document.querySelector('ng-uui-oas');
+    const notioas = document.querySelector('ng-uui-notioas');
 
     oas.addEventListener('user', (event: any) => {
       if (event.detail) {
@@ -43,6 +50,12 @@ export class AppComponent implements OnInit {
     oas.addEventListener('logout', (event: any) => {
       if (event.detail) {
         console.log(event.detail);
+      }
+    });
+
+    notioas.addEventListener('notificacion', (event: any) => {
+      if (event.detail) {
+        this.notificacionesService.redirigir(event.detail);
       }
     });
   }

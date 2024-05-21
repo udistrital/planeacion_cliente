@@ -103,7 +103,7 @@
     <!-- TABLA ESTÁTICA -->
     <ng-container *ngIf="plan != undefined && dataT">
       <mat-card class="notice">
-        <p>Señor usuario, la siguiente tabla expone un resumen de las actividades relacionadas al {{plan.nombre}}, el
+        <p>Señor usuario, la siguiente tabla expone un resumen de las actividades relacionadas al plan {{plan.nombre}}, el
           cual se encuentra formulando.</p>
       </mat-card>
       <div class="flex">
@@ -409,13 +409,13 @@
             Culminar plan
           </button>
         </ng-container>
-        <ng-container *ngIsGranted="['PLANEACION']">
+        <ng-container *ngIsGranted="['PLANEACION', 'ASISTENTE_PLANEACION']">
           <button class="btn-formulacion" *ngIf="plan.estado_plan_id === ID_ESTADO_FORMULADO" mat-raised-button
             color="primary" (click)="iniciarRevision()" [disabled]="!dataT">
             Iniciar Revisión
           </button>
         </ng-container>
-        <ng-container *ngIsGranted="['PLANEACION']">
+        <ng-container *ngIsGranted="['PLANEACION', 'ASISTENTE_PLANEACION']">
           <button class="btn-formulacion" *ngIf="plan.estado_plan_id === ID_ESTADO_EN_REVISION" mat-raised-button
             color="primary" (click)="enviarRevision()" [disabled]="!dataT">
             Enviar Revisión
@@ -440,7 +440,7 @@
             Dar Pre-Aval
           </button>
         </ng-container>
-        <ng-container *ngIsGranted="['PLANEACION']">
+        <ng-container *ngIsGranted="['PLANEACION', 'ASISTENTE_PLANEACION']">
           <button class="btn-formulacion" *ngIf="plan.estado_plan_id === 'ID_ESTADO_PRE_AVAL'" mat-raised-button
             color="primary" (click)="realizarAjustes()" [disabled]="!dataT">
             Remitir Ajuste Plan de Acción

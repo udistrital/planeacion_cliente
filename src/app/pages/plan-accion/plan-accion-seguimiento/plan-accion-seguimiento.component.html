@@ -5,7 +5,7 @@
   <mat-card-content>
 
     <div class="funtionsContainer">
-      <mat-select *ngIsGranted="['PLANEACION']" class="input-search" placeholder="Seleccione la Unidad" (selectionChange)="ajustarData($event)">
+      <mat-select *ngIsGranted="['PLANEACION', 'ASISTENTE_PLANEACION']" class="input-search" placeholder="Seleccione la Unidad" (selectionChange)="ajustarData($event)">
         <mat-option>--</mat-option>
         <mat-option *ngFor="let unidad of auxUnidades" [value]="unidad.Nombre">
           {{unidad.Nombre}}

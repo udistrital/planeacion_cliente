@@ -110,7 +110,7 @@ export class RecursosComponent implements OnInit {
       }
     }
 
-    if (this.rol == 'PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
@@ -222,7 +222,7 @@ export class RecursosComponent implements OnInit {
   }
 
   addElement() {
-    if (this.rol == 'PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       this.dataSource.data.unshift({
         codigo: '',
         Nombre: '',

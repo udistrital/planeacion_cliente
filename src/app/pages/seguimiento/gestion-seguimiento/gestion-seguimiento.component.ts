@@ -3,6 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RequestManager } from '../../services/requestManager';
+import { Notificaciones } from "../../services/notificaciones";
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
@@ -22,6 +23,7 @@ export class SeguimientoComponentGestion implements OnInit {
   planId: string;
   trimestreId: string;
   unidad: any;
+  vigencia: any;
   seguimiento: any;
   formGestionSeguimiento: FormGroup;
   dataActividad: any;
@@ -40,18 +42,12 @@ export class SeguimientoComponentGestion implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private request: RequestManager,
+    private notificacionesService: Notificaciones,
     private autenticationService: ImplicitAutenticationService,
     private router: Router,
     private _location: Location,
     private verificarFormulario: VerificarFormulario
-  ) {
-    activatedRoute.params.subscribe(prm => {
-      this.planId = prm['plan_id'];
-      this.trimestreId = prm['trimestre'];
-    });
-    this.dataSource = new MatTableDataSource<any>();
-    this.loadDataSeguimiento();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.formGestionSeguimiento = this.formBuilder.group({
@@ -65,6 +61,12 @@ export class SeguimientoComponentGestion implements OnInit {
       tarea: ['', Validators.required],
     });
     this.getRol();
+    this.activatedRoute.params.subscribe(prm => {
+      this.planId = prm['plan_id'];
+      this.trimestreId = prm['trimestre'];
+      this.loadDataSeguimiento();
+    });
+    this.dataSource = new MatTableDataSource<any>();
   }
 
   ngAfterViewInit() {
@@ -92,6 +94,8 @@ export class SeguimientoComponentGestion implements OnInit {
       this.rol = 'ASISTENTE_DEPENDENCIA'
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
+    } else if (roles.__zone_symbol__value.find(x => x == 'ASISTENTE_PLANEACION')) {
+      this.rol = 'ASISTENTE_PLANEACION'
     }
   }
 
@@ -128,6 +132,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.seguimiento = data.Data;
         this.estado = this.seguimiento.estado_seguimiento_id.nombre;
         await this.loadUnidad(this.seguimiento.plan_id.dependencia_id);
+        this.loadVigencia(this.seguimiento.plan_id.vigencia)
       }
     }, (error) => {
       Swal.fire({
@@ -138,6 +143,17 @@ export class SeguimientoComponentGestion implements OnInit {
         timer: 2500
       })
     })
+  }
+
+  loadVigencia(vigencia_id) {
+    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,Id:${vigencia_id},activo:true`)
+      .subscribe(
+        (data: any) => {
+          if (data) {
+            this.vigencia = data.Data[0];
+          }
+        }, (error) => {}
+      )
   }
 
   loadUnidad(dependencia_id) {
@@ -169,7 +185,7 @@ export class SeguimientoComponentGestion implements OnInit {
           if (actividad.estado.nombre == "Con observaciones") {
             data.Data[index].estado.color = "conObservacion";
           }
-          if (actividad.estado.nombre == "Actividad avalada") {
+          if (actividad.estado.nombre == "Actividad avalada" || actividad.estado.nombre == "Actividad Verificada") {
             data.Data[index].estado.color = "avalada";
           }
         }
@@ -188,10 +204,22 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
+  enviarNotificacion(itemMensaje:string){
+    let datos = {
+      codigo: itemMensaje,
+      id_unidad: this.unidad.Id,
+      nombre_unidad: this.unidad.Nombre,
+      nombre_plan: this.seguimiento.plan_id.nombre,
+      nombre_vigencia: this.vigencia,
+      trimestre: this.trimestreId
+    }
+    this.notificacionesService.enviarNotificacion(datos)
+  }
+
   reportar() {
     Swal.fire({
       title: 'Enviar Reporte',
-      text: `¿Confirma que desea enviar el reporte de seguimiento al Plan de Acción para su etapa de revisión por parte de la Oficina Asesora de Planeación y Control?`,
+      text: `¿Confirma que desea enviar el reporte de seguimiento para su etapa de verificación por parte del Jefe de Dependencia?`,
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
@@ -201,6 +229,13 @@ export class SeguimientoComponentGestion implements OnInit {
         this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
+              if (this.estado == 'Con observaciones') {
+                //NOTIFICACION(SF)
+                this.enviarNotificacion("SF")
+              } else {
+                //NOTIFICACION(SB)
+                this.enviarNotificacion("SB")
+              }
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
@@ -270,6 +305,74 @@ export class SeguimientoComponentGestion implements OnInit {
         this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
+              this.loadDataSeguimiento();
+              if (this.estado == 'Con observaciones') {
+                //NOTIFICACION(SE2)
+                this.enviarNotificacion("SE2")
+              } else {
+                //NOTIFICACION(SE1)
+                this.enviarNotificacion("SE1")
+              }
+              Swal.fire({
+                title: 'El reporte se ha enviado satisfactoriamente',
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  this.loadDataSeguimiento();
+                }
+              });
+            } else {
+              let message: string = '<b>ID - Actividad</b><br/>';
+              let aux: object = data.Data.actividades
+              let keys: string[];
+
+              keys = Object.keys(aux)
+              for (let key of keys) {
+                message = message + key + ' - ' + aux[key] + "<br/>"
+              }
+
+              Swal.fire({
+                title: 'Actividades sin revisar',
+                icon: 'error',
+                showConfirmButton: true,
+                html: 'Debe avalar o realizar las observaciones a las siguientes actividades:<br/>' + message
+              })
+            }
+          }
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Finalizalización de revisión cancelada',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  finalizarRevisionJefeDependencia() {
+    Swal.fire({
+      title: 'Finalizar revisión',
+      text: `¿Confirma que desea finalizar la revisión del seguimiento al Plan de Acción?`,
+      icon: 'warning',
+      confirmButtonText: `Continuar`,
+      cancelButtonText: `Cancelar`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento_jefe_dependencia`, "{}", this.seguimiento._id).subscribe((data: any) => {
+          if (data) {
+            if (data.Success) {
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
@@ -325,7 +428,7 @@ export class SeguimientoComponentGestion implements OnInit {
     let fechaInicio = new Date(this.seguimiento.periodo_seguimiento_id["fecha_inicio"].replace("Z", ""));
     let fechaFin = new Date(this.seguimiento.periodo_seguimiento_id["fecha_fin"].replace("Z", ""));
 
-    if ((fechaHoy >= fechaInicio && fechaHoy <= fechaFin) || row.estado.nombre == "Actividad avalada" || this.rol == 'PLANEACION') {
+    if ((fechaHoy >= fechaInicio && fechaHoy <= fechaFin) || row.estado.nombre == "Actividad avalada" || (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION')) {
       this.router.navigate(['pages/seguimiento/generar-trimestre/' + this.planId + '/' + row.index + '/' + this.seguimiento.periodo_seguimiento_id["_id"]])
     } else {
       Swal.fire({
@@ -393,6 +496,54 @@ export class SeguimientoComponentGestion implements OnInit {
     }
     this.dataSource.data = this.allActividades.slice(startIndex, endIndex);
     this.dataSource.data.length = this.allActividades.length;
+  }
+
+  iniciarRevisionJefeUnidad() {
+    Swal.fire({
+      title: 'Iniciar Revisión',
+      text: `Esta a punto de iniciar la revisión para este Plan`,
+      icon: 'warning',
+      confirmButtonText: `Continuar`,
+      cancelButtonText: `Cancelar`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.get(environment.PLANES_CRUD, `estado-seguimiento?query=activo:true,codigo_abreviacion:RJU`).subscribe((data: any) => {
+          if (data) {
+            console.log(data);
+            this.seguimiento.estado_seguimiento_id = data.Data[0]._id;;
+            this.request.put(environment.PLANES_CRUD, `seguimiento`, this.seguimiento, this.seguimiento._id).subscribe((data: any) => {
+              if (data) {
+                Swal.fire({
+                  title: 'Seguimiento en revisión',
+                  icon: 'success',
+                }).then((result) => {
+                  if (result.value) {
+                    this.loadDataSeguimiento();
+                  }
+                })
+              }
+            })
+          }
+        })
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Inicio de revisión cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
   }
 
   iniciarRevision() {
