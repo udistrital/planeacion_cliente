@@ -21,7 +21,7 @@ export class Notificaciones {
   notificaciones = [
     {
       "codigo": "F",
-      "mensaje": "Cambia a estado En formulacion",
+      "mensaje": "Cambia a estado En Formulacion",
       "destinatarios": ["jefe unidad"]
     },
     {
@@ -46,7 +46,7 @@ export class Notificaciones {
     },
     {
       "codigo": "FR2",
-      "mensaje": "Cambia a estado Verificado",
+      "mensaje": "Cambia a estado Revisión Verificada",
       "destinatarios": ["jefe unidad"],
     },
     {
@@ -65,7 +65,7 @@ export class Notificaciones {
       "destinatarios": ["jefe unidad"]
     },
     {
-      "codigo": "S",
+      "codigo": "FS",
       "mensaje": "Cambia a Habilitado",
       "destinatarios": ["jefe unidad"],
     },
@@ -115,7 +115,7 @@ export class Notificaciones {
       "destinatarios": ["jefe unidad"],
     },
     {
-      "codigo": "CO",
+      "codigo": "SCO",
       "mensaje": "Cambia a estado En reporte",
       "destinatarios": ["jefe unidad"],
     }
@@ -139,8 +139,16 @@ export class Notificaciones {
       const cargos:any = await this.getCargos(codigosAbreviacion.join("|"))
       let idsCargos = cargos.Data.map((cargo:any) => cargo.Id).join("|");
 
+      // Obtener el id de la vigencia si no está en los datos del mensaje 
+      let dependencias: string
+      if (datosMensaje.id_unidad) {
+        dependencias = datosMensaje.id_unidad.toString()
+      } else {
+        const id_unidad =  await this.getIdUnidad(datosMensaje.nombre_unidad)
+        dependencias = id_unidad.toString()
+      }
+
       // Añadir dependencia de planeación si aplica
-      let dependencias:string = datosMensaje.id_unidad.toString()
       if (notificacion.destinatarios.some(str => str.includes("planeacion"))) {
         dependencias += "|11" // Id dependencia planeacion
       }

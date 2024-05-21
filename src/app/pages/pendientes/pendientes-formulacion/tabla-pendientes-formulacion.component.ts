@@ -339,13 +339,12 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
             if (data) {
               // NOTIFICACION(FR2)
               this.notificacionesService.enviarNotificacion({
-                  codigo: "FR2",
-                  id_unidad: plan.dependencia_id,
-                  nombre_unidad: plan.dependencia_nombre, 
-                  nombre_plan: plan.nombre, 
-                  nombre_vigencia: plan.vigencia
-                }
-              )
+                codigo: "FR2",
+                id_unidad: plan.dependencia_id,
+                nombre_unidad: plan.dependencia_nombre, 
+                nombre_plan: plan.nombre, 
+                nombre_vigencia: plan.vigencia
+              })
               Swal.fire({
                 title: 'Revisión Verficada Enviada',
                 icon: 'success',

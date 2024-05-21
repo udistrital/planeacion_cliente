@@ -802,8 +802,14 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         nombre_plan:this.plan.nombre, 
         nombre_vigencia: this.vigencia.Nombre
       }
-      this.codigoNotificacion = "";
       this.notificacionesService.enviarNotificacion(datos);
+
+      // Cuando el plan pasa de formulación a seguimiento
+      if (this.codigoNotificacion == "FPA2") {
+        this.codigoNotificacion = "S";
+        this.enviarNotificacion();
+      }
+      this.codigoNotificacion = "";
     }
   }
 
@@ -1689,6 +1695,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
             this.plan.estado_plan_id = "65bbf86918f02a27a456d20f";
             this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
               if (data) {
+                this.codigoNotificacion = "FR2";
                 Swal.fire({
                   title: 'Revisión Verficada Enviada',
                   icon: 'success',
