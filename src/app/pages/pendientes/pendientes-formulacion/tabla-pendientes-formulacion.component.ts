@@ -340,16 +340,14 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
           }
           this.request.put(environment.PLANES_CRUD, `plan`, auxPlan, auxPlan._id).subscribe((data: any) => {
             if (data) {
-              //NOTIFICACION(FE)
-              this.notificacionesService.enviarNotificacion(
-                {
-                  codigo: "FE",
-                  id_unidad: plan.dependencia_id,
-                  nombre_unidad: plan.dependencia_nombre, 
-                  nombre_plan: plan.nombre, 
-                  nombre_vigencia: plan.vigencia
-                }
-              )
+              // NOTIFICACION(FR2)
+              this.notificacionesService.enviarNotificacion({
+                codigo: "FR2",
+                id_unidad: plan.dependencia_id,
+                nombre_unidad: plan.dependencia_nombre, 
+                nombre_plan: plan.nombre, 
+                nombre_vigencia: plan.vigencia
+              })
               Swal.fire({
                 title: 'Revisión Verficada Enviada',
                 icon: 'success',

@@ -36,6 +36,7 @@ export class SeguimientoComponentGestion implements OnInit {
   trimestres: any[] = [];
   allActividades: any[];
   estado: string;
+  codigoNotificacion: string = '';
   private miObservableSubscription: Subscription;
 
   constructor(
@@ -118,6 +119,33 @@ export class SeguimientoComponentGestion implements OnInit {
     }
   }
 
+  enviarNotificacion(){
+    if (this.codigoNotificacion != "") {
+      // Bifurcación en estado En revisión JU
+      if (this.codigoNotificacion === 'SERJU') {
+        const estadoPlanMap = {'Revisión Verificada con Observaciones': "SERJU1", 'Revisión Verificada': "SERJU2"};
+        this.codigoNotificacion = estadoPlanMap[this.estado];
+      }
+
+      // Bifurcación en estado 'En revisión OAPC'
+      if (this.codigoNotificacion === "SEROAPC") {
+        const estadoPlanMap = {'Con observaciones': "SEROAPC1", 'Reporte Avalado': "SEROAPC2"};
+        this.codigoNotificacion = estadoPlanMap[this.estado];
+      }
+
+      let datos = {
+        codigo: this.codigoNotificacion,
+        id_unidad: this.unidad.Id,
+        nombre_unidad: this.unidad.Nombre,
+        nombre_plan: this.seguimiento.plan_id.nombre,
+        nombre_vigencia: this.vigencia.Nombre,
+        trimestre: this.trimestreId
+      }
+      this.codigoNotificacion = "";
+      this.notificacionesService.enviarNotificacion(datos)
+    }
+  }
+
   loadDataSeguimiento() {
     Swal.fire({
       title: 'Cargando información',
@@ -133,6 +161,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.estado = this.seguimiento.estado_seguimiento_id.nombre;
         await this.loadUnidad(this.seguimiento.plan_id.dependencia_id);
         this.loadVigencia(this.seguimiento.plan_id.vigencia)
+        this.enviarNotificacion();
       }
     }, (error) => {
       Swal.fire({
@@ -204,18 +233,6 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
-  enviarNotificacion(itemMensaje:string){
-    let datos = {
-      codigo: itemMensaje,
-      id_unidad: this.unidad.Id,
-      nombre_unidad: this.unidad.Nombre,
-      nombre_plan: this.seguimiento.plan_id.nombre,
-      nombre_vigencia: this.vigencia,
-      trimestre: this.trimestreId
-    }
-    this.notificacionesService.enviarNotificacion(datos)
-  }
-
   reportar() {
     Swal.fire({
       title: 'Enviar Reporte',
@@ -229,12 +246,12 @@ export class SeguimientoComponentGestion implements OnInit {
         this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
-              if (this.estado == 'Con observaciones') {
-                //NOTIFICACION(SF)
-                this.enviarNotificacion("SF")
-              } else {
-                //NOTIFICACION(SB)
-                this.enviarNotificacion("SB")
+              if (this.estado == 'En reporte') {
+                this.codigoNotificacion = "SER" // NOTIFICACION(SER)
+              } else if (this.estado == 'Revisión Verificada con Observaciones') {
+                this.codigoNotificacion = "SRVCO" // NOTIFICACION(SRVCO)
+              } else if (this.estado == 'Con observaciones') {
+                this.codigoNotificacion = "SCO" // NOTIFICACION(SCO)
               }
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
@@ -305,14 +322,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
-              this.loadDataSeguimiento();
-              if (this.estado == 'Con observaciones') {
-                //NOTIFICACION(SE2)
-                this.enviarNotificacion("SE2")
-              } else {
-                //NOTIFICACION(SE1)
-                this.enviarNotificacion("SE1")
-              }
+              this.codigoNotificacion = "SEROAPC" // NOTIFICACION(SEROAPC)
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
@@ -373,6 +383,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento_jefe_dependencia`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
+              this.codigoNotificacion = "SERJU" // NOTIFICACION(SERJU)
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
@@ -514,6 +525,7 @@ export class SeguimientoComponentGestion implements OnInit {
             this.seguimiento.estado_seguimiento_id = data.Data[0]._id;;
             this.request.put(environment.PLANES_CRUD, `seguimiento`, this.seguimiento, this.seguimiento._id).subscribe((data: any) => {
               if (data) {
+                this.codigoNotificacion = "SEAR" // NOTIFICACION(SEAR)
                 Swal.fire({
                   title: 'Seguimiento en revisión',
                   icon: 'success',
@@ -559,6 +571,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.seguimiento.estado_seguimiento_id = "622ba46d16511e32535c326b"
         this.request.put(environment.PLANES_CRUD, `seguimiento`, this.seguimiento, this.seguimiento._id).subscribe((data: any) => {
           if (data) {
+            this.codigoNotificacion = "SRV" // NOTIFICACION(SRV)
             Swal.fire({
               title: 'Seguimiento en revisión',
               icon: 'success',
