@@ -147,7 +147,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.ID_ESTADO_PRE_AVAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
     this.ID_ESTADO_AVAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
     this.ID_ESTADO_AJUSTE_PRESUPUESTAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP');
-    this.ID_ESTADO_REVISION_VERIFICADA = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');let roles: any = this.autenticationService.getRole();
+    this.ID_ESTADO_REVISION_VERIFICADA = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
+    let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
       await this.loadUnidades();

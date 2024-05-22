@@ -441,13 +441,13 @@
           </button>
         </ng-container>
         <ng-container *ngIsGranted="['PLANEACION', 'ASISTENTE_PLANEACION']">
-          <button class="btn-formulacion" *ngIf="plan.estado_plan_id === 'ID_ESTADO_PRE_AVAL'" mat-raised-button
+          <button class="btn-formulacion" *ngIf="plan.estado_plan_id === ID_ESTADO_PRE_AVAL" mat-raised-button
             color="primary" (click)="realizarAjustes()" [disabled]="!dataT">
             Remitir Ajuste Plan de Acción
           </button>
         </ng-container>
         <ng-container *ngIsGranted="['PLANEACION']">
-          <button class="btn-formulacion" *ngIf="plan.estado_plan_id === 'ID_ESTADO_PRE_AVAL'" mat-raised-button
+          <button class="btn-formulacion" *ngIf="plan.estado_plan_id === ID_ESTADO_PRE_AVAL" mat-raised-button
             color="primary" (click)="avalar()" [disabled]="!dataT">
             Dar Aval
           </button>
