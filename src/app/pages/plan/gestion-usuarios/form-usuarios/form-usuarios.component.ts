@@ -13,18 +13,13 @@ import { Router } from '@angular/router';
 export class FormUsuariosComponent implements OnInit {
   rolesUsuario: Rol[] = [];
   rolesSistema: Rol[] = [
-    // { rol: ROL_PLANEACION, selected: false },
-    // { rol: ROL_JEFE_UNIDAD_PLANEACION, selected: false },
-    // { rol: ROL_JEFE_DEPENDENCIA, selected: false },
     { rol: ROL_ASISTENTE_DEPENDENCIA, selected: false },
-    { rol: ROL_ASISTENTE_PLANEACION, selected: false }
   ];
   @Input() usuario: Usuario;
   @Output() errorEnPeticion = new EventEmitter<any>();
 
   constructor(
     private request: RequestManager,
-    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -44,7 +39,8 @@ export class FormUsuariosComponent implements OnInit {
     if (rolesSeleccionados.length === 0) return;
     Swal.fire({
       title: 'Vincular Rol',
-      text: `¿Está seguro de vincular el rol al usuario?`,
+      icon: 'warning',
+      text: `¿Está seguro de vincular el rol al usuario?, si el usuario tiene otra vinculación se verá afectada con el cambio de rol`,
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
@@ -101,9 +97,43 @@ export class FormUsuariosComponent implements OnInit {
             }
           }
           this.clearSelection();
-        })
-        .catch(error => {
+        }).catch(error => {});
+
+        const promises = rolesSeleccionados.map((rol) => {
+          if (this.usuario.VinculacionSeleccionadaId != undefined ){
+            return new Promise((resolve, reject) => {
+              let bodyVinculacion = {
+                "user": this.usuario,
+                "rol": rol.rol,
+                "vincular": true
+              };
+              this.request.put(environment.PLANES_MID, `formulacion/cargo_vinculacion`, bodyVinculacion, this.usuario.VinculacionSeleccionadaId)
+                .subscribe((data: any) => {
+                  if (data != null && data != undefined && data != "") {
+                    this.cerrarMensajeCarga();
+                    data.rolUsuario = rol; // Agregar el nombre del rol a la respuesta
+                    resolve(data);
+                  }
+                }, (error) => {
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    text: `No se pudo vincular el rol ${rol.rol} al usuario`,
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    timer: 2500
+                  }).then(() => {
+                    this.enviarErrorPeticion();
+                  });
+                  reject(error);
+                });
+            });
+          }
         });
+        
+        Promise.all(promises)
+          .catch(error => {
+            console.error('Error en alguna de las peticiones para cambiar CargoId:', error);
+          });
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Cambio cancelado',
@@ -120,7 +150,8 @@ export class FormUsuariosComponent implements OnInit {
     if (rolesSeleccionados.length === 0) return;
     Swal.fire({
       title: 'Desvincular Rol',
-      text: `¿Está seguro de desvincular el rol al usuario?`,
+      icon: 'warning',
+      text: `¿Está seguro de desvincular el rol al usuario?, si el usuario tiene otra vinculación se verá afectada con el cambio de rol`,
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
@@ -154,7 +185,7 @@ export class FormUsuariosComponent implements OnInit {
                     timer: 2500
                   }).then(() => {
                     this.enviarErrorPeticion();
-                  });;
+                  });
                   reject(error);
                 });
             });
@@ -180,6 +211,43 @@ export class FormUsuariosComponent implements OnInit {
         })
         .catch(error => {
         });
+
+
+        const promises = rolesSeleccionados.map((rol) => {
+          if (this.usuario.VinculacionSeleccionadaId != undefined ){
+            return new Promise((resolve, reject) => {
+              let bodyVinculacion = {
+                "user": this.usuario,
+                "rol": rol.rol,
+                "vincular": false
+              };
+              this.request.put(environment.PLANES_MID, `formulacion/cargo_vinculacion`, bodyVinculacion, this.usuario.VinculacionSeleccionadaId)
+                .subscribe((data: any) => {
+                  if (data != null && data != undefined && data != "") {
+                    this.cerrarMensajeCarga();
+                    data.rolUsuario = rol; // Agregar el nombre del rol a la respuesta
+                    resolve(data);
+                  }
+                }, (error) => {
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    text: `No se pudo vincular el rol ${rol.rol} al usuario`,
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    timer: 2500
+                  }).then(() => {
+                    this.enviarErrorPeticion();
+                  });
+                  reject(error);
+                });
+            });
+          }
+        });
+        
+        Promise.all(promises)
+          .catch(error => {
+            console.error('Error en alguna de las peticiones para cambiar CargoId:', error);
+          });
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Cambio cancelado',

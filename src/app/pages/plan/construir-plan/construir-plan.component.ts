@@ -7,6 +7,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-construir-plan',
@@ -14,6 +15,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./construir-plan.component.scss']
 })
 export class ConstruirPlanComponent implements OnInit {
+  ID_TIPO_PROYECTO: string;
 
   formConstruirPlan: FormGroup;
   tipo_plan_id: string; // id tipo plan
@@ -33,16 +35,17 @@ export class ConstruirPlanComponent implements OnInit {
     private request: RequestManager,
     private activatedRoute: ActivatedRoute,
     private router: Router,
+    private codigosService: CodigosService
   ) {
     activatedRoute.params.subscribe(prm => {
       this.planId = prm['plan_id'];
       this.nombrePlan = prm['nombrePlan'];
       this.tipo_plan_id = prm['tipo_plan_id'];
     });
-    // this.loadPlanes(); 
+    // this.loadPlanes();
   }
 
-  actualizarEstructuraPlanes() {    
+  actualizarEstructuraPlanes() {
     Swal.fire({
       title: 'Actualizar Planes',
       text: `¿Desea actualizar las estructuras de los planes que están asociados a esta plantilla?`,
@@ -61,7 +64,7 @@ export class ConstruirPlanComponent implements OnInit {
             Swal.showLoading();
           },
         })
-        this.request.put(environment.PLANES_MID, 'formulacion/estructura_planes', null, this.planId).subscribe(
+        this.request.put(environment.PLANES_MID, 'formulacion/estructura_planes', {}, this.planId).subscribe(
           (data: any) => {
             if (data) {
               Swal.close()
@@ -202,7 +205,7 @@ export class ConstruirPlanComponent implements OnInit {
   };
 
   openDialogEditar(sub, subDetalle): void {
-    this.padreSub = sub.padre;    
+    this.padreSub = sub.padre;
     const dialogRef = this.dialog.open(EditarDialogComponent, {
       width: 'calc(80vw - 60px)',
       height: 'calc(40vw - 60px)',
@@ -223,8 +226,8 @@ export class ConstruirPlanComponent implements OnInit {
       nombre: res.nombre,
       descripcion: res.descripcion,
       activo: res.activo,
-      bandera_tabla: res.banderaTabla      
-    }    
+      bandera_tabla: res.banderaTabla
+    }
     if (res.hasOwnProperty("opciones")) {
       var array = res.opciones.split(",");
       let jsonArray = []
@@ -255,7 +258,7 @@ export class ConstruirPlanComponent implements OnInit {
       subgrupoDetalle["descripcion"] = subgrupo.descripcion;
       subgrupoDetalle["nombre"] = subgrupo.nombre;
       subgrupo["padre"] = this.padreSub;
-      subgrupo["fecha_creacion"] = data.Data[0].fecha_creacion;      
+      subgrupo["fecha_creacion"] = data.Data[0].fecha_creacion;
       if (data.Data.length > 0) {
         this.request.put(environment.PLANES_CRUD, `subgrupo-detalle`, subgrupoDetalle, data.Data[0]._id).subscribe((data: any) => {
           this.request.put(environment.PLANES_CRUD, `subgrupo`, subgrupo, this.uid).subscribe((data: any) => {
@@ -456,7 +459,7 @@ export class ConstruirPlanComponent implements OnInit {
         this.planes = this.planes.concat(data.Data);
         this.planes = this.filterActivos(this.planes);
       })
-      this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b`).subscribe((data: any) => {
+      this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
         this.planes = this.planes.concat(data.Data);
         this.planes = this.filterActivos(this.planes);
       })
@@ -479,9 +482,11 @@ export class ConstruirPlanComponent implements OnInit {
     this.router.navigate(['pages/plan/construir-plan-proyecto']);
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.formConstruirPlan = this.formBuilder.group({
       planControl: ['', Validators.required],
     });
+    await this.codigosService.cargarIdentificadores();
+    this.ID_TIPO_PROYECTO = this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
   }
 }

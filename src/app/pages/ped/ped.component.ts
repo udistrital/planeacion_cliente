@@ -8,9 +8,10 @@ import { ConsultarDialogPedComponent } from '../ped/consultar-dialog-ped/consult
 import { RequestManager } from '../services/requestManager';
 import { environment } from '../../../environments/environment'
 import Swal from 'sweetalert2';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
-  selector: 'app-ped', 
+  selector: 'app-ped',
   templateUrl: './ped.component.html',
   styleUrls: ['./ped.component.scss']
 })
@@ -27,6 +28,7 @@ export class PedComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private request: RequestManager,
+    private codigosService: CodigosService
   ) {
     this.loadData();
   }
@@ -175,7 +177,7 @@ export class PedComponent implements OnInit {
   }
 
   loadData(){
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:616513b91634adfaffed52bf`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.ajustarData();
@@ -257,9 +259,9 @@ export class PedComponent implements OnInit {
   inactivar(fila):void{
     this.uid = fila._id;
     if (fila.activo == 'Activo'){
-      if (fila.tipo_plan_id != '611af8464a34b3599e3799a2'){
+      if (fila.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
         this.deleteData();
-      } else if (fila.tipo_plan_id == '611af8464a34b3599e3799a2'){
+      } else if (fila.tipo_plan_id == this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
         let res = {
           activo: false,
         }
@@ -282,8 +284,8 @@ export class PedComponent implements OnInit {
     })
   }
 
-  ngOnInit(): void {
-
+  async ngOnInit(){
+    await this.codigosService.cargarIdentificadores();
   }
 
 }

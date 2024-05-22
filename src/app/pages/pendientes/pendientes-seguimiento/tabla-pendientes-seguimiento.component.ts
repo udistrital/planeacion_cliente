@@ -8,6 +8,7 @@ import { UserService } from '../../services/userService';
 import { VerificarFormulario } from '../../services/verificarFormulario'
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-tabla-pendientes-seguimiento',
@@ -44,13 +45,15 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
     private userService: UserService,
     private verificarFormulario: VerificarFormulario,
     private router: Router,
+    private codigosService: CodigosService
   ) {
     this.planesInteres = [];
     this.banderaTodosSeleccionados = false;
     this.datosCargados = false;
   }
 
-  ngOnInit(): void {
+  async ngOnInit(){
+    await this.codigosService.cargarIdentificadores();
     this.validarUnidad()
     const datosPrueba: any[] = [];
     this.informacionTabla = new MatTableDataSource<any>(datosPrueba);
@@ -205,7 +208,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
         },
       })
 
-      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,dependencia_id:${this.unidad.Id}`).subscribe(async (data: any) => {
+      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:${this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')},dependencia_id:${this.unidad.Id}`).subscribe(async (data: any) => {
         if (data) {
           if (data.Data.length != 0) {
             data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });
