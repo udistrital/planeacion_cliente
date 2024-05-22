@@ -82,6 +82,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   ponderacionCompleta: boolean;
   ponderacionActividades: string;
   moduloVisible: boolean;
+  codigoNotificacion: string = '';
   rol: string;
   isChecked: boolean
   defaultFilterPredicate?: (data: any, filter: string) => boolean;
@@ -829,6 +830,26 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     }
   }
 
+  enviarNotificacion(){
+    if (this.codigoNotificacion != "") {
+      let datos = {
+        codigo: this.codigoNotificacion,
+        id_unidad: this.unidad.Id,
+        nombre_unidad: this.unidad.Nombre, 
+        nombre_plan:this.plan.nombre, 
+        nombre_vigencia: this.vigencia.Nombre
+      }
+      this.notificacionesService.enviarNotificacion(datos);
+
+      // Cuando el plan pasa de formulación a seguimiento
+      if (this.codigoNotificacion == "FPA2") {
+        this.codigoNotificacion = "S";
+        this.enviarNotificacion();
+      }
+      this.codigoNotificacion = "";
+    }
+  }
+
   getEstado() {
     this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.plan.estado_plan_id).subscribe(
       (data: any) => {
@@ -836,6 +857,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           this.estadoPlan = data.Data.nombre;
           this.getIconEstado();
           this.visualizeObs();
+          this.enviarNotificacion();
         }
       }, (error) => {
         Swal.fire({
@@ -1358,18 +1380,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
     })
   }
-
-  enviarNotificacion(itemMensaje:string){
-    let datos = {
-      codigo: itemMensaje,
-      id_unidad: this.unidad.Id,
-      nombre_unidad: this.unidad.Nombre,
-      nombre_plan:this.plan.nombre,
-      nombre_vigencia: this.vigencia.Nombre
-    }
-    this.notificacionesService.enviarNotificacion(datos)
-  }
-
+  
   formularPlan() {
     Swal.fire({
       title: 'Formulando plan...',
@@ -1386,8 +1397,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/` + this.plan._id, parametros).subscribe((data: any) => {
       if (data) {
         this.plan = data.Data;
-        //NOTIFICACION(FA)
-        this.enviarNotificacion("FA")
+        this.codigoNotificacion = "F"; // NOTIFICACION(F)
         Swal.fire({
           title: 'Formulación nuevo plan',
           text: `Plan creado satisfactoriamente`,
@@ -1517,8 +1527,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                   this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP');
                   this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
                     if (data) {
-                      //NOTIFICACION(FB)
-                      this.enviarNotificacion("FB")
+                      this.codigoNotificacion = "FEF";  // NOTIFICACION(FEF)
                       Swal.fire({
                         title: 'Plan enviado',
                         icon: 'success',
@@ -1622,8 +1631,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
-            //NOTIFICACION(FC)
-            this.enviarNotificacion("FC")
+            this.codigoNotificacion = "FF" // NOTIFICACION(FF)
             Swal.fire({
               title: 'Plan En Revisión',
               icon: 'success',
@@ -1674,8 +1682,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
-            //NOTIFICACION(FD)
-            this.enviarNotificacion("FD")
+            this.codigoNotificacion = "FER" // NOTIFICACION(FER)
             Swal.fire({
               title: 'Revisión Enviada',
               icon: 'success',
@@ -1730,6 +1737,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
             this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
             this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
               if (data) {
+                this.codigoNotificacion = "FR2";
                 Swal.fire({
                   title: 'Revisión Verficada Enviada',
                   icon: 'success',
@@ -1781,23 +1789,32 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        if(this.plan.estado_plan_id == "614d3b4401c7a222052fac05"){
-          this.request.put(environment.PLANES_CRUD, `plan`, {...this.plan, estado_plan_id: "615335c501c7a213a12fb2a3"},this.plan._id).subscribe((data:any)=>{
-            if(data){
-              this.crearNuevaVersion();
-            } else {
-              Swal.fire({
-                title: 'Error al modificar el plan actual. Por favor intente de nuevo',
-                icon: 'warning',
-                showConfirmButton: false,
-                timer: 2500
-              })
+        this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
+          if (data) {
+            if (this.estadoPlan == 'Revisado') {
+              this.codigoNotificacion = "FR1" // NOTIFICACION(FR1)
+            } else if (this.estadoPlan == 'Pre Aval') {
+              this.codigoNotificacion = "FPA1" // NOTIFICACION(FPA1)
             }
-          })
-        } else {
-          this.crearNuevaVersion();
-        }
-
+            this.getVersiones(data.Data);
+            Swal.fire({
+              title: 'Nueva Versión',
+              text: 'Nueva versión del plan creada, ya puede realizar los ajustes al plan.',
+              icon: 'success',
+            }).then(async (result) => {
+              if (result.value) {
+                await this.cleanBeforeLoad();
+              }
+            })
+          } else {
+            Swal.fire({
+              title: 'Error al versionar el plan. Por favor intente de nuevo',
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+        })
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Envio de Ajustes Cancelado',
@@ -1854,8 +1871,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
-            //NOTIFICACION(FF)
-            this.enviarNotificacion("FF")
+            this.codigoNotificacion = "FV" // NOTIFICACION(FV)
             Swal.fire({
               title: 'Plan pre avalado',
               icon: 'success',
@@ -1903,8 +1919,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           this.request.post(environment.PLANES_MID, `seguimiento/avalar/` + this.plan._id, {}).subscribe((data: any) => {
             Swal.close();
             if (data.Success == true) {
-              //NOTIFICACION(FH)
-              this.enviarNotificacion("FH")
+              this.codigoNotificacion = "FPA2" // NOTIFICACION(FPA2)
               Swal.fire({
                 title: 'Plan Avalado',
                 icon: 'success',
