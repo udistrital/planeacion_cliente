@@ -117,11 +117,12 @@ export class EvaluacionPlanComponent implements OnInit {
       .get(
         environment.PLANES_MID,
         `evaluacion/${this.idVigencia}/${this.plan.id}/${this.periodo.id}`
-      )
-      .subscribe(
+      ).subscribe(
         (data: any) => {
+
           if (data) {
             this.actividades = data.Data;
+
             this.actividades.forEach((actividad) => {
               actividad.class = actividad.numero % 2 == 0 ? 'claro' : 'oscuro';
             });
@@ -257,7 +258,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre1.actividad <= 1
             ? actividad.trimestre1.actividad
-            : 1);
+            : 1) * 100;
       }
 
       if (actividad.trimestre2.actividad) {
@@ -265,7 +266,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre2.actividad <= 1
             ? actividad.trimestre2.actividad
-            : 1);
+            : 1) * 100;
       }
 
       if (actividad.trimestre3.actividad) {
@@ -273,7 +274,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre3.actividad <= 1
             ? actividad.trimestre3.actividad
-            : 1);
+            : 1) * 100;
       }
 
       if (actividad.trimestre4.actividad) {
@@ -281,7 +282,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre4.actividad <= 1
             ? actividad.trimestre4.actividad
-            : 1);
+            : 1) * 100;
       }
     }
   }

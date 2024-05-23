@@ -30,6 +30,7 @@ export class EvaluacionComponent implements OnInit {
   rol: string;
   nombrePlanSeleccionado:string;
   idPlanSeleccionado:string;
+  existenUnidades = false;
 
   @ViewChild(EvaluacionPlanComponent) seguimientoComponent: EvaluacionPlanComponent;
 
@@ -103,6 +104,19 @@ export class EvaluacionComponent implements OnInit {
       this.unidad = unidad
       this.periodos = []
       this.periodoSelected = false
+      if (unidad === 'TODAS') {
+        this.periodo = 'TODOS';
+        this.periodoSelected = true;
+        this.periodos = [
+          { nombre: 'Trimestre uno'},
+          { nombre: 'Trimestre dos'},
+          { nombre: 'Trimestre tres'},
+          { nombre: 'Trimestre cuatro'},
+        ]
+      } else {
+        this.periodo = '';
+        this.periodoSelected = false;
+      }
       if(unidad !== 'TODAS' && this.planSelected && this.vigenciaSelected && this.unidadSelected) {
         this.loadPeriodos();
       }
@@ -207,8 +221,7 @@ export class EvaluacionComponent implements OnInit {
               if (data.Data.length === 0) {
                 Swal.close();
                 this.unidades = [];
-                this.vigenciaSelected = false;
-                this.vigencia = '';
+                this.existenUnidades = false;
                 Swal.fire({
                   title: 'Verifica las selecciones',
                   text: `No existen unidades con registros en fase de seguimiento asociados al plan de acción y vigencia seleccionados`,
@@ -217,6 +230,7 @@ export class EvaluacionComponent implements OnInit {
                 });
               } else {
                 this.unidades = data.Data;
+                this.existenUnidades = true;
                 Swal.close();
               }
             }

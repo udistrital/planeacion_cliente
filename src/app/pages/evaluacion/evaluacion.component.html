@@ -14,6 +14,7 @@
         </div>
       </div>
     </ng-container>
+
     <mat-form-field class="selectorPlanStyle" appearance="fill">
       <mat-label id="tipo-input-label">Seleccione el Plan de Acción</mat-label>
       <mat-select (selectionChange)="onChangeP($event.value)">
@@ -23,6 +24,7 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+
     <mat-form-field class="selectorVigenciaStyle" appearance="fill">
       <mat-label id="tipo-input-label">Seleccione la vigencia</mat-label>
       <mat-select (selectionChange)="onChangeV($event.value)" [disabled]="!planSelected">
@@ -33,7 +35,7 @@
       </mat-select>
     </mat-form-field>
 
-    <div *ngIf='vigenciaSelected && planSelected'>
+    <div *ngIf='vigenciaSelected && planSelected && existenUnidades'>
       <mat-form-field class="selectorPlanStyle" appearance="fill">
         <mat-label id="tipo-input-label">Seleccione la unidad</mat-label>
         <mat-select [(value)]="unidad" (selectionChange)="onChangeU($event.value)" [disabled]="!vigenciaSelected">
@@ -47,8 +49,9 @@
 
       <mat-form-field class="selectorVigenciaStyle" appearance="fill">
         <mat-label id="tipo-input-label">Seleccione el periodo</mat-label>
-        <mat-select (selectionChange)="onChangePe($event.value)" [disabled]="!unidadSelected || unidad === 'TODAS'">
-          <mat-option>--</mat-option>
+        <mat-select (selectionChange)="onChangePe($event.value)" [(value)]="periodo" [disabled]="!unidadSelected">
+          <mat-option *ngIf="unidad !== 'TODAS'">--</mat-option>
+          <mat-option *ngIf="unidad === 'TODAS'" [value]="'TODOS'">TODOS LOS TRIMESTRES</mat-option>
           <mat-option *ngFor="let periodo of periodos" [value]="periodo">
             {{periodo.nombre}}
           </mat-option>
@@ -58,36 +61,25 @@
 
     <div class="align-button-ingresar">
       <button *ngIf="unidadSelected"
-        [disabled]="!(planSelected && vigenciaSelected && unidadSelected && periodoSelected) && unidad !== 'TODAS'" (click)="ingresarEvaluacion()" class="btn-gestion-seg"
-        mat-raised-button color="primary">Consultar evaluación</button>
+        [disabled]="!(planSelected && vigenciaSelected && unidadSelected && periodoSelected)"
+        (click)="ingresarEvaluacion()" class="btn-gestion-seg" mat-raised-button color="primary">Consultar
+        evaluación</button>
     </div>
   </mat-card-content>
 </mat-card>
 <br>
+
 <mat-card class="card-oas" *ngIf="bandera === true">
-  <app-evaluacion-plan
-    *ngIf=" unidad !== 'TODAS' "
-    [mostrarGraficos]="true"
-    [idVigencia]=" vigencia.Id "
-    [plan]=" { id: idPlanSeleccionado, nombre: nombrePlanSeleccionado} "
-    [periodo]=" periodo "
-    [nombreUnidad]=" unidad.Nombre "
-  >
+  <app-evaluacion-plan *ngIf=" unidad !== 'TODAS' " [mostrarGraficos]="true" [idVigencia]=" vigencia.Id "
+    [plan]=" { id: idPlanSeleccionado, nombre: nombrePlanSeleccionado } " [periodo]=" periodo "
+    [nombreUnidad]=" unidad.Nombre ">
   </app-evaluacion-plan>
-  <app-resumen
-    *ngIf="unidad === 'TODAS'"
-    [plan]=" { id: idPlanSeleccionado, nombre: nombrePlanSeleccionado} "
-    [idVigencia]=" vigencia.Id "
-    [unidades]="unidades">
+  <app-resumen *ngIf="unidad === 'TODAS'" [plan]=" { id: idPlanSeleccionado, nombre: nombrePlanSeleccionado} "
+    [idVigencia]=" vigencia.Id " [unidades]="unidades" [periodo]="periodo">
   </app-resumen>
   <br>
   <div class="align-button-ingresar">
-    <button
-      class="btn-gestion-seg"
-      mat-raised-button
-      color="primary"
-      (click)="backClicked()"
-    >
+    <button class="btn-gestion-seg" mat-raised-button color="primary" (click)="backClicked()">
       Regresar
     </button>
   </div>
