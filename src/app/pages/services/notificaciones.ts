@@ -189,7 +189,7 @@ export class Notificaciones {
   async getUsuarios(dependencias: string, idsCargos: string) {
     idsCargos = "319"
     return await new Promise((resolve, reject) => {
-      this.request.get(environment.PRUEBAS, `vinculacion?query=DependenciaId__in:${dependencias},CargoId__in:${idsCargos}`)
+      this.request.get(environment.TERCEROS_SERVICE, `vinculacion?query=DependenciaId__in:${dependencias},CargoId__in:${idsCargos}`)
         .subscribe(
           (data: any) => resolve(data),
           (error: any) => reject(error)
@@ -200,7 +200,7 @@ export class Notificaciones {
   // Obtener el documento de un usuario
   async getDocUsuario(idTercero: string) {
     return await new Promise((resolve, reject) => {
-      this.request.get(environment.PRUEBAS, `datos_identificacion?query=TerceroId.Id:${idTercero}`)
+      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion?query=TerceroId.Id:${idTercero}`)
         .subscribe(
           (data: any) => resolve(data),
           (error: any) => reject(error)
