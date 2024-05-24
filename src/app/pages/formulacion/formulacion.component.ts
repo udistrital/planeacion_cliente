@@ -1584,7 +1584,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       rejectRef = reject;
     });
     this.request.get(environment.PLANES_MID, `formulacion/ponderacion_actividades/` + this.plan._id).subscribe((data: any) => {
-      if (data) {
+      if (data && data.Success) {
         let aux: object = data.Data
         let keys: string[];
 
@@ -1600,19 +1600,24 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.ponderacionActividades = message
         resolveRef(message)
       } else {
-        Swal.fire({
-          title: 'Error en solicitud de cálculo de ponderación, por favor contactarse con el administrador del sistema.',
-          icon: 'error',
-          showConfirmButton: false,
-          timer: 2500
-        })
+        if (data) {
+          if (data.Message == "Error-tipo1"){
+            Swal.fire({
+              title: 'Error en la construcción de la plantilla del plan',
+              icon: 'error',
+              text: data.Data,
+              showConfirmButton: true,
+            })
+          }
+        }
       }
     }, (error) => {
       Swal.fire({
         title: 'Error en solicitud de cálculo de ponderación, por favor contactarse con el administrador del sistema.',
         icon: 'error',
+        text: 'El formato del plan construido, presenta fallas.',
         showConfirmButton: false,
-        timer: 2500
+        timer: 3500
       })
     })
     return dataPromise
