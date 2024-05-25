@@ -8,7 +8,7 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
   providedIn: 'root',
 })
 export class Notificaciones {
-  private arm = environment.ARM_AWS_NOTIFICACIONES;
+  private arm = environment.ARN_TOPIC_NOTIFICACIONES;
 
   constructor(
     private router: Router,
@@ -21,102 +21,102 @@ export class Notificaciones {
   notificaciones = [
     {
       "codigo": "F",
-      "mensaje": "Cambia a estado En Formulacion",
+      "mensaje": "El asistente de [NOMBRE UNIDAD] ha comenzado la formulación del plan [NOMBRE PLAN] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Formulación.",
       "destinatarios": ["jefe unidad"]
     },
     {
       "codigo": "FEF",
-      "mensaje": "Cambia a estado Formulado",
+      "mensaje": "El asistente de [NOMBRE UNIDAD] ha finalizado la formulación del plan [NOMBRE PLAN] de la vigencia [VIGENCIA]. El plan se encuentra en estado Formulado.",
       "destinatarios": ["jefe unidad"]
     },
     {
       "codigo": "FF",
-      "mensaje": "Cambia a estado En Revisión",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El asistente de planeación ha comenzado la revision del plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Revisión.",
+      "destinatarios": ["asistente unidad", "jefe unidad"],
     },
     {
       "codigo": "FER",
-      "mensaje": "Cambia a estado Revisado",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El asistente de planeación ha finalizado la revisión del plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] para la vigencia [VIGENCIA]. El plan se encuentra en estado Revisado.",
+      "destinatarios": ["asistente unidad", "jefe unidad"],
     },
     {
       "codigo": "FR1",
-      "mensaje": "Cambia a estado En Formulación",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El jefe de unidad ha finalizado la revisión; rechazando y asignando observaciones en el proceso de formulación del plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Formulación.",
+      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
     },
     {
       "codigo": "FR2",
-      "mensaje": "Cambia a estado Revisión Verificada",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El jefe de [NOMBRE UNIDAD] ha realizado la verificación de la formulación para el plan [NOMBRE PLAN] en la vigencia [VIGENCIA]. El plan se encuentra en estado Revisión Verificada.",
+      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
     },
     {
       "codigo": "FV",
-      "mensaje": "Cambia a estado Pre Aval",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El jefe de planeación ha finalizado la revisión; aceptando la formulación y asignando pre aval para el plan [NOMBRE PLAN] de la unidad [NOMBRE UNIDAD] en la vigencia [VIGENCIA]. El plan se encuentra en estado Pre Aval.",
+      "destinatarios": ["asistente unidad", "jefe unidad"],
     },
     {
       "codigo": "FPA1",
-      "mensaje": "Cambia a estado En Formulación",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El Jefe de planeación ha finalizado la revisión; rechazando y asignando observaciones en el proceso de formulación del plan [NOMBRE PLAN] de la unidad [NOMBRE UNIDAD] en la vigencia [VIGENCIA]. El plan se encuentra en estado En Formulación.",
+      "destinatarios": ["asistente unidad", "jefe unidad", "asistente planeacion"],
     },
     {
       "codigo": "FPA2",
-      "mensaje": "Cambia a estado Avalado",
-      "destinatarios": ["jefe unidad"]
+      "mensaje": "El jefe de planeación ha finalizado la revisión; aceptando la formulación y asignando aval para el plan [NOMBRE PLAN] de la unidad [NOMBRE UNIDAD] en la vigencia [VIGENCIA]. El plan se encuentra en estado Avalado.",
+      "destinatarios": ["asistente unidad", "jefe unidad", "asistente planeacion"],
     },
     {
       "codigo": "FS",
-      "mensaje": "Cambia a Habilitado",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El jefe de planeación ha finalizado la revisión; aceptando la formulación y asignando aval para el plan [NOMBRE PLAN] de la unidad [NOMBRE UNIDAD] en la vigencia [VIGENCIA]. El plan se encuentra en estado Habilitado.",
+      "destinatarios": ["asistente unidad", "jefe unidad", "asistente planeacion"],
     },
     {
       "codigo": "SH",
-      "mensaje": "Cambia a estado En reporte",
+      "mensaje": "El asistente de [NOMBRE UNIDAD] ha generado el reporte de seguimiento del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En reporte.",
       "destinatarios": ["jefe unidad"],
     },
     {
       "codigo": "SER",
-      "mensaje": "Cambia a estado Enviado a revisión",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El jefe de [NOMBRE UNIDAD] ha enviado a revisión el plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Enviado a revisión.",
+      "destinatarios": ["asistente unidad", "asistente planeacion"],
     },
     {
       "codigo": "SEAR",
-      "mensaje": "Cambia a estado En revisión JU",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El jefe de [NOMBRE UNIDAD] ha iniciado la revisión del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En revisión JU.",
+      "destinatarios": ["asistente unidad", "asistente planeacion"],
     },
     {
       "codigo": "SERJU1",
-      "mensaje": "Cambia a estado Revisión Verificada con Observaciones",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El jefe de [NOMBRE UNIDAD] ha finalizado la revisión rechazando el seguimiento del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Revisión Verificada con Observaciones.",
+      "destinatarios":  ["asistente unidad", "asistente planeacion"],
     },
     {
       "codigo": "SERJU2",
-      "mensaje": "Cambia a estado Revisión Verificada",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El jefe de [NOMBRE UNIDAD] ha finalizado la revisión aceptando el seguimiento del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Revisión Verificada.",
+      "destinatarios":  ["asistente unidad", "asistente planeacion", "jefe planeacion"],
     },
     {
       "codigo": "SRVCO",
-      "mensaje": "Cambia a estado En reporte",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El asistente de [NOMBRE UNIDAD] ha generado el reporte de seguimiento del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En reporte.",
+      "destinatarios": ["jefe unidad", "asistente planeacion"],
     },
     {
       "codigo": "SRV",
-      "mensaje": "Cambia a estado En Revisión OAPC",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El asistente de planeación ha finalizado la verificación del plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En Revisión OAPC.",
+      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
     },
     {
       "codigo": "SEROAPC1",
-      "mensaje": "Cambia a estado Con observaciones",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El jefe de planeación ha finalizado la revisión; devolviendo y asignando observaciones al seguimiento del plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Con observaciones.",
+      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
     },
     {
       "codigo": "SEROAPC2",
-      "mensaje": "Cambia a estado Reporte avalado",
-      "destinatarios": ["jefe unidad"],
+      "mensaje": "El jefe de planeación ha finalizado la revisión; aceptando el seguimiento para el plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Reporte Avalado.",
+      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
     },
     {
       "codigo": "SCO",
-      "mensaje": "Cambia a estado En reporte",
+      "mensaje": "El asistente de [NOMBRE UNIDAD] ha generado el reporte de seguimiento del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En reporte.",
       "destinatarios": ["jefe unidad"],
     }
   ]
@@ -187,7 +187,6 @@ export class Notificaciones {
   
   // Obtener los usuarios filtrados por dependencia y cargo
   async getUsuarios(dependencias: string, idsCargos: string) {
-    idsCargos = "319"
     return await new Promise((resolve, reject) => {
       this.request.get(environment.TERCEROS_SERVICE, `vinculacion?query=DependenciaId__in:${dependencias},CargoId__in:${idsCargos}`)
         .subscribe(
@@ -200,7 +199,7 @@ export class Notificaciones {
   // Obtener el documento de un usuario
   async getDocUsuario(idTercero: string) {
     return await new Promise((resolve, reject) => {
-      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion?query=TerceroId.Id:${idTercero}`)
+      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion?query=TerceroId.Id:${idTercero},TipoDocumentoId.CodigoAbreviacion:CC`)
         .subscribe(
           (data: any) => resolve(data),
           (error: any) => reject(error)
@@ -213,7 +212,8 @@ export class Notificaciones {
     let idsColas = rolesRemitentes.map(rol => {
       let palabras = rol.split(' ');
       let nombreCola = palabras.map(nombre => nombre.charAt(0).toUpperCase() + nombre.slice(1));
-      return "idcola" + nombreCola.join('');
+      let id = environment.entorno == 'test' ? "idcola" : "id" ;
+      return id + nombreCola.join('');
     });
     return idsColas
   }
@@ -244,8 +244,8 @@ export class Notificaciones {
     //Modificar el mensaje
     let mensaje = notificacion.mensaje;
     const reemplazos = {
-      "[Nombre de la Unidad]": nombre_unidad,
-      "[Nombre del plan]": nombre_plan,
+      "[NOMBRE UNIDAD]": nombre_unidad,
+      "[NOMBRE PLAN]": nombre_plan,
       "[VIGENCIA]": nombre_vigencia
     };
 
