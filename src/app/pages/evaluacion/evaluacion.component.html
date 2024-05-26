@@ -65,7 +65,6 @@
   </mat-card-content>
 </mat-card>
 <br>
-<img src="assets/svg/avance-porcentaje.svg">
 <mat-card class="card-oas" *ngIf="bandera === true">
   <app-evaluacion-plan *ngIf=" unidad !== 'TODAS' " [mostrarGraficos]="true" [idVigencia]=" vigencia.Id "
     [plan]=" { id: idPlanSeleccionado, nombre: nombrePlanSeleccionado } " [periodo]=" periodo "
