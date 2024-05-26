@@ -1,16 +1,14 @@
 import { Injectable } from '@angular/core';
-import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
-import { ConsultaIdentificador } from './ConsultaCodigos/ConsultaIdentificador';
-import { ConsultaSnakeCase } from './ConsultaCodigos/ConsultaSnakeCase';
-import { ConsultaPascalCase } from './ConsultaCodigos/ConsultaPascalCase';
+import { RequestManager } from '../../pages/services/requestManager';
+import { DataRequest } from '../models/interfaces/DataRequest.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CodigosService {
   private idsCargados = false;
-  private consultas: {
+  private consultasCodigos: {
     [key: string]: { [key: string]: { [key: string]: string } };
   } = {
     PARAMETROS_SERVICE: {
@@ -45,51 +43,56 @@ export class CodigosService {
     },
   };
 
-  private constructor(private request: RequestManager) {}
+  constructor(private request: RequestManager) {}
 
   public async cargarIdentificadores() {
     if (!this.idsCargados) {
-      let promesas: Promise<void>[] = [];
-      let consultaTipo: ConsultaIdentificador;
-      const rutas = Object.keys(this.consultas);
-      rutas.forEach((ruta) => {
-        const endpoints = Object.keys(this.consultas[ruta]);
-        endpoints.forEach((endpoint) => {
-          const abreviaciones = Object.keys(this.consultas[ruta][endpoint]);
-          abreviaciones.forEach((abreviacion) => {
-            if (ruta == 'PLANES_CRUD') {
-              consultaTipo = new ConsultaSnakeCase(
-                this.request,
-                environment.PLANES_CRUD,
-                endpoint,
-                abreviacion
-              );
-            } else if (ruta == 'PARAMETROS_SERVICE') {
-              consultaTipo = new ConsultaPascalCase(
-                this.request,
-                environment.PARAMETROS_SERVICE,
-                endpoint,
-                abreviacion
-              );
-            }
-            const promesa = consultaTipo
-              .obtenerCodigo()
-              .then((codigo: string) => {
-                this.consultas[ruta][endpoint][abreviacion] = codigo;
-                // if (endpoint == 'tipo-plan') {
-                //   console.log(
-                //     `${codigo}\nthis.codigosService.getId('${ruta}', '${endpoint}', '${abreviacion}')`
-                //   );
-                // }
-              });
-            promesas.push(promesa);
-          });
-        });
-      });
-      await Promise.all(promesas);
+      const rutas = Object.keys(this.consultasCodigos);
+      for (const ruta of rutas) {
+        const endpoints = Object.keys(this.consultasCodigos[ruta]);
+        for (const endpoint of endpoints) {
+          const abreviaciones = Object.keys(
+            this.consultasCodigos[ruta][endpoint]
+          );
+          for (const abreviacion of abreviaciones) {
+            await new Promise((resolve, reject) => {
+              if (ruta == 'PLANES_CRUD') {
+                this.request
+                  .get(
+                    environment.PLANES_CRUD,
+                    `${endpoint}?query=codigo_abreviacion:${abreviacion},activo:true`
+                  )
+                  .subscribe({
+                    next: (data: DataRequest) => {
+                      if (data.Data[0]) {
+                        data.Data[0]._id;
+                        resolve(data.Data[0]._id);
+                      }
+                    },
+                  });
+              } else if (ruta == 'PARAMETROS_SERVICE') {
+                this.request
+                  .get(
+                    environment.PARAMETROS_SERVICE,
+                    `${endpoint}?query=CodigoAbreviacion:${abreviacion},Activo:true`
+                  )
+                  .subscribe({
+                    next: (data: DataRequest) => {
+                      if (data.Data[0]) {
+                        resolve(data.Data[0].Id.toString());
+                      }
+                    },
+                  });
+              }
+            }).then((codigo: string) => {
+              this.consultasCodigos[ruta][endpoint][abreviacion] = codigo;
+            });
+          }
+        }
+      }
       this.idsCargados = true;
     }
-    // console.log(this.consultas);
+    console.log(this.consultasCodigos);
   }
 
   /**
@@ -100,6 +103,6 @@ export class CodigosService {
    * @returns codigo del objeto
    */
   public getId(ruta: string, endpoint: string, abreviacion: string) {
-    return this.consultas[ruta][endpoint][abreviacion];
+    return this.consultasCodigos[ruta][endpoint][abreviacion];
   }
 }
