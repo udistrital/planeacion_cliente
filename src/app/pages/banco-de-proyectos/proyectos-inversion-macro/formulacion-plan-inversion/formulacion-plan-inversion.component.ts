@@ -134,14 +134,15 @@ export class FormulacionPlanInversionComponent implements OnInit {
       this.newPlanId = prm['this.newPlanId'];
 
     });
-    this.cargarPlanesDesarrolloDistrital();
-    this.cargarProyectosInversion();
-    this.cargarPlanesDesarrollo();
-    this.cargarPlanesIndicativos();
   }
 
   async ngOnInit(){
     await this.codigosService.cargarIdentificadores();
+
+    this.cargarPlanesDesarrolloDistrital();
+    this.cargarProyectosInversion();
+    this.cargarPlanesDesarrollo();
+    this.cargarPlanesIndicativos();
     this.formArmonizacion = this.formBuilder.group({
       selectPDD: ['',],
       selectPED: ['',],

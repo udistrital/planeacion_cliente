@@ -112,11 +112,11 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     }
     this.loadPlan();
     this.loadProyectI();
-    this.loadActividades();
   }
 
   async ngOnInit(){
     await this.codigosService.cargarIdentificadores();
+    this.loadActividades();
     this.arbolPadreId = this.planId;
     this.unidadId = localStorage.getItem('dependencia_id');
     this.vigenciaId = localStorage.getItem('vigenciaId');

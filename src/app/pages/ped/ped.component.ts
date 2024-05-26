@@ -30,7 +30,6 @@ export class PedComponent implements OnInit {
     private request: RequestManager,
     private codigosService: CodigosService
   ) {
-    this.loadData();
   }
 
   applyFilter(event: Event) {
@@ -286,6 +285,7 @@ export class PedComponent implements OnInit {
 
   async ngOnInit(){
     await this.codigosService.cargarIdentificadores();
+    this.loadData();
   }
 
 }
