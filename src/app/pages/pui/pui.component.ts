@@ -25,7 +25,6 @@ export class PUIComponent implements OnInit {
     private codigosService:CodigosService
   ) {
     this.dataSource = new MatTableDataSource();
-    this.loadData();
   }
 
   loadData() {
@@ -149,6 +148,7 @@ export class PUIComponent implements OnInit {
 
   async ngOnInit(){
     await this.codigosService.cargarIdentificadores();
+    this.loadData();
   }
 
 }
