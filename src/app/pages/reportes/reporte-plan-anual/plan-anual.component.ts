@@ -39,7 +39,6 @@ export class PlanAnualComponent implements OnInit {
     private codigosService: CodigosService
   ) {
     this.loadVigencias();
-    this.loadEstados();
     this.loadPlanes();
     this.unidadVisible = true;
     this.tablaVisible = false;
@@ -55,10 +54,6 @@ export class PlanAnualComponent implements OnInit {
       this.rol = 'JEFE_DEPENDENCIA';
       this.validarUnidad();
     }
-  }
-
-  async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
     this.form = this.formBuilder.group({
       vigencia: ['', Validators.required],
       tipoReporte: ['', Validators.required],
@@ -67,6 +62,11 @@ export class PlanAnualComponent implements OnInit {
       estado: ['', Validators.required],
       plan: ['', Validators.required],
     });
+  }
+
+  async ngOnInit(){
+    await this.codigosService.cargarIdentificadores();
+    this.loadEstados();
   }
 
   validarUnidad() {
