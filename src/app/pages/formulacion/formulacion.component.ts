@@ -317,13 +317,18 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                     )
                     .subscribe((dataUnidad: any) => {
                       if (dataUnidad) {
-                        let unidad = dataUnidad[0]['DependenciaId'];
-                        unidad['TipoDependencia'] =
-                          dataUnidad[0]['TipoDependenciaId']['Id'];
+                        let unidadesOrdenadas = (dataUnidad as any[]).sort((a:any, b:any) => {
+                          let fechaA =  new Date(a ['DependenciaId']['FechaModificacion'])
+                          let fechaB = new Date(b['DependenciaId']['FechaModificacion'])
+                          return fechaA.getTime() - fechaB.getTime()
+                        });
+                        // TODO: verificar que las unidades vienen organizadas de mayor a menor por Fecha de Modificación
+                        console.log(unidadesOrdenadas)
+                        let unidad = unidadesOrdenadas[0]['DependenciaId'];
+                        unidad['TipoDependencia'] = unidadesOrdenadas[0]['TipoDependenciaId']['Id'];
                         for (let i = 0; i < dataUnidad.length; i++) {
                           if (dataUnidad[i]['TipoDependenciaId']['Id'] === 2) {
-                            unidad['TipoDependencia'] =
-                              dataUnidad[i]['TipoDependenciaId']['Id'];
+                            unidad['TipoDependencia'] = dataUnidad[i]['TipoDependenciaId']['Id'];
                           }
                         }
                         this.unidades.push(unidad);
