@@ -100,7 +100,6 @@ export class ResumenComponent implements OnInit {
     }
     Swal.close();
   }
-  
 
   async obtenerDatosGraficaPorPeriodos(unidad: { Id: string; Nombre: string }) {
     await new Promise((resolve, reject) => {
