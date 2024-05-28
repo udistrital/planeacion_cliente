@@ -117,6 +117,7 @@ import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuari
 import { FormUsuariosComponent } from './plan/gestion-usuarios/form-usuarios/form-usuarios.component';
 import { CodigosService } from '../@core/services/codigos.service';
 import { HabilitarReporteService } from './plan/habilitar-reporte/habilitar-reporte.service';
+import { Notificaciones } from './services/notificaciones';
 
 const pagesComponents = [
   DashboardComponent,
@@ -286,6 +287,7 @@ const MY_FORMATS = {
     RequestManager,
     CodigosService,
     HabilitarReporteService,
+    Notificaciones,
     MatDatepickerModule,
     { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
     { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },
