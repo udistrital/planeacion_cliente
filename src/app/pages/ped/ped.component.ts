@@ -175,8 +175,8 @@ export class PedComponent implements OnInit {
     })
   }
 
-  loadData(){
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
+  async loadData(){
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.ajustarData();
@@ -255,12 +255,12 @@ export class PedComponent implements OnInit {
     })
   }
 
-  inactivar(fila):void{
+  async inactivar(fila) {
     this.uid = fila._id;
     if (fila.activo == 'Activo'){
-      if (fila.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
+      if (fila.tipo_plan_id != await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
         this.deleteData();
-      } else if (fila.tipo_plan_id == this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
+      } else if (fila.tipo_plan_id == await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
         let res = {
           activo: false,
         }
@@ -284,7 +284,6 @@ export class PedComponent implements OnInit {
   }
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
     this.loadData();
   }
 

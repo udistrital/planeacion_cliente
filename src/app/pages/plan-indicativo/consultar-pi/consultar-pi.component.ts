@@ -177,8 +177,8 @@ export class ConsultarPIComponent implements OnInit {
     })
   }
 
-  loadData(){
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
+  async loadData(){
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
       if (data){
         this.planes = data.Data;
         this.ajustarData();
@@ -247,10 +247,10 @@ export class ConsultarPIComponent implements OnInit {
     })
   }
 
-  inactivar(fila):void{
+  async inactivar(fila) {
     this.uid = fila._id;
     if (fila.activo == 'Activo'){
-      if (fila.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
+      if (fila.tipo_plan_id != await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
         this.deleteData();
       } else {
         let res = {
@@ -276,7 +276,6 @@ export class ConsultarPIComponent implements OnInit {
   }
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
     this.loadData();
   }
 

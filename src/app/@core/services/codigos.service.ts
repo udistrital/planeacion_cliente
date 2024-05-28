@@ -45,56 +45,6 @@ export class CodigosService {
 
   constructor(private request: RequestManager) {}
 
-  public async cargarIdentificadores() {
-    if (!this.idsCargados) {
-      const rutas = Object.keys(this.consultasCodigos);
-      for (const ruta of rutas) {
-        const endpoints = Object.keys(this.consultasCodigos[ruta]);
-        for (const endpoint of endpoints) {
-          const abreviaciones = Object.keys(
-            this.consultasCodigos[ruta][endpoint]
-          );
-          for (const abreviacion of abreviaciones) {
-            await new Promise((resolve, reject) => {
-              if (ruta == 'PLANES_CRUD') {
-                this.request
-                  .get(
-                    environment.PLANES_CRUD,
-                    `${endpoint}?query=codigo_abreviacion:${abreviacion},activo:true`
-                  )
-                  .subscribe({
-                    next: (data: DataRequest) => {
-                      if (data.Data[0]) {
-                        data.Data[0]._id;
-                        resolve(data.Data[0]._id);
-                      }
-                    },
-                  });
-              } else if (ruta == 'PARAMETROS_SERVICE') {
-                this.request
-                  .get(
-                    environment.PARAMETROS_SERVICE,
-                    `${endpoint}?query=CodigoAbreviacion:${abreviacion},Activo:true`
-                  )
-                  .subscribe({
-                    next: (data: DataRequest) => {
-                      if (data.Data[0]) {
-                        resolve(data.Data[0].Id.toString());
-                      }
-                    },
-                  });
-              }
-            }).then((codigo: string) => {
-              this.consultasCodigos[ruta][endpoint][abreviacion] = codigo;
-            });
-          }
-        }
-      }
-      this.idsCargados = true;
-    }
-    console.log(this.consultasCodigos);
-  }
-
   /**
    * Obtener el Id cargado previamente
    * @param ruta nombre de la variable como se encuentra en environment
@@ -102,7 +52,41 @@ export class CodigosService {
    * @param abreviacion codigo de abreviación del objeto al que se le obtendra el id
    * @returns codigo del objeto
    */
-  public getId(ruta: string, endpoint: string, abreviacion: string) {
+  public async getId(ruta: string, endpoint: string, abreviacion: string) {
+    if (this.consultasCodigos[ruta][endpoint][abreviacion] === '') {
+      await new Promise((resolve, reject) => {
+        if (ruta == 'PLANES_CRUD') {
+          this.request
+            .get(
+              environment.PLANES_CRUD,
+              `${endpoint}?query=codigo_abreviacion:${abreviacion},activo:true`
+            )
+            .subscribe({
+              next: (data: DataRequest) => {
+                if (data.Data[0]) {
+                  data.Data[0]._id;
+                  resolve(data.Data[0]._id);
+                }
+              },
+            });
+        } else if (ruta == 'PARAMETROS_SERVICE') {
+          this.request
+            .get(
+              environment.PARAMETROS_SERVICE,
+              `${endpoint}?query=CodigoAbreviacion:${abreviacion},Activo:true`
+            )
+            .subscribe({
+              next: (data: DataRequest) => {
+                if (data.Data[0]) {
+                  resolve(data.Data[0].Id.toString());
+                }
+              },
+            });
+        }
+      }).then((codigo: string) => {
+        this.consultasCodigos[ruta][endpoint][abreviacion] = codigo;
+      });
+    }
     return this.consultasCodigos[ruta][endpoint][abreviacion];
   }
 }

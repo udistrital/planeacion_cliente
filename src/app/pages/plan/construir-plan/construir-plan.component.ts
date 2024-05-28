@@ -450,7 +450,7 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `plan?query=formato:true`).subscribe(async (data: any) => {
       if (data) {
         this.planes = data.Data;
         this.planes = this.filterActivos(this.planes);
@@ -459,7 +459,7 @@ export class ConstruirPlanComponent implements OnInit {
         this.planes = this.planes.concat(data.Data);
         this.planes = this.filterActivos(this.planes);
       })
-      this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
+      this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
         this.planes = this.planes.concat(data.Data);
         this.planes = this.filterActivos(this.planes);
       })
@@ -486,7 +486,6 @@ export class ConstruirPlanComponent implements OnInit {
     this.formConstruirPlan = this.formBuilder.group({
       planControl: ['', Validators.required],
     });
-    await this.codigosService.cargarIdentificadores();
-    this.ID_TIPO_PROYECTO = this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
+    this.ID_TIPO_PROYECTO = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
   }
 }

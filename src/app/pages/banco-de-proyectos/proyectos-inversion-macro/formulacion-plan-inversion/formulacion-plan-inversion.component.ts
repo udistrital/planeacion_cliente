@@ -137,8 +137,6 @@ export class FormulacionPlanInversionComponent implements OnInit {
   }
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
-
     this.cargarPlanesDesarrolloDistrital();
     this.cargarProyectosInversion();
     this.cargarPlanesDesarrollo();
@@ -258,8 +256,8 @@ export class FormulacionPlanInversionComponent implements OnInit {
     }
   }
 
-  cargarPlanesDesarrolloDistrital() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PDD_SP')}`).subscribe((data: any) => {
+  async cargarPlanesDesarrolloDistrital() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PDD_SP')}`).subscribe((data: any) => {
       if (data) {
         this.planesDesarrolloDistrital = data.Data;
         //this.formArmonizacion.get('selectPDD').setValue(this.planesDesarrolloDistrital[0])
@@ -267,8 +265,8 @@ export class FormulacionPlanInversionComponent implements OnInit {
       }
     })
   }
-  cargarPlanesDesarrollo() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
+  async cargarPlanesDesarrollo() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
       if (data) {
         this.planesDesarrollo = data.Data;
         //this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
@@ -277,8 +275,8 @@ export class FormulacionPlanInversionComponent implements OnInit {
     })
   }
 
-  cargarProyectosInversion() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PRI_SP')}`).subscribe((data: any) => {
+  async cargarProyectosInversion() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PRI_SP')}`).subscribe((data: any) => {
       if (data) {
         this.proyectosInversion = data.Data;
         console.log(this.proyectosInversion)
@@ -288,8 +286,8 @@ export class FormulacionPlanInversionComponent implements OnInit {
       }
     })
   }
-  cargarPlanesIndicativos() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
+  async cargarPlanesIndicativos() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
       if (data) {
         this.planesIndicativos = data.Data;
         //this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])

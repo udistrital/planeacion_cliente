@@ -38,7 +38,6 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
   ) { }
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
     this.loadData();
   }
 
@@ -54,7 +53,7 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
     this.router.navigate(['pages/proyectos-macro/proyecto-inversion/' + row.id]);
   }
 
-  loadData() {
+  async loadData() {
     Swal.fire({
       title: 'Cargando Proyectos',
       timerProgressBar: true,
@@ -63,7 +62,7 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `inversion/proyectos/${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PRI_SP')}`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `inversion/proyectos/${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PRI_SP')}`).subscribe((data: any) => {
       if (data) {
         this.planes = data.Data;
         if (this.planes.length > 0) {

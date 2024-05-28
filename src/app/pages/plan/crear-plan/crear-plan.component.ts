@@ -126,9 +126,9 @@ export class CrearPlanComponent implements OnInit {
 
   }
 
-  select(tipo) {
+  async select(tipo) {
     this.tipoPlan = tipo;
-    if (tipo._id !== this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP') && tipo._id !== this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PUI_SP')) { // diferente de proyecto
+    if (tipo._id !== await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP') && tipo._id !== await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PUI_SP')) { // diferente de proyecto
       this.nombrePlan = tipo.nombre;
       this.banderaFormato = true;
       this.formCrearPlan.get('radioFormato').enable();
@@ -273,7 +273,6 @@ export class CrearPlanComponent implements OnInit {
 
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
     this.formCrearPlan = this.formBuilder.group({
       nombre: ['', Validators.required],
       desc: ['', Validators.required],

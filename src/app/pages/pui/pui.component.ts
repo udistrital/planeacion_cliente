@@ -27,8 +27,8 @@ export class PUIComponent implements OnInit {
     this.dataSource = new MatTableDataSource();
   }
 
-  loadData() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PUI_SP')
+  async loadData() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PUI_SP')
   }`).subscribe((data: any) => {
       if (data) {
         this.planes = data.Data;
@@ -146,8 +146,7 @@ export class PUIComponent implements OnInit {
     return dataPromise;
   }
 
-  async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
+   ngOnInit(){
     this.loadData();
   }
 

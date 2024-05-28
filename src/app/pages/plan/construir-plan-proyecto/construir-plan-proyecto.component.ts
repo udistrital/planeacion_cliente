@@ -240,10 +240,10 @@ export class ConstruirPlanProyectoComponent implements OnInit {
     }
   }
 
-  inactivar(fila):void{
+  async inactivar(fila) {
     this.uid = fila._id;
     if (fila.activo == 'Activo'){
-      if (fila.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
+      if (fila.tipo_plan_id != await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
         this.deleteData();
       } else {
         let res = {
@@ -285,7 +285,6 @@ export class ConstruirPlanProyectoComponent implements OnInit {
   }
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
     this.loadData();
   }
 
