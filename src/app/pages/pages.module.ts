@@ -116,6 +116,7 @@ import { AutoResizeDirective } from './directives/resize.directive';
 import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
 import { FormUsuariosComponent } from './plan/gestion-usuarios/form-usuarios/form-usuarios.component';
 import { CodigosService } from '../@core/services/codigos.service';
+import { HabilitarReporteService } from './plan/habilitar-reporte/habilitar-reporte.service';
 
 const pagesComponents = [
   DashboardComponent,
@@ -284,6 +285,7 @@ const MY_FORMATS = {
   providers: [
     RequestManager,
     CodigosService,
+    HabilitarReporteService,
     MatDatepickerModule,
     { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
     { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },
