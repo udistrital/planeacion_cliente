@@ -12,7 +12,6 @@ th {
   overflow-x: auto;
 
   .mat-table {
-
     width: 100%;
     max-width: 100%;
     margin-bottom: 1rem;
@@ -23,14 +22,12 @@ th {
 
   .mat-row,
   .mat-header-row {
-
     display: table-row;
     text-align: center;
   }
 
   .mat-cell,
   .mat-header-cell {
-
     text-align: center;
     word-wrap: initial;
     display: table-cell;
@@ -42,9 +39,7 @@ th {
     vertical-align: middle;
   }
 
-
   .mat-cell {
-
     text-align: center;
     word-wrap: initial;
     display: table-cell;
@@ -58,7 +53,6 @@ th {
   }
 
   .mat-footer-cell {
-
     background-color: var(--primary);
     color: white;
     text-align: center;
@@ -91,9 +85,8 @@ th.mat-header-cell {
   background-color: var(--color600);
 }
 
-
 .oscuro {
-  background-color: #E7D6D6;
+  background-color: #e7d6d6;
 }
 
 .claro {
@@ -120,4 +113,21 @@ th.mat-header-cell {
 
 .meta-verde {
   background-color: #72ac41;
+}
+
+.small-content {
+  background-color: #FFF;
+  border-radius: 8px;
+  font-size: 12px;
+  text-align: center;
+  padding: 32px;
+
+  mat-card-title {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  img {
+    height: auto;
+  }
 }
