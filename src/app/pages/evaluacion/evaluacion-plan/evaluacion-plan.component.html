@@ -1,12 +1,14 @@
-<div *ngIf="mostrarGraficos" style="display: flex; justify-content: space-between; align-items: center; gap: 32px">
-  <google-chart [title]="pieTitle" [type]="pieType" style="width: 20vw;" height="400" [data]="pieChartData"
+<div *ngIf="mostrarGraficos" class="charts-container">
+  <google-chart [title]="pieTitle" [type]="pieType" class="chart pie-chart" [height]="400" [data]="pieChartData"
     [columns]="pieChartColumns" [options]="pieChartOptions"></google-chart>
 
-  <google-chart [type]="columnType" [data]="lineChartData" style="width: 60vw;" dynamicResize="true" height="400"
+  <google-chart [type]="columnType" [data]="lineChartData" class="chart line-chart" dynamicResize="true" [height]="400"
     [columns]="lineChartColumnNames" [options]="lineChartOptions"></google-chart>
-  <div class="small-content" style="width:20vw;">
-    <mat-card-title style="text-align: center;">Colores por porcentajes</mat-card-title>
-    <img src="assets/svg/avance-porcentaje.svg">
+
+  <div class="small-content">
+    <mat-card-title style="text-align: center;">Nivel de avance</mat-card-title>
+    <p>El nivel de avance se marca con un color de acuerdo con los siguientes intervalos:</p>
+    <img src="assets/img/colores-avance-porcentaje.png">
   </div>
 </div>
 

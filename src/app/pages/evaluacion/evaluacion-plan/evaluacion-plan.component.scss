@@ -115,19 +115,34 @@ th.mat-header-cell {
   background-color: #72ac41;
 }
 
+.charts-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  height: 100%;
+}
+
+.chart {
+  height: 100%;
+}
+
+.pie-chart {
+  width: 20%;
+}
+
+.line-chart {
+  width: 60%;
+}
+
 .small-content {
   background-color: #FFF;
   border-radius: 8px;
-  font-size: 12px;
+  width: 20%;
+  height: 100%;
   text-align: center;
   padding: 32px;
-
   mat-card-title {
     font-size: 20px;
-    text-align: center;
-  }
-
-  img {
-    height: auto;
   }
 }
