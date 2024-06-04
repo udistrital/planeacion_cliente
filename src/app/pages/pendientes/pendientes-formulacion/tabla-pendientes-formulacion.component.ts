@@ -37,6 +37,8 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
   banderaTodosSeleccionados: boolean;
   datosCargados: boolean;
 
+  CODIGO_TIPO_PROYECTO: string;
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
@@ -53,7 +55,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
   }
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
+    this.CODIGO_TIPO_PROYECTO = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP');
     this.validarUnidad()
     const datosPrueba: any[] = [];
     this.informacionTabla = new MatTableDataSource<any>(datosPrueba);
@@ -229,7 +231,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
   }
 
   filterPlanes(data) {
-    var dataAux = data.filter(e => e.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP'));
+    var dataAux = data.filter(e => e.tipo_plan_id != this.CODIGO_TIPO_PROYECTO);
     return dataAux.filter(e => e.activo == true);
   }
 
@@ -327,14 +329,14 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.planesInteres.forEach(plan => {
+        this.planesInteres.forEach(async (plan) => {
           const auxPlan = {
             fecha_creacion: plan.fecha_creacion,
             activo: plan.activo,
             aplicativo_id: plan.aplicativo_id,
             tipo_plan_id: plan.tipo_plan_id,
             descripcion: plan.descripcion,
-            estado_plan_id: this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP'),
+            estado_plan_id: await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP'),
             _id: plan.id,
             nombre: plan.nombre
           }
@@ -344,8 +346,8 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
               this.notificacionesService.enviarNotificacion({
                 codigo: "FR2",
                 id_unidad: plan.dependencia_id,
-                nombre_unidad: plan.dependencia_nombre, 
-                nombre_plan: plan.nombre, 
+                nombre_unidad: plan.dependencia_nombre,
+                nombre_plan: plan.nombre,
                 nombre_vigencia: plan.vigencia
               })
               Swal.fire({

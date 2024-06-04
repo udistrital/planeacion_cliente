@@ -131,8 +131,8 @@ export class ArbolComponent implements OnInit {
     }
   }
 
-  ngOnChanges(changes) {
-    if (this.tipoPlanId !== this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
+  async ngOnChanges(changes) {
+    if (this.tipoPlanId !== await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
       if (this.idPlan !== this.planActual) {
         this.loadArbolMid();
         this.planActual = this.idPlan;
@@ -373,7 +373,6 @@ export class ArbolComponent implements OnInit {
       requiredfile: ['', Validators.required]
     });
     this.planActual = '';
-    await this.codigosService.cargarIdentificadores();
-    this.ID_TIPO_PROYECTO = this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
+    this.ID_TIPO_PROYECTO = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
   }
 }

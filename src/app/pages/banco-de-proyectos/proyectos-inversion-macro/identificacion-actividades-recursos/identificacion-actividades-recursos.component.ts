@@ -115,7 +115,6 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   }
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
     this.loadActividades();
     this.arbolPadreId = this.planId;
     this.unidadId = localStorage.getItem('dependencia_id');
@@ -367,11 +366,11 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           Swal.showLoading();
         },
       })
-      this.request.post(environment.PLANES_MID, `inversion/crear_grupo_meta`, parametros).subscribe((data: any) => {
+      this.request.post(environment.PLANES_MID, `inversion/crear_grupo_meta`, parametros).subscribe(async (data: any) => {
         if (data) {
           Swal.close();
           console.log(data);
-          this.actividad.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
+          this.actividad.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
           this.request.put(environment.PLANES_CRUD, `plan`, this.actividad, data.Data._id).subscribe((dataPut: any) => {
           if (dataPut) {
             this.actividadClone = dataPut.Data;
@@ -393,7 +392,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
 
           //this.formular = true;
           console.log(data.Data._id, "id");
-          //this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
+          //this.plan.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
           //this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
             //if (dataPut) {
               //this.plan = dataPut.Data;
@@ -459,8 +458,8 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
 
 
 
-  loadActividades() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'API_SP')},formato:true`).subscribe((data: any) => {
+  async loadActividades() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'API_SP')},formato:true`).subscribe((data: any) => {
       if (data) {
         if (data.Data.length != 0) {
           this.actividades = data.Data;
@@ -640,7 +639,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   }
 
   ajustarData() {
-    // if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP')) {
+    // if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP')) {
     //   this.iconEditar = 'search'
     // } else if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_PLANEACION') {
     //   this.iconEditar = 'edit'
