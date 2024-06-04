@@ -1,22 +1,23 @@
 <div
-  style="
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-  "
   *ngIf="mostrarGrafica"
+  class="charts-container"
 >
-  <google-chart
+  <google-chart class="line-chart"
     [type]="columnType"
     [data]="lineChartData"
-    style="width: 70%"
     dynamicResize="true"
-    height="400"
+    [height]="400"
     [columns]="lineChartColumnNames"
     [options]="lineChartOptions"
   ></google-chart>
+  <div class="small-content" style="width: 20%;height: 100%;">
+    <mat-card-title>Nivel de avance</mat-card-title>
+    <p>El nivel de avance se marca con un color de acuerdo con los siguientes intervalos:</p>
+    <img src="assets/img/colores-avance-porcentaje.png">
+  </div>
 </div>
+
+
 <br>
 <mat-card-title *ngIf="mostrarTabla">
   Reporte avance promedio del plan: {{ plan.nombre.toUpperCase() }}
