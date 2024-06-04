@@ -18,6 +18,7 @@ export class PUIComponent implements OnInit {
   displayedColumns: string[] = ['Vigencia', 'Nombre', 'Descripcion', 'Soporte'];
   dataSource: MatTableDataSource<any>;
   planes: any[];
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     private request: RequestManager,
@@ -34,6 +35,7 @@ export class PUIComponent implements OnInit {
         this.planes = data.Data;
         this.getVigencias();
         this.dataSource.data = this.planes;
+        this.dataSource.paginator = this.paginator;
       }
     }, (error) => {
       Swal.fire({

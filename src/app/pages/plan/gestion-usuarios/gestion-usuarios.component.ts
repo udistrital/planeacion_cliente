@@ -193,9 +193,22 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   editar(usuario: Usuario) {
-    this.errorEnPeticion = false;
-    this.usuario = usuario;
-    this.banderaFormEdicion = true;
+    if(usuario.VinculacionSeleccionadaId == null) {
+      this.errorEnPeticion = false;
+      this.usuario = usuario;
+      this.banderaFormEdicion = false;
+      Swal.fire({
+        title: 'Error en la operación',
+        text: 'Debe seleccionar la vinculación del usuario',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    } else {
+      this.errorEnPeticion = false;
+      this.usuario = usuario;
+      this.banderaFormEdicion = true;
+    }
   }
 
   recibirErrorPeticion(error: any) {
