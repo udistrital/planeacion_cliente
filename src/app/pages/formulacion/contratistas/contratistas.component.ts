@@ -45,6 +45,9 @@ export class ContratistasComponent implements OnInit {
   rubros = rubros_aux
   totalInc: number;
 
+  CODIGO_ESTADO_PRE_AVAL: string;
+  CODIGO_ESTADO_REVISADO: string;
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @Input() dataSourceActividades: MatTableDataSource<any>;
@@ -62,7 +65,8 @@ export class ContratistasComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-    await this.codigosService.cargarIdentificadores();
+    this.CODIGO_ESTADO_PRE_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')
+    this.CODIGO_ESTADO_REVISADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
     this.loadPlan();
     this.dataSource = new MatTableDataSource<any>();
     this.loadPerfiles();
@@ -201,15 +205,15 @@ export class ContratistasComponent implements OnInit {
 
 
   verificarVersiones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')));
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.CODIGO_ESTADO_PRE_AVAL));
     if (preAval.length != 0) {
       return true;
     } else {
       return false;
     }
   }
-  verificarObservaciones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP')));
+  verificarObservaciones() {
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.CODIGO_ESTADO_REVISADO));
     if (preAval.length != 0) {
       return true;
     } else {
@@ -236,9 +240,9 @@ export class ContratistasComponent implements OnInit {
       }
   }
 
-  loadTabla() {
+  async loadTabla() {
     if (this.dataTabla) {
-      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/${this.plan}/${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((dataG: any) => {
+      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/${this.plan}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((dataG: any) => {
         if (dataG.Data != null) {
           this.dataSource.data = dataG.Data;
           this.rubroSeleccionado = rubros_aux[rubros_aux.findIndex((e: any) => e.Codigo === this.dataSource.data[0].rubro)]
@@ -248,8 +252,8 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
-  loadPerfiles() {
-    this.request.get(environment.PARAMETROS_SERVICE,`parametro?query=TipoParametroId:${this.codigosService.getId("PARAMETROS_SERVICE", "tipo_parametro", "PC")}`).subscribe((data: any) => {
+  async loadPerfiles() {
+    this.request.get(environment.PARAMETROS_SERVICE,`parametro?query=TipoParametroId:${await this.codigosService.getId("PARAMETROS_SERVICE", "tipo_parametro", "PC")}`).subscribe((data: any) => {
       if (data) {
         this.perfiles = data.Data
       }
@@ -484,7 +488,7 @@ export class ContratistasComponent implements OnInit {
     this.acciones.emit({ data, accion, identi });
   }
 
-  guardarContratistas() {
+  async guardarContratistas() {
     if (this.rubroSeleccionado != undefined) {
       this.accionBoton = 'guardar';
       this.tipoIdenti = 'contratistas'
@@ -512,7 +516,7 @@ export class ContratistasComponent implements OnInit {
           obj["index"] = num.toString();
         }
         let dataS = JSON.stringify(Object.assign({}, data))
-        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, `${this.plan}/${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, `${this.plan}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Guardado exitoso',

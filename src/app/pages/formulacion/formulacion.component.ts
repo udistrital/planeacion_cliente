@@ -139,15 +139,14 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   dataSource: MatTableDataSource<any>;
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
-    this.ID_ESTADO_EN_FORMULACION = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
-    this.ID_ESTADO_FORMULADO = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP');
-    this.ID_ESTADO_EN_REVISION = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP');
-    this.ID_ESTADO_REVISADO = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
-    this.ID_ESTADO_PRE_AVAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
-    this.ID_ESTADO_AVAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
-    this.ID_ESTADO_AJUSTE_PRESUPUESTAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP');
-    this.ID_ESTADO_REVISION_VERIFICADA = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
+    this.ID_ESTADO_EN_FORMULACION = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
+    this.ID_ESTADO_FORMULADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP');
+    this.ID_ESTADO_EN_REVISION = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP');
+    this.ID_ESTADO_REVISADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
+    this.ID_ESTADO_PRE_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
+    this.ID_ESTADO_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
+    this.ID_ESTADO_AJUSTE_PRESUPUESTAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP');
+    this.ID_ESTADO_REVISION_VERIFICADA = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
@@ -251,7 +250,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         unidades_interes: JSON.stringify([unidad_interes]),
         planes_interes: JSON.stringify([plan_interes]),
         periodo_id: this.vigencia.Id.toString(),
-        tipo_seguimiento_id: this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP")
+        tipo_seguimiento_id: await this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP")
       }
       return await new Promise((resolve, reject) => {
         this.request
@@ -437,7 +436,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     return await new Promise((resolve,reject)=>{
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,dependencia_id:${this.unidad.Id},formato:false,vigencia:${this.vigencia.Id}`).subscribe(async (data: any) => {
         if ( data?.Data.length > 0 ) {
-          let planes  = data.Data.filter(e => e.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP'));
+          const CODIGO_TIPO_PLAN_PROYECTO = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
+          let planes  = data.Data.filter(e => e.tipo_plan_id != CODIGO_TIPO_PLAN_PROYECTO);
           this.planes = []
           planes.forEach(plan => {
             if (!this.existePlan(this.planes, plan.nombre)){
@@ -473,7 +473,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     var periodo_seguimiento: any = {
       unidades_interes: JSON.stringify([unidad_interes]),
       periodo_id: this.vigencia.Id.toString(),
-      tipo_seguimiento_id: this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP")
+      tipo_seguimiento_id: await this.codigosService.getId("PLANES_CRUD", "tipo-seguimiento", "F_SP")
     }
     return await new Promise((resolve, reject) => {
       this.request
@@ -1230,39 +1230,60 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.dataArmonizacionPI = [];
   }
 
-  identificarContratistas() {
-    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan._id},tipo_identificacion_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((data: any) => {
-      if (data.Data.length == 0) {
-        var str1 = 'Identificación de Contratistas ' + this.plan.nombre
-        var str2 = 'Identificación de Contratistas ' + this.plan.nombre + ' ' + this.unidad.Nombre
-        let datoIdenti = {
-          "nombre": String(str1),
-          "descripcion": String(str2),
-          "plan_id": String(this.plan._id),
-          "dato": "{}",
-          "tipo_identificacion_id": this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP'),
-          "activo": true
+  async identificarContratistas() {
+    this.request
+      .get(
+        environment.PLANES_CRUD,
+        `identificacion?query=plan_id:${
+          this.plan._id
+        },tipo_identificacion_id:${await this.codigosService.getId(
+          'PLANES_CRUD',
+          'tipo-identificacion',
+          'IC_SP'
+        )}`
+      )
+      .subscribe(async (data: any) => {
+        if (data.Data.length == 0) {
+          var str1 = 'Identificación de Contratistas ' + this.plan.nombre;
+          var str2 =
+            'Identificación de Contratistas ' +
+            this.plan.nombre +
+            ' ' +
+            this.unidad.Nombre;
+          let datoIdenti = {
+            nombre: String(str1),
+            descripcion: String(str2),
+            plan_id: String(this.plan._id),
+            dato: '{}',
+            tipo_identificacion_id: await this.codigosService.getId(
+              'PLANES_CRUD',
+              'tipo-identificacion',
+              'IC_SP'
+            ),
+            activo: true,
+          };
+          this.request
+            .post(environment.PLANES_CRUD, `identificacion`, datoIdenti)
+            .subscribe((dataP: any) => {
+              if (dataP) {
+                this.identContratistas = true;
+              } else {
+                Swal.fire({
+                  title: 'Error al crear identificación. Intente de nuevo',
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 2500,
+                });
+              }
+            });
+        } else {
+          this.identContratistas = true;
         }
-        this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
-          if (dataP) {
-            this.identContratistas = true;
-          } else {
-            Swal.fire({
-              title: 'Error al crear identificación. Intente de nuevo',
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-            })
-          }
-        })
-      } else {
-        this.identContratistas = true;
-      }
-    })
+      });
   }
 
-  identificarRecursos() {
-    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan._id},tipo_identificacion_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP')}`).subscribe((data: any) => {
+  async identificarRecursos() {
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan._id},tipo_identificacion_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP')}`).subscribe(async(data: any) => {
       if (data.Data.length == 0) {
         var str1 = 'Identificación de Recursos ' + this.plan.nombre
         var str2 = 'Identificación de Recursos ' + this.plan.nombre + ' ' + this.unidad.Nombre
@@ -1271,7 +1292,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           "descripcion": String(str2),
           "plan_id": String(this.plan._id),
           "dato": "{}",
-          "tipo_identificacion_id": this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP'),
+          "tipo_identificacion_id": await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP'),
           "activo": true
         }
         this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
@@ -1292,9 +1313,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     })
   }
 
-  identificarDocentes() {
+  async identificarDocentes() {
 
-    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan._id},tipo_identificacion_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'ID_SP')}`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan._id},tipo_identificacion_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'ID_SP')}`).subscribe(async (data: any) => {
       if (data.Data.length == 0) {
         var str1 = 'Identificación de Docentes ' + this.plan.nombre
         var str2 = 'Identificación de Docentes ' + this.plan.nombre + ' ' + this.unidad.Nombre
@@ -1303,7 +1324,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           "descripcion": String(str2),
           "plan_id": String(this.plan._id),
           "dato": "{}",
-          "tipo_identificacion_id": this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'ID_SP'),
+          "tipo_identificacion_id": await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'ID_SP'),
           "activo": false
         }
         this.request.post(environment.PLANES_CRUD, `identificacion`, datoIdenti).subscribe((dataP: any) => {
@@ -1325,8 +1346,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   cargarPlanesDesarrollo() {
-    return new Promise((resolve)=>{
-      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
+    return new Promise(async(resolve)=>{
+      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
         if (data) {
           this.planesDesarrollo = data.Data;
           this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
@@ -1338,8 +1359,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   cargarPlanesIndicativos() {
-    return new Promise((resolve)=>{
-      this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
+    return new Promise(async (resolve)=>{
+      this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
         if (data) {
           this.planesIndicativos = data.Data;
           this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])

@@ -92,7 +92,6 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   async ngOnInit() {
-    await this.codigosService.cargarIdentificadores();
     if (
       this.rol == 'JEFE_DEPENDENCIA' ||
       this.rol == 'ASISTENTE_DEPENDENCIA'
@@ -238,8 +237,9 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     }
   }
 
-  filterPlanes(data) {
-    var dataAux = data.filter(e => e.tipo_plan_id != this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP'));
+  async filterPlanes(data) {
+    const CODIGO_TIPO_PLAN_PROYECTO:string = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
+    var dataAux = data.filter(e => e.tipo_plan_id != CODIGO_TIPO_PLAN_PROYECTO);
     return dataAux.filter(e => e.activo == true);
   }
 
@@ -304,7 +304,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                     }
                     let body = {
                       periodo_id: periodos[i].Id,
-                      tipo_seguimiento_id: this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP'),
+                      tipo_seguimiento_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP'),
                       planes_interes: JSON.stringify([plan]),
                       unidades_interes: JSON.stringify([unidad]),
                       activo: true
@@ -376,7 +376,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
                   } else {
                     let body = {
                       periodo_id: periodos[i].Id,
-                      tipo_seguimiento_id: this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP'),
+                      tipo_seguimiento_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP'),
                       activo: true,
                     }
                     await new Promise((resolve, reject) => {
@@ -505,7 +505,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       const plan = this.dataSource.data[index];
       for (let trimestre in this.trimestres) {
         await new Promise(async (resolve, reject) => {
-          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')}
+          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')}
 ,plan_id:` + plan._id + `,periodo_seguimiento_id:` + this.trimestres[trimestre]["id"]).subscribe(async (data: DataRequest) => {
             if (data.Data.length != 0) {
               let estadoTemp;
@@ -620,8 +620,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.auxEstadosPlanes = [];
 
     if (tipo == "unidad") {
-      return await new Promise((resolve, reject) => {
-        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:${this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')},vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: DataRequest) => {
+      return await new Promise(async (resolve, reject) => {
+        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')},vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: DataRequest) => {
           if (data?.Data.length != 0) {
             data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });
             this.planes = data.Data;
@@ -661,8 +661,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         })
       });
     } else if (tipo == 'vigencia') {
-      return await new Promise((resolve,reject)=>{
-        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:${this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')},vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: DataRequest) => {
+      return await new Promise(async (resolve,reject)=>{
+        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')},vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: DataRequest) => {
           if (data) {
             if (data.Data.length != 0) {
               data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });

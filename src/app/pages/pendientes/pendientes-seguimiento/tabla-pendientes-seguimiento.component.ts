@@ -53,7 +53,6 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
   }
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
     this.validarUnidad()
     const datosPrueba: any[] = [];
     this.informacionTabla = new MatTableDataSource<any>(datosPrueba);
@@ -198,7 +197,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
   }
 
   loadPlanes(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       Swal.fire({
         title: 'Cargando información',
         timerProgressBar: true,
@@ -208,7 +207,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
         },
       })
 
-      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:${this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')},dependencia_id:${this.unidad.Id}`).subscribe(async (data: any) => {
+      this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')},dependencia_id:${this.unidad.Id}`).subscribe(async (data: any) => {
         if (data) {
           if (data.Data.length != 0) {
             data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });

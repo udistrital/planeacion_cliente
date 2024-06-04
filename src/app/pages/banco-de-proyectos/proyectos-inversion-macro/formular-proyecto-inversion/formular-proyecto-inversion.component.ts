@@ -196,15 +196,14 @@ export class FormularProyectoInversionComponent implements OnInit {
   }
 
   async ngOnInit(){
-    await this.codigosService.cargarIdentificadores();
-    this.ID_ESTADO_EN_FORMULACION = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
-    this.ID_ESTADO_FORMULADO = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP');
-    this.ID_ESTADO_EN_REVISION = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP');
-    this.ID_ESTADO_REVISADO = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
-    this.ID_ESTADO_PRE_AVAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
-    this.ID_ESTADO_AVAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
-    this.ID_ESTADO_AJUSTE_PRESUPUESTAL = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP');
-    this.ID_ESTADO_REVISION_VERIFICADA = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
+    this.ID_ESTADO_EN_FORMULACION = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
+    this.ID_ESTADO_FORMULADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP');
+    this.ID_ESTADO_EN_REVISION = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP');
+    this.ID_ESTADO_REVISADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
+    this.ID_ESTADO_PRE_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
+    this.ID_ESTADO_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
+    this.ID_ESTADO_AJUSTE_PRESUPUESTAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP');
+    this.ID_ESTADO_REVISION_VERIFICADA = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
     this.formArmonizacion = this.formBuilder.group({
       selectPDD: ['',],
       selectPED: ['',],
@@ -388,8 +387,8 @@ export class FormularProyectoInversionComponent implements OnInit {
     }
   }
 
-  loadPlanes() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'MPAI_SP')},formato:true`).subscribe((data: any) => {
+  async loadPlanes() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'MPAI_SP')},formato:true`).subscribe((data: any) => {
       if (data) {
         if (data.Data.length != 0) {
           this.planes = data.Data;
@@ -678,20 +677,20 @@ export class FormularProyectoInversionComponent implements OnInit {
       }
   }
 
-  getIconEstado() {
-    if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP')) {
+  async getIconEstado() {
+    if (this.plan.estado_plan_id == await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP')) {
       this.iconEstado = "create";
-    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP')) {
+    } else if (this.plan.estado_plan_id == await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP')) {
       this.iconEstado = "assignment_turned_in";
-    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP')) {
+    } else if (this.plan.estado_plan_id == await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP')) {
       this.iconEstado = "pageview";
-    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP')) {
+    } else if (this.plan.estado_plan_id == await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP')) {
       this.iconEstado = "assignment_return";
-    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')) {
+    } else if (this.plan.estado_plan_id == await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')) {
       this.iconEstado = "done";
-    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')) {
+    } else if (this.plan.estado_plan_id == await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')) {
       this.iconEstado = "done_all"
-    } else if (this.plan.estado_plan_id == this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP')) {
+    } else if (this.plan.estado_plan_id == await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP')) {
       this.iconEstado = "build";
     }
   }
@@ -963,8 +962,8 @@ export class FormularProyectoInversionComponent implements OnInit {
     }
   }
 
-  cargarPlanesDesarrolloDistrital() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PDD_SP')}`).subscribe((data: any) => {
+  async cargarPlanesDesarrolloDistrital() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PDD_SP')}`).subscribe((data: any) => {
       if (data) {
         console.log(data, "planes DD");
         this.planesDesarrolloDistrital = data.Data;
@@ -983,8 +982,8 @@ export class FormularProyectoInversionComponent implements OnInit {
       }
     })
   }
-  cargarPlanesDesarrollo() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
+  async cargarPlanesDesarrollo() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
       if (data) {
         console.log(data, "planes estrategicos");
         this.planesDesarrollo = data.Data;
@@ -1004,8 +1003,8 @@ export class FormularProyectoInversionComponent implements OnInit {
     })
   }
 
-  cargarProyectosInversion() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PRI_SP')}`).subscribe((data: any) => {
+  async cargarProyectosInversion() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PRI_SP')}`).subscribe((data: any) => {
       if (data) {
         this.proyectosInversion = data.Data;
         //console.log(this.proyectosInversion)
@@ -1026,8 +1025,8 @@ export class FormularProyectoInversionComponent implements OnInit {
       }
     })
   }
-  cargarPlanesIndicativos() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
+  async cargarPlanesIndicativos() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
       if (data) {
         console.log(data, "planes indicativos");
         this.planesIndicativos = data.Data;
@@ -1114,11 +1113,11 @@ export class FormularProyectoInversionComponent implements OnInit {
           Swal.showLoading();
         },
       })
-      this.request.post(environment.PLANES_MID, `inversion/crearplan`, parametros).subscribe((data: any) => {
+      this.request.post(environment.PLANES_MID, `inversion/crearplan`, parametros).subscribe(async (data: any) => {
         if (data) {
           Swal.close();
           console.log(data);
-          this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
+          this.plan.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
           this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
             if (dataPut) {
               this.plan = dataPut.Data;
@@ -1144,7 +1143,7 @@ export class FormularProyectoInversionComponent implements OnInit {
           // this.cargarProyectosInversion();
           // this.formular = true;
           // console.log(this.planId, "id");
-          //this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
+          //this.plan.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
           //this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
           //if (dataPut) {
           //this.plan = dataPut.Data;
@@ -1264,7 +1263,7 @@ export class FormularProyectoInversionComponent implements OnInit {
   }
 
   ajustarData() {
-    // if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP')) {
+    // if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP')) {
     //   this.iconEditar = 'search'
     // } else if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_PLANEACION') {
     //   this.iconEditar = 'edit'
@@ -1418,9 +1417,9 @@ export class FormularProyectoInversionComponent implements OnInit {
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
       showCancelButton: true
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP');
+        this.plan.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -1454,9 +1453,9 @@ export class FormularProyectoInversionComponent implements OnInit {
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
       showCancelButton: true
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP');
+        this.plan.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -1505,9 +1504,9 @@ export class FormularProyectoInversionComponent implements OnInit {
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
       showCancelButton: true
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
+        this.plan.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -1609,9 +1608,9 @@ export class FormularProyectoInversionComponent implements OnInit {
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
       showCancelButton: true
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
+        this.plan.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -1661,21 +1660,21 @@ export class FormularProyectoInversionComponent implements OnInit {
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
       showCancelButton: true
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
+        this.plan.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Plan Avalado',
               icon: 'success',
-            }).then((result) => {
+            }).then(async (result) => {
               if (result.value) {
                 this.busquedaPlanes(data.Data);
                 this.loadData();
                 this.addActividad = false;
                 let aux = {}
-                this.request.post(environment.PLANES_MID, `seguimiento/crear_reportes/${this.plan._id}/${this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')}
+                this.request.post(environment.PLANES_MID, `seguimiento/crear_reportes/${this.plan._id}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')}
 `, this.plan).subscribe((data: any) => {
                   if (!data) {
                     Swal.fire({
@@ -1719,9 +1718,9 @@ export class FormularProyectoInversionComponent implements OnInit {
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
       showCancelButton: true
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
+        this.plan.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
             Swal.fire({
@@ -1757,7 +1756,7 @@ export class FormularProyectoInversionComponent implements OnInit {
   }
 
   // loadActividades() {
-  //   this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'API_SP')},formato:true`).subscribe((data: any) => {
+  //   this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'API_SP')},formato:true`).subscribe((data: any) => {
   //     if (data) {
   //       if (data.Data.length != 0) {
   //         this.actividadesProg = data.Data;
