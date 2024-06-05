@@ -226,7 +226,7 @@ export class PedComponent implements OnInit {
   consultar(fila): void{
     this.uid = fila._id;
     this.request.get(environment.PLANES_CRUD, `plan/`+this.uid).subscribe((data: any) => {
-      if (data && data.Data && Array.isArray(data.Data.structuredData)) {
+      if (data && data.Data && (data.Data !== null)) {
         // Verifica si hay datos y si data.Data no es nulo ni está vacío
         this.plan = data.Data;
         let subgrupoDetalle={
