@@ -148,18 +148,19 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.ID_ESTADO_AJUSTE_PRESUPUESTAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP');
     this.ID_ESTADO_REVISION_VERIFICADA = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
     let roles: any = this.autenticationService.getRole();
+    
     if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
-      await this.loadUnidades();
     } else if (roles.__zone_symbol__value.find((x) => x == 'ASISTENTE_PLANEACION')) {
       this.rol = 'ASISTENTE_PLANEACION';
-      await this.loadUnidades();
     } else if (
-      roles.__zone_symbol__value.find(
-        (x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA'
-      )
-    ) {
+      roles.__zone_symbol__value.find((x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')){
       this.rol = 'JEFE_DEPENDENCIA';
+    }
+
+    if(this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
+      await this.loadUnidades();
+    }else if (this.rol == 'JEFE_DEPENDENCIA') {
       await this.validarUnidad()
     }
 
@@ -167,7 +168,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       if (formData.length !== 0) {
         this.pendienteCheck = true;
         this.onChangeU(formData[2]);
-        this.onChangeV(formData[1]);
+        this.onChangeV(formData[1], this.pendienteCheck);
         this.onChangeP(formData[0])
       }
     });
@@ -705,7 +706,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     else return false
   }
 
-  async onChangeV(vigencia) {
+  async onChangeV(vigencia, planListo) {
     if (vigencia == undefined) {
       this.vigenciaSelected = false;
     } else {
@@ -717,7 +718,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
-      await this.loadPlanes();
+      if(!planListo){
+        await this.loadPlanes();
+      }
       this.banderaEstadoDatos = false;
       this.planSelected = false;
       this.plan = undefined;
@@ -2036,7 +2039,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         'Id',
         'selectVigencia',
         planACargar.vigencia_id
-      )
+      ), false
     );
     // En este punto se deben haber cargado los planes por la función 'onChangeV'
     if (this.planes != undefined) {
