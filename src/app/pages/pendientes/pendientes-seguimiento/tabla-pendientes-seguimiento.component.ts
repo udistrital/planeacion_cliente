@@ -7,8 +7,8 @@ import Swal from 'sweetalert2';
 import { UserService } from '../../services/userService';
 import { VerificarFormulario } from '../../services/verificarFormulario'
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 @Component({
   selector: 'app-tabla-pendientes-seguimiento',
@@ -37,6 +37,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
   planesInteres: any;
   banderaTodosSeleccionados: boolean;
   datosCargados: boolean;
+  rol: string;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -45,15 +46,42 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
     private userService: UserService,
     private verificarFormulario: VerificarFormulario,
     private router: Router,
-    private codigosService: CodigosService
+    private codigosService: CodigosService,
+    private autenticationService: ImplicitAutenticationService
   ) {
     this.planesInteres = [];
     this.banderaTodosSeleccionados = false;
     this.datosCargados = false;
+    let roles: any = this.autenticationService.getRole();
+    if (
+      roles.__zone_symbol__value.find(
+        (x: string) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA'
+      )
+    ) {
+      this.rol = 'JEFE_DEPENDENCIA';
+    } else if (
+      roles.__zone_symbol__value.find((x: string) => x == 'PLANEACION')
+    ) {
+      this.rol = 'PLANEACION';
+    } else if (
+      roles.__zone_symbol__value.find(
+        (x: string) => x == 'JEFE_UNIDAD_PLANEACION'
+      )
+    ) {
+      this.rol = 'JEFE_UNIDAD_PLANEACION';
+    }
   }
 
-  async ngOnInit(){
-    this.validarUnidad()
+  async ngOnInit() {
+    if (
+      this.rol == 'JEFE_DEPENDENCIA' ||
+      this.rol == 'ASISTENTE_DEPENDENCIA' ||
+      this.rol == 'JEFE_UNIDAD_PLANEACION'
+    ) {
+      this.validarUnidad();
+    } else {
+      await this.loadUnidades();
+    }
     const datosPrueba: any[] = [];
     this.informacionTabla = new MatTableDataSource<any>(datosPrueba);
     this.informacionTabla.filterPredicate = (plan: any, _) => {
@@ -103,6 +131,12 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
         Swal.showLoading();
       },
     })
+
+    this.auxUnidades.map((und: any) => {
+      if (und.Nombre === event.value) {
+        this.unidad = und;
+      }
+    });
 
     if (event.value) {
       try {
@@ -210,7 +244,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')},dependencia_id:${this.unidad.Id}`).subscribe(async (data: any) => {
         if (data) {
           if (data.Data.length != 0) {
-            data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });
+            data.Data.sort(function (a, b) { return b.vigencia - a.vigencia; });
             this.planes = data.Data;
             resolve()
           } else {
@@ -256,6 +290,44 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
       })
     })
 
+  }
+
+  async loadUnidades() {
+    Swal.fire({
+      title: 'Cargando unidades',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    await new Promise((resolve, reject) => {
+      this.request
+        .get(environment.PLANES_MID, `formulacion/get_unidades`)
+        .subscribe({
+          next: (data: any) => {
+            if (data) {
+              this.auxUnidades = data.Data;
+              Swal.close();
+              resolve(this.auxUnidades);
+            }
+          },
+          error: (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron datos registrados ${JSON.stringify(
+                error
+              )}`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500,
+            });
+            reject(error);
+          },
+        });
+    });
   }
 
   obtenerEstado(): Promise<void> {
