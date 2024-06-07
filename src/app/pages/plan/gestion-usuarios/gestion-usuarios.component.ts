@@ -35,7 +35,8 @@ export class GestionUsuariosComponent implements OnInit {
     private request: RequestManager,
     private fb: FormBuilder,) {
       this.formUsuarios = this.fb.group({
-        correo: ['', Validators.required],
+        // correo: ['', Validators.required],
+        identificacion: ['', [Validators.required, Validators.min(0), Validators.pattern('^[0-9]*$')]],
         selectRol: ['']
       });
     }
@@ -86,49 +87,57 @@ export class GestionUsuariosComponent implements OnInit {
   buscar(){
     this.errorEnPeticion = false;
     this.banderaFormEdicion = false;
-    if(this.validarEmail(this.formUsuarios.get('correo').value)){
-      let body = {
-        "user": this.formUsuarios.get('correo').value
-      }
+    let identificacion: string = this.formUsuarios.get('identificacion').value;
+
+    if(this.validarIdentificacion(identificacion)) {
+
       this.mostrarMensajeCarga();
-      this.request.post(`${environment.AUTENTICACION_MID}token/userRol`, '', body).subscribe(
+      this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero_identificacion/${identificacion}`).subscribe(
         (data: any) => {
           if (data != null && data != undefined && data != "") {
-            this.usuarios = [];
-            this.usuarios.push(data);
-            this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero_email/${this.formUsuarios.get('correo').value}`).subscribe(
+            if(data.Data && data.Data != null && data.Data != undefined && data.Data != "") {
+              this.vinculacionesUsuario = data.Data;
+              let body = {
+                "user": this.vinculacionesUsuario[0].TerceroPrincipalId.UsuarioWSO2
+              }
+              this.request.post(`${environment.AUTENTICACION_MID}token/userRol`, '', body).subscribe(
               (data: any) => {
                 if (data != null && data != undefined && data != "") {
-                  if(data.Data && data.Data != null && data.Data != undefined && data.Data != "") {
-                    this.vinculacionesUsuario = data.Data;
-                    for (const vinculacion of this.vinculacionesUsuario) {
-                      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Activo:true,Id:${vinculacion.PeriodoId}`).subscribe((data: any) => {
-                          if (data != null && data != undefined && data != "") {
-                            let vigencia: Vigencia = data.Data[0];
-                            this.vinculacionesUsuario.find(vinculacionUsuario => vinculacionUsuario.Id == vinculacion.Id).Periodo = vigencia.Nombre;
-                            this.cerrarMensajeCarga()
-                          }
-                        }, (error) => {
-                          Swal.fire({
-                            title: 'Error en la operación',
-                            text: 'No se encontraron datos registrados',
-                            icon: 'warning',
-                            showConfirmButton: false,
-                            timer: 2500
-                          })
+                  this.usuarios = [];
+                  this.usuarios.push(data);
+                  for (const vinculacion of this.vinculacionesUsuario) {
+                    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Activo:true,Id:${vinculacion.PeriodoId}`).subscribe((data: any) => {
+                        if (data != null && data != undefined && data != "") {
+                          let vigencia: Vigencia = data.Data[0];
+                          this.vinculacionesUsuario.find(vinculacionUsuario => vinculacionUsuario.Id == vinculacion.Id).Periodo = vigencia.Nombre;
+                          this.cerrarMensajeCarga()
                         }
-                      );
-                      this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion.DependenciaId).subscribe((dataUnidad: any) => {
-                        if (dataUnidad) {
-                          let unidad: Dependencia = dataUnidad[0];
-                          this.vinculacionesUsuario.find(vinculacionUsuario => vinculacionUsuario.Id == vinculacion.Id).Dependencia = unidad.DependenciaId.Nombre;
-                          Swal.close();
-                        }
-                      })
-                    }
-                  } else {
-                    this.cerrarMensajeCarga()
+                      }, (error) => {
+                        Swal.fire({
+                          title: 'Error en la operación',
+                          text: 'No se encontraron datos registrados',
+                          icon: 'warning',
+                          showConfirmButton: false,
+                          timer: 2500
+                        });
+                      }
+                    );
+                    this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion.DependenciaId).subscribe((dataUnidad: any) => {
+                      if (dataUnidad) {
+                        let unidad: Dependencia = dataUnidad[0];
+                        this.vinculacionesUsuario.find(vinculacionUsuario => vinculacionUsuario.Id == vinculacion.Id).Dependencia = unidad.DependenciaId.Nombre;
+                        Swal.close();
+                      }
+                    });
                   }
+                } else {
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    text: 'No se encontraron datos registrados',
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    timer: 2500
+                    });
                 }
               }, (error) => {
                 Swal.fire({
@@ -137,9 +146,18 @@ export class GestionUsuariosComponent implements OnInit {
                   icon: 'warning',
                   showConfirmButton: false,
                   timer: 2500
-                })
-              }
-            );
+                  });
+                }
+              );
+            } else {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: 'No se encontraron datos registrados',
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500
+              });
+            }
           }
         }, (error) => {
           Swal.fire({
@@ -148,17 +166,20 @@ export class GestionUsuariosComponent implements OnInit {
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500
-          })
+          });
         }
       );
+
     } else {
+
       Swal.fire({
         title: 'Error en la operación',
-        text: 'El correo no es válido',
+        text: 'El número de identificacion no es válido',
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
-      })
+      });
+
     }
   }
 
@@ -170,6 +191,12 @@ export class GestionUsuariosComponent implements OnInit {
   validarEmail(email: string) { // Función para validar el email, devuelve true si es correcto y false si no lo es
     const emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const valido = emailRegex.test(email);
+    return valido ? true : false;
+  }
+
+  validarIdentificacion(identificacion: string) { // Función para validar la identificacion, devuelve true si es correcto y false si no lo es
+    const identificacionRegex: RegExp = /^[0-9]*$/;
+    const valido = identificacionRegex.test(identificacion);
     return valido ? true : false;
   }
 
@@ -194,8 +221,6 @@ export class GestionUsuariosComponent implements OnInit {
 
   editar(usuario: Usuario) {
     if(usuario.VinculacionSeleccionadaId == null) {
-      this.errorEnPeticion = false;
-      this.usuario = usuario;
       this.banderaFormEdicion = false;
       Swal.fire({
         title: 'Error en la operación',
@@ -207,6 +232,7 @@ export class GestionUsuariosComponent implements OnInit {
     } else {
       this.errorEnPeticion = false;
       this.usuario = usuario;
+      this.usuario.encodedEmail = encodeURIComponent(this.usuario.email);
       this.banderaFormEdicion = true;
     }
   }

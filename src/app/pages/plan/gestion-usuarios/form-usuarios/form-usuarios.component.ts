@@ -14,6 +14,7 @@ export class FormUsuariosComponent implements OnInit {
   rolesUsuario: Rol[] = [];
   rolesSistema: Rol[] = [
     { rol: ROL_ASISTENTE_DEPENDENCIA, selected: false },
+    // { rol: ROL_ASISTENTE_PLANEACION, selected: false }
   ];
   @Input() usuario: Usuario;
   @Output() errorEnPeticion = new EventEmitter<any>();
@@ -52,12 +53,12 @@ export class FormUsuariosComponent implements OnInit {
           return promiseChain.then(() => {
             return new Promise((resolve, reject) => {
               let body = {
-                "user": this.usuario.email,
+                "user": this.usuario.encodedEmail,
                 "rol": rol.rol
               };
               this.mostrarMensajeCarga();
         
-              this.request.post(`${environment.AUTENTICACION_MID}/rol/add`, '', body)
+              this.request.post(`${environment.AUTENTICACION_MID}rol/add`, '', body)
                 .subscribe((data: any) => {
                   if (data != null && data != undefined && data != "") {
                     this.cerrarMensajeCarga();
@@ -163,12 +164,12 @@ export class FormUsuariosComponent implements OnInit {
           return promiseChain.then(() => {
             return new Promise((resolve, reject) => {
               let body = {
-                "user": this.usuario.email,
+                "user": this.usuario.encodedEmail,
                 "rol": rol.rol
               };
               this.mostrarMensajeCarga();
   
-              this.request.post(`${environment.AUTENTICACION_MID}/rol/remove`, '', body)
+              this.request.post(`${environment.AUTENTICACION_MID}rol/remove`, '', body)
                 .subscribe((data: any) => {
                   if (data != null && data != undefined && data != "") {
                     this.cerrarMensajeCarga();
