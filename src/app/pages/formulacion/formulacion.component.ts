@@ -1631,16 +1631,13 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.ponderacionActividades = message
         resolveRef(message)
       } else {
-        if (data) {
-          if (data.Message == "Error-tipo1"){
-            Swal.fire({
-              title: 'Error en la construcción de la plantilla del plan',
-              icon: 'error',
-              text: data.Data,
-              showConfirmButton: true,
-            })
-          }
-        }
+        Swal.fire({
+          title: 'Error en solicitud de cálculo de ponderación, por favor contactarse con el administrador del sistema.',
+          icon: 'error',
+          text: 'El formato del plan construido, presenta fallas.',
+          showConfirmButton: false,
+          timer: 3500
+        })
       }
     }, (error) => {
       Swal.fire({
