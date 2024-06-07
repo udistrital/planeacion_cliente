@@ -3,6 +3,7 @@ export interface Usuario {
   documento:           string;
   documento_compuesto: string;
   email:               string;
+  encodedEmail?:        string;
   FamilyName:          string;
   Codigo:              string;
   Estado:              string;
@@ -24,6 +25,7 @@ export interface Vinculacion {
   CargoId:                number;
   DependenciaId:          number;
   Dependencia?:           string;
+  DependenciaCorreo?:     string;
   Soporte:                number;
   PeriodoId:              number;
   Periodo?:               string;
