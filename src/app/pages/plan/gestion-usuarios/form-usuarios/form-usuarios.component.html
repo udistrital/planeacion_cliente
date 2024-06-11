@@ -15,7 +15,7 @@
 					</mat-card-header>
 					<mat-card-content class="listaRoles">
 						<div *ngFor="let item of rolesUsuario">
-								<mat-checkbox [checked]="item.selected" (change)="seleccionarRol(item)">{{item.rol}}</mat-checkbox>
+								<mat-radio-button [selected]="item.selected" (change)="seleccionarRolDesvincular(item)">{{item.rol}}</mat-radio-button>
 						</div>
 					</mat-card-content>
 			</div>
@@ -31,7 +31,7 @@
 					</mat-card-header>
 					<mat-card-content class="listaRoles">
 							<div *ngFor="let item of rolesSistema">
-									<mat-checkbox [checked]="item.selected" (change)="seleccionarRol(item)">{{item.rol}}</mat-checkbox>
+									<mat-radio-button [selected]="item.selected" (change)="seleccionarRolVincular(item)">{{item.rol}}</mat-radio-button>
 							</div>
 					</mat-card-content>
 			</div>
