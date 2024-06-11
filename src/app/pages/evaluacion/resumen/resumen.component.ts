@@ -64,6 +64,7 @@ export class ResumenComponent implements OnInit {
       title: 'Cargando Periodos',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -248,7 +249,6 @@ export class ResumenComponent implements OnInit {
     if (this.periodo === 'TODOS') {
       for (let index = 0; index < unidades.length; index++) {
         await this.obtenerDatosUnidad(unidades[index]);
-        console.log('unidad',unidades[index] , this.obtenerDatosUnidad(unidades[index]));
       }
     } else {
       for (let index = 0; index < unidades.length; index++) {

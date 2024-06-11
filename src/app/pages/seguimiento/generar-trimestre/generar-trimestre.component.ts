@@ -135,6 +135,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -261,6 +262,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             title: 'Guardando cambios',
             timerProgressBar: true,
             showConfirmButton: false,
+            allowOutsideClick: false,
             willOpen: () => {
               Swal.showLoading();
             },
@@ -311,6 +313,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             title: 'Guardando documento',
             timerProgressBar: true,
             showConfirmButton: false,
+            allowOutsideClick: false,
             willOpen: () => {
               Swal.showLoading();
             },
@@ -385,6 +388,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -482,7 +486,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_cualitativo`, { "_id": this.seguimiento.id, "informacion": this.seguimiento.informacion, "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
@@ -539,7 +544,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_cuantitativo`, { "_id": this.seguimiento.id, "informacion": this.seguimiento.informacion, "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
@@ -588,7 +594,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_seguimiento`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
@@ -637,7 +644,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         let mod = {
@@ -693,7 +701,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         const auxEstado = this.estados.find(element => element.nombre === 'Aprobado para evaluación');
@@ -740,7 +749,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         const auxEstado = this.estados.find(element => element.nombre === 'Ajustado');
@@ -975,7 +985,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/revision_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
@@ -1057,7 +1068,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/retornar_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {

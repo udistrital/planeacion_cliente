@@ -1046,6 +1046,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -1112,6 +1113,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `formulacion/delete_actividad`, `null`, this.plan._id + `/` + fila.index).subscribe((data: any) => {
@@ -1362,6 +1364,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.addActividad = false;
@@ -1395,6 +1398,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         showCancelButton: true,
         confirmButtonText: `Si`,
         cancelButtonText: `No`,
+        allowOutsideClick: false,
       }).then((result) => {
         if (result.isConfirmed) {
           if (event.identi == 'contratistas') {
@@ -1453,7 +1457,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                 icon: 'warning',
                 confirmButtonText: `Si`,
                 cancelButtonText: `No`,
-                showCancelButton: true
+                showCancelButton: true,
+                allowOutsideClick: false,
               }).then((result) => {
                 if (result.isConfirmed) {
                   this.plan.estado_plan_id = "614d3aeb01c7a245952fabff";
@@ -1556,7 +1561,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.plan.estado_plan_id = "614d3b0301c7a2a44e2fac01";
@@ -1606,7 +1612,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.plan.estado_plan_id = "614d3b1e01c7a265372fac03";
@@ -1650,7 +1657,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.plan.estado_plan_id = "65bbf86918f02a27a456d20f";
@@ -1695,7 +1703,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
@@ -1745,7 +1754,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.plan.estado_plan_id = "614d3b4401c7a222052fac05";
@@ -1796,7 +1806,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.plan.estado_plan_id = "6153355601c7a2365b2fb2a1";

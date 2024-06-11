@@ -72,6 +72,7 @@ export class SeguimientoComponentGestion implements OnInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -119,6 +120,7 @@ export class SeguimientoComponentGestion implements OnInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -195,7 +197,8 @@ export class SeguimientoComponentGestion implements OnInit {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
@@ -264,7 +267,8 @@ export class SeguimientoComponentGestion implements OnInit {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
@@ -333,6 +337,7 @@ export class SeguimientoComponentGestion implements OnInit {
         text: `Está intentando acceder al seguimiento por fuera de las fechas establecidas`,
         icon: 'warning',
         showConfirmButton: true,
+        allowOutsideClick: false,
         timer: 10000
       })
     }
@@ -360,6 +365,7 @@ export class SeguimientoComponentGestion implements OnInit {
                 text: `Está intentando acceder al seguimiento por fuera de las fechas establecidas`,
                 icon: 'warning',
                 showConfirmButton: true,
+                allowOutsideClick: false,
                 timer: 10000
               })
             }
@@ -402,7 +408,8 @@ export class SeguimientoComponentGestion implements OnInit {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.seguimiento.estado_seguimiento_id = "622ba46d16511e32535c326b"
@@ -445,7 +452,8 @@ export class SeguimientoComponentGestion implements OnInit {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/verificar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
@@ -474,6 +482,7 @@ export class SeguimientoComponentGestion implements OnInit {
                   title: 'Debe reportar las siguientes actividades:',
                   icon: 'error',
                   showConfirmButton: true,
+                  allowOutsideClick: false,
                   html: message
                 })
               } else {
@@ -481,6 +490,7 @@ export class SeguimientoComponentGestion implements OnInit {
                   title: 'Debe revisar las observaciones de las siguientes actividades:',
                   icon: 'error',
                   showConfirmButton: true,
+                  allowOutsideClick: false,
                   html: message
                 })
               }

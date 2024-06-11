@@ -22,6 +22,7 @@ export class HabilitarReporteService {
       title: 'Cargando períodos',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },

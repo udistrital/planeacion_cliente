@@ -247,6 +247,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       showConfirmButton: false,
       allowEscapeKey: false,
       allowOutsideClick: false,
+      
       willOpen: () => {
         Swal.showLoading();
       },
@@ -277,6 +278,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         title: 'Cargando períodos',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -395,6 +397,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       text: '',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -519,6 +523,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -700,6 +706,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
       willOpen: () => {
         Swal.showLoading();
       },

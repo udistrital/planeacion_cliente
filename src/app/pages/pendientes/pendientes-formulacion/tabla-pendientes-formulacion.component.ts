@@ -97,6 +97,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -271,6 +272,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
@@ -319,7 +321,8 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.planesInteres.forEach(plan => {

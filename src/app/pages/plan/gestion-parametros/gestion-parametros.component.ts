@@ -131,6 +131,7 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.delete(environment.PARAMETROS_SERVICE, `parametro_periodo/`, parametroPeriodo.Id).subscribe((data: any) => {

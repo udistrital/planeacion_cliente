@@ -117,6 +117,7 @@ export class PUIComponent implements OnInit {
       title: 'Cargando documento',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },

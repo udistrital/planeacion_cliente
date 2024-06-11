@@ -56,6 +56,7 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
       title: 'Cargando Proyectos',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -105,6 +106,7 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan`, row.id).subscribe((data: any) => {
