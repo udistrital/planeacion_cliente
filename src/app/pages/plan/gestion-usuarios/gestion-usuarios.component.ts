@@ -6,7 +6,8 @@ import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Usuario } from './utils/gestion-usuarios.models';
+import { ROL_ASISTENTE_DEPENDENCIA, ROL_ASISTENTE_PLANEACION, ROL_JEFE_DEPENDENCIA, ROL_JEFE_UNIDAD_PLANEACION, ROL_PLANEACION, Dependencia, Usuario, Vinculacion } from './utils';
+import { Vigencia } from '../habilitar-reporte/utils';
 
 @Component({
   selector: 'app-gestion-usuarios',
@@ -27,23 +28,28 @@ export class GestionUsuariosComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   banderaFormEdicion: boolean;
+  errorEnPeticion: boolean;
+  vinculacionesUsuario: Vinculacion[]
 
   constructor(
     private request: RequestManager,
     private fb: FormBuilder,) {
       this.formUsuarios = this.fb.group({
-        correo: ['', Validators.required],
+        // correo: ['', Validators.required],
+        identificacion: ['', [Validators.required, Validators.min(0), Validators.pattern('^[0-9]*$')]],
         selectRol: ['']
       });
     }
 
   ngOnInit(): void {
-    this.displayedColumns = ['Usuario', 'Roles', 'actions'];
-    this.roles = ['JEFE_DEPENDENCIA', 'PLANEACION', 'ASISTENTE_DEPENDENCIA', 'JEFE_UNIDAD_PLANEACION'];
+    this.displayedColumns = ['Usuario', 'Roles', 'Vinculacion', 'actions'];
+    this.roles = [ROL_PLANEACION, ROL_JEFE_UNIDAD_PLANEACION, ROL_JEFE_DEPENDENCIA, ROL_ASISTENTE_DEPENDENCIA, ROL_ASISTENTE_PLANEACION];
     this.usuarios = [];
     this.banderaTabla = false;
     this.rolSelected = false;
     this.banderaFormEdicion = false;
+    this.errorEnPeticion = false;
+    this.vinculacionesUsuario = [];
   }
 
   mostrarMensajeCarga(): void {
@@ -59,6 +65,10 @@ export class GestionUsuariosComponent implements OnInit {
 
   cerrarMensajeCarga(): void {
     this.banderaTabla = true;
+    this.usuarios[0].Vinculacion = this.vinculacionesUsuario;
+    this.usuarios.forEach(row => {
+      row.VinculacionSeleccionadaId = null;
+    });
     this.dataSource = new MatTableDataSource(this.usuarios);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -75,18 +85,79 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   buscar(){
+    this.errorEnPeticion = false;
     this.banderaFormEdicion = false;
-    if(this.validarEmail(this.formUsuarios.get('correo').value)){
-      let body = {
-        "user": this.formUsuarios.get('correo').value
-      }
+    let identificacion: string = this.formUsuarios.get('identificacion').value;
+
+    if(this.validarIdentificacion(identificacion)) {
+
       this.mostrarMensajeCarga();
-      this.request.post(environment.TOKEN.AUTENTICACION_MID, '', body).subscribe(
+      this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero_identificacion/${identificacion}`).subscribe(
         (data: any) => {
           if (data != null && data != undefined && data != "") {
-            this.usuarios = [];
-            this.usuarios.push(data);
-            this.cerrarMensajeCarga()
+            if(data.Data && data.Data != null && data.Data != undefined && data.Data != "") {
+              this.vinculacionesUsuario = data.Data;
+              let body = {
+                "user": this.vinculacionesUsuario[0].TerceroPrincipalId.UsuarioWSO2
+              }
+              this.request.post(`${environment.AUTENTICACION_MID}token/userRol`, '', body).subscribe(
+              (data: any) => {
+                if (data != null && data != undefined && data != "") {
+                  this.usuarios = [];
+                  this.usuarios.push(data);
+                  for (const vinculacion of this.vinculacionesUsuario) {
+                    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Activo:true,Id:${vinculacion.PeriodoId}`).subscribe((data: any) => {
+                        if (data != null && data != undefined && data != "") {
+                          let vigencia: Vigencia = data.Data[0];
+                          this.vinculacionesUsuario.find(vinculacionUsuario => vinculacionUsuario.Id == vinculacion.Id).Periodo = vigencia.Nombre;
+                          this.cerrarMensajeCarga()
+                        }
+                      }, (error) => {
+                        Swal.fire({
+                          title: 'Error en la operación',
+                          text: 'No se encontraron datos registrados',
+                          icon: 'warning',
+                          showConfirmButton: false,
+                          timer: 2500
+                        });
+                      }
+                    );
+                    this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion.DependenciaId).subscribe((dataUnidad: any) => {
+                      if (dataUnidad) {
+                        let unidad: Dependencia = dataUnidad[0];
+                        this.vinculacionesUsuario.find(vinculacionUsuario => vinculacionUsuario.Id == vinculacion.Id).Dependencia = unidad.DependenciaId.Nombre;
+                        Swal.close();
+                      }
+                    });
+                  }
+                } else {
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    text: 'No se encontraron datos registrados',
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    timer: 2500
+                    });
+                }
+              }, (error) => {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: 'No se encontraron datos registrados',
+                  icon: 'warning',
+                  showConfirmButton: false,
+                  timer: 2500
+                  });
+                }
+              );
+            } else {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: 'No se encontraron datos registrados',
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 2500
+              });
+            }
           }
         }, (error) => {
           Swal.fire({
@@ -95,27 +166,37 @@ export class GestionUsuariosComponent implements OnInit {
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500
-          })
+          });
         }
       );
+
     } else {
+
       Swal.fire({
         title: 'Error en la operación',
-        text: 'El correo no es válido',
+        text: 'El número de identificacion no es válido',
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
-      })
+      });
+
     }
   }
 
-  formatearRoles(roles: string): string {
+  formatearRoles(roles: Array<any>): string {
+    roles = roles.filter(role => this.roles.includes(role));
     return roles.toString().split(',').join(', ');
-}
+  }
 
   validarEmail(email: string) { // Función para validar el email, devuelve true si es correcto y false si no lo es
     const emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const valido = emailRegex.test(email);
+    return valido ? true : false;
+  }
+
+  validarIdentificacion(identificacion: string) { // Función para validar la identificacion, devuelve true si es correcto y false si no lo es
+    const identificacionRegex: RegExp = /^[0-9]*$/;
+    const valido = identificacionRegex.test(identificacion);
     return valido ? true : false;
   }
 
@@ -139,9 +220,29 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   editar(usuario: Usuario) {
-    this.usuario = usuario;
-    this.banderaFormEdicion = true;
-    // console.log("Editar Usuario: ", this.usuario);
+    if(usuario.VinculacionSeleccionadaId == null) {
+      this.banderaFormEdicion = false;
+      Swal.fire({
+        title: 'Error en la operación',
+        text: 'Debe seleccionar la vinculación del usuario',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    } else {
+      this.errorEnPeticion = false;
+      this.usuario = usuario;
+      this.usuario.encodedEmail = encodeURIComponent(this.usuario.email);
+      this.banderaFormEdicion = true;
+    }
+  }
+
+  recibirErrorPeticion(error: any) {
+    this.errorEnPeticion = error;
+  }
+
+  capturarVinculacion(row): void {
+    this.usuario.VinculacionSeleccionadaId = row.Id;
   }
 
 }

@@ -17,7 +17,7 @@ export class HabilitarReporteService {
     private request: RequestManager,
   ) { }
 
-  loadTrimestres(vigencia: Vigencia) {
+  async loadTrimestres(vigencia: Vigencia) {
     Swal.fire({
       title: 'Cargando períodos',
       timerProgressBar: true,
@@ -26,13 +26,15 @@ export class HabilitarReporteService {
       willOpen: () => {
         Swal.showLoading();
       },
-    })
-    this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + vigencia.Id).subscribe((data: DataRequest) => {
-      if (data) {
+    });
+    this.request.get(environment.PLANES_MID, `seguimiento/trimestres/` + vigencia.Id).subscribe((data: DataRequest) => {
+      if (data.Data != null) {
         this.trimestresSubject.next(data);
+      } else {
+        this.trimestresSubject.next(null);
       }
     }, (error) => {
-      this.trimestresSubject.next(null);
+      this.trimestresSubject.next(error);
     });
   }
 

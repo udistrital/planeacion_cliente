@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { RequestManager } from '../services/requestManager';
+import { RequestManager } from '../../services/requestManager'
 import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
@@ -9,11 +9,11 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-plan-accion',
-  templateUrl: './plan-accion.component.html',
-  styleUrls: ['./plan-accion.component.scss'],
+  selector: 'app-plan-accion-formulacion',
+  templateUrl: './plan-accion-formulacion.component.html',
+  styleUrls: ['./plan-accion-formulacion.component.scss'],
 })
-export class PlanAccionComponent implements OnInit, AfterViewInit {
+export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
   columnasMostradas: string[] = [
     'dependencia',
     'vigencia',
@@ -37,7 +37,7 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
     private router: Router
   ) {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
+    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION' || x == 'ASISTENTE_PLANEACION')) {
       this.rol = 'PLANEACION';
     } else if (
       roles.__zone_symbol__value.find(
@@ -45,10 +45,6 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
       )
     ) {
       this.rol = 'JEFE_DEPENDENCIA';
-    } else if (
-      roles.__zone_symbol__value.find((x) => x == 'JEFE_UNIDAD_PLANEACION')
-    ) {
-      this.rol = 'JEFE_UNIDAD_PLANEACION';
     }
   }
 
@@ -105,10 +101,11 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
       },
     });
     await new Promise((resolve, reject) => {
-      if (this.rol == 'PLANEACION' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+      if (this.rol == 'PLANEACION') {
         this.request.get(environment.PLANES_MID, `planes_accion`).subscribe(
           (data) => {
-            this.planes = data.Data;
+            const allData: ResumenPlan[] = data.Data;
+            this.planes = allData.filter(plan => plan.fase === "Formulación");
             if (this.planes.length != 0) {
               Swal.close();
             } else {
@@ -189,7 +186,8 @@ export class PlanAccionComponent implements OnInit, AfterViewInit {
                           )
                           .subscribe(
                             (data) => {
-                              this.planes = data.Data;
+                              const allData = data.Data;
+                              this.planes = allData.filter(plan => plan.fase === "Formulación");
                               if (this.planes.length != 0) {
                                 Swal.close();
                               } else {

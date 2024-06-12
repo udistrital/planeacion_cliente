@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 import { PeriodoSeguimiento } from '../habilitar-reporte/utils/habilitar-reporte.models';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 export interface Planes {
   _id: string
   activo: string
@@ -49,7 +50,7 @@ export class ListarPlanComponent implements OnInit {
   banderaTodosSeleccionados: boolean;
   planesMostrar: Planes[];
   textBotonMostrarData: string = 'Mostrar Planes Interés Habilitados/Reporte';
-  
+
   @Input() periodoSeguimiento: PeriodoSeguimiento;
   @Input() filtroPlan: boolean;
   @Input() banderaPlanesAccionFuncionamiento: boolean;
@@ -61,6 +62,7 @@ export class ListarPlanComponent implements OnInit {
     public dialog: MatDialog,
     private request: RequestManager,
     private router: Router,
+    private codigosService: CodigosService
   ) {
     this.banderaTodosSeleccionados = false;
     this.planesInteres = [];
@@ -68,13 +70,13 @@ export class ListarPlanComponent implements OnInit {
     this.banderaPlanesAccionFuncionamiento = false;
   }
 
-  ngOnInit(): void {
+  async ngOnInit(){
     this.planesMostrar = [];
     if(this.banderaPlanesAccionFuncionamiento === true){
       if(this.filtroPlan === true){
         this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
       } else {
-        this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'fecha_modificacion', 'actions']
+        this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'usuario', 'fecha_modificacion', 'fecha_inicial', 'fecha_final', 'actions']
       }
     } else {
       this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
@@ -298,12 +300,12 @@ export class ListarPlanComponent implements OnInit {
       }
   }
 
-  inactivar(fila): void {
+  async inactivar(fila) {
     this.uid = fila._id;
     if (fila.activo == 'Activo') {
-      if (fila.tipo_plan_id != '611af8464a34b3599e3799a2') {
+      if (fila.tipo_plan_id != await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
         this.deleteData();
-      } else if (fila.tipo_plan_id == '611af8464a34b3599e3799a2') {
+      } else if (fila.tipo_plan_id == await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
         let res = {
           activo: false,
         }
@@ -389,22 +391,29 @@ export class ListarPlanComponent implements OnInit {
         }
       });
       this.request.post(environment.PLANES_CRUD, 'periodo-seguimiento/buscar-unidad-planes/5', this.periodoSeguimiento).subscribe(
-        (data: DataRequest) => {
+        async (data: DataRequest) => {
           if (data) {
-            if(data.Data !== null){
+            if(data.Data !== null) {
               var periodoSeguimiento = data.Data;
               this.textBotonMostrarData = 'Mostrar todos los planes';
               let planesMostrar = [];
-
-              periodoSeguimiento.forEach((element) => {
+              for (const element of periodoSeguimiento) {
                 element.planes_interes = JSON.parse(element.planes_interes);
                 let planesFiltrados = this.planes.filter(plan => element.planes_interes.some(planInteres => planInteres._id === plan._id));
-                planesFiltrados.forEach(planFiltrado => {
+
+                for (const planFiltrado of planesFiltrados) {
                   planFiltrado.fecha_modificacion = this.formatearFecha(element.fecha_modificacion);
-                });
+                  planFiltrado.fecha_inicial = this.formatearFecha(element.fecha_inicio);
+                  planFiltrado.fecha_final = this.formatearFecha(element.fecha_fin);
+
+                  if (element.usuario_modificacion) {
+                    planFiltrado.usuario_modificacion = await this.validarNombreUsuario(element.usuario_modificacion);
+                  }
+                }
+
                 planesMostrar = planesMostrar.concat(planesFiltrados);
-              });
-  
+              }
+
               planesMostrar = [...new Set(planesMostrar)];
               this.planesMostrar = planesMostrar;
               this.dataSource = new MatTableDataSource(this.planesMostrar);
@@ -443,10 +452,35 @@ export class ListarPlanComponent implements OnInit {
   formatearFecha(fechaOriginal: string): string {
     const fechaObjeto = new Date(fechaOriginal);
 
-    const dia = fechaObjeto.getDate().toString().padStart(2, '0');
-    const mes = (fechaObjeto.getMonth() + 1).toString().padStart(2, '0');
-    const anio = fechaObjeto.getFullYear();
+    const dia = fechaObjeto.getUTCDate().toString().padStart(2, '0');
+    const mes = (fechaObjeto.getUTCMonth() + 1).toString().padStart(2, '0');
+    const anio = fechaObjeto.getUTCFullYear();
 
     return `${dia}/${mes}/${anio}`;
+}
+
+
+  async validarNombreUsuario(documento_usuario: string) {
+    let nombreCompleto = undefined;
+    await new Promise((resolve,reject)=>{
+      this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + documento_usuario)
+        .subscribe((datosInfoTercero: any) => {
+          if(datosInfoTercero[0].TerceroId) {
+            nombreCompleto = datosInfoTercero[0].TerceroId.NombreCompleto;
+            resolve(datosInfoTercero[0].TerceroId.NombreCompleto);
+          }
+          resolve(undefined);
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+        reject(error)
+      })
+    })
+    return nombreCompleto;
   }
 }

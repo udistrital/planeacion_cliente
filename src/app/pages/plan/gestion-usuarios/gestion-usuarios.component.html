@@ -16,16 +16,16 @@
 				<mat-card-content>
 					<form [formGroup]="formUsuarios">
 						<mat-form-field appearance="fill" [style.width.%]="100">
-							<mat-label>Correo electrónico</mat-label>
-							<input matInput formControlName="correo" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
-							<mat-error *ngIf="formUsuarios.get('correo').hasError('required')">
-								El campo Correo es obligatorio.
+							<mat-label>Documento de identificación</mat-label>
+							<input matInput formControlName="identificacion" required>
+							<mat-error *ngIf="formUsuarios.get('identificacion').hasError('required')">
+								El campo Identificación es obligatorio.
 						</mat-error>
-							<mat-error *ngIf="formUsuarios.get('correo').hasError('pattern')">
-								Por favor, introduce un correo electrónico válido.
+							<mat-error *ngIf="formUsuarios.get('identificacion').hasError('pattern')">
+								Por favor, introduce un número válido.
 						</mat-error>
 						</mat-form-field>
-						<mat-form-field appearance="fill" [style.width.%]="100">
+						<!-- <mat-form-field appearance="fill" [style.width.%]="100">
 							<mat-label id="tipo-input-label">Seleccione el Rol</mat-label>
 							<mat-select (selectionChange)="onChangeRol($event.value)" formControlName="selectRol">
 								<mat-option>--</mat-option>
@@ -36,7 +36,7 @@
 							<mat-error *ngIf="formUsuarios.get('selectRol').invalid">
 								El campo Rol es obligatorio.
 							</mat-error>
-						</mat-form-field>
+						</mat-form-field> -->
 					</form>
 				</mat-card-content>
 			</div>
@@ -45,7 +45,7 @@
 				<button mat-raised-button color="primary" (click)="limpiarForm()">Limpiar</button>
 			</div>
 		</mat-card-content>
-		<mat-card-content>
+		<mat-card-content *ngIf="!errorEnPeticion">
 			<div class="container-border" [hidden]="!banderaTabla">
 				<mat-card-header *ngIf="banderaTabla">
 					<mat-card-title>Usuarios encontrados</mat-card-title>
@@ -69,7 +69,20 @@
 						</ng-container>
 						<ng-container matColumnDef="Roles">
 							<th mat-header-cell *matHeaderCellDef> Roles </th>
-							<td mat-cell *matCellDef="let row"> {{formatearRoles(row.role)}} </td>
+							<td mat-cell *matCellDef="let row"> {{formatearRoles(row.role)  || 'Sin roles asociados a SISGPLAN'}} </td>
+						</ng-container>
+						<ng-container matColumnDef="Vinculacion">
+							<th mat-header-cell *matHeaderCellDef> Vinculación </th>
+							<td mat-cell *matCellDef="let row">
+								<mat-form-field>
+									<mat-select [(value)]="row.VinculacionSeleccionadaId" (ngModelChange)="capturarVinculacion(row)">
+										<mat-option>--</mat-option>
+										<mat-option *ngFor="let vinculacion of row.Vinculacion" [value]="vinculacion.Id">
+											{{ vinculacion.Periodo }} - {{ vinculacion.Dependencia }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</td>
 						</ng-container>
 						<ng-container matColumnDef="actions">
 							<th mat-header-cell *matHeaderCellDef class="tituloAcciones">Acciones</th>
@@ -90,5 +103,5 @@
 			</div>
 		</mat-card-content>
 	</div>
-	<app-form-usuarios *ngIf="banderaFormEdicion" [usuario]="usuario"></app-form-usuarios>
+	<app-form-usuarios *ngIf="banderaFormEdicion && !errorEnPeticion" (errorEnPeticion)="recibirErrorPeticion($event)" [usuario]="usuario"></app-form-usuarios>
 </mat-card>

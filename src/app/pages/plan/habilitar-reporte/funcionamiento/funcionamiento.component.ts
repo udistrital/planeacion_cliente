@@ -5,7 +5,8 @@ import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import { HabilitarReporteService } from '../habilitar-reporte.service';
 import { DataRequest } from '../../../../@core/models/interfaces/DataRequest.interface';
-import { PROCESO_FUNCIONAMIENTO_FORMULACION, PROCESO_FUNCIONAMIENTO_SEGUIMIENTO, Periodo, PeriodoSeguimiento, PlanInteres, Seguimiento, Unidad, Vigencia } from '../utils';
+import { PROCESO_FUNCIONAMIENTO_FORMULACION, PROCESO_FUNCIONAMIENTO_SEGUIMIENTO, Periodo, PeriodoSeguimiento, PlanInteres, Seguimiento, Unidad, Usuario, Vigencia } from '../utils';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-funcionamiento',
@@ -35,10 +36,14 @@ export class FuncionamientoComponent implements OnInit {
   periodoSeguimiento: PeriodoSeguimiento;
   periodoSeguimientoListarPlan: PeriodoSeguimiento;
   periodoSeguimientoListarUnidades: PeriodoSeguimiento;
+  user: Usuario;
 
   selectVigencia = new FormControl();
   selectTipo = new FormControl();
   selectFiltro = new FormControl();
+
+  CODIGO_TIPO_SEGUIMIENTO_S: string;
+  CODIGO_TIPO_SEGUIMIENTO_F: string;
 
   @Input() formFechas: FormGroup; // Propiedad que se recibe desde el componente padre (habilitar-reporte.component.ts)
   @Input() vigencias: Vigencia[]; // Propiedad que se recibe desde el componente padre (habilitar-reporte.component.ts)
@@ -46,6 +51,7 @@ export class FuncionamientoComponent implements OnInit {
   constructor(
     private request: RequestManager,
     private habilitarReporteService: HabilitarReporteService,
+    private codigosService:CodigosService
   ) {
     this.vigenciaSelected = false;
     this.guardarDisabled = false;
@@ -55,16 +61,20 @@ export class FuncionamientoComponent implements OnInit {
     this.periodoSeguimientoListarUnidades = {} as PeriodoSeguimiento;
   }
 
-  ngOnInit(): void { }
+  async ngOnInit(){
+    this.user = JSON.parse(atob(localStorage.getItem('user')));
+    this.CODIGO_TIPO_SEGUIMIENTO_S = await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')
+    this.CODIGO_TIPO_SEGUIMIENTO_F = await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'F_SP')
+  }
 
   // Función para manejar los cambios en las unidades de interés
   manejarCambiosUnidadesInteres(nuevasUnidades: Unidad[]) {
     this.unidadesInteres = nuevasUnidades;
     if(this.tipo == PROCESO_FUNCIONAMIENTO_FORMULACION) {
-      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = "6260e975ebe1e6498f7404ee";
+      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = this.CODIGO_TIPO_SEGUIMIENTO_F;
       this.periodoSeguimientoListarPlan.periodo_id = this.vigencia.Id.toString();
     } else {
-      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = "61f236f525e40c582a0840d0";
+      this.periodoSeguimientoListarPlan.tipo_seguimiento_id = this.CODIGO_TIPO_SEGUIMIENTO_S;
       this.periodoSeguimientoListarPlan.periodo_id = this.periodos[0].Id.toString();
     }
     this.periodoSeguimientoListarPlan.unidades_interes = JSON.stringify(this.unidadesInteres);
@@ -75,10 +85,11 @@ export class FuncionamientoComponent implements OnInit {
   manejarCambiosPlanesInteres(nuevosPlanes: PlanInteres[]) {
     this.planesInteres = nuevosPlanes;
     if(this.tipo == PROCESO_FUNCIONAMIENTO_FORMULACION) {
-      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = "6260e975ebe1e6498f7404ee";
+      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = this.CODIGO_TIPO_SEGUIMIENTO_F;
       this.periodoSeguimientoListarUnidades.periodo_id = this.vigencia.Id.toString();
     } else {
-      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = "61f236f525e40c582a0840d0";
+      this.periodoSeguimientoListarUnidades.tipo_seguimiento_id = this.CODIGO_TIPO_SEGUIMIENTO_S
+;
       this.periodoSeguimientoListarUnidades.periodo_id = this.periodos[0].Id.toString();
     }
     this.periodoSeguimientoListarUnidades.planes_interes = JSON.stringify(this.planesInteres);
@@ -97,6 +108,7 @@ export class FuncionamientoComponent implements OnInit {
 
   onChangeVigencia(vigencia: Vigencia) {
     if (vigencia == undefined) {
+      this.guardarDisabled = true;
       this.vigenciaSelected = false;
     } else {
       this.vigenciaSelected = true;
@@ -156,7 +168,7 @@ export class FuncionamientoComponent implements OnInit {
       },
     });
     if (this.tipo === PROCESO_FUNCIONAMIENTO_FORMULACION) {
-      this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:6260e975ebe1e6498f7404ee`).subscribe((data: DataRequest) => {
+      this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:${this.CODIGO_TIPO_SEGUIMIENTO_F}`).subscribe((data: DataRequest) => {
         if (data) {
           if (data.Data.length != 0) {
             this.seguimiento = data.Data[0];
@@ -190,7 +202,8 @@ export class FuncionamientoComponent implements OnInit {
     } else if (this.tipo === PROCESO_FUNCIONAMIENTO_SEGUIMIENTO) {
       if (this.periodos && this.periodos.length > 0) {
         for (let i = 0; i < this.periodos.length; i++) {
-          this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:` + this.periodos[i].Id + `,tipo_seguimiento_id:61f236f525e40c582a0840d0`).subscribe((data: DataRequest) => {
+          this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=activo:true,periodo_id:${this.periodos[i].Id},tipo_seguimiento_id:${this.CODIGO_TIPO_SEGUIMIENTO_S}
+`).subscribe((data: DataRequest) => {
             if (data.Data.length != 0) {
               let seguimiento: PeriodoSeguimiento = data.Data[0];
               this.periodoSeguimiento = data.Data[0];
@@ -237,31 +250,43 @@ export class FuncionamientoComponent implements OnInit {
     }
   }
 
-  loadTrimestres(vigencia: Vigencia) {
-    this.habilitarReporteService.loadTrimestres(vigencia);
+  async loadTrimestres(vigencia: Vigencia) {
+    await this.habilitarReporteService.loadTrimestres(vigencia);
     this.habilitarReporteService.getTrimestresSubject().subscribe(
-      (data: DataRequest) => {
-        if (data.Data != "") {
-          this.periodos = data.Data;
-          this.guardarDisabled = false;
-          Swal.close();
-        } else {
+      (data: any) => {
+        if(data.error) {
           this.guardarDisabled = true;
           this.periodos = [];
           Swal.close();
           Swal.fire({
             title: 'Error en la operación',
-            text: `No se encontraron trimestres para esta vigencia`,
+            text: `No se encontraron datos registrados: ${data.error.Data}, por favor comunicarse con computo@udistrital.edu.co`,
             icon: 'warning',
             showConfirmButton: false,
-            timer: 2500
+            timer: 3000
           })
+        } else {
+          if(data == null) {
+            this.guardarDisabled = true;
+            this.periodos = [];
+            Swal.close();
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron trimestres para esta vigencia, por favor comunicarse con computo@udistrital.edu.co`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 3000
+            })
+          } else if (data.Data != null) {
+            this.periodos = data.Data;
+            this.guardarDisabled = false;
+            Swal.close();
+          }
         }
-      },
-      (error) => {
+      }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
-          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}, por favor comunicarse con computo@udistrital.edu.co`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
@@ -293,6 +318,7 @@ export class FuncionamientoComponent implements OnInit {
     }
 
     if (this.tipo == PROCESO_FUNCIONAMIENTO_FORMULACION) {
+      const tipo_seguimiento_id: string = this.CODIGO_TIPO_SEGUIMIENTO_F
       var periodo_seguimiento_formulacion: PeriodoSeguimiento = {} as PeriodoSeguimiento;
       Swal.fire({
         title: 'Habilitar Fechas',
@@ -307,9 +333,10 @@ export class FuncionamientoComponent implements OnInit {
             periodo_seguimiento_formulacion.periodo_id = this.vigencia.Id.toString();
             periodo_seguimiento_formulacion.fecha_inicio = this.formFechas.get('fecha9').value;
             periodo_seguimiento_formulacion.fecha_fin = this.formFechas.get('fecha10').value;
-            periodo_seguimiento_formulacion.tipo_seguimiento_id = "6260e975ebe1e6498f7404ee";
+            periodo_seguimiento_formulacion.tipo_seguimiento_id = tipo_seguimiento_id;
             periodo_seguimiento_formulacion.unidades_interes = JSON.stringify(this.unidadesInteres);
             periodo_seguimiento_formulacion.planes_interes = JSON.stringify(this.planesInteres);
+            periodo_seguimiento_formulacion.usuario_modificacion = this.user.userService.documento ? this.user.userService.documento : '';
             periodo_seguimiento_formulacion.activo = true;
             this.request.post(environment.PLANES_MID, 'formulacion/habilitar_fechas_funcionamiento', periodo_seguimiento_formulacion)
             .subscribe(
@@ -323,7 +350,7 @@ export class FuncionamientoComponent implements OnInit {
                   });
                   this.limpiarForm()
                 } else {
-                  
+
                 }
               }, (error) => {
                 Swal.fire({
@@ -386,15 +413,16 @@ export class FuncionamientoComponent implements OnInit {
             });
           }
         }
-      }), (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            icon: 'error',
-            text: `${JSON.stringify(error)}`,
-            showConfirmButton: false,
-            timer: 2500,
-          });
-        };
+      }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500,
+        });
+      };
     }
   }
 
@@ -424,9 +452,10 @@ export class FuncionamientoComponent implements OnInit {
     periodo_seguimiento_seguimiento.periodo_id = periodoId.toString();
     periodo_seguimiento_seguimiento.fecha_inicio = fecha_inicio.toISOString();
     periodo_seguimiento_seguimiento.fecha_fin = fecha_fin.toISOString();
-    periodo_seguimiento_seguimiento.tipo_seguimiento_id = "61f236f525e40c582a0840d0";
+    periodo_seguimiento_seguimiento.tipo_seguimiento_id = this.CODIGO_TIPO_SEGUIMIENTO_S;
     periodo_seguimiento_seguimiento.unidades_interes = JSON.stringify(this.unidadesInteres);
     periodo_seguimiento_seguimiento.planes_interes = JSON.stringify(this.planesInteres);
+    periodo_seguimiento_seguimiento.usuario_modificacion = this.user.userService.documento ? this.user.userService.documento : '';
     periodo_seguimiento_seguimiento.activo = true;
 
     this.request.post(environment.PLANES_MID, `formulacion/habilitar_fechas_funcionamiento`, periodo_seguimiento_seguimiento).subscribe((data: DataRequest) => {
@@ -463,18 +492,19 @@ export class FuncionamientoComponent implements OnInit {
     this.filtroSelected = false;
     this.filtroPlan = false;
     this.filtroUnidad = false;
-    if (this.tipo === PROCESO_FUNCIONAMIENTO_FORMULACION) {
-      this.formFechas.get('fecha9').setValue('');
-      this.formFechas.get('fecha10').setValue('');
-    } else if (this.tipo == PROCESO_FUNCIONAMIENTO_SEGUIMIENTO) {
-      this.formFechas.get('fecha1').setValue('');
-      this.formFechas.get('fecha2').setValue('');
-      this.formFechas.get('fecha3').setValue('');
-      this.formFechas.get('fecha4').setValue('');
-      this.formFechas.get('fecha5').setValue('');
-      this.formFechas.get('fecha6').setValue('');
-      this.formFechas.get('fecha7').setValue('');
-      this.formFechas.get('fecha8').setValue('');
-    }
+
+    // Limpieza de fechas para proceso de formulacion
+    this.formFechas.get('fecha9').setValue('');
+    this.formFechas.get('fecha10').setValue('');
+
+    // Limpieza de fechas para proceso de seguimiento
+    this.formFechas.get('fecha1').setValue('');
+    this.formFechas.get('fecha2').setValue('');
+    this.formFechas.get('fecha3').setValue('');
+    this.formFechas.get('fecha4').setValue('');
+    this.formFechas.get('fecha5').setValue('');
+    this.formFechas.get('fecha6').setValue('');
+    this.formFechas.get('fecha7').setValue('');
+    this.formFechas.get('fecha8').setValue('');
   }
 }

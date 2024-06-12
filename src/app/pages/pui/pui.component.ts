@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { VisualizarDocumentoDialogComponent } from '../seguimiento/generar-trimestre/visualizar-documento-dialog/visualizar-documento-dialog.component';
 import { RequestManager } from '../services/requestManager';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-pui',
@@ -17,21 +18,24 @@ export class PUIComponent implements OnInit {
   displayedColumns: string[] = ['Vigencia', 'Nombre', 'Descripcion', 'Soporte'];
   dataSource: MatTableDataSource<any>;
   planes: any[];
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     private request: RequestManager,
     public dialog: MatDialog,
+    private codigosService:CodigosService
   ) {
     this.dataSource = new MatTableDataSource();
-    this.loadData();
   }
 
-  loadData() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:623cb06616511e41ef5d798c`).subscribe((data: any) => {
+  async loadData() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PUI_SP')
+  }`).subscribe((data: any) => {
       if (data) {
         this.planes = data.Data;
         this.getVigencias();
         this.dataSource.data = this.planes;
+        this.dataSource.paginator = this.paginator;
       }
     }, (error) => {
       Swal.fire({
@@ -145,7 +149,8 @@ export class PUIComponent implements OnInit {
     return dataPromise;
   }
 
-  ngOnInit(): void {
+   ngOnInit(){
+    this.loadData();
   }
 
 }

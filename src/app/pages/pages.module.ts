@@ -45,6 +45,7 @@ import { EvidenciasDialogComponent } from './seguimiento/evidencias/evidencias-d
 import { ArbolComponent } from './plan/arbol/arbol.component';
 import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agregar-dialog.component';
 import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
+import { TrimestreDialogComponent } from './plan-accion/trimestre-dialog/trimestre-dialog.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { ContratistasComponent } from './formulacion/contratistas/contratistas.component';
 import { RecursosComponent } from './formulacion/recursos/recursos.component';
@@ -100,20 +101,23 @@ import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
 import { TablaUnidadesComponent } from './plan/habilitar-reporte/tabla-unidades/tabla-unidades.component';
 import { TablaResumenComponent } from './formulacion/tabla-resumen/tabla-resumen.component';
-import { PlanAccionComponent } from './plan-accion/plan-accion.component';
+import { PlanAccionFormulacionComponent } from './plan-accion/plan-accion-formulacion/plan-accion-formulacion.component';
+import { PlanAccionSeguimientoComponent } from './plan-accion/plan-accion-seguimiento/plan-accion-seguimiento.component';
 import { TablaPendientesFormulacionComponent } from './pendientes/pendientes-formulacion/tabla-pendientes-formulacion.component';
 import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seguimiento/tabla-pendientes-seguimiento.component';
 import { FuncionamientoComponent } from './plan/habilitar-reporte/funcionamiento/funcionamiento.component';
 import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion.component';
 import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
 import { FormParametrosComponent } from './plan/gestion-parametros/form-parametros/form-parametros.component';
-import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 import { EvaluacionPlanComponent } from './evaluacion/evaluacion-plan/evaluacion-plan.component';
 import { ResumenComponent } from './evaluacion/resumen/resumen.component';
 import { TablaResumenEvaluacionComponent } from './evaluacion/tabla-resumen-evaluacion/tabla-resumen-evaluacion.component';
 import { AutoResizeDirective } from './directives/resize.directive';
 import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
 import { FormUsuariosComponent } from './plan/gestion-usuarios/form-usuarios/form-usuarios.component';
+import { CodigosService } from '../@core/services/codigos.service';
+import { HabilitarReporteService } from './plan/habilitar-reporte/habilitar-reporte.service';
+import { Notificaciones } from './services/notificaciones';
 
 const pagesComponents = [
   DashboardComponent,
@@ -131,8 +135,11 @@ const pagesComponents = [
   FormulacionComponent,
   AgregarDialogComponent,
   EditarDialogComponent,
+  TrimestreDialogComponent,
   ArbolComponent,
   PlanAnualComponent,
+  PlanAccionFormulacionComponent,
+  PlanAccionSeguimientoComponent,
   TablaPendientesFormulacionComponent,
   TablaPendientesSeguimientoComponent,
 ];
@@ -187,6 +194,7 @@ const MY_FORMATS = {
     ArbolComponent,
     AgregarDialogComponent,
     EditarDialogComponent,
+    TrimestreDialogComponent,
     FormulacionComponent,
     ContratistasComponent,
     RecursosComponent,
@@ -239,14 +247,14 @@ const MY_FORMATS = {
     ProgramacionPresupuestalComponent,
     TablaUnidadesComponent,
     TablaResumenComponent,
-    PlanAccionComponent,
+    PlanAccionFormulacionComponent,
+    PlanAccionSeguimientoComponent,
     TablaPendientesFormulacionComponent,
     TablaPendientesSeguimientoComponent,
     FuncionamientoComponent,
     InversionComponent,
     GestionParametrosComponent,
     FormParametrosComponent,
-    NotificacionesComponent,
     EvaluacionPlanComponent,
     ResumenComponent,
     TablaResumenEvaluacionComponent,
@@ -277,6 +285,9 @@ const MY_FORMATS = {
   ],
   providers: [
     RequestManager,
+    CodigosService,
+    HabilitarReporteService,
+    Notificaciones,
     MatDatepickerModule,
     { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
     { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },

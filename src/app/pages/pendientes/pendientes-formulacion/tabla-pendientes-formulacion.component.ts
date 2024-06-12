@@ -4,11 +4,14 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 import { RequestManager } from '../../services/requestManager';
+import { Notificaciones } from "../../services/notificaciones";
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { UserService } from '../../services/userService';
 import { VerificarFormulario } from '../../services/verificarFormulario'
 import { Router } from '@angular/router';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 @Component({
   selector: 'app-tabla-pendientes-formulacion',
@@ -34,22 +37,55 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
   planesInteres: any;
   banderaTodosSeleccionados: boolean;
   datosCargados: boolean;
+  rol: string;
+
+  CODIGO_TIPO_PROYECTO: string;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     private request: RequestManager,
+    private notificacionesService: Notificaciones,
     private userService: UserService,
     private verificarFormulario: VerificarFormulario,
-    private router: Router
+    private router: Router,
+    private codigosService: CodigosService,
+    private autenticationService: ImplicitAutenticationService
   ) {
     this.planesInteres = [];
     this.banderaTodosSeleccionados = false;
     this.datosCargados = false;
+    let roles: any = this.autenticationService.getRole();
+    if (
+      roles.__zone_symbol__value.find(
+        (x: string) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA'
+      )
+    ) {
+      this.rol = 'JEFE_DEPENDENCIA';
+    } else if (
+      roles.__zone_symbol__value.find((x: string) => x == 'PLANEACION')
+    ) {
+      this.rol = 'PLANEACION';
+    } else if (
+      roles.__zone_symbol__value.find(
+        (x: string) => x == 'JEFE_UNIDAD_PLANEACION'
+      )
+    ) {
+      this.rol = 'JEFE_UNIDAD_PLANEACION';
+    }
   }
 
-  ngOnInit(): void {
-    this.validarUnidad()
+  async ngOnInit() {
+    this.CODIGO_TIPO_PROYECTO = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP');
+    if (
+      this.rol == 'JEFE_DEPENDENCIA' ||
+      this.rol == 'ASISTENTE_DEPENDENCIA' ||
+      this.rol == 'JEFE_UNIDAD_PLANEACION'
+    ) {
+      this.validarUnidad();
+    } else {
+      await this.loadUnidades();
+    }
     const datosPrueba: any[] = [];
     this.informacionTabla = new MatTableDataSource<any>(datosPrueba);
     this.informacionTabla.filterPredicate = (plan: any, _) => {
@@ -225,7 +261,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
   }
 
   filterPlanes(data) {
-    var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
+    var dataAux = data.filter(e => e.tipo_plan_id != this.CODIGO_TIPO_PROYECTO);
     return dataAux.filter(e => e.activo == true);
   }
 
@@ -243,6 +279,44 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
         timer: 2500
       })
     })
+  }
+
+  async loadUnidades() {
+    Swal.fire({
+      title: 'Cargando unidades',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    await new Promise((resolve, reject) => {
+      this.request
+        .get(environment.PLANES_MID, `formulacion/get_unidades`)
+        .subscribe({
+          next: (data: any) => {
+            if (data) {
+              this.auxUnidades = data.Data;
+              Swal.close();
+              resolve(this.auxUnidades);
+            }
+          },
+          error: (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se encontraron datos registrados ${JSON.stringify(
+                error
+              )}`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500,
+            });
+            reject(error);
+          },
+        });
+    });
   }
 
   seleccionarPlan(plan) {
@@ -325,19 +399,27 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.planesInteres.forEach(plan => {
+        this.planesInteres.forEach(async (plan) => {
           const auxPlan = {
             fecha_creacion: plan.fecha_creacion,
             activo: plan.activo,
             aplicativo_id: plan.aplicativo_id,
             tipo_plan_id: plan.tipo_plan_id,
             descripcion: plan.descripcion,
-            estado_plan_id: "65bbf86918f02a27a456d20f",
+            estado_plan_id: await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP'),
             _id: plan.id,
             nombre: plan.nombre
           }
           this.request.put(environment.PLANES_CRUD, `plan`, auxPlan, auxPlan._id).subscribe((data: any) => {
             if (data) {
+              // NOTIFICACION(FR2)
+              this.notificacionesService.enviarNotificacion({
+                codigo: "FR2",
+                id_unidad: plan.dependencia_id,
+                nombre_unidad: plan.dependencia_nombre,
+                nombre_plan: plan.nombre,
+                nombre_vigencia: plan.vigencia
+              })
               Swal.fire({
                 title: 'Revisión Verficada Enviada',
                 icon: 'success',

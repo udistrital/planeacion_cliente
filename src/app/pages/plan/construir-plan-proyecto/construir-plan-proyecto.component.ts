@@ -9,6 +9,7 @@ import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import {CrearPlanComponent} from '../crear-plan/crear-plan.component'
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-construir-plan-proyecto',
@@ -32,6 +33,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
     public dialog: MatDialog,
     private request: RequestManager,
     private router: Router,
+    private codigosService: CodigosService
   ) {
     this.loadData();
   }
@@ -97,7 +99,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
             this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
               if (data){
                 Swal.fire({
-                  title: 'Cambio realizado', 
+                  title: 'Cambio realizado',
                   icon: 'success',
                 }).then((result) => {
                   if (result.value) {
@@ -116,18 +118,18 @@ export class ConstruirPlanProyectoComponent implements OnInit {
             }
           } else if (result.dismiss === Swal.DismissReason.cancel) {
             Swal.fire({
-              title: 'Cambio cancelado', 
+              title: 'Cambio cancelado',
               icon: 'error',
               showConfirmButton: false,
               timer: 2500
             })
           }
       })
-    } 
+    }
   }
 
   // Inactivar todo el árbol
-  deleteData(){ 
+  deleteData(){
     Swal.fire({
       title: 'Inhabilitar plan',
       text: `¿Está seguro de inhabilitar el plan?`,
@@ -140,7 +142,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
           this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan/`, this.uid).subscribe((data: any) => {
             if(data){
               Swal.fire({
-                title: 'Cambio realizado', 
+                title: 'Cambio realizado',
                 icon: 'success',
               }).then((result) => {
                 if (result.value) {
@@ -159,7 +161,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
           }
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           Swal.fire({
-            title: 'Cambio cancelado', 
+            title: 'Cambio cancelado',
             icon: 'error',
             showConfirmButton: false,
             timer: 2500
@@ -184,7 +186,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
         }
       },(error) => {
         Swal.fire({
-          title: 'Error en la operación', 
+          title: 'Error en la operación',
           text: 'No se encontraron datos registrados',
           icon: 'warning',
           showConfirmButton: false,
@@ -226,31 +228,31 @@ export class ConstruirPlanProyectoComponent implements OnInit {
           type: "",
           required: false
         }
-        this.openDialogEditar(this.plan, subgrupoDetalle);  
+        this.openDialogEditar(this.plan, subgrupoDetalle);
       }
     }),
     (error) => {
       Swal.fire({
-        title: 'Error en la operación', 
+        title: 'Error en la operación',
         text: 'No se encontraron datos registrados',
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
       })
-    } 
+    }
   }
 
-  inactivar(fila):void{
+  async inactivar(fila) {
     this.uid = fila._id;
     if (fila.activo == 'Activo'){
-      if (fila.tipo_plan_id != '611af8464a34b3599e3799a2'){
+      if (fila.tipo_plan_id != await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
         this.deleteData();
-      } else if (fila.tipo_plan_id == '611af8464a34b3599e3799a2'){
+      } else {
         let res = {
           activo: false,
         }
         this.putData(res, 'activo')
-      } 
+      }
     } else if (fila.activo == 'Inactivo'){
       Swal.fire({
         title: 'Plan ya inactivo',
@@ -284,7 +286,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(){
     this.loadData();
   }
 

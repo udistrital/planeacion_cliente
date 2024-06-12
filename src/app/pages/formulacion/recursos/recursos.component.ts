@@ -10,6 +10,7 @@ import { environment } from '../../../../environments/environment';
 import { localeData } from 'moment';
 import { formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from './rubros';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-recursos',
@@ -34,6 +35,9 @@ export class RecursosComponent implements OnInit {
   readonlyTable: boolean = false;
   mostrarObservaciones: boolean = false;
 
+  CODIGO_ESTADO_PRE_AVAL: string;
+  CODIGO_ESTADO_REVISADO: string;
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @Input() dataSourceActividades: MatTableDataSource<any>;
@@ -43,12 +47,14 @@ export class RecursosComponent implements OnInit {
   @Input() versiones: any[];
 
   @Output() acciones = new EventEmitter<any>();
-  constructor(private request: RequestManager,) {
+  constructor(private request: RequestManager,private codigosService: CodigosService) {
   }
 
   rubros: any[];
 
-  ngOnInit(): void {
+  async ngOnInit(){
+    this.CODIGO_ESTADO_PRE_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')
+    this.CODIGO_ESTADO_REVISADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
     this.loadPlan();
     this.loadRubros();
     this.dataSource = new MatTableDataSource<any>();
@@ -108,7 +114,7 @@ export class RecursosComponent implements OnInit {
       }
     }
 
-    if (this.rol == 'PLANEACION' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
@@ -133,7 +139,7 @@ export class RecursosComponent implements OnInit {
   }
 
   verificarVersiones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.CODIGO_ESTADO_PRE_AVAL));
     if (preAval.length != 0) {
       return true;
     } else {
@@ -142,7 +148,7 @@ export class RecursosComponent implements OnInit {
   }
 
   verificarObservaciones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b1e01c7a265372fac03'));
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.CODIGO_ESTADO_REVISADO));
     if (preAval.length != 0) {
       return true;
     } else {
@@ -171,9 +177,9 @@ export class RecursosComponent implements OnInit {
 
   }
 
-  loadTabla() {
+  async loadTabla() {
     if (this.dataTabla) {
-      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/` + this.plan + `/617b6630f6fc97b776279afa`).subscribe((dataG: any) => {
+      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/${this.plan}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP')}`).subscribe((dataG: any) => {
         if (dataG.Data != null) {
           this.dataSource.data = dataG.Data
         }
@@ -221,7 +227,7 @@ export class RecursosComponent implements OnInit {
   }
 
   addElement() {
-    if (this.rol == 'PLANEACION' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       this.dataSource.data.unshift({
         codigo: '',
         Nombre: '',
@@ -299,7 +305,7 @@ export class RecursosComponent implements OnInit {
     this.acciones.emit({ data, accion, identi });
   }
 
-  guardarRecursos() {
+  async guardarRecursos() {
     this.accionBoton = 'guardar';
     this.tipoIdenti = 'recursos';
     let data = this.dataSource.data;
@@ -321,7 +327,7 @@ export class RecursosComponent implements OnInit {
         obj["index"] = num.toString();
       }
       let dataS = JSON.stringify(Object.assign({}, data))
-      this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, this.plan + `/617b6630f6fc97b776279afa`).subscribe((data: any) => {
+      this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, `${this.plan}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP')}`).subscribe((data: any) => {
         if (data) {
           Swal.fire({
             title: 'Guardado exitoso',

@@ -12,6 +12,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 interface Subgrupo {
   activo: string;
@@ -46,6 +47,7 @@ const No_Aplica: string = "no aplica"
   styleUrls: ['./arbol.component.scss'],
 })
 export class ArbolComponent implements OnInit {
+  ID_TIPO_PROYECTO: string;
 
   selectedFiles: any;
   dataRow: any;
@@ -110,8 +112,8 @@ export class ArbolComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
-    private autenticationService: ImplicitAutenticationService
-
+    private autenticationService: ImplicitAutenticationService,
+    private codigosService: CodigosService
   ) {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
@@ -129,8 +131,8 @@ export class ArbolComponent implements OnInit {
     }
   }
 
-  ngOnChanges(changes) {
-    if (this.tipoPlanId !== '611af8464a34b3599e3799a2') {
+  async ngOnChanges(changes) {
+    if (this.tipoPlanId !== await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
       if (this.idPlan !== this.planActual) {
         this.loadArbolMid();
         this.planActual = this.idPlan;
@@ -367,11 +369,12 @@ export class ArbolComponent implements OnInit {
 
   hasChild = (_: number, node: Nodo) => node.expandable;
 
-  ngOnInit(): void {
+  async ngOnInit(){
     this.formConstruirPUI = this.formBuilder.group({
       infoControl: ['', Validators.required],
       requiredfile: ['', Validators.required]
     });
     this.planActual = '';
+    this.ID_TIPO_PROYECTO = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
   }
 }

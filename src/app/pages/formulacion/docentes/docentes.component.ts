@@ -9,6 +9,7 @@ import { FormControl } from '@angular/forms';
 import { isNumeric } from 'rxjs/internal-compatibility';
 import { formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from '../recursos/rubros';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-docentes',
@@ -44,7 +45,11 @@ export class DocentesComponent implements OnInit {
   incremento: number = 0.0;
   incrementoAnterior: number = 0.0;
   niveles:string[] = ["Pregrado", "Posgrado"]
-  
+
+  CODIGO_ESTADO_PRE_AVAL: string;
+  CODIGO_ESTADO_REVISADO: string;
+
+
   @ViewChild(MatPaginator) paginatorRHF: MatPaginator;
   @ViewChild(MatPaginator) paginatorRHVPRE: MatPaginator;
   @ViewChild(MatPaginator) paginatorRHVPOS: MatPaginator;
@@ -57,11 +62,14 @@ export class DocentesComponent implements OnInit {
   @Input() versiones: any[];
   @Input() vigencia: any;
   @Output() acciones = new EventEmitter<any>();
-  constructor(private request: RequestManager) {
+  constructor(private request: RequestManager, private codigosService: CodigosService) {
     this.loadRubros();
   }
 
-  ngOnInit(): void {
+  async ngOnInit(){
+    this.CODIGO_ESTADO_PRE_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')
+    this.CODIGO_ESTADO_REVISADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP')
+
     this.dataSourceRHF = new MatTableDataSource<any>();
     this.dataSourceRHVPRE = new MatTableDataSource<any>();
     this.dataSourceRHVPOS = new MatTableDataSource<any>();
@@ -86,7 +94,7 @@ export class DocentesComponent implements OnInit {
     Swal.close();
   }
 
-  loadTabla() {
+  async loadTabla() {
     if (this.dataTabla) {
       this.dataSourceRubrosPre.data = [
         {
@@ -220,7 +228,7 @@ export class DocentesComponent implements OnInit {
           "rubro": "",
           "codigo": ""
         }];
-      this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:` + this.plan + `,tipo_identificacion_id:61897518f6fc97091727c3c3`).subscribe((data: any) => {
+      this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan},tipo_identificacion_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'ID_SP')}`).subscribe((data: any) => {
         if (data) {
           let identificacion = data.Data[0];
           if (identificacion.activo === false) {
@@ -448,8 +456,8 @@ export class DocentesComponent implements OnInit {
       "horas": element.horas,
       "incremento": this.incremento,
       "vigencia": this.vigenciaConsulta
-    }    
-    
+    }
+
     if (data.tipo != "" && data.categoria != "" && data.cantidad != 0 && data.semanas != 0 && data.horas != 0) {
       this.banderaCerrar = true
       this.request.post(environment.PLANES_MID, "formulacion/calculos_docentes", data).subscribe((response: any) => {
@@ -473,7 +481,7 @@ export class DocentesComponent implements OnInit {
     }
   }
 
-  getData(): Promise<any> {
+  async getData() {
     let message: any;
     let resolveRef;
     let rejectRef;
@@ -482,7 +490,7 @@ export class DocentesComponent implements OnInit {
       resolveRef = resolve;
       rejectRef = reject;
     });
-    this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/` + this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/${this.plan}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'ID_SP')}`).subscribe((data: any) => {
       if (data) {
         let aux: object = data.Data;
         this.data = aux;
@@ -521,7 +529,7 @@ export class DocentesComponent implements OnInit {
   }
 
   visualizarColumnas(): string[] {
-    if (this.rol == 'JEFE_DEPENDENCIA') {
+    if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'ASISTENTE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         if (this.readonlyTable != true) { //Se tiene en cuenta vigencia para la consulta --  loadVigenciaConsulta()
@@ -547,7 +555,7 @@ export class DocentesComponent implements OnInit {
       }
     }
 
-    if (this.rol == 'PLANEACION' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
@@ -596,7 +604,7 @@ export class DocentesComponent implements OnInit {
       }
     }
 
-    if (this.rol == 'PLANEACION' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
+    if (this.rol == 'PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
@@ -621,7 +629,7 @@ export class DocentesComponent implements OnInit {
   }
 
   verificarVersiones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.CODIGO_ESTADO_PRE_AVAL));
     if (preAval.length != 0) {
       return true;
     } else {
@@ -630,7 +638,7 @@ export class DocentesComponent implements OnInit {
   }
 
   verificarObservaciones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b1e01c7a265372fac03'));
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.CODIGO_ESTADO_REVISADO));
     if (preAval.length != 0) {
       return true;
     } else {
@@ -1063,16 +1071,16 @@ export class DocentesComponent implements OnInit {
         }
       });
     };
-  
+
     checkData(this.dataSourceRHF.data, 'Docentes V.E Ocasionales Pregrado');
     checkData(this.dataSourceRHVPRE.data, 'Docentes V.E Hora Cátedra Pregrado');
     checkData(this.dataSourceRHVPOS.data, 'Docentes V.E Hora Cátedra Posgrado');
-  
+
     Swal.queue(modals);
     return this.banderaCerrar;
-  }  
+  }
 
-  guardarRecursos() {
+  async guardarRecursos() {
     if (this.checkGeneral_TotalCesantiasPensiones()) {
       // Swal.fire({
       //   icon: 'warning',
@@ -1147,7 +1155,7 @@ export class DocentesComponent implements OnInit {
           "rubros_pos": dataRubrosPos
         }
         let aux = JSON.stringify(Object.assign({}, identificaciones));
-        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, aux, this.plan + `/61897518f6fc97091727c3c3`).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, aux, `${this.plan}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'ID_SP')}`).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Guardado exitoso',
@@ -1195,7 +1203,7 @@ export class DocentesComponent implements OnInit {
 
         dataSource[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
         dataSource[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-        
+
         if (cesantiasPublico + cesantiasPrivado == cesantias) {
           this.banderaCerrar = false;
         } else {
@@ -1227,7 +1235,7 @@ export class DocentesComponent implements OnInit {
       dataSource[rowIndex].pensionesPublico = "N/A"
     }
 
-    if (element.tipo != "H. Catedra Honorarios") 
+    if (element.tipo != "H. Catedra Honorarios")
       if (element.pensionesPrivado != "" && element.pensionesPublico != "") {
         let pensionesPublico = parseInt(element.pensionesPublico.replace(/\$|,/g, ''));
         let pensionesPrivado = parseInt(element.pensionesPrivado.replace(/\$|,/g, ''));
@@ -1235,7 +1243,7 @@ export class DocentesComponent implements OnInit {
 
         dataSource[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
         dataSource[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
-        
+
         if (pensionesPublico + pensionesPrivado == pensiones) {
           this.banderaCerrar = false;
         } else {
@@ -1274,7 +1282,7 @@ export class DocentesComponent implements OnInit {
       }
       return true;
     };
-  
+
     return (
       checkData(this.dataSourceRHF.data) &&
       checkData(this.dataSourceRHVPRE.data) &&

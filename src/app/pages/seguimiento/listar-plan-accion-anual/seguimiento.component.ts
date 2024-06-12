@@ -11,6 +11,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { UserService } from '../../services/userService';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-seguimiento',
@@ -53,17 +54,19 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     private userService: UserService,
     private formBuilder: FormBuilder,
     private activatedRoute: ActivatedRoute,
+    private codigosService: CodigosService
   ) {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION'
-    } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_UNIDAD_PLANEACION')) {
-      this.rol = 'JEFE_UNIDAD_PLANEACION';
+    } else if (roles.__zone_symbol__value.find(x => x == 'ASISTENTE_PLANEACION')) {
+      this.rol = 'ASISTENTE_PLANEACION'
     }
+
     this.unidadSelected = false;
-    
+
     this.formFechas = this.formBuilder.group({
       selectVigencia: null,
       fecha1: null,
@@ -91,8 +94,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   async ngOnInit() {
     if (
       this.rol == 'JEFE_DEPENDENCIA' ||
-      this.rol == 'ASISTENTE_DEPENDENCIA' ||
-      this.rol == 'JEFE_UNIDAD_PLANEACION'
+      this.rol == 'ASISTENTE_DEPENDENCIA'
     ) {
       await this.validarUnidad();
     } else {
@@ -235,8 +237,9 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     }
   }
 
-  filterPlanes(data) {
-    var dataAux = data.filter(e => e.tipo_plan_id != "611af8464a34b3599e3799a2");
+  async filterPlanes(data) {
+    const CODIGO_TIPO_PLAN_PROYECTO:string = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
+    var dataAux = data.filter(e => e.tipo_plan_id != CODIGO_TIPO_PLAN_PROYECTO);
     return dataAux.filter(e => e.activo == true);
   }
 
@@ -273,6 +276,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   async loadFechas() {
+    this.limpiarCampoFechas();
     if (this.vigencia) {
       Swal.fire({
         title: 'Cargando períodos',
@@ -284,72 +288,160 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         },
       })
       await new Promise((resolve,reject)=>{
-        this.request.get(environment.PLANES_MID, `seguimiento/get_periodos/` + this.vigencia.Id).subscribe(async (data: DataRequest) => {
+        this.request.get(environment.PLANES_MID, `seguimiento/trimestres/` + this.vigencia.Id).subscribe(async (data: DataRequest) => {
           if (data) {
             if (data.Data != "" && data.Data != null) {
               let periodos = data.Data;
               if (periodos.length > 0) {
                 this.trimestres = { t1: {}, t2: {}, t3: {}, t4: {} }
                 for (let i = 0; i < periodos.length; i++) {
-                  await new Promise((resolve,reject)=>{
-                    this.request.get(environment.PLANES_CRUD, `periodo-seguimiento?query=tipo_seguimiento_id:61f236f525e40c582a0840d0,periodo_id:` + periodos[i].Id).subscribe(async (data: DataRequest) => {
-                      if (data && data.Data != "") {
-                        let seguimiento = data.Data[0];
+                  if(this.plan.nueva_estructura) {
+                    let plan = {
+                      _id: this.plan.formato_id,
+                      nombre: this.plan.nombre
+                    }
+                    let unidad = {
+                      Id: this.unidad.Id,
+                      Nombre: this.unidad.Nombre
+                    }
+                    let body = {
+                      periodo_id: periodos[i].Id,
+                      tipo_seguimiento_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP'),
+                      planes_interes: JSON.stringify([plan]),
+                      unidades_interes: JSON.stringify([unidad]),
+                      activo: true
+                    }
+                    await new Promise((resolve, reject) => {
+                      this.request.post(environment.PLANES_CRUD,`periodo-seguimiento/buscar-unidad-planes/7`, body)
+                        .subscribe(
+                          async (data: DataRequest) => {
+                            if (data) {
+                              if (data.Data.length != 0) {
+                                let seguimiento = data.Data[0];
 
-                        let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
-                        let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
+                                let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
+                                let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
 
-                        if (i == 0) {
-                          this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
-                          this.formFechas.get('fecha2').setValue(fechaFin.toLocaleDateString());
-                          this.trimestres.t1 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                        } else if (i == 1) {
-                          this.formFechas.get('fecha3').setValue(fechaInicio.toLocaleDateString());
-                          this.formFechas.get('fecha4').setValue(fechaFin.toLocaleDateString());
-                          this.trimestres.t2 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                        } else if (i == 2) {
-                          this.formFechas.get('fecha5').setValue(fechaInicio.toLocaleDateString());
-                          this.formFechas.get('fecha6').setValue(fechaFin.toLocaleDateString());
-                          this.trimestres.t3 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                        } else if (i == 3) {
-                          this.formFechas.get('fecha7').setValue(fechaInicio.toLocaleDateString());
-                          this.formFechas.get('fecha8').setValue(fechaFin.toLocaleDateString());
-                          this.trimestres.t4 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-                        }
+                                if (i == 0) {
+                                  this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
+                                  this.formFechas.get('fecha2').setValue(fechaFin.toLocaleDateString());
+                                  this.trimestres.t1 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                                } else if (i == 1) {
+                                  this.formFechas.get('fecha3').setValue(fechaInicio.toLocaleDateString());
+                                  this.formFechas.get('fecha4').setValue(fechaFin.toLocaleDateString());
+                                  this.trimestres.t2 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                                } else if (i == 2) {
+                                  this.formFechas.get('fecha5').setValue(fechaInicio.toLocaleDateString());
+                                  this.formFechas.get('fecha6').setValue(fechaFin.toLocaleDateString());
+                                  this.trimestres.t3 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                                } else if (i == 3) {
+                                  this.formFechas.get('fecha7').setValue(fechaInicio.toLocaleDateString());
+                                  this.formFechas.get('fecha8').setValue(fechaFin.toLocaleDateString());
+                                  this.trimestres.t4 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                                }
 
-                        if (Object.keys(this.trimestres.t1).length !== 0 &&
-                          Object.keys(this.trimestres.t2).length !== 0 &&
-                          Object.keys(this.trimestres.t3).length !== 0 &&
-                          Object.keys(this.trimestres.t4).length !== 0) {
-                          if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_UNIDAD_PLANEACION') {
-                            await this.evaluarFechasPlan();
+                                if (Object.keys(this.trimestres.t1).length !== 0 &&
+                                  Object.keys(this.trimestres.t2).length !== 0 &&
+                                  Object.keys(this.trimestres.t3).length !== 0 &&
+                                  Object.keys(this.trimestres.t4).length !== 0) {
+                                  if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION' || this.rol == 'JEFE_DEPENDENCIA') {
+                                    await this.evaluarFechasPlan();
+                                  }
+                                }
+                                Swal.close();
+                                resolve(true)
+                              } else {
+                                Swal.fire({
+                                  title: 'Error en la operación',
+                                  text: `No se encontraron datos registrados`,
+                                  icon: 'warning',
+                                  showConfirmButton: false,
+                                  timer: 2500
+                                });
+                                this.limpiarCampoFechas();
+                                reject()
+                              }
+                            }
+                          }, (error) => {
+                            Swal.fire({
+                              title: 'Error en la operación',
+                              text: `No se encontraron datos registrados ${JSON.stringify(
+                                error
+                              )}`,
+                              icon: 'warning',
+                              showConfirmButton: false,
+                              timer: 2500,
+                            });
                           }
+                        );
+                    });
+                  } else {
+                    let body = {
+                      periodo_id: periodos[i].Id,
+                      tipo_seguimiento_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP'),
+                      activo: true,
+                    }
+                    await new Promise((resolve, reject) => {
+                      this.request.post(environment.PLANES_CRUD,`periodo-seguimiento/buscar-unidad-planes/8`, body)
+                        .subscribe(async (data: DataRequest) => {
+                        if (data && data.Data != "") {
+                          let seguimiento = data.Data[0];
+
+                          let fechaInicio = new Date(seguimiento["fecha_inicio"].replace("Z", ""));
+                          let fechaFin = new Date(seguimiento["fecha_fin"].replace("Z", ""));
+
+                          if (i == 0) {
+                            this.formFechas.get('fecha1').setValue(fechaInicio.toLocaleDateString());
+                            this.formFechas.get('fecha2').setValue(fechaFin.toLocaleDateString());
+                            this.trimestres.t1 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                          } else if (i == 1) {
+                            this.formFechas.get('fecha3').setValue(fechaInicio.toLocaleDateString());
+                            this.formFechas.get('fecha4').setValue(fechaFin.toLocaleDateString());
+                            this.trimestres.t2 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                          } else if (i == 2) {
+                            this.formFechas.get('fecha5').setValue(fechaInicio.toLocaleDateString());
+                            this.formFechas.get('fecha6').setValue(fechaFin.toLocaleDateString());
+                            this.trimestres.t3 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                          } else if (i == 3) {
+                            this.formFechas.get('fecha7').setValue(fechaInicio.toLocaleDateString());
+                            this.formFechas.get('fecha8').setValue(fechaFin.toLocaleDateString());
+                            this.trimestres.t4 = { id: seguimiento._id, fecha_inicio: fechaInicio, fecha_fin: fechaFin };
+                          }
+
+                          if (Object.keys(this.trimestres.t1).length !== 0 &&
+                            Object.keys(this.trimestres.t2).length !== 0 &&
+                            Object.keys(this.trimestres.t3).length !== 0 &&
+                            Object.keys(this.trimestres.t4).length !== 0) {
+                            if (this.rol != undefined && this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION' || this.rol == 'JEFE_DEPENDENCIA') {
+                              await this.evaluarFechasPlan();
+                            }
+                          }
+                          Swal.close();
+                          resolve(true)
+                        } else {
+                          Swal.fire({
+                            title: 'Error en la operación',
+                            text: `No se encontraron datos registrados`,
+                            icon: 'warning',
+                            showConfirmButton: false,
+                            timer: 2500
+                          });
+                          this.limpiarCampoFechas();
+                          reject()
                         }
-                        Swal.close();
-                        resolve(true)
-                      } else {
+                      }, (error) => {
                         Swal.fire({
                           title: 'Error en la operación',
-                          text: `No se encontraron datos registrados`,
+                          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
                           icon: 'warning',
                           showConfirmButton: false,
                           timer: 2500
                         });
                         this.limpiarCampoFechas();
-                        reject()
-                      }
-                    }, (error) => {
-                      Swal.fire({
-                        title: 'Error en la operación',
-                        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-                        icon: 'warning',
-                        showConfirmButton: false,
-                        timer: 2500
-                      });
-                      this.limpiarCampoFechas();
-                      reject(error)
+                        reject(error)
+                      })
                     })
-                  })
+                  }
                 }
                 resolve(true)
               } else {
@@ -407,7 +499,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.auxEstadosSeguimientos = [];
 
     for (let index = 0; index < this.dataSource.data.length; index++) {
-      if (this.rol != undefined && this.rol == 'PLANEACION') {
+      if (this.rol != undefined && (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION')) {
         Swal.update({
           text: `${index + 1} de ${this.dataSource.data.length}`,
 
@@ -417,7 +509,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       const plan = this.dataSource.data[index];
       for (let trimestre in this.trimestres) {
         await new Promise(async (resolve, reject) => {
-          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:61f236f525e40c582a0840d0,plan_id:` + plan._id + `,periodo_seguimiento_id:` + this.trimestres[trimestre]["id"]).subscribe(async (data: DataRequest) => {
+          this.request.get(environment.PLANES_CRUD, `seguimiento?query=activo:true,tipo_seguimiento_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'S_SP')}
+,plan_id:` + plan._id + `,periodo_seguimiento_id:` + this.trimestres[trimestre]["id"]).subscribe(async (data: DataRequest) => {
             if (data.Data.length != 0) {
               let estadoTemp;
               if (this.auxEstadosSeguimientos.some(estado => estado.id == data.Data[0].estado_seguimiento_id) && this.auxEstadosSeguimientos.length > 0) {
@@ -488,7 +581,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     } else {
       this.planesMostrar = this.searchPlanById(plan._id);
       this.dataSource = new MatTableDataSource(this.planesMostrar);
-      if (this.rol != undefined && this.rol == 'PLANEACION') {
+      if (this.rol != undefined && (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION')) {
         await this.getUnidades();
         await this.getEstados();
         await this.getVigencias();
@@ -509,7 +602,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.auxPlanes = [];
     this.plan = undefined;
     if (!(this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined))) {
-      if (this.rol != undefined && this.rol == 'PLANEACION') {
+      if (this.rol != undefined && (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION')) {
         await this.loadPlanes("vigencia");
       } else {
         await this.loadPlanes("unidad");
@@ -533,8 +626,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     this.auxEstadosPlanes = [];
 
     if (tipo == "unidad") {
-      return await new Promise((resolve, reject) => {
-        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: DataRequest) => {
+      return await new Promise(async (resolve, reject) => {
+        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')},vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: DataRequest) => {
           if (data?.Data.length != 0) {
             data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });
             this.planes = data.Data;
@@ -574,8 +667,8 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
         })
       });
     } else if (tipo == 'vigencia') {
-      return await new Promise((resolve,reject)=>{
-        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:6153355601c7a2365b2fb2a1,vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: DataRequest) => {
+      return await new Promise(async (resolve,reject)=>{
+        this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,estado_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')},vigencia:${this.vigencia.Id},dependencia_id:${this.unidad.Id}`).subscribe(async (data: DataRequest) => {
           if (data) {
             if (data.Data.length != 0) {
               data.Data.sort(function(a, b) { return b.vigencia - a.vigencia; });
@@ -680,7 +773,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
 
   async getVigencias() {
     return new Promise((resolve, reject)=>{
-      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Id:` + this.planes[0].vigencia).subscribe((data: DataRequest) => {
+      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=Id:` + this.vigencia.Id.toString()).subscribe((data: DataRequest) => {
         if (data) {
           let vigencia: any = data.Data[0];
           for (let index = 0; index < this.planes.length; index++) {

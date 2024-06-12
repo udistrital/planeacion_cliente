@@ -57,14 +57,13 @@ export class ResumenComponent implements OnInit {
       }
     }
   }
-  
 
   async obtenerUnidadesConPeriodo() {
     Swal.fire({
       title: 'Cargando Periodos',
       timerProgressBar: true,
-      showConfirmButton: false,
       allowOutsideClick: false,
+      showConfirmButton: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -94,8 +93,8 @@ export class ResumenComponent implements OnInit {
                   });
                 }
               }
+              resolve(this.unidadesConPeriodoSeleccionado);
             }
-            resolve(this.unidadesConPeriodoSeleccionado);
           });
       });
     }

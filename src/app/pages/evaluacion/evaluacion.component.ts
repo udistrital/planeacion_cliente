@@ -301,7 +301,7 @@ export class EvaluacionComponent implements OnInit {
         Swal.showLoading();
       },
     });
-    this.request.get(environment.PLANES_MID, `evaluacion/planes_periodo/` + this.vigencia.Id + `/` + this.unidad.Id).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `evaluacion/planes_periodo/${this.vigencia.Id}/${this.unidad.Id}`).subscribe((data: any) => {
       if (data) {
         if (data.Data != null) {
           let periodosCargados = false;
