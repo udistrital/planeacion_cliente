@@ -45,6 +45,7 @@ export class FormUsuariosComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         const successfulResponses = []; // Variable para almacenar las respuestas exitosas
@@ -156,6 +157,7 @@ export class FormUsuariosComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         const successfulResponses = []; // Variable para almacenar las respuestas exitosas

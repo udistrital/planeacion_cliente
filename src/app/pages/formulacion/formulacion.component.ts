@@ -351,8 +351,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                         unidad['TipoDependencia'] = unidadesOrdenadas[0]['TipoDependenciaId']['Id'];
                         for (let i = 0; i < dataUnidad.length; i++) {
                           if (dataUnidad[i]['TipoDependenciaId']['Id'] === 2) {
-                            unidad['TipoDependencia'] =
-                              dataUnidad[i]['TipoDependenciaId']['Id'];
+                            unidad['TipoDependencia'] = dataUnidad[i]['TipoDependenciaId']['Id'];
                           }
                         }
                         this.unidades.push(unidad);
@@ -1118,6 +1117,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -1184,6 +1184,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `formulacion/delete_actividad`, `null`, this.plan._id + `/` + fila.index).subscribe((data: any) => {
@@ -1461,6 +1462,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.addActividad = false;
@@ -1494,6 +1496,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         showCancelButton: true,
         confirmButtonText: `Si`,
         cancelButtonText: `No`,
+        allowOutsideClick: false,
       }).then((result) => {
         if (result.isConfirmed) {
           if (event.identi == 'contratistas') {
@@ -1552,7 +1555,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                 icon: 'warning',
                 confirmButtonText: `Si`,
                 cancelButtonText: `No`,
-                showCancelButton: true
+                showCancelButton: true,
+                allowOutsideClick: false,
               }).then((result) => {
                 if (result.isConfirmed) {
                   this.plan.estado_plan_id = this.ID_ESTADO_FORMULADO;
@@ -1658,7 +1662,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.plan.estado_plan_id = this.ID_ESTADO_EN_REVISION;
@@ -1709,7 +1714,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.plan.estado_plan_id = this.ID_ESTADO_REVISADO;
@@ -1754,7 +1760,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         // TODO verificar si se puede enviar a verificar
@@ -1819,7 +1826,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
@@ -1898,7 +1906,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.plan.estado_plan_id = this.ID_ESTADO_PRE_AVAL;
@@ -1944,7 +1953,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.mostrarMensajeCarga();

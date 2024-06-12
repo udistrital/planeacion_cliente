@@ -16,7 +16,9 @@ export class UtilService {
             icon: 'warning',
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
-            confirmButtonText: `${option === 'update' ? 'Actualizar' : 'Crear'} ${type}`
+            confirmButtonText: `${option === 'update' ? 'Actualizar' : 'Crear'} ${type}`,
+            allowOutsideClick: false,
+      	    allowEscapeKey: false,
         })
             .then((result) => {
                 if (result.value) {
@@ -24,6 +26,7 @@ export class UtilService {
                         title: 'Por favor espere!',
                         html: `${option === 'update' ? 'Actualizando' : 'Creando'} ${type}`,
                         allowOutsideClick: false,
+      	                allowEscapeKey: false,
                         willOpen: () => {
                             Swal.showLoading()
                         },
@@ -62,6 +65,8 @@ export class UtilService {
             inputPlaceholder: "Acepto términos y condiciones",
             confirmButtonText:
                 'Continue&nbsp;<i class="fa fa-arrow-right"></i>',
+                allowOutsideClick: false,
+      	        allowEscapeKey: false,
             inputValidator: (result) => {
                 return !result && `Necesita aceptar términos y condiciones para continuar`
             }

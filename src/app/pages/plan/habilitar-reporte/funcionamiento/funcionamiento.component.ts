@@ -162,6 +162,7 @@ export class FuncionamientoComponent implements OnInit {
       title: 'Cargando Fechas',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -325,6 +326,7 @@ export class FuncionamientoComponent implements OnInit {
         showCancelButton: true,
         confirmButtonText: `Sí`,
         cancelButtonText: `No`,
+        allowOutsideClick: false,
       }).then((result) => {
         if (result.isConfirmed) {
           if (this.formFechas.get('fecha9').value != "" && this.formFechas.get('fecha10').value != "") {
@@ -378,6 +380,7 @@ export class FuncionamientoComponent implements OnInit {
         showCancelButton: true,
         confirmButtonText: `Sí`,
         cancelButtonText: `No`,
+        allowOutsideClick: false,
       }).then((result) => {
         if (result.isConfirmed) {
           if (

@@ -818,6 +818,7 @@ export class DocentesComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this._deleteElemento(index, tipo);
@@ -1090,7 +1091,8 @@ export class DocentesComponent implements OnInit {
       Swal.fire({
         icon: 'warning',
         text: 'El porcentaje de incremento asociado a la vigencia en cuestión aún no ha sido aplicado, por favor presione el botón "Aplicar Incremento" para actualizar los valores.',
-        showConfirmButton: true
+        showConfirmButton: true,
+        allowOutsideClick: false,
       })
     } else {
       if (this.verificarTablas()) {
@@ -1211,6 +1213,7 @@ export class DocentesComponent implements OnInit {
             title: 'Por favor verifique los campos de cesantias',
             showConfirmButton: true,
             timer: 2500,
+            allowOutsideClick: false,
           })
         }
       } else {

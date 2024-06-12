@@ -196,7 +196,6 @@ export class EvaluacionComponent implements OnInit {
       });
     });
   }
-
   /**
    * Carga las unidades que le hacen seguimiento al plan y vigencia seleccionados
    */
@@ -205,6 +204,7 @@ export class EvaluacionComponent implements OnInit {
       title: 'Cargando Unidades',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -227,6 +227,7 @@ export class EvaluacionComponent implements OnInit {
                   text: `No existen unidades con registros en fase de seguimiento asociados al plan de acción y vigencia seleccionados`,
                   icon: 'warning',
                   showConfirmButton: true,
+                  allowOutsideClick: false,
                 });
               } else {
                 this.unidades = data.Data;
@@ -257,6 +258,7 @@ export class EvaluacionComponent implements OnInit {
       title: 'Cargando planes',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -294,6 +296,7 @@ export class EvaluacionComponent implements OnInit {
       title: 'Cargando Periodos',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -347,6 +350,7 @@ export class EvaluacionComponent implements OnInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },

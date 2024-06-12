@@ -63,6 +63,7 @@ export class CargarSoportesDialogComponent implements OnInit {
           title: 'Guardando documento',
           timerProgressBar: true,
           showConfirmButton: false,
+          allowOutsideClick: false, 
           willOpen: () => {
             Swal.showLoading();
           },
