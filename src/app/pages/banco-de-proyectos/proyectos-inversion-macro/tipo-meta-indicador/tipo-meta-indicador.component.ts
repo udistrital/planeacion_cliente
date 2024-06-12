@@ -297,6 +297,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -336,6 +337,7 @@ export class TipoMetaIndicadorComponent implements OnInit {
       title: 'Actualizando Meta',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },

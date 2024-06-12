@@ -107,6 +107,7 @@ export class EvaluacionPlanComponent implements OnInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -117,8 +118,7 @@ export class EvaluacionPlanComponent implements OnInit {
       .get(
         environment.PLANES_MID,
         `evaluacion/${this.idVigencia}/${this.plan.id}/${this.periodo.id}`
-      )
-      .subscribe(
+      ).subscribe(
         (data: any) => {
           if (data) {
             this.actividades = data.Data;
@@ -128,57 +128,20 @@ export class EvaluacionPlanComponent implements OnInit {
             this.pieTitle = `Cumplimiento general ${this.plan.nombre} - ${this.nombreUnidad}`;
             this.cacheSpan('numero', (d) => d.numero);
             this.cacheSpan('ponderado', (d) => d.numero + d.ponderado);
-            this.cacheSpan(
-              'periodo',
-              (d) => d.numero + d.ponderado + d.periodo
-            );
-            this.cacheSpan(
-              'actividad',
-              (d) => d.numero + d.ponderado + d.periodo + d.actividad
-            );
-            this.cacheSpan(
-              'actividadt1',
-              (d) =>
-                d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1
-            );
-            this.cacheSpan(
-              'actividadt2',
-              (d) =>
-                d.numero +
-                d.ponderado +
-                d.periodo +
-                d.actividad +
-                d.actividadt1 +
-                d.actividadt2
-            );
-            this.cacheSpan(
-              'actividadt3',
-              (d) =>
-                d.numero +
-                d.ponderado +
-                d.periodo +
-                d.actividad +
-                d.actividadt1 +
-                d.actividadt2 +
-                d.actividadt3
-            );
-            this.cacheSpan(
-              'actividadt4',
-              (d) =>
-                d.numero +
-                d.ponderado +
-                d.periodo +
-                d.actividad +
-                d.actividadt1 +
-                d.actividadt2 +
-                d.actividadt3 +
-                d.actividadt4
-            );
+            this.cacheSpan('periodo',(d) => d.numero + d.ponderado + d.periodo);
+            this.cacheSpan( 'actividad', (d) => d.numero + d.ponderado + d.periodo + d.actividad);
+            this.cacheSpan('actividadt1',(d) =>d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1);
+            this.cacheSpan('actividadt2', (d) => d.numero +d.ponderado +  d.periodo + d.actividad +d.actividadt1 +d.actividadt2);
+            this.cacheSpan('actividadt3',(d) =>d.numero + d.numero +d.ponderado +d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3);
+            this.cacheSpan( 'actividadt4', (d) => d.numero +d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4 );
+            
+            //console.log('numero', this.actividades.map((d) => d['']));
 
             if (this.periodo.nombre.toLowerCase() == 'trimestre dos') {
               this.tr2 = true;
               this.tr3 = false;
               this.tr4 = false;
+            console.log('tr', this.tr2, this.tr3, this.tr4);
             } else if (this.periodo.nombre.toLowerCase() == 'trimestre tres') {
               this.tr2 = true;
               this.tr3 = true;
@@ -190,7 +153,7 @@ export class EvaluacionPlanComponent implements OnInit {
             } else {
               this.tr2 = false;
               this.tr3 = false;
-              this.tr4 = false;
+              this.tr4 = false; 
             }
             this.calcularAvanceGeneral();
             if (this.mostrarGraficos) {
@@ -247,7 +210,7 @@ export class EvaluacionPlanComponent implements OnInit {
     for (let index = 0; index < this.actividades.length; index++) {
       const actividad = this.actividades[index];
       if (numero != actividad.numero) {
-        numero = actividad.numero;
+        numero = actividad.numero;        
       } else {
         continue;
       }
@@ -257,7 +220,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre1.actividad <= 1
             ? actividad.trimestre1.actividad
-            : 1);
+            : 1) * 100;
       }
 
       if (actividad.trimestre2.actividad) {
@@ -265,7 +228,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre2.actividad <= 1
             ? actividad.trimestre2.actividad
-            : 1);
+            : 1) * 100;
       }
 
       if (actividad.trimestre3.actividad) {
@@ -273,7 +236,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre3.actividad <= 1
             ? actividad.trimestre3.actividad
-            : 1);
+            : 1) * 100;
       }
 
       if (actividad.trimestre4.actividad) {
@@ -281,7 +244,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre4.actividad <= 1
             ? actividad.trimestre4.actividad
-            : 1);
+            : 1) * 100;
       }
     }
   }

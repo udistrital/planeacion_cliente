@@ -102,6 +102,7 @@ export class PedComponent implements OnInit {
         showCancelButton: true,
         confirmButtonText: `Si`,
         cancelButtonText: `No`,
+        allowOutsideClick: false,
       }).then((result) => {
           if (result.isConfirmed) {
             this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
@@ -143,6 +144,7 @@ export class PedComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
         if (result.isConfirmed) {
           this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan`, this.uid).subscribe((data: any) => {

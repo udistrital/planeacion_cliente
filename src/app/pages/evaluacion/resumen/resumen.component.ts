@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
+import { UnaryOperator } from '@angular/compiler';
 
 type Dato = { id: string; nombre: string };
 
@@ -45,9 +46,8 @@ export class ResumenComponent implements OnInit {
       this.unidades = this.unidadesConPeriodoSeleccionado;
       if (this.unidades.length === 0) {
         Swal.fire({
-          title:
-            'No se cuenta con registros asociados a los trimestres buscados',
-          text: `No existen proyectos con registros en fase de seguimiento asociados a el trimestre seleccionado`,
+          title: 'No se cuenta con registros asociados a los trimestres buscados',
+          text: 'No existen proyectos con registros en fase de seguimiento asociados al trimestre seleccionado',
           icon: 'warning',
           showConfirmButton: true,
         });
@@ -62,11 +62,13 @@ export class ResumenComponent implements OnInit {
     Swal.fire({
       title: 'Cargando Periodos',
       timerProgressBar: true,
+      allowOutsideClick: false,
       showConfirmButton: false,
       willOpen: () => {
         Swal.showLoading();
       },
     });
+  
     for (let index = 0; index < this.unidades.length; index++) {
       const unidad = this.unidades[index];
       await new Promise((resolve) => {
@@ -108,7 +110,7 @@ export class ResumenComponent implements OnInit {
         )
         .subscribe(
           (data: any) => {
-            if (data) {
+            if (data && data.Data && data.Data.Trimestres) {
               let auxDataBarra: [string, number, string] = ['', 0, ''];
               auxDataBarra[0] = unidad.Nombre;
               let color: string;
@@ -129,35 +131,37 @@ export class ResumenComponent implements OnInit {
                 default:
                   break;
               }
-
+  
               if (avance <= 20) {
-                //  0,0 -  20  % #c50820
                 color = '#c50820';
               } else if (avance > 20 && avance <= 40) {
-                // 20,1 -  40  % #faa99c
                 color = '#faa99c';
               } else if (avance > 40 && avance <= 60) {
-                // 40,1 -  60  % #fac11d
                 color = '#fac11d';
               } else if (avance > 60 && avance <= 80) {
-                // 60,1 -  80  % #fdff21
                 color = '#fdff21';
               } else {
-                // 80,1 - 100  % #73af49
                 color = '#73af49';
               }
               auxDataBarra[1] = avance;
               auxDataBarra[2] = `color: ${color}`;
-
+  
               this.auxLineChartData.push(auxDataBarra);
               resolve(auxDataBarra);
+            } else {
+              Swal.fire({
+                title: 'No hay datos para mostrar',
+                text: `No se encontró el avance para la Unidad ${unidad.Nombre}`,
+                icon: 'info',
+                showConfirmButton: true,
+              });
+              resolve(null);
             }
           },
           (error) => {
-            Swal.close();
             Swal.fire({
               title: 'Error al obtener los datos',
-              text: `No se encontró el avance de la Unidad`,
+              text: `No se encontró el avance de la Unidad ${unidad.Nombre}`,
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500,
@@ -167,6 +171,7 @@ export class ResumenComponent implements OnInit {
         );
     });
   }
+  
 
   async obtenerDatosUnidad(unidad: { Id: string; Nombre: string }) {
     await new Promise((resolve, reject) => {

@@ -239,6 +239,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       title: 'Cargando formato',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -280,6 +281,7 @@ export class FormularProyectoInversionComponent implements OnInit {
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
+      allowOutsideClick: false,
       showConfirmButton: false,
       willOpen: () => {
         Swal.showLoading();
@@ -489,6 +491,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -793,6 +796,7 @@ export class FormularProyectoInversionComponent implements OnInit {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -1109,6 +1113,7 @@ export class FormularProyectoInversionComponent implements OnInit {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -1200,6 +1205,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `inversion/inactivar_meta`, `null`, this.plan._id + `/` + row.index).subscribe((data: any) => {
@@ -1344,6 +1350,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         for (let i = 0; i < this.lengthMetas; i++) {
@@ -1416,6 +1423,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       icon: 'warning',
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
       showCancelButton: true
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -1452,6 +1460,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
+      allowOutsideClick: false,
       showCancelButton: true
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -1503,6 +1512,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
       showCancelButton: true
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -1548,13 +1558,15 @@ export class FormularProyectoInversionComponent implements OnInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
           title: 'Creando Nueva Versión del Plan',
           timerProgressBar: true,
           showConfirmButton: false,
+          allowOutsideClick: false,
           willOpen: () => {
             Swal.showLoading();
           },
@@ -1607,6 +1619,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
       showCancelButton: true
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -1659,6 +1672,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
       showCancelButton: true
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -1717,6 +1731,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
       showCancelButton: true
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -1780,6 +1795,7 @@ export class FormularProyectoInversionComponent implements OnInit {
       title: 'Actualizando Meta',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -1854,6 +1870,7 @@ export class FormularProyectoInversionComponent implements OnInit {
             title: 'Cargando información',
             timerProgressBar: true,
             showConfirmButton: false,
+            allowOutsideClick: false,
             willOpen: () => {
               Swal.showLoading();
             },

@@ -362,6 +362,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         title: 'Creando tipo actividad',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -432,6 +433,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       title: 'Cargando formato',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -483,6 +485,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -595,6 +598,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -727,6 +731,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -767,6 +772,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -795,6 +801,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       title: 'Actualizando Información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -836,6 +843,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       title: 'Actualizando Meta',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -903,6 +911,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `inversion/inactivar_meta`, `null`, this.actividadId + `/` + row.posicion).subscribe((data: any) => {

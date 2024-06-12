@@ -221,6 +221,7 @@ export class InformacionBasicaComponent implements OnInit {
         showCancelButton: true,
         cancelButtonText: 'Cancelar',
         confirmButtonText: this.isPost ? 'Guardar' : 'Actualizar',
+        allowOutsideClick: false,
       }).then(result => {
 
         if (this.tercero && result.value) {
@@ -228,6 +229,7 @@ export class InformacionBasicaComponent implements OnInit {
             title: this.isPost ? 'Guardando' : 'Actualizando' + ' caracterización',
             html: `<b></b> de ${this.infoVacunacion.length} registros ${this.isPost ? 'almacenados' : 'actualizados'}`,
             timerProgressBar: true,
+            allowOutsideClick: false,
             willOpen: () => {
               Swal.showLoading();
             },
@@ -284,6 +286,7 @@ export class InformacionBasicaComponent implements OnInit {
                       showCancelButton: true,
                       cancelButtonText: 'Cancelar',
                       confirmButtonText: `Aceptar`,
+                      allowOutsideClick: false,
                     });
                   };
               } else {
@@ -324,6 +327,7 @@ export class InformacionBasicaComponent implements OnInit {
                       showCancelButton: true,
                       cancelButtonText: 'Cancelar',
                       confirmButtonText: `Aceptar`,
+                      allowOutsideClick: false,
                     });
                   };
 

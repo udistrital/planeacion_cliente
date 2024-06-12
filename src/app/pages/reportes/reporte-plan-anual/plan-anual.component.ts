@@ -272,6 +272,7 @@ export class PlanAnualComponent implements OnInit {
       title: 'Validando reporte',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -330,6 +331,7 @@ export class PlanAnualComponent implements OnInit {
       title: 'Generando Reporte',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },

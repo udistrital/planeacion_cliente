@@ -95,6 +95,7 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
       title: 'Cargando planes de acción',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },

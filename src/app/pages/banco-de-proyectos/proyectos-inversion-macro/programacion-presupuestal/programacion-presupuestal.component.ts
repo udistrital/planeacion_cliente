@@ -404,6 +404,7 @@ export class ProgramacionPresupuestalComponent implements OnInit {
       title: 'Cargando Proyectos',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -820,6 +821,7 @@ export class ProgramacionPresupuestalComponent implements OnInit {
       title: 'Cargando formato',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -958,6 +960,7 @@ export class ProgramacionPresupuestalComponent implements OnInit {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },

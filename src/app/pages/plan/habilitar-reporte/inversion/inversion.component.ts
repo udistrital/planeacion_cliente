@@ -156,6 +156,7 @@ export class InversionComponent implements OnInit {
       title: 'Cargando Fechas',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -370,6 +371,7 @@ export class InversionComponent implements OnInit {
         showCancelButton: true,
         confirmButtonText: `Sí`,
         cancelButtonText: `No`,
+        allowOutsideClick: false,
       }).then((result) => {
         if (result.isConfirmed) {
           if (this.formFechas.get('fecha19').value != "" && this.formFechas.get('fecha20').value != "") {
@@ -427,6 +429,7 @@ export class InversionComponent implements OnInit {
         showCancelButton: true,
         confirmButtonText: `Sí`,
         cancelButtonText: `No`,
+        allowOutsideClick: false,
       }).then((result) => {
         if (result.isConfirmed) {
           if (
