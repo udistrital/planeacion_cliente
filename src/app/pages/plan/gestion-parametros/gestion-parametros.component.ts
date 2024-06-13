@@ -34,7 +34,7 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.banderaAdicion = false;
     this.banderaEdicion = false;
-    this.displayedColumns = ['Id', 'Nombre', 'Valor', 'Vigencia', 'actions'];
+    this.displayedColumns = ['Id', 'Nombre', 'CodigoAbreviacion', 'Valor', 'Vigencia', 'actions'];
     this.loadData();
   }
 
@@ -105,6 +105,7 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
         if (data) {
           for(var i=0;i<data.Data.length;i++){
             data.Data[i].Nombre = data.Data[i].ParametroId.Nombre.toLowerCase()
+            data.Data[i].Valor = JSON.parse(data.Data[i].Valor).Valor
           }
           this.parametros = data.Data;
           this.cerrarMensajeCarga()
@@ -128,6 +129,17 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
   }
 
   inactivar(parametroPeriodo: ParametroPeriodo) {
+    let codigoAbreviacionParametro = parametroPeriodo.ParametroId.CodigoAbreviacion;
+    if(codigoAbreviacionParametro === 'CORREO_OAP') {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: 'No es posible inactivar el parámetro CORREO_OAP, comuníquese con computo@udistrital.edu.co',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+      return;
+    }
     Swal.fire({
       title: 'Inactivar Parámetro',
       text: `¿Está seguro de inactivar el parámetro?`,
