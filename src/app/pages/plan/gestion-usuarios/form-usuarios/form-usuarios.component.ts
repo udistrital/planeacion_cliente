@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import Swal from 'sweetalert2';
-import { CORREO_OFICINA_PLANEACION, Rol, ROL_ASISTENTE_DEPENDENCIA, ROL_ASISTENTE_PLANEACION, Usuario, Vinculacion } from '../utils';
+import {Rol, ROL_ASISTENTE_DEPENDENCIA, ROL_ASISTENTE_PLANEACION, Usuario, Vinculacion } from '../utils';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
+import { ParametroPeriodo } from '../../gestion-parametros/utils/gestion-parametros.models';
 
 @Component({
   selector: 'app-form-usuarios',
@@ -16,6 +17,7 @@ export class FormUsuariosComponent implements OnInit {
     { rol: ROL_ASISTENTE_DEPENDENCIA, selected: false },
     { rol: ROL_ASISTENTE_PLANEACION, selected: false }
   ];
+  correoPlaneacion: string;
   @Input() usuario: Usuario;
   @Output() errorEnPeticion = new EventEmitter<any>();
 
@@ -28,6 +30,8 @@ export class FormUsuariosComponent implements OnInit {
     this.rolesUsuario = this.rolesUsuario.filter(usuarioRol => { // Nos aseguramos de mostrar solo los roles de SISGPLAN
       return this.rolesSistema.some(sistemaRol => sistemaRol.rol === usuarioRol.rol);
     })
+    this.correoPlaneacion = '';
+    this.obtenerCorreoPlaneacion();
     this.validarRoles(this.rolesUsuario, this.rolesSistema);
   }
 
@@ -245,7 +249,7 @@ export class FormUsuariosComponent implements OnInit {
                     allowEscapeKey: false,
                     allowOutsideClick: false,
                     showConfirmButton: false,
-                    timer: 2500
+                    timer: 3500
                   }).then(() => {
                     this.enviarErrorPeticion();
                   });
@@ -406,10 +410,50 @@ export class FormUsuariosComponent implements OnInit {
     this.errorEnPeticion.emit(true);
   }
 
+  async obtenerCorreoPlaneacion() {
+    await new Promise((resolve) => {
+      this.request
+        .get(
+          environment.PARAMETROS_SERVICE, `parametro_periodo?query=ParametroId.CodigoAbreviacion:CORREO_OAP,ParametroId.TipoParametroId.CodigoAbreviacion:P_SISGPLAN,Activo:true`
+        )
+        .subscribe((data: any) => {
+          if (data?.Data) {
+            let parametroPeriodo: ParametroPeriodo = data.Data[0];
+            if (parametroPeriodo.Valor != undefined && parametroPeriodo.Valor != null && parametroPeriodo.Valor != "") {
+              this.correoPlaneacion = JSON.parse(parametroPeriodo.Valor).Valor;
+              resolve(this.correoPlaneacion);
+            } else {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: `No se pudo obtener el correo de la Oficina de Asesora de Planeación del módulo de parámetros, comuníquese con computo@udistrital.edu.co`,
+                icon: 'warning',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                timer: 3500
+              });
+              this.enviarErrorPeticion();
+            }
+          } else {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No se pudo obtener el correo de la Oficina de Asesora de Planeación del módulo de parámetros`,
+              icon: 'warning',
+              allowEscapeKey: false,
+              allowOutsideClick: false,
+              showConfirmButton: false,
+              timer: 3500
+            });
+            this.enviarErrorPeticion();
+          }
+        });
+    });
+  }
+
   validacionVinculacion(rolesSeleccionados: Rol[]): boolean { //? Funcion que define si pasa o no la validacion de ASISTENTE_PLANEACION
     const rolAsistentePlaneacion = rolesSeleccionados.find(rol => rol.rol === ROL_ASISTENTE_PLANEACION);
     const vinculacionSeleccionada: Vinculacion = this.usuario.Vinculacion.find(vinculacion => vinculacion.Id === this.usuario.VinculacionSeleccionadaId);
-    const vinculacionPlaneacion: boolean = vinculacionSeleccionada.DependenciaCorreo === CORREO_OFICINA_PLANEACION ? true : false;
+    const vinculacionPlaneacion: boolean = vinculacionSeleccionada.DependenciaCorreo === this.correoPlaneacion ? true : false;
 
     if (rolAsistentePlaneacion && vinculacionPlaneacion && rolesSeleccionados.length === 1) {
       return true; // El usuario desea vincular el rol de ASISTENTE_PLANEACION a un usuario de la Oficina de Asesora de Planeación
