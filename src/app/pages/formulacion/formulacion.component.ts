@@ -95,6 +95,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  codigo_abreviacion: any;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -864,6 +865,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       (data: any) => {
         if (data) {
           this.estadoPlan = data.Data.nombre;
+          this.codigo_abreviacion = data.Data.codigo_abreviacion;
           this.getIconEstado();
           this.visualizeObs();
           this.enviarNotificacion();
