@@ -224,13 +224,13 @@
               <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'input'">
                 <mat-label>Digite la información:</mat-label>
                 <textarea matInput formControlName="{{step.id}}" placeholder="Escriba la información deseada"
-                  required="{{step.required}}" readonly="{{readOnlyAll}}"></textarea>
+                  required="{{step.required}}" readonly="{{readOnlyAll}}" [readonly]=" codigo_abreviacion === 'A_SP'" ></textarea>
                 <mat-icon matSuffix>create</mat-icon>
               </mat-form-field>
               <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'numeric'">
                 <mat-label>Ingrese el valor:</mat-label>
                 <input type="number" matInput formControlName="{{step.id}}" placeholder="Ingrese el valor numérico"
-                  required="{{step.required}}" readonly="{{readOnlyAll}}" step="0.01" value="0.00" pattern="^\d*(\.\d{0,2})?$">
+                  required="{{step.required}}" readonly="{{readOnlyAll}}"  step="0.01" value="0.00" pattern="^\d*(\.\d{0,2})?$">
                 <mat-icon matSuffix>create</mat-icon>
               </mat-form-field>
               <mat-form-field appearance="fill" [style.width.%]="100" *ngIf="step.type == 'select'">
@@ -352,14 +352,14 @@
               </u>
               <div class="btn-formato">
                 <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                  *ngIf="index !== 0" matStepperPrevious (click)="prevStep(index)">Volver</button>
+                  *ngIf="index !== 0" matStepperPrevious (click)="prevStep(index)" >Volver</button>
                 <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                  *ngIf="!last" matStepperNext (click)="nextStep(index)">Siguiente</button>
+                  *ngIf="!last" matStepperNext (click)="nextStep(index)" >Siguiente</button>
                 <br><br>
                 <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                  (click)="ocultar()">Cancelar</button>
+                  (click)="ocultar()" [disabled]="codigo_abreviacion === 'A_SP'"  (click)="cancelar()">Cancelar</button>
                 <button mat-raised-button class="btn-formato" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                  *ngIf="last" [disabled]="!form.valid" (click)="submit()">Guardar</button>
+                  *ngIf="last" [disabled]="codigo_abreviacion === 'A_SP' || !form.valid"  (click)="submit()">Guardar</button>
                 <!-- <button *ngIf="index !== 0" matStepperPrevious class="btn btn-primary" type="button" (click)="prevStep(index)">Atrás</button>
               <button *ngIf="!last" matStepperNext class="btn btn-primary" type="button" [disabled]="!formStep.at(index).valid" (click)="nextStep(index)">Siguiente</button>
               <button *ngIf="last" class="btn btn-primary" [disabled]="!formStep.valid" type="submit">Guardar</button> -->
