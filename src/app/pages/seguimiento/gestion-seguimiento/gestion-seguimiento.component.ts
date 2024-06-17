@@ -312,7 +312,19 @@ export class SeguimientoComponentGestion implements OnInit {
       }
   }
 
-  finalizarRevision() {
+  async finalizarRevision() {
+    if (await this.validacionActividades() && this.rol === 'ASISTENTE_PLANEACION') { 
+      /* Si todas las actividades están avaladas y el rol es ASISTENTE_PLANEACION
+      NO se puede finalizar la revisión (Avalar Reporte) debe hacerlo el rol PLANEACION. */
+      Swal.fire({
+        title: 'Finalización de revisión cancelada',
+        text: `Solo el JEFE_PLANEACION puede avalar el reporte de seguimiento`,
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 3500
+      });
+      return;
+    }
     Swal.fire({
       title: 'Finalizar revisión',
       text: `¿Confirma que desea finalizar la revisión del seguimiento al Plan de Acción?`,
@@ -356,7 +368,7 @@ export class SeguimientoComponentGestion implements OnInit {
         });
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
-          title: 'Finalizalización de revisión cancelada',
+          title: 'Finalización de revisión cancelada',
           icon: 'error',
           showConfirmButton: false,
           timer: 2500
@@ -417,7 +429,7 @@ export class SeguimientoComponentGestion implements OnInit {
         });
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
-          title: 'Finalizalización de revisión cancelada',
+          title: 'Finalización de revisión cancelada',
           icon: 'error',
           showConfirmButton: false,
           timer: 2500
@@ -527,7 +539,6 @@ export class SeguimientoComponentGestion implements OnInit {
       if (result.isConfirmed) {
         this.request.get(environment.PLANES_CRUD, `estado-seguimiento?query=activo:true,codigo_abreviacion:RJU`).subscribe((data: any) => {
           if (data) {
-            console.log(data);
             this.seguimiento.estado_seguimiento_id = data.Data[0]._id;;
             this.request.put(environment.PLANES_CRUD, `seguimiento`, this.seguimiento, this.seguimiento._id).subscribe((data: any) => {
               if (data) {
@@ -679,5 +690,28 @@ export class SeguimientoComponentGestion implements OnInit {
           timer: 2500
         })
       }
+  }
+
+  async validacionActividades() {
+    let aux = true;
+    let actividadAvalada;
+    await new Promise((resolve) => {
+      this.request
+        .get(
+          environment.PLANES_CRUD,
+          `estado-seguimiento?query=codigo_abreviacion:AAV,activo:true`
+        ).subscribe((data: any) => {
+          if (data?.Data) {
+            actividadAvalada = data.Data[0]
+            resolve(actividadAvalada);
+          }
+        });
+    });
+    this.allActividades.forEach(actividad => {
+      if (actividad.estado.id != actividadAvalada._id) {
+        aux = false;
+      }
+    });
+    return aux;
   }
 }
