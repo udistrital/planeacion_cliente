@@ -24,6 +24,7 @@ export class ConsultarDialogPedComponent implements OnInit {
   planes: any[];
 
   constructor(
+    public dialogRef: MatDialogRef<ConsultarDialogPedComponent>,
     private formBuilder: FormBuilder,
     private request: RequestManager,
     @Inject(MAT_DIALOG_DATA) public data: any 
@@ -45,6 +46,10 @@ export class ConsultarDialogPedComponent implements OnInit {
       tipo_plan_id: [this.tipoPlan, Validators.required],
       plan_id: [this.planId, Validators.required]
     });
+  }
+
+  close(): void {
+    this.dialogRef.close();
   }
 
 }

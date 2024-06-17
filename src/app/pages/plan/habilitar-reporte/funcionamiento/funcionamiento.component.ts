@@ -362,6 +362,14 @@ export class FuncionamientoComponent implements OnInit {
                 });
               }
             );
+          } else {
+            Swal.fire({
+              title: 'Error en la operación',
+              icon: 'error',
+              text: `Por favor complete las fechas para continuar`,
+              showConfirmButton: false,
+              timer: 2500,
+            });
           }
         }
       }), (error) => {
