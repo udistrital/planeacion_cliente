@@ -8,7 +8,7 @@ import { InformacionBasicaComponent } from './informacion-basica/informacion-bas
 import { HttpClientModule } from '@angular/common/http';
 import { RequestManager } from './services/requestManager';
 
-import { MatTableModule } from '@angular/material/table'
+import { MatTableModule } from '@angular/material/table';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,8 +19,19 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatStepperModule } from '@angular/material/stepper';
-import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateModule, MatMomentDateModule, } from '@angular/material-moment-adapter';
-import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import {
+  MAT_MOMENT_DATE_FORMATS,
+  MomentDateAdapter,
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+  MomentDateModule,
+  MatMomentDateModule,
+} from '@angular/material-moment-adapter';
+import {
+  MatNativeDateModule,
+  DateAdapter,
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+} from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -118,6 +129,7 @@ import { FormUsuariosComponent } from './plan/gestion-usuarios/form-usuarios/for
 import { CodigosService } from '../@core/services/codigos.service';
 import { HabilitarReporteService } from './plan/habilitar-reporte/habilitar-reporte.service';
 import { Notificaciones } from './services/notificaciones';
+import { GestorDocumentalService } from '../@core/utils/gestor_documental.service';
 
 const pagesComponents = [
   DashboardComponent,
@@ -281,18 +293,23 @@ const MY_FORMATS = {
     MatButtonModule,
     MatButtonToggleModule,
     GoogleChartsModule,
-    ...materialModules
+    ...materialModules,
   ],
   providers: [
     RequestManager,
     CodigosService,
+    GestorDocumentalService,
     HabilitarReporteService,
     Notificaciones,
     MatDatepickerModule,
     { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
-    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },
+    {
+      provide: DateAdapter,
+      useClass: MomentDateAdapter,
+      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS],
+    },
     { provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS },
-    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
-  ]
+    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } },
+  ],
 })
-export class PagesModule { }
+export class PagesModule {}
