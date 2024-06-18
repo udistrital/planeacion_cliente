@@ -16,164 +16,74 @@ export class Notificaciones {
     private autenticationService: ImplicitAutenticationService
   ) {}
 
-  // Lista de mensajes
-  // El prefijo pertenece al modulo (F:Formulacion/S:Seguimiento)
-  notificaciones = [
-    {
-      "codigo": "F",
-      "mensaje": "El asistente de [NOMBRE UNIDAD] ha comenzado la formulación del plan [NOMBRE PLAN] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Formulación.",
-      "destinatarios": ["jefe unidad"]
-    },
-    {
-      "codigo": "FEF",
-      "mensaje": "El asistente de [NOMBRE UNIDAD] ha finalizado la formulación del plan [NOMBRE PLAN] de la vigencia [VIGENCIA]. El plan se encuentra en estado Formulado.",
-      "destinatarios": ["jefe unidad"]
-    },
-    {
-      "codigo": "FF",
-      "mensaje": "El asistente de planeación ha comenzado la revision del plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Revisión.",
-      "destinatarios": ["asistente unidad", "jefe unidad"],
-    },
-    {
-      "codigo": "FER",
-      "mensaje": "El asistente de planeación ha finalizado la revisión del plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] para la vigencia [VIGENCIA]. El plan se encuentra en estado Revisado.",
-      "destinatarios": ["asistente unidad", "jefe unidad"],
-    },
-    {
-      "codigo": "FR1",
-      "mensaje": "El jefe de unidad ha finalizado la revisión; rechazando y asignando observaciones en el proceso de formulación del plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] para la vigencia [VIGENCIA]. El plan se encuentra en estado En Formulación.",
-      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
-    },
-    {
-      "codigo": "FR2",
-      "mensaje": "El jefe de [NOMBRE UNIDAD] ha realizado la verificación de la formulación para el plan [NOMBRE PLAN] en la vigencia [VIGENCIA]. El plan se encuentra en estado Revisión Verificada.",
-      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
-    },
-    {
-      "codigo": "FV",
-      "mensaje": "El jefe de planeación ha finalizado la revisión; aceptando la formulación y asignando pre aval para el plan [NOMBRE PLAN] de la unidad [NOMBRE UNIDAD] en la vigencia [VIGENCIA]. El plan se encuentra en estado Pre Aval.",
-      "destinatarios": ["asistente unidad", "jefe unidad"],
-    },
-    {
-      "codigo": "FPA1",
-      "mensaje": "El Jefe de planeación ha finalizado la revisión; rechazando y asignando observaciones en el proceso de formulación del plan [NOMBRE PLAN] de la unidad [NOMBRE UNIDAD] en la vigencia [VIGENCIA]. El plan se encuentra en estado En Formulación.",
-      "destinatarios": ["asistente unidad", "jefe unidad", "asistente planeacion"],
-    },
-    {
-      "codigo": "FPA2",
-      "mensaje": "El jefe de planeación ha finalizado la revisión; aceptando la formulación y asignando aval para el plan [NOMBRE PLAN] de la unidad [NOMBRE UNIDAD] en la vigencia [VIGENCIA]. El plan se encuentra en estado Avalado.",
-      "destinatarios": ["asistente unidad", "jefe unidad", "asistente planeacion"],
-    },
-    {
-      "codigo": "FS",
-      "mensaje": "El jefe de planeación ha finalizado la revisión; aceptando la formulación y asignando aval para el plan [NOMBRE PLAN] de la unidad [NOMBRE UNIDAD] en la vigencia [VIGENCIA]. El plan se encuentra en estado Habilitado.",
-      "destinatarios": ["asistente unidad", "jefe unidad", "asistente planeacion"],
-    },
-    {
-      "codigo": "SH",
-      "mensaje": "El asistente de [NOMBRE UNIDAD] ha generado el reporte de seguimiento del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En reporte.",
-      "destinatarios": ["jefe unidad"],
-    },
-    {
-      "codigo": "SER",
-      "mensaje": "El jefe de [NOMBRE UNIDAD] ha enviado a revisión el plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Enviado a revisión.",
-      "destinatarios": ["asistente unidad", "asistente planeacion"],
-    },
-    {
-      "codigo": "SEAR",
-      "mensaje": "El jefe de [NOMBRE UNIDAD] ha iniciado la revisión del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En revisión JU.",
-      "destinatarios": ["asistente unidad", "asistente planeacion"],
-    },
-    {
-      "codigo": "SERJU1",
-      "mensaje": "El jefe de [NOMBRE UNIDAD] ha finalizado la revisión rechazando el seguimiento del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Revisión Verificada con Observaciones.",
-      "destinatarios":  ["asistente unidad", "asistente planeacion"],
-    },
-    {
-      "codigo": "SERJU2",
-      "mensaje": "El jefe de [NOMBRE UNIDAD] ha finalizado la revisión aceptando el seguimiento del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Revisión Verificada.",
-      "destinatarios":  ["asistente unidad", "asistente planeacion", "jefe planeacion"],
-    },
-    {
-      "codigo": "SRVCO",
-      "mensaje": "El asistente de [NOMBRE UNIDAD] ha generado el reporte de seguimiento del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En reporte.",
-      "destinatarios": ["jefe unidad", "asistente planeacion"],
-    },
-    {
-      "codigo": "SRV",
-      "mensaje": "El asistente de planeación ha finalizado la verificación del plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En Revisión OAPC.",
-      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
-    },
-    {
-      "codigo": "SEROAPC1",
-      "mensaje": "El jefe de planeación ha finalizado la revisión; devolviendo y asignando observaciones al seguimiento del plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Con observaciones.",
-      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
-    },
-    {
-      "codigo": "SEROAPC2",
-      "mensaje": "El jefe de planeación ha finalizado la revisión; aceptando el seguimiento para el plan [NOMBRE PLAN] en la unidad [NOMBRE UNIDAD] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado Reporte Avalado.",
-      "destinatarios": ["asistente unidad", "asistente planeacion", "jefe planeacion"],
-    },
-    {
-      "codigo": "SCO",
-      "mensaje": "El asistente de [NOMBRE UNIDAD] ha generado el reporte de seguimiento del plan [NOMBRE PLAN] de la vigencia [VIGENCIA] en el trimestre [TRIMESTRE]. El plan se encuentra en estado En reporte.",
-      "destinatarios": ["jefe unidad"],
-    }
-  ]
-
   async enviarNotificacion(datosMensaje: any) {    
-    // Obtener notificación de lista (notificaciones) por código de abreviación
-    const notificacion = this.notificaciones.find(
-      objeto => objeto.codigo === datosMensaje.codigo
-    );
-    
-    let codigosAbreviacion: string[] = [];
-    if (notificacion.destinatarios.some(str => str.includes("jefe"))) {
-      codigosAbreviacion.push("JO");
-    } 
-    if (notificacion.destinatarios.some(str => str.includes("asistente"))) {
-      codigosAbreviacion.push("AS_D", "NR");
-    }
-    
-    try {
-      const cargos:any = await this.getCargos(codigosAbreviacion.join("|"))
-      let idsCargos = cargos.Data.map((cargo:any) => cargo.Id).join("|");
+    let codigo_abreviacion:string = datosMensaje.codigo;
+    const plantilla:any = await this.getPlantilla(codigo_abreviacion);
+    let notificacion = JSON.parse(plantilla["Data"][0].Valor);
 
-      // Obtener el id de la vigencia si no está en los datos del mensaje 
-      let dependencias: string
-      if (datosMensaje.id_unidad) {
-        dependencias = datosMensaje.id_unidad.toString()
-      } else {
-        const id_unidad =  await this.getIdUnidad(datosMensaje.nombre_unidad)
-        dependencias = id_unidad.toString()
+    if (notificacion) {
+      notificacion.codigo = codigo_abreviacion;
+       
+      let codigosAbreviacion: string[] = [];
+      if (notificacion.destinatarios.some((str:any) => str.includes("jefe"))) {
+        codigosAbreviacion.push("JO");
+      } 
+      if (notificacion.destinatarios.some((str:any) => str.includes("asistente"))) {
+        codigosAbreviacion.push("AS_D", "NR");
       }
-
-      // Añadir dependencia de planeación si aplica
-      if (notificacion.destinatarios.some(str => str.includes("planeacion"))) {
-        dependencias += "|11" // Id dependencia planeacion
-      }
-
-      const usuarios:any = await this.getUsuarios(dependencias, idsCargos)
       
-      let documentos: string[] = [];
-      for (let i = 0; i < usuarios.length; i++) {
-        const usuario = usuarios[i];
-        if (Object.keys(usuario).length > 0 && usuario.TerceroPrincipalId.Id) {
-          const docUsuario:any = await this.getDocUsuario(usuario.TerceroPrincipalId.Id)
-          let doc = docUsuario[0]
-          if (Object.keys(doc).length > 0 && typeof doc.Numero === "string" && doc.Numero !== "") {
-            documentos.push(doc.Numero)
+      try {
+        const cargos:any = await this.getCargos(codigosAbreviacion.join("|"))
+        let idsCargos = cargos.Data.map((cargo:any) => cargo.Id).join("|");
+
+        // Obtener el id de la vigencia si no está en los datos del mensaje 
+        let dependencias: string;
+        if (datosMensaje.id_unidad) {
+          dependencias = datosMensaje.id_unidad.toString();
+        } else {
+          const id_unidad =  await this.getIdUnidad(datosMensaje.nombre_unidad);
+          dependencias = id_unidad.toString();
+        }
+
+        // Añadir dependencia de planeación si aplica
+        if (notificacion.destinatarios.some(str => str.includes("planeacion"))) {
+          dependencias += "|11"; // Id dependencia planeacion
+        }
+
+        const usuarios:any = await this.getUsuarios(dependencias, idsCargos);
+        
+        let documentos: string[] = [];
+        for (let i = 0; i < usuarios.length; i++) {
+          const usuario = usuarios[i];
+          if (Object.keys(usuario).length > 0 && usuario.TerceroPrincipalId.Id) {
+            const docUsuario:any = await this.getDocUsuario(usuario.TerceroPrincipalId.Id);
+            let doc = docUsuario[0];
+            if (Object.keys(doc).length > 0 && typeof doc.Numero === "string" && doc.Numero !== "") {
+              documentos.push(doc.Numero);
+            }
           }
         }
-      }
 
-      const body = this.getBodyMensaje(notificacion, datosMensaje, documentos)
-      this.publicarNotificacion(body);
-    } catch (error) {
-      console.error('Error al publicar notificación:', error);
+        const body = this.getBodyMensaje(notificacion, datosMensaje, documentos)
+        this.publicarNotificacion(body);
+        
+      } catch (error) {
+        console.error('Error al publicar notificación:', error);
+      }
     }
   }
 
+  // Obtener plantilla de la notificacciones de acuerdo al codigo de abreviación (SP)
+  async getPlantilla(codigo:string) {
+    return await new Promise((resolve, reject) => {
+      this.request.get(environment.PARAMETROS_SERVICE, `parametro_periodo?query=ParametroId.CodigoAbreviacion:${codigo}`)
+        .subscribe(
+          (data: any) => resolve(data),
+          (error: any) => reject(error)
+        );
+    });
+  }
+  
   // Obtener cargos por códigos de abreviación
   async getCargos(codigosAbreviacion: string) {
     return await new Promise((resolve, reject) => {

@@ -24,7 +24,7 @@ export const environment = {
   CONF_MENU_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/configuracion_crud_api/v1/menu_opcion_padre/ArbolMenus/',
   ASSETS_SERVICE: "https://pruebasassets.portaloas.udistrital.edu.co/",
 
-  // notificaciones
+  // Notificaciones
   NOTIFICACION_MID_SERVICE: "https://autenticacion.portaloas.udistrital.edu.co/apioas/notificacion_mid/v1/",
   ARN_TOPIC_NOTIFICACIONES: "arn:aws:sns:us-east-1:699001025740:test-Planeacion.fifo",
   COLAS_NOTIFICACIONES: {
