@@ -40,6 +40,15 @@ export class EvaluacionPlanComponent implements OnInit {
       1: { color: 'transparent' },
     },
     legend: 'none',
+
+    titleTextStyle: {
+      fontSize: 20,
+      // Tamaño de letra
+      bold: true,
+      Responseive: true,
+      color: '#731514',    // Negrilla
+    }
+
   };
 
   lineChartOptions = {
@@ -125,7 +134,7 @@ export class EvaluacionPlanComponent implements OnInit {
             this.actividades.forEach((actividad) => {
               actividad.class = actividad.numero % 2 == 0 ? 'claro' : 'oscuro';
             });
-            this.pieTitle = `Cumplimiento general ${this.plan.nombre} - ${this.nombreUnidad}`;
+            this.pieTitle = `Cumplimiento general`;
             this.cacheSpan('numero', (d) => d.numero);
             this.cacheSpan('ponderado', (d) => d.numero + d.ponderado);
             this.cacheSpan('periodo',(d) => d.numero + d.ponderado + d.periodo);
