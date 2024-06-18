@@ -220,7 +220,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre1.actividad <= 1
             ? actividad.trimestre1.actividad
-            : 1) * 100;
+            : 1) ;
       }
 
       if (actividad.trimestre2.actividad) {
@@ -228,7 +228,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre2.actividad <= 1
             ? actividad.trimestre2.actividad
-            : 1) * 100;
+            : 1) ;
       }
 
       if (actividad.trimestre3.actividad) {
@@ -236,7 +236,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre3.actividad <= 1
             ? actividad.trimestre3.actividad
-            : 1) * 100;
+            : 1) ;
       }
 
       if (actividad.trimestre4.actividad) {
@@ -244,7 +244,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre4.actividad <= 1
             ? actividad.trimestre4.actividad
-            : 1) * 100;
+            : 1) ;
       }
     }
   }
