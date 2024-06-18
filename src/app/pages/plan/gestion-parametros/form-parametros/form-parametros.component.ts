@@ -173,8 +173,9 @@ export class FormParametrosComponent implements OnInit, OnChanges {
               icon: 'success',
               showConfirmButton: false,
               timer: 4500
-            })
-            window.location.reload();
+            }).then(() => {
+              window.location.reload();
+            });
           }
         }, (error) => {
           Swal.fire({
@@ -217,8 +218,9 @@ export class FormParametrosComponent implements OnInit, OnChanges {
               icon: 'success',
               showConfirmButton: false,
               timer: 4500
+            }).then(() => {
+              window.location.reload();
             });
-            window.location.reload();
           }
         }, (error) => {
           Swal.fire({

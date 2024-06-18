@@ -16,6 +16,9 @@
             </mat-option>
           </mat-select>
       </mat-form-field>
+      <button mat-raised-button color="primary" type="button" class="col-3 mt-2 mb-3"(click)="close()">
+        Cerrar
+      </button>
       <app-arbol *ngIf="tipoPlan != undefined" [tipoPlanId]="tipoPlan" [idPlan]="planId" [consulta]="true"></app-arbol>
     </mat-card-content>
   </mat-card>
