@@ -558,7 +558,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     var mensaje = `¿Desea guardar la información del componente cualitativo?`
     if (this.rol === 'PLANEACION' || this.rol === 'ASISTENTE_PLANEACION') {
       mensaje = `¿Desea avalar la actividad?`
-      if (this.veririficarObservaciones()) {
+      if (this.verificarObservaciones()) {
         mensaje = `¿Desea guardar las observaciones del componente cualitativo?`
       }
     }
@@ -617,7 +617,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     var mensaje = `¿Desea guardar la información del componente cuantitativo?`
     if (this.rol === 'PLANEACION' || this.rol === 'ASISTENTE_PLANEACION') {
       mensaje = `¿Desea avalar la actividad?`
-      if (this.veririficarObservaciones()) {
+      if (this.verificarObservaciones()) {
         mensaje = `¿Desea guardar las observaciones del componente cuantitativo?`
       }
     }
@@ -1062,7 +1062,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   guardarRevisionJefeDependencia() {
     var mensaje = `¿Desea verificar la actividad?`
-    if (this.veririficarObservaciones()) {
+    if (this.verificarObservaciones()) {
       mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
     }
 
@@ -1127,7 +1127,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   guardarRevision() {
     var mensaje = `¿Desea avalar la actividad?`
-    if (this.veririficarObservaciones()) {
+    if (this.verificarObservaciones()) {
       mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
     }
 
@@ -1191,21 +1191,33 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
   }
 
-  veririficarObservaciones() {
-    if (this.seguimiento.cualitativo.observaciones != "" && this.seguimiento.cualitativo.observaciones != "Sin observación") {
+  verificarObservaciones() {
+    if (
+      this.seguimiento.cualitativo.observaciones != "" &&
+      this.seguimiento.cualitativo.observaciones != "Sin observación" &&
+      this.seguimiento.cualitativo.observaciones != undefined
+    ) {
       return true;
     }
 
     for (let index = 0; index < this.seguimiento.cuantitativo.indicadores.length; index++) {
       const indicador = this.seguimiento.cuantitativo.indicadores[index];
-      if (indicador.observaciones != "" && indicador.observaciones != "Sin observación") {
+      if (
+        indicador.observaciones != "" &&
+        indicador.observaciones != "Sin observación" &&
+        indicador.observaciones != undefined
+      ) {
         return true;
       }
     }
 
     for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
       const evidencia = this.seguimiento.evidencia[index];
-      if (evidencia.Observacion != "" && evidencia.Observacion != "Sin observación") {
+      if (
+        evidencia.Observacion != "" &&
+        evidencia.Observacion != "Sin observación" &&
+        evidencia.Observacion != undefined
+      ) {
         return true;
       }
     }
@@ -1316,7 +1328,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   /*verificarActividad() {
     var mensaje = `¿Desea verificar la actividad?`
-    if (this.veririficarObservaciones()) {
+    if (this.verificarObservaciones()) {
       mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
     }
 
