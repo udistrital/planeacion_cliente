@@ -1126,9 +1126,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       })
       this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.plan._id + `/` + fila.index).subscribe((data: any) => {
         if (data) {
-          Swal.close();
-          this.onChangePD(this.planesDesarrollo[0]);
-          this.onChangePI(this.planesIndicativos[0]);
           this.estado = this.plan.estado_plan_id;
           this.steps = data.Data[0]
           this.json = data.Data[1][0]
@@ -1141,6 +1138,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           let strArmonizacion2 = auxAmonizacion.armoPI
           let len2 = (strArmonizacion2.split(",").length)
           this.dataArmonizacionPI = strArmonizacion2.split(",", len2).filter(((item) => item != ""))
+          this.consultarArmonizacionPadre(this.dataArmonizacionPED, this.dataArmonizacionPI);
+          Swal.close();
         }
       }, (error) => {
         Swal.fire({
@@ -2077,5 +2076,61 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         Swal.showLoading();
       }
     });
+  }
+
+  consultarArmonizacionPadre(datosArmonizacionPED: any, datosArmonizacionPI: any): void {
+    this.request.get(environment.PLANES_CRUD, `subgrupo/` + datosArmonizacionPED[0]).subscribe((data: any) => {
+      if (data && data.Success) {
+        for(let i=0; i<this.planesDesarrollo.length; i++){
+          if (this.planesDesarrollo[i]._id == data.Data.padre){
+            this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[i])
+            this.onChangePD(this.planesDesarrollo[i]);
+          }
+        }
+      } else {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encuentra el Plan Estrategico de Desarrollo`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encuentra el Plan Estrategico de Desarrollo`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+
+    this.request.get(environment.PLANES_CRUD, `subgrupo/` + datosArmonizacionPI[0]).subscribe((data: any) => {
+      if (data && data.Success) {
+        for(let i=0; i<this.planesIndicativos.length; i++){
+          if (this.planesIndicativos[i]._id == data.Data.padre){
+            this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[i])
+            this.onChangePI(this.planesIndicativos[i]);
+          }
+        }
+      } else {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encuentra el Plan Indicativo`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encuentra el Plan Indicativo`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 }
