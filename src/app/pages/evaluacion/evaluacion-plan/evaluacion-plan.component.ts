@@ -46,9 +46,8 @@ export class EvaluacionPlanComponent implements OnInit {
       // Tamaño de letra
       bold: true,
       Responseive: true,
-      color: '#731514',    // Negrilla
-    }
-
+      color: '#731514', // Negrilla
+    },
   };
 
   lineChartOptions = {
@@ -68,11 +67,41 @@ export class EvaluacionPlanComponent implements OnInit {
   lineChartData = [['', 0, 'color: rgb(143, 27, 0)', '', '']];
 
   displayedColumns: string[] = [
-    "id", "ponderacion", "actividad", "indicador", "formula", "meta",
-    "numt1", "dent1", "pert1", "acut1", "metat1", "brecha1", "actividadt1",
-    "numt2", "dent2", "pert2", "acut2", "metat2", "brecha2", "actividadt2",
-    "numt3", "dent3", "pert3", "acut3", "metat3", "brecha3", "actividadt3",
-    "numt4", "dent4", "pert4", "acut4", "metat4", "brecha4", "actividadt4",];
+    'id',
+    'ponderacion',
+    'actividad',
+    'indicador',
+    'formula',
+    'meta',
+    'numt1',
+    'dent1',
+    'pert1',
+    'acut1',
+    'metat1',
+    'brecha1',
+    'actividadt1',
+    'numt2',
+    'dent2',
+    'pert2',
+    'acut2',
+    'metat2',
+    'brecha2',
+    'actividadt2',
+    'numt3',
+    'dent3',
+    'pert3',
+    'acut3',
+    'metat3',
+    'brecha3',
+    'actividadt3',
+    'numt4',
+    'dent4',
+    'pert4',
+    'acut4',
+    'metat4',
+    'brecha4',
+    'actividadt4',
+  ];
 
   displayedHeaders: string[] = [
     'idP',
@@ -127,7 +156,8 @@ export class EvaluacionPlanComponent implements OnInit {
       .get(
         environment.PLANES_MID,
         `evaluacion/${this.idVigencia}/${this.plan.id}/${this.periodo.id}`
-      ).subscribe(
+      )
+      .subscribe(
         (data: any) => {
           if (data) {
             this.actividades = data.Data;
@@ -137,32 +167,75 @@ export class EvaluacionPlanComponent implements OnInit {
             this.pieTitle = `Cumplimiento general`;
             this.cacheSpan('numero', (d) => d.numero);
             this.cacheSpan('ponderado', (d) => d.numero + d.ponderado);
-            this.cacheSpan('periodo',(d) => d.numero + d.ponderado + d.periodo);
-            this.cacheSpan( 'actividad', (d) => d.numero + d.ponderado + d.periodo + d.actividad);
-            this.cacheSpan('actividadt1',(d) =>d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1);
-            this.cacheSpan('actividadt2', (d) => d.numero +d.ponderado +  d.periodo + d.actividad +d.actividadt1 +d.actividadt2);
-            this.cacheSpan('actividadt3',(d) =>d.numero + d.numero +d.ponderado +d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3);
-            this.cacheSpan( 'actividadt4', (d) => d.numero +d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4 );
-            
+            this.cacheSpan(
+              'periodo',
+              (d) => d.numero + d.ponderado + d.periodo
+            );
+            this.cacheSpan(
+              'actividad',
+              (d) => d.numero + d.ponderado + d.periodo + d.actividad
+            );
+            this.cacheSpan(
+              'actividadt1',
+              (d) =>
+                d.numero + d.ponderado + d.periodo + d.actividad + d.actividadt1
+            );
+            this.cacheSpan(
+              'actividadt2',
+              (d) =>
+                d.numero +
+                d.ponderado +
+                d.periodo +
+                d.actividad +
+                d.actividadt1 +
+                d.actividadt2
+            );
+            this.cacheSpan(
+              'actividadt3',
+              (d) =>
+                d.numero +
+                d.numero +
+                d.ponderado +
+                d.periodo +
+                d.actividad +
+                d.actividadt1 +
+                d.actividadt2 +
+                d.actividadt3
+            );
+            this.cacheSpan(
+              'actividadt4',
+              (d) =>
+                d.numero +
+                d.ponderado +
+                d.periodo +
+                d.actividad +
+                d.actividadt1 +
+                d.actividadt2 +
+                d.actividadt3 +
+                d.actividadt4
+            );
+
             //console.log('numero', this.actividades.map((d) => d['']));
 
             if (this.periodo.nombre.toLowerCase() == 'trimestre dos') {
               this.tr2 = true;
               this.tr3 = false;
               this.tr4 = false;
-            console.log('tr', this.tr2, this.tr3, this.tr4);
+              console.log('tr', this.tr2, this.tr3, this.tr4);
             } else if (this.periodo.nombre.toLowerCase() == 'trimestre tres') {
               this.tr2 = true;
               this.tr3 = true;
               this.tr4 = false;
-            } else if (this.periodo.nombre.toLowerCase() == 'trimestre cuatro') {
+            } else if (
+              this.periodo.nombre.toLowerCase() == 'trimestre cuatro'
+            ) {
               this.tr2 = true;
               this.tr3 = true;
               this.tr4 = true;
             } else {
               this.tr2 = false;
               this.tr3 = false;
-              this.tr4 = false; 
+              this.tr4 = false;
             }
             this.calcularAvanceGeneral();
             if (this.mostrarGraficos) {
@@ -219,7 +292,7 @@ export class EvaluacionPlanComponent implements OnInit {
     for (let index = 0; index < this.actividades.length; index++) {
       const actividad = this.actividades[index];
       if (numero != actividad.numero) {
-        numero = actividad.numero;        
+        numero = actividad.numero;
       } else {
         continue;
       }
@@ -229,7 +302,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre1.actividad <= 1
             ? actividad.trimestre1.actividad
-            : 1) ;
+            : 1);
       }
 
       if (actividad.trimestre2.actividad) {
@@ -237,7 +310,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre2.actividad <= 1
             ? actividad.trimestre2.actividad
-            : 1) ;
+            : 1);
       }
 
       if (actividad.trimestre3.actividad) {
@@ -245,7 +318,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre3.actividad <= 1
             ? actividad.trimestre3.actividad
-            : 1) ;
+            : 1);
       }
 
       if (actividad.trimestre4.actividad) {
@@ -253,7 +326,7 @@ export class EvaluacionPlanComponent implements OnInit {
           (actividad.ponderado / 100) *
           (actividad.trimestre4.actividad <= 1
             ? actividad.trimestre4.actividad
-            : 1) ;
+            : 1);
       }
     }
   }
@@ -322,20 +395,21 @@ export class EvaluacionPlanComponent implements OnInit {
 
   //agregar color al Cumplimiento por Meta
   colorCM(rowTrimestreMeta): string {
-    if (rowTrimestreMeta < 1) {
+    // console.log(rowTrimestreMeta);
+    if(rowTrimestreMeta === undefined){
+      return ''
+    } else {
       if (rowTrimestreMeta >= 0 && rowTrimestreMeta <= 0.2) {
         return 'meta-rojo';
-      } else if (rowTrimestreMeta >= 0.21 && rowTrimestreMeta <= 0.4) {
+      } else if (rowTrimestreMeta >= 0.201 && rowTrimestreMeta <= 0.4) {
         return 'meta-piel';
-      } else if (rowTrimestreMeta >= 0.41 && rowTrimestreMeta <= 0.6) {
+      } else if (rowTrimestreMeta >= 0.401 && rowTrimestreMeta <= 0.6) {
         return 'meta-naranja';
-      } else if (rowTrimestreMeta >= 0.61 && rowTrimestreMeta <= 0.8) {
+      } else if (rowTrimestreMeta >= 0.601 && rowTrimestreMeta <= 0.8) {
         return 'meta-amarillo';
-      } else if (rowTrimestreMeta >= 0.81 && rowTrimestreMeta <= 0.99) {
+      } else if (rowTrimestreMeta >= 0.801) {
         return 'meta-verde';
       }
-    } else {
-      return 'meta-verde';
     }
   }
 }
