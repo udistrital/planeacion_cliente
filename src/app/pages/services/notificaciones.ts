@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
+import { WebSocketSubject } from 'rxjs/webSocket';
 import { RequestManager } from '../services/requestManager';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
@@ -8,6 +9,7 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
   providedIn: 'root',
 })
 export class Notificaciones {
+  private socket$: WebSocketSubject<any>;
   private arm = environment.ARN_TOPIC_NOTIFICACIONES;
 
   constructor(
@@ -15,6 +17,19 @@ export class Notificaciones {
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService
   ) {}
+
+  connectWebSocket(){
+    this.socket$ = new WebSocketSubject(environment.NOTIFICACION_WS);
+
+    this.socket$.subscribe(
+      (message) => {console.log("Mensaje en el cliente:", message)},
+      (err) => console.error(err),
+    );
+
+    // Enviar el docuemento de usuario al servidor cuando se establezca la conexión
+    var docUsuarioAuth: any = this.autenticationService.getDocument();
+    this.socket$.next(docUsuarioAuth.__zone_symbol__value);
+  }
 
   async enviarNotificacion(datosMensaje: any) {    
     let codigo_abreviacion:string = datosMensaje.codigo;
@@ -65,8 +80,8 @@ export class Notificaciones {
         }
 
         const body = this.getBodyMensaje(notificacion, datosMensaje, documentos)
-        this.publicarNotificacion(body);
-        
+        console.log(body);
+        this.socket$.next(body);
       } catch (error) {
         console.error('Error al publicar notificación:', error);
       }
@@ -204,15 +219,15 @@ export class Notificaciones {
   }
 
   // Publicar notificación
-  publicarNotificacion(data: any) {
-    return new Promise((resolve, reject) => {
-      this.request.post(environment.NOTIFICACION_MID_SERVICE, 'notificaciones/enviar', data)
-        .subscribe(
-          (data: any) => resolve(data),
-          (error: any) => reject(error)
-        );
-    });
-  }
+  // publicarNotificacion(data: any) {
+  //   return new Promise((resolve, reject) => {
+  //     this.request.post(environment.NOTIFICACION_MID_SERVICE, 'notificaciones/enviar', data)
+  //       .subscribe(
+  //         (data: any) => resolve(data),
+  //         (error: any) => reject(error)
+  //       );
+  //   });
+  // }
 
   // Obtener id de la unidad por nombre
   async getIdUnidad(nombre_unidad: string) {

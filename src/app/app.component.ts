@@ -30,6 +30,18 @@ export class AppComponent implements OnInit {
     });
   }
 
+  // sendNotif() {
+  //   console.log("PRESIONANDO BOTON");
+    
+  //   this.notificacionesService.enviarNotificacion({
+  //     codigo: "F",
+  //     id_unidad: 8,
+  //     nombre_unidad: "VICERRECTORIA ACADEMICA", 
+  //     nombre_plan: "Metas pruebas Fabian ", 
+  //     nombre_vigencia: "2023"
+  //   })
+  // }
+
   ngOnInit(): void {
     const oas = document.querySelector('ng-uui-oas');
     const notioas = document.querySelector('ng-uui-notioas');
@@ -38,6 +50,7 @@ export class AppComponent implements OnInit {
       if (event.detail) {
         this.loadRouting = true;
         this.userService.updateUser(event.detail);
+        this.notificacionesService.connectWebSocket();
       }
     });
 
