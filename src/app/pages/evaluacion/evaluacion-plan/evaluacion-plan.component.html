@@ -162,7 +162,7 @@
           {{row.trimestre1.actividad | percent:'1.2-2':'es'}}
         </div>
         <div *ngIf="row.trimestre1.actividad > 1">
-          {{row.trimestre1.actividad | percent:'1.2-2':'es'}}
+          100% <br> (+{{row.trimestre1.actividad - 1 | percent:'1.2-2':'es'}})
         </div>
         <div *ngIf="row.trimestre1.actividad === undefined">
           N/A
@@ -264,7 +264,7 @@
           {{row.trimestre2.actividad | percent:'1.2-2':'es'}}
         </div>
         <div *ngIf="row.trimestre2.actividad > 1">
-          {{row.trimestre2.actividad | percent:'1.2-2':'es'}}
+          100% <br> (+{{row.trimestre2.actividad - 1 | percent:'1.2-2':'es'}})
         </div>
         <div *ngIf="row.trimestre2.actividad === undefined">
           N/A
@@ -368,7 +368,7 @@
           {{row.trimestre3.actividad | percent:'1.2-2':'es'}}
         </div>
         <div *ngIf="row.trimestre3.actividad > 1">
-          {{row.trimestre3.actividad | percent:'1.2-2':'es'}}
+          100% <br> (+{{row.trimestre3.actividad - 1 | percent:'1.2-2':'es'}})
         </div>
         <div *ngIf="row.trimestre1.meta === undefined">
           N/A

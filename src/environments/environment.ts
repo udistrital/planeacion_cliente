@@ -13,7 +13,7 @@ export const environment = {
   SINTOMAS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/sintomas_crud/v1/',
   //SERVICES PLANEACIÓN
   // PLANES_CRUD: 'http://localhost:8080/',
-  PLANES_MID: 'http://localhost:8081/v1/',
+  // PLANES_MID: 'http://localhost:8081/v1/',
   AUTENTICACION_MID: 'http://pruebasapi.intranetoas.udistrital.edu.co:8110/v1/',
   // PLANES_CRUD: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8523/',
   // PLANES_MID: 'http://pruebasapi2.intranetoas.udistrital.edu.co:8524/v1/',
@@ -26,7 +26,7 @@ export const environment = {
   //
   //Autenticacion
   //
-  // PLANES_MID: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/planeacion_mid/v1/',
+  PLANES_MID: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/planeacion_mid/v1/',
   PLANES_CRUD: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/planes_crud/',
   OIKOS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/oikos_crud_api/v2/',
   PARAMETROS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/parametros/v1/',
