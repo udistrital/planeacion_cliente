@@ -119,6 +119,17 @@ export class EditarDialogComponent implements OnInit {
     this.dialogRef.close();
   }
 
+  onOpenedChange(isOpened: boolean) {
+    if (isOpened) {
+      Swal.fire({
+        title: 'Información',
+        text: 'Por favor verificar el tipo de plan de acción. Actualmente NO soportado por el módulo de reportes.',
+        icon: 'info',
+        confirmButtonText: 'OK'
+      });
+    }
+  }
+
   getErrorMessage(campo: FormControl) {
     if (campo.hasError('required',)) {
       return 'Campo requerido';
@@ -240,7 +251,7 @@ export class EditarDialogComponent implements OnInit {
   }
 
   loadTiposPlan() {
-    this.request.get(environment.PLANES_CRUD, `tipo-plan`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `tipo-plan?query=activo:true`).subscribe((data: any) => {
       if (data) {
         this.tiposPlanes = data.Data;
       }

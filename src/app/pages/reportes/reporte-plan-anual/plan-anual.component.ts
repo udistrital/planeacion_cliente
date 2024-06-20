@@ -245,6 +245,8 @@ export class PlanAnualComponent implements OnInit {
       }
       this.form.get('estado').setValue(null);
       this.form.get('estado').disable();
+      this.form.get('unidad').enable();
+      this.form.get('unidad').setValue(null);
       this.evaluacion = true;
     } else {
       if (this.rol == 'PLANEACION') {
@@ -264,6 +266,7 @@ export class PlanAnualComponent implements OnInit {
     let estado = this.form.get('estado').value;
     let plan = this.form.get('plan').value;
     let body = {
+      plan_id: plan._id,
       tipo_plan_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP'),
       vigencia: (vigencia.Id).toString(),
       nombre: plan.nombre
@@ -281,17 +284,17 @@ export class PlanAnualComponent implements OnInit {
       if (tipoReporte === 'unidad') {
         body["unidad_id"] = (unidad.Id).toString();
         body["estado_plan_id"] = estado;
-        body["categoria"] = "Plan de acción unidad";
+        body["categoria"] = "Plan_Accion_Unidad";
       } else if (tipoReporte === 'general') {
         body["estado_plan_id"] = estado;
-        body["categoria"] = "Plan de acción general";
+        body["categoria"] = "Plan_Accion_General";
       }
     } else if (categoria === 'necesidades') {
       body["estado_plan_id"] = estado;
       body["categoria"] = "Necesidades";
     } else if (categoria === 'evaluacion') {
       body["unidad_id"] = (unidad.Id).toString();
-      body["categoria"] = "Evaluación";
+      body["categoria"] = "Evaluacion";
     }
 
     this.request.post(environment.PLANES_MID, `reportes/validar_reporte`, body).subscribe((res: any) => {

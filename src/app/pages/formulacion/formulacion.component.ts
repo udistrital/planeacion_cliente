@@ -162,7 +162,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     if(this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       await this.loadUnidades();
     }else if (this.rol == 'JEFE_DEPENDENCIA') {
-      await this.validarUnidad()
+      await this.validarUnidad();
     }
 
     this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
@@ -333,11 +333,13 @@ export class FormulacionComponent implements OnInit, OnDestroy {
               )
               .subscribe((vinculacion: any) => {
                 if (vinculacion['Data'] != '') {
-                  this.request
+                  let vinculaciones: any[] = vinculacion['Data'];
+                  vinculaciones.forEach(vinculacion => {
+                    this.request
                     .get(
                       environment.OIKOS_SERVICE,
                       `dependencia_tipo_dependencia?query=DependenciaId:` +
-                        vinculacion['Data']['DependenciaId']
+                      vinculacion['DependenciaId']
                     )
                     .subscribe((dataUnidad: any) => {
                       if (dataUnidad) {
@@ -347,7 +349,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                           return fechaA.getTime() - fechaB.getTime()
                         });
                         // TODO: verificar que las unidades vienen organizadas de mayor a menor por Fecha de Modificación
-                        // console.log(unidadesOrdenadas)
                         let unidad = unidadesOrdenadas[0]['DependenciaId'];
                         unidad['TipoDependencia'] = unidadesOrdenadas[0]['TipoDependenciaId']['Id'];
                         for (let i = 0; i < dataUnidad.length; i++) {
@@ -360,9 +361,10 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                         this.formSelect.get('selectUnidad').setValue(unidad);
                         this.onChangeU(unidad);
                         this.moduloVisible = true;
-                        resolve(unidad);
                       }
                     });
+                  });
+                  resolve(true);
                 } else {
                   this.moduloVisible = false;
                   Swal.fire({
@@ -695,6 +697,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.versionPlan = '';
       if (this.vigenciaSelected && this.planSelected) {
         await this.busquedaPlanes(this.planAux);
+      } else if (this.vigenciaSelected) {
+        await this.loadPlanes();
       }
     }
   }
