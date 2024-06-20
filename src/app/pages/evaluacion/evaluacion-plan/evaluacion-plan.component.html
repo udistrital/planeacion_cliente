@@ -125,7 +125,8 @@
     </ng-container>
     <ng-container matColumnDef="metat1">
       <th mat-header-cell class="header2" *matHeaderCellDef> Cumplimiento por meta </th>
-      <td mat-cell *matCellDef="let row" [ngClass]="colorCM(row.trimestre1.meta)">
+      <td mat-cell *matCellDef="let row"
+        [ngClass]="colorCM(row.trimestre1.meta) ===''?row.class:colorCM(row.trimestre1.meta)">
         <div *ngIf="row.trimestre1.meta <= 1">
           {{row.trimestre1.meta | percent:'1.2-2':'es'}}
         </div>
@@ -324,7 +325,8 @@
     <ng-container matColumnDef="metat3">
       <th mat-header-cell [style.display]="tr3 ? '' : 'none'" class="header4" *matHeaderCellDef> Cumplimiento por meta
       </th>
-      <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row" [ngClass]="colorCM(row.trimestre3.meta)">
+      <td mat-cell [style.display]="tr3 ? '' : 'none'" *matCellDef="let row"
+        [ngClass]="colorCM(row.trimestre3.meta) ===''?row.class:colorCM(row.trimestre3.meta)">
         <div *ngIf="row.trimestre3.meta <= 1">
           {{row.trimestre3.meta | percent:'1.2-2':'es'}}
         </div>
@@ -427,7 +429,8 @@
     <ng-container matColumnDef="metat4">
       <th mat-header-cell [style.display]="tr4 ? '' : 'none'" class="header5" *matHeaderCellDef> Cumplimiento por meta
       </th>
-      <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row" [ngClass]="colorCM(row.trimestre4.meta)">
+      <td mat-cell [style.display]="tr4 ? '' : 'none'" *matCellDef="let row"
+        [ngClass]="colorCM(row.trimestre4.meta) ===''?row.class:colorCM(row.trimestre4.meta)">
         <div *ngIf="row.trimestre4.meta <= 1">
           {{row.trimestre4.meta | percent:'1.2-2':'es'}}
         </div>
