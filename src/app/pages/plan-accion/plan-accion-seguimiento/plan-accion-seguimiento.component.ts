@@ -324,7 +324,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                               const planEspecifico = datosP.Data.find(objeto => objeto.plan === plan.nombre);
                               if (planEspecifico) {
                                 const idUltimoTrimestre = planEspecifico["periodos"][planEspecifico["periodos"].length - 1].id;
-                                this.request.get(environment.PLANES_MID, `evaluacion/` + plan.vigencia_id + "/" + datosP.Data[0].id + "/" + idUltimoTrimestre).subscribe(
+                                this.request.get(environment.PLANES_MID, `evaluacion/` + plan.vigencia_id + "/" + planEspecifico.id + "/" + idUltimoTrimestre).subscribe(
                                   (datosB: any) => {
                                     if (datosB) {
                                       const brechasT1 = [];
