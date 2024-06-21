@@ -333,33 +333,42 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                                       const brechasT4 = [];
                                       datosB.Data.map(br => {
                                         if (br.trimestre1 && Object.keys(br.trimestre1).length !== 0) {
-                                          brechasT1.push(br.trimestre1.brecha);
+                                          //brechasT1.push(br.trimestre1.brecha);
+                                          brechasT1.push(br.trimestre1.actividad);
                                         }
                                         if (br.trimestre2 && Object.keys(br.trimestre2).length !== 0) {
-                                          brechasT2.push(br.trimestre2.brecha);
+                                          //brechasT2.push(br.trimestre2.brecha);
+                                          brechasT2.push(br.trimestre2.actividad);
                                         }
                                         if (br.trimestre3 && Object.keys(br.trimestre3).length !== 0) {
-                                          brechasT3.push(br.trimestre3.brecha);
+                                          //brechasT3.push(br.trimestre3.brecha);
+                                          brechasT3.push(br.trimestre3.actividad);
                                         }
                                         if (br.trimestre4 && Object.keys(br.trimestre4).length !== 0) {
-                                          brechasT4.push(br.trimestre4.brecha);
+                                          //brechasT4.push(br.trimestre4.brecha);
+                                          brechasT4.push(br.trimestre4.actividad);
                                         }
                                       });
                                       trimestres.map(tri => {
                                         if (tri.codigo === 'T1' && brechasT1.length !== 0) {
-                                          tri.promedioBrechas = ((brechasT1.reduce((total, numero) => total + numero, 0)) / brechasT1.length).toFixed(2);
+                                          //tri.promedioBrechas = ((brechasT1.reduce((total, numero) => total + numero, 0)) / brechasT1.length).toFixed(2);
+                                          tri.promedioBrechas = (1 - ((brechasT1.reduce((total, numero) => total + numero, 0)) / brechasT1.length)).toFixed(2);
                                         }
                                         else if (tri.codigo === 'T2' && brechasT2.length !== 0) {
-                                          tri.promedioBrechas = ((brechasT2.reduce((total, numero) => total + numero, 0)) / brechasT2.length).toFixed(2);
+                                          //tri.promedioBrechas = ((brechasT2.reduce((total, numero) => total + numero, 0)) / brechasT2.length).toFixed(2);
+                                          tri.promedioBrechas = (1 - ((brechasT2.reduce((total, numero) => total + numero, 0)) / brechasT2.length)).toFixed(2);
                                         }
                                         else if (tri.codigo === 'T3' && brechasT3.length !== 0) {
-                                          tri.promedioBrechas = ((brechasT3.reduce((total, numero) => total + numero, 0)) / brechasT3.length).toFixed(2);
+                                          //tri.promedioBrechas = ((brechasT3.reduce((total, numero) => total + numero, 0)) / brechasT3.length).toFixed(2);
+                                          tri.promedioBrechas = (1 - ((brechasT3.reduce((total, numero) => total + numero, 0)) / brechasT3.length)).toFixed(2);
                                         }
                                         else if (tri.codigo === 'T4' && brechasT4.length !== 0) {
-                                          tri.promedioBrechas = ((brechasT4.reduce((total, numero) => total + numero, 0)) / brechasT4.length).toFixed(2);
+                                          //tri.promedioBrechas = ((brechasT4.reduce((total, numero) => total + numero, 0)) / brechasT4.length).toFixed(2);
+                                          tri.promedioBrechas = (1 - ((brechasT4.reduce((total, numero) => total + numero, 0)) / brechasT4.length)).toFixed(2);
                                         } else {
                                           tri.promedioBrechas = 0;
                                         }
+                                        tri.promedioBrechas = (tri.promedioBrechas * 100)
                                       });
                                       this.periodos.push(trimestres);
                                       if (mostrar) {
