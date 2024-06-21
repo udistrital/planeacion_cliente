@@ -1,5 +1,5 @@
 <div *ngIf="mostrarGraficos" class="charts-container">
-  <google-chart [title]="pieTitle" [type]="pieType" class="chart pie-chart" [height]="400" [data]="pieChartData"
+  <google-chart [type]="pieType" class="chart pie-chart" [height]="400" [data]="pieChartData"
     [columns]="pieChartColumns" [options]="pieChartOptions"></google-chart>
 
   <google-chart [type]="columnType" [data]="lineChartData" class="chart line-chart" dynamicResize="true" [height]="400"
