@@ -42,6 +42,7 @@ export const environment = {
   ASSETS_SERVICE: "https://assets.portaloas.udistrital.edu.co/",
 
   // Notificaciones
+  NOTIFICACION_WS: "ws://autenticacion.portaloas.udistrital.edu.co/apioas/notificacion_mid/v1/ws",
   NOTIFICACION_MID_SERVICE: "https://autenticacion.portaloas.udistrital.edu.co/apioas/notificacion_mid/v1/",
   ARN_TOPIC_NOTIFICACIONES: "arn:aws:sns:us-east-1:699001025740:test-Planeacion_pruebas.fifo",  
   COLAS_NOTIFICACIONES: {

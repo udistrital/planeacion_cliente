@@ -21,10 +21,8 @@ export class Notificaciones {
   connectWebSocket(){
     this.socket$ = new WebSocketSubject(environment.NOTIFICACION_WS);
 
-    this.socket$.subscribe(
-      (message) => {console.log("Mensaje en el cliente:", message)},
-      (err) => console.error(err),
-    );
+    // Permite conectarse al servidor aún así sin escuchar mensajes entrantes
+    this.socket$.subscribe(); 
 
     // Enviar el docuemento de usuario al servidor cuando se establezca la conexión
     var docUsuarioAuth: any = this.autenticationService.getDocument();
@@ -80,7 +78,6 @@ export class Notificaciones {
         }
 
         const body = this.getBodyMensaje(notificacion, datosMensaje, documentos)
-        console.log(body);
         this.socket$.next(body);
       } catch (error) {
         console.error('Error al publicar notificación:', error);
