@@ -143,7 +143,7 @@ export class EvaluacionPlanComponent implements OnInit {
             this.cacheSpan('actividadt2', (d) => d.numero +d.ponderado +  d.periodo + d.actividad +d.actividadt1 +d.actividadt2);
             this.cacheSpan('actividadt3',(d) =>d.numero + d.numero +d.ponderado +d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3);
             this.cacheSpan( 'actividadt4', (d) => d.numero +d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4 );
-            
+
             //console.log('numero', this.actividades.map((d) => d['']));
 
             if (this.periodo.nombre.toLowerCase() == 'trimestre dos') {
@@ -162,7 +162,7 @@ export class EvaluacionPlanComponent implements OnInit {
             } else {
               this.tr2 = false;
               this.tr3 = false;
-              this.tr4 = false; 
+              this.tr4 = false;
             }
             this.calcularAvanceGeneral();
             if (this.mostrarGraficos) {
@@ -219,7 +219,7 @@ export class EvaluacionPlanComponent implements OnInit {
     for (let index = 0; index < this.actividades.length; index++) {
       const actividad = this.actividades[index];
       if (numero != actividad.numero) {
-        numero = actividad.numero;        
+        numero = actividad.numero;
       } else {
         continue;
       }
@@ -322,20 +322,21 @@ export class EvaluacionPlanComponent implements OnInit {
 
   //agregar color al Cumplimiento por Meta
   colorCM(rowTrimestreMeta): string {
-    if (rowTrimestreMeta < 1) {
+    // console.log(rowTrimestreMeta);
+    if(rowTrimestreMeta === undefined){
+      return ''
+    } else {
       if (rowTrimestreMeta >= 0 && rowTrimestreMeta <= 0.2) {
         return 'meta-rojo';
-      } else if (rowTrimestreMeta >= 0.21 && rowTrimestreMeta <= 0.4) {
+      } else if (rowTrimestreMeta >= 0.201 && rowTrimestreMeta <= 0.4) {
         return 'meta-piel';
-      } else if (rowTrimestreMeta >= 0.41 && rowTrimestreMeta <= 0.6) {
+      } else if (rowTrimestreMeta >= 0.401 && rowTrimestreMeta <= 0.6) {
         return 'meta-naranja';
-      } else if (rowTrimestreMeta >= 0.61 && rowTrimestreMeta <= 0.8) {
+      } else if (rowTrimestreMeta >= 0.601 && rowTrimestreMeta <= 0.8) {
         return 'meta-amarillo';
-      } else if (rowTrimestreMeta >= 0.81 && rowTrimestreMeta <= 0.99) {
+      } else if (rowTrimestreMeta >= 0.801) {
         return 'meta-verde';
       }
-    } else {
-      return 'meta-verde';
     }
   }
 }
