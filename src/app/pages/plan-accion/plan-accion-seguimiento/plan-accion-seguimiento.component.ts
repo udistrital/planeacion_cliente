@@ -332,24 +332,19 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                                       const brechasT3 = [];
                                       const brechasT4 = [];
                                       datosB.Data.map(br => {
-                                        console.log("DATOS: ", br);
                                         if (br.trimestre1 && Object.keys(br.trimestre1).length !== 0) {
-                                          console.log("TRIMESTRE 1:", br.trimestre1);
                                           //brechasT1.push(br.trimestre1.brecha);
                                           brechasT1.push(br.trimestre1.actividad);
                                         }
                                         if (br.trimestre2 && Object.keys(br.trimestre2).length !== 0) {
-                                          console.log("TRIMESTRE 2:", br.trimestre2);
                                           //brechasT2.push(br.trimestre2.brecha);
                                           brechasT2.push(br.trimestre2.actividad);
                                         }
                                         if (br.trimestre3 && Object.keys(br.trimestre3).length !== 0) {
-                                          console.log("TRIMESTRE 3:", br.trimestre3);
                                           //brechasT3.push(br.trimestre3.brecha);
                                           brechasT3.push(br.trimestre3.actividad);
                                         }
                                         if (br.trimestre4 && Object.keys(br.trimestre4).length !== 0) {
-                                          console.log("TRIMESTRE 4:", br.trimestre4);
                                           //brechasT4.push(br.trimestre4.brecha);
                                           brechasT4.push(br.trimestre4.actividad);
                                         }
