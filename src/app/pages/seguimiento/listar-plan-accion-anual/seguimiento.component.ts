@@ -136,18 +136,21 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
           .subscribe((datosInfoTercero: any) => {
             this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
               .subscribe((vinculacion: any) => {
-                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
-                  if (dataUnidad) {
-                    let unidad = dataUnidad[0]["DependenciaId"]
-                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
-
-                    this.unidades.push(unidad);
-                    this.auxUnidades.push(unidad);
-                    this.formSelect.get('selectUnidad').setValue(unidad);
-                    this.onChangeU(unidad);
-                    Swal.close();
-                    resolve(unidad)
-                  }
+                let vinculaciones: any[] = vinculacion['Data'];
+                vinculaciones.forEach(vinculacion => {
+                  this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["DependenciaId"]).subscribe((dataUnidad: any) => {
+                    if (dataUnidad) {
+                      let unidad = dataUnidad[0]["DependenciaId"]
+                      unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+  
+                      this.unidades.push(unidad);
+                      this.auxUnidades.push(unidad);
+                      this.formSelect.get('selectUnidad').setValue(unidad);
+                      this.onChangeU(unidad);
+                      Swal.close();
+                      resolve(unidad)
+                    }
+                  })
                 })
               })
           })
@@ -563,13 +566,16 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     Swal.close();
   }
 
-  onChangeU(unidad) {
+  async onChangeU(unidad) {
     this.dataSource.data = [];
     if (unidad == undefined) {
       this.unidadSelected = false;
     } else {
       this.unidadSelected = true;
       this.unidad = unidad;
+    }
+    if (this.unidadSelected && this.vigenciaSelected) {
+      await this.loadPlanes("unidad");
     }
     this.allPlanes = this.dataSource.data;
   }
@@ -595,20 +601,25 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
   }
 
   async onChangeV(vigencia) {
-    this.limpiarCampoFechas();
-    this.vigencia = vigencia;
-    this.dataSource.data = this.planes;
-    this.dataSource.filter = ""; // Quita los filtros de la tabla
-    this.auxPlanes = [];
-    this.plan = undefined;
-    if (!(this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined))) {
-      if (this.rol != undefined && (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION')) {
-        await this.loadPlanes("vigencia");
-      } else {
-        await this.loadPlanes("unidad");
+    if(vigencia == undefined) {
+      this.vigenciaSelected = false;
+      this.vigencia = undefined;
+    } else {
+      this.limpiarCampoFechas();
+      this.vigencia = vigencia;
+      this.vigenciaSelected = true;
+      this.dataSource.data = this.planes;
+      this.dataSource.filter = ""; // Quita los filtros de la tabla
+      this.auxPlanes = [];
+      this.plan = undefined;
+      if (!(this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined))) {
+        if (this.rol != undefined && (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION')) {
+          await this.loadPlanes("vigencia");
+        } else {
+          await this.loadPlanes("unidad");
+        }
       }
     }
-
   }
 
   async loadPlanes(tipo: string) {

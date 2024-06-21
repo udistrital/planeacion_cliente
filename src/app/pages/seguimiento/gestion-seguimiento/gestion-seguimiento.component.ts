@@ -11,7 +11,8 @@ import { Location } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { VerificarFormulario } from '../../services/verificarFormulario'
 import { Subscription } from 'rxjs';
-
+import * as CryptoJS from 'crypto-js';
+import * as bigInt from 'big-integer';
 @Component({
   selector: 'app-seguimiento',
   templateUrl: './gestion-seguimiento.component.html',
@@ -37,6 +38,8 @@ export class SeguimientoComponentGestion implements OnInit {
   allActividades: any[];
   estado: string;
   codigoNotificacion: string = '';
+  encodedPlanId: string;
+  decodedPlanId: string;
   private miObservableSubscription: Subscription;
 
   constructor(
@@ -64,10 +67,41 @@ export class SeguimientoComponentGestion implements OnInit {
     this.getRol();
     this.activatedRoute.params.subscribe(prm => {
       this.planId = prm['plan_id'];
+      //Guardar el hash del planId en una variable para mostrarla en el html 
+      this.encodedPlanId = this.encodeBase62(this.planId); // Convertir el planId hexadecimal en Base62
+      const decodedPlanId = this.decodeBase62(this.encodedPlanId);
+      this.decodedPlanId = decodedPlanId // Convertir el hexadecimal en Base62 a planId 
+
       this.trimestreId = prm['trimestre'];
       this.loadDataSeguimiento();
     });
     this.dataSource = new MatTableDataSource<any>();
+  }
+
+  // Generar el hash apartir de un planId
+  encodeBase62(hexStr: string): string {
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    let num = bigInt(hexStr, 16);
+    let encoded = '';
+
+    while (num.greater(0)) {
+      const { quotient, remainder } = num.divmod(62);
+      encoded = charset[remainder.valueOf()] + encoded;
+      num = quotient;
+    }
+
+    return encoded;
+  }
+  //retornar el hash al planId Original 
+  decodeBase62(base62Str: string): string {
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    let decodedNum = bigInt(0);
+
+    for (let i = 0; i < base62Str.length; i++) {
+      decodedNum = decodedNum.multiply(62).add(bigInt(charset.indexOf(base62Str[i])));
+    }
+
+    return decodedNum.toString(16);
   }
 
   ngAfterViewInit() {
@@ -211,18 +245,14 @@ export class SeguimientoComponentGestion implements OnInit {
   loadActividades() {
     this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.seguimiento._id).subscribe((data: any) => {
       if (data) {
-
-        for (let index = 0; index < data.Data.length; index++) {
-          const actividad = data.Data[index];
-          if (actividad.estado.nombre == "Con observaciones") {
-            data.Data[index].estado.color = "conObservacion";
+        data.Data.forEach((actividad: any, index: number) => {
+          if (actividad.estado.nombre === "Con observaciones") {
+            actividad.estado.color = "conObservacion";
+          } else if (actividad.estado.nombre === "Actividad avalada" || actividad.estado.nombre === "Actividad Verificada") {
+            actividad.estado.color = "avalada";
           }
-          if (actividad.estado.nombre == "Actividad avalada" || actividad.estado.nombre == "Actividad Verificada") {
-            data.Data[index].estado.color = "avalada";
-          }
-        }
+        });
         this.dataSource.data = data.Data;
-        this.allActividades = this.dataSource.data;
         Swal.close();
       }
     }, (error) => {
@@ -232,9 +262,10 @@ export class SeguimientoComponentGestion implements OnInit {
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
-      })
-    })
+      });
+    });
   }
+
 
   reportar() {
     Swal.fire({
@@ -715,4 +746,10 @@ export class SeguimientoComponentGestion implements OnInit {
     });
     return aux;
   }
+
+  getShortenedPlanId(): string {
+    return this.planId ? this.planId.substring(0, 6) : '';
+  }
 }
+
+

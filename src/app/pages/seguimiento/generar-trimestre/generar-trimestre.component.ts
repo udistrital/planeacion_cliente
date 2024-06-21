@@ -13,6 +13,10 @@ import { Location, registerLocaleData } from '@angular/common';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
 import es from '@angular/common/locales/es';
+import * as CryptoJS from 'crypto-js';
+import * as bigInt from 'big-integer';
+
+
 
 export interface Indicador {
   nombre: string;
@@ -58,6 +62,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   rol: string;
   planId: string;
+  encodedPlanId: string;
+  decodedPlanId: string;
   plan: string;
   indexActividad: string;
   trimestreId: string;
@@ -107,6 +113,10 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.datosResultados = new MatTableDataSource();
     this.activatedRoute.params.subscribe(prm => {
       this.planId = prm['plan_id'];
+      //Guardar el hash del planId en una variable para mostrarla en el html 
+      this.encodedPlanId = this.encodeBase62(this.planId); // Convertir el planId hexadecimal en Base62
+      const decodedPlanId = this.decodeBase62(this.encodedPlanId);
+      this.decodedPlanId = decodedPlanId // Convertir el hexadecimal en Base62 a planId 
       this.indexActividad = prm['index'];
       this.trimestreId = prm['trimestre_id'];
     });
@@ -114,6 +124,31 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.loadData();
     this.loadTrimestre();
     this.loadEstados();
+  }
+  // Generar el hash apartir de un planId
+  encodeBase62(hexStr: string): string {
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    let num = bigInt(hexStr, 16);
+    let encoded = '';
+
+    while (num.greater(0)) {
+      const { quotient, remainder } = num.divmod(62);
+      encoded = charset[remainder.valueOf()] + encoded;
+      num = quotient;
+    }
+
+    return encoded;
+  }
+  //retornar el hash al planId Original 
+  decodeBase62(base62Str: string): string {
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    let decodedNum = bigInt(0);
+
+    for (let i = 0; i < base62Str.length; i++) {
+      decodedNum = decodedNum.multiply(62).add(bigInt(charset.indexOf(base62Str[i])));
+    }
+
+    return decodedNum.toString(16);
   }
 
   ngOnInit(): void {
@@ -880,13 +915,42 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   calcularResultado() {
     for (let index = 0; index < this.datosIndicadores.length; index++) {
       const indicador = this.datosIndicadores[index];
-
+  
       if (indicador.reporteDenominador != null && indicador.reporteNumerador != null) {
-        const denominador = parseFloat(indicador.reporteDenominador);
-        const numerador = parseFloat(indicador.reporteNumerador);
+        let denominador = parseFloat(indicador.reporteDenominador);
+        let numerador = parseFloat(indicador.reporteNumerador);
         const meta = parseFloat(this.datosIndicadores[index].meta);
         this.calcular = false;
-
+  
+        if (denominador == 0.0 && numerador == 0.0) {
+          denominador = 100;
+          numerador = 100;
+          this.datosResultados[index].indicadorAcumulado = 1;
+          this.datosResultados[index].acumuladoNumerador = this.datosResultados[index].acumuladoNumerador;
+          this.datosResultados[index].acumuladoDenominador =  this.datosResultados[index].acumuladoDenominador;
+          this.datosResultados[index].indicador = numerador / denominador;
+          var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+          var metaEvaluada = meta / 100;
+          this.datosResultados[index].avanceAcumulado = this.datosResultados[index].indicadorAcumulado / metaEvaluada;
+  
+          if (indicador.tendencia == "Creciente") {
+            if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
+              this.datosResultados[index].brechaExistente = 0;
+            } else {
+              this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
+            }
+          } else {
+            if (this.datosResultados[index].indicadorAcumulado < metaEvaluada) {
+              this.datosResultados[index].brechaExistente = 0;
+            } else {
+              this.datosResultados[index].brechaExistente = indicadorAcumulado - metaEvaluada;
+            }
+          }
+  
+          this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
+          continue;
+        }
+  
         if (denominador == 0.0) {
           if (numerador == 0.0) {
             if (indicador.denominador != "Denominador variable") {
@@ -904,17 +968,17 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
                 this.datosResultados[index].divisionCero = true;
                 this.datosResultados[index].indicadorAcumulado = 1;
                 this.datosResultados[index].acumuladoNumerador = 0;
-                this.datosResultados[index].acumuladoDenominador = 0;
+                this.datosResultados[index].acumuladoDenominador = this.datosResultados[index].acumuladoDenominador;
                 this.datosResultados[index].indicador = 0;
                 this.numeradorOriginal = [];
                 this.denominadorOriginal = [];
                 this.calcular = true;
-
+  
                 var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
                 var metaEvaluada = meta / 100;
-
+  
                 this.datosResultados[index].avanceAcumulado = this.datosResultados[index].indicadorAcumulado / metaEvaluada;
-
+  
                 if (indicador.tendencia == "Creciente") {
                   if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
                     this.datosResultados[index].brechaExistente = 0;
@@ -967,6 +1031,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
     }
   }
+  
 
   calcularBase(indicador, denominador, numerador, meta, index, ceros) {
     this.datosResultados[index].divisionCero = false;
@@ -1324,6 +1389,10 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           timer: 2500
         })
       }
+  }
+
+  getShortenedPlanId(): string {
+    return this.planId ? this.planId.substring(0, 6) : '';
   }
 
   /*verificarActividad() {
