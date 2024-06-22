@@ -691,6 +691,8 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   async validacionActividades() {
+    let actividades = this.allActividades;
+    console.log(actividades);
     let aux = true;
     let actividadAvalada;
     await new Promise((resolve) => {
@@ -705,7 +707,7 @@ export class SeguimientoComponentGestion implements OnInit {
           }
         });
     });
-    this.allActividades.forEach(actividad => {
+    actividades.forEach(actividad => {
       if (actividad.estado.id != actividadAvalada._id) {
         aux = false;
       }

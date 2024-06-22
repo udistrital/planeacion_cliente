@@ -688,7 +688,7 @@
                                         </th>
                                         <td mat-cell *matCellDef="let element; let rowIndex = index"
                                             class="td-align-right">
-                                            <button class="material-icons-delete" matTooltip="Eliminar elemento"
+                                            <button [disabled]="readonlyTable" class="material-icons-delete" matTooltip="Eliminar elemento"
                                                 matTooltipPosition="right" mat-icon-button
                                                 (click)="deleteElement(rowIndex, step.tipo)">
                                                 <mat-icon>delete_outline</mat-icon>
