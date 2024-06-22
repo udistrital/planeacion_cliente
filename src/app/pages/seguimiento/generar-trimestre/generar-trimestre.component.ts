@@ -62,8 +62,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   rol: string;
   planId: string;
-  encodedPlanId: string;
-  decodedPlanId: string;
   plan: string;
   indexActividad: string;
   trimestreId: string;
@@ -99,6 +97,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   txtObservaciones: string;
   txtPlaceHolderObservaciones: string;
   codigoNotificacion: string = "";
+  id_actividad: any;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -113,10 +112,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.datosResultados = new MatTableDataSource();
     this.activatedRoute.params.subscribe(prm => {
       this.planId = prm['plan_id'];
-      //Guardar el hash del planId en una variable para mostrarla en el html 
-      this.encodedPlanId = this.encodeBase62(this.planId); // Convertir el planId hexadecimal en Base62
-      const decodedPlanId = this.decodeBase62(this.encodedPlanId);
-      this.decodedPlanId = decodedPlanId // Convertir el hexadecimal en Base62 a planId 
       this.indexActividad = prm['index'];
       this.trimestreId = prm['trimestre_id'];
     });
@@ -124,31 +119,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.loadData();
     this.loadTrimestre();
     this.loadEstados();
-  }
-  // Generar el hash apartir de un planId
-  encodeBase62(hexStr: string): string {
-    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    let num = bigInt(hexStr, 16);
-    let encoded = '';
-
-    while (num.greater(0)) {
-      const { quotient, remainder } = num.divmod(62);
-      encoded = charset[remainder.valueOf()] + encoded;
-      num = quotient;
-    }
-
-    return encoded;
-  }
-  //retornar el hash al planId Original 
-  decodeBase62(base62Str: string): string {
-    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    let decodedNum = bigInt(0);
-
-    for (let i = 0; i < base62Str.length; i++) {
-      decodedNum = decodedNum.multiply(62).add(bigInt(charset.indexOf(base62Str[i])));
-    }
-
-    return decodedNum.toString(16);
   }
 
   ngOnInit(): void {
@@ -514,6 +484,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.seguimiento = data.Data;
         this.unidad = this.seguimiento.informacion.unidad;
         this.plan = this.seguimiento.informacion.nombre;
+        this.id_actividad = this.seguimiento.id_actividad;
         this.documentos = JSON.parse(JSON.stringify(data.Data.evidencia));
         this.datosIndicadores = data.Data.cuantitativo.indicadores;
         this.datosResultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.resultados));

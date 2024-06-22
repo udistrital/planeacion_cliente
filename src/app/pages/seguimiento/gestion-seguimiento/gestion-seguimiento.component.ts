@@ -38,8 +38,6 @@ export class SeguimientoComponentGestion implements OnInit {
   allActividades: any[];
   estado: string;
   codigoNotificacion: string = '';
-  encodedPlanId: string;
-  decodedPlanId: string;
   private miObservableSubscription: Subscription;
 
   constructor(
@@ -67,43 +65,11 @@ export class SeguimientoComponentGestion implements OnInit {
     this.getRol();
     this.activatedRoute.params.subscribe(prm => {
       this.planId = prm['plan_id'];
-      //Guardar el hash del planId en una variable para mostrarla en el html 
-      this.encodedPlanId = this.encodeBase62(this.planId); // Convertir el planId hexadecimal en Base62
-      const decodedPlanId = this.decodeBase62(this.encodedPlanId);
-      this.decodedPlanId = decodedPlanId // Convertir el hexadecimal en Base62 a planId 
-
       this.trimestreId = prm['trimestre'];
       this.loadDataSeguimiento();
     });
     this.dataSource = new MatTableDataSource<any>();
   }
-
-  // Generar el hash apartir de un planId
-  encodeBase62(hexStr: string): string {
-    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    let num = bigInt(hexStr, 16);
-    let encoded = '';
-
-    while (num.greater(0)) {
-      const { quotient, remainder } = num.divmod(62);
-      encoded = charset[remainder.valueOf()] + encoded;
-      num = quotient;
-    }
-
-    return encoded;
-  }
-  //retornar el hash al planId Original 
-  decodeBase62(base62Str: string): string {
-    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    let decodedNum = bigInt(0);
-
-    for (let i = 0; i < base62Str.length; i++) {
-      decodedNum = decodedNum.multiply(62).add(bigInt(charset.indexOf(base62Str[i])));
-    }
-
-    return decodedNum.toString(16);
-  }
-
   ngAfterViewInit() {
     Swal.fire({
       title: 'Cargando información',
@@ -480,6 +446,7 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   revisar(row) {
+    console.log("================ row.id_actividad ================", row.id_actividad)
     let auxFecha = new Date();
     let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
     let strFechaHoy = new Date(auxFechaCol).toISOString();
