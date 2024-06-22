@@ -18,7 +18,6 @@ export class EvaluacionPlanComponent implements OnInit {
   @Input() nombreUnidad: string;
   @Input() mostrarGraficos: boolean;
 
-  pieTitle = 'Cumplimiento general Plan de Acción -';
   pieType = 'PieChart';
   columnType = 'ColumnChart';
   spans = [];
@@ -31,6 +30,7 @@ export class EvaluacionPlanComponent implements OnInit {
   ];
 
   pieChartOptions = {
+    title: 'Cumplimiento general',
     pieHole: 0.5,
     pieSliceTextStyle: {
       color: 'black',
@@ -134,7 +134,6 @@ export class EvaluacionPlanComponent implements OnInit {
             this.actividades.forEach((actividad) => {
               actividad.class = actividad.numero % 2 == 0 ? 'claro' : 'oscuro';
             });
-            this.pieTitle = `Cumplimiento general`;
             this.cacheSpan('numero', (d) => d.numero);
             this.cacheSpan('ponderado', (d) => d.numero + d.ponderado);
             this.cacheSpan('periodo',(d) => d.numero + d.ponderado + d.periodo);
@@ -144,13 +143,10 @@ export class EvaluacionPlanComponent implements OnInit {
             this.cacheSpan('actividadt3',(d) =>d.numero + d.numero +d.ponderado +d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3);
             this.cacheSpan( 'actividadt4', (d) => d.numero +d.ponderado + d.periodo + d.actividad + d.actividadt1 + d.actividadt2 + d.actividadt3 + d.actividadt4 );
 
-            //console.log('numero', this.actividades.map((d) => d['']));
-
             if (this.periodo.nombre.toLowerCase() == 'trimestre dos') {
               this.tr2 = true;
               this.tr3 = false;
               this.tr4 = false;
-            console.log('tr', this.tr2, this.tr3, this.tr4);
             } else if (this.periodo.nombre.toLowerCase() == 'trimestre tres') {
               this.tr2 = true;
               this.tr3 = true;
@@ -288,8 +284,8 @@ export class EvaluacionPlanComponent implements OnInit {
       actividades.push([
         actividad.numero,
         actividadValor,
-        'color: rgb(143, 27, 0)',
-        String(actividadValor) + '%',
+        `color: ${this.colorPorPorcentaje(actividadValor)}`,
+        `${actividadValor}%`,
         actividad.actividad,
       ]);
     }
@@ -320,9 +316,22 @@ export class EvaluacionPlanComponent implements OnInit {
     return Math.abs(value);
   }
 
+  colorPorPorcentaje(porcentajeAvance: number) {
+    if (porcentajeAvance === undefined || porcentajeAvance <= 20) {
+      return '#c50820';
+    } else if (porcentajeAvance > 20 && porcentajeAvance <= 40) {
+      return '#faa99c';
+    } else if (porcentajeAvance > 40 && porcentajeAvance <= 60) {
+      return '#fac11d';
+    } else if (porcentajeAvance > 60 && porcentajeAvance <= 80) {
+      return '#fdff21';
+    } else if (porcentajeAvance > 80) {
+      return '#73af49';
+    }
+  }
+
   //agregar color al Cumplimiento por Meta
   colorCM(rowTrimestreMeta): string {
-    // console.log(rowTrimestreMeta);
     if(rowTrimestreMeta === undefined){
       return ''
     } else {
