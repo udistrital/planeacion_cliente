@@ -247,11 +247,11 @@ export class SeguimientoComponentGestion implements OnInit {
           if (data) {
             if (data.Success) {
               if (this.estado == 'En reporte') {
-                this.codigoNotificacion = "SER" // NOTIFICACION(SER)
+                this.codigoNotificacion = "SER"; // NOTIFICACION(SER)
               } else if (this.estado == 'Revisión Verificada con Observaciones') {
-                this.codigoNotificacion = "SRVCO" // NOTIFICACION(SRVCO)
+                this.codigoNotificacion = "SRVCO"; // NOTIFICACION(SRVCO)
               } else if (this.estado == 'Con observaciones') {
-                this.codigoNotificacion = "SCO" // NOTIFICACION(SCO)
+                this.codigoNotificacion = "SCO"; // NOTIFICACION(SCO)
               }
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
@@ -335,7 +335,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
-              this.codigoNotificacion = "SEROAPC" // NOTIFICACION(SEROAPC)
+              this.codigoNotificacion = "SEROAPC"; // NOTIFICACION(SEROAPC)
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
@@ -587,7 +587,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.seguimiento.estado_seguimiento_id = "622ba46d16511e32535c326b"
         this.request.put(environment.PLANES_CRUD, `seguimiento`, this.seguimiento, this.seguimiento._id).subscribe((data: any) => {
           if (data) {
-            this.codigoNotificacion = "SRV" // NOTIFICACION(SRV)
+            this.codigoNotificacion = "SRV"; // NOTIFICACION(SRV)
             Swal.fire({
               title: 'Seguimiento en revisión',
               icon: 'success',
