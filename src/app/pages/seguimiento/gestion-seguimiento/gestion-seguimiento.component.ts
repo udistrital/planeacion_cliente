@@ -11,7 +11,8 @@ import { Location } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { VerificarFormulario } from '../../services/verificarFormulario'
 import { Subscription } from 'rxjs';
-
+import * as CryptoJS from 'crypto-js';
+import * as bigInt from 'big-integer';
 @Component({
   selector: 'app-seguimiento',
   templateUrl: './gestion-seguimiento.component.html',
@@ -69,7 +70,6 @@ export class SeguimientoComponentGestion implements OnInit {
     });
     this.dataSource = new MatTableDataSource<any>();
   }
-
   ngAfterViewInit() {
     Swal.fire({
       title: 'Cargando información',
@@ -211,18 +211,14 @@ export class SeguimientoComponentGestion implements OnInit {
   loadActividades() {
     this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.seguimiento._id).subscribe((data: any) => {
       if (data) {
-
-        for (let index = 0; index < data.Data.length; index++) {
-          const actividad = data.Data[index];
-          if (actividad.estado.nombre == "Con observaciones") {
-            data.Data[index].estado.color = "conObservacion";
+        data.Data.forEach((actividad: any, index: number) => {
+          if (actividad.estado.nombre === "Con observaciones") {
+            actividad.estado.color = "conObservacion";
+          } else if (actividad.estado.nombre === "Actividad avalada" || actividad.estado.nombre === "Actividad Verificada") {
+            actividad.estado.color = "avalada";
           }
-          if (actividad.estado.nombre == "Actividad avalada" || actividad.estado.nombre == "Actividad Verificada") {
-            data.Data[index].estado.color = "avalada";
-          }
-        }
+        });
         this.dataSource.data = data.Data;
-        this.allActividades = this.dataSource.data;
         Swal.close();
       }
     }, (error) => {
@@ -232,9 +228,10 @@ export class SeguimientoComponentGestion implements OnInit {
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
-      })
-    })
+      });
+    });
   }
+
 
   reportar() {
     Swal.fire({
@@ -449,6 +446,7 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   revisar(row) {
+    console.log("================ row.id_actividad ================", row.id_actividad)
     let auxFecha = new Date();
     let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
     let strFechaHoy = new Date(auxFechaCol).toISOString();
@@ -715,4 +713,10 @@ export class SeguimientoComponentGestion implements OnInit {
     });
     return aux;
   }
+
+  getShortenedPlanId(): string {
+    return this.planId ? this.planId.substring(0, 6) : '';
+  }
 }
+
+
