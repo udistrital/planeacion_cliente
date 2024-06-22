@@ -13,7 +13,6 @@ import { Location, registerLocaleData } from '@angular/common';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
 import es from '@angular/common/locales/es';
-import * as CryptoJS from 'crypto-js';
 import * as bigInt from 'big-integer';
 
 

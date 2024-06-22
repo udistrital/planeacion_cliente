@@ -11,7 +11,6 @@ import { Location } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { VerificarFormulario } from '../../services/verificarFormulario'
 import { Subscription } from 'rxjs';
-import * as CryptoJS from 'crypto-js';
 import * as bigInt from 'big-integer';
 @Component({
   selector: 'app-seguimiento',
