@@ -189,13 +189,13 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   loadUnidad(dependencia_id) {
-    this.request.get(environment.OIKOS_SERVICE, `dependencia?query=Id:` + dependencia_id).subscribe((data: any) => {
+    this.request.get(environment.OIKOS_SERVICE, `dependencia?query=Id:` + dependencia_id).subscribe(async (data: any) => {
       if (data) {
         this.unidad = data[0];
         this.formGestionSeguimiento.get('plan').setValue(this.seguimiento.plan_id.nombre);
         this.formGestionSeguimiento.get('unidad').setValue(this.unidad.Nombre);
         this.formGestionSeguimiento.get('estado').setValue(this.seguimiento.estado_seguimiento_id.nombre);
-        this.loadActividades();
+        await this.loadActividades();
       }
     }, (error) => {
       Swal.fire({
