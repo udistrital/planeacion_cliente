@@ -224,7 +224,6 @@ export class SeguimientoComponentGestion implements OnInit {
             }
             this.dataSource.data = data.Data;
             this.allActividades = this.dataSource.data;
-            console.log("Cargue de actividades: ", this.allActividades);
             Swal.close();
           }
         }, (error) => {
@@ -478,7 +477,6 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   revisar(row) {
-    console.log("================ row.id_actividad ================", row.id_actividad)
     let auxFecha = new Date();
     let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
     let strFechaHoy = new Date(auxFechaCol).toISOString();
@@ -724,9 +722,7 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   async validacionActividades() {
-    console.log("this.allActividad: ", this.allActividades)
     let actividadesSeguimiento = this.allActividades;
-    console.log(actividadesSeguimiento);
     let aux = true;
     let actividadAvalada;
     await new Promise((resolve) => {
