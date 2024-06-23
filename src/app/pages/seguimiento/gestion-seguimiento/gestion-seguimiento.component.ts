@@ -188,13 +188,13 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   loadUnidad(dependencia_id) {
-    this.request.get(environment.OIKOS_SERVICE, `dependencia?query=Id:` + dependencia_id).subscribe((data: any) => {
+    this.request.get(environment.OIKOS_SERVICE, `dependencia?query=Id:` + dependencia_id).subscribe(async (data: any) => {
       if (data) {
         this.unidad = data[0];
         this.formGestionSeguimiento.get('plan').setValue(this.seguimiento.plan_id.nombre);
         this.formGestionSeguimiento.get('unidad').setValue(this.unidad.Nombre);
         this.formGestionSeguimiento.get('estado').setValue(this.seguimiento.estado_seguimiento_id.nombre);
-        this.loadActividades();
+        await this.loadActividades();
       }
     }, (error) => {
       Swal.fire({
@@ -207,28 +207,61 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
-  loadActividades() {
-    this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.seguimiento._id).subscribe((data: any) => {
-      if (data) {
-        data.Data.forEach((actividad: any, index: number) => {
-          if (actividad.estado.nombre === "Con observaciones") {
-            actividad.estado.color = "conObservacion";
-          } else if (actividad.estado.nombre === "Actividad avalada" || actividad.estado.nombre === "Actividad Verificada") {
-            actividad.estado.color = "avalada";
+
+  async loadActividades() {
+    await new Promise((resolve) => {
+      this.request
+        .get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.seguimiento._id).subscribe((data: any) => {
+          if (data) {
+            for (let index = 0; index < data.Data.length; index++) {
+              const actividad = data.Data[index];
+              if (actividad.estado.nombre == "Con observaciones") {
+                data.Data[index].estado.color = "conObservacion";
+              }
+              if (actividad.estado.nombre == "Actividad avalada" || actividad.estado.nombre == "Actividad Verificada") {
+                data.Data[index].estado.color = "avalada";
+              }
+            }
+            this.dataSource.data = data.Data;
+            this.allActividades = this.dataSource.data;
+            console.log("Cargue de actividades: ", this.allActividades);
+            Swal.close();
           }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
         });
-        this.dataSource.data = data.Data;
-        Swal.close();
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      });
     });
+    // this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.seguimiento._id).subscribe((data: any) => {
+    //   if (data) {
+
+    //     for (let index = 0; index < data.Data.length; index++) {
+    //       const actividad = data.Data[index];
+    //       if (actividad.estado.nombre == "Con observaciones") {
+    //         data.Data[index].estado.color = "conObservacion";
+    //       }
+    //       if (actividad.estado.nombre == "Actividad avalada" || actividad.estado.nombre == "Actividad Verificada") {
+    //         data.Data[index].estado.color = "avalada";
+    //       }
+    //     }
+    //     this.dataSource.data = data.Data;
+    //     this.allActividades = this.dataSource.data;
+    //     Swal.close();
+    //   }
+    // }, (error) => {
+    //   Swal.fire({
+    //     title: 'Error en la operación',
+    //     text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+    //     icon: 'warning',
+    //     showConfirmButton: false,
+    //     timer: 2500
+    //   })
+    // })
   }
 
 
