@@ -11,7 +11,7 @@ import { Location } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { VerificarFormulario } from '../../services/verificarFormulario'
 import { Subscription } from 'rxjs';
-
+import * as bigInt from 'big-integer';
 @Component({
   selector: 'app-seguimiento',
   templateUrl: './gestion-seguimiento.component.html',
@@ -69,7 +69,6 @@ export class SeguimientoComponentGestion implements OnInit {
     });
     this.dataSource = new MatTableDataSource<any>();
   }
-
   ngAfterViewInit() {
     Swal.fire({
       title: 'Cargando información',
@@ -208,6 +207,7 @@ export class SeguimientoComponentGestion implements OnInit {
     })
   }
 
+
   async loadActividades() {
     await new Promise((resolve) => {
       this.request
@@ -264,6 +264,7 @@ export class SeguimientoComponentGestion implements OnInit {
     // })
   }
 
+
   reportar() {
     Swal.fire({
       title: 'Enviar Reporte',
@@ -279,11 +280,11 @@ export class SeguimientoComponentGestion implements OnInit {
           if (data) {
             if (data.Success) {
               if (this.estado == 'En reporte') {
-                this.codigoNotificacion = "SER" // NOTIFICACION(SER)
+                this.codigoNotificacion = "SER"; // NOTIFICACION(SER)
               } else if (this.estado == 'Revisión Verificada con Observaciones') {
-                this.codigoNotificacion = "SRVCO" // NOTIFICACION(SRVCO)
+                this.codigoNotificacion = "SRVCO"; // NOTIFICACION(SRVCO)
               } else if (this.estado == 'Con observaciones') {
-                this.codigoNotificacion = "SCO" // NOTIFICACION(SCO)
+                this.codigoNotificacion = "SCO"; // NOTIFICACION(SCO)
               }
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
@@ -367,7 +368,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
-              this.codigoNotificacion = "SEROAPC" // NOTIFICACION(SEROAPC)
+              this.codigoNotificacion = "SEROAPC"; // NOTIFICACION(SEROAPC)
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
@@ -477,6 +478,7 @@ export class SeguimientoComponentGestion implements OnInit {
   }
 
   revisar(row) {
+    console.log("================ row.id_actividad ================", row.id_actividad)
     let auxFecha = new Date();
     let auxFechaCol = auxFecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' })
     let strFechaHoy = new Date(auxFechaCol).toISOString();
@@ -618,7 +620,7 @@ export class SeguimientoComponentGestion implements OnInit {
         this.seguimiento.estado_seguimiento_id = "622ba46d16511e32535c326b"
         this.request.put(environment.PLANES_CRUD, `seguimiento`, this.seguimiento, this.seguimiento._id).subscribe((data: any) => {
           if (data) {
-            this.codigoNotificacion = "SRV" // NOTIFICACION(SRV)
+            this.codigoNotificacion = "SRV"; // NOTIFICACION(SRV)
             Swal.fire({
               title: 'Seguimiento en revisión',
               icon: 'success',
@@ -746,4 +748,10 @@ export class SeguimientoComponentGestion implements OnInit {
     });
     return aux;
   }
+
+  getShortenedPlanId(): string {
+    return this.planId ? this.planId.substring(0, 6) : '';
+  }
 }
+
+

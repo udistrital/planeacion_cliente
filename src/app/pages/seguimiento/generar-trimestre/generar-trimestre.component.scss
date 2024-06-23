@@ -149,6 +149,10 @@ textarea {
   text-align-last: left;
 }
 
+textarea.form-control {
+  resize: vertical;
+}
+
 .align-button-enviar {
   text-align: center;
 }

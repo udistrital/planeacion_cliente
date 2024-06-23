@@ -13,6 +13,9 @@ import { Location, registerLocaleData } from '@angular/common';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
 import es from '@angular/common/locales/es';
+import * as bigInt from 'big-integer';
+
+
 
 export interface Indicador {
   nombre: string;
@@ -93,6 +96,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   txtObservaciones: string;
   txtPlaceHolderObservaciones: string;
   codigoNotificacion: string = "";
+  id_actividad: any;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -479,6 +483,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.seguimiento = data.Data;
         this.unidad = this.seguimiento.informacion.unidad;
         this.plan = this.seguimiento.informacion.nombre;
+        this.id_actividad = this.seguimiento.id_actividad;
         this.documentos = JSON.parse(JSON.stringify(data.Data.evidencia));
         this.datosIndicadores = data.Data.cuantitativo.indicadores;
         this.datosResultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.resultados));
@@ -880,13 +885,42 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   calcularResultado() {
     for (let index = 0; index < this.datosIndicadores.length; index++) {
       const indicador = this.datosIndicadores[index];
-
+  
       if (indicador.reporteDenominador != null && indicador.reporteNumerador != null) {
-        const denominador = parseFloat(indicador.reporteDenominador);
-        const numerador = parseFloat(indicador.reporteNumerador);
+        let denominador = parseFloat(indicador.reporteDenominador);
+        let numerador = parseFloat(indicador.reporteNumerador);
         const meta = parseFloat(this.datosIndicadores[index].meta);
         this.calcular = false;
-
+  
+        if (denominador == 0.0 && numerador == 0.0) {
+          denominador = 100;
+          numerador = 100;
+          this.datosResultados[index].indicadorAcumulado = 1;
+          this.datosResultados[index].acumuladoNumerador = this.datosResultados[index].acumuladoNumerador;
+          this.datosResultados[index].acumuladoDenominador =  this.datosResultados[index].acumuladoDenominador;
+          this.datosResultados[index].indicador = numerador / denominador;
+          var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+          var metaEvaluada = meta / 100;
+          this.datosResultados[index].avanceAcumulado = this.datosResultados[index].indicadorAcumulado / metaEvaluada;
+  
+          if (indicador.tendencia == "Creciente") {
+            if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
+              this.datosResultados[index].brechaExistente = 0;
+            } else {
+              this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
+            }
+          } else {
+            if (this.datosResultados[index].indicadorAcumulado < metaEvaluada) {
+              this.datosResultados[index].brechaExistente = 0;
+            } else {
+              this.datosResultados[index].brechaExistente = indicadorAcumulado - metaEvaluada;
+            }
+          }
+  
+          this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
+          continue;
+        }
+  
         if (denominador == 0.0) {
           if (numerador == 0.0) {
             if (indicador.denominador != "Denominador variable") {
@@ -904,17 +938,17 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
                 this.datosResultados[index].divisionCero = true;
                 this.datosResultados[index].indicadorAcumulado = 1;
                 this.datosResultados[index].acumuladoNumerador = 0;
-                this.datosResultados[index].acumuladoDenominador = 0;
+                this.datosResultados[index].acumuladoDenominador = this.datosResultados[index].acumuladoDenominador;
                 this.datosResultados[index].indicador = 0;
                 this.numeradorOriginal = [];
                 this.denominadorOriginal = [];
                 this.calcular = true;
-
+  
                 var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
                 var metaEvaluada = meta / 100;
-
+  
                 this.datosResultados[index].avanceAcumulado = this.datosResultados[index].indicadorAcumulado / metaEvaluada;
-
+  
                 if (indicador.tendencia == "Creciente") {
                   if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
                     this.datosResultados[index].brechaExistente = 0;
@@ -967,6 +1001,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
     }
   }
+  
 
   calcularBase(indicador, denominador, numerador, meta, index, ceros) {
     this.datosResultados[index].divisionCero = false;
@@ -1324,6 +1359,10 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           timer: 2500
         })
       }
+  }
+
+  getShortenedPlanId(): string {
+    return this.planId ? this.planId.substring(0, 6) : '';
   }
 
   /*verificarActividad() {

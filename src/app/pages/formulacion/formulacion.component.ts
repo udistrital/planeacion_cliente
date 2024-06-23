@@ -857,7 +857,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
       // Cuando el plan pasa de formulación a seguimiento
       if (this.codigoNotificacion == "FPA2") {
-        this.codigoNotificacion = "S";
+        this.codigoNotificacion = "FS"; // NOTIFICACION(FS)
         this.enviarNotificacion();
       }
       this.codigoNotificacion = "";
@@ -1130,9 +1130,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       })
       this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.plan._id + `/` + fila.index).subscribe((data: any) => {
         if (data) {
-          Swal.close();
-          this.onChangePD(this.planesDesarrollo[0]);
-          this.onChangePI(this.planesIndicativos[0]);
           this.estado = this.plan.estado_plan_id;
           this.steps = data.Data[0]
           this.json = data.Data[1][0]
@@ -1145,6 +1142,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           let strArmonizacion2 = auxAmonizacion.armoPI
           let len2 = (strArmonizacion2.split(",").length)
           this.dataArmonizacionPI = strArmonizacion2.split(",", len2).filter(((item) => item != ""))
+          this.consultarArmonizacionPadre(this.dataArmonizacionPED, this.dataArmonizacionPI);
+          Swal.close();
         }
       }, (error) => {
         Swal.fire({
@@ -1675,7 +1674,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.plan.estado_plan_id = this.ID_ESTADO_EN_REVISION;
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
-            this.codigoNotificacion = "FF" // NOTIFICACION(FF)
+            this.codigoNotificacion = "FF"; // NOTIFICACION(FF)
             Swal.fire({
               title: 'Plan En Revisión',
               icon: 'success',
@@ -1727,7 +1726,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.plan.estado_plan_id = this.ID_ESTADO_REVISADO;
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
-            this.codigoNotificacion = "FER" // NOTIFICACION(FER)
+            this.codigoNotificacion = "FER"; // NOTIFICACION(FER)
             Swal.fire({
               title: 'Revisión Enviada',
               icon: 'success',
@@ -1783,7 +1782,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
             this.plan.estado_plan_id = this.ID_ESTADO_REVISION_VERIFICADA;
             this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
               if (data) {
-                this.codigoNotificacion = "FR2";
+                this.codigoNotificacion = "FR2"; // NOTIFICACION(FR2)
                 Swal.fire({
                   title: 'Revisión Verficada Enviada',
                   icon: 'success',
@@ -1839,9 +1838,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
           if (data) {
             if (this.estadoPlan == 'Revisado') {
-              this.codigoNotificacion = "FR1" // NOTIFICACION(FR1)
+              this.codigoNotificacion = "FR1"; // NOTIFICACION(FR1)
             } else if (this.estadoPlan == 'Pre Aval') {
-              this.codigoNotificacion = "FPA1" // NOTIFICACION(FPA1)
+              this.codigoNotificacion = "FPA1"; // NOTIFICACION(FPA1)
             }
             this.getVersiones(data.Data);
             Swal.fire({
@@ -1919,7 +1918,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.plan.estado_plan_id = this.ID_ESTADO_PRE_AVAL;
         this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
           if (data) {
-            this.codigoNotificacion = "FV" // NOTIFICACION(FV)
+            this.codigoNotificacion = "FV"; // NOTIFICACION(FV)
             Swal.fire({
               title: 'Plan pre avalado',
               icon: 'success',
@@ -1968,7 +1967,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
           this.request.post(environment.PLANES_MID, `seguimiento/avalar/` + this.plan._id, {}).subscribe((data: any) => {
             Swal.close();
             if (data.Success == true) {
-              this.codigoNotificacion = "FPA2" // NOTIFICACION(FPA2)
+              this.codigoNotificacion = "FPA2"; // NOTIFICACION(FPA2)
               Swal.fire({
                 title: 'Plan Avalado',
                 icon: 'success',
@@ -2081,5 +2080,61 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         Swal.showLoading();
       }
     });
+  }
+
+  consultarArmonizacionPadre(datosArmonizacionPED: any, datosArmonizacionPI: any): void {
+    this.request.get(environment.PLANES_CRUD, `subgrupo/` + datosArmonizacionPED[0]).subscribe((data: any) => {
+      if (data && data.Success) {
+        for(let i=0; i<this.planesDesarrollo.length; i++){
+          if (this.planesDesarrollo[i]._id == data.Data.padre){
+            this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[i])
+            this.onChangePD(this.planesDesarrollo[i]);
+          }
+        }
+      } else {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encuentra el Plan Estrategico de Desarrollo`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encuentra el Plan Estrategico de Desarrollo`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+
+    this.request.get(environment.PLANES_CRUD, `subgrupo/` + datosArmonizacionPI[0]).subscribe((data: any) => {
+      if (data && data.Success) {
+        for(let i=0; i<this.planesIndicativos.length; i++){
+          if (this.planesIndicativos[i]._id == data.Data.padre){
+            this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[i])
+            this.onChangePI(this.planesIndicativos[i]);
+          }
+        }
+      } else {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encuentra el Plan Indicativo`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        text: `No se encuentra el Plan Indicativo`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
   }
 }
