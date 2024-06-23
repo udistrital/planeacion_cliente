@@ -145,7 +145,7 @@ export class CrearPlanComponent implements OnInit {
 
 
   loadTipos() {
-    this.request.get(environment.PLANES_CRUD, `tipo-plan`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `tipo-plan?query=activo:true`).subscribe((data: any) => {
       if (data) {
         this.tipos = data.Data;
       }
