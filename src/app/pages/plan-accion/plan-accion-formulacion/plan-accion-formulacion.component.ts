@@ -206,7 +206,7 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
                                 if ((data.Success) && (i == (vinculaciones.length - 1))) {
                                   resolve(this.planes);
                                 }
-                              }, 10);
+                              }, 1000);
                             } else {
                               Swal.close();
                               this.planes = [];
