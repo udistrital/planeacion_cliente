@@ -179,37 +179,30 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
                         });
                       } else {
                         const vinculaciones = data.Data;
-                        let allData = [];
-                        this.planes = [];
+                        let promesas = [];
+                        
                         for (let i = 0; i < vinculaciones.length; i++) {
-                          idDependencia = vinculaciones[i].DependenciaId;
-                          this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe((data) => {
-                            if (data && data.Success) {
-                              allData.push(data.Data);
-                              let resultado = [];
-                              setTimeout(() => {
-                                console.log("DATA: ", allData);
-                                resultado = allData[i].filter(plan => plan.fase === "Formulación");
-                                this.planes = [...this.planes, ...resultado];
-                                if (this.planes.length != 0) {
-                                  Swal.close();
-                                } else {
-                                  Swal.close();
-                                  Swal.fire({
-                                    title: 'No existen registros',
-                                    icon: 'info',
-                                    text: 'No hay planes en formulación',
-                                    showConfirmButton: false,
-                                    timer: 2500,
-                                  });
-                                }
-                                if ((data.Success) && (i == (vinculaciones.length - 1))) {
-                                  resolve(this.planes);
-                                }
-                              }, 5000);
-                            } else {
+                          promesas.push(new Promise((PromesaResolve, PromesaReject) => {
+                            idDependencia = vinculaciones[i].DependenciaId;
+
+                            this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe((data) => {
+                              if (data && data.Success) {
+                                PromesaResolve(data.Data)
+                              } else {
+                                Swal.close();
+                                Swal.fire({
+                                  title:
+                                    'Error al intentar obtener los planes de acción',
+                                  icon: 'error',
+                                  text: 'Ingresa más tarde',
+                                  showConfirmButton: false,
+                                  timer: 2500,
+                                });
+                                PromesaReject();
+                              }
+                            }, (error) => {
                               Swal.close();
-                              this.planes = [];
+                              console.error(error);
                               Swal.fire({
                                 title:
                                   'Error al intentar obtener los planes de acción',
@@ -218,24 +211,33 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
                                 showConfirmButton: false,
                                 timer: 2500,
                               });
-                              reject();
+                              PromesaReject();
+                            });
+                          }));
+                        }
+                        Promise.all(promesas).then(resultados => {
+                          let resultadoPlanes = [];
+
+                          if (resultados.length != 0) {
+                            for(let i = 0; i < resultados.length; i++) {
+                              let resultado = [];
+                              resultado = resultados[i].filter(plan => plan.fase === "Formulación");
+                              resultadoPlanes = [...resultadoPlanes, ...resultado];
                             }
-                          }, (error) => {
+                            this.planes = resultadoPlanes;
+                            resolve(this.planes);
                             Swal.close();
-                            this.planes = [];
-                            console.error(error);
+                          }else {
+                            Swal.close();
                             Swal.fire({
-                              title:
-                                'Error al intentar obtener los planes de acción',
-                              icon: 'error',
-                              text: 'Ingresa más tarde',
+                              title: 'No existen registros',
+                              icon: 'info',
+                              text: 'No hay planes en formulación',
                               showConfirmButton: false,
                               timer: 2500,
                             });
-                            reject();
                           }
-                          );
-                        }
+                        })
                       }
                     },
                     (error) => {
