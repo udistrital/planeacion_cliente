@@ -183,7 +183,7 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
                         this.planes = [];
                         for (let i = 0; i < vinculaciones.length; i++) {
                           idDependencia = vinculaciones[i].DependenciaId;
-                          this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe((data) => {
+                          this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe(async (data) => {
                             if (data && data.Success) {
                               allData.push(data.Data);
                               let resultado = [];
@@ -206,7 +206,7 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
                                 if ((data.Success) && (i == (vinculaciones.length - 1))) {
                                   resolve(this.planes);
                                 }
-                              }, 1000);
+                              }, 10);
                             } else {
                               Swal.close();
                               this.planes = [];
