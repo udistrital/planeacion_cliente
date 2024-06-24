@@ -187,53 +187,31 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                         });
                       } else {
                         const vinculaciones = data.Data;
-                        let allData = [];
-                        this.planes = [];
+                        let promesas = [];
 
                         for (let i = 0; i < vinculaciones.length; i++) {
-                          idDependencia = vinculaciones[i].DependenciaId;
-                          this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe(async (data) => {
-                            if (data && data.Success) {
-                              allData.push(data.Data);
-                              let resultado = [];
-                              setTimeout(() => {
-                                console.log("DATA: ", allData);
-                                resultado = allData[i].filter(plan => plan.fase === "Seguimiento");
-                                this.planes = [...this.planes, ...resultado];
-                                if (this.planes.length != 0) {
-                                  Swal.close();
-                                } else {
-                                  this.estadoDescarga = false;
-                                  Swal.close();
-                                  Swal.fire({
-                                    title: 'No existen registros',
-                                    icon: 'info',
-                                    text: 'No existen proyectos con registros en fase de seguimiento asociados a la unidad seleccionada',
-                                    showConfirmButton: true,
-                                  });
-                                }
-                                if((data.Success) && (i == (vinculaciones.length - 1))){
-                                  resolve(this.planes);
-                                }
-                              },5000);
-                            } else {
+                          promesas.push(new Promise((PromesaResolve, PromesaReject) => {
+                            idDependencia = vinculaciones[i].DependenciaId;
+                            
+                            this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe((data) => {
+                              if (data && data.Success) {
+                                PromesaResolve(data.Data)
+                              } else {
+                                Swal.close();
+                                this.estadoDescarga = false;
+                                Swal.fire({
+                                  title:
+                                    'Error al intentar obtener los planes de acción',
+                                  icon: 'error',
+                                  text: 'Ingresa más tarde',
+                                  showConfirmButton: false,
+                                  timer: 2500,
+                                });
+                                PromesaReject();
+                              }
+                            }, (error) => {
                               Swal.close();
                               this.estadoDescarga = false;
-                              this.planes = [];
-                              Swal.fire({
-                                title:
-                                  'Error al intentar obtener los planes de acción',
-                                icon: 'error',
-                                text: 'Ingresa más tarde',
-                                showConfirmButton: false,
-                                timer: 2500,
-                              });
-                              reject();
-                            }
-                          }, (error) => {
-                              Swal.close();
-                              this.estadoDescarga = false;
-                              this.planes = [];
                               console.error(error);
                               Swal.fire({
                                 title:
@@ -243,10 +221,46 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                                 showConfirmButton: false,
                                 timer: 2500,
                               });
-                              reject();
+                              PromesaReject();
                             }
-                          );
+                            );
+                          }));
                         }
+                        Promise.all(promesas).then(resultados => {
+                          let resultadoPlanes = [];
+
+                          if (resultados.length != 0) {
+                            for(let i = 0; i < resultados.length;i++){
+                              let resultado = [];
+                              resultado = resultados[i].filter(plan => plan.fase === "Seguimiento");
+                              resultadoPlanes = [...resultadoPlanes, ...resultado];
+                            }
+                            this.planes = resultadoPlanes;
+                            resolve(this.planes);
+                            Swal.close();
+                          } else {
+                            this.estadoDescarga = false;
+                            Swal.close();
+                            Swal.fire({
+                              title: 'No existen registros',
+                              icon: 'info',
+                              text: 'No existen proyectos con registros en fase de seguimiento asociados a la unidad seleccionada',
+                              showConfirmButton: true,
+                            });
+                          }
+                        }).catch(error => {
+                          Swal.fire({
+                            title:
+                              'Error al intentar obtener los planes de acción',
+                            icon: 'error',
+                            text: 'Ingresa más tarde',
+                            showConfirmButton: false,
+                            timer: 2500,
+                          });
+                          console.error('Ocurrió un error:', error);
+                          reject()
+                        })
+                        
                       }
                     },
                     (error) => {
