@@ -178,34 +178,37 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
                           timer: 2500,
                         });
                       } else {
-                        idDependencia = data.Data['DependenciaId'];
-                        this.request
-                          .get(
-                            environment.PLANES_MID,
-                            `planes_accion/${idDependencia}`
-                          )
-                          .subscribe(
-                            (data) => {
-                              const allData = data.Data;
-                              this.planes = allData.filter(plan => plan.fase === "Formulación");
-                              if (this.planes.length != 0) {
-                                Swal.close();
-                              } else {
-                                Swal.close();
-                                Swal.fire({
-                                  title: 'No existen registros',
-                                  icon: 'info',
-                                  text: 'No hay planes en formulación',
-                                  showConfirmButton: false,
-                                  timer: 2500,
-                                });
-                              }
-                              resolve(this.planes);
-                            },
-                            (error) => {
+                        const vinculaciones = data.Data;
+                        let allData = [];
+                        this.planes = [];
+                        for (let i = 0; i < vinculaciones.length; i++) {
+                          idDependencia = vinculaciones[i].DependenciaId;
+                          this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe((data) => {
+                            if (data && data.Success) {
+                              allData.push(data.Data);
+                              let resultado = [];
+                              setTimeout(() => {
+                                resultado = allData[i].filter(plan => plan.fase === "Formulación");
+                                this.planes = [...this.planes, ...resultado];
+                                if (this.planes.length != 0) {
+                                  Swal.close();
+                                } else {
+                                  Swal.close();
+                                  Swal.fire({
+                                    title: 'No existen registros',
+                                    icon: 'info',
+                                    text: 'No hay planes en formulación',
+                                    showConfirmButton: false,
+                                    timer: 2500,
+                                  });
+                                }
+                                if ((data.Success) && (i == (vinculaciones.length - 1))) {
+                                  resolve(this.planes);
+                                }
+                              }, 1000);
+                            } else {
                               Swal.close();
                               this.planes = [];
-                              console.error(error);
                               Swal.fire({
                                 title:
                                   'Error al intentar obtener los planes de acción',
@@ -216,7 +219,22 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
                               });
                               reject();
                             }
+                          }, (error) => {
+                            Swal.close();
+                            this.planes = [];
+                            console.error(error);
+                            Swal.fire({
+                              title:
+                                'Error al intentar obtener los planes de acción',
+                              icon: 'error',
+                              text: 'Ingresa más tarde',
+                              showConfirmButton: false,
+                              timer: 2500,
+                            });
+                            reject();
+                          }
                           );
+                        }
                       }
                     },
                     (error) => {

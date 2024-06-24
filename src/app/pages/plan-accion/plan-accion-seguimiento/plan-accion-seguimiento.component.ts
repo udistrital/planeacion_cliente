@@ -186,31 +186,50 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                           timer: 2500,
                         });
                       } else {
-                        idDependencia = data.Data['DependenciaId'];
-                        this.request
-                          .get(
-                            environment.PLANES_MID,
-                            `planes_accion/${idDependencia}`
-                          )
-                          .subscribe(
-                            (data) => {
-                              const allData = data.Data;
-                              this.planes = allData.filter(plan => plan.fase === "Seguimiento");
-                              if (this.planes.length != 0) {
-                                Swal.close();
-                              } else {
-                                this.estadoDescarga = false;
-                                Swal.close();
-                                Swal.fire({
-                                  title: 'No existen registros',
-                                  icon: 'info',
-                                  text: 'No existen proyectos con registros en fase de seguimiento asociados a la unidad seleccionada',
-                                  showConfirmButton: true,
-                                });
-                              }
-                              resolve(this.planes);
-                            },
-                            (error) => {
+                        const vinculaciones = data.Data;
+                        let allData = [];
+                        this.planes = [];
+
+                        for (let i = 0; i < vinculaciones.length; i++) {
+                          idDependencia = vinculaciones[i].DependenciaId;
+                          this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe((data) => {
+                            if (data && data.Success) {
+                              allData.push(data.Data);
+                              let resultado = [];
+                              setTimeout(() => {
+                                resultado = allData[i].filter(plan => plan.fase === "Seguimiento");
+                                this.planes = [...this.planes, ...resultado];
+                                if (this.planes.length != 0) {
+                                  Swal.close();
+                                } else {
+                                  this.estadoDescarga = false;
+                                  Swal.close();
+                                  Swal.fire({
+                                    title: 'No existen registros',
+                                    icon: 'info',
+                                    text: 'No existen proyectos con registros en fase de seguimiento asociados a la unidad seleccionada',
+                                    showConfirmButton: true,
+                                  });
+                                }
+                                if((data.Success) && (i == (vinculaciones.length - 1))){
+                                  resolve(this.planes);
+                                }
+                              },1000);
+                            } else {
+                              Swal.close();
+                              this.estadoDescarga = false;
+                              this.planes = [];
+                              Swal.fire({
+                                title:
+                                  'Error al intentar obtener los planes de acción',
+                                icon: 'error',
+                                text: 'Ingresa más tarde',
+                                showConfirmButton: false,
+                                timer: 2500,
+                              });
+                              reject();
+                            }
+                          }, (error) => {
                               Swal.close();
                               this.estadoDescarga = false;
                               this.planes = [];
@@ -226,6 +245,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                               reject();
                             }
                           );
+                        }
                       }
                     },
                     (error) => {
