@@ -206,21 +206,25 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
-            .subscribe((vinculacion: any) => {
-              if (vinculacion["Data"] != "") {
-                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
-                  if (dataUnidad) {
-                    let unidad = dataUnidad[0]["DependenciaId"]
-                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
-                    for (let i = 0; i < dataUnidad.length; i++) {
-                      if (dataUnidad[i]["TipoDependenciaId"]["Id"] === 2) {
-                        unidad["TipoDependencia"] = dataUnidad[i]["TipoDependenciaId"]["Id"]
+            .subscribe((vinculaciones: any) => {
+              if (vinculaciones["Data"] != "") {
+                const vinculacion = vinculaciones.Data;
+
+                for(let i = 0;i < vinculaciones.Data.length; i++){
+                  this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion[i].DependenciaId).subscribe((dataUnidad: any) => {
+                    if (dataUnidad) {
+                      let unidad = dataUnidad[0]["DependenciaId"]
+                      unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+                      for (let i = 0; i < dataUnidad.length; i++) {
+                        if (dataUnidad[i]["TipoDependenciaId"]["Id"] === 2) {
+                          unidad["TipoDependencia"] = dataUnidad[i]["TipoDependenciaId"]["Id"]
+                        }
                       }
+                      this.auxUnidades.push(unidad);
+                      this.unidad = unidad
                     }
-                    this.auxUnidades.push(unidad);
-                    this.unidad = unidad
-                  }
-                })
+                  })
+                }
               } else {
                 Swal.fire({
                   title: 'Error en la operación',
