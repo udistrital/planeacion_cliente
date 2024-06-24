@@ -215,7 +215,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                                 if((data.Success) && (i == (vinculaciones.length - 1))){
                                   resolve(this.planes);
                                 }
-                              },1000);
+                              },5000);
                             } else {
                               Swal.close();
                               this.estadoDescarga = false;
