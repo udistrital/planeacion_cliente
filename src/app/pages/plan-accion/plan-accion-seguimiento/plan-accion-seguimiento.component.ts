@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { RequestManager } from '../../services/requestManager';
@@ -35,6 +35,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
   rol: string;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild('root', { static: false }) root: ElementRef;
 
   constructor(
     private request: RequestManager,
@@ -77,7 +78,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.inputsFiltros = document.querySelectorAll('th.mat-header-cell input');
+    this.inputsFiltros = this.root.nativeElement.querySelectorAll('th.mat-header-cell input');
   }
 
   aplicarFiltro(event: Event): void {
@@ -192,7 +193,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                         for (let i = 0; i < vinculaciones.length; i++) {
                           promesas.push(new Promise((PromesaResolve, PromesaReject) => {
                             idDependencia = vinculaciones[i].DependenciaId;
-                            
+
                             this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe((data) => {
                               if (data && data.Success) {
                                 PromesaResolve(data.Data)
@@ -230,7 +231,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                           let resultadoPlanes = [];
 
                           if (resultados.length != 0) {
-                            for(let i = 0; i < resultados.length;i++){
+                            for (let i = 0; i < resultados.length; i++) {
                               let resultado = [];
                               resultado = resultados[i].filter(plan => plan.fase === "Seguimiento");
                               resultadoPlanes = [...resultadoPlanes, ...resultado];
@@ -260,7 +261,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
                           console.error('Ocurrió un error:', error);
                           reject()
                         })
-                        
+
                       }
                     },
                     (error) => {
