@@ -93,6 +93,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   private miObservableSubscription: Subscription;
   private routeSubscription: Subscription;
   pendienteCheck: boolean;
+  fromUrl: boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -186,6 +187,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         vigencia_id != undefined &&
         nombre != undefined
       ) {
+        this.fromUrl = true;
         await this.cargarPlan({
           dependencia_id,
           vigencia_id,
@@ -204,7 +206,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
     }
-    window.location.reload();
+    if (this.fromUrl) {
+      window.location.reload();
+    }
   }
 
   applyFilter(event: Event) {
