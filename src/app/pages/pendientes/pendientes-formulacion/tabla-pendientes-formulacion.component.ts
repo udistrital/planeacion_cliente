@@ -104,11 +104,11 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
       });
       return filtrosPasados === valoresAComparar.length;
     };
+    this.informacionTabla.paginator = this.paginator;
   }
 
   ngAfterViewInit(): void {
     this.inputsFiltros = document.querySelectorAll('th.mat-header-cell input');
-    this.informacionTabla.paginator = this.paginator;
   }
 
   aplicarFiltro(event: any): void {
