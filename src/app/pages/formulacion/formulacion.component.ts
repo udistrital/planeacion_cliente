@@ -91,6 +91,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   formSelect: FormGroup;
   form: FormGroup;
   private miObservableSubscription: Subscription;
+  private routeSubscription: Subscription;
   pendienteCheck: boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -175,7 +176,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       }
     });
     // dependencia_id, vigencia_id, nombre, version
-    this.activatedRoute.params.subscribe(async (prm) => {
+    this.routeSubscription = this.activatedRoute.params.subscribe(async (prm) => {
       let dependencia_id = prm['dependencia_id'];
       let vigencia_id = prm['vigencia_id'];
       let nombre = prm['nombre'];
@@ -200,6 +201,10 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       this.verificarFormulario.cleanFormData();
       this.miObservableSubscription.unsubscribe();
     }
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
+    window.location.reload();
   }
 
   applyFilter(event: Event) {
