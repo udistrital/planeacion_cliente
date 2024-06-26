@@ -107,7 +107,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private verificarFormulario: VerificarFormulario,
     private codigosService: CodigosService
   ) {
-  this.loadPeriodos();
+    this.loadPeriodos();
     this.formArmonizacion = this.formBuilder.group({
       selectPED: ['',],
       selectPI: ['',]
@@ -130,6 +130,23 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.moduloVisible = false;
     this.isChecked = true;
     this.pendienteCheck = false;
+
+    let roles: any = this.autenticationService.getRole();
+    
+    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION';
+    } else if (roles.__zone_symbol__value.find((x) => x == 'ASISTENTE_PLANEACION')) {
+      this.rol = 'ASISTENTE_PLANEACION';
+    } else if (
+      roles.__zone_symbol__value.find((x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')){
+      this.rol = 'JEFE_DEPENDENCIA';
+    }
+
+    if(this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
+      await this.loadUnidades();
+    }else if (this.rol == 'JEFE_DEPENDENCIA') {
+      await this.validarUnidad();
+    }
   }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -148,22 +165,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.ID_ESTADO_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
     this.ID_ESTADO_AJUSTE_PRESUPUESTAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP');
     this.ID_ESTADO_REVISION_VERIFICADA = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
-    let roles: any = this.autenticationService.getRole();
-    
-    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
-      this.rol = 'PLANEACION';
-    } else if (roles.__zone_symbol__value.find((x) => x == 'ASISTENTE_PLANEACION')) {
-      this.rol = 'ASISTENTE_PLANEACION';
-    } else if (
-      roles.__zone_symbol__value.find((x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')){
-      this.rol = 'JEFE_DEPENDENCIA';
-    }
-
-    if(this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
-      await this.loadUnidades();
-    }else if (this.rol == 'JEFE_DEPENDENCIA') {
-      await this.validarUnidad();
-    }
 
     this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
       if (formData.length !== 0) {
