@@ -104,11 +104,11 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
       });
       return filtrosPasados === valoresAComparar.length;
     };
+    this.informacionTabla.paginator = this.paginator;
   }
 
   ngAfterViewInit(): void {
     this.inputsFiltros = document.querySelectorAll('th.mat-header-cell input');
-    this.informacionTabla.paginator = this.paginator;
   }
 
   aplicarFiltro(event: any): void {
@@ -210,7 +210,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
               if (vinculaciones["Data"] != "") {
                 const vinculacion = vinculaciones.Data;
 
-                for(let i = 0;i < vinculaciones.Data.length; i++){
+                for (let i = 0; i < vinculaciones.Data.length; i++) {
                   this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion[i].DependenciaId).subscribe((dataUnidad: any) => {
                     if (dataUnidad) {
                       let unidad = dataUnidad[0]["DependenciaId"]
@@ -243,7 +243,8 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
   consultarPlan(plan) {
     const vigencia = this.vigencias.filter(vig => vig.Year === plan.vigencia)
     const auxPlan = this.planes.filter(pl => pl.nombre === plan.nombre)
-    this.verificarFormulario.setFormData(auxPlan[0], vigencia[0], this.unidad);
+    const unidad = this.auxUnidades.filter(und => und.Nombre === plan.dependencia_nombre)
+    this.verificarFormulario.setFormData(auxPlan[0], vigencia[0], unidad[0]);
     this.router.navigate(['pages/formulacion']);
   }
 

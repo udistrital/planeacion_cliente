@@ -91,7 +91,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   formSelect: FormGroup;
   form: FormGroup;
   private miObservableSubscription: Subscription;
+  private routeSubscription: Subscription;
   pendienteCheck: boolean;
+  fromUrl: boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -107,7 +109,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private verificarFormulario: VerificarFormulario,
     private codigosService: CodigosService
   ) {
-  this.loadPeriodos();
+    this.loadPeriodos();
     this.formArmonizacion = this.formBuilder.group({
       selectPED: ['',],
       selectPI: ['',]
@@ -130,6 +132,23 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.moduloVisible = false;
     this.isChecked = true;
     this.pendienteCheck = false;
+
+    let roles: any = this.autenticationService.getRole();
+    
+    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION';
+    } else if (roles.__zone_symbol__value.find((x) => x == 'ASISTENTE_PLANEACION')) {
+      this.rol = 'ASISTENTE_PLANEACION';
+    } else if (
+      roles.__zone_symbol__value.find((x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')){
+      this.rol = 'JEFE_DEPENDENCIA';
+    }
+
+    if(this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
+      this.loadUnidades();
+    }else if (this.rol == 'JEFE_DEPENDENCIA') {
+      this.validarUnidad();
+    }
   }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -148,22 +167,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.ID_ESTADO_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
     this.ID_ESTADO_AJUSTE_PRESUPUESTAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP');
     this.ID_ESTADO_REVISION_VERIFICADA = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
-    let roles: any = this.autenticationService.getRole();
-    
-    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
-      this.rol = 'PLANEACION';
-    } else if (roles.__zone_symbol__value.find((x) => x == 'ASISTENTE_PLANEACION')) {
-      this.rol = 'ASISTENTE_PLANEACION';
-    } else if (
-      roles.__zone_symbol__value.find((x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')){
-      this.rol = 'JEFE_DEPENDENCIA';
-    }
-
-    if(this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
-      await this.loadUnidades();
-    }else if (this.rol == 'JEFE_DEPENDENCIA') {
-      await this.validarUnidad();
-    }
 
     this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
       if (formData.length !== 0) {
@@ -174,7 +177,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       }
     });
     // dependencia_id, vigencia_id, nombre, version
-    this.activatedRoute.params.subscribe(async (prm) => {
+    this.routeSubscription = this.activatedRoute.params.subscribe(async (prm) => {
       let dependencia_id = prm['dependencia_id'];
       let vigencia_id = prm['vigencia_id'];
       let nombre = prm['nombre'];
@@ -184,6 +187,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         vigencia_id != undefined &&
         nombre != undefined
       ) {
+        this.fromUrl = true;
         await this.cargarPlan({
           dependencia_id,
           vigencia_id,
@@ -198,6 +202,12 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     if (this.verificarFormulario.formData$) {
       this.verificarFormulario.cleanFormData();
       this.miObservableSubscription.unsubscribe();
+    }
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
+    if (this.fromUrl) {
+      window.location.reload();
     }
   }
 
