@@ -143,9 +143,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     }
 
     if(this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
-      await this.loadUnidades();
+      this.loadUnidades();
     }else if (this.rol == 'JEFE_DEPENDENCIA') {
-      await this.validarUnidad();
+      this.validarUnidad();
     }
   }
 
