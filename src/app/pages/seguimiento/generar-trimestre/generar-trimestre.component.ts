@@ -1,21 +1,18 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Location, registerLocaleData } from '@angular/common';
+import es from '@angular/common/locales/es';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatDialog } from '@angular/material/dialog';
-import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RequestManager } from '../../services/requestManager';
-import { Notificaciones } from "../../services/notificaciones";
+import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
-import { Location, registerLocaleData } from '@angular/common';
-import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
+import { Notificaciones } from "../../services/notificaciones";
+import { RequestManager } from '../../services/requestManager';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
-import es from '@angular/common/locales/es';
-import * as bigInt from 'big-integer';
-
-
 
 export interface Indicador {
   nombre: string;
@@ -86,7 +83,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   estados: any[];
   readonlyFormulario: boolean;
   readonlyObservacion: boolean;
-  denominadorFijo: boolean;
   unidad: string;
   vigencia: any;
   numeradorOriginal: number[] = [];
@@ -885,24 +881,22 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   calcularResultado() {
     for (let index = 0; index < this.datosIndicadores.length; index++) {
       const indicador = this.datosIndicadores[index];
-  
+
       if (indicador.reporteDenominador != null && indicador.reporteNumerador != null) {
         let denominador = parseFloat(indicador.reporteDenominador);
         let numerador = parseFloat(indicador.reporteNumerador);
         const meta = parseFloat(this.datosIndicadores[index].meta);
         this.calcular = false;
-  
+
         if (denominador == 0.0 && numerador == 0.0) {
           denominador = 100;
           numerador = 100;
           this.datosResultados[index].indicadorAcumulado = 1;
-          this.datosResultados[index].acumuladoNumerador = this.datosResultados[index].acumuladoNumerador;
-          this.datosResultados[index].acumuladoDenominador =  this.datosResultados[index].acumuladoDenominador;
           this.datosResultados[index].indicador = numerador / denominador;
           var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
           var metaEvaluada = meta / 100;
           this.datosResultados[index].avanceAcumulado = this.datosResultados[index].indicadorAcumulado / metaEvaluada;
-  
+
           if (indicador.tendencia == "Creciente") {
             if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
               this.datosResultados[index].brechaExistente = 0;
@@ -916,68 +910,10 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
               this.datosResultados[index].brechaExistente = indicadorAcumulado - metaEvaluada;
             }
           }
-  
+
           this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
-          continue;
-        }
-  
-        if (denominador == 0.0) {
-          if (numerador == 0.0) {
-            if (indicador.denominador != "Denominador variable") {
-              Swal.fire({
-                title: 'Error en la operación',
-                text: `No es posible la división entre cero para denominador fijo`,
-                icon: 'warning',
-                showConfirmButton: false,
-                timer: 3500
-              })
-              indicador.reporteDenominador = null;
-              indicador.reporteNumerador = null;
-            } else {
-              if (this.trimestreAbr == "T1" || this.datosResultados[index].divisionCero) {
-                this.datosResultados[index].divisionCero = true;
-                this.datosResultados[index].indicadorAcumulado = 1;
-                this.datosResultados[index].acumuladoNumerador = 0;
-                this.datosResultados[index].acumuladoDenominador = this.datosResultados[index].acumuladoDenominador;
-                this.datosResultados[index].indicador = 0;
-                this.numeradorOriginal = [];
-                this.denominadorOriginal = [];
-                this.calcular = true;
-  
-                var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
-                var metaEvaluada = meta / 100;
-  
-                this.datosResultados[index].avanceAcumulado = this.datosResultados[index].indicadorAcumulado / metaEvaluada;
-  
-                if (indicador.tendencia == "Creciente") {
-                  if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
-                    this.datosResultados[index].brechaExistente = 0;
-                  } else {
-                    this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
-                  }
-                } else {
-                  if (this.datosResultados[index].indicadorAcumulado < metaEvaluada) {
-                    this.datosResultados[index].brechaExistente = 0;
-                  } else {
-                    this.datosResultados[index].brechaExistente = indicadorAcumulado - metaEvaluada;
-                  }
-                }
-                this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
-              } else {
-                this.calcularBase(indicador, denominador, numerador, meta, index, true)
-              }
-            }
-          } else {
-            Swal.fire({
-              title: 'Error en la operación',
-              text: `No es posible la división entre cero`,
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 3500
-            })
-          }
         } else {
-          if (this.trimestreAbr == "T1") {
+          if (this.trimestreAbr == 'T1') {
             this.datosResultados[index].indicadorAcumulado = 0;
             this.datosResultados[index].acumuladoNumerador = 0;
             this.datosResultados[index].acumuladoDenominador = 0;
@@ -988,7 +924,14 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             this.denominadorOriginal = [];
             this.calcular = true;
           }
-          this.calcularBase(indicador, denominador, numerador, meta, index, false)
+          this.calcularBase(
+            indicador,
+            denominador,
+            numerador,
+            meta,
+            index,
+            false
+          );
         }
       } else {
         Swal.fire({
@@ -1001,18 +944,17 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
     }
   }
-  
 
-  calcularBase(indicador, denominador, numerador, meta, index, ceros) {
+  calcularBase(indicador:any, denominador: number, numerador: number, meta:number, index:number, ceros:boolean) {
     this.datosResultados[index].divisionCero = false;
-    this.denominadorFijo = indicador.denominador != "Denominador variable"
+    let esDenominadorFijo = indicador.denominador === "Denominador fijo"
     if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
       this.datosIndicadores[index].reporteDenominador = denominador;
       this.datosIndicadores[index].reporteNumerador = numerador;
 
       if (!this.calcular) {
         this.datosResultados[index].acumuladoNumerador -= this.numeradorOriginal[index];
-        if (!this.denominadorFijo) {
+        if (!esDenominadorFijo) {
           this.datosResultados[index].acumuladoDenominador -= this.denominadorOriginal[index];
         }
         this.datosResultados[index].indicadorAcumulado -= this.datosResultados[index].indicador;
@@ -1020,64 +962,62 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
 
       this.datosResultados[index].acumuladoNumerador += numerador;
-      if (!this.denominadorFijo) {
-        this.datosResultados[index].acumuladoDenominador += denominador;
-      } else {
+      if (esDenominadorFijo) {
         this.datosResultados[index].acumuladoDenominador = denominador;
+      } else {
+        this.datosResultados[index].acumuladoDenominador += denominador;
       }
 
-      if (denominador != 0) {
+      if (this.datosResultados[index].divisionCero && ceros) {
+        this.datosResultados[index].indicador = 0;
+      } else if (denominador != 0) {
+        let auxiliarDenominador = numerador / denominador;
         if (this.datosIndicadores[index].unidad == "Unidad") {
-          this.datosResultados[index].indicador = Math.round((numerador / denominador));
+          this.datosResultados[index].indicador = Math.round(auxiliarDenominador);
         } else {
-          this.datosResultados[index].indicador = Math.round((numerador / denominador) * 10000) / 10000;
+          this.datosResultados[index].indicador = Math.round(auxiliarDenominador * 10_000) / 10_000;
         }
       } else {
         this.datosResultados[index].indicador = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
       }
 
-      if (this.datosResultados[index].divisionCero && ceros) {
-        this.datosResultados[index].indicador = 0;
-      }
-
       if (this.datosResultados[index].acumuladoDenominador != 0) {
-        if (this.datosIndicadores[index].unidad == "Unidad") {
-          this.datosResultados[index].indicadorAcumulado = Math.round(this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador * 100) / 100;
+        let auxiliarIndicadorAcumulado = this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador
+        if (this.datosIndicadores[index].unidad == 'Unidad') {
+          this.datosResultados[index].indicadorAcumulado =
+            Math.round(auxiliarIndicadorAcumulado * 100) / 100;
         } else {
-          this.datosResultados[index].indicadorAcumulado = Math.round((this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador) * 10000) / 10000;
+          this.datosResultados[index].indicadorAcumulado =
+            Math.round(auxiliarIndicadorAcumulado * 10_000) / 10_000;
         }
       } else {
-        this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
+        this.datosResultados[index].indicadorAcumulado =
+          this.datosIndicadores[index].unidad == 'Unidad' ? meta : meta / 100;
       }
 
-      var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
-      var metaEvaluada = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
+      let indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+      let auxiliarMeta = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
+      // Las multiplicaciones y divisiones por mil o 10 mil son para formatear los datos a una cantidad de decimales fijos
       if (indicador.tendencia == "Creciente") {
-        if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
-          this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 1000) / 1000;
-        } else {
-          this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 10000) / 10000;
-        }
+        this.datosResultados[index].avanceAcumulado =
+          this.datosIndicadores[index].unidad == 'Unidad' ||
+          this.datosIndicadores[index].unidad == 'Tasa'
+            ? Math.round((indicadorAcumulado / auxiliarMeta) * 1_000) / 1_000
+            : Math.round((indicadorAcumulado / auxiliarMeta) * 10_000) / 10_000;
+        this.datosResultados[index].brechaExistente =
+          indicadorAcumulado > auxiliarMeta
+            ? 0
+            : Math.round((auxiliarMeta - indicadorAcumulado) * 10_000) / 10_000;
       } else if (indicador.tendencia == "Decreciente") {
-        if (indicadorAcumulado < metaEvaluada) {
-          this.datosResultados[index].avanceAcumulado = Math.round((1 + ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
-        } else {
-          this.datosResultados[index].avanceAcumulado = Math.round((1 - ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
-        }
-      }
-
-      if (indicador.tendencia == "Creciente") {
-        if (indicadorAcumulado > metaEvaluada) {
-          this.datosResultados[index].brechaExistente = 0;
-        } else {
-          this.datosResultados[index].brechaExistente = Math.round((metaEvaluada - indicadorAcumulado) * 10000) / 10000;
-        }
-      } else if (indicador.tendencia == "Decreciente") {
-        if (indicadorAcumulado < metaEvaluada) {
-          this.datosResultados[index].brechaExistente = 0;
-        } else {
-          this.datosResultados[index].brechaExistente = Math.round((indicadorAcumulado - metaEvaluada) * 10000) / 10000;
-        }
+        let auxiliarAvance = (auxiliarMeta - indicadorAcumulado) / auxiliarMeta;
+        this.datosResultados[index].avanceAcumulado =
+          Math.round(
+            (1 + (indicadorAcumulado < auxiliarMeta ? auxiliarAvance : -auxiliarAvance) ) * 10_000
+          ) / 10_000;
+        this.datosResultados[index].brechaExistente =
+          indicadorAcumulado < auxiliarMeta
+            ? 0
+            : Math.round((indicadorAcumulado - auxiliarMeta) * 10_000) / 10_000;
       }
       this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
     }
