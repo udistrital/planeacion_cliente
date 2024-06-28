@@ -148,7 +148,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
         //Lógica filtro
         const filteredData = []
         this.trimestreEstado.map((plan) => {
-          const auxFilter = plan.filter(pl => pl["estado_seguimiento_id"]["codigo_abreviacion"] === "ER")
+          const auxFilter = plan.filter(pl => pl["estado_seguimiento_id"]["codigo_abreviacion"] === "RJU")
           if (auxFilter.length != 0) {
             for (let i = 0; i < auxFilter.length; i++) {
               auxFilter[i]["plan_id"]["dependencia_nombre"] = event.value
@@ -198,7 +198,7 @@ export class TablaPendientesSeguimientoComponent implements OnInit, AfterViewIni
               if (vinculaciones["Data"] != "") {
                 const vinculacion = vinculaciones.Data;
 
-                for(let i = 0;i < vinculaciones.Data.length; i++){
+                for (let i = 0; i < vinculaciones.Data.length; i++) {
                   this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion[i].DependenciaId).subscribe((dataUnidad: any) => {
                     if (dataUnidad) {
                       let unidad = dataUnidad[0]["DependenciaId"]
