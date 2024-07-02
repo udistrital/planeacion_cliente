@@ -2,7 +2,7 @@ export const environment = {
     production: true,
     entorno: 'test',
     autenticacion: true,
-    notificaciones: true,
+    notificaciones: false,
     menuApps: true,
     appname: 'PLANEACION',
     appMenu: 'PLANEACION',
