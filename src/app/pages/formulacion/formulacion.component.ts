@@ -331,33 +331,34 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         this.request
           .get(
             environment.TERCEROS_SERVICE,
-            `datos_identificacion/?query=Numero:` +
-              data['userService']['documento']
+            `datos_identificacion/?query=Numero:` + data['userService']['documento']
           )
           .subscribe((datosInfoTercero: any) => {
             this.request
               .get(
                 environment.PLANES_MID,
-                `formulacion/vinculacion_tercero/` +
-                  datosInfoTercero[0].TerceroId.Id
+                `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id
               )
               .subscribe((vinculacion: any) => {
                 if (vinculacion['Data'] != '') {
                   let vinculaciones: any[] = vinculacion['Data'];
-                  vinculaciones.forEach(vinculacion => {
-                    this.request
+                  
+                  // Procesar la última vinculación
+                  let ultimaVinculacion = vinculaciones[vinculaciones.length - 1];
+  
+                  this.request
                     .get(
                       environment.OIKOS_SERVICE,
-                      `dependencia_tipo_dependencia?query=DependenciaId:` +
-                      vinculacion['DependenciaId']
+                      `dependencia_tipo_dependencia?query=DependenciaId:` + ultimaVinculacion['DependenciaId']
                     )
                     .subscribe((dataUnidad: any) => {
                       if (dataUnidad) {
-                        let unidadesOrdenadas = (dataUnidad as any[]).sort((a:any, b:any) => {
-                          let fechaA =  new Date(a ['DependenciaId']['FechaModificacion'])
-                          let fechaB = new Date(b['DependenciaId']['FechaModificacion'])
-                          return fechaA.getTime() - fechaB.getTime()
+                        let unidadesOrdenadas = (dataUnidad as any[]).sort((a: any, b: any) => {
+                          let fechaA = new Date(a['DependenciaId']['FechaModificacion']);
+                          let fechaB = new Date(b['DependenciaId']['FechaModificacion']);
+                          return fechaA.getTime() - fechaB.getTime();
                         });
+  
                         // TODO: verificar que las unidades vienen organizadas de mayor a menor por Fecha de Modificación
                         let unidad = unidadesOrdenadas[0]['DependenciaId'];
                         unidad['TipoDependencia'] = unidadesOrdenadas[0]['TipoDependenciaId']['Id'];
@@ -371,10 +372,9 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                         this.formSelect.get('selectUnidad').setValue(unidad);
                         this.onChangeU(unidad);
                         this.moduloVisible = true;
+                        resolve(true);
                       }
                     });
-                  });
-                  resolve(true);
                 } else {
                   this.moduloVisible = false;
                   Swal.fire({
@@ -391,6 +391,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       });
     });
   }
+  
+  
 
   async loadUnidades() {
     return new Promise((resolve, reject) => {
