@@ -49,20 +49,21 @@
         </mat-form-field>
       </ng-container>
     </form>
-  </mat-card-content>
-  <mat-card-footer *ngIf="clonar && moduloVisible" style="text-align: center;">
-    <mat-card-content>
-      <u class="textGuide">
-        Seleccione el siguiente botón para iniciar con la formulación
-      </u>
     </mat-card-content>
-    <ng-container>
-      <button mat-raised-button color="primary" (click)="formularPlan()">
-        Formular plan
-      </button>
-    </ng-container>
-    <br><br>
-  </mat-card-footer>
+    <mat-card-footer *ngIf="clonar && moduloVisible" style="text-align: center;">
+      <mat-card-content>
+        <u class="textGuide">
+          Seleccione el siguiente botón para iniciar con la formulación
+        </u>
+      </mat-card-content>
+      <ng-container>
+        <button mat-raised-button color="primary" (click)="formularPlan()" [disabled]="!unidadValida">
+          Formular plan
+        </button>
+      </ng-container>
+      <br><br>
+    </mat-card-footer>
+    
 </mat-card>
 
 <br><br>

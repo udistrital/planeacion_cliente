@@ -98,6 +98,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   codigo_abreviacion: any;
+  unidadValida: boolean;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -325,56 +326,61 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     }
   }
 
+  ultimaVinculacion: any = null;
+  
+  // Función para llenar el select de unidades
   async validarUnidad() {
     return await new Promise((resolve, reject) => {
       this.userService.user$.subscribe((data) => {
         this.request
           .get(
             environment.TERCEROS_SERVICE,
-            `datos_identificacion/?query=Numero:` + data['userService']['documento']
+            `datos_identificacion/?query=Numero:` +
+            data['userService']['documento']
           )
           .subscribe((datosInfoTercero: any) => {
             this.request
               .get(
                 environment.PLANES_MID,
-                `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id
+                `formulacion/vinculacion_tercero/` +
+                datosInfoTercero[0].TerceroId.Id
               )
               .subscribe((vinculacion: any) => {
                 if (vinculacion['Data'] != '') {
                   let vinculaciones: any[] = vinculacion['Data'];
-                  
                   // Procesar la última vinculación
                   let ultimaVinculacion = vinculaciones[vinculaciones.length - 1];
-  
-                  this.request
-                    .get(
-                      environment.OIKOS_SERVICE,
-                      `dependencia_tipo_dependencia?query=DependenciaId:` + ultimaVinculacion['DependenciaId']
-                    )
-                    .subscribe((dataUnidad: any) => {
-                      if (dataUnidad) {
-                        let unidadesOrdenadas = (dataUnidad as any[]).sort((a: any, b: any) => {
-                          let fechaA = new Date(a['DependenciaId']['FechaModificacion']);
-                          let fechaB = new Date(b['DependenciaId']['FechaModificacion']);
-                          return fechaA.getTime() - fechaB.getTime();
-                        });
-  
-                        // TODO: verificar que las unidades vienen organizadas de mayor a menor por Fecha de Modificación
-                        let unidad = unidadesOrdenadas[0]['DependenciaId'];
-                        unidad['TipoDependencia'] = unidadesOrdenadas[0]['TipoDependenciaId']['Id'];
-                        for (let i = 0; i < dataUnidad.length; i++) {
-                          if (dataUnidad[i]['TipoDependenciaId']['Id'] === 2) {
-                            unidad['TipoDependencia'] = dataUnidad[i]['TipoDependenciaId']['Id'];
+                  vinculaciones.forEach(vinculacion => {
+                    this.request
+                      .get(
+                        environment.OIKOS_SERVICE,
+                        `dependencia_tipo_dependencia?query=DependenciaId:` +
+                        vinculacion['DependenciaId']
+                      )
+                      .subscribe((dataUnidad: any) => {
+                        if (dataUnidad) {
+                          let unidadesOrdenadas = (dataUnidad as any[]).sort((a: any, b: any) => {
+                            let fechaA = new Date(a['DependenciaId']['FechaModificacion'])
+                            let fechaB = new Date(b['DependenciaId']['FechaModificacion'])
+                            return fechaB.getTime() - fechaA.getTime(); // Orden descendente
+                          });
+                          let unidad = unidadesOrdenadas[0]['DependenciaId'];
+                          unidad['TipoDependencia'] = unidadesOrdenadas[0]['TipoDependenciaId']['Id'];
+                          for (let i = 0; i < dataUnidad.length; i++) {
+                            if (dataUnidad[i]['TipoDependenciaId']['Id'] === 2) {
+                              unidad['TipoDependencia'] = dataUnidad[i]['TipoDependenciaId']['Id'];
+                            }
                           }
+                          this.unidades.push(unidad);
+                          this.auxUnidades.push(unidad);
+                          this.ultimaVinculacion = ultimaVinculacion.DependenciaId;
+                          this.formSelect.get('selectUnidad').setValue(unidad);
+                          this.onChangeU(unidad);
+                          this.moduloVisible = true;
                         }
-                        this.unidades.push(unidad);
-                        this.auxUnidades.push(unidad);
-                        this.formSelect.get('selectUnidad').setValue(unidad);
-                        this.onChangeU(unidad);
-                        this.moduloVisible = true;
-                        resolve(true);
-                      }
-                    });
+                      });
+                  });
+                  resolve(true);
                 } else {
                   this.moduloVisible = false;
                   Swal.fire({
@@ -392,6 +398,73 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     });
   }
   
+  // Función para manejar el cambio de unidad
+async onChangeU(unidad) {
+  if (unidad == undefined) {
+    this.unidadSelected = false;
+    this.unidadValida = false;
+  } else {
+    this.unidadSelected = true;
+    this.unidad = unidad;
+    this.addActividad = false;
+    this.identRecursos = false;
+    this.identContratistas = false;
+    this.banderaIdentDocentes = this.mostrarIdentDocente(unidad);
+    this.estadoPlan = '';
+    this.iconEstado = '';
+    this.versionPlan = '';
+    // Verificar si la unidad seleccionada es la última vinculación
+
+    if (this.unidad.Id === this.ultimaVinculacion) {
+      this.unidadValida = true;
+    } else {
+      this.unidadValida = false;
+    }
+    if (this.vigenciaSelected && this.planSelected) {
+      await this.busquedaPlanes(this.planAux);
+    } else if (this.vigenciaSelected) {
+      await this.loadPlanes();
+    }
+  }
+}
+  
+  // Función para formular el plan
+  formularPlan() {
+    Swal.fire({
+      title: 'Formulando plan...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+    let parametros = {
+      "dependencia_id": String(this.unidad.Id),
+      "vigencia": String(this.vigencia.Id)
+    }
+    this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/` + this.plan._id, parametros).subscribe((data: any) => {
+      if (data) {
+        this.plan = data.Data;
+        this.codigoNotificacion = "F"; // NOTIFICACION(F)
+        Swal.fire({
+          title: 'Formulación nuevo plan',
+          text: `Plan creado satisfactoriamente`,
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 4000
+        })
+        this.getVersiones(this.plan, true);
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error en la operación',
+        icon: 'error',
+        text: `${JSON.stringify(error)}`,
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
   
 
   async loadUnidades() {
@@ -694,26 +767,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onChangeU(unidad) {
-    if (unidad == undefined) {
-      this.unidadSelected = false;
-    } else {
-      this.unidadSelected = true;
-      this.unidad = unidad;
-      this.addActividad = false;
-      this.identRecursos = false;
-      this.identContratistas = false;
-      this.banderaIdentDocentes = this.mostrarIdentDocente(unidad);
-      this.estadoPlan = '';
-      this.iconEstado = '';
-      this.versionPlan = '';
-      if (this.vigenciaSelected && this.planSelected) {
-        await this.busquedaPlanes(this.planAux);
-      } else if (this.vigenciaSelected) {
-        await this.loadPlanes();
-      }
-    }
-  }
   // this.mostrarIdentDocente(unidad.DependenciaTipoDependencia)
   mostrarIdentDocente(unidad: any): boolean {
     if (unidad.Id === 67 || unidad.TipoDependencia.Id === 2 || unidad.TipoDependencia === 2) {
@@ -1430,47 +1483,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     })
   }
 
-  formularPlan() {
-    Swal.fire({
-      title: 'Formulando plan...',
-      allowEscapeKey: false,
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-    let parametros = {
-      "dependencia_id": String(this.unidad.Id),
-      "vigencia": String(this.vigencia.Id)
-    }
-    this.request.post(environment.PLANES_MID, `formulacion/clonar_formato/` + this.plan._id, parametros).subscribe((data: any) => {
-      if (data) {
-        this.plan = data.Data;
-        this.codigoNotificacion = "F"; // NOTIFICACION(F)
-        Swal.fire({
-          title: 'Formulación nuevo plan',
-          text: `Plan creado satisfactoriamente`,
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 4000
-        })
-        // this.clonar = false;
-        // this.planAsignado = true;
-        // //CARGA TABLA
-        // this.loadData();
-        this.getVersiones(this.plan, true);
-
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        icon: 'error',
-        text: `${JSON.stringify(error)}`,
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
-  }
 
   ocultar() {
     Swal.fire({
