@@ -1012,7 +1012,6 @@ async onChangeU(unidad) {
       this.unidad.Id;
       this.unidadValida = this.ultimaVinculacion === this.unidad.Id;
       //validación con bandera para el estado de los datos de los planes.
-      if (this.unidadValida === true) {
       if (this.banderaEstadoDatos === true) {
         this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
           this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe(
@@ -1020,18 +1019,31 @@ async onChangeU(unidad) {
               if (data.Data.length > 0) {
                 this.getVersiones(planB);
               } else if (data.Data.length == 0) {
-                Swal.fire({
-                  title: 'Formulación nuevo plan',
-                  html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
-                    'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
-                    'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
-                    '<i>Deberá formular el plan</i>',
-                  icon: 'warning',
-                  showConfirmButton: false,
-                  timer: 7000
-                })
-                this.clonar = true;
-                this.planAsignado = true;
+                if (this.unidadValida === true) {   
+                  Swal.fire({
+                    title: 'Formulación nuevo plan',
+                    html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
+                      'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
+                      'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
+                      '<i>Deberá formular el plan</i>',
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    timer: 7000
+                  })
+                  this.clonar = true;
+                  this.planAsignado = true;
+                }else {
+                  Swal.fire({
+                    title: 'Formulación desahabilitada',
+                    html: 'La formulación del plan <b>' + planB.nombre + '</b> se encuentra deshabilitada <br>' +
+                      'Porque <b>' + this.unidad.Nombre + '</b> no corresponde a la unidad vigente <br>',
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    timer: 7000
+                  });
+                }
+
+               
               }
             }, (error) => {
               Swal.fire({
@@ -1056,16 +1068,7 @@ async onChangeU(unidad) {
           timer: 7000
         });
       }
-    }else {
-      Swal.fire({
-        title: 'Formulación desahabilitada',
-        html: 'La formulación del plan <b>' + planB.nombre + '</b> se encuentra deshabilitada <br>' +
-          'Porque <b>' + this.unidad.Nombre + '</b> no corresponde a la unidad vigente <br>',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 7000
-      });
-    }
+
     } catch (error) {
       Swal.fire({
         title: 'Error en la operación',
