@@ -413,8 +413,6 @@ async onChangeU(unidad) {
     this.estadoPlan = '';
     this.iconEstado = '';
     this.versionPlan = '';
-    // Verificar si la unidad seleccionada es la última vinculación
-
     if (this.unidad.Id === this.ultimaVinculacion) {
       this.unidadValida = true;
     } else {
@@ -1010,7 +1008,11 @@ async onChangeU(unidad) {
     try {
       // Antes de cargar algún plan, hago la búsqueda del formato si tiene datos y la bandera "banderaEstadoDatos" se vuelve true o false.
       await this.cargaFormato(planB, bandera);
+      this.ultimaVinculacion;
+      this.unidad.Id;
+      this.unidadValida = this.ultimaVinculacion === this.unidad.Id;
       //validación con bandera para el estado de los datos de los planes.
+      if (this.unidadValida === true) {
       if (this.banderaEstadoDatos === true) {
         this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
           this.vigencia.Id + `,formato:false,nombre:` + planB.nombre).subscribe(
@@ -1054,6 +1056,16 @@ async onChangeU(unidad) {
           timer: 7000
         });
       }
+    }else {
+      Swal.fire({
+        title: 'Formulación desahabilitada',
+        html: 'La formulación del plan <b>' + planB.nombre + '</b> se encuentra deshabilitada <br>' +
+          'Porque <b>' + this.unidad.Nombre + '</b> no corresponde a la unidad vigente <br>',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 7000
+      });
+    }
     } catch (error) {
       Swal.fire({
         title: 'Error en la operación',
