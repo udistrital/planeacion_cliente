@@ -232,9 +232,20 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
 
                           if (resultados.length != 0) {
                             for (let i = 0; i < resultados.length; i++) {
-                              let resultado = [];
-                              resultado = resultados[i].filter(plan => plan.fase === "Seguimiento");
-                              resultadoPlanes = [...resultadoPlanes, ...resultado];
+                              let resultadoUnico = [];
+                              const nombresUnidades: { [key: string]: boolean } = {};
+
+                              resultados[i].forEach(plan => {
+                                if (plan.fase === "Seguimiento") {
+                                  const clave = `${plan.nombre}-${plan.unidad}`;
+                                  if (!nombresUnidades[clave]) {
+                                    nombresUnidades[clave] = true;
+                                    resultadoUnico.push(plan);
+                                  }
+                                }
+                              });
+
+                              resultadoPlanes = [...resultadoPlanes, ...resultadoUnico];
                             }
                             this.planes = resultadoPlanes;
                             resolve(this.planes);
