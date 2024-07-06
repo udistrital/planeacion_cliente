@@ -964,7 +964,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   calcularBase(indicador:any, denominador: number, numerador: number, meta:number, index:number, ceros:boolean) {
     this.datosResultados[index].divisionCero = false;
-    let esDenominadorFijo = indicador.denominador === "Denominador fijo"
+    let esDenominadorFijo = indicador.denominador !== "Denominador variable"
     if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
       this.datosIndicadores[index].reporteDenominador = denominador;
       this.datosIndicadores[index].reporteNumerador = numerador;
