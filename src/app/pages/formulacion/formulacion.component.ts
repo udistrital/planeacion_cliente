@@ -422,8 +422,6 @@ async onChangeU(unidad) {
       this.unidadValida = false;
     }
   }
-    console.log("ROL ACTUAL EN EL ONCHENGE:" , this.rol)
-    console.log("unidad valida en onchange:" , this.unidadValida)
     if (this.vigenciaSelected && this.planSelected) {
       await this.busquedaPlanes(this.planAux);
     } else if (this.vigenciaSelected) {
@@ -1017,8 +1015,6 @@ async onChangeU(unidad) {
       this.ultimaVinculacion;
       this.unidad.Id;
       this.unidadValida;
-      console.log("ROL ACTUAL : ", this.rol);
-      console.log("UNIDADVALIDA ACTUAL : ", this.unidadValida);
       //validación con bandera para el estado de los datos de los planes.
       if (this.banderaEstadoDatos === true) {
         this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
