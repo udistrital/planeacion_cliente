@@ -413,11 +413,15 @@ async onChangeU(unidad) {
     this.estadoPlan = '';
     this.iconEstado = '';
     this.versionPlan = '';
-    if (this.unidad.Id === this.ultimaVinculacion) {
+    if ( this.rol === "PLANEACION"){
+      this.unidadValida = true;
+    }else{
+    if (this.unidad.Id === this.ultimaVinculacion ) {
       this.unidadValida = true;
     } else {
       this.unidadValida = false;
     }
+  }
     if (this.vigenciaSelected && this.planSelected) {
       await this.busquedaPlanes(this.planAux);
     } else if (this.vigenciaSelected) {
@@ -1010,7 +1014,7 @@ async onChangeU(unidad) {
       await this.cargaFormato(planB, bandera);
       this.ultimaVinculacion;
       this.unidad.Id;
-      this.unidadValida = this.ultimaVinculacion === this.unidad.Id;
+      this.unidadValida;
       //validación con bandera para el estado de los datos de los planes.
       if (this.banderaEstadoDatos === true) {
         this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidad.Id + `,vigencia:` +
@@ -1019,7 +1023,7 @@ async onChangeU(unidad) {
               if (data.Data.length > 0) {
                 this.getVersiones(planB);
               } else if (data.Data.length == 0) {
-                if (this.unidadValida === true) {   
+                if (this.unidadValida === true || this.rol === "PLANEACION") {   
                   Swal.fire({
                     title: 'Formulación nuevo plan',
                     html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
@@ -1028,7 +1032,7 @@ async onChangeU(unidad) {
                       '<i>Deberá formular el plan</i>',
                     icon: 'warning',
                     showConfirmButton: false,
-                    timer: 7000
+                    timer: 10000
                   })
                   this.clonar = true;
                   this.planAsignado = true;
@@ -1039,7 +1043,7 @@ async onChangeU(unidad) {
                       'Porque <b>' + this.unidad.Nombre + '</b> no corresponde a la unidad vigente <br>',
                     icon: 'warning',
                     showConfirmButton: false,
-                    timer: 7000
+                    timer: 10000
                   });
                 }
 
