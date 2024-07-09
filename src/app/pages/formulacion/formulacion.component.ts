@@ -2210,8 +2210,6 @@ async onChangeU(unidad) {
       for (var i = 0; i < contenido_actividades.length; i++){
         for (let key in contenido_actividades[i]){
           if (key.slice(-2) == "_o" && (contenido_actividades[i][key] != "" && contenido_actividades[i][key] != "Sin observación")){
-            console.log("ELEMENTOS DE ACTIVIDAD: ", contenido_actividades[i]);
-            console.log("OBSERVACION: ", contenido_actividades[i][key]);
             observaciones = true;
           }
         }
