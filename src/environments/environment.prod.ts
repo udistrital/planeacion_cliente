@@ -2,7 +2,7 @@ export const environment = {
   production: true,
   entorno: 'prod',
   autenticacion: true,
-  notificaciones: false,
+  notificaciones: true,
   menuApps: false,
   appname: 'PLANEACION',
   appMenu: 'PLANEACION',
@@ -25,14 +25,8 @@ export const environment = {
   ASSETS_SERVICE: "https://pruebasassets.portaloas.udistrital.edu.co/",
 
   // Notificaciones
-  NOTIFICACION_MID_SERVICE: "https://autenticacion.portaloas.udistrital.edu.co/apioas/notificacion_mid/v1/",
-  ARN_TOPIC_NOTIFICACIONES: "arn:aws:sns:us-east-1:699001025740:test-Planeacion.fifo",
-  COLAS_NOTIFICACIONES: {
-    PLANEACION: 'JefePlaneacion',
-    JEFE_DEPENDENCIA: 'JefeUnidad',
-    ASISTENTE_DEPENDENCIA: 'AsistenteUnidad',
-    ASISTENTE_PLANEACION: 'AsistentePlaneacion'
-  },
+  NOTIFICACION_WS: "ws://autenticacion.portaloas.udistrital.edu.co/apioas/notificacion_mid/v1/ws",
+  NOTIFICACIONES_CRUD: "https://autenticacion.portaloas.udistrital.edu.co/apioas/notificaciones_crud/",
   
   TOKEN: {
     AUTORIZATION_URL: 'https://autenticacion.portaloas.udistrital.edu.co/oauth2/authorize',
