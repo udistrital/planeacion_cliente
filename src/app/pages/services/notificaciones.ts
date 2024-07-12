@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from 'src/environments/environment';
 import { RequestManager } from '../services/requestManager';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
@@ -8,11 +9,24 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
   providedIn: 'root',
 })
 export class Notificaciones {
+  private socket$: WebSocketSubject<any>;
+  
   constructor(
     private router: Router,
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService
   ) {}
+
+  connectWebSocket(){
+    this.socket$ = new WebSocketSubject(environment.NOTIFICACION_WS);
+
+    // Permite conectarse al servidor aún así sin escuchar mensajes entrantes
+    this.socket$.subscribe(); 
+
+    // Enviar el docuemento de usuario al servidor cuando se establezca la conexión
+    var docUsuarioAuth: any = this.autenticationService.getDocument();
+    this.socket$.next(docUsuarioAuth.__zone_symbol__value);
+  }
 
   // Función genérica para hacer solicitudes HTTP GET
   private async fetchData(url: string, endpoint:string): Promise<any> {
@@ -147,7 +161,7 @@ export class Notificaciones {
         }
 
         const body = this.getBodyNotificacion(data);
-        console.log("Notificación a enviar:", body);
+        this.socket$.next(body); // Enviar cuerpo a notificacion_mid por WebSocket
       } catch (error) {
         console.error('Error al publicar notificación:', error);
       }
