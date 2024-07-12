@@ -161,6 +161,9 @@ export class Notificaciones {
         }
 
         const body = this.getBodyNotificacion(data);
+
+        // Establecer nuevamente la conexión (el servidor lo reconocerá como una conexión ya existente)
+        this.connectWebSocket();
         this.socket$.next(body); // Enviar cuerpo a notificacion_mid por WebSocket
       } catch (error) {
         console.error('Error al publicar notificación:', error);
