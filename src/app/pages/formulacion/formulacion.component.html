@@ -225,7 +225,7 @@
               <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'input'">
                 <mat-label>Digite la información:</mat-label>
                 <textarea matInput formControlName="{{step.id}}" placeholder="Escriba la información deseada"
-                  required="{{step.required}}" readonly="{{readOnlyAll}}" [readonly]=" codigo_abreviacion === 'A_SP'" ></textarea>
+                  required="{{step.required}}" readonly="{{readOnlyAll}}"></textarea>
                 <mat-icon matSuffix>create</mat-icon>
               </mat-form-field>
               <mat-form-field appearance="outline" [style.width.%]="100" *ngIf="step.type == 'numeric'">
