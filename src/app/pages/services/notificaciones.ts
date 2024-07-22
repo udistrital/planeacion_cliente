@@ -42,8 +42,8 @@ export class Notificaciones {
     }
   }
 
-   // Obtener plantilla de la notificación por código de abreviación
-   async getPlantilla(codigo: string) {
+  // Obtener plantilla de la notificación por código de abreviación
+  async getPlantilla(codigo: string) {
     const plantilla = await this.fetchData(environment.NOTIFICACIONES_CRUD, `plantilla?query=codigo_abreviacion:${codigo}`);
     return plantilla.Data[0];
   }
@@ -95,14 +95,15 @@ export class Notificaciones {
   }
 
   // Publicar notificación
-  publicarNotificacion(data: any) {
-    return new Promise((resolve, reject) => {
+  async publicarNotificaciones(data: any): Promise<any[]> {
+    const notificaciones:any = await new Promise((resolve, reject) => {
       this.request.post(environment.NOTIFICACIONES_CRUD, 'notificacion', data)
         .subscribe(
           (data: any) => resolve(data),
           (error: any) => reject(error)
         );
     });
+    return notificaciones.Data;
   }
 
   async enviarNotificacion(datosBandera: any) {    
@@ -162,9 +163,12 @@ export class Notificaciones {
 
         const body = this.getBodyNotificacion(data);
 
+        // Publicar notificaciones en el crud
+        const notificaciones = await this.publicarNotificaciones(body);
+
         // Establecer nuevamente la conexión (el servidor lo reconocerá como una conexión ya existente)
         this.connectWebSocket();
-        this.socket$.next(body); // Enviar cuerpo a notificacion_mid por WebSocket
+        this.socket$.next(notificaciones); // Enviar notificaciones a notificacion_mid por WebSocket (uso de tiempo real)
       } catch (error) {
         console.error('Error al publicar notificación:', error);
       }
