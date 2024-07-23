@@ -516,6 +516,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     await this.request.get(environment.PLANES_MID, `seguimiento/get_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe(async (data: any) => {
       if (data.Data != '') {
         this.seguimiento = data.Data;
+        console.log("DATA: ", this.seguimiento);
         this.unidad = this.seguimiento.informacion.unidad;
         this.plan = this.seguimiento.informacion.nombre;
         this.id_actividad = this.seguimiento.id_actividad;
@@ -946,7 +947,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
               this.datosResultados[index].indicador = numerador / denominador;
               var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
               var metaEvaluada = meta / 100;
-              this.datosResultados[index].avanceAcumulado = (this.datosResultados[index].indicadorAcumulado / metaEvaluada) * 0.25;
+              this.datosResultados[index].avanceAcumulado = (this.datosResultados[index].indicadorAcumulado / metaEvaluada);
 
               if (indicador.tendencia == "Creciente") {
                 if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
