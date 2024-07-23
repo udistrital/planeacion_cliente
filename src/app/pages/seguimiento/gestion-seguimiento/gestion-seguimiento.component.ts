@@ -218,8 +218,11 @@ export class SeguimientoComponentGestion implements OnInit {
               if (actividad.estado.nombre == "Con observaciones") {
                 data.Data[index].estado.color = "conObservacion";
               }
-              if (actividad.estado.nombre == "Actividad avalada" || actividad.estado.nombre == "Actividad Verificada") {
+              if (actividad.estado.nombre == "Actividad avalada") {
                 data.Data[index].estado.color = "avalada";
+              }
+              if (actividad.estado.nombre == "Actividad Verificada"){
+                data.Data[index].estado.color = "verificada";
               }
             }
             this.dataSource.data = data.Data;
