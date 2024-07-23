@@ -72,22 +72,24 @@ export class PlanAnualComponent implements OnInit {
         .subscribe((datosInfoTercero: any) => {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
             .subscribe((vinculacion: any) => {
-              if (vinculacion["Data"] != "") {
-                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
-                  if (dataUnidad) {
-                    this.unidades = [];
-                    this.auxUnidades = [];
-                    let unidad = dataUnidad[0]["DependenciaId"]
-                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
-                    this.unidades.push(unidad);
-                    this.auxUnidades.push(unidad);
-                    this.form.get('unidad').setValue(unidad);
-                    this.moduloVisible = true;
-                    this.form.get('categoria').setValue("planAccion");
-                    this.form.get('tipoReporte').setValue("unidad");
-                    this.form.get('tipoReporte').disable();
-                  }
-                })
+              if (vinculacion.Data && Array.isArray(vinculacion.Data)) {
+                vinculacion.Data.forEach(unidad => {
+                  this.unidades = [];
+                  this.auxUnidades = [];
+                  this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + unidad.DependenciaId).subscribe((dataUnidad: any) => {
+                    if (dataUnidad && Array.isArray(dataUnidad)) {
+                      let unidad = dataUnidad[0].DependenciaId;
+                      unidad.TipoDependencia = dataUnidad[0].TipoDependenciaId.Id;
+                      this.unidades.push(unidad);
+                      this.auxUnidades.push(unidad);
+                      // this.form.get('unidad').setValue(unidad);
+                    }
+                  });
+                });
+                this.moduloVisible = true;
+                this.form.get('categoria').setValue("planAccion");
+                this.form.get('tipoReporte').setValue("unidad");
+                this.form.get('tipoReporte').disable();
               } else {
                 this.moduloVisible = false;
                 Swal.fire({
