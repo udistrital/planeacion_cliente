@@ -9,7 +9,7 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
   providedIn: 'root',
 })
 export class Notificaciones {
-  private socket$: WebSocketSubject<any>;
+  private socket$: WebSocketSubject<any> | undefined;
   
   constructor(
     private router: Router,
@@ -18,7 +18,7 @@ export class Notificaciones {
   ) {}
 
   connectWebSocket(){
-    this.socket$ = new WebSocketSubject(environment.NOTIFICACION_WS);
+    this.socket$ = new WebSocketSubject(environment.NOTIFICACION_MID_WS);
 
     // Permite conectarse al servidor aún así sin escuchar mensajes entrantes
     this.socket$.subscribe(); 
@@ -37,7 +37,7 @@ export class Notificaciones {
           (error: any) => reject(error)
         );
       });
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Error al obtener datos de ${url}/${endpoint}: ${error.message}`);
     }
   }
@@ -168,7 +168,11 @@ export class Notificaciones {
 
         // Establecer nuevamente la conexión (el servidor lo reconocerá como una conexión ya existente)
         this.connectWebSocket();
-        this.socket$.next(notificaciones); // Enviar notificaciones a notificacion_mid por WebSocket (uso de tiempo real)
+
+        // Enviar notificaciones a notificacion_mid por WebSocket (uso de tiempo real)
+        if (this.socket$) {
+          this.socket$.next(notificaciones); 
+        }
       } catch (error) {
         console.error('Error al publicar notificación:', error);
       }
@@ -182,7 +186,7 @@ export class Notificaciones {
 
     // Modificar el mensaje de la plantilla
     let mensaje = plantilla_mensaje;
-    const reemplazos = {"[NOMBRE UNIDAD]": nombre_unidad, "[NOMBRE PLAN]": nombre_plan, "[VIGENCIA]": nombre_vigencia};
+    const reemplazos:any = {"[NOMBRE UNIDAD]": nombre_unidad, "[NOMBRE PLAN]": nombre_plan, "[VIGENCIA]": nombre_vigencia};
 
     if (cod_modulo === "S") {
       reemplazos["[TRIMESTRE]"] = data.trimestre;
@@ -196,7 +200,7 @@ export class Notificaciones {
     var docUsuarioAuth: any = this.autenticationService.getDocument();
 
     // Construir metadatos del sistema (información necesaria para planeacion_cliente)
-    const metadatos = {
+    const metadatos:any = {
       modulo: cod_modulo == "F" ? "formulacion" : "seguimiento",
       nombre_unidad,
       nombre_plan,
