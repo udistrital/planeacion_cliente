@@ -21,7 +21,8 @@ export interface Indicador {
   reporteNumerador: string;
   reporteDenominador: string;
   detalleReporte: string;
-  observaciones: string;
+  observaciones_dependencia: string;
+  observaciones_planeacion: string;
 }
 
 export interface ResultadosIndicador {
@@ -44,7 +45,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
   selectedFiles: any;
-  datosCualitativo: any = { 'reporte': '', 'productos': '', 'dificultades': '', 'observaciones': '' };
+  datosCualitativo: any = { 'reporte': '', 'productos': '', 'dificultades': '', 'observaciones_planeacion': '', 'observaciones_dependencia': ''};
   formCualitativo: FormGroup;
   FORMATOS = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
@@ -93,6 +94,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   txtPlaceHolderObservaciones: string;
   codigoNotificacion: string = "";
   id_actividad: any;
+  ObservacionesPlaneacion: boolean;
+  ObservacionesDependencia: boolean;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -135,6 +138,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.formCualitativo = this.formBuilder.group(this.datosCualitativo)
     this.indicadorSelected = false;
     this.mostrarObservaciones = false;
+    this.ObservacionesPlaneacion = false;
+    this.ObservacionesDependencia = false;
+
     this.txtObservaciones = '';
     this.txtPlaceHolderObservaciones = '';
   }
@@ -222,10 +228,21 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.readonlyFormulario = true;
         this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión OAPC');
         this.mostrarObservaciones = true;
+        this.ObservacionesPlaneacion = false;
+        this.ObservacionesDependencia = true;
       } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
+        this.ObservacionesPlaneacion = true;
+        this.ObservacionesDependencia = false;
+      }
+      if(this.estadoSeguimiento === 'En revisión OAPC'){
+        this.readonlyFormulario = true;
+        this.readonlyObservacion = false;
+        this.mostrarObservaciones = true;
+        this.ObservacionesPlaneacion = true;
+        this.ObservacionesDependencia = false;
       }
     } else if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Habilitado' || this.estadoActividad === 'Sin reporte') {
@@ -238,6 +255,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           this.readonlyFormulario = true;
           this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión JU');
           this.mostrarObservaciones = true;
+          this.ObservacionesDependencia = true;
+          this.ObservacionesPlaneacion = false;
         } else {
           this.readonlyObservacion = true;
           this.mostrarObservaciones = false;
@@ -251,14 +270,20 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         if(this.estadoSeguimiento === 'En revisión JU') {
           this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión JU');
           this.mostrarObservaciones = true;
+          this.ObservacionesDependencia = true;
+          this.ObservacionesPlaneacion = false;
         } else {
           this.readonlyObservacion = true;
           this.mostrarObservaciones = true;
+          this.ObservacionesDependencia = true;
+          this.ObservacionesPlaneacion = false;
         }
       } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
+        this.ObservacionesDependencia = true;
+        this.ObservacionesPlaneacion = false;
       }
     } else if (this.rol == 'ASISTENTE_DEPENDENCIA') {
       if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Habilitado' || this.estadoActividad === 'Sin reporte') {
@@ -277,10 +302,24 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         }
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
+        if(this.estadoSeguimiento === 'Con observaciones'){
+          this.ObservacionesPlaneacion = true;
+          this.ObservacionesDependencia = false;
+        } else if (this.estadoSeguimiento === 'Revisión Verificada con Observaciones'){
+          this.ObservacionesPlaneacion = false;
+          this.ObservacionesDependencia = true;
+        }
       } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
+        if(this.estadoSeguimiento === 'Actividad avalada'){
+          this.ObservacionesPlaneacion = true;
+          this.ObservacionesDependencia = false;
+        } else if (this.estadoSeguimiento === 'Actividad Verificada'){
+          this.ObservacionesPlaneacion = false;
+          this.ObservacionesDependencia = true;
+        }
       }
     }
 
@@ -500,10 +539,18 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.enviarNotificacion();
 
         if (this.estadoActividad != "Sin reporte") {
-          if (this.datosCualitativo.observaciones == "" || this.datosCualitativo.observaciones == undefined || this.datosCualitativo.observaciones == "Sin observación") {
-            this.datosCualitativo.observaciones = ""
-          } else {
-            this.mostrarObservaciones = true;
+          if(this.rol == "JEFE_DEPENDENCIA" || this.rol == "ASISTENTE_DEPENDENCIA"){
+            if (this.datosCualitativo.observaciones_dependencia == "" || this.datosCualitativo.observaciones_dependencia == undefined || this.datosCualitativo.observaciones_dependencia == "Sin observación") {
+              this.datosCualitativo.observaciones_dependencia = ""
+            } else {
+              this.mostrarObservaciones = true;
+            }
+          } else if(this.rol == "PLANEACION" || this.rol == "ASISTENTE_PLANEACION"){
+            if (this.datosCualitativo.observaciones_planeacion == "" || this.datosCualitativo.observaciones_planeacion == undefined || this.datosCualitativo.observaciones_planeacion == "Sin observación") {
+              this.datosCualitativo.observaciones_planeacion = ""
+            } else {
+              this.mostrarObservaciones = true;
+            }
           }
         }
 
@@ -519,8 +566,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         for (let index = 0; index < this.datosIndicadores.length; index++) {
           const indicador = this.datosIndicadores[index];
           if (this.estadoActividad != "Sin reporte") {
-            if ((indicador.observaciones == "" || indicador.observaciones == undefined) && (this.rol != "JEFE_DEPENDENCIA" && this.rol != "ASISTENTE_DEPENDENCIA")) {
-              this.datosIndicadores[index].observaciones = "";
+            if ((indicador.observaciones_planeacion == "" || indicador.observaciones_planeacion == undefined) && (this.rol != "JEFE_DEPENDENCIA" && this.rol != "ASISTENTE_DEPENDENCIA")) {
+              this.datosIndicadores[index].observaciones_planeacion = "";
             }
           }
         }
@@ -899,7 +946,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
               this.datosResultados[index].indicador = numerador / denominador;
               var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
               var metaEvaluada = meta / 100;
-              this.datosResultados[index].avanceAcumulado = this.datosResultados[index].indicadorAcumulado / metaEvaluada;
+              this.datosResultados[index].avanceAcumulado = (this.datosResultados[index].indicadorAcumulado / metaEvaluada) * 0.25;
 
               if (indicador.tendencia == "Creciente") {
                 if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
@@ -1057,7 +1104,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     if (this.verificarObservaciones()) {
       mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
     }
-
     Swal.fire({
       title: 'Guardar seguimiento',
       text: mensaje,
@@ -1184,37 +1230,71 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   verificarObservaciones() {
-    if (
-      this.seguimiento.cualitativo.observaciones != "" &&
-      this.seguimiento.cualitativo.observaciones != "Sin observación" &&
-      this.seguimiento.cualitativo.observaciones != undefined
-    ) {
-      return true;
-    }
-
-    for (let index = 0; index < this.seguimiento.cuantitativo.indicadores.length; index++) {
-      const indicador = this.seguimiento.cuantitativo.indicadores[index];
+    if(this.rol === 'PLANEACION' || this.rol === 'ASISTENTE_PLANEACION'){
       if (
-        indicador.observaciones != "" &&
-        indicador.observaciones != "Sin observación" &&
-        indicador.observaciones != undefined
+        this.seguimiento.cualitativo.observaciones_planeacion != "" &&
+        this.seguimiento.cualitativo.observaciones_planeacion != "Sin observación" &&
+        this.seguimiento.cualitativo.observaciones_planeacion != undefined
       ) {
         return true;
       }
-    }
-
-    for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
-      const evidencia = this.seguimiento.evidencia[index];
+  
+      for (let index = 0; index < this.seguimiento.cuantitativo.indicadores.length; index++) {
+        const indicador = this.seguimiento.cuantitativo.indicadores[index];
+        if (
+          indicador.observaciones_planeacion != "" &&
+          indicador.observaciones_planeacion != "Sin observación" &&
+          indicador.observaciones_planeacion != undefined
+        ) {
+          return true;
+        }
+      }
+  
+      for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
+        const evidencia = this.seguimiento.evidencia[index];
+        if (
+          evidencia.Observacion != "" &&
+          evidencia.Observacion != "Sin observación" &&
+          evidencia.Observacion != undefined
+        ) {
+          return true;
+        }
+      }
+  
+      return false;
+    } else if (this.rol === 'JEFE_DEPENDENCIA' || this.rol === 'ASISTENTE_DEPENDENCIA'){
       if (
-        evidencia.Observacion != "" &&
-        evidencia.Observacion != "Sin observación" &&
-        evidencia.Observacion != undefined
+        this.seguimiento.cualitativo.observaciones_dependencia != "" &&
+        this.seguimiento.cualitativo.observaciones_dependencia != "Sin observación" &&
+        this.seguimiento.cualitativo.observaciones_dependencia != undefined
       ) {
         return true;
       }
+  
+      for (let index = 0; index < this.seguimiento.cuantitativo.indicadores.length; index++) {
+        const indicador = this.seguimiento.cuantitativo.indicadores[index];
+        if (
+          indicador.observaciones_dependencia != "" &&
+          indicador.observaciones_dependencia != "Sin observación" &&
+          indicador.observaciones_dependencia != undefined
+        ) {
+          return true;
+        }
+      }
+  
+      for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
+        const evidencia = this.seguimiento.evidencia[index];
+        if (
+          evidencia.Observacion != "" &&
+          evidencia.Observacion != "Sin observación" &&
+          evidencia.Observacion != undefined
+        ) {
+          return true;
+        }
+      }
+  
+      return false
     }
-
-    return false
   }
 
   retornarRevision() {
