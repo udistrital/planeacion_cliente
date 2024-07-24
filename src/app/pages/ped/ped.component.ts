@@ -17,7 +17,7 @@ import { CodigosService } from 'src/app/@core/services/codigos.service';
 })
 export class PedComponent implements OnInit {
 
-  displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'actions'];
+  displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'vigencia_aplica', 'actions'];
   dataSource: MatTableDataSource<any>;
   uid: number; // id del objeto
   planes: any[];
@@ -52,6 +52,11 @@ export class PedComponent implements OnInit {
       if (result == undefined){
         return undefined;
       } else {
+        if (result.vigencia_aplica && Array.isArray(result.vigencia_aplica)) {
+          if (result.vigencia_aplica.length > 0) {
+            result.vigencia_aplica = JSON.stringify(result.vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
+          }
+        }
         this.putData(result, 'editar');
       }
     });
@@ -277,6 +282,77 @@ export class PedComponent implements OnInit {
         timer: 2500
       });
     }
+  }
+
+  duplicar(row) {
+    let plan_id = row._id;
+    Swal.fire({
+      title: 'Clonar plan',
+      text: `¿Está seguro de clonar el plan?`,
+      showCancelButton: true,
+      confirmButtonText: `Si`,
+      cancelButtonText: `No`,
+      allowOutsideClick: false,
+    }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Clonando Plan Estratégico de Desarrollo',
+            timerProgressBar: true,
+            showConfirmButton: false,
+            allowEscapeKey: false,
+            allowOutsideClick: false,
+            willOpen: () => {
+              Swal.showLoading();
+            },
+          });
+          return new Promise(async(resolve, reject)=>{
+            this.request.post(environment.PLANES_MID, `formulacion/clonar-pi-ped/${plan_id}`, {}).subscribe((data: any) => {
+              if (data.Data && data.Success == true) {
+                Swal.fire({
+                  title: 'Clonar plan',
+                  text: `El plan estratégico de desarrollo se ha clonado correctamente`,
+                  icon: 'success',
+                  showConfirmButton: false,
+                  timer: 2500
+                }).then(() => {
+                  window.location.reload();
+                  resolve(true);
+                });
+              } else {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No se ha podido clonar el plan estratégico de desarrollo: ${data.Message}`,
+                  icon: 'error',
+                  showConfirmButton: false,
+                  timer: 2500
+                });
+                resolve(false);
+              }
+            }, (error) => {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: 'No se encontraron datos registrados',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 2500
+              })
+              reject(false);
+            });
+          });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          Swal.fire({
+            title: 'Clonación cancelada',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+    });
+  }
+
+  formatearVigencias(row) {
+    if(!row.vigencia_aplica) return 'Por definir';
+    return JSON.parse(row.vigencia_aplica).map(vigencia => vigencia.Nombre).join(', ');
   }
 
   cambiarValor(valorABuscar, valorViejo, valorNuevo) {

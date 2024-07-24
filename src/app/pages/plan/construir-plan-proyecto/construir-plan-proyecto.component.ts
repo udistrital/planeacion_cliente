@@ -58,6 +58,11 @@ export class ConstruirPlanProyectoComponent implements OnInit {
       if (result == undefined){
         return undefined;
       } else {
+        if (result.vigencia_aplica && Array.isArray(result.vigencia_aplica)) {
+          if (result.vigencia_aplica.length > 0) {
+            result.vigencia_aplica = JSON.stringify(result.vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
+          }
+        }
         this.putData(result, 'editar');
       }
     });

@@ -1440,10 +1440,25 @@ async onChangeU(unidad) {
   }
 
   cargarPlanesDesarrollo() {
+    let vigencia = {
+      Id: this.vigencia.Id,
+      Nombre: this.vigencia.Nombre
+    }
     return new Promise(async(resolve)=>{
       this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
         if (data) {
-          this.planesDesarrollo = data.Data;
+          let planesDesarrolloSinFiltro = data.Data;
+          let planesDesarrolloFiltrados = [];
+          planesDesarrolloSinFiltro.filter(plan => {
+            if (plan.vigencia_aplica) {
+              let vigencia_aplica = JSON.parse(plan.vigencia_aplica);
+              const existe = vigencia_aplica.some(item => item.Id === vigencia.Id && item.Nombre === vigencia.Nombre);
+              if (existe) {
+                planesDesarrolloFiltrados.push(plan);
+              };
+            };
+          });
+          this.planesDesarrollo = planesDesarrolloFiltrados;
           this.formArmonizacion.get('selectPED').setValue(this.planesDesarrollo[0])
           this.onChangePD(this.planesDesarrollo[0]);
           resolve(this.planesDesarrollo);
@@ -1453,10 +1468,25 @@ async onChangeU(unidad) {
   }
 
   cargarPlanesIndicativos() {
+    let vigencia = {
+      Id: this.vigencia.Id,
+      Nombre: this.vigencia.Nombre
+    }
     return new Promise(async (resolve)=>{
       this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP')}`).subscribe((data: any) => {
         if (data) {
-          this.planesIndicativos = data.Data;
+          let planesIndicativosSinFiltro = data.Data;
+          let planesIndicativosFiltrados = [];
+          planesIndicativosSinFiltro.filter(plan => {
+            if (plan.vigencia_aplica) {
+              let vigencia_aplica = JSON.parse(plan.vigencia_aplica);
+              const existe = vigencia_aplica.some(item => item.Id === vigencia.Id && item.Nombre === vigencia.Nombre);
+              if (existe) {
+                planesIndicativosFiltrados.push(plan);
+              };
+            };
+          });
+          this.planesIndicativos = planesIndicativosFiltrados;
           this.formArmonizacion.get('selectPI').setValue(this.planesIndicativos[0])
           this.onChangePI(this.planesIndicativos[0]);
           resolve(this.planesIndicativos);
@@ -1871,7 +1901,7 @@ async onChangeU(unidad) {
   realizarAjustes() {
     Swal.fire({
       title: 'Realizar Ajustes',
-      text: `¿Desea realizar ajustes a el Plan?`,
+      text: `¿Desea realizar ajustes al Plan?`,
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
