@@ -1610,7 +1610,7 @@ async onChangeU(unidad) {
                   this.plan.estado_plan_id = this.ID_ESTADO_FORMULADO;
                   this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
                     if (data) {
-                      this.codigoNotificacion = "FEF";  // NOTIFICACION(FEF)
+                      this.codigoNotificacion = "FEF"; // NOTIFICACION(FEF)
                       Swal.fire({
                         title: 'Plan enviado',
                         icon: 'success',
