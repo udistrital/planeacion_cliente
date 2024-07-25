@@ -57,9 +57,18 @@ export class ConsultarPIComponent implements OnInit {
         if (result.vigencia_aplica && Array.isArray(result.vigencia_aplica)) {
           if (result.vigencia_aplica.length > 0) {
             result.vigencia_aplica = JSON.stringify(result.vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
+            this.putData(result, 'editar');
+          } else {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `Debe seleccionar al menos una vigencia para el plan`,
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
           }
+        } else {
+          this.putData(result, 'editar');
         }
-        this.putData(result, 'editar');
       }
     });
   }
@@ -83,7 +92,7 @@ export class ConsultarPIComponent implements OnInit {
   putData(res, bandera){
     if (bandera == 'editar'){
       this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
-        if(data){
+        if(data.Success == true){
           Swal.fire({
             title: 'Actualización correcta',
             text: `Se actualizaron correctamente los datos`,
@@ -93,6 +102,14 @@ export class ConsultarPIComponent implements OnInit {
               window.location.reload();
             }
           })
+        } else {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se ha podido actualizar el plan indicativo: ${data.Message}`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
         }
       }, (error) => {
         Swal.fire({
@@ -343,7 +360,7 @@ export class ConsultarPIComponent implements OnInit {
   }
 
   formatearVigencias(row) {
-    if(!row.vigencia_aplica) return 'Por definir';
+    if(!row.vigencia_aplica || JSON.parse(row.vigencia_aplica).length == 0) return 'Por definir';
     return JSON.parse(row.vigencia_aplica).map(vigencia => vigencia.Nombre).join(', ');
   }
 
