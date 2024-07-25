@@ -55,9 +55,7 @@ export class ConsultarPIComponent implements OnInit {
         return undefined;
       } else {
         if (result.vigencia_aplica && Array.isArray(result.vigencia_aplica)) {
-          if (result.vigencia_aplica.length > 0) {
-            result.vigencia_aplica = JSON.stringify(result.vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
-          }
+          result.vigencia_aplica = JSON.stringify(result.vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
         }
         this.putData(result, 'editar');
       }
@@ -343,7 +341,7 @@ export class ConsultarPIComponent implements OnInit {
   }
 
   formatearVigencias(row) {
-    if(!row.vigencia_aplica) return 'Por definir';
+    if(!row.vigencia_aplica || JSON.parse(row.vigencia_aplica).length == 0) return 'Por definir';
     return JSON.parse(row.vigencia_aplica).map(vigencia => vigencia.Nombre).join(', ');
   }
 
