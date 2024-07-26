@@ -60,7 +60,8 @@
           <mat-form-field appearance="fill" [style.width.%]="100">
             <mat-label id="opciones-input-label">Opciones</mat-label>
             <p><i>Ingrese las opciones para la lista de selección, por cada opción de click en Adicionar</i></p>
-            <input type="text" matInput formControlName="opciones" placeholder="Ingrese las opciones para la lista de selección, por cada opción de click en Adicionar">
+            <input type="text" matInput formControlName="opciones" placeholder="Ingrese las opciones para la lista de selección, por cada opción de click en Adicionar"
+            maxlength="80">
             <button matSuffix (click)="adicionarOpcion()" mat-raised-button color="primary" type="button" class="col-3 mt-2 mb-3">
               <strong>Adicionar</strong>
             </button>

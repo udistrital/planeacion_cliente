@@ -50,7 +50,7 @@ export class AgregarDialogComponent implements OnInit {
       requerido: [{ value: '', disabled: true }, Validators.required],
       parametro: ['', Validators.required],
       bandera: ['', Validators.required],
-      opciones: ['']  // No es necesario el validator 'required' aquí si se desea permitir el campo vacío
+      opciones: ['', [Validators.maxLength(80)]]  // No es necesario el validator 'required' aquí si se desea permitir el campo vacío
     });
     if (!this.opt) {
       this.formAgregar.get('opciones').disable();

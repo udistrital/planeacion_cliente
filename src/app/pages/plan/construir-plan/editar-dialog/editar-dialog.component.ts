@@ -105,7 +105,7 @@ ngOnInit(): void {
     tipoDato: [this.tipoDato, Validators.required],
     requerido: [this.required, Validators.required],
     banderaTabla: [this.banderaTablaS, Validators.required],
-    opciones: ['']
+    opciones: ['', [Validators.maxLength(80)]]
   });
 
   // Inicializar listaOpciones con el valor actual del campo 'opciones'
