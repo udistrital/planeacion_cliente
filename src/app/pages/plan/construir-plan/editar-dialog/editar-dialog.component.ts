@@ -2,6 +2,7 @@ import { Component, OnInit, Inject, ChangeDetectorRef, AfterContentChecked, DoCh
 import { FormBuilder, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
+import { MatSelectChange } from '@angular/material/select';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
@@ -29,8 +30,11 @@ export class EditarDialogComponent implements OnInit {
   nivel: number;
   opt: boolean;
   tiposPlanes: any[];
+  vigencias: any[];
+  vigencia_aplica_selected: string;
 
   vTipo: boolean;
+  vVigenciaAplicaTipoPlan: boolean;
   vRequired: boolean;
   vOpciones: boolean;
   vFormato: boolean;
@@ -75,6 +79,11 @@ export class EditarDialogComponent implements OnInit {
     this.fechaCreacion = data.sub.fecha_creacion;
     this.nombre = data.sub.nombre;
     this.padre = data.sub.padre;
+    if(data.sub.vigencia_aplica) {
+      this.vigencia_aplica_selected = data.sub.vigencia_aplica;
+    } else {
+      this.vigencia_aplica_selected = null;
+    }
     this.descripcion = data.sub.descripcion;
     this.activoS = String(data.sub.activo);
     this.tipoPlan = data.sub.tipo_plan_id;
@@ -90,7 +99,7 @@ export class EditarDialogComponent implements OnInit {
     this.vObligatorio = false;
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.formEditar = this.formBuilder.group({
       aplicativo_id: [this.aplicativoId, Validators.required],
       fecha_creacion: [this.fechaCreacion, Validators.required],
@@ -98,6 +107,7 @@ export class EditarDialogComponent implements OnInit {
       nombre: [this.nombre, Validators.required],
       activo: [this.activoS, Validators.required],
       tipo_plan_id: [this.tipoPlan, Validators.required],
+      vigencia_aplica: [[]],
       formato: [this.formatoS, Validators.required],
       parametro: ['', Validators.required],
       tipoDato: [this.tipoDato, Validators.required],
@@ -106,7 +116,9 @@ export class EditarDialogComponent implements OnInit {
       opciones: [this.opciones, Validators.required]
     });
     this.verificarDetalle();
-    this.loadTiposPlan();
+    await this.loadPeriodos();
+    await this.loadTiposPlan();
+    await this.compararTipoPlan_PED_PI();
     // Suscribe a los cambios en el formulario
     this.formEditar.valueChanges.subscribe(() => {
       this.formularioModificado = true;
@@ -250,20 +262,94 @@ export class EditarDialogComponent implements OnInit {
     }
   }
 
-  loadTiposPlan() {
-    this.request.get(environment.PLANES_CRUD, `tipo-plan?query=activo:true`).subscribe((data: any) => {
-      if (data) {
-        this.tiposPlanes = data.Data;
+  async loadTiposPlan() {
+    return new Promise((resolve) => {
+      this.request.get(environment.PLANES_CRUD, `tipo-plan?query=activo:true`).subscribe(
+        (data: any) => {
+          if (data) {
+            this.tiposPlanes = data.Data;
+            resolve(true);
+          } else {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: 'No se encontraron datos registrados',
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+        },
+        (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: 'No se encontraron datos registrados',
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+      );
+    });
+  }
+
+  async compararTipoPlan_PED_PI() {
+    this.vVigenciaAplicaTipoPlan = false;
+    this.tiposPlanes.forEach(tipoPlan => {
+      if(tipoPlan.codigo_abreviacion == 'PLI_SP' || tipoPlan.codigo_abreviacion == 'PD_SP') {
+        if(this.formEditar.get('tipo_plan_id').value == tipoPlan._id) {
+          this.vVigenciaAplicaTipoPlan = true;
+          if(this.vigencia_aplica_selected != null) this.setSelectedVigencias();
+        }
       }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
+    });
+  }
+
+  async loadPeriodos() {
+    return new Promise((resolve) => {
+      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
+        if (data) {
+          this.vigencias = data.Data;
+          resolve(true);
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
       })
-    })
+    });
+  }
+
+  vigenciaToJson(vigencia: { Id: number, Nombre: string }): string {
+    return JSON.stringify({ Id: vigencia.Id, Nombre: vigencia.Nombre });
+  }
+
+  setSelectedVigencias(): void {
+    let arrayVigencias = JSON.parse(this.vigencia_aplica_selected);
+    const selectedValues = arrayVigencias.map(v => JSON.stringify(v));
+    this.formEditar.get('vigencia_aplica').patchValue(selectedValues);
+  }
+
+  onOpenedChangeVigencia(isOpened: boolean) {
+    if (isOpened) {
+      Swal.fire({
+        title: 'Información',
+        text: 'Una vez guardadas las vigencias a las que aplicará el plan NO está permitido desmarcarlas. Para más información comunicarse con computo@udistrital.edu.co',
+        icon: 'info',
+        confirmButtonText: 'OK'
+      });
+    }
+  }
+
+  isDisabledVigencia(vigencia: any) {
+    if (this.vigencia_aplica_selected != null) {
+      let vigencias = JSON.parse(this.vigencia_aplica_selected);
+      return vigencias.some(v => v.Id == vigencia.Id);
+    }
+    return false;
   }
 }
 

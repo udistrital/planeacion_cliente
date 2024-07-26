@@ -96,6 +96,12 @@ export class CrearPlanComponent implements OnInit {
         activo: JSON.parse(this.formCrearPlan.get('radioEstado').value),
         formato: JSON.parse(this.formCrearPlan.get('radioFormato').value)
       }
+      let vigencia_aplica = this.formCrearPlan.get('vigencia_aplica').value;
+      if (Array.isArray(vigencia_aplica)) {
+        if (vigencia_aplica.length > 0) {
+          dataPlan['vigencia_aplica'] = JSON.stringify(vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
+        }
+      }
       this.request.post(environment.PLANES_CRUD, 'plan', dataPlan).subscribe(
         (data) => {
           if (data) {
@@ -273,9 +279,11 @@ export class CrearPlanComponent implements OnInit {
 
 
   async ngOnInit(){
+    this.loadPeriodos();
     this.formCrearPlan = this.formBuilder.group({
       nombre: ['', Validators.required],
       desc: ['', Validators.required],
+      vigencia_aplica: [[]],
       tipo: ['', Validators.required],
       radioEstado: ['', Validators.required],
       radioFormato: ['', Validators.required],
@@ -283,4 +291,18 @@ export class CrearPlanComponent implements OnInit {
     });
   }
 
+  vigenciaToJson(vigencia: { Id: number, Nombre: string }): string {
+    return JSON.stringify({ Id: vigencia.Id, Nombre: vigencia.Nombre });
+  }
+
+  onOpenedChangeVigencia(isOpened: boolean) {
+    if (isOpened) {
+      Swal.fire({
+        title: 'Información',
+        text: 'Una vez guardadas las vigencias a las que aplicará el plan NO está permitido desmarcarlas. Para más información comunicarse con computo@udistrital.edu.co',
+        icon: 'info',
+        confirmButtonText: 'OK'
+      });
+    }
+  }
 }
