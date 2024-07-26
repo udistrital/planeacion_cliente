@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, Output, ViewChild, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -12,6 +12,9 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
 import { CurrencyPipe, formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from '../recursos/rubros';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { Observable } from 'rxjs';
+import { startWith, map } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-contratistas',
@@ -44,6 +47,8 @@ export class ContratistasComponent implements OnInit {
   vigenciaConsulta: any;
   rubros = rubros_aux
   totalInc: number;
+  rubroControl = new FormControl();
+  filteredRubros: Observable<any[]>;
 
   CODIGO_ESTADO_PRE_AVAL: string;
   CODIGO_ESTADO_REVISADO: string;
@@ -65,7 +70,7 @@ export class ContratistasComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-    this.CODIGO_ESTADO_PRE_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')
+    this.CODIGO_ESTADO_PRE_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
     this.CODIGO_ESTADO_REVISADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
     this.loadPlan();
     this.dataSource = new MatTableDataSource<any>();
@@ -73,6 +78,16 @@ export class ContratistasComponent implements OnInit {
     this.actividades = this.dataSourceActividades.data;
     this.loadTabla();
     this.loadVigenciaConsulta();
+  
+    this.filteredRubros = this.rubroControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filterRubros(value))
+    );
+  }
+  
+  private _filterRubros(value: string): any[] {
+    const filterValue = value.toLowerCase();
+    return this.rubros.filter(rubro => rubro.Nombre.toLowerCase().includes(filterValue) || rubro.Codigo.toLowerCase().includes(filterValue));
   }
 
   loadPlan() {
@@ -117,6 +132,8 @@ export class ContratistasComponent implements OnInit {
       this.getTotal(element, rowIndex)
     }
   }
+
+  
 
   visualizarColumnas(): string[] {
     if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'ASISTENTE_DEPENDENCIA') {

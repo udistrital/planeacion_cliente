@@ -39,6 +39,9 @@ export class EditarDialogComponent implements OnInit {
   vTipoPlan: boolean;
   vObligatorio: boolean;
 
+  listaOpciones: string[] = [];
+
+
   tipos: tipoDato[] = [
     { value: 'numeric', viewValue: 'Numérico' },
     { value: 'input', viewValue: 'Texto' },
@@ -89,46 +92,75 @@ export class EditarDialogComponent implements OnInit {
     this.vBandera = false;
     this.vObligatorio = false;
   }
+ngOnInit(): void {
+  this.formEditar = this.formBuilder.group({
+    aplicativo_id: [this.aplicativoId, Validators.required],
+    fecha_creacion: [this.fechaCreacion, Validators.required],
+    descripcion: [this.descripcion, Validators.required],
+    nombre: [this.nombre, Validators.required],
+    activo: [this.activoS, Validators.required],
+    tipo_plan_id: [this.tipoPlan, Validators.required],
+    formato: [this.formatoS, Validators.required],
+    parametro: ['', Validators.required],
+    tipoDato: [this.tipoDato, Validators.required],
+    requerido: [this.required, Validators.required],
+    banderaTabla: [this.banderaTablaS, Validators.required],
+    opciones: ['']
+  });
 
-  ngOnInit(): void {
-    this.formEditar = this.formBuilder.group({
-      aplicativo_id: [this.aplicativoId, Validators.required],
-      fecha_creacion: [this.fechaCreacion, Validators.required],
-      descripcion: [this.descripcion, Validators.required],
-      nombre: [this.nombre, Validators.required],
-      activo: [this.activoS, Validators.required],
-      tipo_plan_id: [this.tipoPlan, Validators.required],
-      formato: [this.formatoS, Validators.required],
-      parametro: ['', Validators.required],
-      tipoDato: [this.tipoDato, Validators.required],
-      requerido: [this.required, Validators.required],
-      banderaTabla: [this.banderaTablaS, Validators.required],
-      opciones: [this.opciones, Validators.required]
+  // Inicializar listaOpciones con el valor actual del campo 'opciones'
+  this.listaOpciones = this.opciones.split(',').filter(opcion => opcion.trim() !== '');
+
+  this.verificarDetalle();
+  this.loadTiposPlan();
+
+  // Suscribe a los cambios en el formulario
+  this.formEditar.valueChanges.subscribe(() => {
+    this.formularioModificado = true;
+    // Marca el componente para la detección de cambios
+    this.cdRef.detectChanges();
+  });
+}
+
+adicionarOpcion() {
+  const opcion = this.formEditar.get('opciones').value.trim();
+  if (opcion && !this.listaOpciones.includes(opcion)) {
+    this.listaOpciones.push(opcion);
+    this.actualizarOpciones(); // Actualizar el valor del campo 'opciones'
+    this.formEditar.get('opciones').setValue(''); // Limpiar el input después de añadir la opción
+  }
+}
+
+eliminarOpcion(index: number) {
+  this.listaOpciones.splice(index, 1);
+  this.actualizarOpciones();
+}
+
+actualizarOpciones() {
+  // Actualizar el valor del campo 'opciones' con todas las opciones añadidas
+  this.formEditar.get('opciones').setValue(this.listaOpciones.join(','));
+}
+
+close(): void {
+  // Actualizar el valor del campo 'opciones' con las opciones actuales
+  this.actualizarOpciones();
+  this.dialogRef.close(this.formEditar.value);
+}
+
+closecancelar(): void {
+  this.dialogRef.close();
+}
+onOpenedChange(isOpened: boolean) {
+  if (isOpened) {
+    Swal.fire({
+      title: 'Información',
+      text: 'Por favor verificar el tipo de plan de acción. Actualmente NO soportado por el módulo de reportes.',
+      icon: 'info',
+      confirmButtonText: 'OK'
     });
-    this.verificarDetalle();
-    this.loadTiposPlan();
-    // Suscribe a los cambios en el formulario
-    this.formEditar.valueChanges.subscribe(() => {
-      this.formularioModificado = true;
-      // Marca el componente para la detección de cambios
-      this.cdRef.detectChanges();
-    });
   }
+}
 
-  close(): void {
-    this.dialogRef.close();
-  }
-
-  onOpenedChange(isOpened: boolean) {
-    if (isOpened) {
-      Swal.fire({
-        title: 'Información',
-        text: 'Por favor verificar el tipo de plan de acción. Actualmente NO soportado por el módulo de reportes.',
-        icon: 'info',
-        confirmButtonText: 'OK'
-      });
-    }
-  }
 
   getErrorMessage(campo: FormControl) {
     if (campo.hasError('required',)) {

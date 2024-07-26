@@ -20,7 +20,9 @@ export class AgregarDialogComponent implements OnInit {
   opt: boolean;
   vBandera: boolean;
   vObligatorio: boolean;
-
+  nuevaOpcion: string = '';
+  opciones: string[] = [];
+  listaOpciones: string[] = [];
   constructor(
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<AgregarDialogComponent>,
@@ -28,26 +30,56 @@ export class AgregarDialogComponent implements OnInit {
       this.opt = false;
     }
 
-  close(): void {
-    this.dialogRef.close();
-  }
+    close(): void {
+      // Obtener las opciones actuales del formulario
+      const opciones = this.listaOpciones.join(',');
+      // Asignar las opciones como una sola cadena separada por comas al campo 'opciones'
+      this.formAgregar.get('opciones').setValue(opciones);
+    
+      // Cerrar el diálogo y pasar el valor del formulario al componente padre
+      this.dialogRef.close(this.formAgregar.value);
+    }
+
 
   ngOnInit(): void {
     this.formAgregar = this.formBuilder.group({
       descripcion: ['', Validators.required],
       nombre: ['', Validators.required],
       activo: ['', Validators.required],
-      tipoDato: ['', this.control, Validators.required],
-      requerido: ['', this.control, Validators.required],
+      tipoDato: [{ value: '', disabled: true }, Validators.required],
+      requerido: [{ value: '', disabled: true }, Validators.required],
       parametro: ['', Validators.required],
       bandera: ['', Validators.required],
-      opciones: ['', Validators.required]
+      opciones: ['']  // No es necesario el validator 'required' aquí si se desea permitir el campo vacío
     });
-    if (this.opt == false){
+    if (!this.opt) {
       this.formAgregar.get('opciones').disable();
     }
   }
 
+  adicionarOpcion() {
+    const opcion = this.formAgregar.get('opciones').value.trim();
+    if (opcion && !this.listaOpciones.includes(opcion)) {
+      this.listaOpciones.push(opcion);
+      this.actualizarOpciones();
+      this.formAgregar.get('opciones').setValue(''); // Limpiar el input después de añadir la opción
+    }
+  }
+ 
+  eliminarOpcion(index: number) {
+    this.listaOpciones.splice(index, 1);
+    this.actualizarOpciones();
+  }
+  
+  actualizarOpciones() {
+    // Actualizar el valor del campo 'opciones' con todas las opciones añadidas
+    this.formAgregar.get('opciones').setValue(this.listaOpciones.join(','));
+  }
+  
+  closecancelar(): void {
+    this.dialogRef.close();
+  }
+  
   getErrorMessage(campo: FormControl) {
     if (campo.hasError('required', )) {
       return 'Campo requerido';
@@ -58,10 +90,10 @@ export class AgregarDialogComponent implements OnInit {
 
   deshacer(){
     this.formAgregar.reset();
+    this.listaOpciones = []; // Limpiar la lista de opciones también al deshacer
   }
-
-  onChange(event){
-    if (event == 'select'){
+  onChange(event) {
+    if (event === 'select') {
       this.opt = true;
       this.formAgregar.get('opciones').enable();
     } else {
@@ -69,24 +101,25 @@ export class AgregarDialogComponent implements OnInit {
       this.formAgregar.get('opciones').disable();
     }
   }
-
-  verificarNivel(event: MatRadioChange){
-    if(event.value == "false"){
-      this.control = {value: '', disabled: true, visible: false }
+  verificarNivel(event: MatRadioChange) {
+    if (event.value === 'false') {
+      this.control = { value: '', disabled: true, visible: false };
+      this.opt = false;
       this.vBandera = false;
-      this.formAgregar.get('bandera').setValue("false");
+      this.formAgregar.get('bandera').setValue('false');
       this.formAgregar.get('tipoDato').disable();
       this.formAgregar.get('requerido').disable();
       this.formAgregar.get('opciones').disable();
-    }else if (event.value == "true"){
-      this.control = { value: '', disabled: false, visible: true }
+    } else if (event.value === 'true') {
+      this.control = { value: '', disabled: false, visible: true };
       this.vBandera = true;
       this.vObligatorio = false;
-      this.formAgregar.get('bandera').setValue("");
-      this.formAgregar.get('tipoDato').setValue("");
+      this.opt = true;
+      this.formAgregar.get('bandera').setValue('');
+      this.formAgregar.get('tipoDato').setValue('');
       this.formAgregar.get('tipoDato').enable();
       this.formAgregar.get('requerido').enable();
-      if (this.opt){
+      if (this.opt) {
         this.formAgregar.get('opciones').enable();
       }
     }
@@ -94,11 +127,10 @@ export class AgregarDialogComponent implements OnInit {
   }
 
   verificarBandera(event) {
-    if (event == "true") {
-      this.vObligatorio = false;
-      this.formAgregar.get('requerido').setValue("true");
-    } else if (event == "false"){
-      this.vObligatorio = true;
+    if (event === 'true') {
+      this.formAgregar.get('requerido').setValue('true');
+    } else {
+      this.formAgregar.get('requerido').setValue('');
     }
   }
 }
