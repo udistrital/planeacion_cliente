@@ -516,7 +516,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     await this.request.get(environment.PLANES_MID, `seguimiento/get_seguimiento/` + this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe(async (data: any) => {
       if (data.Data != '') {
         this.seguimiento = data.Data;
-        console.log("DATA: ", this.seguimiento);
         this.unidad = this.seguimiento.informacion.unidad;
         this.plan = this.seguimiento.informacion.nombre;
         this.id_actividad = this.seguimiento.id_actividad;
@@ -941,7 +940,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             if (indicador.denominador === "Denominador variable") {
               denominador = 100;
               numerador = 100;
-              this.datosResultados[index].indicadorAcumulado = 1;
+              this.datosResultados[index].indicadorAcumulado = 1 * 0.25;
               this.datosResultados[index].acumuladoNumerador = this.datosResultados[index].acumuladoNumerador;
               this.datosResultados[index].acumuladoDenominador = this.datosResultados[index].acumuladoDenominador;
               this.datosResultados[index].indicador = numerador / denominador;
@@ -953,13 +952,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
                 if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
                   this.datosResultados[index].brechaExistente = 0;
                 } else {
-                  this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
+                  this.datosResultados[index].brechaExistente = metaEvaluada - this.datosResultados[index].avanceAcumulado;
                 }
               } else {
                 if (this.datosResultados[index].indicadorAcumulado < metaEvaluada) {
                   this.datosResultados[index].brechaExistente = 0;
                 } else {
-                  this.datosResultados[index].brechaExistente = indicadorAcumulado - metaEvaluada;
+                  this.datosResultados[index].brechaExistente = this.datosResultados[index].avanceAcumulado - metaEvaluada;
                 }
               }
 
@@ -1049,17 +1048,16 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       if (this.datosResultados[index].acumuladoDenominador != 0) {
         let auxiliarIndicadorAcumulado = this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador
         if (this.datosIndicadores[index].unidad == 'Unidad') {
-          this.datosResultados[index].indicadorAcumulado =
-            Math.round(auxiliarIndicadorAcumulado * 100) / 100;
+          this.datosResultados[index].indicadorAcumulado = Math.round(auxiliarIndicadorAcumulado * 100) / 100;
         } else {
-          this.datosResultados[index].indicadorAcumulado =
-            Math.round(auxiliarIndicadorAcumulado * 10_000) / 10_000;
+          this.datosResultados[index].indicadorAcumulado = Math.round(auxiliarIndicadorAcumulado * 10_000) / 10_000;
         }
       } else {
-        this.datosResultados[index].indicadorAcumulado =
-          this.datosIndicadores[index].unidad == 'Unidad' ? meta : meta / 100;
+        this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == 'Unidad' ? meta : meta / 100;
       }
-
+      if(!esDenominadorFijo){
+        this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.25;
+      }
       let indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
       let auxiliarMeta = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
       // Las multiplicaciones y divisiones por mil o 10 mil son para formatear los datos a una cantidad de decimales fijos
@@ -1072,7 +1070,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.datosResultados[index].brechaExistente =
           indicadorAcumulado > auxiliarMeta
             ? 0
-            : Math.round((auxiliarMeta - indicadorAcumulado) * 10_000) / 10_000;
+            : Math.round((auxiliarMeta - this.datosResultados[index].avanceAcumulado) * 10_000) / 10_000;
       } else if (indicador.tendencia == "Decreciente") {
         let auxiliarAvance = (auxiliarMeta - indicadorAcumulado) / auxiliarMeta;
         this.datosResultados[index].avanceAcumulado =
@@ -1082,7 +1080,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.datosResultados[index].brechaExistente =
           indicadorAcumulado < auxiliarMeta
             ? 0
-            : Math.round((indicadorAcumulado - auxiliarMeta) * 10_000) / 10_000;
+            : Math.round((this.datosResultados[index].avanceAcumulado - auxiliarMeta) * 10_000) / 10_000;
       }
       this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
     }
