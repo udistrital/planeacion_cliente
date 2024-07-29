@@ -92,9 +92,9 @@ export class EditarDialogComponent implements OnInit {
     this.vBandera = false;
     this.vObligatorio = false;
   }
-
-  async ngOnInit(): Promise<void> {
-    this.formEditar = this.formBuilder.group({
+  
+ngOnInit(): void {
+  this.formEditar = this.formBuilder.group({
     aplicativo_id: [this.aplicativoId, Validators.required],
     fecha_creacion: [this.fechaCreacion, Validators.required],
     descripcion: [this.descripcion, Validators.required],
@@ -152,7 +152,6 @@ close(): void {
 closecancelar(): void {
   this.dialogRef.close();
 }
-
 onOpenedChange(isOpened: boolean) {
   if (isOpened) {
     Swal.fire({

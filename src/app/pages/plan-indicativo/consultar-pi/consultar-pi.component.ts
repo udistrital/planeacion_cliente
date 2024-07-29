@@ -19,7 +19,7 @@ import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 export class ConsultarPIComponent implements OnInit {
 
-  displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'actions'];
+  displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'vigencia_aplica', 'actions'];
   dataSource: MatTableDataSource<any>;
   uid: number; // id del objeto
   planes: any[];
@@ -54,7 +54,21 @@ export class ConsultarPIComponent implements OnInit {
       if (result == undefined){
         return undefined;
       } else {
-        this.putData(result, 'editar');
+        if (result.vigencia_aplica && Array.isArray(result.vigencia_aplica)) {
+          if (result.vigencia_aplica.length > 0) {
+            result.vigencia_aplica = JSON.stringify(result.vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
+            this.putData(result, 'editar');
+          } else {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `Debe seleccionar al menos una vigencia para el plan`,
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
+          }
+        } else {
+          this.putData(result, 'editar');
+        }
       }
     });
   }
@@ -78,7 +92,7 @@ export class ConsultarPIComponent implements OnInit {
   putData(res, bandera){
     if (bandera == 'editar'){
       this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
-        if(data){
+        if(data.Success == true){
           Swal.fire({
             title: 'Actualización correcta',
             text: `Se actualizaron correctamente los datos`,
@@ -88,6 +102,14 @@ export class ConsultarPIComponent implements OnInit {
               window.location.reload();
             }
           })
+        } else {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se ha podido actualizar el plan indicativo: ${data.Message}`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
         }
       }, (error) => {
         Swal.fire({
@@ -269,6 +291,77 @@ export class ConsultarPIComponent implements OnInit {
         timer: 2500
       });
     }
+  }
+
+  async duplicar(row) {
+    let plan_id = row._id;
+    Swal.fire({
+      title: 'Clonar plan',
+      text: `¿Está seguro de clonar el plan?`,
+      showCancelButton: true,
+      confirmButtonText: `Si`,
+      cancelButtonText: `No`,
+      allowOutsideClick: false,
+    }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Clonando Plan Indicativo',
+            timerProgressBar: true,
+            showConfirmButton: false,
+            allowEscapeKey: false,
+            allowOutsideClick: false,
+            willOpen: () => {
+              Swal.showLoading();
+            },
+          });
+          return new Promise(async(resolve, reject)=>{
+            this.request.post(environment.PLANES_MID, `formulacion/clonar-pi-ped/${plan_id}`, {}).subscribe((data: any) => {
+              if (data.Data && data.Success == true) {
+                Swal.fire({
+                  title: 'Clonar plan',
+                  text: `El plan indicativo se ha clonado correctamente`,
+                  icon: 'success',
+                  showConfirmButton: false,
+                  timer: 2500
+                }).then(() => {
+                  window.location.reload();
+                  resolve(true);
+                });
+              } else {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No se ha podido clonar el plan indicativo: ${data.Message}`,
+                  icon: 'error',
+                  showConfirmButton: false,
+                  timer: 2500
+                });
+                resolve(false);
+              }
+            }, (error) => {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: 'No se encontraron datos registrados',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 2500
+              })
+              reject(false);
+            });
+          });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          Swal.fire({
+            title: 'Clonación cancelada',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+    });
+  }
+
+  formatearVigencias(row) {
+    if(!row.vigencia_aplica || JSON.parse(row.vigencia_aplica).length == 0) return 'Por definir';
+    return JSON.parse(row.vigencia_aplica).map(vigencia => vigencia.Nombre).join(', ');
   }
 
   cambiarValor(valorABuscar, valorViejo, valorNuevo) {
