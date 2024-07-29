@@ -69,6 +69,7 @@ export class AgregarDialogComponent implements OnInit {
   eliminarOpcion(index: number) {
     this.listaOpciones.splice(index, 1);
     this.actualizarOpciones();
+    this.formAgregar.get('opciones').setValue(''); // Limpiar el input después de añadir la opción
   }
   
   actualizarOpciones() {

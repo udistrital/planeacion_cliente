@@ -92,8 +92,9 @@ export class EditarDialogComponent implements OnInit {
     this.vBandera = false;
     this.vObligatorio = false;
   }
-ngOnInit(): void {
-  this.formEditar = this.formBuilder.group({
+
+  async ngOnInit(): Promise<void> {
+    this.formEditar = this.formBuilder.group({
     aplicativo_id: [this.aplicativoId, Validators.required],
     fecha_creacion: [this.fechaCreacion, Validators.required],
     descripcion: [this.descripcion, Validators.required],
@@ -134,6 +135,7 @@ adicionarOpcion() {
 eliminarOpcion(index: number) {
   this.listaOpciones.splice(index, 1);
   this.actualizarOpciones();
+  this.formEditar.get('opciones').setValue(''); // Limpiar el input después de añadir la opción
 }
 
 actualizarOpciones() {
@@ -150,6 +152,7 @@ close(): void {
 closecancelar(): void {
   this.dialogRef.close();
 }
+
 onOpenedChange(isOpened: boolean) {
   if (isOpened) {
     Swal.fire({
