@@ -38,6 +38,7 @@ export class AppComponent implements OnInit {
       if (event.detail) {
         this.loadRouting = true;
         this.userService.updateUser(event.detail);
+        this.notificacionesService.connectWebSocket();
       }
     });
 
