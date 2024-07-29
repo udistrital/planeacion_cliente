@@ -20,9 +20,8 @@ export class AgregarDialogComponent implements OnInit {
   opt: boolean;
   vBandera: boolean;
   vObligatorio: boolean;
-  nuevaOpcion: string = '';
-  opciones: string[] = [];
-  listaOpciones: string[] = [];
+  listaOpciones: any;
+
   constructor(
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<AgregarDialogComponent>,
@@ -40,19 +39,18 @@ export class AgregarDialogComponent implements OnInit {
       this.dialogRef.close(this.formAgregar.value);
     }
 
-
   ngOnInit(): void {
     this.formAgregar = this.formBuilder.group({
       descripcion: ['', Validators.required],
       nombre: ['', Validators.required],
       activo: ['', Validators.required],
-      tipoDato: [{ value: '', disabled: true }, Validators.required],
-      requerido: [{ value: '', disabled: true }, Validators.required],
+      tipoDato: ['', this.control, Validators.required],
+      requerido: ['', this.control, Validators.required],
       parametro: ['', Validators.required],
       bandera: ['', Validators.required],
       opciones: ['', [Validators.maxLength(80)]]  // No es necesario el validator 'required' aquí si se desea permitir el campo vacío
     });
-    if (!this.opt) {
+    if (this.opt == false){
       this.formAgregar.get('opciones').disable();
     }
   }
@@ -80,7 +78,7 @@ export class AgregarDialogComponent implements OnInit {
   closecancelar(): void {
     this.dialogRef.close();
   }
-  
+
   getErrorMessage(campo: FormControl) {
     if (campo.hasError('required', )) {
       return 'Campo requerido';
@@ -91,10 +89,10 @@ export class AgregarDialogComponent implements OnInit {
 
   deshacer(){
     this.formAgregar.reset();
-    this.listaOpciones = []; // Limpiar la lista de opciones también al deshacer
   }
-  onChange(event) {
-    if (event === 'select') {
+
+  onChange(event){
+    if (event == 'select'){
       this.opt = true;
       this.formAgregar.get('opciones').enable();
     } else {
@@ -102,25 +100,24 @@ export class AgregarDialogComponent implements OnInit {
       this.formAgregar.get('opciones').disable();
     }
   }
-  verificarNivel(event: MatRadioChange) {
-    if (event.value === 'false') {
-      this.control = { value: '', disabled: true, visible: false };
-      this.opt = false;
+
+  verificarNivel(event: MatRadioChange){
+    if(event.value == "false"){
+      this.control = {value: '', disabled: true, visible: false }
       this.vBandera = false;
-      this.formAgregar.get('bandera').setValue('false');
+      this.formAgregar.get('bandera').setValue("false");
       this.formAgregar.get('tipoDato').disable();
       this.formAgregar.get('requerido').disable();
       this.formAgregar.get('opciones').disable();
-    } else if (event.value === 'true') {
-      this.control = { value: '', disabled: false, visible: true };
+    }else if (event.value == "true"){
+      this.control = { value: '', disabled: false, visible: true }
       this.vBandera = true;
       this.vObligatorio = false;
-      this.opt = true;
-      this.formAgregar.get('bandera').setValue('');
-      this.formAgregar.get('tipoDato').setValue('');
+      this.formAgregar.get('bandera').setValue("");
+      this.formAgregar.get('tipoDato').setValue("");
       this.formAgregar.get('tipoDato').enable();
       this.formAgregar.get('requerido').enable();
-      if (this.opt) {
+      if (this.opt){
         this.formAgregar.get('opciones').enable();
       }
     }
@@ -128,10 +125,11 @@ export class AgregarDialogComponent implements OnInit {
   }
 
   verificarBandera(event) {
-    if (event === 'true') {
-      this.formAgregar.get('requerido').setValue('true');
-    } else {
-      this.formAgregar.get('requerido').setValue('');
+    if (event == "true") {
+      this.vObligatorio = false;
+      this.formAgregar.get('requerido').setValue("true");
+    } else if (event == "false"){
+      this.vObligatorio = true;
     }
   }
 }
@@ -140,3 +138,5 @@ interface tipoDato{
   value: string;
   viewValue: string;
 }
+
+
