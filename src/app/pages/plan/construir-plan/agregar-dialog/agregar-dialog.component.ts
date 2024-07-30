@@ -20,8 +20,7 @@ export class AgregarDialogComponent implements OnInit {
   opt: boolean;
   vBandera: boolean;
   vObligatorio: boolean;
-  listaOpciones: any;
-
+  listaOpciones: string[] = []; 
   constructor(
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<AgregarDialogComponent>,
@@ -50,6 +49,7 @@ export class AgregarDialogComponent implements OnInit {
       bandera: ['', Validators.required],
       opciones: ['', [Validators.maxLength(80)]]  // No es necesario el validator 'required' aquí si se desea permitir el campo vacío
     });
+
     if (this.opt == false){
       this.formAgregar.get('opciones').disable();
     }
