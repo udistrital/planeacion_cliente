@@ -68,8 +68,7 @@ export class EditarDialogComponent implements OnInit {
     value: String(this.data.sub.banderaTabla),
     disabled: false
   };
-  listaOpciones: any;
-
+  listaOpciones: string[] = []; 
   constructor(
     private formBuilder: FormBuilder,
     private cdRef: ChangeDetectorRef,
