@@ -42,7 +42,7 @@ export const environment = {
   ASSETS_SERVICE: "https://assets.portaloas.udistrital.edu.co/",
 
   // Notificaciones
-  NOTIFICACION_MID_WS: "ws://autenticacion.portaloas.udistrital.edu.co/apioas/notificacion_mid/v1/ws",
+  NOTIFICACION_MID_WS: "wss://autenticacion.portaloas.udistrital.edu.co/apioas/notificacion_mid/v1/ws",
   NOTIFICACIONES_CRUD: "http://pruebasapi2.intranetoas.udistrital.edu.co:8561/",
 
   TOKEN: {
