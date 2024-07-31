@@ -115,8 +115,7 @@ export class EditarDialogComponent implements OnInit {
       banderaTabla: [this.banderaTablaS, Validators.required],
       opciones: ['', [Validators.maxLength(80)]]
     });
-    // Inicializar listaOpciones con el valor actual del campo 'opciones'
-    this.listaOpciones = this.opciones.split(',').filter(opcion => opcion.trim() !== '');
+    
     this.verificarDetalle();
     await this.loadPeriodos();
     await this.loadTiposPlan();
@@ -223,6 +222,8 @@ export class EditarDialogComponent implements OnInit {
         this.formEditar.get('opciones').enable();
         this.formEditar.get('tipoDato').enable();
         this.formEditar.get('requerido').enable();
+        // Inicializar listaOpciones con el valor actual del campo 'opciones'
+        this.listaOpciones = this.opciones.split(',').filter(opcion => opcion.trim() !== '');
       } else if (this.tipoDato == 'input' || this.tipoDato == 'numeric') {
         this.opt = false;
         this.vParametros = true;
