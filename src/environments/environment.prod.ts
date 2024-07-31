@@ -25,7 +25,7 @@ export const environment = {
   ASSETS_SERVICE: "https://pruebasassets.portaloas.udistrital.edu.co/",
 
   // Notificaciones
-  NOTIFICACION_MID_WS: "ws://autenticacion.portaloas.udistrital.edu.co/apioas/notificacion_mid/v1/ws",
+  NOTIFICACION_MID_WS: "wss://autenticacion.portaloas.udistrital.edu.co/apioas/notificacion_mid/v1/ws",
   NOTIFICACIONES_CRUD: "https://autenticacion.portaloas.udistrital.edu.co/apioas/notificaciones_crud/",
   
   TOKEN: {
