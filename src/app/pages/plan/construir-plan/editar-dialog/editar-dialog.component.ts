@@ -116,10 +116,10 @@ export class EditarDialogComponent implements OnInit {
       opciones: ['', [Validators.maxLength(80)]]
     });
     
-    this.verificarDetalle();
     await this.loadPeriodos();
     await this.loadTiposPlan();
     await this.compararTipoPlan_PED_PI();
+    this.verificarDetalle();
     // Suscribe a los cambios en el formulario
     this.formEditar.valueChanges.subscribe(() => {
       this.formularioModificado = true;
@@ -127,6 +127,7 @@ export class EditarDialogComponent implements OnInit {
       this.cdRef.detectChanges();
     });
   }
+
   adicionarOpcion() {
     const opcion = this.formEditar.get('opciones').value.trim();
     if (opcion && !this.listaOpciones.includes(opcion)) {
