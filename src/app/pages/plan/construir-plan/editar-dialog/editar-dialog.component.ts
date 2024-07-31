@@ -119,9 +119,7 @@ export class EditarDialogComponent implements OnInit {
     await this.loadPeriodos();
     await this.loadTiposPlan();
     await this.compararTipoPlan_PED_PI();
-    setTimeout(() => {
-      this.verificarDetalle();
-    }, 0);
+    this.verificarDetalle();
     // Suscribe a los cambios en el formulario
     this.formEditar.valueChanges.subscribe(() => {
       this.formularioModificado = true;
@@ -221,12 +219,12 @@ export class EditarDialogComponent implements OnInit {
       if (this.tipoDato == 'select') {
         this.opt = true;
         this.vParametros = true;
-        // Inicializar listaOpciones con el valor actual del campo 'opciones'
-        this.listaOpciones = this.opciones.split(',').filter(opcion => opcion.trim() !== '');
         this.formEditar.get('parametro').setValue("true");
         this.formEditar.get('opciones').enable();
         this.formEditar.get('tipoDato').enable();
         this.formEditar.get('requerido').enable();
+        // Inicializar listaOpciones con el valor actual del campo 'opciones'
+        this.listaOpciones = this.opciones.split(',').filter(opcion => opcion.trim() !== '');
       } else if (this.tipoDato == 'input' || this.tipoDato == 'numeric') {
         this.opt = false;
         this.vParametros = true;
