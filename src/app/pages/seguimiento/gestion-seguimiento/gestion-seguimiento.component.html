@@ -92,9 +92,6 @@
                 <button *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && estado=='Revisión Verificada'" class="background-button"
                     mat-raised-button color="primary" (click)="iniciarRevision()">Iniciar revisión OAPC</button>
 
-                <!-- <button *ngIf="rol=='JEFE_DEPENDENCIA' && estado=='En revisión JU'" class="background-button"
-                    mat-raised-button color="primary" (click)="verificarRevision()">Verificar revisión</button> -->
-
                 <button *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && estado=='En revisión OAPC'" class="background-button"
                     mat-raised-button color="primary" (click)="finalizarRevision()">Finalizar revisión OAPC</button>
 
