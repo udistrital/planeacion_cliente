@@ -38,7 +38,7 @@ export class Notificaciones {
         );
       });
     } catch (error: any) {
-      throw new Error(`Error al obtener datos de ${url}/${endpoint}: ${error.message}`);
+      throw new Error(`Error al obtener datos de ${url}${endpoint}: ${error.message}`);
     }
   }
 
