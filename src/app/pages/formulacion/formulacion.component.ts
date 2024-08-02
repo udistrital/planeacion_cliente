@@ -61,6 +61,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   banderaIdentDocentes: boolean;
   banderaUltimaVersion: boolean;
   banderaEstadoDatos: boolean;
+  banderaRealizarAjustes: boolean;
   tipoPlanId: string;
   idPadre: string;
   tipoPlanIndicativo: string;
@@ -168,6 +169,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.ID_ESTADO_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP');
     this.ID_ESTADO_AJUSTE_PRESUPUESTAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'AP_SP');
     this.ID_ESTADO_REVISION_VERIFICADA = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
+    this.banderaRealizarAjustes = false;
 
     this.miObservableSubscription = this.verificarFormulario.formData$.subscribe(formData => {
       if (formData.length !== 0) {
@@ -815,6 +817,7 @@ async onChangeU(unidad) {
       this.estadoPlan = "";
       this.iconEstado = "";
       this.versionPlan = "";
+      this.versionDesdeTabla = undefined;
       this.banderaEstadoDatos = false;
       this.plan = plan;
       this.planAsignado = false;
@@ -982,19 +985,23 @@ async onChangeU(unidad) {
           this.versiones.forEach((_, i) => {
             this.versiones[i]['numero'] = (i + 1).toString();
           });
-          this.plan =
-            this.versiones[
-            this.versionDesdeTabla == undefined || this.versionDesdeTabla > this.versiones.length
-              ? this.versiones.length - 1
-              : this.versionDesdeTabla - 1
-            ];
+          let indexToSelect: number;
+          if(this.banderaRealizarAjustes) {
+            indexToSelect = this.versiones.length - 1;
+            this.banderaRealizarAjustes = false;
+          } else {
+            indexToSelect = (this.versionDesdeTabla == undefined || this.versionDesdeTabla > this.versiones.length)
+            ? this.versiones.length - 1
+            : this.versionDesdeTabla - 1;
+          }
+          this.plan = this.versiones[indexToSelect];
           this.planAsignado = true;
           this.clonar = false;
-          this.banderaUltimaVersion = true;
           this.loadData(planRecienCreado);
           this.controlVersion = new FormControl(this.plan);
           this.versionPlan = this.plan.numero;
           this.getEstado();
+          this.banderaUltimaVersion = true;
         }
       }, (error) => {
         Swal.fire({
@@ -1761,12 +1768,6 @@ async onChangeU(unidad) {
             })
           }
         })
-        Swal.fire({
-          title: 'Estado actualizado (SIN CAMBIOS)',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 2500
-        })
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Inicio de Revisión Cancelado',
@@ -1899,6 +1900,7 @@ async onChangeU(unidad) {
   }
 
   realizarAjustes() {
+    this.banderaRealizarAjustes = true;
     Swal.fire({
       title: 'Realizar Ajustes',
       text: `¿Desea realizar ajustes al Plan?`,
