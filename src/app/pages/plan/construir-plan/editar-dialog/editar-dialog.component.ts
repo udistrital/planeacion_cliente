@@ -42,6 +42,7 @@ export class EditarDialogComponent implements OnInit {
   vBandera: boolean;
   vTipoPlan: boolean;
   vObligatorio: boolean;
+  vCargando: boolean;
 
   tipos: tipoDato[] = [
     { value: 'numeric', viewValue: 'Numérico' },
@@ -74,7 +75,9 @@ export class EditarDialogComponent implements OnInit {
     private cdRef: ChangeDetectorRef,
     public dialogRef: MatDialogRef<EditarDialogComponent>,
     private request: RequestManager,
-    @Inject(MAT_DIALOG_DATA) public data: any) {
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    this.vCargando = true;
     this.aplicativoId = data.sub.aplicativo_id;
     this.fechaCreacion = data.sub.fecha_creacion;
     this.nombre = data.sub.nombre;
@@ -100,6 +103,7 @@ export class EditarDialogComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    this.mostrarMensajeCarga();
     this.formEditar = this.formBuilder.group({
       aplicativo_id: [this.aplicativoId, Validators.required],
       fecha_creacion: [this.fechaCreacion, Validators.required],
@@ -107,7 +111,6 @@ export class EditarDialogComponent implements OnInit {
       nombre: [this.nombre, Validators.required],
       activo: [this.activoS, Validators.required],
       tipo_plan_id: [this.tipoPlan, Validators.required],
-      vigencia_aplica: [[]],
       formato: [this.formatoS, Validators.required],
       parametro: ['', Validators.required],
       tipoDato: [this.tipoDato, Validators.required],
@@ -164,6 +167,17 @@ export class EditarDialogComponent implements OnInit {
         confirmButtonText: 'OK'
       });
     }
+  }
+
+  mostrarMensajeCarga(): void {
+    Swal.fire({
+      title: 'Cargando datos...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
   }
 
   getErrorMessage(campo: FormControl) {
@@ -254,6 +268,8 @@ export class EditarDialogComponent implements OnInit {
     if (this.formEditar.get('banderaTabla').value == "false") {
       this.vObligatorio = true;
     }
+    Swal.close();
+    this.vCargando = false;
   }
 
   verificarNivel(event: MatRadioChange) {
@@ -319,15 +335,27 @@ export class EditarDialogComponent implements OnInit {
   }
 
   async compararTipoPlan_PED_PI() {
+    let tipoPlanPI;
+    let tipoPlanPED;
     this.vVigenciaAplicaTipoPlan = false;
     this.tiposPlanes.forEach(tipoPlan => {
-      if(tipoPlan.codigo_abreviacion == 'PLI_SP' || tipoPlan.codigo_abreviacion == 'PD_SP') {
-        if(this.formEditar.get('tipo_plan_id').value == tipoPlan._id) {
-          this.vVigenciaAplicaTipoPlan = true;
-          if(this.vigencia_aplica_selected != null) this.setSelectedVigencias();
-        }
+      if(tipoPlan.codigo_abreviacion == 'PLI_SP') {
+        tipoPlanPI = tipoPlan;
+      }
+      if(tipoPlan.codigo_abreviacion == 'PD_SP') {
+        tipoPlanPED = tipoPlan;
       }
     });
+    if(this.formEditar.get('tipo_plan_id').value == tipoPlanPED._id || this.formEditar.get('tipo_plan_id').value == tipoPlanPI._id) {
+      //? Se adiciona control para seleccionar vigencias a las que aplica el PI o PED
+      this.formEditar.addControl('vigencia_aplica', this.formBuilder.control([], Validators.required));
+      this.vVigenciaAplicaTipoPlan = true;
+      if(this.vigencia_aplica_selected != null) this.setSelectedVigencias();
+    } else {
+      //? Se elimina control para seleccionar vigencias a las que aplica el PI o PED
+      this.vVigenciaAplicaTipoPlan = false;
+      this.formEditar.removeControl('vigencia_aplica');
+    }
   }
 
   async loadPeriodos() {

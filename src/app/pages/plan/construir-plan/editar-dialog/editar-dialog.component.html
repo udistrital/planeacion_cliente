@@ -1,9 +1,9 @@
 <mat-card class="card-dialog">
-  <mat-card-header>
+  <mat-card-header [hidden]="vCargando">
     <mat-card-title *ngIf="data.ban == 'nivel'">Editar Nivel {{data.nivel}}</mat-card-title>
     <mat-card-title *ngIf="data.ban == 'plan'">Editar Plan</mat-card-title>
   </mat-card-header>
-  <form [formGroup]="formEditar">
+  <form [formGroup]="formEditar" [hidden]="vCargando">
     <mat-card-content>
       <mat-form-field appearance="fill" [style.width.%]="100">
         <mat-label id="nombre-input-label">Nombre</mat-label>
