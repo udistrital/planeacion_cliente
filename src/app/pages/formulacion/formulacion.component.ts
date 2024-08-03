@@ -1247,6 +1247,10 @@ async onChangeU(unidad) {
         })
       })
     }
+    this.idPadre = undefined;
+    this.tipoPlanId = undefined;
+    this.idPlanIndicativo = undefined;
+    this.tipoPlanIndicativo = undefined;
   }
 
   cleanBeforeLoad(): Promise<void> {
