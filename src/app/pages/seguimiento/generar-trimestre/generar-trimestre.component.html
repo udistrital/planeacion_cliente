@@ -442,7 +442,7 @@
             reporte</button>
         </div>
         <div class="align-button-action"
-          *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && (readonlyObservacion || estadoActividad==='Sin reporte' || estadoActividad==='Actividad en reporte' || estadoActividad==='Actividad avalada') && (estadoSeguimiento==='Con observaciones' || estadoSeguimiento==='Reporte Avalado')">
+          *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && (readonlyObservacion || estadoActividad==='Actividad avalada') && (estadoSeguimiento==='En revisión OAPC' || estadoSeguimiento==='Reporte Avalado')">
           <button class="background-button-action" mat-raised-button color="primary"
             *ngIf="estadoActividad==='Actividad avalada'" (click)="retornarRevision()">Retornar a
             revisión</button>
