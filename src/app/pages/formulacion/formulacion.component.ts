@@ -1001,7 +1001,11 @@ async onChangeU(unidad) {
           this.controlVersion = new FormControl(this.plan);
           this.versionPlan = this.plan.numero;
           this.getEstado();
-          this.banderaUltimaVersion = true;
+          if (indexToSelect+1 == this.versiones.length) {
+            this.banderaUltimaVersion = true;
+          } else {
+            this.banderaUltimaVersion = false;
+          }
         }
       }, (error) => {
         Swal.fire({
