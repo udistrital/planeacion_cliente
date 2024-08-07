@@ -655,6 +655,7 @@ async onChangeU(unidad) {
   }
 
   submit() {
+    this.mostrarMensajeCarga();
     if (!this.banderaEdit) { // ADD NUEVA ACTIVIDAD
       if (this.dataArmonizacionPED.length != 0 && this.dataArmonizacionPI.length != 0) {
 
