@@ -15,7 +15,9 @@ export class Notificaciones {
     private router: Router,
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService
-  ) {}
+  ) {
+    this.request.updateHeaderToken();
+  }
 
   connectWebSocket(){
     this.socket$ = new WebSocketSubject(environment.NOTIFICACION_MID_WS);
