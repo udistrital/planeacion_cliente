@@ -93,7 +93,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   private miObservableSubscription: Subscription;
   private routeSubscription: Subscription;
   pendienteCheck: boolean;
-  fromUrl: boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -110,7 +109,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private verificarFormulario: VerificarFormulario,
     private codigosService: CodigosService
   ) {
-    this.loadPeriodos();
     this.formArmonizacion = this.formBuilder.group({
       selectPED: ['',],
       selectPI: ['',]
@@ -133,23 +131,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     this.moduloVisible = false;
     this.isChecked = true;
     this.pendienteCheck = false;
-
-    let roles: any = this.autenticationService.getRole();
-    
-    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
-      this.rol = 'PLANEACION';
-    } else if (roles.__zone_symbol__value.find((x) => x == 'ASISTENTE_PLANEACION')) {
-      this.rol = 'ASISTENTE_PLANEACION';
-    } else if (
-      roles.__zone_symbol__value.find((x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')){
-      this.rol = 'JEFE_DEPENDENCIA';
-    }
-
-    if(this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
-      this.loadUnidades();
-    }else if (this.rol == 'JEFE_DEPENDENCIA') {
-      this.validarUnidad();
-    }
   }
 
   //displayedColumns: string[] = ['numero', 'nombre', 'rubro', 'valor', 'observacion', 'activo'];
@@ -160,6 +141,24 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   dataSource: MatTableDataSource<any>;
 
   async ngOnInit(){
+    let roles: any = this.autenticationService.getRole();
+    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION')) {
+      this.rol = 'PLANEACION';
+    } else if (roles.__zone_symbol__value.find((x) => x == 'ASISTENTE_PLANEACION')) {
+      this.rol = 'ASISTENTE_PLANEACION';
+    } else if (
+      roles.__zone_symbol__value.find((x) => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')){
+      this.rol = 'JEFE_DEPENDENCIA';
+    }
+
+    if(this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
+      await this.loadUnidades();
+    }else if (this.rol == 'JEFE_DEPENDENCIA') {
+      await this.validarUnidad();
+    }
+
+    await this.loadPeriodos();
+
     this.ID_ESTADO_EN_FORMULACION = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
     this.ID_ESTADO_FORMULADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP');
     this.ID_ESTADO_EN_REVISION = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'ER_SP');
@@ -188,7 +187,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         vigencia_id != undefined &&
         nombre != undefined
       ) {
-        this.fromUrl = true;
         await this.cargarPlan({
           dependencia_id,
           vigencia_id,
@@ -206,9 +204,6 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     }
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
-    }
-    if (this.fromUrl) {
-      window.location.reload();
     }
   }
 
@@ -331,70 +326,100 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   // Función para llenar el select de unidades
   async validarUnidad() {
     return await new Promise((resolve, reject) => {
-      this.userService.user$.subscribe((data) => {
-        this.request
-          .get(
-            environment.TERCEROS_SERVICE,
-            `datos_identificacion/?query=Numero:` +
-            data['userService']['documento']
-          )
-          .subscribe((datosInfoTercero: any) => {
-            this.request
-              .get(
-                environment.PLANES_MID,
-                `formulacion/vinculacion_tercero/` +
-                datosInfoTercero[0].TerceroId.Id
-              )
-              .subscribe((vinculacion: any) => {
-                if (vinculacion['Data'] != '') {
-                  let vinculaciones: any[] = vinculacion['Data'];
-                  // Procesar la última vinculación
-                  let ultimaVinculacion = vinculaciones[vinculaciones.length - 1];
-                  vinculaciones.forEach(vinculacion => {
-                    this.request
-                      .get(
-                        environment.OIKOS_SERVICE,
-                        `dependencia_tipo_dependencia?query=DependenciaId:` +
-                        vinculacion['DependenciaId']
-                      )
-                      .subscribe((dataUnidad: any) => {
-                        if (dataUnidad) {
-                          let unidadesOrdenadas = (dataUnidad as any[]).sort((a: any, b: any) => {
-                            let fechaA = new Date(a['DependenciaId']['FechaModificacion'])
-                            let fechaB = new Date(b['DependenciaId']['FechaModificacion'])
-                            return fechaB.getTime() - fechaA.getTime(); // Orden descendente
-                          });
-                          let unidad = unidadesOrdenadas[0]['DependenciaId'];
-                          unidad['TipoDependencia'] = unidadesOrdenadas[0]['TipoDependenciaId']['Id'];
-                          for (let i = 0; i < dataUnidad.length; i++) {
-                            if (dataUnidad[i]['TipoDependenciaId']['Id'] === 2) {
-                              unidad['TipoDependencia'] = dataUnidad[i]['TipoDependenciaId']['Id'];
-                            }
-                          }
-                          this.unidades.push(unidad);
-                          this.auxUnidades.push(unidad);
-                          this.ultimaVinculacion = ultimaVinculacion.DependenciaId;
-                          this.formSelect.get('selectUnidad').setValue(unidad);
-                          this.onChangeU(unidad);
-                          this.moduloVisible = true;
-                        }
-                      });
-                  });
-                  resolve(true);
-                } else {
-                  this.moduloVisible = false;
-                  Swal.fire({
-                    title: 'Error en la operación',
-                    text: `No cuenta con los permisos requeridos para acceder a este módulo`,
-                    icon: 'warning',
-                    showConfirmButton: false,
-                    timer: 4000,
-                  });
-                  reject();
+      this.userService.user$.subscribe(async (data) => {
+        try {
+          const datosInfoTercero = await this.getDatosIdentificacion(data['userService']['documento']);
+          const vinculacion = await this.getVinculacionTercero(datosInfoTercero[0].TerceroId.Id);
+  
+          if (vinculacion['Data'] != '') {
+            let vinculaciones = vinculacion['Data'];
+            // Procesar la última vinculación
+            let ultimaVinculacion = vinculaciones[vinculaciones.length - 1];
+  
+            for (const vinculacion of vinculaciones) {
+              const dataUnidad:any = await this.getDependenciaTipoDependencia(vinculacion['DependenciaId']);
+  
+              if (dataUnidad) {
+                let unidadesOrdenadas = dataUnidad.sort((a, b) => {
+                  let fechaA = new Date(a['DependenciaId']['FechaModificacion']);
+                  let fechaB = new Date(b['DependenciaId']['FechaModificacion']);
+                  return fechaB.getTime() - fechaA.getTime(); // Orden descendente
+                });
+  
+                let unidad = unidadesOrdenadas[0]['DependenciaId'];
+                unidad['TipoDependencia'] = unidadesOrdenadas[0]['TipoDependenciaId']['Id'];
+                for (let i = 0; i < dataUnidad.length; i++) {
+                  if (dataUnidad[i]['TipoDependenciaId']['Id'] === 2) {
+                    unidad['TipoDependencia'] = dataUnidad[i]['TipoDependenciaId']['Id'];
+                  }
                 }
-              });
+  
+                this.unidades.push(unidad);
+                this.auxUnidades.push(unidad);
+                this.ultimaVinculacion = ultimaVinculacion.DependenciaId;
+                this.formSelect.get('selectUnidad').setValue(unidad);
+                this.onChangeU(unidad);
+                this.moduloVisible = true;
+              }
+            }
+            resolve(true);
+          } else {
+            this.moduloVisible = false;
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `No cuenta con los permisos requeridos para acceder a este módulo`,
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 4000,
+            });
+            reject();
+          }
+        } catch (error) {
+          console.error(error);
+          this.moduloVisible = false;
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `Ocurrió un error al validar la unidad`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 4000,
           });
+          reject(error);
+        }
       });
+    });
+  }
+  
+  getDatosIdentificacion(documento) {
+    return new Promise((resolve, reject) => {
+      this.request
+        .get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + documento)
+        .subscribe(
+          (response) => resolve(response),
+          (error) => reject(error)
+        );
+    });
+  }
+  
+  getVinculacionTercero(terceroId) {
+    return new Promise((resolve, reject) => {
+      this.request
+        .get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + terceroId)
+        .subscribe(
+          (response) => resolve(response),
+          (error) => reject(error)
+        );
+    });
+  }
+  
+  getDependenciaTipoDependencia(dependenciaId) {
+    return new Promise((resolve, reject) => {
+      this.request
+        .get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + dependenciaId)
+        .subscribe(
+          (response) => resolve(response),
+          (error) => reject(error)
+        );
     });
   }
   
@@ -498,20 +523,24 @@ async onChangeU(unidad) {
     });
   }
 
-  loadPeriodos() {
-    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
-      if (data) {
-        this.vigencias = data.Data;
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
+  async loadPeriodos() {
+    return await new Promise((resolve, reject) => {
+      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
+        if (data) {
+          this.vigencias = data.Data;
+          resolve(true);
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+        reject(error)
       })
-    })
+    });
   }
 
   async loadPlanes() {
