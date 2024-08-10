@@ -41,7 +41,7 @@ export class Notificaciones {
     this.socket$.subscribe(); 
 
     // Enviar el docuemento de usuario al servidor cuando se establezca la conexión
-    var docUsuarioAuth: any = this.autenticationService.getDocument();
+    let docUsuarioAuth: any = this.autenticationService.getDocument();
     this.socket$.next(docUsuarioAuth.__zone_symbol__value);
   }
 
@@ -79,7 +79,8 @@ export class Notificaciones {
 
   // Obtener cargos por códigos de abreviación
   async getCargos(codigosAbreviacion: string) {
-    return await this.fetchData(environment.PARAMETROS_SERVICE, `parametro?query=CodigoAbreviacion__in:${codigosAbreviacion}`);
+    const cargos = await this.fetchData(environment.PARAMETROS_SERVICE, `parametro?query=CodigoAbreviacion__in:${codigosAbreviacion}`);
+    return cargos.Data;
   }
   
   // Obtener los usuarios destino por dependencia y cargo
@@ -88,9 +89,9 @@ export class Notificaciones {
   }
 
   // Obtener el documento de un usuario
-  async getDocUsuario(idTercero: string) {
-    const documento = await this.fetchData(environment.TERCEROS_SERVICE, `datos_identificacion?query=TerceroId.Id:${idTercero},TipoDocumentoId.CodigoAbreviacion:CC`);
-    return documento[0];
+  async getDatosIdentificacion(idTercero: string) {
+    const datos = await this.fetchData(environment.TERCEROS_SERVICE, `datos_identificacion?query=TerceroId.Id:${idTercero},TipoDocumentoId.CodigoAbreviacion:CC`);
+    return datos[0];
   }
 
   // Obtener id de la unidad por nombre
@@ -136,7 +137,7 @@ export class Notificaciones {
   }
 
   // Constuir el body de la notificación
-  getBodyNotificacion(data:any) {
+  async getBodyNotificacion(data:any) {
     const cod_modulo = data.codigo[0]
     const { nombre_unidad, nombre_plan, nombre_vigencia, plantilla_mensaje } = data;
 
@@ -153,7 +154,7 @@ export class Notificaciones {
     }
 
     // Obtener el documento del usuario autenticado
-    var docUsuarioAuth: any = this.autenticationService.getDocument();
+    var docUsuarioAuth: any = await this.autenticationService.getDocument();
 
     // Construir metadatos del sistema (información necesaria para planeacion_cliente)
     const metadatos:any = {
@@ -172,7 +173,7 @@ export class Notificaciones {
       sistema_id: data.sistema_id,
       tipo_notificacion_id: data.tipo_notificacion_id,
       destinatarios: data.documentos,
-      remitente: docUsuarioAuth.__zone_symbol__value,
+      remitente: docUsuarioAuth,
       asunto: this.NOTIFICACION.ASUNTO,
       mensaje,
       metadatos,
@@ -181,7 +182,7 @@ export class Notificaciones {
   }
 
   // Constuir el body del correo
-  getBodyCorreo(data: any){
+  getBodyCorreo(data: any) {
     const cod_modulo = data.codigo[0]
     let { codigo, correos, nombre_unidad, nombre_plan, nombre_vigencia } = data;
 
@@ -221,7 +222,7 @@ export class Notificaciones {
       
       try {
         const cargos = await this.getCargos(codigosAbreviacion.join("|"));
-        let idsCargos = cargos.Data.map((cargo:any) => cargo.Id).join("|");
+        let idsCargos = cargos.map((cargo:any) => cargo.Id).join("|");
 
         // Obtener el id de la vigencia si no está en los datos de la bandera
         let dependencias: string;
@@ -244,9 +245,9 @@ export class Notificaciones {
         for (let i = 0; i < usuarios.length; i++) {
           const usuario = usuarios[i];
           if (Object.keys(usuario).length > 0 && usuario.TerceroPrincipalId.Id) {
-            const doc = await this.getDocUsuario(usuario.TerceroPrincipalId.Id);
-            if (Object.keys(doc).length > 0 && typeof doc.Numero === "string" && doc.Numero !== "") {
-              documentos.push(doc.Numero);
+            const datos = await this.getDatosIdentificacion(usuario.TerceroPrincipalId.Id);
+            if (Object.keys(datos).length > 0 && typeof datos.Numero === "string" && datos.Numero !== "") {
+              documentos.push(datos.Numero);
             }
 
             const correo = usuario.TerceroPrincipalId.UsuarioWSO2;
@@ -267,7 +268,7 @@ export class Notificaciones {
           sistema_id,
           tipo_notificacion_id
         }
-        const bodyNotificacion = this.getBodyNotificacion(dataNotificacion);
+        const bodyNotificacion = await this.getBodyNotificacion(dataNotificacion);
         const notificaciones = await this.publicarNotificaciones(bodyNotificacion);
 
         // Establecer nuevamente la conexión (el servidor lo reconocerá como una conexión ya existente)
