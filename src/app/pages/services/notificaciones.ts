@@ -281,7 +281,6 @@ export class Notificaciones {
         // Enviar notificaciones por correo
         let dataCorreo = { ...datosBandera, correos}
         const bodyCorreo = this.getBodyCorreo(dataCorreo);
-        console.log("bodyCorreo:", bodyCorreo);
         await this.enviarCorreos(bodyCorreo);
 
       } catch (error) {
