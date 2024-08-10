@@ -46,7 +46,7 @@ export class Notificaciones {
   }
 
   // Función genérica para hacer solicitudes HTTP GET
-  private async fetchData(url: string, endpoint:string): Promise<any> {
+  private async fetchData(url: string, endpoint: string): Promise<any> {
     try {
       return await new Promise((resolve, reject) => {
         this.request.get(url, endpoint).subscribe(
@@ -107,14 +107,14 @@ export class Notificaciones {
   }
 
   // Obtener id del plan por nombre, unidad y vigencia
-  async getIdPlan(nombrePlan: string, idDependencia:string, idVigencia:string) {
+  async getIdPlan(nombrePlan: string, idDependencia: string, idVigencia: string) {
     const plan = await this.fetchData(environment.PLANES_CRUD, `plan?query=nombre:${nombrePlan},dependencia_id:${idDependencia},vigencia:${idVigencia},activo:true,formato:false`);
     return plan.Data[0]._id;
   }
 
   // Publicar notificación
   async publicarNotificaciones(data: any): Promise<any[]> {
-    const notificaciones:any = await new Promise((resolve, reject) => {
+    const notificaciones: any = await new Promise((resolve, reject) => {
       this.request.post(environment.NOTIFICACIONES_CRUD, 'notificacion', data)
         .subscribe(
           (data: any) => resolve(data),
@@ -126,7 +126,7 @@ export class Notificaciones {
 
   // Enviar correos
   async enviarCorreos(data: any): Promise<any[]> {
-    const notificaciones:any = await new Promise((resolve, reject) => {
+    const notificaciones: any = await new Promise((resolve, reject) => {
       this.request.post(environment.NOTIFICACION_MID, 'email/enviar_templated_email/', data)
         .subscribe(
           (data: any) => resolve(data),
@@ -137,13 +137,13 @@ export class Notificaciones {
   }
 
   // Constuir el body de la notificación
-  async getBodyNotificacion(data:any) {
+  async getBodyNotificacion(data: any) {
     const cod_modulo = data.codigo[0]
     const { nombre_unidad, nombre_plan, nombre_vigencia, plantilla_mensaje } = data;
 
     // Modificar el mensaje de la plantilla
     let mensaje = plantilla_mensaje;
-    const reemplazos:any = {"[NOMBRE UNIDAD]": nombre_unidad, "[NOMBRE PLAN]": nombre_plan, "[VIGENCIA]": nombre_vigencia};
+    const reemplazos: any = {"[NOMBRE UNIDAD]": nombre_unidad, "[NOMBRE PLAN]": nombre_plan, "[VIGENCIA]": nombre_vigencia};
 
     if (cod_modulo === "S") {
       reemplazos["[TRIMESTRE]"] = data.trimestre;
@@ -157,7 +157,7 @@ export class Notificaciones {
     var docUsuarioAuth: any = await this.autenticationService.getDocument();
 
     // Construir metadatos del sistema (información necesaria para planeacion_cliente)
-    const metadatos:any = {
+    const metadatos: any = {
       modulo: cod_modulo == "F" ? "formulacion" : "seguimiento",
       nombre_unidad,
       nombre_plan,
@@ -213,16 +213,16 @@ export class Notificaciones {
 
     if (plantilla?.metadatos?.destinatarios) {       
       let codigosAbreviacion: string[] = [];
-      if (plantilla.metadatos.destinatarios.some((str:any) => str.includes("jefe"))) {
+      if (plantilla.metadatos.destinatarios.some((str: any) => str.includes("jefe"))) {
         codigosAbreviacion.push("JO");
       } 
-      if (plantilla.metadatos.destinatarios.some((str:any) => str.includes("asistente"))) {
+      if (plantilla.metadatos.destinatarios.some((str: any) => str.includes("asistente"))) {
         codigosAbreviacion.push("AS_D", "NR");
       }
       
       try {
         const cargos = await this.getCargos(codigosAbreviacion.join("|"));
-        let idsCargos = cargos.map((cargo:any) => cargo.Id).join("|");
+        let idsCargos = cargos.map((cargo: any) => cargo.Id).join("|");
 
         // Obtener el id de la vigencia si no está en los datos de la bandera
         let dependencias: string;
@@ -234,7 +234,7 @@ export class Notificaciones {
         }
 
         // Añadir dependencia de planeación si aplica
-        if (plantilla.metadatos.destinatarios.some((str:string) => str.includes("planeacion"))) {
+        if (plantilla.metadatos.destinatarios.some((str: string) => str.includes("planeacion"))) {
           dependencias += "|11"; // Id dependencia planeacion
         }
 
