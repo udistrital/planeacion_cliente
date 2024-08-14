@@ -315,21 +315,121 @@ export class EvaluacionPlanComponent implements OnInit {
   }
 
   //agregar color al Cumplimiento por Meta
-  colorCM(rowTrimestreMeta): string {
-    if(rowTrimestreMeta === undefined){
-      return ''
-    } else {
-      if (rowTrimestreMeta >= 0 && rowTrimestreMeta <= 0.2) {
-        return 'meta-rojo';
-      } else if (rowTrimestreMeta >= 0.201 && rowTrimestreMeta <= 0.4) {
-        return 'meta-piel';
-      } else if (rowTrimestreMeta >= 0.401 && rowTrimestreMeta <= 0.6) {
-        return 'meta-naranja';
-      } else if (rowTrimestreMeta >= 0.601 && rowTrimestreMeta <= 0.8) {
-        return 'meta-amarillo';
-      } else if (rowTrimestreMeta >= 0.801) {
-        return 'meta-verde';
+  colorCM(fila, trimestre): string {
+    if (fila !== undefined){
+      if (fila.trimestre1 !== undefined && trimestre === 1){
+        if (fila.trimestre1.tipo_denominador === "Denominador variable"){
+          if (fila.trimestre1.meta >= 0 && fila.trimestre1.meta <= (0.2 * 0.25)) {
+            return 'meta-rojo';
+          } else if (fila.trimestre1.meta >= (0.201 * 0.25) && fila.trimestre1.meta <= (0.4 * 0.25)) {
+            return 'meta-piel';
+          } else if (fila.trimestre1.meta >= (0.401 * 0.25) && fila.trimestre1.meta <= (0.6 * 0.25)) {
+            return 'meta-naranja';
+          } else if (fila.trimestre1.meta >= (0.601 * 0.25) && fila.trimestre1.meta <= (0.8 * 0.25)) {
+            return 'meta-amarillo';
+          } else if (fila.trimestre1.meta >= (0.801 * 0.25)) {
+            return 'meta-verde';
+          }
+        } else {
+          if (fila.trimestre1.meta >= 0 && fila.trimestre1.meta <= 0.2) {
+            return 'meta-rojo';
+          } else if (fila.trimestre1.meta >= 0.201 && fila.trimestre1.meta <= 0.4) {
+            return 'meta-piel';
+          } else if (fila.trimestre1.meta >= 0.401 && fila.trimestre1.meta <= 0.6) {
+            return 'meta-naranja';
+          } else if (fila.trimestre1.meta >= 0.601 && fila.trimestre1.meta <= 0.8) {
+            return 'meta-amarillo';
+          } else if (fila.trimestre1.meta >= 0.801) {
+            return 'meta-verde';
+          }
+        }
       }
+
+      if (fila.trimestre2 !== undefined && trimestre === 2){
+        if (fila.trimestre2.tipo_denominador === "Denominador variable"){
+          if (fila.trimestre2.meta >= 0 && fila.trimestre2.meta <= (0.2 * 0.5)) {
+            return 'meta-rojo';
+          } else if (fila.trimestre2.meta >= (0.201 * 0.5) && fila.trimestre2.meta <= (0.4 * 0.5)) {
+            return 'meta-piel';
+          } else if (fila.trimestre2.meta >= (0.401 * 0.5) && fila.trimestre2.meta <= (0.6 * 0.5)) {
+            return 'meta-naranja';
+          } else if (fila.trimestre2.meta >= (0.601 * 0.5) && fila.trimestre2.meta <= (0.8 * 0.5)) {
+            return 'meta-amarillo';
+          } else if (fila.trimestre2.meta >= (0.801 * 0.5)) {
+            return 'meta-verde';
+          }
+        } else {
+          if (fila.trimestre2.meta >= 0 && fila.trimestre2.meta <= 0.2) {
+            return 'meta-rojo';
+          } else if (fila.trimestre2.meta >= 0.201 && fila.trimestre2.meta <= 0.4) {
+            return 'meta-piel';
+          } else if (fila.trimestre2.meta >= 0.401 && fila.trimestre2.meta <= 0.6) {
+            return 'meta-naranja';
+          } else if (fila.trimestre2.meta >= 0.601 && fila.trimestre2.meta <= 0.8) {
+            return 'meta-amarillo';
+          } else if (fila.trimestre2.meta >= 0.801) {
+            return 'meta-verde';
+          }
+        }
+      }
+
+      if (fila.trimestre3 !== undefined && trimestre === 3){
+        if (fila.trimestre3.tipo_denominador === "Denominador variable"){
+          if (fila.trimestre3.meta >= 0 && fila.trimestre3.meta <= (0.2 * 0.75)) {
+            return 'meta-rojo';
+          } else if (fila.trimestre3.meta >= (0.201 * 0.75) && fila.trimestre3.meta <= (0.4 * 0.75)) {
+            return 'meta-piel';
+          } else if (fila.trimestre3.meta >= (0.401 * 0.75) && fila.trimestre3.meta <= (0.6 * 0.75)) {
+            return 'meta-naranja';
+          } else if (fila.trimestre3.meta >= (0.601 * 0.75) && fila.trimestre3.meta <= (0.8 * 0.75)) {
+            return 'meta-amarillo';
+          } else if (fila.trimestre3.meta >= (0.801 * 0.75)) {
+            return 'meta-verde';
+          }
+        } else {
+          if (fila.trimestre3.meta >= 0 && fila.trimestre3.meta <= 0.2) {
+            return 'meta-rojo';
+          } else if (fila.trimestre3.meta >= 0.201 && fila.trimestre3.meta <= 0.4) {
+            return 'meta-piel';
+          } else if (fila.trimestre3.meta >= 0.401 && fila.trimestre3.meta <= 0.6) {
+            return 'meta-naranja';
+          } else if (fila.trimestre3.meta >= 0.601 && fila.trimestre3.meta <= 0.8) {
+            return 'meta-amarillo';
+          } else if (fila.trimestre3.meta >= 0.801) {
+            return 'meta-verde';
+          }
+        }
+      }
+
+      if (fila.trimestre4 !== undefined && trimestre === 4){
+        if (fila.trimestre4.tipo_denominador === "Denominador variable"){
+          if (fila.trimestre4.meta >= 0 && fila.trimestre4.meta <= (0.2)) {
+            return 'meta-rojo';
+          } else if (fila.trimestre4.meta >= (0.201) && fila.trimestre4.meta <= (0.4)) {
+            return 'meta-piel';
+          } else if (fila.trimestre4.meta >= (0.401) && fila.trimestre4.meta <= (0.6)) {
+            return 'meta-naranja';
+          } else if (fila.trimestre4.meta >= (0.601) && fila.trimestre4.meta <= (0.8)) {
+            return 'meta-amarillo';
+          } else if (fila.trimestre4.meta >= (0.801)) {
+            return 'meta-verde';
+          }
+        } else {
+          if (fila.trimestre4.meta >= 0 && fila.trimestre4.meta <= 0.2) {
+            return 'meta-rojo';
+          } else if (fila.trimestre4.meta >= 0.201 && fila.trimestre4.meta <= 0.4) {
+            return 'meta-piel';
+          } else if (fila.trimestre4.meta >= 0.401 && fila.trimestre4.meta <= 0.6) {
+            return 'meta-naranja';
+          } else if (fila.trimestre4.meta >= 0.601 && fila.trimestre4.meta <= 0.8) {
+            return 'meta-amarillo';
+          } else if (fila.trimestre4.meta >= 0.801) {
+            return 'meta-verde';
+          }
+        }
+      }
+    } else {
+      return '';
     }
   }
 }
