@@ -23,6 +23,7 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<VisualizarDocumentoDialogComponent>,
     private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data: any) {
+      console.log("DATOS QUE LLEGAN EN VISUALIZAR DOCUMENTO", data);
     this.getRol();
     this.observacion = data.Observacion;
     this.observacionText = this.observacion;
@@ -41,7 +42,7 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
   guardar() {
     this.dialogRef.close({ "Id": this.data["Id"], "Observacion": this.observacionText });
   }
-
+  
   getRol() {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {

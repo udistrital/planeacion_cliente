@@ -28,9 +28,9 @@ export class EvidenciasDialogComponent implements OnInit {
     private gestorDocumental: GestorDocumentalService,
     @Inject(MAT_DIALOG_DATA) public data: Object[]) {
     this.getRol();
-
-    this.readonlyFormulario = JSON.parse(JSON.stringify(data[1]));
+    console.log("DATOS QUE LLEGAN EN EVIDENCIAS: ", data);
     this.dataFiltered = JSON.parse(JSON.stringify(data[0]));
+    this.readonlyFormulario = JSON.parse(JSON.stringify(data[1]));
     this.unidad = String(data[3]);
     this.dataSource = new MatTableDataSource(this.dataFiltered)
     this.filterActive();
@@ -70,7 +70,7 @@ export class EvidenciasDialogComponent implements OnInit {
         width: '1200',
         minHeight: 'calc(100vh - 90px)',
         height: '80%',
-        data: { "url": header + row.file, "editable": !this.data[2] }
+        data: { "url": header + row.file, "editable": !this.data[2], "mostrar_Observaciones": this.data[4], "observaciones_Dependencia": this.data[5], "observaciones_Planeacion": this.data[6] }
       });
     } else {
       Swal.fire({
@@ -89,7 +89,7 @@ export class EvidenciasDialogComponent implements OnInit {
             width: '1200px',
             minHeight: 'calc(100vh - 90px)',
             height: '800px',
-            data: { ...documento[0], "editable": !this.data[2] }
+            data: { ...documento[0], "editable": !this.data[2], "mostrar_Observaciones": this.data[4], "observaciones_Dependencia": this.data[5], "observaciones_Planeacion": this.data[6]}
           });
 
           dialogRef.afterClosed().subscribe(result => {

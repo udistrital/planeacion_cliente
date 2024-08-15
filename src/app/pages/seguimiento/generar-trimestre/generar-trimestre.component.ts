@@ -341,7 +341,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       const dialogRef = this.dialog.open(EvidenciasDialogComponent, {
         width: '80%',
         height: '55%',
-        data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion, this.unidad],
+        data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion, this.unidad, this.mostrarObservaciones, this.ObservacionesDependencia, this.ObservacionesPlaneacion],
       });
 
       dialogRef.afterClosed().subscribe(documentos => {
