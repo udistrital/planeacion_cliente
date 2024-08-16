@@ -8,6 +8,7 @@ import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { ParametroPeriodo } from '../gestion-parametros/utils/gestion-parametros.models';
 
 @Component({
   selector: 'app-construir-plan',
@@ -16,6 +17,7 @@ import { CodigosService } from 'src/app/@core/services/codigos.service';
 })
 export class ConstruirPlanComponent implements OnInit {
   ID_TIPO_PROYECTO: string;
+  ID_TIPO_PAF: string;
 
   formConstruirPlan: FormGroup;
   tipo_plan_id: string; // id tipo plan
@@ -27,6 +29,10 @@ export class ConstruirPlanComponent implements OnInit {
   planes: any[];
   dato: any;
   padreSub: string;
+  formato_parametro_valor: string;
+  formato_id_paf: string;
+  hijos_formato_paf: any[];
+  hijos_plan: any[];
 
   @Output() eventChange = new EventEmitter();
   constructor(
@@ -42,7 +48,6 @@ export class ConstruirPlanComponent implements OnInit {
       this.nombrePlan = prm['nombrePlan'];
       this.tipo_plan_id = prm['tipo_plan_id'];
     });
-    // this.loadPlanes();
   }
 
   actualizarEstructuraPlanes() {
@@ -52,12 +57,14 @@ export class ConstruirPlanComponent implements OnInit {
       icon: 'question',
       confirmButtonText: `Aceptar`,
       cancelButtonText: `Cancelar`,
+      allowEscapeKey: false,
       allowOutsideClick: false,
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
           title: 'Actualizando Planes',
+          allowEscapeKey: false,
           allowOutsideClick: false,
           showConfirmButton: false,
           willOpen: () => {
@@ -222,6 +229,7 @@ export class ConstruirPlanComponent implements OnInit {
   }
 
   putData(res) {
+    this.mostrarMensajeCarga(true);
     let subgrupo = {
       nombre: res.nombre,
       descripcion: res.descripcion,
@@ -269,6 +277,8 @@ export class ConstruirPlanComponent implements OnInit {
                     title: 'Actualización correcta',
                     text: `Se actualizaron correctamente los datos`,
                     icon: 'success',
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
                   }).then((result) => {
                     if (result.value) {
                       this.actualizarEstructuraPlanes()
@@ -283,6 +293,8 @@ export class ConstruirPlanComponent implements OnInit {
                     title: 'Actualización correcta',
                     text: `Se actualizaron correctamente los datos`,
                     icon: 'success',
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
                   }).then((result) => {
                     if (result.value) {
                       this.actualizarEstructuraPlanes()
@@ -291,15 +303,15 @@ export class ConstruirPlanComponent implements OnInit {
                 }
               })
             }
-          }),
-            (error) => {
+          }, (error) => {
               Swal.fire({
                 title: 'Error en la operación',
                 icon: 'error',
                 showConfirmButton: false,
                 timer: 2500
               })
-            };
+            }
+          );
         })
       } else {
         this.request.put(environment.PLANES_CRUD, `subgrupo`, subgrupo, this.uid).subscribe((data: any) => {
@@ -308,24 +320,25 @@ export class ConstruirPlanComponent implements OnInit {
               title: 'Actualización correcta',
               text: `Se actualizaron correctamente los datos`,
               icon: 'success',
+              allowEscapeKey: false,
+              allowOutsideClick: false,
             }).then((result) => {
               if (result.value) {
                 this.actualizarEstructuraPlanes()
               }
             })
           }
-        }),
-          (error) => {
+        }, (error) => {
             Swal.fire({
               title: 'Error en la operación',
               icon: 'error',
               showConfirmButton: false,
               timer: 2500
             })
-          };
+          }
+        );
       }
     })
-
   }
 
   getErrorMessage(campo: FormControl) {
@@ -346,6 +359,7 @@ export class ConstruirPlanComponent implements OnInit {
   // }
 
   receiveMessage(event) {
+    this.mostrarMensajeCarga();
     if (event.bandera == 'editar') {
       this.uid_n = event.fila.level + 1;
       this.uid = event.fila.id; // id del nivel a editar
@@ -370,7 +384,12 @@ export class ConstruirPlanComponent implements OnInit {
                     descripcion: data.Data.descripcion,
                     activo: data.Data.activo,
                     banderaTabla: data.Data.bandera_tabla,
-                    padre: data.Data.padre
+                    padre: data.Data.padre,
+                    hijos: {
+                      hijos_formato_paf: this.hijos_formato_paf,
+                      hijos_plan: this.hijos_plan,
+                    },
+                    nivel_id: this.uid
                   }
                   this.openDialogEditar(subData, subDataDetalle);
                 } else if (!auxiliar.hasOwnProperty("options")) {
@@ -384,7 +403,12 @@ export class ConstruirPlanComponent implements OnInit {
                     descripcion: data.Data.descripcion,
                     activo: data.Data.activo,
                     banderaTabla: data.Data.bandera_tabla,
-                    padre: data.Data.padre
+                    padre: data.Data.padre,
+                    hijos: {
+                      hijos_formato_paf: this.hijos_formato_paf,
+                      hijos_plan: this.hijos_plan,
+                    },
+                    nivel_id: this.uid
                   }
                   this.openDialogEditar(subData, subDataDetalle);
                 }
@@ -398,15 +422,19 @@ export class ConstruirPlanComponent implements OnInit {
                   nombre: data.Data.nombre,
                   descripcion: data.Data.descripcion,
                   activo: data.Data.activo,
-                  banderaTabla: data.Data.bandera_tabla
+                  banderaTabla: data.Data.bandera_tabla,
+                  hijos: {
+                    hijos_formato_paf: this.hijos_formato_paf,
+                    hijos_plan: this.hijos_plan,
+                  },
+                  nivel_id: this.uid
                 }
                 this.openDialogEditar(subData, subDataDetalle);
               }
             }
           })
         }
-      }),
-        (error) => {
+      }, (error) => {
           Swal.fire({
             title: 'Error en la operación',
             text: 'No se encontraron datos registrados',
@@ -415,6 +443,7 @@ export class ConstruirPlanComponent implements OnInit {
             timer: 2500
           })
         }
+      );
     } else if (event.bandera == 'agregar') {
       this.uid_n = event.fila.level + 2; // el nuevo nivel
       this.uid = event.fila.id; // será el padre del nuevo nivel
@@ -487,5 +516,85 @@ export class ConstruirPlanComponent implements OnInit {
       planControl: ['', Validators.required],
     });
     this.ID_TIPO_PROYECTO = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
+  }
+
+  async obtenerFormatoIdPAF() {
+    Swal.close();
+    this.mostrarMensajeCarga(true);
+    await new Promise((resolve) => {
+      this.request
+        .get(
+          environment.PARAMETROS_SERVICE, `parametro_periodo?query=ParametroId.CodigoAbreviacion:FORMATO_PAF,ParametroId.TipoParametroId.CodigoAbreviacion:P_SISGPLAN,Activo:true`
+        )
+        .subscribe((data: any) => {
+          if (data?.Data) {
+            let parametroPeriodo: ParametroPeriodo = data.Data[0];
+            if (parametroPeriodo.Valor != undefined && parametroPeriodo.Valor != null && parametroPeriodo.Valor != "") {
+              this.formato_parametro_valor = JSON.parse(parametroPeriodo.Valor).Valor;
+              this.request
+              .get(
+                environment.PLANES_CRUD, `plan?query=nombre:${this.formato_parametro_valor}`
+              )
+              .subscribe((data: any) => {
+                if (data?.Data) {
+                    this.formato_id_paf = data.Data[0]._id;
+                    resolve(this.formato_id_paf);
+                  }
+                })
+            }
+          }
+        }
+      );
+    });
+  }
+
+  async obtenerHijosPlanFormato_FormatoGenerico() { //? Función para obtener hijos del plan_formato creado y el plan_formato genérico 
+    const promesa1 = new Promise((resolve) => {
+      this.request
+        .get(environment.PLANES_MID, `formato/${this.formato_id_paf}`)
+        .subscribe((data: any) => {
+          if (data) {
+            this.hijos_formato_paf = data[0];
+            resolve(this.hijos_formato_paf);
+          }
+        });
+    });
+    const promesa2 = new Promise((resolve) => {
+      this.request
+        .get(environment.PLANES_MID, `formato/${this.planId}`)
+        .subscribe((data: any) => {
+          if (data) {
+            this.hijos_plan = data[0];
+            resolve(this.hijos_plan);
+          }
+        });
+    })
+
+    try {
+      await Promise.all([promesa1, promesa2]);
+    } catch (error) {
+      console.error('Error en las promesas:', error);
+    } finally {
+      Swal.close();
+    }
+  }
+
+  mostrarMensajeCarga(banderaPeticion: boolean = false): void {
+    Swal.fire({
+      title: (!banderaPeticion) ? 'Cargando datos...' : 'Procesando petición...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  }
+
+  async receiveMessageFromChild() {
+    this.ID_TIPO_PAF = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP')
+    if (this.tipo_plan_id === this.ID_TIPO_PAF) {
+      await this.obtenerFormatoIdPAF();
+      await this.obtenerHijosPlanFormato_FormatoGenerico();
+    }
   }
 }

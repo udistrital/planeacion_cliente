@@ -103,12 +103,14 @@ export class ArbolComponent implements OnInit {
   @Input() tipoPlanId: string;
   @Input() idPlan: string;
   @Input() consulta: boolean;
+  @Input() banderaCarga: boolean;
   @Input() armonizacionPED: boolean;
   @Input() armonizacionPI: boolean;
   @Input() dataArmonizacion: any[];
   @Input() estado: string;
   @Input() updateSignal: Observable<String[]>;
   @Output() grupo = new EventEmitter<any>();
+  @Output() componentLoaded: EventEmitter<void> = new EventEmitter<void>();
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
@@ -134,18 +136,17 @@ export class ArbolComponent implements OnInit {
   async ngOnChanges(changes) {
     if (this.tipoPlanId !== await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
       if (this.idPlan !== this.planActual) {
-        this.loadArbolMid();
-        this.planActual = this.idPlan;
+        await this.loadArbolMid();
       }
     }
     if (changes['updateSignal'] && this.updateSignal) {
-      this.updateSignal.subscribe(() => {
-        this.loadArbolMid();
+      this.updateSignal.subscribe(async () => {
+        await this.loadArbolMid();
       });
     }
   }
 
-  loadArbolMid() {
+  async loadArbolMid() {
     this.mostrar = false;
     Swal.fire({
       title: 'Cargando información',
@@ -156,31 +157,35 @@ export class ArbolComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `arbol/` + this.idPlan).subscribe((data: any) => {
-      Swal.close();
-      if (data.Data !== null) {
-        this.mostrar = true;
-        this.dataSource.data = data.Data;
-        if (this.armonizacionPED || this.armonizacionPI) {
-          this.linksArbol()
-          this.expandNodes()
+    await new Promise((resolve, reject) => {
+      this.request.get(environment.PLANES_MID, `arbol/` + this.idPlan).subscribe(async (data: any) => {
+        if (data.Data !== null) {
+          this.mostrar = true;
+          this.dataSource.data = data.Data;
+          if (this.armonizacionPED || this.armonizacionPI) {
+            await this.linksArbol()
+            await this.expandNodes()
+          }
+        } else {
+          this.dataSource.data = [];
         }
-      } else {
-        this.dataSource.data = [];
-      }
-    }, (error) => {
-      this.dataSource.data = [];
-      Swal.fire({
-        title: 'Error en la operación',
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
+        this.componentLoaded.emit();
+        Swal.close();
+        resolve(true);
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+        reject(error);
       })
-    })
+    });
   }
 
-  linksArbol() {
+  async linksArbol() {
     let deepLevelIxd: number[] = [-1,-1,-1];
     let pastdeepLevelIxd: number[] = deepLevelIxd;
     this.treeControl.dataNodes.forEach((element, i) => {
@@ -193,6 +198,7 @@ export class ArbolComponent implements OnInit {
       const idsHijos = this.treeControl.dataNodes.filter(elementh => elementh.padre_idx == i).map((e) => {return e.idx});
       elementp.hijos_idx = idsHijos;
     })
+    await Promise.resolve();
   }
 
   selectFile(event) {
@@ -351,7 +357,7 @@ export class ArbolComponent implements OnInit {
     }
   }
 
-  expandNodes() {
+  async expandNodes() {
     for (let nodo of this.dataArmonizacion) {
       let found = this.treeControl.dataNodes.find(element => element.id == nodo);
       let index = this.treeControl.dataNodes.indexOf(found);
@@ -365,6 +371,7 @@ export class ArbolComponent implements OnInit {
         }
       }
     }
+    await Promise.resolve();
   }
 
   hasChild = (_: number, node: Nodo) => node.expandable;

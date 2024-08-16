@@ -6,8 +6,8 @@ import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
-import { ParametroPeriodo } from './utils/gestion-parametros.models';
 import { Vigencia } from '../habilitar-reporte/utils/habilitar-reporte.models';
+import { CODIGO_ABREVIACION_CORREO_OAP, CODIGO_ABREVIACION_FORMATO_PAF, ParametroPeriodo } from './utils';
 
 @Component({
   selector: 'app-gestion-parametros',
@@ -21,6 +21,7 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
   banderaAdicion: boolean;
   banderaEdicion: boolean;
   parametroPeriodoEdicion: ParametroPeriodo;
+  codigosParametros: string[] = [CODIGO_ABREVIACION_CORREO_OAP,CODIGO_ABREVIACION_FORMATO_PAF];
 
   dataSource: MatTableDataSource<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -130,10 +131,10 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
 
   inactivar(parametroPeriodo: ParametroPeriodo) {
     let codigoAbreviacionParametro = parametroPeriodo.ParametroId.CodigoAbreviacion;
-    if(codigoAbreviacionParametro === 'CORREO_OAP') {
+    if(this.codigosParametros.includes(codigoAbreviacionParametro)) {
       Swal.fire({
         title: 'Error en la operación',
-        text: 'No es posible inactivar el parámetro CORREO_OAP, comuníquese con computo@udistrital.edu.co',
+        text: `No es posible inactivar el parámetro ${codigoAbreviacionParametro}, comuníquese con computo@udistrital.edu.co`,
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500

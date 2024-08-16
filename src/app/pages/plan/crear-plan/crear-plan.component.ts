@@ -20,6 +20,7 @@ export class CrearPlanComponent implements OnInit {
   formCrearPlan: FormGroup;
   tipos: any[]
   tipoPlan: any;
+  tipoPlanPAF: any;
   nombrePlan: string;
   banderaFormato: boolean = false;
   vigencias: any[];
@@ -49,6 +50,7 @@ export class CrearPlanComponent implements OnInit {
   }
 
   createPlan() {
+    this.mostrarMensajeCarga();
     let dataPlan;
     if (this.formCrearPlan.get('radioFormato').disabled) {
       this.cargarDocumento().then(() => {
@@ -74,11 +76,11 @@ export class CrearPlanComponent implements OnInit {
                   this.dialogRef.close();
                   this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
                     this.router.navigate(['pages/plan/construir-plan-proyecto']);
-                  });                }
+                  });
+                }
               })
             }
-          }),
-          (error) => {
+          }, (error) => {
             Swal.fire({
               title: 'Error en la operación',
               icon: 'error',
@@ -86,6 +88,7 @@ export class CrearPlanComponent implements OnInit {
               timer: 2500
             })
           }
+        )
       })
     } else {
       dataPlan = {
@@ -96,40 +99,66 @@ export class CrearPlanComponent implements OnInit {
         activo: JSON.parse(this.formCrearPlan.get('radioEstado').value),
         formato: JSON.parse(this.formCrearPlan.get('radioFormato').value)
       }
-      let vigencia_aplica = this.formCrearPlan.get('vigencia_aplica').value;
-      if (Array.isArray(vigencia_aplica)) {
-        if (vigencia_aplica.length > 0) {
-          dataPlan['vigencia_aplica'] = JSON.stringify(vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
-        }
-      }
-      this.request.post(environment.PLANES_CRUD, 'plan', dataPlan).subscribe(
-        (data) => {
-          if (data) {
+      if(this.tipoPlanPAF == this.tipoPlan._id) {
+        this.request.post(environment.PLANES_MID, 'formulacion/clonar-formato-paf', dataPlan).subscribe(
+          (data) => {
+            if (data) {
+              Swal.fire({
+                title: 'Registro correcto',
+                text: `Se ingresaron correctamente los datos`,
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  this.dialogRef.close();
+                  this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                    this.router.navigate(['pages/plan/construir-plan-proyecto']);
+                  });
+                }
+              })
+            }
+          }, (error) => {
             Swal.fire({
-              title: 'Registro correcto',
-              text: `Se ingresaron correctamente los datos`,
-              icon: 'success',
-            }).then((result) => {
-              if (result.value) {
-                this.dialogRef.close();
-                this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                  this.router.navigate(['pages/plan/construir-plan-proyecto']);
-                });
-              }
+              title: 'Error en la operación',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2500
             })
           }
-        }),
-        (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            icon: 'error',
-            showConfirmButton: false,
-            timer: 2500
-          })
+        )
+      } else {
+        let vigencia_aplica = this.formCrearPlan.get('vigencia_aplica').value;
+        if (Array.isArray(vigencia_aplica)) {
+          if (vigencia_aplica.length > 0) {
+            dataPlan['vigencia_aplica'] = JSON.stringify(vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
+          }
         }
+        this.request.post(environment.PLANES_CRUD, 'plan', dataPlan).subscribe(
+          (data) => {
+            if (data) {
+              Swal.fire({
+                title: 'Registro correcto',
+                text: `Se ingresaron correctamente los datos`,
+                icon: 'success',
+              }).then((result) => {
+                if (result.value) {
+                  this.dialogRef.close();
+                  this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                    this.router.navigate(['pages/plan/construir-plan-proyecto']);
+                  });
+                }
+              })
+            }
+          }, (error) => {
+            Swal.fire({
+              title: 'Error en la operación',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2500
+            })
+          }
+        )
+      }
     }
-
-
   }
 
   async select(tipo) {
@@ -289,6 +318,7 @@ export class CrearPlanComponent implements OnInit {
       radioFormato: ['', Validators.required],
       vigencia: ['', Validators.required],
     });
+    this.tipoPlanPAF = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP'); 
   }
 
   vigenciaToJson(vigencia: { Id: number, Nombre: string }): string {
@@ -304,5 +334,16 @@ export class CrearPlanComponent implements OnInit {
         confirmButtonText: 'OK'
       });
     }
+  }
+
+  mostrarMensajeCarga(): void {
+    Swal.fire({
+      title: 'Procesando petición...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
   }
 }
