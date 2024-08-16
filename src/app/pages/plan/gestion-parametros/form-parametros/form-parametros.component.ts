@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 import { AreaTipo, Parametro, ParametroPeriodo, TipoParametro } from '../utils/gestion-parametros.models';
+import { CODIGO_ABREVIACION_CORREO_OAP, CODIGO_ABREVIACION_FORMATO_PAF } from '../utils';
 
 @Component({
   selector: 'app-form-parametros',
@@ -20,6 +21,7 @@ export class FormParametrosComponent implements OnInit, OnChanges {
   vigenciaSelected: boolean;
   areaTipo: AreaTipo;
   tipoParametro: TipoParametro;
+  codigosParametros: string[] = [CODIGO_ABREVIACION_CORREO_OAP,CODIGO_ABREVIACION_FORMATO_PAF];
   @Input() banderaAdicion: boolean;
   @Input() banderaEdicion: boolean;
   @Input() vigencias: Vigencia[];
@@ -99,7 +101,7 @@ export class FormParametrosComponent implements OnInit, OnChanges {
   }
 
   loadDataEdicion() {
-    if (this.parametroPeriodoEdicion.ParametroId.CodigoAbreviacion === 'CORREO_OAP') {
+    if (this.codigosParametros.includes(this.parametroPeriodoEdicion.ParametroId.CodigoAbreviacion)) {
       this.formParametros.get('codigoAbreviacion').disable();
     } else {
       this.formParametros.get('codigoAbreviacion').enable();
@@ -128,6 +130,7 @@ export class FormParametrosComponent implements OnInit, OnChanges {
   }
 
   guardar() {
+    this.mostrarMensajeCarga(true);
     if (this.formParametros.valid) {
       if(this.banderaAdicion) {
         let valorParametro = {
@@ -171,6 +174,8 @@ export class FormParametrosComponent implements OnInit, OnChanges {
             Swal.fire({
               title: 'Parámetro agregado',
               icon: 'success',
+              allowEscapeKey: false,
+              allowOutsideClick: false,
               showConfirmButton: false,
               timer: 4500
             }).then(() => {
@@ -216,6 +221,8 @@ export class FormParametrosComponent implements OnInit, OnChanges {
             Swal.fire({
               title: 'Parámetro actualizado',
               icon: 'success',
+              allowEscapeKey: false,
+              allowOutsideClick: false,
               showConfirmButton: false,
               timer: 4500
             }).then(() => {
@@ -246,6 +253,17 @@ export class FormParametrosComponent implements OnInit, OnChanges {
   marcarCamposInvalidos() {
     Object.keys(this.formParametros.controls).forEach(controlName => {
       this.formParametros.get(controlName).markAsTouched();
+    });
+  }
+
+  mostrarMensajeCarga(banderaPeticion: boolean = false): void {
+    Swal.fire({
+      title: (!banderaPeticion) ? 'Cargando datos...' : 'Procesando petición...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
     });
   }
 
