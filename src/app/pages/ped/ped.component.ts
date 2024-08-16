@@ -88,6 +88,7 @@ export class PedComponent implements OnInit {
   }
 
   putData(res, bandera){
+    this.mostrarMensajeCarga(true);
     if (bandera == 'editar'){
       this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
         if(data.Success == true) {
@@ -95,6 +96,8 @@ export class PedComponent implements OnInit {
             title: 'Actualización correcta',
             text: `Se actualizaron correctamente los datos`,
             icon: 'success',
+            allowEscapeKey: false,
+            allowOutsideClick: false,
           }).then((result) => {
             if (result.value) {
               window.location.reload();
@@ -124,6 +127,7 @@ export class PedComponent implements OnInit {
         showCancelButton: true,
         confirmButtonText: `Si`,
         cancelButtonText: `No`,
+        allowEscapeKey: false,
         allowOutsideClick: false,
       }).then((result) => {
           if (result.isConfirmed) {
@@ -200,21 +204,26 @@ export class PedComponent implements OnInit {
   }
 
   async loadData(){
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP')}`).subscribe((data: any) => {
-      if (data){
-        this.planes = data.Data;
-        this.ajustarData();
-      }
-    },(error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
+    this.mostrarMensajeCarga();
+    let PD_SP = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PD_SP');
+    await new Promise((resolve, reject) => {
+      this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${PD_SP}`).subscribe((data: any) => {
+        if (data){
+          this.planes = data.Data;
+          this.ajustarData();
+          resolve(true);
+        }
+      },(error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        });
+        reject(error);
       })
-
-    })
+    });
   }
 
   ajustarData(){
@@ -223,9 +232,11 @@ export class PedComponent implements OnInit {
     this.dataSource = new MatTableDataSource(this.planes);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    Swal.close();
   }
 
   editar(fila): void{
+    this.mostrarMensajeCarga();
     this.uid = fila._id;
     this.request.get(environment.PLANES_CRUD, `plan/`+this.uid).subscribe((data: any) => {
       if(data){
@@ -379,7 +390,18 @@ export class PedComponent implements OnInit {
   }
 
   async ngOnInit(){
-    this.loadData();
+    await this.loadData();
+  }
+
+  mostrarMensajeCarga(banderaPeticion: boolean = false): void {
+    Swal.fire({
+      title: (!banderaPeticion) ? 'Cargando datos...' : 'Procesando petición...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
   }
 
 }
