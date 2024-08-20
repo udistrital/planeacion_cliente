@@ -944,7 +944,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
               this.datosResultados[index].acumuladoNumerador = this.datosResultados[index].acumuladoNumerador;
               this.datosResultados[index].acumuladoDenominador = this.datosResultados[index].acumuladoDenominador;
               this.datosResultados[index].indicador = numerador / denominador;
-              var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
               var metaEvaluada = meta / 100;
               this.datosResultados[index].avanceAcumulado = (this.datosResultados[index].indicadorAcumulado / metaEvaluada);
 
@@ -952,13 +951,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
                 if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
                   this.datosResultados[index].brechaExistente = 0;
                 } else {
-                  this.datosResultados[index].brechaExistente = metaEvaluada - this.datosResultados[index].avanceAcumulado;
+                  this.datosResultados[index].brechaExistente = 1 - this.datosResultados[index].avanceAcumulado;
                 }
               } else {
                 if (this.datosResultados[index].indicadorAcumulado < metaEvaluada) {
                   this.datosResultados[index].brechaExistente = 0;
                 } else {
-                  this.datosResultados[index].brechaExistente = this.datosResultados[index].avanceAcumulado - metaEvaluada;
+                  this.datosResultados[index].brechaExistente = this.datosResultados[index].avanceAcumulado - 1;
                 }
               }
 
@@ -995,7 +994,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             this.denominadorOriginal = [];
             this.calcular = true;
           }
-          this.calcularBase(indicador, denominador, numerador, meta, index, false);
+          this.calcularBase(indicador, denominador, numerador, meta, index, false, this.trimestreAbr);
         }
       } else {
         Swal.fire({
@@ -1009,7 +1008,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }
   }
 
-  calcularBase(indicador:any, denominador: number, numerador: number, meta:number, index:number, ceros:boolean) {
+  calcularBase(indicador:any, denominador: number, numerador: number, meta:number, index:number, ceros:boolean, trimestre:string) {
     this.datosResultados[index].divisionCero = false;
     let esDenominadorFijo = indicador.denominador !== "Denominador variable"
     if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
@@ -1046,7 +1045,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
 
       if (this.datosResultados[index].acumuladoDenominador != 0) {
-        let auxiliarIndicadorAcumulado = this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador
+        let auxiliarIndicadorAcumulado = this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador;
         if (this.datosIndicadores[index].unidad == 'Unidad') {
           this.datosResultados[index].indicadorAcumulado = Math.round(auxiliarIndicadorAcumulado * 100) / 100;
         } else {
@@ -1056,7 +1055,16 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == 'Unidad' ? meta : meta / 100;
       }
       if(!esDenominadorFijo){
-        this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.25;
+        if(trimestre == "T1"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.25;
+        } else if(trimestre == "T2"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.5;
+        } else if(trimestre == "T3"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.75;
+        } else if(trimestre == "T4"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+        }
+        
       }
       let indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
       let auxiliarMeta = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
@@ -1067,10 +1075,17 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           this.datosIndicadores[index].unidad == 'Tasa'
             ? Math.round((indicadorAcumulado / auxiliarMeta) * 1_000) / 1_000
             : Math.round((indicadorAcumulado / auxiliarMeta) * 10_000) / 10_000;
+
+            console.log("AUXILIAR META: ", auxiliarMeta);
+            console.log("AVANCE ACUMULADO: ", this.datosResultados[index].avanceAcumulado);
+            
+            
         this.datosResultados[index].brechaExistente =
           indicadorAcumulado > auxiliarMeta
             ? 0
             : Math.round((auxiliarMeta - this.datosResultados[index].avanceAcumulado) * 10_000) / 10_000;
+        
+            console.log("BRECHA EXISTENTE: ", this.datosResultados[index].brechaExistente);
       } else if (indicador.tendencia == "Decreciente") {
         let auxiliarAvance = (auxiliarMeta - indicadorAcumulado) / auxiliarMeta;
         this.datosResultados[index].avanceAcumulado =
