@@ -350,7 +350,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           let documentoPorSubir = {
             documento: null,
             evidencia: documentos,
-            unidad: this.rol != 'PLANEACION',
+            unidad: !['PLANEACION', 'JEFE_DEPENDENCIA', 'ASISTENTE_PLANEACION'].includes(this.rol),
             _id: this.seguimiento.id
           };
 
@@ -367,7 +367,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             if (data) {
               this.documentos = data.Data.seguimiento
               this.seguimiento.evidencia = this.documentos
-              this.estadoActividad = data.Data.estadoActividad.nombre;
+              //this.estadoActividad = data.Data.estadoActividad.nombre;
               this.verificarFormulario();
               Swal.fire({
                 title: 'Documento(s) actualizado(s)',
@@ -579,8 +579,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         for (let index = 0; index < this.documentos.length; index++) {
           const documento = this.documentos[index];
           if (this.estadoActividad != "Sin reporte") {
-            if (documento.Observacion == "") {
-              this.documentos[index].Observacion = "";
+            if (documento.Observacion_dependencia == "" && documento.Observacion_planeacion == "") {
+              this.documentos[index].Observacion_dependencia = "";
+              this.documentos[index].Observacion_planeacion = "";
             } else {
               this.mostrarObservaciones = true;
             }
@@ -1248,18 +1249,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           return true;
         }
       }
-  
-      for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
-        const evidencia = this.seguimiento.evidencia[index];
-        if (
-          evidencia.Observacion != "" &&
-          evidencia.Observacion != "Sin observación" &&
-          evidencia.Observacion != undefined
-        ) {
-          return true;
-        }
-      }
-  
       return false;
     } else if (this.rol === 'JEFE_DEPENDENCIA' || this.rol === 'ASISTENTE_DEPENDENCIA'){
       if (
@@ -1280,18 +1269,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           return true;
         }
       }
-  
-      for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
-        const evidencia = this.seguimiento.evidencia[index];
-        if (
-          evidencia.Observacion != "" &&
-          evidencia.Observacion != "Sin observación" &&
-          evidencia.Observacion != undefined
-        ) {
-          return true;
-        }
-      }
-  
       return false
     }
   }
