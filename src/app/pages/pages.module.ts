@@ -130,6 +130,8 @@ import { CodigosService } from '../@core/services/codigos.service';
 import { HabilitarReporteService } from './plan/habilitar-reporte/habilitar-reporte.service';
 import { Notificaciones } from './services/notificaciones';
 import { GestorDocumentalService } from '../@core/utils/gestor_documental.service';
+import { VisualizarFechasComponent } from './plan/visualizar-fechas/visualizar-fechas.component';
+import { TablaFechasComponent } from './plan/visualizar-fechas/tabla-fechas/tabla-fechas.component';
 
 const pagesComponents = [
   DashboardComponent,
@@ -272,6 +274,8 @@ const MY_FORMATS = {
     TablaResumenEvaluacionComponent,
     GestionUsuariosComponent,
     FormUsuariosComponent,
+    VisualizarFechasComponent,
+    TablaFechasComponent,
   ],
   imports: [
     HttpClientModule,

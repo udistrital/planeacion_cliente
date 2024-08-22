@@ -1,0 +1,40 @@
+<mat-card class="card-oas">
+	<div class="container-border">
+		<mat-card-header>
+			<mat-card-title>Consulta de fechas</mat-card-title>
+		</mat-card-header>
+		<mat-card-content>
+			<u class="textGuide">
+				En esta sección usted podrá visualizar visualizar las fechas parametrizadas por el Jefe de Planeación
+				para una determinada vigencia, unidad, proceso, y plan.
+			</u>
+		</mat-card-content>
+		<mat-form-field appearance="fill" class="selects-field">
+			<mat-label>Seleccione la Vigencia</mat-label>
+			<mat-select (selectionChange)="onChangeVigencia($event.value)" [formControl]="selectVigencia">
+				<mat-option>--</mat-option>
+				<mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
+					{{vigencia.Nombre}}
+				</mat-option>
+			</mat-select>
+		</mat-form-field>
+		<mat-form-field appearance="fill" class="selects-field">
+			<mat-label>Seleccione la unidad</mat-label>
+			<mat-select (selectionChange)="onChangeUnidad($event.value)" [formControl]="selectUnidad">
+				<input (keyup)="onKey($event.target.value)" class="input-search">
+				<mat-option>--</mat-option>
+				<mat-option *ngFor="let unidad of auxUnidades" [value]="unidad">
+					{{unidad.Nombre}}
+				</mat-option>
+			</mat-select>
+		</mat-form-field>
+		<mat-form-field appearance="fill" class="selects-field">
+			<mat-label>Seleccione el proceso (Formulación/Seguimiento)</mat-label>
+			<mat-select (selectionChange)="onChangeProceso($event.value)" [formControl]="selectProceso">
+				<mat-option *ngFor="let proceso of procesos" [value]="proceso">
+					{{proceso.Etiqueta}}
+				</mat-option>
+			</mat-select>
+		</mat-form-field>
+	</div>
+</mat-card>
