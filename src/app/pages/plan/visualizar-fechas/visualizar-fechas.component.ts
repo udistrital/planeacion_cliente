@@ -3,10 +3,11 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { RequestManager } from '../../services/requestManager';
 import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
-import { Vigencia } from '../habilitar-reporte/utils';
+import { PlanInteres, Unidad, Vigencia } from '../habilitar-reporte/utils';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
-import { PLAN_ACCION_FUNCIONAMIENTO, PROCESO_FORMULACION, PROCESO_SEGUIMIENTO, Tipo } from './utils';
+import { BodyPeticion, Plan, PLAN_ACCION_FUNCIONAMIENTO, PROCESO_FORMULACION_FUNCIONAMIENTO, PROCESO_SEGUIMIENTO_FUNCIONAMIENTO, Tipo } from './utils';
 import { DependenciaID } from '../gestion-usuarios/utils';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-visualizar-fechas',
@@ -18,9 +19,9 @@ export class VisualizarFechasComponent implements OnInit {
   vigencias: Vigencia[];
   vigencia: Vigencia;
   vVigenciaSeleccionada: boolean; // vVigenciaSeleccionada = Validación Vigencia Seleccionada
-  procesos: Tipo[] = [PROCESO_FORMULACION, PROCESO_SEGUIMIENTO];
-  proceso: Tipo;
-  vProcesoSeleccionado: boolean;
+  tiposProcesos: Tipo[] = [PROCESO_FORMULACION_FUNCIONAMIENTO, PROCESO_SEGUIMIENTO_FUNCIONAMIENTO];
+  tipoProceso: Tipo;
+  vTipoProcesoSeleccionado: boolean;
   unidades: DependenciaID[];
   auxUnidades: DependenciaID[];
   unidad: DependenciaID;
@@ -28,21 +29,23 @@ export class VisualizarFechasComponent implements OnInit {
   tiposPlanes: Tipo[] = [PLAN_ACCION_FUNCIONAMIENTO];
   tipoPlan: Tipo;
   vTipoPlanSeleccionado: boolean;
-  planes: any[];
-  plan: any;
+  planes: Plan[];
+  auxPlanes: Plan[];
+  plan: Plan;
   vPlanSeleccionado: boolean;
   vCargaCorrecta: boolean = true;
 
   selectVigencia = new FormControl();
   selectUnidad = new FormControl();
-  selectProceso = new FormControl();
   selectTipoPlan = new FormControl();
   selectPlan = new FormControl();
+  selectTipoProceso = new FormControl();
   formFechas: FormGroup;
 
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
+    private codigosService: CodigosService,
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -50,12 +53,14 @@ export class VisualizarFechasComponent implements OnInit {
     this.formFechas = this.formBuilder.group({
       vigencia: [this.vigencia, Validators.required],
       unidad: [this.unidad, Validators.required],
-      proceso: [this.proceso, Validators.required],
+      tipoProceso: [this.tipoProceso, Validators.required],
       tipoPlan: [this.tipoPlan, Validators.required],
       plan: [this.plan, Validators.required],
     })
     await this.cargarVigencias();
     await this.cargarUnidades();
+    await this.cargarIdTiposPlanes();
+    await this.cargarIdTiposProcesos();
     if (this.vCargaCorrecta) Swal.close();
   }
 
@@ -83,41 +88,6 @@ export class VisualizarFechasComponent implements OnInit {
     });
   }
 
-  onChangeVigencia(vigencia: Vigencia) {
-    if (vigencia == undefined) {
-      this.vVigenciaSeleccionada = false;
-    } else {
-      this.vVigenciaSeleccionada = true;
-      this.vigencia = vigencia;
-    }
-  }
-
-  onChangeProceso(proceso: Tipo) {
-    if (proceso == undefined) {
-      this.vProcesoSeleccionado = false;
-    } else {
-      this.vProcesoSeleccionado = true;
-      this.proceso = proceso;
-    }
-  }
-
-  onChangeUnidad(unidad: DependenciaID) {
-    if (unidad == undefined) {
-      this.vUnidadSeleccionada = false;
-    } else {
-      this.vUnidadSeleccionada = true;
-      this.unidad = unidad;
-    }
-  }
-
-  onKey(value: string) {
-    if (value == undefined) {
-      this.auxUnidades = this.unidades;
-    } else {
-      this.auxUnidades = this.search(value);
-    }
-  }
-
   async cargarUnidades() {
     return await new Promise((resolve, reject) => {
       this.request.get(environment.PLANES_MID, `formulacion/get_unidades`).subscribe((data: DataRequest) => {
@@ -143,13 +113,152 @@ export class VisualizarFechasComponent implements OnInit {
       });
     });
   }
-  
-  search(value: string) {
-    if (this.unidades != undefined) {
-      return this.unidades.filter(unidad => unidad.Nombre.toLowerCase().includes(value.toLowerCase()));
+
+  async cargarIdTiposPlanes() {
+    for (let index = 0; index < this.tiposPlanes.length; index++) {
+      let tipoPlan: Tipo = this.tiposPlanes[index];
+      let idTipoPlan = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', tipoPlan.CodigoAbreviacion)
+      this.tiposPlanes[index].Id = idTipoPlan;
     }
   }
 
+  async cargarIdTiposProcesos() {
+    for (let index = 0; index < this.tiposProcesos.length; index++) {
+      let tipoProceso: Tipo = this.tiposProcesos[index];
+      let idTipoProceso = await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', tipoProceso.CodigoAbreviacion)
+      this.tiposProcesos[index].Id = idTipoProceso;
+    }
+  }
+
+  async cargarPlanes() {
+    return await new Promise((resolve, reject) => {
+      this.request.get(environment.PLANES_CRUD, `plan?query=formato:true,activo:true,tipo_plan_id:${this.tipoPlan.Id}`).subscribe((data: DataRequest) => {
+        if (data.Data && data.Data.length > 0) {
+          this.planes = data.Data;
+          this.auxPlanes = this.planes;
+          resolve(this.planes);
+        } else {
+          reject(new Error('No se encontraron datos registrados'));
+        }
+      }, (error) => {
+        reject(error);
+      });
+    }).catch((error) => {
+      this.vCargaCorrecta = false;
+      this.planes = [];
+      this.auxPlanes = [];
+      let text: string = `No se encontraron datos registrados`;
+      Swal.fire({
+        title: 'Error en la operación',
+        text: error.error ? `${text} ${JSON.stringify(error.error)}` : text,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      });
+    });
+  }
+
+  async buscarFechas() {
+    if (this.buscarDisabled()) {
+      let unidad: Unidad = {
+        Id: this.unidad.Id.toString(),
+        Nombre: this.unidad.Nombre
+      };
+      let plan: PlanInteres = {
+        _id: this.plan._id,
+        nombre: this.plan.nombre
+      }
+      let body: BodyPeticion = {
+        vigencia_id: this.vigencia.Id.toString(),
+        tipo_seguimiento_id: this.tipoProceso.Id,
+        activo: true,
+        unidades_interes: JSON.stringify([unidad]),
+        planes_interes: JSON.stringify([plan]),
+      }
+      console.log("Buscar: ", body);
+    } else {
+      console.log("NoBuscar");
+    }
+  }
+
+  buscarDisabled(): boolean {
+    return this.vCargaCorrecta && this.vVigenciaSeleccionada && this.vUnidadSeleccionada
+      && this.vTipoPlanSeleccionado && this.vPlanSeleccionado && this.vTipoProcesoSeleccionado;
+  }
+
+  onChangeVigencia(vigencia: Vigencia) {
+    if (vigencia == undefined) {
+      this.vVigenciaSeleccionada = false;
+    } else {
+      this.vVigenciaSeleccionada = true;
+      this.vigencia = vigencia;
+    }
+  }
+
+  onChangeUnidad(unidad: DependenciaID) {
+    if (unidad == undefined) {
+      this.vUnidadSeleccionada = false;
+    } else {
+      this.vUnidadSeleccionada = true;
+      this.unidad = unidad;
+    }
+  }
+
+  async onChangeTipoPlan(tipoPlan: Tipo) {
+    if (tipoPlan == undefined) {
+      this.vTipoPlanSeleccionado = false;
+      this.planes = [];
+      this.auxPlanes = [];
+    } else {
+      this.vTipoPlanSeleccionado = true;
+      this.tipoPlan = tipoPlan;
+      await this.cargarPlanes();
+    }
+  }
+
+  onChangePlan(plan: Plan) {
+    if (plan == undefined) {
+      this.vPlanSeleccionado = false;
+    } else {
+      this.vPlanSeleccionado = true;
+      this.plan = plan;
+    }
+  }
+
+  onChangeTipoProceso(tipoProceso: Tipo) {
+    if (tipoProceso == undefined) {
+      this.vTipoProcesoSeleccionado = false;
+    } else {
+      this.vTipoProcesoSeleccionado = true;
+      this.tipoProceso = tipoProceso;
+    }
+  }
+
+  onKey(value: string, type: string) {
+    if (value == undefined || value.trim() === '') {
+      if (type === 'plan') {
+        this.auxPlanes = [...this.planes];
+      } else if (type === 'unidad') {
+        this.auxUnidades = [...this.unidades];
+      }
+    } else {
+      if (type === 'plan') {
+        this.auxPlanes = this.buscarPlanes(value);
+      } else if (type === 'unidad') {
+        this.auxUnidades = this.buscarUnidades(value);
+      }
+    }
+  }
+  
+  buscarPlanes(value: string) {
+    return this.planes.filter(plan => 
+      plan.nombre.toLowerCase().includes(value.toLowerCase()));
+  }
+  
+  buscarUnidades(value: string) {
+    return this.unidades.filter(unidad => 
+      unidad.Nombre.toLowerCase().includes(value.toLowerCase()));
+  }
 
   mostrarMensajeCarga(banderaPeticion: boolean = false): void {
     Swal.fire({
