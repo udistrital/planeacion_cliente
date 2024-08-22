@@ -28,9 +28,9 @@ export class EvidenciasDialogComponent implements OnInit {
     private gestorDocumental: GestorDocumentalService,
     @Inject(MAT_DIALOG_DATA) public data: Object[]) {
     this.getRol();
-
-    this.readonlyFormulario = JSON.parse(JSON.stringify(data[1]));
+    console.log("DATOS QUE LLEGAN EN EVIDENCIAS: ", data);
     this.dataFiltered = JSON.parse(JSON.stringify(data[0]));
+    this.readonlyFormulario = JSON.parse(JSON.stringify(data[1]));
     this.unidad = String(data[3]);
     this.dataSource = new MatTableDataSource(this.dataFiltered)
     this.filterActive();
@@ -56,11 +56,7 @@ export class EvidenciasDialogComponent implements OnInit {
   }
 
   cerrar() {
-    if (this.rol == 'PLANEACION') {
-      this.dialogRef.close(this.dataSource.data);
-    } else {
-      this.dialogRef.close(this.data[0]);
-    }
+    this.dialogRef.close(this.dataSource.data);
   }
 
   async revisar(row) {
@@ -70,7 +66,7 @@ export class EvidenciasDialogComponent implements OnInit {
         width: '1200',
         minHeight: 'calc(100vh - 90px)',
         height: '80%',
-        data: { "url": header + row.file, "editable": !this.data[2] }
+        data: { "url": header + row.file, "editable": this.data[2], "mostrar_Observaciones": this.data[4], "observaciones_Dependencia": this.data[5], "observaciones_Planeacion": this.data[6] }
       });
     } else {
       Swal.fire({
@@ -89,7 +85,7 @@ export class EvidenciasDialogComponent implements OnInit {
             width: '1200px',
             minHeight: 'calc(100vh - 90px)',
             height: '800px',
-            data: { ...documento[0], "editable": !this.data[2] }
+            data: { ...documento[0], "editable": this.data[2], "mostrar_Observaciones": this.data[4], "observaciones_Dependencia": this.data[5], "observaciones_Planeacion": this.data[6]}
           });
 
           dialogRef.afterClosed().subscribe(result => {
@@ -98,7 +94,8 @@ export class EvidenciasDialogComponent implements OnInit {
             } else {
               for (let index = 0; index < this.dataSource.data.length; index++) {
                 if (this.dataSource.data[index]["Id"] == result["Id"]) {
-                  this.dataSource.data[index]["Observacion"] = result["Observacion"];
+                  this.dataSource.data[index]["Observacion_dependencia"] = result["Observacion_dependencia"];
+                  this.dataSource.data[index]["Observacion_planeacion"] = result["Observacion_planeacion"];
                 };
               };
             };
