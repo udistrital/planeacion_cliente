@@ -20,6 +20,7 @@ export interface Plan {
 export interface BodyPeticion {
 	vigencia_id: 					string;
 	tipo_seguimiento_id: 	string;
+	codigo_abreviacion_proceso: string;
 	activo: 							boolean;
 	unidades_interes: 		string;
 	planes_interes: 			string;

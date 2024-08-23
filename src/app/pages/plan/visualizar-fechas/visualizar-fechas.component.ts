@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { RequestManager } from '../../services/requestManager';
 import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
-import { PlanInteres, Unidad, Vigencia } from '../habilitar-reporte/utils';
+import { PeriodoSeguimiento, PlanInteres, Unidad, Vigencia } from '../habilitar-reporte/utils';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 import { BodyPeticion, Plan, PLAN_ACCION_FUNCIONAMIENTO, PROCESO_FORMULACION_FUNCIONAMIENTO, PROCESO_SEGUIMIENTO_FUNCIONAMIENTO, Tipo } from './utils';
 import { DependenciaID } from '../gestion-usuarios/utils';
@@ -34,6 +34,8 @@ export class VisualizarFechasComponent implements OnInit {
   plan: Plan;
   vPlanSeleccionado: boolean;
   vCargaCorrecta: boolean = true;
+  periodosSeguimiento: PeriodoSeguimiento[];
+  vPeriodosSeguimiento: boolean;
 
   selectVigencia = new FormControl();
   selectUnidad = new FormControl();
@@ -50,6 +52,12 @@ export class VisualizarFechasComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.mostrarMensajeCarga();
+    this.vVigenciaSeleccionada = false;
+    this.vUnidadSeleccionada = false;
+    this.vTipoProcesoSeleccionado = false;
+    this.vTipoPlanSeleccionado = false;
+    this.vPlanSeleccionado = false;
+    this.vPeriodosSeguimiento = false;
     this.formFechas = this.formBuilder.group({
       vigencia: [this.vigencia, Validators.required],
       unidad: [this.unidad, Validators.required],
@@ -159,7 +167,8 @@ export class VisualizarFechasComponent implements OnInit {
   }
 
   async buscarFechas() {
-    if (this.buscarDisabled()) {
+    if (this.vBotonBuscar()) {
+      this.mostrarMensajeCarga(true);
       let unidad: Unidad = {
         Id: this.unidad.Id.toString(),
         Nombre: this.unidad.Nombre
@@ -171,17 +180,39 @@ export class VisualizarFechasComponent implements OnInit {
       let body: BodyPeticion = {
         vigencia_id: this.vigencia.Id.toString(),
         tipo_seguimiento_id: this.tipoProceso.Id,
+        codigo_abreviacion_proceso: this.tipoProceso.CodigoAbreviacion,
         activo: true,
         unidades_interes: JSON.stringify([unidad]),
         planes_interes: JSON.stringify([plan]),
       }
-      console.log("Buscar: ", body);
-    } else {
-      console.log("NoBuscar");
+      return await new Promise((resolve, reject) => {
+        this.request.post(environment.PLANES_MID, `formulacion/obtener-fechas`, body).subscribe((data: DataRequest) => {
+          if (data.Data && data.Data.length > 0) {
+            this.periodosSeguimiento = data.Data;
+            this.vPeriodosSeguimiento = true;
+            resolve(this.periodosSeguimiento);
+            Swal.close();
+          } else {
+            reject(new Error('No se encontraron datos registrados'));
+          }
+        }, (error) => {
+          reject(error);
+        });
+      }).catch((error) => {
+        this.vPeriodosSeguimiento = false;
+        let text: string = `No se encontraron datos registrados`;
+        Swal.fire({
+          title: 'Error en la operación',
+          text: error.error ? `${text} ${JSON.stringify(error.error)}` : text,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        });
+      });
     }
   }
 
-  buscarDisabled(): boolean {
+  vBotonBuscar(): boolean {
     return this.vCargaCorrecta && this.vVigenciaSeleccionada && this.vUnidadSeleccionada
       && this.vTipoPlanSeleccionado && this.vPlanSeleccionado && this.vTipoProcesoSeleccionado;
   }

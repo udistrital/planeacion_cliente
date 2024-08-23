@@ -5,7 +5,7 @@
 		</mat-card-header>
 		<mat-card-content>
 			<u class="textGuide">
-				En esta sección usted podrá visualizar visualizar las fechas parametrizadas por el Jefe de Planeación
+				En esta sección usted podrá consultar las fechas parametrizadas por el Jefe de Planeación
 				para una determinada vigencia, unidad, proceso, y plan.
 			</u>
 		</mat-card-content>
@@ -60,7 +60,7 @@
 		</form>
 		<mat-card-content>
 			<mat-card-footer style="text-align: center;">
-				<button mat-raised-button color="primary" [disabled]="!buscarDisabled()" (click)="buscarFechas()">
+				<button mat-raised-button color="primary" [disabled]="!vBotonBuscar()" (click)="buscarFechas()">
 					Buscar
 				</button>
 				<button mat-raised-button color="primary">
@@ -68,5 +68,19 @@
 				</button>
 			</mat-card-footer>
 		</mat-card-content>
+	</div>
+	<div class="container-border" *ngIf="vPeriodosSeguimiento">
+		<mat-card-header>
+			<mat-card-title>Visualización de fechas</mat-card-title>
+		</mat-card-header>
+		<mat-card-content>
+			<u class="textGuide">
+				En este apartado usted podrá visualizar las fechas parametrizadas por el Jefe de Planeación
+				para los datos elegidos en el formulario.
+			</u>
+		</mat-card-content>
+		<div *ngFor="let periodo of periodosSeguimiento">
+			Fecha Inicio: {{periodo.fecha_inicio}} | Fecha Final: {{periodo.fecha_fin}}
+		</div>
 	</div>
 </mat-card>
