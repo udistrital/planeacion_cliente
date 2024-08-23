@@ -1,3 +1,5 @@
+import { PeriodoSeguimiento } from "../../habilitar-reporte/utils";
+
 export interface Tipo {
 	Id?: string;
 	CodigoAbreviacion: string;
@@ -24,4 +26,8 @@ export interface BodyPeticion {
 	activo: 							boolean;
 	unidades_interes: 		string;
 	planes_interes: 			string;
+}
+
+export interface PeriodoSeguimientoTrimestres extends PeriodoSeguimiento {
+	trimestre?: string;
 }

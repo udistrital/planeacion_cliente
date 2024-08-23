@@ -5,9 +5,10 @@ import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
 import { PeriodoSeguimiento, PlanInteres, Unidad, Vigencia } from '../habilitar-reporte/utils';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
-import { BodyPeticion, Plan, PLAN_ACCION_FUNCIONAMIENTO, PROCESO_FORMULACION_FUNCIONAMIENTO, PROCESO_SEGUIMIENTO_FUNCIONAMIENTO, Tipo } from './utils';
+import { BodyPeticion, PeriodoSeguimientoTrimestres, Plan, PLAN_ACCION_FUNCIONAMIENTO, PROCESO_FORMULACION_FUNCIONAMIENTO, PROCESO_SEGUIMIENTO_FUNCIONAMIENTO, Tipo } from './utils';
 import { DependenciaID } from '../gestion-usuarios/utils';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-visualizar-fechas',
@@ -36,6 +37,8 @@ export class VisualizarFechasComponent implements OnInit {
   vCargaCorrecta: boolean = true;
   periodosSeguimiento: PeriodoSeguimiento[];
   vPeriodosSeguimiento: boolean;
+  datosTabla: MatTableDataSource<PeriodoSeguimiento>;
+  columnasTabla: string[];
 
   selectVigencia = new FormControl();
   selectUnidad = new FormControl();
@@ -58,13 +61,10 @@ export class VisualizarFechasComponent implements OnInit {
     this.vTipoPlanSeleccionado = false;
     this.vPlanSeleccionado = false;
     this.vPeriodosSeguimiento = false;
-    this.formFechas = this.formBuilder.group({
-      vigencia: [this.vigencia, Validators.required],
-      unidad: [this.unidad, Validators.required],
-      tipoProceso: [this.tipoProceso, Validators.required],
-      tipoPlan: [this.tipoPlan, Validators.required],
-      plan: [this.plan, Validators.required],
-    })
+    this.formFechas = this.construirFormulario();
+    this.datosTabla = new MatTableDataSource<PeriodoSeguimiento>();
+    this.columnasTabla = ['Plan', 'Proceso', 'Fecha_Modificacion',
+      'Usuario_Modificacion', 'Fecha_Inicial', 'Fecha_Final'];
     await this.cargarVigencias();
     await this.cargarUnidades();
     await this.cargarIdTiposPlanes();
@@ -168,6 +168,7 @@ export class VisualizarFechasComponent implements OnInit {
 
   async buscarFechas() {
     if (this.vBotonBuscar()) {
+      this.vPeriodosSeguimiento = false;
       this.mostrarMensajeCarga(true);
       let unidad: Unidad = {
         Id: this.unidad.Id.toString(),
@@ -186,10 +187,10 @@ export class VisualizarFechasComponent implements OnInit {
         planes_interes: JSON.stringify([plan]),
       }
       return await new Promise((resolve, reject) => {
-        this.request.post(environment.PLANES_MID, `formulacion/obtener-fechas`, body).subscribe((data: DataRequest) => {
+        this.request.post(environment.PLANES_MID, `formulacion/obtener-fechas`, body).subscribe(async (data: DataRequest) => {
           if (data.Data && data.Data.length > 0) {
             this.periodosSeguimiento = data.Data;
-            this.vPeriodosSeguimiento = true;
+            await this.manejarDatosTabla(this.periodosSeguimiento);
             resolve(this.periodosSeguimiento);
             Swal.close();
           } else {
@@ -203,7 +204,7 @@ export class VisualizarFechasComponent implements OnInit {
         let text: string = `No se encontraron datos registrados`;
         Swal.fire({
           title: 'Error en la operación',
-          text: error.error ? `${text} ${JSON.stringify(error.error)}` : text,
+          text: error.error ? `${text}: ${error.error.Data}` : text,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
@@ -212,9 +213,63 @@ export class VisualizarFechasComponent implements OnInit {
     }
   }
 
+  async manejarDatosTabla(periodosSeguimiento: PeriodoSeguimientoTrimestres[]) {
+    let indexTrimestre: number = 1; // Solo para el proceso de seguimiento
+    for await (const periodoSeguimiento of periodosSeguimiento) {
+      let nombreUsuarioModificacion = await this.validarNombreUsuario(periodoSeguimiento.usuario_modificacion)
+      if (nombreUsuarioModificacion) periodoSeguimiento.usuario_modificacion = nombreUsuarioModificacion
+      if (this.tipoProceso.CodigoAbreviacion === PROCESO_SEGUIMIENTO_FUNCIONAMIENTO.CodigoAbreviacion) {
+        periodoSeguimiento.trimestre = `- T${indexTrimestre}`;
+        indexTrimestre++;
+      }
+    }
+    this.vPeriodosSeguimiento = true;
+    this.datosTabla = new MatTableDataSource(periodosSeguimiento);
+  }
+
+  async validarNombreUsuario(documento_usuario: string) {
+    let nombreCompleto: string = undefined;
+    if(documento_usuario) {
+      await new Promise((resolve,reject)=>{
+        this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + documento_usuario)
+          .subscribe((datosInfoTercero: any) => {
+            if(datosInfoTercero[0].TerceroId) {
+              nombreCompleto = datosInfoTercero[0].TerceroId.NombreCompleto;
+              resolve(nombreCompleto);
+            }
+        }, (error) => {
+          reject(error)
+        })
+      })
+    }
+    return nombreCompleto;
+  }
+
   vBotonBuscar(): boolean {
     return this.vCargaCorrecta && this.vVigenciaSeleccionada && this.vUnidadSeleccionada
       && this.vTipoPlanSeleccionado && this.vPlanSeleccionado && this.vTipoProcesoSeleccionado;
+  }
+
+  limpiarFormulario(): void {
+    this.vVigenciaSeleccionada = false;
+    this.vigencia = undefined;
+    this.vUnidadSeleccionada = false;
+    this.unidad = undefined;
+    this.vTipoPlanSeleccionado = false;
+    this.tipoPlan = undefined;
+    this.vPlanSeleccionado = false;
+    this.plan = undefined
+    this.vTipoProcesoSeleccionado = false;
+    this.tipoProceso = undefined;
+    this.vPeriodosSeguimiento = false;
+    this.periodosSeguimiento = [];
+    this.vCargaCorrecta = true;
+    this.selectVigencia.setValue('--')
+    this.selectUnidad.setValue('--')
+    this.selectTipoPlan.setValue('--')
+    this.selectPlan.setValue('--')
+    this.selectTipoProceso.setValue('--')
+    this.formFechas.reset();
   }
 
   onChangeVigencia(vigencia: Vigencia) {
@@ -289,6 +344,26 @@ export class VisualizarFechasComponent implements OnInit {
   buscarUnidades(value: string) {
     return this.unidades.filter(unidad => 
       unidad.Nombre.toLowerCase().includes(value.toLowerCase()));
+  }
+
+  construirFormulario(): FormGroup {
+    return this.formBuilder.group({
+      vigencia: [this.vigencia, Validators.required],
+      unidad: [this.unidad, Validators.required],
+      tipoProceso: [this.tipoProceso, Validators.required],
+      tipoPlan: [this.tipoPlan, Validators.required],
+      plan: [this.plan, Validators.required],
+    });
+  }
+
+  formatearFecha(fechaOriginal: string): string {
+    const fechaObjeto = new Date(fechaOriginal);
+
+    const dia = fechaObjeto.getUTCDate().toString().padStart(2, '0');
+    const mes = (fechaObjeto.getUTCMonth() + 1).toString().padStart(2, '0');
+    const anio = fechaObjeto.getUTCFullYear();
+
+    return `${dia}/${mes}/${anio}`;
   }
 
   mostrarMensajeCarga(banderaPeticion: boolean = false): void {
