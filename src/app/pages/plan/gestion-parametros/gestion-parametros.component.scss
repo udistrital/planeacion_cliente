@@ -19,17 +19,41 @@
   width: 77%;
 }
 
+.mat-raised-button {
+  margin-top: 2%;
+}
+
+/* Hacer que la tabla tenga scroll horizontal en pantallas pequeñas */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: center !important;
+  padding: 8px !important;
+}
+
 th {
   color: white;
-  text-align: center !important;
-  padding: 0px !important;
 }
 
 td {
-	text-align: center !important;
-  padding: 0px !important;
+  white-space: nowrap; /* Evita que el texto se envuelva en pantallas pequeñas */
 }
 
-.mat-raised-button {
-  margin-top: 2%;
+/* Para pantallas pequeñas */
+@media (max-width: 640px) {
+  table {
+    font-size: 12px; /* Ajusta el tamaño de fuente */
+  }
+
+  th, td {
+    padding: 4px; /* Reduce el padding */
+  }
 }

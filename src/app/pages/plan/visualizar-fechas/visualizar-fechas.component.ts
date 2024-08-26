@@ -139,12 +139,14 @@ export class VisualizarFechasComponent implements OnInit {
   }
 
   async cargarPlanes() {
+    this.mostrarMensajeCarga();
     return await new Promise((resolve, reject) => {
       this.request.get(environment.PLANES_CRUD, `plan?query=formato:true,activo:true,tipo_plan_id:${this.tipoPlan.Id}`).subscribe((data: DataRequest) => {
         if (data.Data && data.Data.length > 0) {
           this.planes = data.Data;
           this.auxPlanes = this.planes;
           resolve(this.planes);
+          Swal.close();
         } else {
           reject(new Error('No se encontraron datos registrados'));
         }

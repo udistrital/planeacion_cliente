@@ -52,7 +52,7 @@ export class ListarPlanComponent implements OnInit {
   textBotonMostrarData: string = 'Mostrar Planes Interés Habilitados/Reporte';
 
   @Input() periodoSeguimiento: PeriodoSeguimiento;
-  @Input() filtroPlan: boolean;
+  // @Input() filtroPlan: boolean;
   @Input() tipo: any;
   @Input() banderaPlanesAccionFuncionamiento: boolean;
   @Output() planesInteresSeleccionados = new EventEmitter<any[]>();
@@ -67,22 +67,14 @@ export class ListarPlanComponent implements OnInit {
   ) {
     this.banderaTodosSeleccionados = false;
     this.planesInteres = [];
-    this.filtroPlan = false;
+    // this.filtroPlan = false;
     this.tipo = null;
     this.banderaPlanesAccionFuncionamiento = false;
   }
 
   async ngOnInit(){
     this.planesMostrar = [];
-    if(this.banderaPlanesAccionFuncionamiento === true){
-      if(this.filtroPlan === true){
-        this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
-      } else {
-        this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'usuario', 'fecha_modificacion', 'fecha_inicial', 'fecha_final', 'actions']
-      }
-    } else {
-      this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
-    }
+    this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
     this.loadData();
   }
 
@@ -405,84 +397,84 @@ export class ListarPlanComponent implements OnInit {
     this.planesInteresSeleccionados.emit(this.planesInteres);
   }
 
-  cambiarDataTabla(){
-    if(this.textBotonMostrarData === 'Mostrar Planes Interés Habilitados/Reporte'){
-      Swal.fire({
-        title: 'Cargando datos...',
-        allowEscapeKey: false,
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-      this.request.post(environment.PLANES_CRUD, 'periodo-seguimiento/buscar-unidad-planes/5', this.periodoSeguimiento).subscribe(
-        async (data: DataRequest) => {
-          if (data) {
-            if(data.Data !== null) {
-              var periodoSeguimiento = data.Data;
-              this.textBotonMostrarData = 'Mostrar todos los planes';
-              let planesMostrar = [];
-              for (const element of periodoSeguimiento) {
-                element.planes_interes = JSON.parse(element.planes_interes);
-                let planesFiltrados = this.planes.filter(plan => element.planes_interes.some(planInteres => planInteres._id === plan._id));
+  // cambiarDataTabla(){
+  //   if(this.textBotonMostrarData === 'Mostrar Planes Interés Habilitados/Reporte'){
+  //     Swal.fire({
+  //       title: 'Cargando datos...',
+  //       allowEscapeKey: false,
+  //       allowOutsideClick: false,
+  //       didOpen: () => {
+  //         Swal.showLoading();
+  //       }
+  //     });
+  //     this.request.post(environment.PLANES_CRUD, 'periodo-seguimiento/buscar-unidad-planes/5', this.periodoSeguimiento).subscribe(
+  //       async (data: DataRequest) => {
+  //         if (data) {
+  //           if(data.Data !== null) {
+  //             var periodoSeguimiento = data.Data;
+  //             this.textBotonMostrarData = 'Mostrar todos los planes';
+  //             let planesMostrar = [];
+  //             for (const element of periodoSeguimiento) {
+  //               element.planes_interes = JSON.parse(element.planes_interes);
+  //               let planesFiltrados = this.planes.filter(plan => element.planes_interes.some(planInteres => planInteres._id === plan._id));
 
-                for (const planFiltrado of planesFiltrados) {
-                  planFiltrado.fecha_modificacion = this.formatearFecha(element.fecha_modificacion);
-                  planFiltrado.fecha_inicial = this.formatearFecha(element.fecha_inicio);
-                  planFiltrado.fecha_final = this.formatearFecha(element.fecha_fin);
+  //               for (const planFiltrado of planesFiltrados) {
+  //                 planFiltrado.fecha_modificacion = this.formatearFecha(element.fecha_modificacion);
+  //                 planFiltrado.fecha_inicial = this.formatearFecha(element.fecha_inicio);
+  //                 planFiltrado.fecha_final = this.formatearFecha(element.fecha_fin);
 
-                  if (element.usuario_modificacion) {
-                    planFiltrado.usuario_modificacion = await this.validarNombreUsuario(element.usuario_modificacion);
-                  }
-                }
+  //                 if (element.usuario_modificacion) {
+  //                   planFiltrado.usuario_modificacion = await this.validarNombreUsuario(element.usuario_modificacion);
+  //                 }
+  //               }
 
-                planesMostrar = planesMostrar.concat(planesFiltrados);
-              }
+  //               planesMostrar = planesMostrar.concat(planesFiltrados);
+  //             }
 
-              planesMostrar = [...new Set(planesMostrar)];
-              this.planesMostrar = planesMostrar;
-              this.dataSource = new MatTableDataSource(this.planesMostrar);
-              this.dataSource.paginator = this.paginator;
-              this.dataSource.sort = this.sort;
-              Swal.close();
-            } else {
-              Swal.fire({
-                title: 'Error en la operación',
-                text: 'Las unidades escogidas no cuentan con planes/proyectos con fechas parametrizadas',
-                icon: 'warning',
-                showConfirmButton: false,
-                timer: 2500
-              })
-            }
-          }
-        },
-        (error) => {
-          Swal.fire({
-            title: 'Error en la operación',
-            text: 'No se encontraron datos registrados',
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 2500
-          })
-        }
-      );
-    } else {
-      this.textBotonMostrarData = 'Mostrar Planes Interés Habilitados/Reporte';
-      this.dataSource = new MatTableDataSource(this.planes);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    }
-  }
+  //             planesMostrar = [...new Set(planesMostrar)];
+  //             this.planesMostrar = planesMostrar;
+  //             this.dataSource = new MatTableDataSource(this.planesMostrar);
+  //             this.dataSource.paginator = this.paginator;
+  //             this.dataSource.sort = this.sort;
+  //             Swal.close();
+  //           } else {
+  //             Swal.fire({
+  //               title: 'Error en la operación',
+  //               text: 'Las unidades escogidas no cuentan con planes/proyectos con fechas parametrizadas',
+  //               icon: 'warning',
+  //               showConfirmButton: false,
+  //               timer: 2500
+  //             })
+  //           }
+  //         }
+  //       },
+  //       (error) => {
+  //         Swal.fire({
+  //           title: 'Error en la operación',
+  //           text: 'No se encontraron datos registrados',
+  //           icon: 'warning',
+  //           showConfirmButton: false,
+  //           timer: 2500
+  //         })
+  //       }
+  //     );
+  //   } else {
+  //     this.textBotonMostrarData = 'Mostrar Planes Interés Habilitados/Reporte';
+  //     this.dataSource = new MatTableDataSource(this.planes);
+  //     this.dataSource.paginator = this.paginator;
+  //     this.dataSource.sort = this.sort;
+  //   }
+  // }
 
-  formatearFecha(fechaOriginal: string): string {
-    const fechaObjeto = new Date(fechaOriginal);
+  // formatearFecha(fechaOriginal: string): string {
+  //   const fechaObjeto = new Date(fechaOriginal);
 
-    const dia = fechaObjeto.getUTCDate().toString().padStart(2, '0');
-    const mes = (fechaObjeto.getUTCMonth() + 1).toString().padStart(2, '0');
-    const anio = fechaObjeto.getUTCFullYear();
+  //   const dia = fechaObjeto.getUTCDate().toString().padStart(2, '0');
+  //   const mes = (fechaObjeto.getUTCMonth() + 1).toString().padStart(2, '0');
+  //   const anio = fechaObjeto.getUTCFullYear();
 
-    return `${dia}/${mes}/${anio}`;
-}
+  //   return `${dia}/${mes}/${anio}`;
+  // }
 
 
   async validarNombreUsuario(documento_usuario: string) {

@@ -51,3 +51,26 @@ th {
 .mat-raised-button {
   margin: 2% 0% 2% 2%;
 }
+
+th, td {
+  text-align: center !important;
+}
+
+/* Hacer que la tabla tenga scroll horizontal en pantallas pequeñas */
+.table-responsive {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+@media (max-width: 640px) {
+  table {
+    font-size: 12px; /* Ajusta el tamaño de fuente */
+  }
+
+  th, td {
+    padding: 4px; /* Reduce el padding */
+  }
+}

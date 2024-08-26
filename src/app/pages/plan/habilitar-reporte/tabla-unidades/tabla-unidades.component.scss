@@ -1,31 +1,22 @@
 table,
 .paginator {
-  width: 80%;
-  margin-left: 10%;
+  width: 100%;
+  // margin-left: 10%;
 }
 
 th {
   color: white;
+}
+
+th, td {
   text-align: center !important;
+  padding: 8px !important;
 }
 
 .unidades {
   display: flex;
   justify-content: center;
 }
-
-// .nombre-unidad {
-//   word-wrap: break-word !important;
-//   white-space: unset !important;
-//   flex: 0 0 34% !important;
-//   width: 20% !important;
-//   overflow-wrap: break-word;
-//   word-break: break-word;
-//   -ms-hyphens: auto;
-//   -moz-hyphens: auto;
-//   -webkit-hyphens: auto;
-//   hyphens: auto;
-// }
 
 .mat-column-index {
   word-wrap: break-word !important;

@@ -33,11 +33,36 @@
   margin: 2% 0% 2% 2%;
 }
 
+th, td {
+  text-align: center !important;
+  padding: 8px !important;
+}
+
 th {
   color: white;
-  text-align: center !important;
 }
 
 td {
-  text-align: center !important;
+  // white-space: nowrap; /* Evita que el texto se envuelva en pantallas pequeñas */
+}
+
+/* Hacer que la tabla tenga scroll horizontal en pantallas pequeñas */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+@media (max-width: 640px) {
+  table {
+    font-size: 12px; /* Ajusta el tamaño de fuente */
+  }
+
+  th, td {
+    padding: 4px !important; /* Reduce el padding */
+  }
 }
