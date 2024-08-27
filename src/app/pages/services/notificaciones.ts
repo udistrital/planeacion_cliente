@@ -12,7 +12,7 @@ export class Notificaciones {
   private socket$: WebSocketSubject<any> | undefined;
 
   readonly NOTIFICACION: any = {
-    CODIGO_SISGPLAN: "SP",
+    CODIGO_SISGPLAN: "PL_SISGPLAN",
     CODIGO_NOTIFICACION_INFORMATIVA: "NI",
     ASUNTO: "Sin asunto"
   }
@@ -67,8 +67,8 @@ export class Notificaciones {
 
   // Obtener id sistema por código de abreviación (SP)
   async getIdSistema(codigo: string) {
-    const sistema = await this.fetchData(environment.NOTIFICACIONES_CRUD, `sistema?query=codigo_abreviacion:${codigo}`);
-    return sistema.Data[0]._id;
+    const sistema = await this.fetchData(environment.PARAMETROS_SERVICE, `area_tipo?query=CodigoAbreviacion:${codigo}`);
+    return sistema.Data[0].Id;
   }
 
   // Obtener tipo de notificación por código de abreviación (NI = Notificación informativa)
