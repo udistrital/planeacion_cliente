@@ -280,6 +280,7 @@ export class VisualizarFechasComponent implements OnInit {
     } else {
       this.vVigenciaSeleccionada = true;
       this.vigencia = vigencia;
+      this.vPeriodosSeguimiento = false;
     }
   }
 
@@ -289,6 +290,7 @@ export class VisualizarFechasComponent implements OnInit {
     } else {
       this.vUnidadSeleccionada = true;
       this.unidad = unidad;
+      this.vPeriodosSeguimiento = false;
     }
   }
 
@@ -300,6 +302,7 @@ export class VisualizarFechasComponent implements OnInit {
     } else {
       this.vTipoPlanSeleccionado = true;
       this.tipoPlan = tipoPlan;
+      this.vPeriodosSeguimiento = false;
       await this.cargarPlanes();
     }
   }
@@ -310,6 +313,7 @@ export class VisualizarFechasComponent implements OnInit {
     } else {
       this.vPlanSeleccionado = true;
       this.plan = plan;
+      this.vPeriodosSeguimiento = false;
     }
   }
 
@@ -319,6 +323,7 @@ export class VisualizarFechasComponent implements OnInit {
     } else {
       this.vTipoProcesoSeleccionado = true;
       this.tipoProceso = tipoProceso;
+      this.vPeriodosSeguimiento = false;
     }
   }
 
