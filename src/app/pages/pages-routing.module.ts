@@ -58,6 +58,7 @@ import { PlanAccionFormulacionComponent } from './plan-accion/plan-accion-formul
 
 import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
 import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
+import { VisualizarFechasComponent } from './plan/visualizar-fechas/visualizar-fechas.component';
 
 
 const routes: Routes = [{
@@ -115,6 +116,10 @@ const routes: Routes = [{
         {
           path: 'gestion-usuarios',
           component: GestionUsuariosComponent,
+        },
+        {
+          path: 'visualizar-fechas',
+          component: VisualizarFechasComponent,
         }
       ]
     },

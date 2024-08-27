@@ -71,6 +71,8 @@ export class CrearPlanComponent implements OnInit {
                 title: 'Registro correcto',
                 text: `Se ingresaron correctamente los datos`,
                 icon: 'success',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
               }).then((result) => {
                 if (result.value) {
                   this.dialogRef.close();
@@ -107,6 +109,8 @@ export class CrearPlanComponent implements OnInit {
                 title: 'Registro correcto',
                 text: `Se ingresaron correctamente los datos`,
                 icon: 'success',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
               }).then((result) => {
                 if (result.value) {
                   this.dialogRef.close();

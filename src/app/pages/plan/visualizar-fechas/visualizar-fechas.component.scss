@@ -19,8 +19,27 @@
   width: 77%;
 }
 
+.selects-field {
+  width: 100%;
+}
+
+.input-search {
+  width: 99%;
+  height: 30px;
+  border-radius: 5px;
+}
+
 .mat-raised-button {
-  margin-top: 2%;
+  margin: 2% 0% 2% 2%;
+}
+
+th, td {
+  text-align: center !important;
+  padding: 8px !important;
+}
+
+th {
+  color: white;
 }
 
 /* Hacer que la tabla tenga scroll horizontal en pantallas pequeñas */
@@ -34,26 +53,12 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
-  text-align: center !important;
-  padding: 8px !important;
-}
-
-th {
-  color: white;
-}
-
-td {
-  white-space: nowrap; /* Evita que el texto se envuelva en pantallas pequeñas */
-}
-
-/* Para pantallas pequeñas */
 @media (max-width: 640px) {
   table {
     font-size: 12px; /* Ajusta el tamaño de fuente */
   }
 
   th, td {
-    padding: 4px; /* Reduce el padding */
+    padding: 4px !important; /* Reduce el padding */
   }
 }

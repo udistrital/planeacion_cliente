@@ -41,16 +41,14 @@
           </button>
         </div>
         <!-- Tabla Unidades de interés -->
-        <mat-card class="card-oas" [style.width.%]="97"
-        *ngIf="(tipo=='seguimiento' || tipo == 'formulacion') && vigenciaSelected && banderaUnidadesInteres">
+        <div lass="table-responsive" *ngIf="(tipo=='seguimiento' || tipo == 'formulacion') && vigenciaSelected && banderaUnidadesInteres">
           <app-tabla-unidades (unidadesInteresSeleccionadas)="manejarCambiosUnidadesInteres($event)" [filtroPlan]="false"></app-tabla-unidades>
-        </mat-card>
+        </div>
         <!-- Tabla Planes/Proyectos de interés -->
-        <mat-card class="card-oas" [style.width.%]="97"
-          *ngIf="(tipo=='seguimiento' || tipo == 'formulacion') && vigenciaSelected && banderaPlanesInteres">
-            <app-listar-plan [banderaPlanesAccionFuncionamiento]="true" (planesInteresSeleccionados)="manejarCambiosPlanesInteres($event)"
-            [periodoSeguimiento]="periodoSeguimientoListarPlan" [filtroPlan]="false" [tipo]="tipo"></app-listar-plan>
-        </mat-card>
+        <div lass="table-responsive" *ngIf="(tipo=='seguimiento' || tipo == 'formulacion') && vigenciaSelected && banderaPlanesInteres">
+          <app-listar-plan [banderaPlanesAccionFuncionamiento]="true" (planesInteresSeleccionados)="manejarCambiosPlanesInteres($event)"
+          [periodoSeguimiento]="periodoSeguimientoListarPlan" [tipo]="tipo"></app-listar-plan>
+        </div>
       </div>
       <div *ngIf="filtroPlan">
         <div class="btnUnidades-PlanesProyectos" *ngIf="vigenciaSelected">
@@ -62,17 +60,15 @@
           </button>
         </div>
         <!-- Tabla Planes/Proyectos de interés -->
-        <mat-card class="card-oas" [style.width.%]="97"
-          *ngIf="(tipo=='seguimiento' || tipo == 'formulacion') && vigenciaSelected && banderaPlanesInteres">
-            <app-listar-plan [banderaPlanesAccionFuncionamiento]="true" (planesInteresSeleccionados)="manejarCambiosPlanesInteres($event)"
-            [periodoSeguimiento]="periodoSeguimientoListarPlan" [filtroPlan]="true"></app-listar-plan>
-        </mat-card>
+        <div class="table-responsive" *ngIf="(tipo=='seguimiento' || tipo == 'formulacion') && vigenciaSelected && banderaPlanesInteres">
+          <app-listar-plan [banderaPlanesAccionFuncionamiento]="true" (planesInteresSeleccionados)="manejarCambiosPlanesInteres($event)"
+          [periodoSeguimiento]="periodoSeguimientoListarPlan"></app-listar-plan>
+        </div>
         <!-- Tabla Unidades de interés -->
-        <mat-card class="card-oas" [style.width.%]="97"
-        *ngIf="(tipo=='seguimiento' || tipo == 'formulacion') && vigenciaSelected && banderaUnidadesInteres">
+        <div class="table-responsive" *ngIf="(tipo=='seguimiento' || tipo == 'formulacion') && vigenciaSelected && banderaUnidadesInteres">
           <app-tabla-unidades (unidadesInteresSeleccionadas)="manejarCambiosUnidadesInteres($event)"
           [filtroPlan]="true" [periodoSeguimiento]="periodoSeguimientoListarUnidades"></app-tabla-unidades>
-        </mat-card>
+        </div>
       </div>
       <ng-container *ngIf="tipo=='seguimiento' && vigenciaSelected && filtroSelected">
         <div class="container-border">
