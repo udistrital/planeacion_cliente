@@ -179,6 +179,13 @@ input{
   width: 100%;
 }
 
+.textareaContenidoModificable {
+  resize: vertical!important;
+  width: 90%!important;
+  min-height: 90%!important;
+  height: 90%;
+}
+
 .multiline-mat-option {
   white-space: normal !important;
   word-wrap: break-word !important;
