@@ -239,31 +239,6 @@ export class SeguimientoComponentGestion implements OnInit {
           })
         });
     });
-    // this.request.get(environment.PLANES_MID, `seguimiento/get_actividades/` + this.seguimiento._id).subscribe((data: any) => {
-    //   if (data) {
-
-    //     for (let index = 0; index < data.Data.length; index++) {
-    //       const actividad = data.Data[index];
-    //       if (actividad.estado.nombre == "Con observaciones") {
-    //         data.Data[index].estado.color = "conObservacion";
-    //       }
-    //       if (actividad.estado.nombre == "Actividad avalada" || actividad.estado.nombre == "Actividad Verificada") {
-    //         data.Data[index].estado.color = "avalada";
-    //       }
-    //     }
-    //     this.dataSource.data = data.Data;
-    //     this.allActividades = this.dataSource.data;
-    //     Swal.close();
-    //   }
-    // }, (error) => {
-    //   Swal.fire({
-    //     title: 'Error en la operación',
-    //     text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
-    //     icon: 'warning',
-    //     showConfirmButton: false,
-    //     timer: 2500
-    //   })
-    // })
   }
 
 

@@ -698,8 +698,9 @@ async onChangeU(unidad) {
           if (data) {
             Swal.fire({
               title: 'Actividad agregada',
-              //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
               text: 'La actividad se ha registrado satisfactoriamente',
+              allowEscapeKey: false,
+              allowOutsideClick: false,
               icon: 'success'
             }).then((result) => {
               if (result.value) {
@@ -752,8 +753,9 @@ async onChangeU(unidad) {
           if (data) {
             Swal.fire({
               title: 'Información de actividad actualizada',
-              //text: `Acción generada: ${JSON.stringify(this.form.value)}`,
               text: 'La actividad se ha actualizado satisfactoriamente',
+              allowEscapeKey: false,
+              allowOutsideClick: false,
               icon: 'success'
             }).then((result) => {
               if (result.value) {
@@ -1087,8 +1089,6 @@ async onChangeU(unidad) {
                     timer: 10000
                   });
                 }
-
-               
               }
             }, (error) => {
               Swal.fire({
