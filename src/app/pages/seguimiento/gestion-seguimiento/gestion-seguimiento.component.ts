@@ -75,6 +75,7 @@ export class SeguimientoComponentGestion implements OnInit {
       timerProgressBar: true,
       showConfirmButton: false,
       allowOutsideClick: false,
+      allowEscapeKey: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -152,6 +153,7 @@ export class SeguimientoComponentGestion implements OnInit {
       timerProgressBar: true,
       showConfirmButton: false,
       allowOutsideClick: false,
+      allowEscapeKey: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -251,6 +253,7 @@ export class SeguimientoComponentGestion implements OnInit {
       cancelButtonText: `Cancelar`,
       showCancelButton: true,
       allowOutsideClick: false,
+      allowEscapeKey: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
@@ -266,6 +269,8 @@ export class SeguimientoComponentGestion implements OnInit {
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
               }).then((result) => {
                 if (result.value) {
                   this.loadDataSeguimiento();
@@ -349,6 +354,8 @@ export class SeguimientoComponentGestion implements OnInit {
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
               }).then((result) => {
                 if (result.value) {
                   this.loadDataSeguimiento();
@@ -410,6 +417,8 @@ export class SeguimientoComponentGestion implements OnInit {
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
               }).then((result) => {
                 if (result.value) {
                   this.loadDataSeguimiento();
@@ -471,6 +480,7 @@ export class SeguimientoComponentGestion implements OnInit {
         icon: 'warning',
         showConfirmButton: true,
         allowOutsideClick: false,
+        allowEscapeKey: false,
         timer: 10000
       })
     }
@@ -499,6 +509,7 @@ export class SeguimientoComponentGestion implements OnInit {
                 icon: 'warning',
                 showConfirmButton: true,
                 allowOutsideClick: false,
+                allowEscapeKey: false,
                 timer: 10000
               })
             }
@@ -553,6 +564,8 @@ export class SeguimientoComponentGestion implements OnInit {
                 Swal.fire({
                   title: 'Seguimiento en revisión',
                   icon: 'success',
+                  allowOutsideClick: false,
+                  allowEscapeKey: false,
                 }).then((result) => {
                   if (result.value) {
                     this.loadDataSeguimiento();
@@ -591,6 +604,7 @@ export class SeguimientoComponentGestion implements OnInit {
       cancelButtonText: `Cancelar`,
       showCancelButton: true,
       allowOutsideClick: false,
+      allowEscapeKey: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.seguimiento.estado_seguimiento_id = "622ba46d16511e32535c326b"
@@ -600,6 +614,8 @@ export class SeguimientoComponentGestion implements OnInit {
             Swal.fire({
               title: 'Seguimiento en revisión',
               icon: 'success',
+              allowOutsideClick: false,
+              allowEscapeKey: false,
             }).then((result) => {
               if (result.value) {
                 this.loadDataSeguimiento();
@@ -636,6 +652,7 @@ export class SeguimientoComponentGestion implements OnInit {
       cancelButtonText: `Cancelar`,
       showCancelButton: true,
       allowOutsideClick: false,
+      allowEscapeKey: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/verificar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
@@ -644,6 +661,8 @@ export class SeguimientoComponentGestion implements OnInit {
               Swal.fire({
                 title: 'El reporte se ha enviado satisfactoriamente',
                 icon: 'success',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
               }).then((result) => {
                 if (result.value) {
                   this.loadDataSeguimiento();
