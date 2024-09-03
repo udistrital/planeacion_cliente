@@ -37,10 +37,10 @@
           <table mat-table [dataSource]="dataSource" matSort>
             <!-- Descripción de Necesidad -->
             <ng-container matColumnDef="descripcionNecesidad">
-              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Descripción de Necesidad</th>
+              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Descripción de la necesidad <br> (objeto contractual)</th>
               <td mat-cell *matCellDef="let element">
                 <mat-form-field floatLabel="never">
-                  <textarea [readonly]="readonlyTable" class="form-control" matInput placeholder="Descripción"
+                  <textarea [readonly]="readonlyTable" class="textareaContenidoModificable" matInput placeholder="Descripción"
                     [value]="element.descripcionNecesidad" [(ngModel)]="element.descripcionNecesidad"
                     [ngModelOptions]="{standalone: true}" required></textarea>
                 </mat-form-field>
@@ -48,6 +48,18 @@
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
 
+            <!-- Requisitos mínimos -->
+            <ng-container matColumnDef="requisitos">
+              <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Requisitos mínimos <br> (formación académica y experiencia)</th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field floatLabel="never">
+                  <textarea [readonly]="readonlyTable" class="textareaContenidoModificable" matInput placeholder="Requisitos"
+                    [value]="element.requisitos" [(ngModel)]="element.requisitos"
+                    [ngModelOptions]="{standalone: true}" required></textarea>
+                </mat-form-field>
+              </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
 
             <!-- Perfil -->
             <ng-container matColumnDef="perfil">
@@ -226,7 +238,11 @@
             </ng-container>
 
             <ng-container matColumnDef="DescripcionNecesidadP">
-              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Descripcion de Necesidad</th>
+              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Descripción de la necesidad <br> (objeto contractual)</th>
+            </ng-container>
+
+            <ng-container matColumnDef="RequisitosP">
+              <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Requisitos mínimos <br> (formación académica y experiencia)</th>
             </ng-container>
 
             <ng-container matColumnDef="PerfilP">
