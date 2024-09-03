@@ -73,23 +73,31 @@ export class PlanAnualComponent implements OnInit {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
-            .subscribe((vinculacion: any) => {
-              if (vinculacion["Data"] != "") {
-                this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion["Data"]["DependenciaId"]).subscribe((dataUnidad: any) => {
-                  if (dataUnidad) {
-                    this.unidades = [];
-                    this.auxUnidades = [];
-                    let unidad = dataUnidad[0]["DependenciaId"]
-                    unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
-                    this.unidades.push(unidad);
-                    this.auxUnidades.push(unidad);
-                    this.form.get('unidad').setValue(unidad);
-                    this.moduloVisible = true;
-                    this.form.get('categoria').setValue("planAccion");
-                    this.form.get('tipoReporte').setValue("unidad");
-                    this.form.get('tipoReporte').disable();
-                  }
-                })
+            .subscribe((vinculaciones: any) => {
+              if (vinculaciones["Data"] != "") {
+                const vinculacion = vinculaciones.Data;
+                this.unidades = [];
+                this.auxUnidades = [];
+                for (let i = 0; i < vinculaciones.Data.length; i++) {
+                  this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion[i].DependenciaId).subscribe((dataUnidad: any) => {
+                    if (dataUnidad) {
+                      let unidad = dataUnidad[0]["DependenciaId"]
+                      unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+                      for (let i = 0; i < dataUnidad.length; i++) {
+                        if (dataUnidad[i]["TipoDependenciaId"]["Id"] === 2) {
+                          unidad["TipoDependencia"] = dataUnidad[i]["TipoDependenciaId"]["Id"]
+                        }
+                      }
+                      this.unidades.push(unidad);
+                      this.auxUnidades.push(unidad);
+                    }
+                  })
+                }
+                this.form.get('unidad').setValue(this.unidades[0]);
+                this.moduloVisible = true;
+                this.form.get('categoria').setValue("planAccion");
+                this.form.get('tipoReporte').setValue("unidad");
+                this.form.get('tipoReporte').disable();
               } else {
                 this.moduloVisible = false;
                 Swal.fire({
