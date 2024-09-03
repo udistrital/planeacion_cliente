@@ -78,13 +78,13 @@ export class ContratistasComponent implements OnInit {
     this.actividades = this.dataSourceActividades.data;
     this.loadTabla();
     this.loadVigenciaConsulta();
-  
+
     this.filteredRubros = this.rubroControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filterRubros(value))
     );
   }
-  
+
   private _filterRubros(value: string): any[] {
     const filterValue = value.toLowerCase();
     return this.rubros.filter(rubro => rubro.Nombre.toLowerCase().includes(filterValue) || rubro.Codigo.toLowerCase().includes(filterValue));
@@ -133,7 +133,7 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
-  
+
 
   visualizarColumnas(): string[] {
     if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'ASISTENTE_DEPENDENCIA') {
@@ -142,20 +142,20 @@ export class ContratistasComponent implements OnInit {
         this.mostrarObservaciones = this.verificarObservaciones();
         this.readonlyTable = false;
         if (this.mostrarObservaciones) {
-          return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+          return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
         } else {
-          return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+          return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada' || this.estadoPlan == 'Pre Aval') {
         this.readonlyObs = true;
         this.readonlyTable = false;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Aval') {
         this.readonlyTable = true;
         this.readonlyObs = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
 
@@ -163,22 +163,22 @@ export class ContratistasComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
   }
@@ -187,33 +187,33 @@ export class ContratistasComponent implements OnInit {
     if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'ASISTENTE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         if (this.mostrarObservaciones && !this.readonlyTable) {
-          return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+          return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
         } else {
-          return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+          return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada' || this.estadoPlan == 'Pre Aval') {
         this.readonlyObs = true;
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
     }
 
     if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
       if (this.estadoPlan == 'En revisión') {
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada') {
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
     }
   }
@@ -394,6 +394,7 @@ export class ContratistasComponent implements OnInit {
     if (this.rol === 'PLANEACION') {
       this.dataSource.data.unshift({
         descripcionNecesidad: '',
+        requisitos: '',
         perfil: '',
         cantidad: 0,
         meses: 0,
@@ -413,6 +414,7 @@ export class ContratistasComponent implements OnInit {
     } else {
       this.dataSource.data.unshift({
         descripcionNecesidad: '',
+        requisitos: '',
         perfil: '',
         cantidad: 0,
         meses: 0,
@@ -561,7 +563,7 @@ export class ContratistasComponent implements OnInit {
   validarDataSource(data) {
     this.contador = 0;
     for (let i = 0; i < data.length; i++) {
-      if (data[i].descripcionNecesidad == '' || data[i].perfil == '' || data[i].cantidad == null || data[i].meses == null || data[i].dias == null
+      if (data[i].descripcionNecesidad == '' || data[i].requisitos == '' || data[i].perfil == '' || data[i].cantidad == null || data[i].meses == null || data[i].dias == null
         || data[i].valorUnitario == null || data[i].valorTotal == null || data[i].actividades == "" || data[i].actividades == null) {
         this.contador++;
       }
