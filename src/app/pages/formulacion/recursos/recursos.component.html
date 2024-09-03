@@ -35,7 +35,8 @@
                                     [ngModelOptions]="{standalone: true}"
                                     (selectionChange)="onSelected($event, rowIndex)" placeholder="Nombre del rubro"
                                     required>
-                                    <mat-option class="multiline-mat-option" *ngFor="let rubro of rubros" [value]="rubro.Nombre">
+                                    <input [formControl]="rubroControl" class="input-search">
+                                    <mat-option class="multiline-mat-option" *ngFor="let rubro of filteredRubros | async" [value]="rubro.Nombre">
                                         {{rubro.Nombre}}
                                     </mat-option>
                                 </mat-select>
@@ -93,7 +94,7 @@
                         <th mat-header-cell *matHeaderCellDef>Observaciones</th>
                         <td mat-cell *matCellDef="let element">
                             <mat-form-field floatLabel="never">
-                                <textarea class="form-control" matInput placeholder="Observaciones"
+                                <textarea class="textareaContenidoModificable" matInput placeholder="Observaciones"
                                     [value]="element.observaciones" [(ngModel)]="element.observaciones"
                                     [ngModelOptions]="{standalone: true}" required [readonly]="readonlyObs"></textarea>
                             </mat-form-field>
