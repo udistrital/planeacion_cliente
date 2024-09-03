@@ -200,63 +200,62 @@ export class TablaUnidadesComponent implements OnInit {
       });
       this.request.post(environment.PLANES_CRUD, 'periodo-seguimiento/buscar-unidad-planes/6', this.periodoSeguimiento).subscribe(
         (data: DataRequest) => {
-          if (data) {
-            if(data.Data !== null){
-              var periodoSeguimiento = data.Data;
-              this.textBotonMostrarData = 'Mostrar todas las unidades';
-              let unidadesMostrar = [];
+          if(data && data.Data && data.Data.length > 0) {
+            var periodoSeguimiento = data.Data;
+            this.textBotonMostrarData = 'Mostrar todas las unidades';
+            let unidadesMostrar = [];
 
-              const unidadesDeInteres = periodoSeguimiento.map(registro => {
-                const unidades = JSON.parse(registro.unidades_interes);
-                unidades.forEach(unidad => {
-                    unidad.fecha_modificacion = this.formatearFecha(registro.fecha_modificacion);
-                    unidad.iconSelected = 'compare_arrows';
-                    unidad.Id = unidad.Id;
-                });
-                return unidades;
+            const unidadesDeInteres = periodoSeguimiento.map(registro => {
+              const unidades = JSON.parse(registro.unidades_interes);
+              unidades.forEach(unidad => {
+                unidad.fecha_modificacion = this.formatearFecha(registro.fecha_modificacion);
+                unidad.iconSelected = 'compare_arrows';
+                unidad.Id = unidad.Id;
               });
+              return unidades;
+            });
+            console.log("unidadesDeInteres: ", unidadesDeInteres)
 
-              // Encontrar la intersección de las unidades de interés
-              unidadesMostrar = unidadesDeInteres.reduce((acumulador, unidades, index) => {
-                if (index === 0) {
-                    return unidades;
-                }
-                return acumulador.filter(item => unidades.some(unidad => unidad.Id === item.Id));
-              }, []);
-              if(unidadesMostrar.length === 0){
-                this.unidadesMostrar = this.dataUnidades;
-                this.textBotonMostrarData = 'Mostrar Unidades Interés Habilitadas/Reporte';
-                this.dataSource = new MatTableDataSource(this.unidadesMostrar);
-                this.dataSource.paginator = this.paginator;
-                Swal.fire({
-                  title: 'Error en la operación',
-                  text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas',
-                  icon: 'warning',
-                  showConfirmButton: false,
-                  timer: 2500
-                })
-              } else {
-                unidadesMostrar = [...new Set(unidadesMostrar)];
-                this.unidadesMostrar = unidadesMostrar;
-                this.dataSource = new MatTableDataSource(this.unidadesMostrar);
-                this.dataSource.paginator = this.paginator;
-                Swal.close();
+            // Encontrar la intersección de las unidades de interés
+            unidadesMostrar = unidadesDeInteres.reduce((acumulador, unidades, index) => {
+              if (index === 0) {
+                  return unidades;
               }
-            } else {
+              return acumulador.filter(item => unidades.some(unidad => unidad.Id === item.Id));
+            }, []);
+            console.log("unidadesMostrar: ", unidadesMostrar)
+            if(unidadesMostrar.length === 0){
+              this.unidadesMostrar = this.dataUnidades;
+              this.textBotonMostrarData = 'Mostrar Unidades Interés Habilitadas/Reporte';
+              this.dataSource = new MatTableDataSource(this.unidadesMostrar);
+              this.dataSource.paginator = this.paginator;
               Swal.fire({
                 title: 'Error en la operación',
-                text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas',
+                text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas1',
                 icon: 'warning',
                 showConfirmButton: false,
                 timer: 2500
               })
+            } else {
+              unidadesMostrar = [...new Set(unidadesMostrar)];
+              this.unidadesMostrar = unidadesMostrar;
+              this.dataSource = new MatTableDataSource(this.unidadesMostrar);
+              this.dataSource.paginator = this.paginator;
+              Swal.close();
             }
+          } else {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas2',
+              icon: 'warning',
+              showConfirmButton: false,
+              timer: 2500
+            })
           }
-        },
-        (error) => {
+        }, (error) => {
           Swal.fire({
             title: 'Error en la operación',
-            text: 'No se encontraron datos registrados',
+            text: `No se encontraron datos registrados: ${JSON.stringify(error)}`,
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500

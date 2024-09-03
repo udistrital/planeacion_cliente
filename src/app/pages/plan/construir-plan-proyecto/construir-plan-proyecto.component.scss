@@ -2,26 +2,9 @@
   background-color: #F1F5F8;
 }
 
-
-table {
-    width: 100%;
-  }
-
 th {
-    color: white;
-    text-align: center !important;
-}
-
-
-.td-align-right{
-  text-align: right;
-  justify-content: flex-end;
-}
-
-.header-align-right{
-  display: flex;
-  padding: 21px 0;
-  justify-content: flex-end;
+  color: white;
+  text-align: center !important;
 }
 
 .textGuide{
@@ -38,11 +21,40 @@ th {
   width: 97%;
 }
 
-
 .mat-row:nth-child(even){
   background-color:#E7D6D6;
 }
-      
+
 .mat-row:nth-child(odd){
   background-color: white;
+}
+
+th, td {
+  text-align: center !important;
+  padding: 8px !important;
+}
+
+th {
+  color: white;
+}
+
+/* Hacer que la tabla tenga scroll horizontal en pantallas pequeñas */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+@media (max-width: 640px) {
+  table {
+    font-size: 12px; /* Ajusta el tamaño de fuente */
+  }
+
+  th, td {
+    padding: 4px; /* Reduce el padding */
+  }
 }

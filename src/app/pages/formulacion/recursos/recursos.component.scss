@@ -82,4 +82,18 @@ input{
   height: unset;
   padding-top: 0.9em;
   padding-bottom: 0.9em;
-} 
+}
+
+.input-search {
+  width: 97%;
+  height: 30px;
+  text-align: left;
+  border-radius: 5px;
+}
+
+.textareaContenidoModificable {
+  resize: vertical!important;
+  width: 100%!important;
+  min-height: 90%!important;
+  height: 90%;
+}

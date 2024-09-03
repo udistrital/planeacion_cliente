@@ -341,7 +341,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       const dialogRef = this.dialog.open(EvidenciasDialogComponent, {
         width: '80%',
         height: '55%',
-        data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion, this.unidad],
+        data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion, this.unidad, this.mostrarObservaciones, this.ObservacionesDependencia, this.ObservacionesPlaneacion],
       });
 
       dialogRef.afterClosed().subscribe(documentos => {
@@ -350,7 +350,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           let documentoPorSubir = {
             documento: null,
             evidencia: documentos,
-            unidad: this.rol != 'PLANEACION',
+            unidad: !['PLANEACION', 'JEFE_DEPENDENCIA', 'ASISTENTE_PLANEACION'].includes(this.rol),
             _id: this.seguimiento.id
           };
 
@@ -367,7 +367,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             if (data) {
               this.documentos = data.Data.seguimiento
               this.seguimiento.evidencia = this.documentos
-              this.estadoActividad = data.Data.estadoActividad.nombre;
+              //this.estadoActividad = data.Data.estadoActividad.nombre;
               this.verificarFormulario();
               Swal.fire({
                 title: 'Documento(s) actualizado(s)',
@@ -579,8 +579,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         for (let index = 0; index < this.documentos.length; index++) {
           const documento = this.documentos[index];
           if (this.estadoActividad != "Sin reporte") {
-            if (documento.Observacion == "") {
-              this.documentos[index].Observacion = "";
+            if (documento.Observacion_dependencia == "" && documento.Observacion_planeacion == "") {
+              this.documentos[index].Observacion_dependencia = "";
+              this.documentos[index].Observacion_planeacion = "";
             } else {
               this.mostrarObservaciones = true;
             }
@@ -944,7 +945,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
               this.datosResultados[index].acumuladoNumerador = this.datosResultados[index].acumuladoNumerador;
               this.datosResultados[index].acumuladoDenominador = this.datosResultados[index].acumuladoDenominador;
               this.datosResultados[index].indicador = numerador / denominador;
-              var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
               var metaEvaluada = meta / 100;
               this.datosResultados[index].avanceAcumulado = (this.datosResultados[index].indicadorAcumulado / metaEvaluada);
 
@@ -952,13 +952,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
                 if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
                   this.datosResultados[index].brechaExistente = 0;
                 } else {
-                  this.datosResultados[index].brechaExistente = metaEvaluada - this.datosResultados[index].avanceAcumulado;
+                  this.datosResultados[index].brechaExistente = 1 - this.datosResultados[index].avanceAcumulado;
                 }
               } else {
                 if (this.datosResultados[index].indicadorAcumulado < metaEvaluada) {
                   this.datosResultados[index].brechaExistente = 0;
                 } else {
-                  this.datosResultados[index].brechaExistente = this.datosResultados[index].avanceAcumulado - metaEvaluada;
+                  this.datosResultados[index].brechaExistente = this.datosResultados[index].avanceAcumulado - 1;
                 }
               }
 
@@ -995,7 +995,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             this.denominadorOriginal = [];
             this.calcular = true;
           }
-          this.calcularBase(indicador, denominador, numerador, meta, index, false);
+          this.calcularBase(indicador, denominador, numerador, meta, index, false, this.trimestreAbr);
         }
       } else {
         Swal.fire({
@@ -1009,7 +1009,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }
   }
 
-  calcularBase(indicador:any, denominador: number, numerador: number, meta:number, index:number, ceros:boolean) {
+  calcularBase(indicador:any, denominador: number, numerador: number, meta:number, index:number, ceros:boolean, trimestre:string) {
     this.datosResultados[index].divisionCero = false;
     let esDenominadorFijo = indicador.denominador !== "Denominador variable"
     if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
@@ -1046,7 +1046,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
 
       if (this.datosResultados[index].acumuladoDenominador != 0) {
-        let auxiliarIndicadorAcumulado = this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador
+        let auxiliarIndicadorAcumulado = this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador;
         if (this.datosIndicadores[index].unidad == 'Unidad') {
           this.datosResultados[index].indicadorAcumulado = Math.round(auxiliarIndicadorAcumulado * 100) / 100;
         } else {
@@ -1056,7 +1056,16 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == 'Unidad' ? meta : meta / 100;
       }
       if(!esDenominadorFijo){
-        this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.25;
+        if(trimestre == "T1"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.25;
+        } else if(trimestre == "T2"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.5;
+        } else if(trimestre == "T3"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.75;
+        } else if(trimestre == "T4"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+        }
+        
       }
       let indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
       let auxiliarMeta = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
@@ -1071,6 +1080,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           indicadorAcumulado > auxiliarMeta
             ? 0
             : Math.round((auxiliarMeta - this.datosResultados[index].avanceAcumulado) * 10_000) / 10_000;
+        
       } else if (indicador.tendencia == "Decreciente") {
         let auxiliarAvance = (auxiliarMeta - indicadorAcumulado) / auxiliarMeta;
         this.datosResultados[index].avanceAcumulado =
@@ -1248,18 +1258,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           return true;
         }
       }
-  
-      for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
-        const evidencia = this.seguimiento.evidencia[index];
-        if (
-          evidencia.Observacion != "" &&
-          evidencia.Observacion != "Sin observación" &&
-          evidencia.Observacion != undefined
-        ) {
-          return true;
-        }
-      }
-  
       return false;
     } else if (this.rol === 'JEFE_DEPENDENCIA' || this.rol === 'ASISTENTE_DEPENDENCIA'){
       if (
@@ -1280,18 +1278,6 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           return true;
         }
       }
-  
-      for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
-        const evidencia = this.seguimiento.evidencia[index];
-        if (
-          evidencia.Observacion != "" &&
-          evidencia.Observacion != "Sin observación" &&
-          evidencia.Observacion != undefined
-        ) {
-          return true;
-        }
-      }
-  
       return false
     }
   }

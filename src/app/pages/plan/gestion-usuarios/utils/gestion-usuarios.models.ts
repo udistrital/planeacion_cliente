@@ -63,6 +63,7 @@ export interface DependenciaID {
   TelefonoDependencia:        string;
   CorreoElectronico:          string;
   DependenciaTipoDependencia: null;
+  TipoDependencia?:           TipoDependenciaID;
 }
 
 export interface TipoDependenciaID {

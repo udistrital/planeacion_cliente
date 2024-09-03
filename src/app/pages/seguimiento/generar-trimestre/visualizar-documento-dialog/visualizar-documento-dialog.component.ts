@@ -15,7 +15,12 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
   header = "data:application/pdf;base64,";
   rol: string;
   banderaPUI: boolean;
-  observacion: string;
+  readonlyObservacion: boolean;
+  mostrar_Observaciones: boolean;
+  observacion_dependencia: string;
+  observaciones_dependencia: boolean;
+  observacion_planeacion: string;
+  observaciones_planeacion: boolean;
   observacionText: string;
 
   constructor(
@@ -24,8 +29,18 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
     private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data: any) {
     this.getRol();
-    this.observacion = data.Observacion;
-    this.observacionText = this.observacion;
+    this.readonlyObservacion = data.editable;
+    this.mostrar_Observaciones = data.mostrar_Observaciones;
+    this.observacion_dependencia = data.Observacion_dependencia;
+    this.observaciones_dependencia = data.observaciones_Dependencia;
+    this.observacion_planeacion = data.Observacion_planeacion;
+    this.observaciones_planeacion = data.observaciones_Planeacion;
+
+    if(this.observaciones_dependencia){
+      this.observacionText = this.observacion_dependencia;
+    } else if(this.observaciones_planeacion){
+      this.observacionText = this.observacion_planeacion;
+    }
     this.banderaPUI = data.banderaPUI;
     this.file = this.sanitizer.bypassSecurityTrustResourceUrl(data["url"]);
     Swal.close();
@@ -35,13 +50,25 @@ export class VisualizarDocumentoDialogComponent implements OnInit {
   }
 
   cerrar() {
-    this.dialogRef.close({ "Id": this.data["Id"], "Observacion": this.observacion });
+    if(this.observaciones_dependencia){
+      this.dialogRef.close({ "Id": this.data["Id"], "Observacion_dependencia": this.observacionText , "Observacion_planeacion": this.observacion_planeacion});
+    } else if(this.observaciones_planeacion){
+      this.dialogRef.close({ "Id": this.data["Id"], "Observacion_planeacion": this.observacionText, "Observacion_dependencia": this.observacion_dependencia});
+    } else {
+      this.dialogRef.close();
+    }
   }
 
   guardar() {
-    this.dialogRef.close({ "Id": this.data["Id"], "Observacion": this.observacionText });
+    if(this.observaciones_dependencia){
+      this.dialogRef.close({ "Id": this.data["Id"], "Observacion_dependencia": this.observacionText , "Observacion_planeacion": this.observacion_planeacion});
+    } else if(this.observaciones_planeacion){
+      this.dialogRef.close({ "Id": this.data["Id"], "Observacion_planeacion": this.observacionText, "Observacion_dependencia": this.observacion_dependencia});
+    } else {
+      this.dialogRef.close();
+    }
   }
-
+  
   getRol() {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {

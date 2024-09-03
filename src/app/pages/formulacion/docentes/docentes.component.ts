@@ -10,6 +10,8 @@ import { isNumeric } from 'rxjs/internal-compatibility';
 import { formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from '../recursos/rubros';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-docentes',
@@ -45,6 +47,10 @@ export class DocentesComponent implements OnInit {
   incremento: number = 0.0;
   incrementoAnterior: number = 0.0;
   niveles:string[] = ["Pregrado", "Posgrado"]
+  rubroControl:FormControl = new FormControl([]);
+  filteredRubros: (Observable<any[]>)[] = [];
+  fila: number;
+  filterValues: any[] = [];
 
   CODIGO_ESTADO_PRE_AVAL: string;
   CODIGO_ESTADO_REVISADO: string;
@@ -90,8 +96,27 @@ export class DocentesComponent implements OnInit {
         Swal.showLoading();
       },
     })
-    this.rubros = rubros_aux
+    this.rubros = rubros_aux;
     Swal.close();
+  }
+
+  async tomarFila(index: any){
+    this.fila == undefined;
+    this.fila = index;
+  }
+
+  private _filterRubros(value: string): any[] {
+    const filterValue = value.toLowerCase();
+    if (filterValue != "" && this.fila != undefined) {
+      this.filterValues[this.fila] = filterValue;
+    }
+
+    if(this.filterValues.length == 0){
+      return this.rubros.filter(rubro => rubro.Nombre.toLowerCase().includes(filterValue));
+    } else {
+      return this.rubros.filter(rubro => rubro.Nombre.toLowerCase().includes(this.filterValues[this.fila]));
+    }
+    
   }
 
   async loadTabla() {
@@ -940,6 +965,14 @@ export class DocentesComponent implements OnInit {
     } else {
       this.steps[3].data = this.dataSourceRubrosPos;
     }
+    
+    for(let i=0; i < this.steps[3].data.filteredData.length; i++) {
+      this.rubroControl[i] = new FormControl();
+      this.filteredRubros[i] = this.rubroControl[i].valueChanges.pipe(
+        startWith(''),
+        map((value:string) => this._filterRubros(value))
+      );
+    };
   }
 
   checkIncremento(incrementoFromDB) {

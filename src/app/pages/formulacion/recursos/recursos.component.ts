@@ -11,6 +11,8 @@ import { localeData } from 'moment';
 import { formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from './rubros';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-recursos',
@@ -34,6 +36,8 @@ export class RecursosComponent implements OnInit {
   readonlyObs: boolean;
   readonlyTable: boolean = false;
   mostrarObservaciones: boolean = false;
+  rubroControl = new FormControl();
+  filteredRubros: Observable<any[]>;
 
   CODIGO_ESTADO_PRE_AVAL: string;
   CODIGO_ESTADO_REVISADO: string;
@@ -60,6 +64,16 @@ export class RecursosComponent implements OnInit {
     this.dataSource = new MatTableDataSource<any>();
     this.actividades = this.dataSourceActividades.data;
     this.loadTabla();
+    
+    this.filteredRubros = this.rubroControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filterRubros(value))
+    );
+  }
+
+  private _filterRubros(value: string): any[] {
+    const filterValue = value.toLowerCase();
+    return this.rubros.filter(rubro => rubro.Nombre.toLowerCase().includes(filterValue));
   }
 
   loadPlan() {
