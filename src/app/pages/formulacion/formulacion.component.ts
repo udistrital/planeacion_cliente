@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { MensajesCargaService } from 'src/app/@core/services/mensajes-carga.service';
 
 @Component({
   selector: 'app-formulacion',
@@ -108,7 +109,8 @@ export class FormulacionComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private activatedRoute: ActivatedRoute,
     private verificarFormulario: VerificarFormulario,
-    private codigosService: CodigosService
+    private codigosService: CodigosService,
+    private mensajesCarga: MensajesCargaService
   ) {
     this.formArmonizacion = this.formBuilder.group({
       selectPED: ['',],
@@ -1370,6 +1372,7 @@ async onChangeU(unidad) {
   }
 
   async identificarContratistas() {
+    this.mensajesCarga.mostrarMensajeCarga();
     this.request
       .get(
         environment.PLANES_CRUD,
@@ -1422,6 +1425,7 @@ async onChangeU(unidad) {
   }
 
   async identificarRecursos() {
+    this.mensajesCarga.mostrarMensajeCarga();
     this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan._id},tipo_identificacion_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IR_SP')}`).subscribe(async(data: any) => {
       if (data.Data.length == 0) {
         var str1 = 'Identificación de Recursos ' + this.plan.nombre
@@ -1453,7 +1457,7 @@ async onChangeU(unidad) {
   }
 
   async identificarDocentes() {
-
+    this.mensajesCarga.mostrarMensajeCarga();
     this.request.get(environment.PLANES_CRUD, `identificacion?query=plan_id:${this.plan._id},tipo_identificacion_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'ID_SP')}`).subscribe(async (data: any) => {
       if (data.Data.length == 0) {
         var str1 = 'Identificación de Docentes ' + this.plan.nombre

@@ -84,6 +84,7 @@ export class DocentesComponent implements OnInit {
     this.loadPlan();
     this.loadVigenciaConsulta();
     this.loadTabla();
+    Swal.close();
   }
 
   loadRubros() {
