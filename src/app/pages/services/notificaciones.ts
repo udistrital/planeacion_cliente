@@ -5,6 +5,8 @@ import { environment } from 'src/environments/environment';
 import { RequestManager } from '../services/requestManager';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
+import { plantillasDefault } from "./plantillasDefault";
+
 @Injectable({
   providedIn: 'root',
 })
@@ -61,8 +63,8 @@ export class Notificaciones {
 
   // Obtener plantilla de la notificación por código de abreviación
   async getPlantilla(codigo: string) {
-    const plantilla = await this.fetchData(environment.NOTIFICACIONES_CRUD, `plantilla?query=codigo_abreviacion:${codigo}`);
-    return plantilla.Data[0];
+    const plantilla = plantillasDefault.find((plantilla: any) => plantilla.codigo_abreviacion === codigo)
+    return plantilla;
   }
 
   // Obtener id sistema por código de abreviación (SP)
