@@ -7,6 +7,7 @@ import { HabilitarReporteService } from '../habilitar-reporte.service';
 import { DataRequest } from '../../../../@core/models/interfaces/DataRequest.interface';
 import { PROCESO_FUNCIONAMIENTO_FORMULACION, PROCESO_FUNCIONAMIENTO_SEGUIMIENTO, Periodo, PeriodoSeguimiento, PlanInteres, Seguimiento, Unidad, Usuario, Vigencia } from '../utils';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { MensajesCargaService } from 'src/app/@core/services/mensajes-carga.service';
 
 @Component({
   selector: 'app-funcionamiento',
@@ -51,7 +52,8 @@ export class FuncionamientoComponent implements OnInit {
   constructor(
     private request: RequestManager,
     private habilitarReporteService: HabilitarReporteService,
-    private codigosService:CodigosService
+    private codigosService:CodigosService,
+    private mensajesCarga: MensajesCargaService
   ) {
     this.vigenciaSelected = false;
     this.guardarDisabled = false;
@@ -330,6 +332,7 @@ export class FuncionamientoComponent implements OnInit {
         allowOutsideClick: false,
       }).then((result) => {
         if (result.isConfirmed) {
+          this.mensajesCarga.mostrarMensajeCarga(true);
           if (this.formFechas.get('fecha9').value != "" && this.formFechas.get('fecha10').value != "") {
             periodo_seguimiento_formulacion.periodo_id = this.vigencia.Id.toString();
             periodo_seguimiento_formulacion.fecha_inicio = this.formFechas.get('fecha9').value;
