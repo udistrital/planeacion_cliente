@@ -43,7 +43,8 @@
 
           <div class="content-border"
             style="grid-row: 1/4; grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">
-            <h2>&nbsp;&nbsp;&nbsp;&nbsp;Descripción de la actividad general&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+            <h2 *ngIf="seguimiento.informacion.tarea != ''">&nbsp;&nbsp;&nbsp;&nbsp;Descripción de la actividad general&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+            <h2 *ngIf="seguimiento.informacion.tarea == ''">&nbsp;&nbsp;&nbsp;&nbsp;Descripción de la actividad&nbsp;&nbsp;&nbsp;&nbsp;</h2>
             <textarea class="textareaContenidoModificable" autoresize [readonly]="true"
               placeholder="* Descripción de la actividad general seleccionada">{{seguimiento.informacion.descripcion}}</textarea>
           </div>
@@ -56,7 +57,7 @@
             <textarea style="height: 70%;" class="textareaContenido" autoresize style="overflow:hidden" [readonly]="true">{{seguimiento.informacion.producto}}</textarea>
           </div>
 
-          <div class="content-border" style="grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">
+          <div *ngIf="seguimiento.informacion.tarea != ''" class="content-border" style="grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">
             <h2>&nbsp;&nbsp;&nbsp;&nbsp;Actividades específicas&nbsp;&nbsp;&nbsp;&nbsp;</h2>
             <textarea class="textareaContenidoModificable" autoresize [readonly]="true"
               placeholder="* Tareas asociadas a la actividad general">{{seguimiento.informacion.tarea}}</textarea>
