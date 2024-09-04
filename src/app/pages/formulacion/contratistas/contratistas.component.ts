@@ -83,6 +83,7 @@ export class ContratistasComponent implements OnInit {
       startWith(''),
       map(value => this._filterRubros(value))
     );
+    Swal.close();
   }
 
   private _filterRubros(value: string): any[] {

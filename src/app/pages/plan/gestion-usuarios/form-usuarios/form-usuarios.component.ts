@@ -169,13 +169,13 @@ export class FormUsuariosComponent implements OnInit {
           .then(async () => {
             for (const response of successfulResponses) {
               if (response != null && response != undefined) {
-                if (response.data != "" && response.status === 200) {
+                if (response.Data != "" && response.Status === 200) {
                   if (!this.rolesUsuario.find(i => i.rol === response.rolUsuario.rol)) {
                     this.rolesUsuario.push({ ...response.rolUsuario });
                   }
                   this.rolesSistema = this.rolesSistema.filter(item => !item.selected);
                   await this.mostrarMensajeExito(response.rolUsuario.rol, 'vincular');
-                } else if (response.status === 400 && response.success == false) {
+                } else if (response.Status === 400 && response.Success == false) {
                   this.mostrarMensajeError(`El usuario ya tiene el rol ${response.rolUsuario.rol} asignado`);
                 } else {
                   this.mostrarMensajeError(`No se pudo vincular el rol ${response.rolUsuario.rol} al usuario`);
@@ -319,13 +319,13 @@ export class FormUsuariosComponent implements OnInit {
             // Procesar las respuestas exitosas
             for (const response of successfulResponses) {
               if (response != null && response != undefined) {
-                if (response.data != "" && response.status === 200) {
+                if (response.Data != "" && response.Status === 200) {
                   if (!this.rolesSistema.find(i => i.rol === response.rolUsuario.rol)) {
                     this.rolesSistema.push({ ...response.rolUsuario });
                   }
                   this.rolesUsuario = this.rolesUsuario.filter(item => !item.selected);
                   await this.mostrarMensajeExito(response.rolUsuario.rol, 'desvincular');
-                } else if (response.status === 400 && response.success == false) {
+                } else if (response.Status === 400 && response.Success == false) {
                   this.mostrarMensajeError(`El usuario no tiene el rol ${response.rolUsuario.rol} asignado`);
                 } else {
                   this.mostrarMensajeError(`No se pudo desvincular el rol ${response.rolUsuario.rol} del usuario`);
