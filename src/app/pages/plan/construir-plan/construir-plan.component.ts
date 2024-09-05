@@ -453,7 +453,7 @@ export class ConstruirPlanComponent implements OnInit {
         if (this.uid_n >= 4) {
           Swal.fire({
             title: '¡Error en la creación!',
-            text: 'No es posible agregar un nuevo nivel, por favor comuniquese con el administrador del sistema',
+            text: 'No es posible agregar un nuevo nivel, por favor comuníquese con el administrador del sistema',
             icon: 'warning',
             showConfirmButton: false,
             timer: 3500
@@ -467,9 +467,7 @@ export class ConstruirPlanComponent implements OnInit {
             timer: 3200
           })
         }
-
       }
-
     }
   }
 
