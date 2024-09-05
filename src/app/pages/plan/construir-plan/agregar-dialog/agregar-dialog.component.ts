@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { FormBuilder, FormGroup,FormControl,Validators } from '@angular/forms';
 import { MatRadioChange } from '@angular/material/radio';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-agregar-dialog',
@@ -24,19 +25,20 @@ export class AgregarDialogComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<AgregarDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any) {
-      this.opt = false;
-    }
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    this.opt = false;
+  }
 
-    close(): void {
-      // Obtener las opciones actuales del formulario
-      const opciones = this.listaOpciones.join(',');
-      // Asignar las opciones como una sola cadena separada por comas al campo 'opciones'
-      this.formAgregar.get('opciones').setValue(opciones);
-    
-      // Cerrar el diálogo y pasar el valor del formulario al componente padre
-      this.dialogRef.close(this.formAgregar.value);
-    }
+  close(): void {
+    // Obtener las opciones actuales del formulario
+    const opciones = this.listaOpciones.join(',');
+    // Asignar las opciones como una sola cadena separada por comas al campo 'opciones'
+    this.formAgregar.get('opciones').setValue(opciones);
+  
+    // Cerrar el diálogo y pasar el valor del formulario al componente padre
+    this.dialogRef.close(this.formAgregar.value);
+  }
 
   ngOnInit(): void {
     this.formAgregar = this.formBuilder.group({
@@ -50,9 +52,10 @@ export class AgregarDialogComponent implements OnInit {
       opciones: ['', [Validators.maxLength(80)]]  // No es necesario el validator 'required' aquí si se desea permitir el campo vacío
     });
 
-    if (this.opt == false){
+    if (this.opt == false) {
       this.formAgregar.get('opciones').disable();
     }
+    Swal.close();
   }
 
   adicionarOpcion() {
@@ -63,7 +66,7 @@ export class AgregarDialogComponent implements OnInit {
       this.formAgregar.get('opciones').setValue(''); // Limpiar el input después de añadir la opción
     }
   }
- 
+
   eliminarOpcion(index: number) {
     this.listaOpciones.splice(index, 1);
     this.actualizarOpciones();
