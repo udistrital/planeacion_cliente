@@ -100,6 +100,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   @ViewChild(MatSort) sort: MatSort;
   codigo_abreviacion: any;
   unidadValida: boolean;
+  actividadConObservacion: any[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -326,7 +327,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   ultimaVinculacion: any = null;
-  
+
   // Función para llenar el select de unidades
   async validarUnidad() {
     return await new Promise((resolve, reject) => {
@@ -334,22 +335,22 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         try {
           const datosInfoTercero = await this.getDatosIdentificacion(data['userService']['documento']);
           const vinculacion = await this.getVinculacionTercero(datosInfoTercero[0].TerceroId.Id);
-  
+
           if (vinculacion['Data'] != '') {
             let vinculaciones = vinculacion['Data'];
             // Procesar la última vinculación
             let ultimaVinculacion = vinculaciones[vinculaciones.length - 1];
-  
+
             for (const vinculacion of vinculaciones) {
               const dataUnidad:any = await this.getDependenciaTipoDependencia(vinculacion['DependenciaId']);
-  
+
               if (dataUnidad) {
                 let unidadesOrdenadas = dataUnidad.sort((a, b) => {
                   let fechaA = new Date(a['DependenciaId']['FechaModificacion']);
                   let fechaB = new Date(b['DependenciaId']['FechaModificacion']);
                   return fechaB.getTime() - fechaA.getTime(); // Orden descendente
                 });
-  
+
                 let unidad = unidadesOrdenadas[0]['DependenciaId'];
                 unidad['TipoDependencia'] = unidadesOrdenadas[0]['TipoDependenciaId']['Id'];
                 for (let i = 0; i < dataUnidad.length; i++) {
@@ -357,7 +358,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                     unidad['TipoDependencia'] = dataUnidad[i]['TipoDependenciaId']['Id'];
                   }
                 }
-  
+
                 this.unidades.push(unidad);
                 this.auxUnidades.push(unidad);
                 this.ultimaVinculacion = ultimaVinculacion.DependenciaId;
@@ -393,7 +394,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
       });
     });
   }
-  
+
   getDatosIdentificacion(documento) {
     return new Promise((resolve, reject) => {
       this.request
@@ -404,7 +405,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         );
     });
   }
-  
+
   getVinculacionTercero(terceroId) {
     return new Promise((resolve, reject) => {
       this.request
@@ -415,7 +416,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         );
     });
   }
-  
+
   getDependenciaTipoDependencia(dependenciaId) {
     return new Promise((resolve, reject) => {
       this.request
@@ -426,7 +427,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
         );
     });
   }
-  
+
   // Función para manejar el cambio de unidad
 async onChangeU(unidad) {
   if (unidad == undefined) {
@@ -458,7 +459,7 @@ async onChangeU(unidad) {
     }
   }
 }
-  
+
   // Función para formular el plan
   formularPlan() {
     Swal.fire({
@@ -496,7 +497,7 @@ async onChangeU(unidad) {
       })
     })
   }
-  
+
 
   async loadUnidades() {
     return new Promise((resolve, reject) => {
@@ -1068,7 +1069,7 @@ async onChangeU(unidad) {
               if (data.Data.length > 0) {
                 this.getVersiones(planB);
               } else if (data.Data.length == 0) {
-                if (this.unidadValida === true || this.rol === "PLANEACION") {   
+                if (this.unidadValida === true || this.rol === "PLANEACION") {
                   Swal.fire({
                     title: 'Formulación nuevo plan',
                     html: 'No existe plan <b>' + planB.nombre + '</b> <br>' +
@@ -1886,7 +1887,7 @@ async onChangeU(unidad) {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        // TODO verificar si se puede enviar a verificar
+        //TODO verificar si se puede enviar a verificar
         Swal.fire({
           title: 'Verificar Revisión',
           text: `¿Desea verificar la revisión?`,
@@ -1896,22 +1897,37 @@ async onChangeU(unidad) {
           showCancelButton: true
         }).then((result) => {
           if (result.isConfirmed) {
-            this.plan.estado_plan_id = this.ID_ESTADO_REVISION_VERIFICADA;
-            this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
-              if (data) {
-                this.codigoNotificacion = "FR2"; // NOTIFICACION(FR2)
-                Swal.fire({
-                  title: 'Revisión Verficada Enviada',
-                  icon: 'success',
-                }).then((result) => {
-                  if (result.value) {
-                    this.busquedaPlanes(data.Data);
-                    this.loadData();
-                    this.addActividad = false;
-                  }
-                })
+            if (this.actividadConObservacion.length == 0) {
+              this.plan.estado_plan_id = this.ID_ESTADO_REVISION_VERIFICADA;
+              this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
+                if (data) {
+                  this.codigoNotificacion = "FR2"; // NOTIFICACION(FR2)
+                  Swal.fire({
+                    title: 'Revisión Verficada Enviada',
+                    icon: 'success',
+                  }).then((result) => {
+                    if (result.value) {
+                      this.busquedaPlanes(data.Data);
+                      this.loadData();
+                      this.addActividad = false;
+                    }
+                  })
+                }
+              })
+            } else {
+              console.log(this.actividadConObservacion)
+              let message: string = '<b>Actividades</b><br/>';
+              for (let i = 0; i < this.actividadConObservacion.length; i++) {
+                message = message + (i + 1).toString() + '. ' + this.actividadConObservacion[i].Actividad + "<br/>"
               }
-            })
+              Swal.fire({
+                title: 'El plan no es verificable (revisar sus respectivas actividades):',
+                icon: 'warning',
+                showConfirmButton: true,
+                allowOutsideClick: false,
+                html: message
+              })
+            }
           } else if (result.dismiss === Swal.DismissReason.cancel) {
             Swal.fire({
               title: 'Envio de Revisión Verificada Cancelado',
@@ -2258,6 +2274,7 @@ async onChangeU(unidad) {
 
   pintarActividades(plan_id: string, actividades: any, numero_actividades: any): any{
     let promesas = [];
+    this.actividadConObservacion = [];
 
     Swal.fire({
       title: 'Cargando...',
@@ -2309,6 +2326,9 @@ async onChangeU(unidad) {
 
         if (observaciones){
           actividades[i].color = "ConObservaciones"
+          if (actividades[i].activo == "Activo") {
+            this.actividadConObservacion.push(actividades[i]);
+          }
         } else {
           actividades[i].color = "SinObservaciones"
         }
