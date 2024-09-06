@@ -404,49 +404,103 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.planesInteres.forEach(async (plan) => {
-          const auxPlan = {
-            fecha_creacion: plan.fecha_creacion,
-            activo: plan.activo,
-            aplicativo_id: plan.aplicativo_id,
-            tipo_plan_id: plan.tipo_plan_id,
-            descripcion: plan.descripcion,
-            estado_plan_id: await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP'),
-            _id: plan.id,
-            nombre: plan.nombre
-          }
-          this.request.put(environment.PLANES_CRUD, `plan`, auxPlan, auxPlan._id).subscribe((data: any) => {
-            if (data) {
-              // NOTIFICACION(FR2)
-              this.notificacionesService.enviarNotificacion({
-                codigo: "FR2",
-                id_unidad: plan.dependencia_id,
-                nombre_unidad: plan.dependencia_nombre,
-                nombre_plan: plan.nombre,
-                nombre_vigencia: plan.vigencia
-              })
-              Swal.fire({
-                title: 'Revisión Verficada Enviada',
-                icon: 'success',
-              }).then((result) => {
-                if (result.value) {
-                  const actualUrl = this.router.url;
-                  this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                    this.router.navigate([actualUrl]);
+        Swal.fire({
+          title: 'Verificando Planes',
+          timerProgressBar: true,
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          willOpen: () => {
+            Swal.showLoading();
+          },
+        })
+        let observaciones = false
+        let nombreObs = [];
+        const promesas = this.planesInteres.map(async (plan) => {
+          let cod = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'RV_SP');
+
+          return new Promise<void>((resolve, reject) => {
+            this.request.get(environment.PLANES_MID, `formulacion/observaciones_plan/` + plan.id).subscribe((dataObs: any) => {
+              if (dataObs.Data.length != 0) {
+                observaciones = true;
+                nombreObs.push(plan.nombre + " - " + plan.vigencia);
+                resolve(); // Continuar después de agregar la observación
+              } else {
+                const auxPlan = {
+                  fecha_creacion: plan.fecha_creacion,
+                  activo: plan.activo,
+                  aplicativo_id: plan.aplicativo_id,
+                  tipo_plan_id: plan.tipo_plan_id,
+                  descripcion: plan.descripcion,
+                  estado_plan_id: cod,
+                  _id: plan.id,
+                  nombre: plan.nombre
+                };
+                this.request.put(environment.PLANES_CRUD, `plan`, auxPlan, auxPlan._id).subscribe((data: any) => {
+                  if (data) {
+                    // NOTIFICACION(FR2)
+                    this.notificacionesService.enviarNotificacion({
+                      codigo: "FR2",
+                      id_unidad: plan.dependencia_id,
+                      nombre_unidad: plan.dependencia_nombre,
+                      nombre_plan: plan.nombre,
+                      nombre_vigencia: plan.vigencia
+                    });
+                    Swal.fire({
+                      title: 'Revisión Verficada Enviada',
+                      icon: 'success',
+                    }).then((result) => {
+                      if (result.value) {
+                        const actualUrl = this.router.url;
+                        this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                          this.router.navigate([actualUrl]);
+                        });
+                      }
+                      resolve(); // Operación completada, resolver la promesa
+                    });
+                  }
+                }, (error) => {
+                  Swal.fire({
+                    title: 'Error en la operación',
+                    icon: 'error',
+                    text: `El plan ${plan.nombre} está generando error en su aprobación, intente más tarde o comuniquese con la OATI`,
+                    showConfirmButton: false,
+                    timer: 2500
                   });
-                }
-              })
-            }
-          }, (error) => {
-            Swal.fire({
-              title: 'Error en la operación',
-              icon: 'error',
-              text: `El plan ${plan.nombre} está generando error en su aprobación, intente más tarde o comuniquese con la OATI`,
-              showConfirmButton: false,
-              timer: 2500
-            })
-          })
+                  reject(error); // Error en la operación, rechazar la promesa
+                });
+              }
+            }, (error) => {
+              Swal.fire({
+                title: 'Error en la operación',
+                icon: 'error',
+                text: `${JSON.stringify(error)}`,
+                showConfirmButton: false,
+                timer: 2500
+              });
+              reject(error); // Error en la solicitud, rechazar la promesa
+            });
+          });
         });
+
+        Promise.all(promesas).then(() => {
+          Swal.close();
+          if (observaciones && nombreObs.length != 0) {
+            let message: string = '<b>Planes/Proyectos</b><br/>';
+            for (let i = 0; i < nombreObs.length; i++) {
+              message = message + (i + 1).toString() + '. ' + nombreObs[i] + "<br/>";
+            }
+            Swal.fire({
+              title: 'Los siguientes planes/proyectos no son verificables (revisar sus respectivas actividades):',
+              icon: 'warning',
+              showConfirmButton: true,
+              allowOutsideClick: false,
+              html: message
+            });
+          }
+        }).catch((error) => {
+          console.error('Error al procesar las promesas:', error);
+        });
+
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Envio de Revisión Verificada Cancelado',
