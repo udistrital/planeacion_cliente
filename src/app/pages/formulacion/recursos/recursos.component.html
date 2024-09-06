@@ -35,7 +35,7 @@
                                     [ngModelOptions]="{standalone: true}"
                                     (selectionChange)="onSelected($event, rowIndex)" placeholder="Nombre del rubro"
                                     required>
-                                    <input [formControl]="rubroControl" class="input-search">
+                                    <input type="text" (keydown.space)="$event.stopPropagation()" [formControl]="rubroControl" class="input-search">
                                     <mat-option class="multiline-mat-option" *ngFor="let rubro of filteredRubros | async" [value]="rubro.Nombre">
                                         {{rubro.Nombre}}
                                     </mat-option>
