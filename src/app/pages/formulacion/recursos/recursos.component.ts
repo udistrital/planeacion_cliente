@@ -119,7 +119,7 @@ export class RecursosComponent implements OnInit {
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada' || this.estadoPlan == 'Pre Aval') {
         this.readonlyObs = true;
-        this.readonlyTable = false;
+        this.readonlyTable = true;
         return ['acciones', 'codigo', 'Nombre', 'valor', 'descripcion', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Aval') {
