@@ -150,7 +150,7 @@ export class ContratistasComponent implements OnInit {
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada' || this.estadoPlan == 'Pre Aval') {
         this.readonlyObs = true;
-        this.readonlyTable = false;
+        this.readonlyTable = true;
         return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Aval') {
