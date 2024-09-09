@@ -578,6 +578,13 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
       await this.loadPlanes("unidad");
     }
     this.allPlanes = this.dataSource.data;
+    if (!(this.vigencia == undefined || (this.plan == undefined && this.vigencia == undefined))) {
+      if (this.rol != undefined && this.rol == 'PLANEACION') {
+        this.loadPlanes("vigencia");
+      } else {
+        this.loadPlanes("unidad");
+      }
+    }
   }
 
   async onChangeP(plan) {

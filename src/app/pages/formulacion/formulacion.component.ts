@@ -624,6 +624,11 @@ async onChangeU(unidad) {
                       if(this.existePlan(this.planes, plan.nombre)){
                         this.planes = this.planes.filter((p)=> p.nombre !== plan.nombre)
                       }
+                      this.unidades.push(this.unidad);
+                      this.auxUnidades.push(this.unidad);
+                      this.formSelect.get('selectUnidad').setValue(this.unidad);
+                      this.onChangeU(this.unidad);
+                      this.moduloVisible = true;
                     }
                   });
                 } catch (error) {

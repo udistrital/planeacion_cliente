@@ -19,7 +19,7 @@ export class EvaluacionComponent implements OnInit {
   periodos: any[];
   bandera: boolean;
   vigencias: any[];
-  unidades: any[];
+  unidades: any[] = [];
   unidadSelected: boolean;
   unidad: any;
   vigenciaSelected: boolean;
