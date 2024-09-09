@@ -5,6 +5,8 @@ import { environment } from 'src/environments/environment';
 import { RequestManager } from '../services/requestManager';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
+import { plantillasDefault } from "./plantillasDefault";
+
 @Injectable({
   providedIn: 'root',
 })
@@ -12,7 +14,7 @@ export class Notificaciones {
   private socket$: WebSocketSubject<any> | undefined;
 
   readonly NOTIFICACION: any = {
-    CODIGO_SISGPLAN: "SP",
+    CODIGO_SISGPLAN: "PL_SISGPLAN",
     CODIGO_NOTIFICACION_INFORMATIVA: "NI",
     ASUNTO: "Sin asunto"
   }
@@ -61,14 +63,14 @@ export class Notificaciones {
 
   // Obtener plantilla de la notificación por código de abreviación
   async getPlantilla(codigo: string) {
-    const plantilla = await this.fetchData(environment.NOTIFICACIONES_CRUD, `plantilla?query=codigo_abreviacion:${codigo}`);
-    return plantilla.Data[0];
+    const plantilla = plantillasDefault.find((plantilla: any) => plantilla.codigo_abreviacion === codigo)
+    return plantilla;
   }
 
   // Obtener id sistema por código de abreviación (SP)
   async getIdSistema(codigo: string) {
-    const sistema = await this.fetchData(environment.NOTIFICACIONES_CRUD, `sistema?query=codigo_abreviacion:${codigo}`);
-    return sistema.Data[0]._id;
+    const sistema = await this.fetchData(environment.PARAMETROS_SERVICE, `area_tipo?query=CodigoAbreviacion:${codigo}`);
+    return sistema.Data[0].Id;
   }
 
   // Obtener tipo de notificación por código de abreviación (NI = Notificación informativa)
