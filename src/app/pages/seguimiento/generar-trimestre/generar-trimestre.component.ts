@@ -1,18 +1,18 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Location, registerLocaleData } from '@angular/common';
+import es from '@angular/common/locales/es';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatDialog } from '@angular/material/dialog';
-import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RequestManager } from '../../services/requestManager';
+import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
-import { element } from 'protractor';
-import { Location, registerLocaleData } from '@angular/common';
-import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
+import { Notificaciones } from "../../services/notificaciones";
+import { RequestManager } from '../../services/requestManager';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
-import es from '@angular/common/locales/es';
 
 export interface Indicador {
   nombre: string;
@@ -21,7 +21,8 @@ export interface Indicador {
   reporteNumerador: string;
   reporteDenominador: string;
   detalleReporte: string;
-  observaciones: string;
+  observaciones_dependencia: string;
+  observaciones_planeacion: string;
 }
 
 export interface ResultadosIndicador {
@@ -44,7 +45,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['id', 'unidad', 'estado', 'vigencia', 'periodo', 'seguimiento', 'observaciones', 'enviar'];
   dataSource: MatTableDataSource<any>;
   selectedFiles: any;
-  datosCualitativo: any = { 'reporte': '', 'productos': '', 'dificultades': '', 'observaciones': '' };
+  datosCualitativo: any = { 'reporte': '', 'productos': '', 'dificultades': '', 'observaciones_planeacion': '', 'observaciones_dependencia': ''};
   formCualitativo: FormGroup;
   FORMATOS = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
@@ -58,6 +59,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   rol: string;
   planId: string;
+  plan: string;
   indexActividad: string;
   trimestreId: string;
   codigoTrimestre: string;
@@ -82,12 +84,18 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   estados: any[];
   readonlyFormulario: boolean;
   readonlyObservacion: boolean;
-  denominadorFijo: boolean;
   unidad: string;
+  vigencia: any;
   numeradorOriginal: number[] = [];
   denominadorOriginal: number[] = [];
   calcular: boolean = true;
   abrirDocs: boolean = true;
+  txtObservaciones: string;
+  txtPlaceHolderObservaciones: string;
+  codigoNotificacion: string = "";
+  id_actividad: any;
+  ObservacionesPlaneacion: boolean;
+  ObservacionesDependencia: boolean;
 
   constructor(
     private autenticationService: ImplicitAutenticationService,
@@ -95,6 +103,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private request: RequestManager,
+    private notificacionesService: Notificaciones,
     private gestorDocumental: GestorDocumentalService,
     private _location: Location,
     public dialog: MatDialog) {
@@ -129,6 +138,11 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.formCualitativo = this.formBuilder.group(this.datosCualitativo)
     this.indicadorSelected = false;
     this.mostrarObservaciones = false;
+    this.ObservacionesPlaneacion = false;
+    this.ObservacionesDependencia = false;
+
+    this.txtObservaciones = '';
+    this.txtPlaceHolderObservaciones = '';
   }
 
   ngAfterViewInit() {
@@ -136,6 +150,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -144,10 +159,14 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   getRol() {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
+    if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA';
+    } else if (roles.__zone_symbol__value.find(x => x == 'ASISTENTE_DEPENDENCIA')) {
+      this.rol = 'ASISTENTE_DEPENDENCIA';
     } else if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
       this.rol = 'PLANEACION';
+    } else if (roles.__zone_symbol__value.find(x => x == 'ASISTENTE_PLANEACION')) {
+      this.rol = 'ASISTENTE_PLANEACION';
     }
   }
 
@@ -160,6 +179,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           if (data) {
             this.trimestre = data.Data[0].ParametroId.Nombre;
             this.codigoTrimestre = data.Data[0].ParametroId.CodigoAbreviacion
+            this.vigencia = data.Data[0].PeriodoId
           }
         }, (error) => {
           Swal.fire({
@@ -199,19 +219,30 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
   }
 
   verificarFormulario() {
-    if (this.rol === 'PLANEACION') {
+    if (this.rol === 'PLANEACION' || this.rol === 'ASISTENTE_PLANEACION') {
       if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Sin reporte') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = false;
-      } else if (this.estadoActividad === 'Actividad reportada' || this.estadoActividad === 'Con observaciones') {
+      } else if (this.estadoActividad === 'Actividad reportada' || this.estadoActividad === 'Con observaciones' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión OAPC');
         this.mostrarObservaciones = true;
-      } else if (this.estadoActividad === 'Actividad avalada') {
+        this.ObservacionesPlaneacion = false;
+        this.ObservacionesDependencia = true;
+      } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
+        this.ObservacionesPlaneacion = true;
+        this.ObservacionesDependencia = false;
+      }
+      if(this.estadoSeguimiento === 'En revisión OAPC'){
+        this.readonlyFormulario = true;
+        this.readonlyObservacion = false;
+        this.mostrarObservaciones = true;
+        this.ObservacionesPlaneacion = true;
+        this.ObservacionesDependencia = false;
       }
     } else if (this.rol == 'JEFE_DEPENDENCIA') {
       if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Habilitado' || this.estadoActividad === 'Sin reporte') {
@@ -220,17 +251,84 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.mostrarObservaciones = false;
       } else if (this.estadoActividad === 'Actividad reportada') {
         this.readonlyFormulario = true;
-        this.readonlyObservacion = true;
-        this.mostrarObservaciones = false;
-      } else if (this.estadoActividad === 'Con observaciones') {
-        this.readonlyFormulario = this.estadoSeguimiento != 'Con observaciones';
-        this.readonlyObservacion = true;
-        this.mostrarObservaciones = true;
-      } else if (this.estadoActividad === 'Actividad avalada') {
+        if(this.estadoSeguimiento === 'En revisión JU') {
+          this.readonlyFormulario = true;
+          this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión JU');
+          this.mostrarObservaciones = true;
+          this.ObservacionesDependencia = true;
+          this.ObservacionesPlaneacion = false;
+        } else {
+          this.readonlyObservacion = true;
+          this.mostrarObservaciones = false;
+        }
+      } else if (this.estadoActividad === 'Con observaciones'/* || this.estadoActividad === 'Actividad Verificada'*/) {
+        if (this.estadoSeguimiento === 'Con observaciones' || this.estadoSeguimiento === 'Revisión Verificada con Observaciones') {
+          this.readonlyFormulario = false;
+        } else {
+          this.readonlyFormulario = true;
+        }
+        if(this.estadoSeguimiento === 'En revisión JU') {
+          this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión JU');
+          this.mostrarObservaciones = true;
+          this.ObservacionesDependencia = true;
+          this.ObservacionesPlaneacion = false;
+        } else {
+          this.readonlyObservacion = true;
+          this.mostrarObservaciones = true;
+          this.ObservacionesDependencia = true;
+          this.ObservacionesPlaneacion = false;
+        }
+      } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
+        this.ObservacionesDependencia = true;
+        this.ObservacionesPlaneacion = false;
       }
+    } else if (this.rol == 'ASISTENTE_DEPENDENCIA') {
+      if (this.estadoActividad === 'Actividad en reporte' || this.estadoActividad === 'Habilitado' || this.estadoActividad === 'Sin reporte') {
+        this.readonlyFormulario = false;
+        this.readonlyObservacion = true;
+        this.mostrarObservaciones = false;
+      } else if (this.estadoActividad === 'Actividad reportada') {
+        this.readonlyFormulario = true;
+        this.readonlyObservacion = true;
+        this.mostrarObservaciones = false;
+      } else if (this.estadoActividad === 'Con observaciones'/* || this.estadoActividad === 'Actividad Verificada'*/) {
+        if (this.estadoSeguimiento === 'Con observaciones' || this.estadoSeguimiento === 'Revisión Verificada con Observaciones') {
+          this.readonlyFormulario = false;
+        } else {
+          this.readonlyFormulario = true;
+        }
+        this.readonlyObservacion = true;
+        this.mostrarObservaciones = true;
+        if(this.estadoSeguimiento === 'Con observaciones'){
+          this.ObservacionesPlaneacion = true;
+          this.ObservacionesDependencia = false;
+        } else if (this.estadoSeguimiento === 'Revisión Verificada con Observaciones'){
+          this.ObservacionesPlaneacion = false;
+          this.ObservacionesDependencia = true;
+        }
+      } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
+        this.readonlyFormulario = true;
+        this.readonlyObservacion = true;
+        this.mostrarObservaciones = true;
+        if(this.estadoSeguimiento === 'Actividad avalada'){
+          this.ObservacionesPlaneacion = true;
+          this.ObservacionesDependencia = false;
+        } else if (this.estadoSeguimiento === 'Actividad Verificada'){
+          this.ObservacionesPlaneacion = false;
+          this.ObservacionesDependencia = true;
+        }
+      }
+    }
+
+    if (this.estadoSeguimiento === 'Habilitado' || this.estadoSeguimiento === 'En reporte' || this.estadoSeguimiento === 'Enviado a revisión' || this.estadoSeguimiento === 'En revisión JU' || this.estadoSeguimiento === 'Revisión Verificada' || this.estadoSeguimiento === 'Revisión Verificada con Observaciones') {
+      this.txtObservaciones = 'Observaciones Jefe Dependencia'
+      this.txtPlaceHolderObservaciones = '* Observaciones realizadas por parte del Jefe de Dependencia para el componente cualitativo.'
+    } else if (this.estadoSeguimiento === 'Con observaciones' || this.estadoSeguimiento === 'En revisión OAPC' || this.estadoSeguimiento === 'Reporte Avalado') {
+      this.txtObservaciones = 'Observaciones Oficina Asesora de Planeación y Control'
+      this.txtPlaceHolderObservaciones = '* Observaciones realizadas desde la OAPC a la unidad para el componente cualitativo.'
     }
   }
 
@@ -243,7 +341,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       const dialogRef = this.dialog.open(EvidenciasDialogComponent, {
         width: '80%',
         height: '55%',
-        data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion, this.unidad],
+        data: [this.documentos, this.readonlyFormulario, this.readonlyObservacion, this.unidad, this.mostrarObservaciones, this.ObservacionesDependencia, this.ObservacionesPlaneacion],
       });
 
       dialogRef.afterClosed().subscribe(documentos => {
@@ -252,7 +350,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
           let documentoPorSubir = {
             documento: null,
             evidencia: documentos,
-            unidad: this.rol != 'PLANEACION',
+            unidad: !['PLANEACION', 'JEFE_DEPENDENCIA', 'ASISTENTE_PLANEACION'].includes(this.rol),
             _id: this.seguimiento.id
           };
 
@@ -260,6 +358,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             title: 'Guardando cambios',
             timerProgressBar: true,
             showConfirmButton: false,
+            allowOutsideClick: false,
             willOpen: () => {
               Swal.showLoading();
             },
@@ -268,7 +367,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             if (data) {
               this.documentos = data.Data.seguimiento
               this.seguimiento.evidencia = this.documentos
-              this.estadoActividad = data.Data.estadoActividad.nombre;
+              //this.estadoActividad = data.Data.estadoActividad.nombre;
               this.verificarFormulario();
               Swal.fire({
                 title: 'Documento(s) actualizado(s)',
@@ -310,6 +409,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             title: 'Guardando documento',
             timerProgressBar: true,
             showConfirmButton: false,
+            allowOutsideClick: false,
             willOpen: () => {
               Swal.showLoading();
             },
@@ -379,11 +479,36 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     }
   }
 
+  setCodigoNotificacion() {
+    if (this.estadoSeguimiento == 'Habilitado') {
+      this.codigoNotificacion = "SH"; // NOTIFICACION(SH)
+    } else if (this.estadoSeguimiento == 'Revisión Verificada con Observaciones') {
+      this.codigoNotificacion = "SRVCO"; // NOTIFICACION(SRVCO)
+    } else if (this.estadoSeguimiento == "Con observaciones") {
+      this.codigoNotificacion = "SCO"; // NOTIFICACION(SCO)
+    }
+  }
+
+  enviarNotificacion(){
+    if (this.codigoNotificacion != "") {
+      let datos = {
+        codigo: this.codigoNotificacion,
+        nombre_unidad: this.unidad,
+        nombre_plan: this.plan,
+        nombre_vigencia: this.vigencia.Nombre,
+        trimestre: this.codigoTrimestre
+      }
+      this.codigoNotificacion = "";
+      this.notificacionesService.enviarNotificacion(datos);
+    }
+  }
+
   async loadData() {
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -392,6 +517,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       if (data.Data != '') {
         this.seguimiento = data.Data;
         this.unidad = this.seguimiento.informacion.unidad;
+        this.plan = this.seguimiento.informacion.nombre;
+        this.id_actividad = this.seguimiento.id_actividad;
         this.documentos = JSON.parse(JSON.stringify(data.Data.evidencia));
         this.datosIndicadores = data.Data.cuantitativo.indicadores;
         this.datosResultados = JSON.parse(JSON.stringify(data.Data.cuantitativo.resultados));
@@ -409,12 +536,21 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.estadoActividad = this.seguimiento.estado.nombre;
         this.estadoSeguimiento = this.seguimiento.estadoSeguimiento;
         this.verificarFormulario();
+        this.enviarNotificacion();
 
         if (this.estadoActividad != "Sin reporte") {
-          if (this.datosCualitativo.observaciones == "" || this.datosCualitativo.observaciones == undefined || this.datosCualitativo.observaciones == "Sin observación") {
-            this.datosCualitativo.observaciones = ""
-          } else {
-            this.mostrarObservaciones = true;
+          if(this.rol == "JEFE_DEPENDENCIA" || this.rol == "ASISTENTE_DEPENDENCIA"){
+            if (this.datosCualitativo.observaciones_dependencia == "" || this.datosCualitativo.observaciones_dependencia == undefined || this.datosCualitativo.observaciones_dependencia == "Sin observación") {
+              this.datosCualitativo.observaciones_dependencia = ""
+            } else {
+              this.mostrarObservaciones = true;
+            }
+          } else if(this.rol == "PLANEACION" || this.rol == "ASISTENTE_PLANEACION"){
+            if (this.datosCualitativo.observaciones_planeacion == "" || this.datosCualitativo.observaciones_planeacion == undefined || this.datosCualitativo.observaciones_planeacion == "Sin observación") {
+              this.datosCualitativo.observaciones_planeacion = ""
+            } else {
+              this.mostrarObservaciones = true;
+            }
           }
         }
 
@@ -430,8 +566,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         for (let index = 0; index < this.datosIndicadores.length; index++) {
           const indicador = this.datosIndicadores[index];
           if (this.estadoActividad != "Sin reporte") {
-            if ((indicador.observaciones == "" || indicador.observaciones == undefined) && this.rol != "JEFE_DEPENDENCIA") {
-              this.datosIndicadores[index].observaciones = "";
+            if ((indicador.observaciones_planeacion == "" || indicador.observaciones_planeacion == undefined) && (this.rol != "JEFE_DEPENDENCIA" && this.rol != "ASISTENTE_DEPENDENCIA")) {
+              this.datosIndicadores[index].observaciones_planeacion = "";
             }
           }
         }
@@ -443,8 +579,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         for (let index = 0; index < this.documentos.length; index++) {
           const documento = this.documentos[index];
           if (this.estadoActividad != "Sin reporte") {
-            if (documento.Observacion == "") {
-              this.documentos[index].Observacion = "";
+            if (documento.Observacion_dependencia == "" && documento.Observacion_planeacion == "") {
+              this.documentos[index].Observacion_dependencia = "";
+              this.documentos[index].Observacion_planeacion = "";
             } else {
               this.mostrarObservaciones = true;
             }
@@ -454,6 +591,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         Swal.close();
       }
     }, (error) => {
+      console.error(error)
+      Swal.close();
       Swal.fire({
         title: 'Error en la operación',
         text: `No se encontraron datos registrados`,
@@ -461,14 +600,14 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         showConfirmButton: false,
         timer: 2500
       })
-    }, () => Swal.close())
+    })
   }
 
   guardarCualitativo() {
     var mensaje = `¿Desea guardar la información del componente cualitativo?`
-    if (this.rol === 'PLANEACION') {
+    if (this.rol === 'PLANEACION' || this.rol === 'ASISTENTE_PLANEACION') {
       mensaje = `¿Desea avalar la actividad?`
-      if (this.veririficarObservaciones()) {
+      if (this.verificarObservaciones()) {
         mensaje = `¿Desea guardar las observaciones del componente cualitativo?`
       }
     }
@@ -479,11 +618,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_cualitativo`, { "_id": this.seguimiento.id, "informacion": this.seguimiento.informacion, "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
+            this.setCodigoNotificacion();
             Swal.fire({
               title: 'Información de seguimiento actualizada',
               text: 'El seguimiento del componente cualitativo se ha guardado satisfactoriamente',
@@ -523,9 +664,9 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
 
   guardarCuantitativo() {
     var mensaje = `¿Desea guardar la información del componente cuantitativo?`
-    if (this.rol === 'PLANEACION') {
+    if (this.rol === 'PLANEACION' || this.rol === 'ASISTENTE_PLANEACION') {
       mensaje = `¿Desea avalar la actividad?`
-      if (this.veririficarObservaciones()) {
+      if (this.verificarObservaciones()) {
         mensaje = `¿Desea guardar las observaciones del componente cuantitativo?`
       }
     }
@@ -536,11 +677,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_cuantitativo`, { "_id": this.seguimiento.id, "informacion": this.seguimiento.informacion, "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
+            this.setCodigoNotificacion();
             Swal.fire({
               title: 'Información de seguimiento actualizada',
               text: 'El seguimiento del componente cuantitativo se ha guardado satisfactoriamente',
@@ -585,11 +728,13 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_seguimiento`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
+            this.setCodigoNotificacion();
             Swal.fire({
               title: 'Información de seguimiento actualizada',
               text: 'El seguimiento se ha guardado satisfactoriamente',
@@ -634,7 +779,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         let mod = {
@@ -644,6 +790,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.request.put(environment.PLANES_MID, `seguimiento/reportar_actividad`, mod, this.indexActividad).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
+              this.setCodigoNotificacion();
               Swal.fire({
                 title: 'Seguimiento Generado',
                 icon: 'success',
@@ -690,7 +837,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Continuar`,
       cancelButtonText: `Cancelar`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         const auxEstado = this.estados.find(element => element.nombre === 'Aprobado para evaluación');
@@ -737,7 +885,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         const auxEstado = this.estados.find(element => element.nombre === 'Ajustado');
@@ -782,56 +931,48 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       const indicador = this.datosIndicadores[index];
 
       if (indicador.reporteDenominador != null && indicador.reporteNumerador != null) {
-        const denominador = parseFloat(indicador.reporteDenominador);
-        const numerador = parseFloat(indicador.reporteNumerador);
+        let denominador = parseFloat(indicador.reporteDenominador);
+        let numerador = parseFloat(indicador.reporteNumerador);
         const meta = parseFloat(this.datosIndicadores[index].meta);
         this.calcular = false;
 
         if (denominador == 0.0) {
           if (numerador == 0.0) {
-            if (indicador.denominador != "Denominador variable") {
+            if (indicador.denominador === "Denominador variable") {
+              denominador = 100;
+              numerador = 100;
+              this.datosResultados[index].indicadorAcumulado = 1 * 0.25;
+              this.datosResultados[index].acumuladoNumerador = this.datosResultados[index].acumuladoNumerador;
+              this.datosResultados[index].acumuladoDenominador = this.datosResultados[index].acumuladoDenominador;
+              this.datosResultados[index].indicador = numerador / denominador;
+              var metaEvaluada = meta / 100;
+              this.datosResultados[index].avanceAcumulado = (this.datosResultados[index].indicadorAcumulado / metaEvaluada);
+
+              if (indicador.tendencia == "Creciente") {
+                if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
+                  this.datosResultados[index].brechaExistente = 0;
+                } else {
+                  this.datosResultados[index].brechaExistente = 1 - this.datosResultados[index].avanceAcumulado;
+                }
+              } else {
+                if (this.datosResultados[index].indicadorAcumulado < metaEvaluada) {
+                  this.datosResultados[index].brechaExistente = 0;
+                } else {
+                  this.datosResultados[index].brechaExistente = this.datosResultados[index].avanceAcumulado - 1;
+                }
+              }
+
+              this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
+            } else {
               Swal.fire({
                 title: 'Error en la operación',
                 text: `No es posible la división entre cero para denominador fijo`,
                 icon: 'warning',
                 showConfirmButton: false,
                 timer: 3500
-              })
+              });
               indicador.reporteDenominador = null;
               indicador.reporteNumerador = null;
-            } else {
-              if (this.trimestreAbr == "T1" || this.datosResultados[index].divisionCero) {
-                this.datosResultados[index].divisionCero = true;
-                this.datosResultados[index].indicadorAcumulado = 1;
-                this.datosResultados[index].acumuladoNumerador = 0;
-                this.datosResultados[index].acumuladoDenominador = 0;
-                this.datosResultados[index].indicador = 0;
-                this.numeradorOriginal = [];
-                this.denominadorOriginal = [];
-                this.calcular = true;
-
-                var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
-                var metaEvaluada = meta / 100;
-
-                this.datosResultados[index].avanceAcumulado = this.datosResultados[index].indicadorAcumulado / metaEvaluada;
-
-                if (indicador.tendencia == "Creciente") {
-                  if (this.datosResultados[index].indicadorAcumulado > metaEvaluada) {
-                    this.datosResultados[index].brechaExistente = 0;
-                  } else {
-                    this.datosResultados[index].brechaExistente = metaEvaluada - indicadorAcumulado;
-                  }
-                } else {
-                  if (this.datosResultados[index].indicadorAcumulado < metaEvaluada) {
-                    this.datosResultados[index].brechaExistente = 0;
-                  } else {
-                    this.datosResultados[index].brechaExistente = indicadorAcumulado - metaEvaluada;
-                  }
-                }
-                this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
-              } else {
-                this.calcularBase(indicador, denominador, numerador, meta, index, true)
-              }
             }
           } else {
             Swal.fire({
@@ -840,7 +981,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
               icon: 'warning',
               showConfirmButton: false,
               timer: 3500
-            })
+            });
           }
         } else {
           if (this.trimestreAbr == "T1") {
@@ -854,30 +995,30 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             this.denominadorOriginal = [];
             this.calcular = true;
           }
-          this.calcularBase(indicador, denominador, numerador, meta, index, false)
+          this.calcularBase(indicador, denominador, numerador, meta, index, false, this.trimestreAbr);
         }
       } else {
         Swal.fire({
           title: 'Error en la operación',
-          text: `Los datos de numerador y denominador no pueden estar vacios`,
+          text: `Los datos de numerador y denominador no pueden estar vacíos`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
-        })
+        });
       }
     }
   }
 
-  calcularBase(indicador, denominador, numerador, meta, index, ceros) {
+  calcularBase(indicador:any, denominador: number, numerador: number, meta:number, index:number, ceros:boolean, trimestre:string) {
     this.datosResultados[index].divisionCero = false;
-    this.denominadorFijo = indicador.denominador != "Denominador variable"
+    let esDenominadorFijo = indicador.denominador !== "Denominador variable"
     if (!Number.isNaN(denominador) && !Number.isNaN(numerador)) {
       this.datosIndicadores[index].reporteDenominador = denominador;
       this.datosIndicadores[index].reporteNumerador = numerador;
 
       if (!this.calcular) {
         this.datosResultados[index].acumuladoNumerador -= this.numeradorOriginal[index];
-        if (!this.denominadorFijo) {
+        if (!esDenominadorFijo) {
           this.datosResultados[index].acumuladoDenominador -= this.denominadorOriginal[index];
         }
         this.datosResultados[index].indicadorAcumulado -= this.datosResultados[index].indicador;
@@ -885,64 +1026,71 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
 
       this.datosResultados[index].acumuladoNumerador += numerador;
-      if (!this.denominadorFijo) {
-        this.datosResultados[index].acumuladoDenominador += denominador;
-      } else {
+      if (esDenominadorFijo) {
         this.datosResultados[index].acumuladoDenominador = denominador;
+      } else {
+        this.datosResultados[index].acumuladoDenominador += denominador;
       }
 
-      if (denominador != 0) {
+      if (this.datosResultados[index].divisionCero && ceros) {
+        this.datosResultados[index].indicador = 0;
+      } else if (denominador != 0) {
+        let auxiliarDenominador = numerador / denominador;
         if (this.datosIndicadores[index].unidad == "Unidad") {
-          this.datosResultados[index].indicador = Math.round((numerador / denominador));
+          this.datosResultados[index].indicador = Math.round(auxiliarDenominador);
         } else {
-          this.datosResultados[index].indicador = Math.round((numerador / denominador) * 10000) / 10000;
+          this.datosResultados[index].indicador = Math.round(auxiliarDenominador * 10_000) / 10_000;
         }
       } else {
         this.datosResultados[index].indicador = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
       }
 
-      if (this.datosResultados[index].divisionCero && ceros) {
-        this.datosResultados[index].indicador = 0;
-      }
-
       if (this.datosResultados[index].acumuladoDenominador != 0) {
-        if (this.datosIndicadores[index].unidad == "Unidad") {
-          this.datosResultados[index].indicadorAcumulado = Math.round(this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador * 100) / 100;
+        let auxiliarIndicadorAcumulado = this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador;
+        if (this.datosIndicadores[index].unidad == 'Unidad') {
+          this.datosResultados[index].indicadorAcumulado = Math.round(auxiliarIndicadorAcumulado * 100) / 100;
         } else {
-          this.datosResultados[index].indicadorAcumulado = Math.round((this.datosResultados[index].acumuladoNumerador / this.datosResultados[index].acumuladoDenominador) * 10000) / 10000;
+          this.datosResultados[index].indicadorAcumulado = Math.round(auxiliarIndicadorAcumulado * 10_000) / 10_000;
         }
       } else {
-        this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == "Unidad" ? meta : meta / 100;
+        this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == 'Unidad' ? meta : meta / 100;
       }
-
-      var indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
-      var metaEvaluada = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
-      if (indicador.tendencia == "Creciente") {
-        if (this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa") {
-          this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 1000) / 1000;
-        } else {
-          this.datosResultados[index].avanceAcumulado = Math.round(indicadorAcumulado / metaEvaluada * 10000) / 10000;
+      if(!esDenominadorFijo){
+        if(trimestre == "T1"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.25;
+        } else if(trimestre == "T2"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.5;
+        } else if(trimestre == "T3"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.75;
+        } else if(trimestre == "T4"){
+          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
         }
-      } else if (indicador.tendencia == "Decreciente") {
-        if (indicadorAcumulado < metaEvaluada) {
-          this.datosResultados[index].avanceAcumulado = Math.round((1 + ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
-        } else {
-          this.datosResultados[index].avanceAcumulado = Math.round((1 - ((metaEvaluada - indicadorAcumulado) / metaEvaluada)) * 10000) / 10000;
-        }
+        
       }
-
+      let indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+      let auxiliarMeta = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
+      // Las multiplicaciones y divisiones por mil o 10 mil son para formatear los datos a una cantidad de decimales fijos
       if (indicador.tendencia == "Creciente") {
-        if (indicadorAcumulado > metaEvaluada) {
-          this.datosResultados[index].brechaExistente = 0;
-        } else {
-          this.datosResultados[index].brechaExistente = Math.round((metaEvaluada - indicadorAcumulado) * 10000) / 10000;
-        }
+        this.datosResultados[index].avanceAcumulado =
+          this.datosIndicadores[index].unidad == 'Unidad' ||
+          this.datosIndicadores[index].unidad == 'Tasa'
+            ? Math.round((indicadorAcumulado / auxiliarMeta) * 1_000) / 1_000
+            : Math.round((indicadorAcumulado / auxiliarMeta) * 10_000) / 10_000;
+        this.datosResultados[index].brechaExistente =
+          indicadorAcumulado > auxiliarMeta
+            ? 0
+            : Math.round((auxiliarMeta - this.datosResultados[index].avanceAcumulado) * 10_000) / 10_000;
+        
       } else if (indicador.tendencia == "Decreciente") {
-        if (indicadorAcumulado < metaEvaluada) {
-          this.datosResultados[index].brechaExistente = 0;
-        } else {
-          this.datosResultados[index].brechaExistente = Math.round((indicadorAcumulado - metaEvaluada) * 10000) / 10000;
-        }
+        let auxiliarAvance = (auxiliarMeta - indicadorAcumulado) / auxiliarMeta;
+        this.datosResultados[index].avanceAcumulado =
+          Math.round(
+            (1 + (indicadorAcumulado < auxiliarMeta ? auxiliarAvance : -auxiliarAvance) ) * 10_000
+          ) / 10_000;
+        this.datosResultados[index].brechaExistente =
+          indicadorAcumulado < auxiliarMeta
+            ? 0
+            : Math.round((this.datosResultados[index].avanceAcumulado - auxiliarMeta) * 10_000) / 10_000;
       }
       this.seguimiento.cuantitativo.resultados[index] = this.datosResultados[index];
     }
@@ -960,12 +1108,11 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     this.abrirDocs = true;
   }
 
-  guardarRevision() {
-    var mensaje = `¿Desea avalar la actividad?`
-    if (this.veririficarObservaciones()) {
+  guardarRevisionJefeDependencia() {
+    var mensaje = `¿Desea verificar la actividad?`
+    if (this.verificarObservaciones()) {
       mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
     }
-
     Swal.fire({
       title: 'Guardar seguimiento',
       text: mensaje,
@@ -975,9 +1122,75 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/revision_actividad_jefe_dependencia`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+            this.setCodigoNotificacion();
+            if (data.Data.Observación) {
+              Swal.fire({
+                title: 'Información de seguimiento actualizada',
+                text: 'Las observaciones hechas al seguimiento se ha guardado satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
+            } else {
+              Swal.fire({
+                title: 'Información de seguimiento actualizada',
+                text: 'La actividad ha sido verificada satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
+            }
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Generación de seguimiento cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  guardarRevision() {
+    var mensaje = `¿Desea avalar la actividad?`
+    if (this.verificarObservaciones()) {
+      mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
+    }
+
+    Swal.fire({
+      title: 'Guardar seguimiento',
+      text: mensaje,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true,
+      allowOutsideClick: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/revision_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
-
+            this.setCodigoNotificacion();
             if (data.Data.Observación) {
               Swal.fire({
                 title: 'Información de seguimiento actualizada',
@@ -1025,40 +1238,64 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       }
   }
 
-  veririficarObservaciones() {
-    if (this.seguimiento.cualitativo.observaciones != "" && this.seguimiento.cualitativo.observaciones != "Sin observación") {
-      return true;
-    }
-
-    for (let index = 0; index < this.seguimiento.cuantitativo.indicadores.length; index++) {
-      const indicador = this.seguimiento.cuantitativo.indicadores[index];
-      if (indicador.observaciones != "" && indicador.observaciones != "Sin observación") {
+  verificarObservaciones() {
+    if(this.rol === 'PLANEACION' || this.rol === 'ASISTENTE_PLANEACION'){
+      if (
+        this.seguimiento.cualitativo.observaciones_planeacion != "" &&
+        this.seguimiento.cualitativo.observaciones_planeacion != "Sin observación" &&
+        this.seguimiento.cualitativo.observaciones_planeacion != undefined
+      ) {
         return true;
       }
-    }
-
-    for (let index = 0; index < this.seguimiento.evidencia.length; index++) {
-      const evidencia = this.seguimiento.evidencia[index];
-      if (evidencia.Observacion != "" && evidencia.Observacion != "Sin observación") {
+  
+      for (let index = 0; index < this.seguimiento.cuantitativo.indicadores.length; index++) {
+        const indicador = this.seguimiento.cuantitativo.indicadores[index];
+        if (
+          indicador.observaciones_planeacion != "" &&
+          indicador.observaciones_planeacion != "Sin observación" &&
+          indicador.observaciones_planeacion != undefined
+        ) {
+          return true;
+        }
+      }
+      return false;
+    } else if (this.rol === 'JEFE_DEPENDENCIA' || this.rol === 'ASISTENTE_DEPENDENCIA'){
+      if (
+        this.seguimiento.cualitativo.observaciones_dependencia != "" &&
+        this.seguimiento.cualitativo.observaciones_dependencia != "Sin observación" &&
+        this.seguimiento.cualitativo.observaciones_dependencia != undefined
+      ) {
         return true;
       }
+  
+      for (let index = 0; index < this.seguimiento.cuantitativo.indicadores.length; index++) {
+        const indicador = this.seguimiento.cuantitativo.indicadores[index];
+        if (
+          indicador.observaciones_dependencia != "" &&
+          indicador.observaciones_dependencia != "Sin observación" &&
+          indicador.observaciones_dependencia != undefined
+        ) {
+          return true;
+        }
+      }
+      return false
     }
-
-    return false
   }
 
   retornarRevision() {
     Swal.fire({
       title: 'Retornar estado',
-      text: `¿Desea retornar la actividad al estado Actividad reportada?`,
+      text: `¿Desea retornar la actividad al estado Actividad Verificada?`,
       icon: 'warning',
       confirmButtonText: `Sí`,
       cancelButtonText: `No`,
-      showCancelButton: true
+      showCancelButton: true,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `seguimiento/retornar_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
+            this.setCodigoNotificacion();
             Swal.fire({
               title: 'Información de seguimiento actualizada',
               text: 'Se ha actualizado el estado de la actividad satisfactoriamente',
@@ -1095,4 +1332,123 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         })
       }
   }
+
+  retornarRevisionJefeDependencia() {
+    Swal.fire({
+      title: 'Retornar estado',
+      text: `¿Desea retornar la actividad al estado Actividad reportada?`,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/retornar_actividad_jefe_dependencia`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+            this.setCodigoNotificacion();
+            Swal.fire({
+              title: 'Información de seguimiento actualizada',
+              text: 'Se ha actualizado el estado de la actividad satisfactoriamente',
+              icon: 'success'
+            }).then(res => {
+              this.loadData();
+            });
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible retornar el estado`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cambio de estado cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }
+
+  getShortenedPlanId(): string {
+    return this.planId ? this.planId.substring(0, 6) : '';
+  }
+
+  /*verificarActividad() {
+    var mensaje = `¿Desea verificar la actividad?`
+    if (this.verificarObservaciones()) {
+      mensaje = `¿Desea enviar las observaciones realizadas para este reporte?`
+    }
+
+    Swal.fire({
+      title: 'Guardar seguimiento',
+      text: mensaje,
+      icon: 'warning',
+      confirmButtonText: `Sí`,
+      cancelButtonText: `No`,
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.request.put(environment.PLANES_MID, `seguimiento/verificar_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
+          if (data) {
+
+            if (data.Data.Observación) {
+              Swal.fire({
+                title: 'Información de seguimiento actualizada',
+                text: 'Las observaciones hechas al seguimiento se ha guardado satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
+            } else {
+              Swal.fire({
+                title: 'Información de seguimiento actualizada',
+                text: 'La actividad ha sido verificada satisfactoriamente',
+                icon: 'success'
+              }).then(res => {
+                this.loadData();
+              });
+            }
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No fue posible guardar el seguimiento`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Generación de seguimiento cancelado',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }),
+      (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          icon: 'error',
+          text: `${JSON.stringify(error)}`,
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+  }*/
 }

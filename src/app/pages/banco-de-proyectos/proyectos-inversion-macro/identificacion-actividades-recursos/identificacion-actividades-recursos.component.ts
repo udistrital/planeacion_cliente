@@ -7,6 +7,7 @@ import { RequestManager } from 'src/app/pages/services/requestManager';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 export interface Actividad {
   numero: string;
@@ -58,7 +59,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   idProyectoInversion: string;
   posicionMetaPro: string;
   //readOnlyAll: boolean = false;
-  actividadClone: any;   
+  actividadClone: any;
   actividadesProg: any[];
   ponderacion: number;
   formProyect: FormGroup;
@@ -92,30 +93,31 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     private currencyPipe: CurrencyPipe,
     private percentagePipe: PercentPipe,
     private autenticationService: ImplicitAutenticationService,
-  ) { 
-    activatedRoute.params.subscribe(prm => {  
-      this.planId = prm['idPlan'];    
-      this.indexMeta = prm['indexMeta'];  
-      this.idProyectoInversion = prm['idProyectoInversion'];  
-      this.posicionMetaPro = prm['posicionMetaPro'];   
+    private codigosService: CodigosService
+  ) {
+    activatedRoute.params.subscribe(prm => {
+      this.planId = prm['idPlan'];
+      this.indexMeta = prm['indexMeta'];
+      this.idProyectoInversion = prm['idProyectoInversion'];
+      this.posicionMetaPro = prm['posicionMetaPro'];
       this.edit = prm['edit'];
       //this.arbolPadreId = prm['idPlan'];
-    });  
+    });
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'PLANEACION')) {
-      this.rol = 'PLANEACION'      
+      this.rol = 'PLANEACION'
     } else if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
       this.rol = 'JEFE_DEPENDENCIA'
       //this.verificarFechas();
     }
     this.loadPlan();
     this.loadProyectI();
-    this.loadActividades();
   }
 
-  ngOnInit(): void {
+  async ngOnInit(){
+    this.loadActividades();
     this.arbolPadreId = this.planId;
-    this.unidadId = localStorage.getItem('dependencia_id'); 
+    this.unidadId = localStorage.getItem('dependencia_id');
     this.vigenciaId = localStorage.getItem('vigenciaId');
     console.log(this.unidadId, this.vigenciaId,  "entra a verificar");
     this.formProyect = this.formBuilder.group({
@@ -146,7 +148,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       this.actividad = actividad;
       this.actividadId = this.actividad._id;
       this.busquedaTipoMetas(actividad);
-      //console.log(this.actividadId, "valor actividad", this.actividadSelected);  
+      //console.log(this.actividadId, "valor actividad", this.actividadSelected);
 
     }
   }
@@ -163,14 +165,14 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     })
   }
 
-  busquedaPlanes() {    
-    console.log(this.namePlan, "nombre plan");    
+  busquedaPlanes() {
+    console.log(this.namePlan, "nombre plan");
     this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.dependencia + `,vigencia:` + this.vigencia + `,formato:false,nombre:` + this.namePlan).subscribe((data: any) => {
         if (data.Data.length > 0) {
           let i = data.Data.length - 1;
           console.log(data.Data, "info del plan");
           //this.getEstado();
-          //this.planId = data.Data[i]["_id"];          
+          //this.planId = data.Data[i]["_id"];
           this.getVersiones();
           this.formulacionState = true;
         } else if (data.Data.length == 0) {
@@ -183,7 +185,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
             showConfirmButton: false,
             timer: 7000
           })
-          
+
           this.plan = data.Data;
         }
       }, (error) => {
@@ -309,12 +311,12 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
 
   busquedaTipoMetas(actividad) {
     this.request.get(environment.PLANES_CRUD, `plan?query=dependencia_id:` + this.unidadId + `,vigencia:` + this.vigenciaId + `,formato:false,arbol_padre_id:` + this.arbolPadreId + `,documento_id:` + this.indexMeta).subscribe((data: any) => {
-        if (data.Data.length > 0) {  
+        if (data.Data.length > 0) {
           let i = data.Data.length - 1;
-          console.log(data.Data, "info de la Meta");        
-          this.actividadId = data.Data[i]["_id"];  
-          console.log(this.actividadId, "id del grupo de actividades");  
-          this.actividad =  data.Data[i];    
+          console.log(data.Data, "info de la Meta");
+          this.actividadId = data.Data[i]["_id"];
+          console.log(this.actividadId, "id del grupo de actividades");
+          this.actividad =  data.Data[i];
           this.ajustarData();
           //this.getDataPlan();
           //this.getVersiones(planB);
@@ -326,7 +328,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           //     'para la dependencia <b>' + this.unidad.Nombre + '</b> y la <br>' +
           //     'vigencia <b>' + this.vigencia.Nombre + '</b><br></br>' +
           //     '<i>Deberá formular el plan</i>',
-          //   // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}. 
+          //   // text: `No existe plan ${planB.nombre} para la dependencia ${this.unidad.Nombre} y la vigencia ${this.vigencia.Nombre}.
           //   // Deberá formular un nuevo plan`,
           //   icon: 'warning',
           //   showConfirmButton: false,
@@ -351,24 +353,25 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     //if(this.vigenciaSelected == true && this.unidadSelected == true && this.planSelected == true) {
       let parametros = {
         "dependencia_id": this.unidadId,
-        "vigencia": this.vigenciaId, 
+        "vigencia": this.vigenciaId,
         "id": String(this.actividadId),
-        "indexMeta": this.indexMeta,    
-        "arbol_padre_id":  this.arbolPadreId 
+        "indexMeta": this.indexMeta,
+        "arbol_padre_id":  this.arbolPadreId
       }
       Swal.fire({
         title: 'Creando tipo actividad',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
       })
-      this.request.post(environment.PLANES_MID, `inversion/crear_grupo_meta`, parametros).subscribe((data: any) => {
+      this.request.post(environment.PLANES_MID, `inversion/crear_grupo_meta`, parametros).subscribe(async (data: any) => {
         if (data) {
           Swal.close();
           console.log(data);
-          this.actividad.estado_plan_id = "614d3ad301c7a200482fabfd";
+          this.actividad.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
           this.request.put(environment.PLANES_CRUD, `plan`, this.actividad, data.Data._id).subscribe((dataPut: any) => {
           if (dataPut) {
             this.actividadClone = dataPut.Data;
@@ -387,10 +390,10 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           }
         })
           //this.newPlanId = data.Data._id
-          
+
           //this.formular = true;
           console.log(data.Data._id, "id");
-          //this.plan.estado_plan_id = "614d3ad301c7a200482fabfd";
+          //this.plan.estado_plan_id = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP');
           //this.request.put(environment.PLANES_CRUD, `plan`, this.plan, data.Data._id).subscribe((dataPut: any) => {
             //if (dataPut) {
               //this.plan = dataPut.Data;
@@ -421,15 +424,16 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     //     timer: 2500
     //   })
     // };
-    
-      
+
+
   }
 
-  cargaFormato() {        
+  cargaFormato() {
     Swal.fire({
       title: 'Cargando formato',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -453,15 +457,15 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       })
     }
   }
- 
- 
-  
-  loadActividades() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:63e4f2bbccee4963a2841cb7,formato:true`).subscribe((data: any) => {
+
+
+
+  async loadActividades() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'API_SP')},formato:true`).subscribe((data: any) => {
       if (data) {
         if (data.Data.length != 0) {
-          this.actividades = data.Data;  
-          console.log(this.actividades, "actividades")        
+          this.actividades = data.Data;
+          console.log(this.actividades, "actividades")
           //console.log(this.actividades, "actividades");
         }
       }
@@ -475,32 +479,33 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       })
     }
   }
-  
+
   loadProyectI() {
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
     })
     this.request.get(environment.PLANES_MID, 'inversion/proyecto/' + this.idProyectoInversion).subscribe((data: any) => {
       if (data) {
-        Swal.close();     
+        Swal.close();
         this.nombreProyect = data["Data"]["nombre_proyecto"];
         this.codigoProyect = data["Data"]["codigo_proyecto"];
         var fuentes = data["Data"]["fuentes"];
         //var fuentesTabla = []
         for (let i = 0; i < fuentes.length; i++) {
-          const fuenteGEt = fuentes[i];          
+          const fuenteGEt = fuentes[i];
           this.totalFuentes = this.totalFuentes + fuenteGEt["presupuestoProyecto"]
-          console.log(this.totalFuentes, "totalFuentes"); 
+          console.log(this.totalFuentes, "totalFuentes");
           var metas = data["Data"]["metas"];
           for (let i = 0; i < metas.length; i++) {
             const metaGEt = metas[i];
             if (this.posicionMetaPro == metaGEt["posicion"]) {
-              this.metaSelected = metaGEt["descripcion"];                   
+              this.metaSelected = metaGEt["descripcion"];
             }
           }
           this.formProyect.setValue({
@@ -508,9 +513,9 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
             codigo: data["Data"]["codigo_proyecto"],
             valorFuentes: this.totalFuentes,
             meta: this.metaSelected
-          });      
+          });
         }
-      }  
+      }
     })
   }
 
@@ -519,8 +524,8 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   }
 
   //blurMagnitud(element) {
-    
-      
+
+
     //     this.programacion_T -= this.programacion_1;
     //     if (element.target.value == "") {
     //       this.programacion_1 = 0;
@@ -539,9 +544,9 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     //     }
     //     element.target.value = this.percentagePipe.transform(this.programacion_1, '1.2-2');
     //     break;
-      
-      
-  
+
+
+
     // this.programacion_T = this.programacion_1 + this.programacion_2 + this.programacion_3 + this.programacion_4 + this.programacion_5;
   //}
   controlPonderación() {
@@ -554,11 +559,11 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       showConfirmButton: false,
       timer: 4500
       });
-  
+
     }
   }
-  getTotalPonderacion() {  
-    this.ponderacion = 0;  
+  getTotalPonderacion() {
+    this.ponderacion = 0;
     //return this.totalPresupuesto  = this.dataActividades.map(t => t.ponderacion ).reduce((acc, value) => acc + (value= this.percentagePipe.transform(value, '1.2-2')), 0);
     //this.ponderacion  = this.dataActividades.map(t => t.ponderacion ).reduce((acc, value) => acc + value, 0);
     for(let i = 0; i < this.dataActividades.length; i++) {
@@ -566,18 +571,18 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       this.ponderacion += actividad.ponderacion;
     }
     return this.totalPresupuesto = this.percentagePipe.transform(this.ponderacion / 100, '1.2-2');
-    
+
   }
 
-  getTotalPresupuesto() {    
+  getTotalPresupuesto() {
     return this.totalPresupuesto = this.dataActividades.map(t => t.presupuesto).reduce((acc, value) => acc + value, 0);
-    
+
   }
 
   programacionPresupuestal(row) {
-    //this.controlPonderación(); 
+    //this.controlPonderación();
     this.rowIndex = row.posicion
-    this.router.navigate(['/pages/proyectos-macro/programacion-presupuestal/' + this.idProyectoInversion + '/' + this.actividadId + '/' + this.planId + '/' + this.rowIndex]);    
+    this.router.navigate(['/pages/proyectos-macro/programacion-presupuestal/' + this.idProyectoInversion + '/' + this.actividadId + '/' + this.planId + '/' + this.rowIndex]);
   }
 
   submit() {
@@ -593,6 +598,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -635,16 +641,16 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       //this.dataArmonizacionPI = [];
     }
   }
-   
+
   ajustarData() {
-    // if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != '614d3ad301c7a200482fabfd') {
+    // if (this.rol == 'PLANEACION' || this.plan.estado_plan_id != await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'EF_SP')) {
     //   this.iconEditar = 'search'
     // } else if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'JEFE_PLANEACION') {
     //   this.iconEditar = 'edit'
     // }
     this.dataActividades = [];
     this.request.get(environment.PLANES_MID, `inversion/all_metas/` + this.actividad._id + `?order=asc&sortby=index`).subscribe((data: any) => {
-      if (data.Data != null) {        
+      if (data.Data != null) {
         console.log(data.Data, "metas")
         this.actividadesProg = data.Data;
         for(let i = 0; i < this.actividadesProg.length; i++) {
@@ -660,7 +666,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         //{posicion: '1', actividad: 'Actividad 1', ponderacion: 30000, presupuesto: 20000, iconSelected: 'done'},
         console.log(this.dataActividades, "actividades 402");
         this.dataSource = new MatTableDataSource(this.dataActividades);
-        
+
         // this.defaultFilterPredicate = this.dataSource.filterPredicate;
         // //this.cambiarValor("activo", true, "Activo", this.dataSource.data)
         // //this.cambiarValor("activo", false, "Inactivo", this.dataSource.data)
@@ -669,7 +675,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         // this.dataSource.paginator = this.paginator;
         // this.dataSource.sort = this.sort;
         // this.dataT = true;
-        // this.filterActive()    
+        // this.filterActive()
         this.getTotalPonderacion();
         if (this.ponderacion < 100 || this.ponderacion > 100  ) {
           console.log(this.ponderacion, "ponderación");
@@ -680,8 +686,8 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           showConfirmButton: false,
           timer: 4500
           });
-      
-        }  
+
+        }
       } else if (data.Data.data_source == null) {
         //this.dataT = false;
         Swal.fire({
@@ -704,10 +710,10 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
   }
 
   editar(row) {
-    this.controlPonderación(); 
+    this.controlPonderación();
     this.rowIndex = row.posicion
     this.plantillaActual = true;
-    
+
     // if (fila.activo == 'Inactivo') {
     //   Swal.fire({
     //     title: 'Actividad inactiva',
@@ -716,7 +722,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     //     showConfirmButton: false,
     //     timer: 3500
     //   });
-    // } else {      
+    // } else {
       //this.addActividad = true;
       //this.banderaEdit = true;
       //this.visualizeObs();
@@ -725,6 +731,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -759,22 +766,23 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     //}
   }
 
-  editar2() {   
-    
+  editar2() {
+
       Swal.fire({
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
       })
       this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.planId + `/` + this.indexMeta).subscribe((data: any) => {
         if (data) {
-          Swal.close();          
+          Swal.close();
           this.steps2 = data.Data[0]
-          this.jsonMeta = data.Data[1][0]  
-          console.log(this.jsonMeta)        
+          this.jsonMeta = data.Data[1][0]
+          console.log(this.jsonMeta)
         }
       }, (error) => {
         Swal.fire({
@@ -793,14 +801,15 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       title: 'Actualizando Información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
     })
-    var actividad = {      
-      presupuesto_programado: this.totalPresupuesto,      
+    var actividad = {
+      presupuesto_programado: this.totalPresupuesto,
       //indexMetaSubProI: this.indexMetaSubPro,
-      //idDetalleFuentesPro: this.idDetalleFuentesPro,      
+      //idDetalleFuentesPro: this.idDetalleFuentesPro,
       entrada: this.jsonMeta,
     }
     this.request.put(environment.PLANES_MID, `inversion/actualizar_presupuesto_meta`, actividad, this.planId + `/` + this.indexMeta).subscribe((data: any) => {
@@ -813,8 +822,8 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           text: 'La programación de presupuestos  de actividades se ha registrado satisfactoriamente',
           icon: 'success'
         }).then((result) => {
-          if (result.value) {  
-            
+          if (result.value) {
+
           }
         })
       }
@@ -825,7 +834,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         icon: 'error',
         showConfirmButton: false,
         timer: 2500
-      })      
+      })
     })
   }
 
@@ -834,11 +843,12 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       title: 'Actualizando Meta',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
-    }) 
-    
+    })
+
     // if (this.metaSelected == true) {
       var formValue = this.form.value;
         var actividad = {
@@ -846,7 +856,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
           indexMetaSubPro: this.indexMeta,
           entrada: formValue
         }
-    this.request.put(environment.PLANES_MID, `inversion/actualizar_tabla_actividad`, actividad, this.actividadId + `/` + this.rowIndex).subscribe((data: any) => {      
+    this.request.put(environment.PLANES_MID, `inversion/actualizar_tabla_actividad`, actividad, this.actividadId + `/` + this.rowIndex).subscribe((data: any) => {
       if (data) {
         Swal.close();
         Swal.fire({
@@ -877,7 +887,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
         showConfirmButton: false,
         timer: 2500
       })
-  
+
       //this.addActividad = false;
       //this.dataArmonizacionPED = [];
       //this.dataArmonizacionPI = [];
@@ -891,7 +901,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
     //     timer: 2500
     //   })
     // }
-    
+
   }
 
   inactivar(row) {
@@ -901,6 +911,7 @@ export class IdentificacionActividadesRecursosComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.put(environment.PLANES_MID, `inversion/inactivar_meta`, `null`, this.actividadId + `/` + row.posicion).subscribe((data: any) => {

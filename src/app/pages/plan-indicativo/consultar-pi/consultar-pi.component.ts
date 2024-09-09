@@ -8,6 +8,7 @@ import { ConsultarDialogPedComponent } from '../../ped/consultar-dialog-ped/cons
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment'
 import Swal from 'sweetalert2';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 
 @Component({
@@ -18,7 +19,7 @@ import Swal from 'sweetalert2';
 
 export class ConsultarPIComponent implements OnInit {
 
-  displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'actions'];
+  displayedColumns: string[] = ['nombre', 'descripcion', 'activo', 'vigencia_aplica', 'actions'];
   dataSource: MatTableDataSource<any>;
   uid: number; // id del objeto
   planes: any[];
@@ -29,8 +30,8 @@ export class ConsultarPIComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private request: RequestManager,
+    private codigosService: CodigosService
   ) {
-    this.loadData();
   }
 
   applyFilter(event: Event) {
@@ -53,7 +54,21 @@ export class ConsultarPIComponent implements OnInit {
       if (result == undefined){
         return undefined;
       } else {
-        this.putData(result, 'editar');
+        if (result.vigencia_aplica && Array.isArray(result.vigencia_aplica)) {
+          if (result.vigencia_aplica.length > 0) {
+            result.vigencia_aplica = JSON.stringify(result.vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
+            this.putData(result, 'editar');
+          } else {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `Debe seleccionar al menos una vigencia para el plan`,
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
+          }
+        } else {
+          this.putData(result, 'editar');
+        }
       }
     });
   }
@@ -75,28 +90,38 @@ export class ConsultarPIComponent implements OnInit {
   }
 
   putData(res, bandera){
+    this.mostrarMensajeCarga(true);
     if (bandera == 'editar'){
       this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
-        if(data){
+        if(data.Success == true){
           Swal.fire({
             title: 'Actualización correcta',
             text: `Se actualizaron correctamente los datos`,
             icon: 'success',
+            allowEscapeKey: false,
+            allowOutsideClick: false,
           }).then((result) => {
             if (result.value) {
               window.location.reload();
             }
           })
+        } else {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se ha podido actualizar el plan indicativo: ${data.Message}`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
         }
-      }),
-      (error) => {
+      }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
           icon: 'error',
           showConfirmButton: false,
           timer: 2500
         })
-      }
+      })
     } else if (bandera == 'activo') {
       Swal.fire({
         title: 'Inhabilitar plan',
@@ -104,12 +129,13 @@ export class ConsultarPIComponent implements OnInit {
         showCancelButton: true,
         confirmButtonText: `Si`,
         cancelButtonText: `No`,
+        allowOutsideClick: false,
       }).then((result) => {
           if (result.isConfirmed) {
             this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
               if (data){
                 Swal.fire({
-                  title: 'Cambio realizado', 
+                  title: 'Cambio realizado',
                   icon: 'success',
                 }).then((result) => {
                   if (result.value) {
@@ -117,41 +143,41 @@ export class ConsultarPIComponent implements OnInit {
                   }
                 })
               }
-            }),
-            (error) => {
+            }, (error) => {
               Swal.fire({
                 title: 'Error en la operación',
                 icon: 'error',
                 showConfirmButton: false,
                 timer: 2500
               })
-            }
+            })
           } else if (result.dismiss === Swal.DismissReason.cancel) {
             Swal.fire({
-              title: 'Cambio cancelado', 
+              title: 'Cambio cancelado',
               icon: 'error',
               showConfirmButton: false,
               timer: 2500
             })
           }
       })
-    } 
+    }
   }
 
   // Inactivar todo el árbol
-  deleteData(){ 
+  deleteData(){
     Swal.fire({
       title: 'Inhabilitar plan',
       text: `¿Está seguro de inhabilitar el plan?`,
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
         if (result.isConfirmed) {
-          this.request.delete(environment.PLANES_MID, `arbol`, this.uid).subscribe((data: any) => {
+          this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan`, this.uid).subscribe((data: any) => {
             if(data){
               Swal.fire({
-                title: 'Cambio realizado', 
+                title: 'Cambio realizado',
                 icon: 'success',
               }).then((result) => {
                 if (result.value) {
@@ -159,18 +185,17 @@ export class ConsultarPIComponent implements OnInit {
                 }
               })
             }
-          }),
-          (error) => {
+          }, (error) => {
             Swal.fire({
               title: 'Error en la operación',
               icon: 'error',
               showConfirmButton: false,
               timer: 2500
             })
-          }
+          })
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           Swal.fire({
-            title: 'Cambio cancelado', 
+            title: 'Cambio cancelado',
             icon: 'error',
             showConfirmButton: false,
             timer: 2500
@@ -179,22 +204,28 @@ export class ConsultarPIComponent implements OnInit {
     })
   }
 
-  loadData(){
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:6239117116511e20405d408b,activo:true`).subscribe((data: any) => {
-      if (data){
-        this.planes = data.Data;
-        this.ajustarData();
-      }
-    },(error) => {
-      Swal.fire({
-        title: 'Error en la operación', 
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
+  async loadData(){
+    this.mostrarMensajeCarga();
+    let PLI_SP = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PLI_SP'); 
+    await new Promise((resolve, reject) => {
+      this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${PLI_SP}`).subscribe((data: any) => {
+        if (data){
+          this.planes = data.Data;
+          this.ajustarData();
+          resolve(true);
+        }
+      },(error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+        reject(error);
       })
-  
-    })
+    });
+    
   }
 
   ajustarData(){
@@ -203,9 +234,11 @@ export class ConsultarPIComponent implements OnInit {
     this.dataSource = new MatTableDataSource(this.planes);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    Swal.close();
   }
 
   editar(fila): void{
+    this.mostrarMensajeCarga();
     this.uid = fila._id;
     this.request.get(environment.PLANES_CRUD, `plan/`+this.uid).subscribe((data: any) => {
       if(data){
@@ -214,18 +247,17 @@ export class ConsultarPIComponent implements OnInit {
           type: "",
           required: false
         }
-        this.openDialogEditar(this.plan, subgrupoDetalle);  
+        this.openDialogEditar(this.plan, subgrupoDetalle);
       }
-    }),
-    (error) => {
+    }, (error) => {
       Swal.fire({
-        title: 'Error en la operación', 
+        title: 'Error en la operación',
         text: 'No se encontraron datos registrados',
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
       })
-    } 
+    })
   }
 
   consultar(fila): void{
@@ -237,31 +269,30 @@ export class ConsultarPIComponent implements OnInit {
           type: "",
           required: false
         }
-        this.openDialogConsultar(this.plan, subgrupoDetalle);  
+        this.openDialogConsultar(this.plan, subgrupoDetalle);
       }
-    }),
-    (error) => {
+    }, (error) => {
       Swal.fire({
-        title: 'Error en la operación', 
+        title: 'Error en la operación',
         text: 'No se encontraron datos registrados',
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
       })
-    } 
+    })
   }
 
-  inactivar(fila):void{
+  async inactivar(fila) {
     this.uid = fila._id;
     if (fila.activo == 'Activo'){
-      if (fila.tipo_plan_id != '611af8464a34b3599e3799a2'){
+      if (fila.tipo_plan_id != await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
         this.deleteData();
-      } else if (fila.tipo_plan_id == '611af8464a34b3599e3799a2'){
+      } else {
         let res = {
           activo: false,
         }
         this.putData(res, 'activo')
-      } 
+      }
     } else if (fila.activo == 'Inactivo'){
       Swal.fire({
         title: 'Plan ya inactivo',
@@ -273,14 +304,96 @@ export class ConsultarPIComponent implements OnInit {
     }
   }
 
+  async duplicar(row) {
+    let plan_id = row._id;
+    Swal.fire({
+      title: 'Clonar plan',
+      text: `¿Está seguro de clonar el plan?`,
+      showCancelButton: true,
+      confirmButtonText: `Si`,
+      cancelButtonText: `No`,
+      allowOutsideClick: false,
+    }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Clonando Plan Indicativo',
+            timerProgressBar: true,
+            showConfirmButton: false,
+            allowEscapeKey: false,
+            allowOutsideClick: false,
+            willOpen: () => {
+              Swal.showLoading();
+            },
+          });
+          return new Promise(async(resolve, reject)=>{
+            this.request.post(environment.PLANES_MID, `formulacion/clonar-pi-ped/${plan_id}`, {}).subscribe((data: any) => {
+              if (data.Data && data.Success == true) {
+                Swal.fire({
+                  title: 'Clonar plan',
+                  text: `El plan indicativo se ha clonado correctamente`,
+                  icon: 'success',
+                  showConfirmButton: false,
+                  timer: 2500
+                }).then(() => {
+                  window.location.reload();
+                  resolve(true);
+                });
+              } else {
+                Swal.fire({
+                  title: 'Error en la operación',
+                  text: `No se ha podido clonar el plan indicativo: ${data.Message}`,
+                  icon: 'error',
+                  showConfirmButton: false,
+                  timer: 2500
+                });
+                resolve(false);
+              }
+            }, (error) => {
+              Swal.fire({
+                title: 'Error en la operación',
+                text: 'No se encontraron datos registrados',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 2500
+              })
+              reject(false);
+            });
+          });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          Swal.fire({
+            title: 'Clonación cancelada',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        }
+    });
+  }
+
+  formatearVigencias(row) {
+    if(!row.vigencia_aplica || JSON.parse(row.vigencia_aplica).length == 0) return 'Por definir';
+    return JSON.parse(row.vigencia_aplica).map(vigencia => vigencia.Nombre).join(', ');
+  }
+
   cambiarValor(valorABuscar, valorViejo, valorNuevo) {
     this.planes.forEach(function(elemento) {
       elemento[valorABuscar] = elemento[valorABuscar] == valorViejo ? valorNuevo : elemento[valorABuscar]
     })
   }
 
-  ngOnInit(): void {
-  
+  async ngOnInit(){
+    await this.loadData();
+  }
+
+  mostrarMensajeCarga(banderaPeticion: boolean = false): void {
+    Swal.fire({
+      title: (!banderaPeticion) ? 'Cargando datos...' : 'Procesando petición...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
   }
 
 }

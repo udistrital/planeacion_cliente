@@ -5,38 +5,38 @@
     </mat-card-header>
     <mat-card-content>
         <u class="textGuide">
-            En esta sección usted podrá FORMULAR su respectvo PLAN DE ACCIÓN, a continuación por favor seleccione las opciones a las cuales corresponda para su unidad.
+            En esta sección usted podrá FORMULAR su respectivo PLAN DE ACCIÓN, a continuación por favor seleccione las opciones a las cuales corresponda para su unidad.
         </u>
     </mat-card-content>
     <br><br>
     <div class="container-border">
       <form [formGroup]="formFormulacion">
         <mat-form-field appearance="fill" [style.width.%]="100">
-            <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>           
+            <mat-label id="tipo-input-label">Seleccione la Unidad</mat-label>
             <mat-select (selectionChange)="onChangeU($event.value)" [formControl]="selectUnidad">
                 <mat-option>--</mat-option>
                 <mat-option *ngFor="let unidad of unidades" [value]="unidad">
                     {{unidad.Nombre}}
                 </mat-option>
-            </mat-select>          
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="fill" [style.width.%]="100">
-            <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>           
+            <mat-label id="tipo-input-label">Seleccione la Vigencia</mat-label>
             <mat-select (selectionChange)="onChangeV($event.value)" [formControl]="selectVigencia">
                 <mat-option>--</mat-option>
                 <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
                     {{vigencia.Nombre}}
                 </mat-option>
-            </mat-select>          
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="fill" [style.width.%]="100">
-            <mat-label id="tipo-input-label">Seleccione la plantilla para el Plan</mat-label>            
+            <mat-label id="tipo-input-label">Seleccione la plantilla para el Plan</mat-label>
             <mat-select (selectionChange)="onChangeP($event.value)" [formControl]="selectPlan">
                 <mat-option>--</mat-option>
                 <mat-option *ngFor="let plan of planes" [value]="plan">
                     {{plan.nombre}}
                 </mat-option>
-            </mat-select>          
+            </mat-select>
         </mat-form-field>
       </form>
     </div>
@@ -54,7 +54,7 @@
 <br><br>
 
     <!-- Armonización -->
-    
+
 <mat-card class="card-oas" *ngIf="formulacionState">
     <mat-card-header>
         <mat-card-title>Formulación</mat-card-title>
@@ -86,7 +86,7 @@
       </ng-container>
     <mat-card-content>
         <form [formGroup]="formArmonizacion">
-            
+
                 <h2 class="titulo">Armonización general del Plan de Acción</h2>
                 <div class="container-border">
                     <mat-card-content>
@@ -103,8 +103,8 @@
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    
-                </div> 
+
+                </div>
                 <div class="container-border">
                     <mat-card-content>
                         <u class="textGuide">
@@ -123,7 +123,7 @@
                     <app-arbol *ngIf="tipoPlanId !== undefined && tipoPlanId != ''" [tipoPlanId]="tipoPlanIdDD" [idPlan]="idPadreDD"
                     [dataArmonizacion]="dataArmonizacionPDD" [consulta]="false" [armonizacionPED]="true" [estado]="estadoPlan"
                     [armonizacionPI]="false" (grupo)="receiveMessagePDD($event)" [updateSignal]="eventChange"></app-arbol>
-                </div> 
+                </div>
                 <br>
                 <div class="container-border">
                     <mat-card-content>
@@ -143,7 +143,7 @@
                     <app-arbol *ngIf="tipoPlanId !== undefined && tipoPlanId != ''" [tipoPlanId]="tipoPlanId" [idPlan]="idPadre"
                     [dataArmonizacion]="dataArmonizacionPED" [consulta]="false" [armonizacionPED]="true" [estado]="estadoPlan"
                     [armonizacionPI]="false" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
-                </div>  
+                </div>
                 <div class="container-border">
                     <mat-card-content>
                         <u class="textGuide">
@@ -162,16 +162,16 @@
                     <app-arbol *ngIf="tipoPlanIndicativo !== undefined && tipoPlanIndicativo !== ''"
                     [tipoPlanId]="tipoPlanIndicativo" [idPlan]="idPlanIndicativo" [dataArmonizacion]="dataArmonizacionPI"
                     [consulta]="false" [armonizacionPED]="false" [armonizacionPI]="true" [estado]="estadoPlan" (grupo)="receiveMessagePI($event)"
-                    [updateSignal]="eventChange"></app-arbol>                  
-                </div> 
+                    [updateSignal]="eventChange"></app-arbol>
+                </div>
                 <div style="margin: 1rem; text-align: center;" *ngIf="planDDSelected == true && planDSelected == true && planISelected == true && proyectSelected == true && estadoPlan == 'En formulación'">
                   <button  class="footbtn" mat-raised-button color="primary" (click)="armonizar()">Confirmar</button>
-                </div>  
-                            
-                     
-            
+                </div>
+
+
+
         </form>
-    </mat-card-content>    
+    </mat-card-content>
 </mat-card>
 <br><br>
 
@@ -181,50 +181,50 @@
   </mat-card-header>
   <table mat-table [dataSource]="dataMetas" matSort>
     <ng-container matColumnDef="Posicion">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> N° </th>     
-      <td  mat-cell *matCellDef="let row">{{row.index}}</td> 
-      <td mat-footer-cell *matFooterCellDef></td>     
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> N° </th>
+      <td  mat-cell *matCellDef="let row">{{row.index}}</td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
     <ng-container matColumnDef="Meta">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header class="metas">Meta</th>      
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="metas">Meta</th>
       <td  mat-cell *matCellDef="let row"> {{row.meta}} </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
     <ng-container matColumnDef="TipodeMeta">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header class="metas"> Tipo de Meta </th>      
-      <td mat-cell *matCellDef="let row"> {{row.Tipo_Meta}} </td>  
-      <td mat-footer-cell *matFooterCellDef class ="footcol"> Total </td>    
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="metas"> Tipo de Meta </th>
+      <td mat-cell *matCellDef="let row"> {{row.Tipo_Meta}} </td>
+      <td mat-footer-cell *matFooterCellDef class ="footcol"> Total </td>
     </ng-container>
     <ng-container matColumnDef="Presupuesto">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header class="prog"> Presupuesto Programado </th>      
-      <td  mat-cell *matCellDef="let row"> {{row.presupuesto_programado}} </td>  
-      <td mat-footer-cell *matFooterCellDef><div class="totalPre">{{getTotalPresupuesto() | currency}} </div></td>          
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="prog"> Presupuesto Programado </th>
+      <td  mat-cell *matCellDef="let row"> {{row.presupuesto_programado}} </td>
+      <td mat-footer-cell *matFooterCellDef><div class="totalPre">{{getTotalPresupuesto() | currency}} </div></td>
     </ng-container>
     <ng-container matColumnDef="Acciones">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header class="metas"> Acciones </th>      
-      <td mat-cell *matCellDef="let row; let rowIndex = index;"> 
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="metas"> Acciones </th>
+      <td mat-cell *matCellDef="let row; let rowIndex = index;">
         <button mat-raised-button color="primary" (click)="verMeta(row)">
           <mat-icon>search</mat-icon>
-        </button> 
+        </button>
         <button mat-raised-button color="primary" (click)="inhabilitar(row)" [disabled]="addActividad || estadoPlan != 'En formulación'"
         *ngIsGranted="['JEFE_DEPENDENCIA','ASISTENTE_DEPENDENCIA']">
           <mat-icon>delete</mat-icon>
-        </button>  
+        </button>
       </td>
-      <td mat-footer-cell *matFooterCellDef></td>     
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
     <ng-container matColumnDef="ProgPresupuestal">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header class="prog"> Prog. Presupupuestal </th>      
-      <td mat-cell *matCellDef="let row; let rowIndex = index;"> 
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="prog"> Prog. Presupupuestal </th>
+      <td mat-cell *matCellDef="let row; let rowIndex = index;">
         <button mat-raised-button color="primary" (click)="programarMagnitudes(row)" [disabled]="addActividad || estadoPlan != 'En formulación'"
         *ngIsGranted="['JEFE_DEPENDENCIA','ASISTENTE_DEPENDENCIA']">
           <mat-icon>add_box</mat-icon>
-        </button> 
+        </button>
         <button mat-raised-button color="primary" (click)="verMagnitudes(row)">
           <mat-icon>search</mat-icon>
-        </button>  
-      </td>  
-      <td mat-footer-cell *matFooterCellDef></td>   
+        </button>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
     <ng-container matColumnDef="ProgActividades">
       <th mat-header-cell *matHeaderCellDef mat-sort-header class="prog"> Prog. Actividades </th>
@@ -232,13 +232,13 @@
         <button mat-raised-button color="primary" (click)="programarActividades(row)" [disabled]="addActividad || estadoPlan != 'En formulación'"
         *ngIsGranted="['JEFE_DEPENDENCIA','ASISTENTE_DEPENDENCIA']">
           <mat-icon>add_box</mat-icon>
-        </button> 
+        </button>
         <button mat-raised-button color="primary" (click)="verActividades(row)">
           <mat-icon>search</mat-icon>
-        </button>        
+        </button>
       </td>
       <td mat-footer-cell *matFooterCellDef></td>
-    </ng-container>    
+    </ng-container>
     <div>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
@@ -251,19 +251,19 @@
   <div style="margin: 1rem; text-align: center;" *ngIf="banderaUltimaVersion">
 
     <ng-container *ngIsGranted="['JEFE_DEPENDENCIA', 'ASISTENTE_DEPENDENCIA']">
-      <button mat-raised-button color="primary" *ngIf="plan.estado_plan_id == '614d3ad301c7a200482fabfd'" (click)="verificarPlan()">Culminar</button>
-      <button mat-raised-button color="primary" [disabled]="plan.estado_plan_id != '614d3ad301c7a200482fabfd'" (click)="enviarPlan()">Enviar</button>
+      <button mat-raised-button color="primary" *ngIf="plan.estado_plan_id == ID_ESTADO_EN_FORMULACION" (click)="verificarPlan()">Culminar</button>
+      <button mat-raised-button color="primary" [disabled]="plan.estado_plan_id != ID_ESTADO_EN_FORMULACION" (click)="enviarPlan()">Enviar</button>
     </ng-container>
 
     <ng-container *ngIsGranted="['PLANEACION']">
-      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3aeb01c7a245952fabff'" mat-raised-button
+      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === ID_ESTADO_FORMULADO" mat-raised-button
         color="primary" (click)="iniciarRevision()" [disabled]="dataT">
         Iniciar Revisión
       </button>
     </ng-container>
-    
+
     <ng-container *ngIsGranted="['PLANEACION']">
-      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b0301c7a2a44e2fac01'" mat-raised-button
+      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === ID_ESTADO_EN_REVISION" mat-raised-button
         color="primary" (click)="enviarRevision()" [disabled]="dataT">
         Enviar Revisión
       </button>
@@ -271,35 +271,35 @@
 
     <ng-container *ngIsGranted="['JEFE_DEPENDENCIA', 'ASISTENTE_DEPENDENCIA']">
       <button class="btn-formulacion"
-        *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03' || plan.estado_plan_id === '615335c501c7a213a12fb2a3'"
+        *ngIf="plan.estado_plan_id === ID_ESTADO_REVISADO || plan.estado_plan_id === ID_ESTADO_AJUSTE_PRESUPUESTAL"
         mat-raised-button color="primary" (click)="realizarAjustes()" [disabled]="dataT">
         Realizar Ajustes
       </button>
     </ng-container>
 
     <ng-container *ngIsGranted="['PLANEACION']">
-      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b1e01c7a265372fac03'" mat-raised-button
+      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === ID_ESTADO_REVISADO" mat-raised-button
         color="primary" (click)="preAval()" [disabled]="dataT">
         Pre aprobar
       </button>
     </ng-container>
 
     <ng-container *ngIsGranted="['PLANEACION']">
-      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b4401c7a222052fac05'" mat-raised-button
+      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === 'ID_ESTADO_PRE_AVAL'" mat-raised-button
         color="primary" (click)="realizarAjustes()" [disabled]="dataT">
         Remitir Ajuste Presupuestal
       </button>
     </ng-container>
 
     <ng-container *ngIsGranted="['PLANEACION']">
-      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '614d3b4401c7a222052fac05' || plan.estado_plan_id === '614d3b1e01c7a265372fac03'" mat-raised-button
+      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === 'ID_ESTADO_PRE_AVAL' || plan.estado_plan_id === ID_ESTADO_REVISADO" mat-raised-button
         color="primary" (click)="avalar()" [disabled]="dataT">
         Aprobar
       </button>
     </ng-container>
 
     <ng-container *ngIsGranted="['PLANEACION']">
-      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === '6153355601c7a2365b2fb2a1'" mat-raised-button
+      <button class="btn-formulacion" *ngIf="plan.estado_plan_id === ID_ESTADO_AVAL" mat-raised-button
         color="primary" (click)="devolverAFormulacion()" [disabled]="dataT">
         Volver a Formulación
       </button>
@@ -313,7 +313,7 @@
 <br>
 <div style=" text-align: center;" class="container-border" *ngIf="banderaUltimaVersion">
   <button mat-raised-button color="primary" (click)="programarMetas()" [disabled]="addActividad || estadoPlan != 'En formulación'"
-  *ngIsGranted="['JEFE_DEPENDENCIA','ASISTENTE_DEPENDENCIA']">Programar Metas</button>  
+  *ngIsGranted="['JEFE_DEPENDENCIA','ASISTENTE_DEPENDENCIA']">Programar Metas</button>
 </div>
 
 
@@ -322,7 +322,7 @@
   <mat-card class="card-oas" >
     <mat-card-header>
         <mat-card-title>Metas Relacionadas al Plan de Acción de Inversión</mat-card-title>
-    </mat-card-header>   
+    </mat-card-header>
     <br><br>
     <div class="container-border">
       <mat-form-field appearance="fill" [style.width.%]="100">
@@ -333,9 +333,9 @@
                 {{meta.descripcion}}
             </mat-option>
         </mat-select>
-    </mat-form-field>        
-    </div>    
-    
+    </mat-form-field>
+    </div>
+
 </mat-card>
 
 <mat-card class="card-oas-int">

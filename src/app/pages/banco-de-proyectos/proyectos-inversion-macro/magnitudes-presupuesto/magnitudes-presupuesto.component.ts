@@ -2,7 +2,6 @@ import { CurrencyPipe, PercentPipe, CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Console } from 'console';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { environment } from 'src/environments/environment';
@@ -618,6 +617,7 @@ export class MagnitudesPresupuestoComponent implements OnInit {
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },

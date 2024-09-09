@@ -4,16 +4,10 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
+  constructor() {}
 
-  constructor() {
-
-   }
-
-  ngOnInit(): void {
-
-  }
-
+  ngOnInit(): void {}
 }

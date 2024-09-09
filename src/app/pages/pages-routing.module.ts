@@ -10,7 +10,7 @@ import { ConsultarPlanComponent } from './plan/consultar-plan/consultar-plan.com
 import { PlanAnualComponent } from './reportes/reporte-plan-anual/plan-anual.component';
 import { EvaluacionComponent } from './evaluacion/evaluacion.component';
 import { SeguimientoComponentList } from './seguimiento/listar-plan-accion-anual/seguimiento.component';
-import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/gestion-seguimiento.component';  
+import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/gestion-seguimiento.component';
 import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/generar-trimestre.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
@@ -51,6 +51,15 @@ import { TipoMetaIndicadorComponent } from './banco-de-proyectos/proyectos-inver
 import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-inversion-macro/magnitudes-presupuesto/magnitudes-presupuesto.component';
 import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component'
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
+import { TablaPendientesFormulacionComponent } from './pendientes/pendientes-formulacion/tabla-pendientes-formulacion.component';
+import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seguimiento/tabla-pendientes-seguimiento.component';
+import { PlanAccionSeguimientoComponent } from './plan-accion/plan-accion-seguimiento/plan-accion-seguimiento.component';
+import { PlanAccionFormulacionComponent } from './plan-accion/plan-accion-formulacion/plan-accion-formulacion.component';
+
+import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
+import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
+import { VisualizarFechasComponent } from './plan/visualizar-fechas/visualizar-fechas.component';
+
 
 const routes: Routes = [{
   path: '',
@@ -91,6 +100,26 @@ const routes: Routes = [{
         {
           path: 'habilitar-reporte',
           component: HabilitarReporteComponent,
+        },
+        {
+          path: 'consultar-plan-formulacion',
+          component: PlanAccionFormulacionComponent,
+        },
+        {
+          path: 'consultar-plan-seguimiento',
+          component: PlanAccionSeguimientoComponent,
+        },
+        {
+          path: 'gestion-parametros',
+          component: GestionParametrosComponent,
+        },
+        {
+          path: 'gestion-usuarios',
+          component: GestionUsuariosComponent,
+        },
+        {
+          path: 'visualizar-fechas',
+          component: VisualizarFechasComponent,
         }
       ]
     },
@@ -303,6 +332,10 @@ const routes: Routes = [{
           component: SeguimientoComponentList,
         },
         {
+          path: 'listar-plan-accion-anual/:vigencia_id/:nombre_plan/:unidad_id',
+          component: SeguimientoComponentList,
+        },
+        {
           path: 'gestion-seguimiento/:plan_id/:trimestre',
           component: SeguimientoComponentGestion,
         },
@@ -316,6 +349,22 @@ const routes: Routes = [{
     {
       path: 'formulacion',
       component: FormulacionComponent,
+    },
+    {
+      path: 'formulacion/:dependencia_id/:nombre/:vigencia_id',
+      component: FormulacionComponent,
+    },
+    {
+      path: 'formulacion/:dependencia_id/:nombre/:vigencia_id/:version',
+      component: FormulacionComponent,
+    },
+    {
+      path: 'pendientes-formulacion',
+      component: TablaPendientesFormulacionComponent,
+    },
+    {
+      path: 'pendientes-seguimiento',
+      component: TablaPendientesSeguimientoComponent,
     },
     {
       path: '', redirectTo: 'dashboard', pathMatch: 'full',

@@ -134,6 +134,7 @@ export class AgregarProyectoVigenteComponent implements OnInit {
       title: 'Cargando documento',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -151,6 +152,7 @@ export class AgregarProyectoVigenteComponent implements OnInit {
         title: 'Cargando información',
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading();
         },
@@ -288,6 +290,7 @@ export class AgregarProyectoVigenteComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       let aux = row.nombre;
       const isElementFind = (element) => element.nombre == aux;
@@ -307,6 +310,7 @@ export class AgregarProyectoVigenteComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       let aux = row.descripcion;
       const isElementFind = (element) => element.descripcion == aux;
@@ -323,6 +327,7 @@ export class AgregarProyectoVigenteComponent implements OnInit {
     Swal.fire({
       title: 'Cargando Proyectos',
       timerProgressBar: true,
+      allowOutsideClick: false,
       showConfirmButton: false,
       willOpen: () => {
         Swal.showLoading();
@@ -371,6 +376,7 @@ export class AgregarProyectoVigenteComponent implements OnInit {
       title: 'Cargando',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },

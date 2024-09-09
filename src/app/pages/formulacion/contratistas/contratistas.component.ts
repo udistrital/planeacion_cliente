@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, Output, ViewChild, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -8,11 +8,13 @@ import Swal from 'sweetalert2';
 import { isNumeric } from "rxjs/internal-compatibility";
 import { RequestManager } from '../../services/requestManager';
 import { environment } from 'src/environments/environment';
-import { request } from 'http';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
-import { read } from 'fs';
 import { CurrencyPipe, formatCurrency, getCurrencySymbol } from '@angular/common';
 import { rubros_aux } from '../recursos/rubros';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { Observable } from 'rxjs';
+import { startWith, map } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-contratistas',
@@ -45,6 +47,11 @@ export class ContratistasComponent implements OnInit {
   vigenciaConsulta: any;
   rubros = rubros_aux
   totalInc: number;
+  rubroControl = new FormControl();
+  filteredRubros: Observable<any[]>;
+
+  CODIGO_ESTADO_PRE_AVAL: string;
+  CODIGO_ESTADO_REVISADO: string;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -58,16 +65,30 @@ export class ContratistasComponent implements OnInit {
   constructor(
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
-    private currencyPipe: CurrencyPipe
+    private currencyPipe: CurrencyPipe,
+    private codigosService: CodigosService
   ) { }
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    this.CODIGO_ESTADO_PRE_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP');
+    this.CODIGO_ESTADO_REVISADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP');
     this.loadPlan();
     this.dataSource = new MatTableDataSource<any>();
     this.loadPerfiles();
     this.actividades = this.dataSourceActividades.data;
     this.loadTabla();
     this.loadVigenciaConsulta();
+
+    this.filteredRubros = this.rubroControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filterRubros(value))
+    );
+    Swal.close();
+  }
+
+  private _filterRubros(value: string): any[] {
+    const filterValue = value.toLowerCase();
+    return this.rubros.filter(rubro => rubro.Nombre.toLowerCase().includes(filterValue) || rubro.Codigo.toLowerCase().includes(filterValue));
   }
 
   loadPlan() {
@@ -113,102 +134,102 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
+
+
   visualizarColumnas(): string[] {
-    if (this.rol == 'JEFE_DEPENDENCIA') {
+    if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'ASISTENTE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.mostrarObservaciones = this.verificarObservaciones();
-        if (this.readonlyTable != true) { //Se tiene en cuenta vigencia para la consulta --  loadVigenciaConsulta()
-          this.readonlyTable = this.verificarVersiones();
-        }
+        this.readonlyTable = false;
         if (this.mostrarObservaciones) {
-          return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+          return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
         } else {
-          return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+          return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
         }
       }
-      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
+      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada' || this.estadoPlan == 'Pre Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
-      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
+      if (this.estadoPlan == 'Aval') {
         this.readonlyTable = true;
         this.readonlyObs = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
 
-    if (this.rol == 'PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
-      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
+      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'descripcionNecesidad', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
   }
 
   visualizarHeaders(): string[] {
-    if (this.rol == 'JEFE_DEPENDENCIA') {
+    if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'ASISTENTE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         if (this.mostrarObservaciones && !this.readonlyTable) {
-          return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+          return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
         } else {
-          return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+          return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
         }
       }
-      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
+      if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada' || this.estadoPlan == 'Pre Aval') {
         this.readonlyObs = true;
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
-      if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval') {
+      if (this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
     }
 
-    if (this.rol == 'PLANEACION') {
+    if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
       if (this.estadoPlan == 'En revisión') {
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
-      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Ajuste Presupuestal') {
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+      if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada') {
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
-        return ['AccionesP', 'DescripcionNecesidadP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
     }
   }
 
 
   verificarVersiones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b4401c7a222052fac05'));
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.CODIGO_ESTADO_PRE_AVAL));
     if (preAval.length != 0) {
       return true;
     } else {
       return false;
     }
   }
-  verificarObservaciones(): boolean {
-    let preAval = this.versiones.filter(group => group.estado_plan_id.match('614d3b1e01c7a265372fac03'));
+  verificarObservaciones() {
+    let preAval = this.versiones.filter(group => group.estado_plan_id.match(this.CODIGO_ESTADO_REVISADO));
     if (preAval.length != 0) {
       return true;
     } else {
@@ -235,9 +256,9 @@ export class ContratistasComponent implements OnInit {
       }
   }
 
-  loadTabla() {
+  async loadTabla() {
     if (this.dataTabla) {
-      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/` + this.plan + `/6184b3e6f6fc97850127bb68`).subscribe((dataG: any) => {
+      this.request.get(environment.PLANES_MID, `formulacion/get_all_identificacion/${this.plan}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((dataG: any) => {
         if (dataG.Data != null) {
           this.dataSource.data = dataG.Data;
           this.rubroSeleccionado = rubros_aux[rubros_aux.findIndex((e: any) => e.Codigo === this.dataSource.data[0].rubro)]
@@ -247,8 +268,8 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
-  loadPerfiles() {
-    this.request.get(environment.PARAMETROS_SERVICE, `parametro?query=TipoParametroId:36`).subscribe((data: any) => {
+  async loadPerfiles() {
+    this.request.get(environment.PARAMETROS_SERVICE,`parametro?query=TipoParametroId:${await this.codigosService.getId("PARAMETROS_SERVICE", "tipo_parametro", "PC")}`).subscribe((data: any) => {
       if (data) {
         this.perfiles = data.Data
       }
@@ -374,6 +395,7 @@ export class ContratistasComponent implements OnInit {
     if (this.rol === 'PLANEACION') {
       this.dataSource.data.unshift({
         descripcionNecesidad: '',
+        requisitos: '',
         perfil: '',
         cantidad: 0,
         meses: 0,
@@ -393,6 +415,7 @@ export class ContratistasComponent implements OnInit {
     } else {
       this.dataSource.data.unshift({
         descripcionNecesidad: '',
+        requisitos: '',
         perfil: '',
         cantidad: 0,
         meses: 0,
@@ -419,6 +442,7 @@ export class ContratistasComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this._deleteElemento(index);
@@ -483,7 +507,7 @@ export class ContratistasComponent implements OnInit {
     this.acciones.emit({ data, accion, identi });
   }
 
-  guardarContratistas() {
+  async guardarContratistas() {
     if (this.rubroSeleccionado != undefined) {
       this.accionBoton = 'guardar';
       this.tipoIdenti = 'contratistas'
@@ -511,7 +535,7 @@ export class ContratistasComponent implements OnInit {
           obj["index"] = num.toString();
         }
         let dataS = JSON.stringify(Object.assign({}, data))
-        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, this.plan + `/6184b3e6f6fc97850127bb68`).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, `${this.plan}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((data: any) => {
           if (data) {
             Swal.fire({
               title: 'Guardado exitoso',
@@ -540,7 +564,7 @@ export class ContratistasComponent implements OnInit {
   validarDataSource(data) {
     this.contador = 0;
     for (let i = 0; i < data.length; i++) {
-      if (data[i].descripcionNecesidad == '' || data[i].perfil == '' || data[i].cantidad == null || data[i].meses == null || data[i].dias == null
+      if (data[i].descripcionNecesidad == '' || data[i].requisitos == '' || data[i].perfil == '' || data[i].cantidad == null || data[i].meses == null || data[i].dias == null
         || data[i].valorUnitario == null || data[i].valorTotal == null || data[i].actividades == "" || data[i].actividades == null) {
         this.contador++;
       }

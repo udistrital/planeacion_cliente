@@ -12,6 +12,7 @@ import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 interface Subgrupo {
   activo: string;
@@ -46,6 +47,7 @@ const No_Aplica: string = "no aplica"
   styleUrls: ['./arbol.component.scss'],
 })
 export class ArbolComponent implements OnInit {
+  ID_TIPO_PROYECTO: string;
 
   selectedFiles: any;
   dataRow: any;
@@ -101,17 +103,19 @@ export class ArbolComponent implements OnInit {
   @Input() tipoPlanId: string;
   @Input() idPlan: string;
   @Input() consulta: boolean;
+  @Input() banderaCarga: boolean;
   @Input() armonizacionPED: boolean;
   @Input() armonizacionPI: boolean;
   @Input() dataArmonizacion: any[];
   @Input() estado: string;
   @Input() updateSignal: Observable<String[]>;
   @Output() grupo = new EventEmitter<any>();
+  @Output() componentLoaded: EventEmitter<void> = new EventEmitter<void>();
   constructor(
     private formBuilder: FormBuilder,
     private request: RequestManager,
-    private autenticationService: ImplicitAutenticationService
-
+    private autenticationService: ImplicitAutenticationService,
+    private codigosService: CodigosService
   ) {
     let roles: any = this.autenticationService.getRole();
     if (roles.__zone_symbol__value.find(x => x == 'JEFE_DEPENDENCIA' || x == 'ASISTENTE_DEPENDENCIA')) {
@@ -129,58 +133,59 @@ export class ArbolComponent implements OnInit {
     }
   }
 
-  ngOnChanges(changes) {
-    if (this.tipoPlanId !== '611af8464a34b3599e3799a2') {
+  async ngOnChanges(changes) {
+    if (this.tipoPlanId !== await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
       if (this.idPlan !== this.planActual) {
-        this.loadArbolMid();
-        this.planActual = this.idPlan;
+        await this.loadArbolMid();
       }
     }
     if (changes['updateSignal'] && this.updateSignal) {
-      this.updateSignal.subscribe(() => {
-        this.loadArbolMid();
+      this.updateSignal.subscribe(async () => {
+        await this.loadArbolMid();
       });
     }
   }
 
-  loadArbolMid() {
+  async loadArbolMid() {
     this.mostrar = false;
     Swal.fire({
       title: 'Cargando información',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `arbol/` + this.idPlan).subscribe((data: any) => {
-      this.mostrar = true;
-      if (data.Data != "") {
-        this.dataSource.data = data.Data;
+    await new Promise((resolve, reject) => {
+      this.request.get(environment.PLANES_MID, `arbol/` + this.idPlan).subscribe(async (data: any) => {
+        if (data.Data !== null) {
+          this.mostrar = true;
+          this.dataSource.data = data.Data;
+          if (this.armonizacionPED || this.armonizacionPI) {
+            await this.linksArbol()
+            await this.expandNodes()
+          }
+        } else {
+          this.dataSource.data = [];
+        }
+        this.componentLoaded.emit();
         Swal.close();
-      } else {
-        this.mostrar = false;
-        this.dataSource.data = [];
-        Swal.close();
-      }
-      if (this.armonizacionPED || this.armonizacionPI) {
-        this.linksArbol()
-        this.expandNodes()
-      }
-    }
-      , (error) => {
+        resolve(true);
+      }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
-          text: 'No se encontraron datos registrados',
+          text: `No se encontraron datos registrados ${JSON.stringify(error)}`,
           icon: 'warning',
           showConfirmButton: false,
           timer: 2500
         })
-      }
-    )
+        reject(error);
+      })
+    });
   }
 
-  linksArbol() {
+  async linksArbol() {
     let deepLevelIxd: number[] = [-1,-1,-1];
     let pastdeepLevelIxd: number[] = deepLevelIxd;
     this.treeControl.dataNodes.forEach((element, i) => {
@@ -193,6 +198,7 @@ export class ArbolComponent implements OnInit {
       const idsHijos = this.treeControl.dataNodes.filter(elementh => elementh.padre_idx == i).map((e) => {return e.idx});
       elementp.hijos_idx = idsHijos;
     })
+    await Promise.resolve();
   }
 
   selectFile(event) {
@@ -248,7 +254,8 @@ export class ArbolComponent implements OnInit {
               icon: 'warning',
               confirmButtonText: `Sí`,
               cancelButtonText: `No`,
-              showCancelButton: true
+              showCancelButton: true,
+              allowOutsideClick: false,
             }).then((result) => {
               if (result.isConfirmed) {
                 resolve(1); // confirma dejar no aplica, quitar resto del nivel
@@ -350,7 +357,7 @@ export class ArbolComponent implements OnInit {
     }
   }
 
-  expandNodes() {
+  async expandNodes() {
     for (let nodo of this.dataArmonizacion) {
       let found = this.treeControl.dataNodes.find(element => element.id == nodo);
       let index = this.treeControl.dataNodes.indexOf(found);
@@ -364,15 +371,17 @@ export class ArbolComponent implements OnInit {
         }
       }
     }
+    await Promise.resolve();
   }
 
   hasChild = (_: number, node: Nodo) => node.expandable;
 
-  ngOnInit(): void {
+  async ngOnInit(){
     this.formConstruirPUI = this.formBuilder.group({
       infoControl: ['', Validators.required],
       requiredfile: ['', Validators.required]
     });
     this.planActual = '';
+    this.ID_TIPO_PROYECTO = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
   }
 }

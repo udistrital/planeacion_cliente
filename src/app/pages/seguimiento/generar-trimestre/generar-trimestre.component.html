@@ -21,26 +21,31 @@
       <div class="container-border">
         <h1>&nbsp;&nbsp;&nbsp;&nbsp;Información del Plan</h1>
         <div class="contenedor3c">
-          <div class="row1">
-            <mat-label id="desc-input-label">Código actividad:</mat-label>
-            <textarea class="unidad" [readonly]="true"
-              placeholder="Actividad">{{seguimiento.informacion.index}}</textarea>
-          </div>
-          <div class="row1" style="grid-row: 2/2;">
-            <mat-label id="desc-input-label">Ponderación:</mat-label>
-            <textarea class="unidad" [readonly]="true" placeholder="0%">{{seguimiento.informacion.ponderacion/100 |
-              percent}}</textarea>
-          </div>
-          <div class="row1" style="grid-row: 3/3;">
-            <mat-label id="desc-input-label">Periodo de ejecución:</mat-label>
-            <textarea class="unidad" [readonly]="true"
-              placeholder="Periodo">{{seguimiento.informacion.periodo}}</textarea>
-          </div>
+          <div>
+            <div class="row1">
+              <mat-label id="desc-input-label">Número de actividad:</mat-label>
+              <textarea class="unidad" [readonly]="true" placeholder="Actividad">{{seguimiento.informacion.index}}</textarea>
+            </div>
+            <div class="row1" style="grid-row: 2/2;">
+              <mat-label id="desc-input-label">Id de actividad:</mat-label>
+              <textarea class="unidad" [readonly]="true" placeholder="Actividad">{{this.id_actividad}} </textarea>
+            </div>
+            <div class="row1" style="grid-row: 3/3;">
+              <mat-label id="desc-input-label">Ponderación:</mat-label>
+              <textarea class="unidad" [readonly]="true" placeholder="0%">{{seguimiento.informacion.ponderacion/100 |
+                          percent}}</textarea>
+            </div>
+            <div class="row1" style="grid-row: 4/4;">
+              <mat-label id="desc-input-label">Periodo de ejecución:</mat-label>
+              <textarea class="unidad" [readonly]="true" placeholder="Periodo">{{seguimiento.informacion.periodo}}</textarea>
+            </div>
+        </div>
 
           <div class="content-border"
             style="grid-row: 1/4; grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">
-            <h2>&nbsp;&nbsp;&nbsp;&nbsp;Descripción de la actividad general&nbsp;&nbsp;&nbsp;&nbsp;</h2>
-            <textarea class="textareaContenido" [readonly]="true"
+            <h2 *ngIf="seguimiento.informacion.tarea != ''">&nbsp;&nbsp;&nbsp;&nbsp;Descripción de la actividad general&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+            <h2 *ngIf="seguimiento.informacion.tarea == ''">&nbsp;&nbsp;&nbsp;&nbsp;Descripción de la actividad&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+            <textarea class="textareaContenidoModificable" autoresize [readonly]="true"
               placeholder="* Descripción de la actividad general seleccionada">{{seguimiento.informacion.descripcion}}</textarea>
           </div>
         </div>
@@ -48,15 +53,13 @@
         <br> <br>
         <div class="contenedor3c">
           <div class="content-border" style="grid-column: 1/1; margin: 0px; height: -webkit-fill-available;">
-            <h2 style="padding: 1%;margin-top: -24px;">&nbsp;&nbsp;&nbsp;&nbsp;Productos
-              asociados&nbsp;&nbsp;&nbsp;&nbsp;</h2>
-            <textarea style="height: 70%;" class="textareaContenido"
-              [readonly]="true">{{seguimiento.informacion.producto}}</textarea>
+            <h2 style="padding: 1%;margin-top: -24px;">&nbsp;&nbsp;&nbsp;&nbsp;Productos asociados&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+            <textarea style="height: 70%;" class="textareaContenido" autoresize style="overflow:hidden" [readonly]="true">{{seguimiento.informacion.producto}}</textarea>
           </div>
 
-          <div class="content-border" style="grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">
+          <div *ngIf="seguimiento.informacion.tarea != ''" class="content-border" style="grid-column: 2/4; margin: 0px; height: -webkit-fill-available;">
             <h2>&nbsp;&nbsp;&nbsp;&nbsp;Actividades específicas&nbsp;&nbsp;&nbsp;&nbsp;</h2>
-            <textarea class="textareaContenido" [readonly]="true"
+            <textarea class="textareaContenidoModificable" autoresize [readonly]="true"
               placeholder="* Tareas asociadas a la actividad general">{{seguimiento.informacion.tarea}}</textarea>
           </div>
         </div>
@@ -77,7 +80,7 @@
         <div class="contentCuantitativo">
           <div class="container-border">
             <h4>&nbsp;&nbsp;&nbsp;&nbsp;Digite la información *&nbsp;&nbsp;&nbsp;&nbsp;</h4>
-            <textarea class="textareaContenido" id="reporte"
+            <textarea class="textareaContenidoModificable" autoresize id="reporte"
               placeholder="* Describa las acciones implementadas en el marco de la actividad general, así como  los logros obtenidos."
               required [value]="datosCualitativo.reporte" [(ngModel)]="datosCualitativo.reporte"
               [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
@@ -97,13 +100,13 @@
           style="padding-left: 24px;display: flex;flex-wrap: nowrap;align-items: center;gap: 1%;">
           <div class="container-border" style="width: 80%; margin-left: 0px;">
             <h4>&nbsp;&nbsp;&nbsp;&nbsp;Digite la información *&nbsp;&nbsp;&nbsp;&nbsp;</h4>
-            <textarea class="textareaContenido" id="productos"
+            <textarea class="textareaContenidoModificable" autoresize id="productos"
               placeholder="* Enliste los productos y evidencias resultantes de las acciones establecidas en el espacio anterior, tenga en cuenta que las evidencias deberán estar cargadas."
               required [value]="datosCualitativo.productos" [(ngModel)]="datosCualitativo.productos"
               [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
           </div>
 
-          <div style="margin: 10px 0px 20px 0px; width: 15%;" *ngIf="rol=='JEFE_DEPENDENCIA' && !readonlyFormulario">
+          <div style="margin: 10px 0px 20px 0px; width: 15%;" *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && !readonlyFormulario">
             <div class="container-border" style="margin: 0px;width: 100%;padding: 10px;">
               <button class="background-button" style="font-weight: bold; margin: 0px 0px 5px 0px; width: 100%;"
                 mat-raised-button color="primary" (click)="onSeeDocumentos()">Visualizar</button>
@@ -116,7 +119,7 @@
             </div>
           </div>
 
-          <div style="margin: 10px 0px 20px 0px; width: 15%;" *ngIf="rol=='PLANEACION' || readonlyFormulario">
+          <div style="margin: 10px 0px 20px 0px; width: 15%;" *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') || readonlyFormulario">
             <div class="container-border" style="margin: 0px; width: 100%;padding: 10px;">
               <button class="background-button" style="font-weight: bold; width: 100%;" mat-raised-button
                 color="primary" (click)="onSeeDocumentos()">Visualizar</button>
@@ -136,7 +139,7 @@
         <div class="contentCuantitativo">
           <div class="container-border">
             <h4>&nbsp;&nbsp;&nbsp;&nbsp;Digite la información *&nbsp;&nbsp;&nbsp;&nbsp;</h4>
-            <textarea class="textareaContenido" id="dificultades"
+            <textarea class="textareaContenidoModificable" autoresize id="dificultades"
               placeholder="* Establezca en caso de existir, las dificultades asociadas a la implementación de la actividad general y la consecución de las metas planteadas."
               required [value]="datosCualitativo.dificultades" [(ngModel)]="datosCualitativo.dificultades"
               [ngModelOptions]="{standalone: true}" [readonly]="readonlyFormulario"></textarea>
@@ -144,12 +147,16 @@
         </div>
 
         <div class="container-border" *ngIf="mostrarObservaciones">
-          <h4>&nbsp;&nbsp;&nbsp;&nbsp;Observaciones Oficina Asesora de Planeación y
-            Control&nbsp;&nbsp;&nbsp;&nbsp;</h4>
-          <textarea class="textareaContenido" id="observaciones"
-            placeholder="* Observaciones realizadas desde la OAPC a la unidad para el componente cualitativo."
-            formControlName="observaciones" required [value]="datosCualitativo.observaciones"
-            [ngModelOptions]="{standalone: true}" [(ngModel)]="datosCualitativo.observaciones"
+          <h4>&nbsp;&nbsp;&nbsp;&nbsp;{{txtObservaciones}}&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+          <textarea *ngIf="ObservacionesPlaneacion && mostrarObservaciones" class="textareaContenidoModificable" autoresize id="observaciones"
+            [placeholder]="txtPlaceHolderObservaciones"
+            formControlName="observaciones" required [value]="datosCualitativo.observaciones_planeacion"
+            [ngModelOptions]="{standalone: true}" [(ngModel)]="datosCualitativo.observaciones_planeacion"
+            [readonly]="readonlyObservacion"></textarea>
+            <textarea *ngIf="ObservacionesDependencia && mostrarObservaciones" class="textareaContenidoModificable" autoresize id="observaciones"
+            [placeholder]="txtPlaceHolderObservaciones"
+            formControlName="observaciones" required [value]="datosCualitativo.observaciones_dependencia"
+            [ngModelOptions]="{standalone: true}" [(ngModel)]="datosCualitativo.observaciones_dependencia"
             [readonly]="readonlyObservacion"></textarea>
         </div>
 
@@ -158,7 +165,7 @@
             (click)="guardarCualitativo()">Guardar componente cualitativo</button>
 
           <button class="background-button" mat-raised-button color="primary"
-            *ngIf="rol=='PLANEACION' && !readonlyObservacion" (click)="guardarCualitativo()">Guardar
+            *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && !readonlyObservacion" (click)="guardarCualitativo()">Guardar
             revisión componente cualitativo</button>
         </div>
       </div>
@@ -208,7 +215,7 @@
 
             <ng-container matColumnDef="detalleReporte">
               <td class="rowText" mat-cell *matCellDef="let element">
-                <textarea class="form-control" style="width: 90%;" matInput placeholder="Detalle"
+                <textarea class="form-control" style="width: 90%; min-height: 50px; max-height:100px;" matInput placeholder="Detalle"
                   [readonly]="readonlyFormulario" [value]="element.detalleReporte" [(ngModel)]="element.detalleReporte"
                   [ngModelOptions]="{standalone: true}" required></textarea>
               </td>
@@ -216,8 +223,11 @@
 
             <ng-container matColumnDef="observaciones">
               <td class="rowText" mat-cell *matCellDef="let element">
-                <textarea class="form-control" style="width: 90%;" matInput placeholder="Sin observación"
-                  [readonly]="readonlyObservacion" [value]="element.observaciones" [(ngModel)]="element.observaciones"
+                <textarea *ngIf="ObservacionesPlaneacion"class="form-control" style="width: 90%; min-height: 50px; max-height:100px;" matInput placeholder="Sin observación"
+                  [readonly]="readonlyObservacion" [value]="element.observaciones_planeacion" [(ngModel)]="element.observaciones_planeacion"
+                  [ngModelOptions]="{standalone: true}" required></textarea>
+                <textarea *ngIf="ObservacionesDependencia"class="form-control" style="width: 90%; min-height: 50px; max-height:100px;" matInput placeholder="Sin observación"
+                  [readonly]="readonlyObservacion" [value]="element.observaciones_dependencia" [(ngModel)]="element.observaciones_dependencia"
                   [ngModelOptions]="{standalone: true}" required></textarea>
               </td>
             </ng-container>
@@ -236,7 +246,7 @@
 
             <ng-container matColumnDef="header-row-observacion">
               <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [attr.rowspan]="2">
-                Observaciones Oficina Asesora de Planeación y Control
+                {{txtObservaciones}}
               </th>
             </ng-container>
 
@@ -291,7 +301,7 @@
           </table>
         </div>
         <button class="background-button"
-          *ngIf="rol=='JEFE_DEPENDENCIA' && (mostrarObservaciones || readonlyObservacion)"
+          *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && (mostrarObservaciones || readonlyObservacion)"
           style="width: auto; display:block; margin-left: auto; margin-right: auto;" mat-raised-button color="primary"
           (click)="calcularResultado()">Calcular indicadores</button>
 
@@ -402,63 +412,58 @@
             (click)="guardarCuantitativo()">Guardar componente cuantitativo</button>
 
           <button class="background-button" mat-raised-button color="primary"
-            *ngIf="rol=='PLANEACION' && !readonlyObservacion" (click)="guardarCuantitativo()">Guardar
+            *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && !readonlyObservacion" (click)="guardarCuantitativo()">Guardar
             revisión componente cuantitativo</button>
         </div>
       </div>
 
       <br>
-      <div class="align-button-enviar"
-        *ngIf="rol=='JEFE_DEPENDENCIA' && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC'">
-        <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-        <button class="background-button" mat-raised-button color="primary" (click)="guardarSeguimiento()">Guardar
-          seguimiento de actividad</button>
-      </div>
-      <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Actividad en reporte'">
-        <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-        <button class="background-button" mat-raised-button color="primary" (click)="generarReporte()">Generar
-          reporte</button>
-      </div>
-      <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && readonlyFormulario">
-        <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-      </div>
-
-      <div class="align-button-enviar"
-        *ngIf="rol=='PLANEACION' && (readonlyObservacion || estadoActividad==='Sin reporte' || estadoActividad==='Actividad en reporte' || estadoActividad==='Actividad avalada')">
-        <mat-form-field appearance="fill" style="position: absolute; display: block; margin-top: 1%;">
+      <div>
+        <mat-form-field appearance="fill" style="position: absolute; display: block; width: fit-content !important;">
           <mat-label id="Estado">Estado de la actividad</mat-label>
-          <mat-select [disabled]="true" [(value)]="estadoActividad" (selectionChange)="onChangeV($event.value)">
+          <mat-select [disabled]="true" [(value)]="estadoActividad">
             <mat-option>--</mat-option>
             <mat-option *ngFor="let estado of estados" [value]="estado.nombre">
               {{estado.nombre}}
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-        <button class="background-button" mat-raised-button color="primary"
-          *ngIf="estadoActividad==='Actividad avalada'" (click)="retornarRevision()">Retornar a
-          revisión</button>
       </div>
-      <div class="align-button-enviar"
-        *ngIf="rol=='PLANEACION' && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada' )">
-        <mat-form-field appearance="fill" style="position: absolute; display: block; margin-top: 1%;">
-          <mat-label id="Estado">Estado de la actividad</mat-label>
-          <mat-select [disabled]="true" [(value)]="estadoActividad" (selectionChange)="onChangeV($event.value)">
-            <mat-option>--</mat-option>
-            <mat-option *ngFor="let estado of estados" [value]="estado.nombre">
-              {{estado.nombre}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-        <button class="background-button" mat-raised-button color="primary" (click)="guardarRevision()">Guardar
-          revisión de actividad</button>
-      </div>
-
-      <div class="align-button-enviar" *ngIf="rol=='JEFE_DEPENDENCIA' && estadoActividad==='Observación'">
-        <button class="background-button" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
-        <button class="background-button" mat-raised-button color="primary" (click)="ajustarReporte()">Reenviar
-          reporte</button>
+      <div class="button-container-actions">
+        <div class="align-button-action">
+          <button class="background-button-action" mat-raised-button color="primary" (click)="backClicked()">Regresar</button>
+        </div>
+        <div class="align-button-action"
+          *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && (estadoActividad==='Sin reporte' || estadoActividad==='Con observaciones') && estadoSeguimiento!='En revisión OAPC' && estadoSeguimiento!='En revisión JU' && estadoSeguimiento!='Revisión Verificada'">
+          <button class="background-button-action" mat-raised-button color="primary" (click)="guardarSeguimiento()">Guardar
+            seguimiento de actividad</button>
+        </div>
+        <div class="align-button-action" *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && estadoActividad==='Actividad en reporte'">
+          <button class="background-button-action" mat-raised-button color="primary" (click)="generarReporte()">Generar
+            reporte</button>
+        </div>
+        <div class="align-button-action"
+          *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && (readonlyObservacion || estadoActividad==='Actividad avalada') && (estadoSeguimiento==='En revisión OAPC' || estadoSeguimiento==='Reporte Avalado')">
+          <button class="background-button-action" mat-raised-button color="primary"
+            *ngIf="estadoActividad==='Actividad avalada'" (click)="retornarRevision()">Retornar a
+            revisión</button>
+        </div>
+        <div class="align-button-action"
+          *ngIf="rol=='JEFE_DEPENDENCIA' && (readonlyObservacion || estadoActividad==='Actividad Verificada')">
+          <button class="background-button-action" mat-raised-button color="primary"
+            *ngIf="estadoActividad==='Actividad Verificada' && estadoSeguimiento==='En revisión JU'" (click)="retornarRevisionJefeDependencia()">Retornar a
+            revisión</button>
+        </div>
+        <div class="align-button-action"
+          *ngIf="rol=='JEFE_DEPENDENCIA' && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad reportada')">
+          <button class="background-button-action" *ngIf="estadoActividad!=='Actividad Verificada'" mat-raised-button color="primary" (click)="guardarRevisionJefeDependencia()">Guardar
+            revisión de actividad</button>
+        </div>
+        <div class="align-button-action"
+          *ngIf="(rol=='PLANEACION' || rol=='ASISTENTE_PLANEACION') && !readonlyObservacion && (estadoActividad==='Con observaciones' || estadoActividad==='Actividad Verificada' )">
+          <button class="background-button-action" mat-raised-button color="primary" (click)="guardarRevision()">Guardar
+            revisión de actividad</button>
+        </div>
       </div>
     </form>
   </mat-card-content>

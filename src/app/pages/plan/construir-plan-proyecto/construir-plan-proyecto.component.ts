@@ -9,6 +9,7 @@ import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import {CrearPlanComponent} from '../crear-plan/crear-plan.component'
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-construir-plan-proyecto',
@@ -24,6 +25,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
   // tipoPlan: any[];
   // nombreTipoPlan:any;
   plan: any;
+  cargando = true;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -31,6 +33,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
     public dialog: MatDialog,
     private request: RequestManager,
     private router: Router,
+    private codigosService: CodigosService
   ) {
     this.loadData();
   }
@@ -55,7 +58,21 @@ export class ConstruirPlanProyectoComponent implements OnInit {
       if (result == undefined){
         return undefined;
       } else {
-        this.putData(result, 'editar');
+        if (result.vigencia_aplica && Array.isArray(result.vigencia_aplica)) {
+          if (result.vigencia_aplica.length > 0) {
+            result.vigencia_aplica = JSON.stringify(result.vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
+            this.putData(result, 'editar');
+          } else {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `Debe seleccionar al menos una vigencia para el plan`,
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
+          }
+        } else {
+          this.putData(result, 'editar');
+        }
       }
     });
   }
@@ -63,7 +80,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
   putData(res, bandera){
     if (bandera == 'editar'){
       this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
-        if(data){
+        if(data.Success == true) {
           Swal.fire({
             title: 'Actualización correcta',
             text: `Se actualizaron correctamente los datos`,
@@ -73,6 +90,14 @@ export class ConstruirPlanProyectoComponent implements OnInit {
               window.location.reload();
             }
           })
+        } else {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se ha podido actualizar el plan: ${data.Message}`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
         }
       }),
       (error) => {
@@ -90,12 +115,13 @@ export class ConstruirPlanProyectoComponent implements OnInit {
         showCancelButton: true,
         confirmButtonText: `Si`,
         cancelButtonText: `No`,
+        allowOutsideClick: false,
       }).then((result) => {
           if (result.isConfirmed) {
             this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
               if (data){
                 Swal.fire({
-                  title: 'Cambio realizado', 
+                  title: 'Cambio realizado',
                   icon: 'success',
                 }).then((result) => {
                   if (result.value) {
@@ -114,30 +140,31 @@ export class ConstruirPlanProyectoComponent implements OnInit {
             }
           } else if (result.dismiss === Swal.DismissReason.cancel) {
             Swal.fire({
-              title: 'Cambio cancelado', 
+              title: 'Cambio cancelado',
               icon: 'error',
               showConfirmButton: false,
               timer: 2500
             })
           }
       })
-    } 
+    }
   }
 
   // Inactivar todo el árbol
-  deleteData(){ 
+  deleteData(){
     Swal.fire({
       title: 'Inhabilitar plan',
       text: `¿Está seguro de inhabilitar el plan?`,
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
         if (result.isConfirmed) {
           this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan/`, this.uid).subscribe((data: any) => {
             if(data){
               Swal.fire({
-                title: 'Cambio realizado', 
+                title: 'Cambio realizado',
                 icon: 'success',
               }).then((result) => {
                 if (result.value) {
@@ -156,7 +183,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
           }
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           Swal.fire({
-            title: 'Cambio cancelado', 
+            title: 'Cambio cancelado',
             icon: 'error',
             showConfirmButton: false,
             timer: 2500
@@ -170,21 +197,40 @@ export class ConstruirPlanProyectoComponent implements OnInit {
   }
 
   loadData(){
-    this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe((data: any) => {
-      if (data){
-        this.planes = data.Data;
-        this.ajustarData();
-      }
-    },(error) => {
-      Swal.fire({
-        title: 'Error en la operación', 
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
+    this.mostrarMensajeCarga();
 
-    })
+    this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe(
+      (data: any) => {
+        if (data){
+          this.planes = data.Data;
+          this.ajustarData();
+          this.cerrarMensajeCarga();
+        }
+      },(error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    )
+  }
+
+  mostrarMensajeCarga(): void {
+    Swal.fire({
+      title: 'Cargando datos...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  }
+  cerrarMensajeCarga(): void {
+    this.cargando = false;
+    Swal.close();
   }
 
   ajustarData(){
@@ -196,6 +242,7 @@ export class ConstruirPlanProyectoComponent implements OnInit {
   }
 
   editar(fila): void{
+    this.mostrarMensajeCarga();
     this.uid = fila._id;
     this.request.get(environment.PLANES_CRUD, `plan/`+this.uid).subscribe((data: any) => {
       if(data){
@@ -204,31 +251,31 @@ export class ConstruirPlanProyectoComponent implements OnInit {
           type: "",
           required: false
         }
-        this.openDialogEditar(this.plan, subgrupoDetalle);  
+        this.openDialogEditar(this.plan, subgrupoDetalle);
       }
     }),
     (error) => {
       Swal.fire({
-        title: 'Error en la operación', 
+        title: 'Error en la operación',
         text: 'No se encontraron datos registrados',
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
       })
-    } 
+    }
   }
 
-  inactivar(fila):void{
+  async inactivar(fila) {
     this.uid = fila._id;
     if (fila.activo == 'Activo'){
-      if (fila.tipo_plan_id != '611af8464a34b3599e3799a2'){
+      if (fila.tipo_plan_id != await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')){
         this.deleteData();
-      } else if (fila.tipo_plan_id == '611af8464a34b3599e3799a2'){
+      } else {
         let res = {
           activo: false,
         }
         this.putData(res, 'activo')
-      } 
+      }
     } else if (fila.activo == 'Inactivo'){
       Swal.fire({
         title: 'Plan ya inactivo',
@@ -262,8 +309,8 @@ export class ConstruirPlanProyectoComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-  
+  async ngOnInit(){
+    this.loadData();
   }
 
 }

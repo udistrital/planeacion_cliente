@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { RequestManager } from '../../services/requestManager';
 import { UserService } from '../../services/userService';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-plan-anual',
@@ -34,10 +35,10 @@ export class PlanAnualComponent implements OnInit {
     private formBuilder: FormBuilder,
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
-    private userService: UserService
+    private userService: UserService,
+    private codigosService: CodigosService
   ) {
     this.loadVigencias();
-    this.loadEstados();
     this.loadPlanes();
     this.unidadVisible = true;
     this.tablaVisible = false;
@@ -53,9 +54,6 @@ export class PlanAnualComponent implements OnInit {
       this.rol = 'JEFE_DEPENDENCIA';
       this.validarUnidad();
     }
-  }
-
-  ngOnInit(): void {
     this.form = this.formBuilder.group({
       vigencia: ['', Validators.required],
       tipoReporte: ['', Validators.required],
@@ -66,26 +64,36 @@ export class PlanAnualComponent implements OnInit {
     });
   }
 
+  async ngOnInit(){
+    this.loadEstados();
+  }
+
   validarUnidad() {
     this.userService.user$.subscribe((data) => {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
           this.request.get(environment.PLANES_MID, `formulacion/vinculacion_tercero/` + datosInfoTercero[0].TerceroId.Id)
-            .subscribe((vinculacion: any) => {
-              if (vinculacion.Data && Array.isArray(vinculacion.Data)) {
-                vinculacion.Data.forEach(unidad => {
-                  this.unidades = [];
-                  this.auxUnidades = [];
-                  this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + unidad.DependenciaId).subscribe((dataUnidad: any) => {
-                    if (dataUnidad && Array.isArray(dataUnidad)) {
-                      let unidad = dataUnidad[0].DependenciaId;
-                      unidad.TipoDependencia = dataUnidad[0].TipoDependenciaId.Id;
+            .subscribe((vinculaciones: any) => {
+              if (vinculaciones["Data"] != "") {
+                const vinculacion = vinculaciones.Data;
+                this.unidades = [];
+                this.auxUnidades = [];
+                for (let i = 0; i < vinculaciones.Data.length; i++) {
+                  this.request.get(environment.OIKOS_SERVICE, `dependencia_tipo_dependencia?query=DependenciaId:` + vinculacion[i].DependenciaId).subscribe((dataUnidad: any) => {
+                    if (dataUnidad) {
+                      let unidad = dataUnidad[0]["DependenciaId"]
+                      unidad["TipoDependencia"] = dataUnidad[0]["TipoDependenciaId"]["Id"]
+                      for (let i = 0; i < dataUnidad.length; i++) {
+                        if (dataUnidad[i]["TipoDependenciaId"]["Id"] === 2) {
+                          unidad["TipoDependencia"] = dataUnidad[i]["TipoDependenciaId"]["Id"]
+                        }
+                      }
                       this.unidades.push(unidad);
                       this.auxUnidades.push(unidad);
-                      // this.form.get('unidad').setValue(unidad);
                     }
-                  });
-                });
+                  })
+                }
+                this.form.get('unidad').setValue(this.unidades[0]);
                 this.moduloVisible = true;
                 this.form.get('categoria').setValue("planAccion");
                 this.form.get('tipoReporte').setValue("unidad");
@@ -139,9 +147,9 @@ export class PlanAnualComponent implements OnInit {
     })
   }
 
-  loadEstados() {
+  async loadEstados() {
     // Carga estado Formulado
-    this.request.get(environment.PLANES_CRUD, `estado-plan/614d3aeb01c7a245952fabff`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `estado-plan/${await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'F_SP')}`).subscribe((data: any) => {
       if (data) {
         this.estados.push(data.Data)
       }
@@ -155,7 +163,7 @@ export class PlanAnualComponent implements OnInit {
       })
     })
     // Carga estado Pre aval
-    this.request.get(environment.PLANES_CRUD, `estado-plan/614d3b4401c7a222052fac05`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `estado-plan/${await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')}`).subscribe((data: any) => {
       if (data) {
         this.estados.push(data.Data)
       }
@@ -169,7 +177,7 @@ export class PlanAnualComponent implements OnInit {
       })
     })
     // Carga estado  aval
-    this.request.get(environment.PLANES_CRUD, `estado-plan/6153355601c7a2365b2fb2a1`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_CRUD, `estado-plan/${await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'A_SP')}`).subscribe((data: any) => {
       if (data) {
         this.estados.push(data.Data)
       }
@@ -245,6 +253,8 @@ export class PlanAnualComponent implements OnInit {
       }
       this.form.get('estado').setValue(null);
       this.form.get('estado').disable();
+      this.form.get('unidad').enable();
+      this.form.get('unidad').setValue(null);
       this.evaluacion = true;
     } else {
       if (this.rol == 'PLANEACION') {
@@ -256,7 +266,7 @@ export class PlanAnualComponent implements OnInit {
     }
   }
 
-  verificar() {
+  async verificar() {
     let unidad = this.form.get('unidad').value;
     let vigencia = this.form.get('vigencia').value;
     let tipoReporte = this.form.get('tipoReporte').value;
@@ -264,7 +274,8 @@ export class PlanAnualComponent implements OnInit {
     let estado = this.form.get('estado').value;
     let plan = this.form.get('plan').value;
     let body = {
-      tipo_plan_id: "61639b8c1634adf976ed4b4c",
+      plan_id: plan._id,
+      tipo_plan_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP'),
       vigencia: (vigencia.Id).toString(),
       nombre: plan.nombre
     };
@@ -272,6 +283,7 @@ export class PlanAnualComponent implements OnInit {
       title: 'Validando reporte',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -280,17 +292,17 @@ export class PlanAnualComponent implements OnInit {
       if (tipoReporte === 'unidad') {
         body["unidad_id"] = (unidad.Id).toString();
         body["estado_plan_id"] = estado;
-        body["categoria"] = "Plan de acción unidad";
+        body["categoria"] = "Plan_Accion_Unidad";
       } else if (tipoReporte === 'general') {
         body["estado_plan_id"] = estado;
-        body["categoria"] = "Plan de acción general";
+        body["categoria"] = "Plan_Accion_General";
       }
     } else if (categoria === 'necesidades') {
       body["estado_plan_id"] = estado;
       body["categoria"] = "Necesidades";
     } else if (categoria === 'evaluacion') {
       body["unidad_id"] = (unidad.Id).toString();
-      body["categoria"] = "Evaluación";
+      body["categoria"] = "Evaluacion";
     }
 
     this.request.post(environment.PLANES_MID, `reportes/validar_reporte`, body).subscribe((res: any) => {
@@ -318,7 +330,7 @@ export class PlanAnualComponent implements OnInit {
     })
   }
 
-  generar() {
+  async generar() {
     let unidad = this.form.get('unidad').value;
     let vigencia = this.form.get('vigencia').value;
     let tipoReporte = this.form.get('tipoReporte').value;
@@ -330,6 +342,7 @@ export class PlanAnualComponent implements OnInit {
       title: 'Generando Reporte',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
@@ -338,7 +351,7 @@ export class PlanAnualComponent implements OnInit {
       if (tipoReporte === 'unidad') {
         let body = {
           unidad_id: (unidad.Id).toString(),
-          tipo_plan_id: "61639b8c1634adf976ed4b4c",
+          tipo_plan_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP'),
           estado_plan_id: estado,
           vigencia: (vigencia.Id).toString(),
         }
@@ -382,12 +395,12 @@ export class PlanAnualComponent implements OnInit {
         })
       } else if (tipoReporte === 'general') {
         let body = {
-          tipo_plan_id: "61639b8c1634adf976ed4b4c",
+          tipo_plan_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP'),
           estado_plan_id: estado,
           vigencia: (vigencia.Id).toString(),
         }
 
-        
+
         this.request.post(environment.PLANES_MID, `reportes/plan_anual_general/`+ plan.nombre, body).subscribe((data: any) => {
           if (data) {
             let infoReportes: any[] = data.Data.generalData;
@@ -415,7 +428,7 @@ export class PlanAnualComponent implements OnInit {
       }
     } else if (categoria === 'necesidades') {
       let body = {
-        tipo_plan_id: "61639b8c1634adf976ed4b4c",
+        tipo_plan_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP'),
         estado_plan_id: estado,
         vigencia: (vigencia.Id).toString(),
       }
@@ -449,7 +462,7 @@ export class PlanAnualComponent implements OnInit {
     } else if (categoria === 'evaluacion') {
       let body = {
         unidad_id: (unidad.Id).toString(),
-        tipo_plan_id: "61639b8c1634adf976ed4b4c",
+        tipo_plan_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP'),
         vigencia: (vigencia.Id).toString(),
       }
 
@@ -496,7 +509,23 @@ export class PlanAnualComponent implements OnInit {
     let blob = this.base64ToBlob(this.reporte_archivo);
     let url = window.URL.createObjectURL(blob);
     var anchor = document.createElement("a");
-    anchor.download = "Reporte.xlsx";
+    let categoria = this.form.get('categoria').value;
+    let vigencia = this.form.get('vigencia').value;
+    let plan = this.form.get('plan').value;
+    if(categoria === 'planAccion'){
+      let tipoReporte = this.form.get('tipoReporte').value;
+      if (tipoReporte === 'unidad') {
+        let unidad = this.form.get('unidad').value;
+        anchor.download = "Reporte_Plan_Accion_" + unidad.Nombre + ".xlsx";
+      } else if (tipoReporte === 'general') {
+        anchor.download = "Reporte_General_" + vigencia.Nombre + ".xlsx";
+      }
+    } else if(categoria === 'necesidades'){
+      anchor.download = "Reporte_Necesidades_" + vigencia.Nombre + ".xlsx";
+    } else if(categoria === 'evaluacion'){
+      let unidad = this.form.get('unidad').value;
+      anchor.download = "Reporte_Evaluacion_" + unidad.Nombre + ".xlsx";
+    }
     anchor.href = url;
     anchor.click();
   }

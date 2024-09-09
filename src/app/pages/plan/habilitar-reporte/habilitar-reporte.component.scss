@@ -5,15 +5,15 @@ table {
 
 th {
   color: white;
-  text-align: center;    
+  text-align: center;
 }
 
-.unidades {
+.btnUnidades-PlanesProyectos {
   display: flex;
-  justify-content: center;  
+  justify-content: center;
 }
 
-.mat-column-nombre{
+.mat-column-nombre {
   word-wrap: break-word !important;
   white-space: unset !important;
   flex: 0 0 34% !important;
@@ -29,7 +29,7 @@ th {
   hyphens: auto;
 }
 
-.mat-column-position{
+.mat-column-position {
   word-wrap: break-word !important;
   white-space: unset !important;
   flex: 0 0 6% !important;
@@ -46,12 +46,9 @@ th {
 
   text-align: center;
   justify-content: center;
-  
 }
 
-
-
-.mat-column-actions{
+.mat-column-actions {
   word-wrap: break-word !important;
   white-space: unset !important;
   flex: 0 0 6% !important;
@@ -70,12 +67,8 @@ th {
   justify-content: flex-end;
 }
 
-
-
-
-
 .mat-card {
-  background-color: #F1F5F8;
+  background-color: #f1f5f8;
 }
 
 .container-border {
@@ -83,7 +76,6 @@ th {
   border: 1px solid var(--primary);
   padding: 1%;
   border-radius: 15px 15px 15px 15px;
-
 }
 
 .titulo {
@@ -93,7 +85,7 @@ th {
   margin-top: -23px;
   margin-left: 7px;
   padding-left: 8px;
-  background: #F1F5F8;
+  background: #f1f5f8;
   position: relative;
 }
 
@@ -113,7 +105,7 @@ th {
   margin-top: -28px;
   margin-left: 7px;
   padding-left: 8px;
-  background: #F1F5F8;
+  background: #f1f5f8;
   position: relative;
 }
 
@@ -124,7 +116,7 @@ th {
   margin-top: -28px;
   margin-left: 7px;
   padding-left: 8px;
-  background: #F1F5F8;
+  background: #f1f5f8;
   position: relative;
 }
 
@@ -140,15 +132,10 @@ th {
   margin: 2% 0% 2% 2%;
 }
 
-.label-fecha{
+.label-fecha {
   margin: 0% 2% 0% 3%;
 }
 
-
 .num {
-  width: 10%;  
+  width: 10%;
 }
-
-
-
-

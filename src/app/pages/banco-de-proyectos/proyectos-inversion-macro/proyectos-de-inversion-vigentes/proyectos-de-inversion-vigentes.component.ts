@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 export interface Fuentes {
   posicion: string;
@@ -33,9 +34,10 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
     public dialog: MatDialog,
     private router: Router,
     private request: RequestManager,
+    private codigosService: CodigosService
   ) { }
 
-  ngOnInit(): void {
+  async ngOnInit(){
     this.loadData();
   }
 
@@ -51,16 +53,17 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
     this.router.navigate(['pages/proyectos-macro/proyecto-inversion/' + row.id]);
   }
 
-  loadData() {
+  async loadData() {
     Swal.fire({
       title: 'Cargando Proyectos',
       timerProgressBar: true,
       showConfirmButton: false,
+      allowOutsideClick: false,
       willOpen: () => {
         Swal.showLoading();
       },
     })
-    this.request.get(environment.PLANES_MID, `inversion/proyectos/63ca86f1b6c0e5725a977dae`).subscribe((data: any) => {
+    this.request.get(environment.PLANES_MID, `inversion/proyectos/${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PRI_SP')}`).subscribe((data: any) => {
       if (data) {
         this.planes = data.Data;
         if (this.planes.length > 0) {
@@ -105,6 +108,7 @@ export class ProyectosDeInversionVigentesComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan`, row.id).subscribe((data: any) => {

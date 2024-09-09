@@ -22,9 +22,9 @@
       En la siguiente tabla usted podrá encontrar los elementos creados identificados por NIVELES
     </u>
     <br> <br>
-    <app-arbol [tipoPlanId]="tipo_plan_id" [idPlan]="planId" [consulta]="false" (grupo)="receiveMessage($event)" [updateSignal]="eventChange"></app-arbol>
+    <app-arbol [tipoPlanId]="tipo_plan_id" [idPlan]="planId" [consulta]="false" (grupo)="receiveMessage($event)" (componentLoaded)="receiveMessageFromChild()" [updateSignal]="eventChange"></app-arbol>
   </mat-card-content>
-  <mat-card-footer *ngIf="tipo_plan_id != '611af8464a34b3599e3799a2' && tipo_plan_id != undefined" style="text-align: center;">
+  <mat-card-footer *ngIf="tipo_plan_id != ID_TIPO_PROYECTO && tipo_plan_id != undefined" style="text-align: center;">
     <ng-container>
       <button mat-raised-button color="primary" (click)="agregarSub(1)">
         Agregar Nivel

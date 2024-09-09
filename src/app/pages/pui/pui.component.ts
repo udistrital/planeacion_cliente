@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 import { VisualizarDocumentoDialogComponent } from '../seguimiento/generar-trimestre/visualizar-documento-dialog/visualizar-documento-dialog.component';
 import { RequestManager } from '../services/requestManager';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
 
 @Component({
   selector: 'app-pui',
@@ -17,22 +18,24 @@ export class PUIComponent implements OnInit {
   displayedColumns: string[] = ['Vigencia', 'Nombre', 'Descripcion', 'Soporte'];
   dataSource: MatTableDataSource<any>;
   planes: any[];
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     private request: RequestManager,
     public dialog: MatDialog,
-
+    private codigosService:CodigosService
   ) {
     this.dataSource = new MatTableDataSource();
-    this.loadData();
   }
 
-  loadData() {
-    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:623cb06616511e41ef5d798c`).subscribe((data: any) => {
+  async loadData() {
+    this.request.get(environment.PLANES_CRUD, `plan?query=tipo_plan_id:${await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PUI_SP')
+  }`).subscribe((data: any) => {
       if (data) {
         this.planes = data.Data;
         this.getVigencias();
         this.dataSource.data = this.planes;
+        this.dataSource.paginator = this.paginator;
       }
     }, (error) => {
       Swal.fire({
@@ -42,7 +45,6 @@ export class PUIComponent implements OnInit {
         showConfirmButton: false,
         timer: 2500
       })
-
     })
   }
 
@@ -63,17 +65,13 @@ export class PUIComponent implements OnInit {
             showConfirmButton: false,
             timer: 2500
           })
-
         })
     }
   }
 
-
   revisarDocumento(documentoId) {
-
     let header = "data:application/pdf;base64,";
     let documentoBase64: string;
-
     if (documentoId != "") {
       this.loadDocumento(documentoId).then((documento: any) => {
         if (documento["file"] == undefined) {
@@ -90,13 +88,12 @@ export class PUIComponent implements OnInit {
               data: documentoBase64
             });
           }
-
         } else {
           const dialogRef = this.dialog.open(VisualizarDocumentoDialogComponent, {
-            width: '1200',
+            width: '1000px',
             minHeight: 'calc(100vh - 90px)',
             height: '80%',
-            data: documento["file"]
+            data: { "url": header + documento.file, banderaPUI: true}
           });
         }
       })
@@ -120,7 +117,15 @@ export class PUIComponent implements OnInit {
       rejectRef = reject;
     });
     let documento: any;
-
+    Swal.fire({
+      title: 'Cargando documento',
+      timerProgressBar: true,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    })
     this.request.get(environment.GESTOR_DOCUMENTAL_MID, `document/` + documentoId).subscribe((data: any) => {
       if (data) {
         documento = {
@@ -144,8 +149,8 @@ export class PUIComponent implements OnInit {
     return dataPromise;
   }
 
-
-  ngOnInit(): void {
+   ngOnInit(){
+    this.loadData();
   }
 
 }

@@ -1,21 +1,21 @@
 <div class="container-border">
   <div class="contenedor">
 
-    <iframe [src]="file" height="750" width="800" style="grid-column: 1 / 3;"></iframe>
+    <iframe [src]="file" height="750" [style.width]="banderaPUI ? '950px' : '800px'" style="grid-column: 1 / 3;"></iframe>
 
-    <div class="row mb-auto" style="width: 100%;">
+    <div class="row mb-auto" style="width: 100%;" [style.display]="banderaPUI ? 'none' : 'block'">
       <div>
         <mat-label>Observación </mat-label>
-
-        <mat-form-field *ngIf="rol=='PLANEACION'" style="width: 100%;">
-          <textarea [disabled]="!data.editable" class="observacion" matInput [(ngModel)]="observacionText" rows="10"></textarea>
+    
+        <mat-form-field *ngIf="mostrar_Observaciones" style="width: 100%;">
+          <textarea *ngIf="mostrar_Observaciones && observaciones_dependencia" class="observacion" [(ngModel)]="observacionText" rows="10" [value]="observacionText" [readonly]="readonlyObservacion" maxlength="1000"></textarea>
+          <textarea *ngIf="mostrar_Observaciones && observaciones_planeacion" class="observacion" [(ngModel)]="observacionText" rows="10" [value]="observacionText" [readonly]="readonlyObservacion" maxlength="1000"></textarea>
+          <div *ngIf="mostrar_Observaciones && (observaciones_dependencia || observaciones_planeacion)">{{ observacionText.length }} / 1000 caracteres</div>
         </mat-form-field>
-        <button mat-raised-button [disabled]="!data.editable" color="primary" *ngIf="rol=='PLANEACION'" (click)="guardar()">Guardar</button>
-
-        <textarea class="observacion" *ngIf="rol=='JEFE_DEPENDENCIA'" rows="10" disabled
-          style="width: 100%;">{{observacion}}</textarea>
+        <button mat-raised-button color="primary" *ngIf="mostrar_Observaciones && !readonlyObservacion" (click)="guardar()">Guardar</button>
+        
       </div>
-    </div>
+    </div>    
   </div>
 
   <button mat-raised-button color="primary" (click)="cerrar()">

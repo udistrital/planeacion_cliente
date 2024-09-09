@@ -36,6 +36,21 @@
                         </mat-error>
                     </mat-form-field>
                 </mat-grid-tile>
+                <mat-grid-tile *ngIf="formCrearPlan.get('tipo').value.codigo_abreviacion == 'PD_SP' || formCrearPlan.get('tipo').value.codigo_abreviacion == 'PLI_SP'">
+                    <mat-form-field appearance="fill" [style.width.%]="200">
+                        <mat-label id="year-input-label">Vigencia a la que aplica el plan</mat-label>
+                        <mat-select formControlName="vigencia_aplica" multiple (openedChange)="onOpenedChangeVigencia($event)" required>
+                            <mat-option *ngFor="let vigencia of vigencias" [value]="vigenciaToJson(vigencia)">
+                                {{ vigencia.Nombre }}
+                            </mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="formCrearPlan.get('vigencia_aplica').invalid">
+                            {{ getErrorMessage(formCrearPlan.get('vigencia_aplica')) }}
+                        </mat-error>
+                        <mat-hint>Seleccione la vigencia a la que aplica el PI o PED</mat-hint>
+                    </mat-form-field>
+                </mat-grid-tile>
+                
                 <mat-grid-tile>
                     <mat-form-field appearance="fill" [style.width.%]="200">
                         <mat-label id="desc-input-label">Descripción</mat-label>
@@ -67,35 +82,37 @@
                 <!-- <div *ngIf="nombrePlan == 'Proyecto Universitario Institucional'">
                         <p>holii</p>
                     </div> -->
-                <mat-grid-tile *ngIf="nombrePlan == 'Proyecto Universitario Institucional'">
-                    <mat-form-field appearance="fill" [style.width.%]="200">
-                        <mat-label id="tipo-input-label">Vigencia</mat-label>
-                        <mat-select formControlName="vigencia" required>
-                            <mat-option>--</mat-option>
-                            <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
-                                {{vigencia.Nombre}}
-                            </mat-option>
-                        </mat-select>
-                        <mat-hint>Seleccione la vigencia</mat-hint>
-                    </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile *ngIf="nombrePlan == 'Proyecto Universitario Institucional'">
-                    <label class="width-label-upload">
-                        <input type="file" (change)="onChangeDocumento($event.target)">
-                        Adjuntar Documento...
-                    </label>
-                    <ng-container *ngIf="documento != undefined">
-                        <textarea class="width-text-documento" id="documento" placeholder="Documento Seleccionado"
-                            readonly>{{documento.name}}
-                        </textarea>
-                        <!-- <button class="icon-documento" mat-icon-button (click)="revisarDocumento()">
-                            <mat-icon>search</mat-icon>
-                        </button> -->
-                        <button class="icon-documento" mat-icon-button (click)="eliminarDocumento()">
-                            <mat-icon>delete_outline</mat-icon>
-                        </button>
-                    </ng-container>
-                </mat-grid-tile>
+                <ng-container *ngIf="nombrePlan == 'Proyecto Universitario Institucional' || nombrePlan == 'Proyecto'">
+                    <mat-grid-tile>
+                        <mat-form-field appearance="fill" [style.width.%]="200">
+                            <mat-label id="tipo-input-label">Vigencia</mat-label>
+                            <mat-select formControlName="vigencia" required>
+                                <mat-option>--</mat-option>
+                                <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
+                                    {{vigencia.Nombre}}
+                                </mat-option>
+                            </mat-select>
+                            <mat-hint>Seleccione la vigencia</mat-hint>
+                        </mat-form-field>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <label class="width-label-upload">
+                            <input type="file" (change)="onChangeDocumento($event.target)">
+                            Adjuntar Documento...
+                        </label>
+                        <ng-container *ngIf="documento != undefined">
+                            <textarea class="width-text-documento" id="documento" placeholder="Documento Seleccionado"
+                                readonly>{{documento.name}}
+                            </textarea>
+                            <!-- <button class="icon-documento" mat-icon-button (click)="revisarDocumento()">
+                                <mat-icon>search</mat-icon>
+                            </button> -->
+                            <button class="icon-documento" mat-icon-button (click)="eliminarDocumento()">
+                                <mat-icon>delete_outline</mat-icon>
+                            </button>
+                        </ng-container>
+                    </mat-grid-tile>
+                </ng-container>
             </mat-grid-list>
         </mat-card-content>
         <mat-card-content>

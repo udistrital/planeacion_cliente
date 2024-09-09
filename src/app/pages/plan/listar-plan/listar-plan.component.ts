@@ -1,13 +1,17 @@
-import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { EditarDialogComponent } from '../construir-plan/editar-dialog/editar-dialog.component';
 import { RequestManager } from '../../services/requestManager';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
+import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
+import { PeriodoSeguimiento } from '../habilitar-reporte/utils/habilitar-reporte.models';
+import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { Plan, Planes } from './utils/listar-plan.models';
 
 @Component({
   selector: 'app-listar-plan',
@@ -15,22 +19,41 @@ import { Router } from '@angular/router';
   styleUrls: ['./listar-plan.component.scss']
 })
 export class ListarPlanComponent implements OnInit {
-
-  displayedColumns: string[] = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
+  displayedColumns: string[];
   dataSource: MatTableDataSource<any>;
   uid: number; // id del objeto
   planes: any[];
-  // tipoPlan: any[];
-  // nombreTipoPlan:any;
   plan: any;
+  cargando = true;
 
+  iconoPlanesAccionFuncionamiento: string = 'compare_arrows';
+  planesInteres: any;
+  banderaTodosSeleccionados: boolean;
+  planesMostrar: Planes[];
+  textBotonMostrarData: string = 'Mostrar Planes Interés Habilitados/Reporte';
+
+  @Input() periodoSeguimiento: PeriodoSeguimiento;
+  @Input() tipo: any;
+  @Input() banderaPlanesAccionFuncionamiento: boolean;
+  @Output() planesInteresSeleccionados = new EventEmitter<any[]>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+
   constructor(
     public dialog: MatDialog,
     private request: RequestManager,
     private router: Router,
+    private codigosService: CodigosService
   ) {
+    this.banderaTodosSeleccionados = false;
+    this.planesInteres = [];
+    this.tipo = null;
+    this.banderaPlanesAccionFuncionamiento = false;
+  }
+
+  async ngOnInit(){
+    this.planesMostrar = [];
+    this.displayedColumns = ['nombre', 'descripcion', 'tipo_plan', 'activo', 'actions'];
     this.loadData();
   }
 
@@ -54,7 +77,21 @@ export class ListarPlanComponent implements OnInit {
       if (result == undefined) {
         return undefined;
       } else {
-        this.putData(result, 'editar');
+        if (result.vigencia_aplica && Array.isArray(result.vigencia_aplica)) {
+          if (result.vigencia_aplica.length > 0) {
+            result.vigencia_aplica = JSON.stringify(result.vigencia_aplica.map(vigencia => JSON.parse(vigencia)));
+            this.putData(result, 'editar');
+          } else {
+            Swal.fire({
+              title: 'Error en la operación',
+              text: `Debe seleccionar al menos una vigencia para el plan`,
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
+          }
+        } else {
+          this.putData(result, 'editar');
+        }
       }
     });
   }
@@ -62,7 +99,7 @@ export class ListarPlanComponent implements OnInit {
   putData(res, bandera) {
     if (bandera == 'editar') {
       this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
-        if (data) {
+        if (data.Success == true) {
           if (res.activo == "true") {
             this.request.put(environment.PLANES_MID, `arbol/activar_plan`, res, this.uid).subscribe();
           } else {
@@ -77,9 +114,16 @@ export class ListarPlanComponent implements OnInit {
               window.location.reload();
             }
           })
+        } else {
+          Swal.fire({
+            title: 'Error en la operación',
+            text: `No se ha podido actualizar el plan: ${data.Message}`,
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2500
+          });
         }
-      }),
-        (error) => {
+      }, (error) => {
           Swal.fire({
             title: 'Error en la operación',
             icon: 'error',
@@ -87,6 +131,7 @@ export class ListarPlanComponent implements OnInit {
             timer: 2500
           })
         }
+      )
     } else if (bandera == 'activo') {
       Swal.fire({
         title: 'Inhabilitar plan',
@@ -94,6 +139,7 @@ export class ListarPlanComponent implements OnInit {
         showCancelButton: true,
         confirmButtonText: `Si`,
         cancelButtonText: `No`,
+        allowOutsideClick: false,
       }).then((result) => {
         if (result.isConfirmed) {
           this.request.put(environment.PLANES_CRUD, `plan`, res, this.uid).subscribe((data: any) => {
@@ -107,8 +153,7 @@ export class ListarPlanComponent implements OnInit {
                 }
               })
             }
-          }),
-            (error) => {
+          }, (error) => {
               Swal.fire({
                 title: 'Error en la operación',
                 icon: 'error',
@@ -116,6 +161,7 @@ export class ListarPlanComponent implements OnInit {
                 timer: 2500
               })
             }
+          )
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           Swal.fire({
             title: 'Cambio cancelado',
@@ -136,6 +182,7 @@ export class ListarPlanComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: `Si`,
       cancelButtonText: `No`,
+      allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
         this.request.delete(environment.PLANES_MID, `arbol/desactivar_plan`, this.uid).subscribe((data: any) => {
@@ -149,8 +196,7 @@ export class ListarPlanComponent implements OnInit {
               }
             })
           }
-        }),
-          (error) => {
+        }, (error) => {
             Swal.fire({
               title: 'Error en la operación',
               icon: 'error',
@@ -158,6 +204,7 @@ export class ListarPlanComponent implements OnInit {
               timer: 2500
             })
           }
+        )
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Cambio cancelado',
@@ -174,49 +221,58 @@ export class ListarPlanComponent implements OnInit {
   }
 
   loadData() {
-    this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe((data: any) => {
-      if (data) {
-        this.planes = data.Data;
-        // this.request.get(environment.PLANES_CRUD, `tipo-plan?query=_id:${data.Data.tipo_plan_id}`).subscribe((dat: any) => {
-        //   if (dat){
-        //     this.tipoPlan = dat.Data;
-        //     this.nombreTipoPlan = dat.Data.nombre
-        //     this.ajustarData();
-        //   }
-        // },(error) => {
-        //   Swal.fire({
-        //     title: 'Error en la operación', 
-        //     text: 'No se encontraron datos registrados',
-        //     icon: 'warning',
-        //     showConfirmButton: false,
-        //     timer: 2500
-        //   })
-
-        // })
-        // this.nombreTipoPlan = this.tipoPlan.nombre
-        this.ajustarData();
+    this.mostrarMensajeCarga();
+    this.request.get(environment.PLANES_MID, `formulacion/planes`).subscribe(
+      (data: any) => {
+        if (data) {
+          this.planes = data.Data;
+          this.ajustarData();
+          this.cerrarMensajeCarga();
+        }
+      }, (error) => {
+        Swal.fire({
+          title: 'Error en la operación',
+          text: 'No se encontraron datos registrados',
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
       }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error en la operación',
-        text: 'No se encontraron datos registrados',
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
+    );
+  }
 
-    })
+  mostrarMensajeCarga(): void {
+    Swal.fire({
+      title: 'Cargando datos...',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  }
+
+  cerrarMensajeCarga(): void {
+    this.dataSource = new MatTableDataSource(this.planesMostrar);
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.cargando = false;
+    Swal.close();
   }
 
   ajustarData() {
-    this.cambiarValor("activo", true, "Activo")
-    this.cambiarValor("activo", false, "Inactivo")
-    this.dataSource = new MatTableDataSource(this.planes);
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.cambiarValor("activo", true, "Activo");
+    if(this.banderaPlanesAccionFuncionamiento){
+      this.planes = this.planes.filter((plan: Planes) => plan.activo == "Activo");
+      this.cambiarValor("iconSelected", undefined, "compare_arrows");
+    } else {
+      this.cambiarValor("activo", false, "Inactivo");
+    }
+    this.planesMostrar = this.planes;
   }
 
   editar(fila): void {
+    this.mostrarMensajeCarga();
     this.uid = fila._id;
     this.request.get(environment.PLANES_CRUD, `plan/` + this.uid).subscribe((data: any) => {
       if (data) {
@@ -227,8 +283,7 @@ export class ListarPlanComponent implements OnInit {
         }
         this.openDialogEditar(this.plan, subgrupoDetalle);
       }
-    }),
-      (error) => {
+    }, (error) => {
         Swal.fire({
           title: 'Error en la operación',
           text: 'No se encontraron datos registrados',
@@ -237,14 +292,15 @@ export class ListarPlanComponent implements OnInit {
           timer: 2500
         })
       }
+    )
   }
 
-  inactivar(fila): void {
+  async inactivar(fila) {
     this.uid = fila._id;
     if (fila.activo == 'Activo') {
-      if (fila.tipo_plan_id != '611af8464a34b3599e3799a2') {
+      if (fila.tipo_plan_id != await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
         this.deleteData();
-      } else if (fila.tipo_plan_id == '611af8464a34b3599e3799a2') {
+      } else if (fila.tipo_plan_id == await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')) {
         let res = {
           activo: false,
         }
@@ -267,7 +323,56 @@ export class ListarPlanComponent implements OnInit {
     })
   }
 
-  ngOnInit(): void {
+  changeIcon(row: Planes) {
+    if(!row.iconSelected){
+      row.iconSelected = this.iconoPlanesAccionFuncionamiento;
+    }
+    if (row.iconSelected == 'compare_arrows') {
+      row.iconSelected = 'done';
 
+      const nuevoPlanProyecto: Plan = {
+        _id: row._id,
+        nombre: row.nombre,
+      };
+
+      this.planesInteres = [...this.planesInteres, nuevoPlanProyecto];
+    } else if (row.iconSelected == 'done') {
+      row.iconSelected = 'compare_arrows';
+      let planProyectoEliminar = row._id;
+      const index = this.planesInteres.findIndex(
+        (x: { Id: any }) => x.Id == planProyectoEliminar
+      );
+      this.planesInteres.splice(index, 1);
+    }
+    this.emitirCambiosPlanesInteres();
   }
+
+  seleccionarTodos() {
+    this.banderaTodosSeleccionados = true;
+    this.planesInteres = this.planesMostrar.map((element) => ({
+      _id: element._id,
+      nombre: element.nombre,
+    }));
+    // Itera sobre los elementos y cambia el icono
+    this.planes.forEach((element) => {
+      element.iconSelected = 'done';
+    });
+    this.emitirCambiosPlanesInteres();
+  }
+
+  borrarSeleccion() {
+    this.banderaTodosSeleccionados = false;
+    // Itera sobre los elementos y cambia el icono a 'compare_arrows'
+    this.planes.forEach((element) => {
+      element.iconSelected = 'compare_arrows';
+    });
+    // Limpia el array de unidades de interés
+    this.planesInteres = [];
+    this.emitirCambiosPlanesInteres();
+  }
+
+  emitirCambiosPlanesInteres() {
+    this.planesInteresSeleccionados.emit(this.planesInteres);
+  }
+
 }

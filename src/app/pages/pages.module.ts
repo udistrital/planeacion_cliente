@@ -8,7 +8,7 @@ import { InformacionBasicaComponent } from './informacion-basica/informacion-bas
 import { HttpClientModule } from '@angular/common/http';
 import { RequestManager } from './services/requestManager';
 
-import { MatTableModule } from '@angular/material/table'
+import { MatTableModule } from '@angular/material/table';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,8 +19,19 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatStepperModule } from '@angular/material/stepper';
-import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateModule, MatMomentDateModule, } from '@angular/material-moment-adapter';
-import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import {
+  MAT_MOMENT_DATE_FORMATS,
+  MomentDateAdapter,
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+  MomentDateModule,
+  MatMomentDateModule,
+} from '@angular/material-moment-adapter';
+import {
+  MatNativeDateModule,
+  DateAdapter,
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+} from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -30,6 +41,7 @@ import { OasGridColsDirective } from './directives/oas-grid-cols.directive';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { CrearPlanComponent } from './plan/crear-plan/crear-plan.component';
@@ -44,6 +56,7 @@ import { EvidenciasDialogComponent } from './seguimiento/evidencias/evidencias-d
 import { ArbolComponent } from './plan/arbol/arbol.component';
 import { AgregarDialogComponent } from './plan/construir-plan/agregar-dialog/agregar-dialog.component';
 import { EditarDialogComponent } from './plan/construir-plan/editar-dialog/editar-dialog.component';
+import { TrimestreDialogComponent } from './plan-accion/trimestre-dialog/trimestre-dialog.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { ContratistasComponent } from './formulacion/contratistas/contratistas.component';
 import { RecursosComponent } from './formulacion/recursos/recursos.component';
@@ -97,6 +110,27 @@ import { TipoMetaIndicadorComponent } from './banco-de-proyectos/proyectos-inver
 import { MagnitudesPresupuestoComponent } from './banco-de-proyectos/proyectos-inversion-macro/magnitudes-presupuesto/magnitudes-presupuesto.component';
 import { IdentificacionActividadesRecursosComponent } from './banco-de-proyectos/proyectos-inversion-macro/identificacion-actividades-recursos/identificacion-actividades-recursos.component';
 import { ProgramacionPresupuestalComponent } from './banco-de-proyectos/proyectos-inversion-macro/programacion-presupuestal/programacion-presupuestal.component';
+import { TablaUnidadesComponent } from './plan/habilitar-reporte/tabla-unidades/tabla-unidades.component';
+import { TablaResumenComponent } from './formulacion/tabla-resumen/tabla-resumen.component';
+import { PlanAccionFormulacionComponent } from './plan-accion/plan-accion-formulacion/plan-accion-formulacion.component';
+import { PlanAccionSeguimientoComponent } from './plan-accion/plan-accion-seguimiento/plan-accion-seguimiento.component';
+import { TablaPendientesFormulacionComponent } from './pendientes/pendientes-formulacion/tabla-pendientes-formulacion.component';
+import { TablaPendientesSeguimientoComponent } from './pendientes/pendientes-seguimiento/tabla-pendientes-seguimiento.component';
+import { FuncionamientoComponent } from './plan/habilitar-reporte/funcionamiento/funcionamiento.component';
+import { InversionComponent } from './plan/habilitar-reporte/inversion/inversion.component';
+import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
+import { FormParametrosComponent } from './plan/gestion-parametros/form-parametros/form-parametros.component';
+import { EvaluacionPlanComponent } from './evaluacion/evaluacion-plan/evaluacion-plan.component';
+import { ResumenComponent } from './evaluacion/resumen/resumen.component';
+import { TablaResumenEvaluacionComponent } from './evaluacion/tabla-resumen-evaluacion/tabla-resumen-evaluacion.component';
+import { AutoResizeDirective } from './directives/resize.directive';
+import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
+import { FormUsuariosComponent } from './plan/gestion-usuarios/form-usuarios/form-usuarios.component';
+import { CodigosService } from '../@core/services/codigos.service';
+import { HabilitarReporteService } from './plan/habilitar-reporte/habilitar-reporte.service';
+import { Notificaciones } from './services/notificaciones';
+import { GestorDocumentalService } from '../@core/utils/gestor_documental.service';
+import { VisualizarFechasComponent } from './plan/visualizar-fechas/visualizar-fechas.component';
 
 const pagesComponents = [
   DashboardComponent,
@@ -114,8 +148,13 @@ const pagesComponents = [
   FormulacionComponent,
   AgregarDialogComponent,
   EditarDialogComponent,
+  TrimestreDialogComponent,
   ArbolComponent,
   PlanAnualComponent,
+  PlanAccionFormulacionComponent,
+  PlanAccionSeguimientoComponent,
+  TablaPendientesFormulacionComponent,
+  TablaPendientesSeguimientoComponent,
 ];
 
 const materialModules = [
@@ -134,7 +173,8 @@ const materialModules = [
   MatStepperModule,
   MatSlideToggleModule,
   MatRadioModule,
-  MatMomentDateModule
+  MatMomentDateModule,
+  MatMenuModule,
 ];
 
 const MY_FORMATS = {
@@ -154,6 +194,7 @@ const MY_FORMATS = {
     ...pagesComponents,
     OasGridColsDirective,
     NgIsGrantedDirective,
+    AutoResizeDirective,
     CrearPlanComponent,
     ListarPlanComponent,
     ConstruirPlanComponent,
@@ -166,6 +207,7 @@ const MY_FORMATS = {
     ArbolComponent,
     AgregarDialogComponent,
     EditarDialogComponent,
+    TrimestreDialogComponent,
     FormulacionComponent,
     ContratistasComponent,
     RecursosComponent,
@@ -216,6 +258,22 @@ const MY_FORMATS = {
     MagnitudesPresupuestoComponent,
     IdentificacionActividadesRecursosComponent,
     ProgramacionPresupuestalComponent,
+    TablaUnidadesComponent,
+    TablaResumenComponent,
+    PlanAccionFormulacionComponent,
+    PlanAccionSeguimientoComponent,
+    TablaPendientesFormulacionComponent,
+    TablaPendientesSeguimientoComponent,
+    FuncionamientoComponent,
+    InversionComponent,
+    GestionParametrosComponent,
+    FormParametrosComponent,
+    EvaluacionPlanComponent,
+    ResumenComponent,
+    TablaResumenEvaluacionComponent,
+    GestionUsuariosComponent,
+    FormUsuariosComponent,
+    VisualizarFechasComponent,
   ],
   imports: [
     HttpClientModule,
@@ -237,15 +295,23 @@ const MY_FORMATS = {
     MatButtonModule,
     MatButtonToggleModule,
     GoogleChartsModule,
-    ...materialModules
+    ...materialModules,
   ],
   providers: [
     RequestManager,
+    CodigosService,
+    GestorDocumentalService,
+    HabilitarReporteService,
+    Notificaciones,
     MatDatepickerModule,
     { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
-    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },
+    {
+      provide: DateAdapter,
+      useClass: MomentDateAdapter,
+      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS],
+    },
     { provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS },
-    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
-  ]
+    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } },
+  ],
 })
-export class PagesModule { }
+export class PagesModule {}
