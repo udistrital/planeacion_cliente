@@ -573,7 +573,7 @@ async onChangeU(unidad) {
               this.planes = [...this.planes, plan]
             }
           });
-        } else {
+        } else{
           this.planes = [];
         }
         this.auxPlanes = this.planes;
