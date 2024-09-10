@@ -568,6 +568,8 @@ async onChangeU(unidad) {
               this.planes = [...this.planes, plan]
             }
           });
+        } else {
+          this.planes = [];
         }
         await this.loadPlanesPeriodoSeguimiento();
         resolve(this.planes)
