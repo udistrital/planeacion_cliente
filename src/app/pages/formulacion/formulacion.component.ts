@@ -562,12 +562,14 @@ async onChangeU(unidad) {
         if ( data?.Data.length > 0 ) {
           const CODIGO_TIPO_PLAN_PROYECTO = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PR_SP')
           let planes  = data.Data.filter(e => e.tipo_plan_id != CODIGO_TIPO_PLAN_PROYECTO);
-          this.planes = []
+          this.planes = [];
           planes.forEach(plan => {
             if (!this.existePlan(this.planes, plan.nombre)){
               this.planes = [...this.planes, plan]
             }
           });
+        } else {
+          this.planes = [];
         }
         await this.loadPlanesPeriodoSeguimiento();
         resolve(this.planes)
