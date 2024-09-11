@@ -48,7 +48,7 @@
                                 <mat-label id="tipo-input-label">Seleccione la unidad de interés</mat-label>
                                 <mat-select (selectionChange)="onChangeU($event.value)"
                                     placeholder="Escriba el nombre del plan que desea seleccionar" formControlName="selectUnidad">
-                                    <input (keyup)="onKey($event.target.value)" class="input-search">
+                                    <input (keyup)="onKey($event.target.value, 'unidad')" (keydown.space)="$event.stopPropagation()" class="input-search">
                                     <mat-option>--</mat-option>
                                     <mat-option *ngFor="let unidad of auxUnidades" [value]="unidad">
                                         {{unidad.Nombre}}
@@ -165,7 +165,7 @@
                                 <mat-label id="tipo-input-label">Seleccione el plan de interés</mat-label>
                                 <mat-select (selectionChange)="onChangeP($event.value)"
                                     placeholder="Escriba el nombre del plan que desea seleccionar" formControlName="selectPlan">
-                                    <input (keyup)="onKeyP($event.target.value)" class="input-search">
+                                    <input (keyup)="onKey($event.target.value, 'plan')" (keydown.space)="$event.stopPropagation()" class="input-search">
                                     <mat-option>--</mat-option>
                                     <mat-option *ngFor="let plan of auxPlanes" [value]="plan">
                                         {{plan.nombre}}

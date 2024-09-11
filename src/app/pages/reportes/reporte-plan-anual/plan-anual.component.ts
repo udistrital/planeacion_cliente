@@ -29,6 +29,7 @@ export class PlanAnualComponent implements OnInit {
   moduloVisible: boolean;
   estados: any[];
   planes: any[];
+  auxPlanes: any[];
   evaluacion: boolean = false;
 
   constructor(
@@ -196,6 +197,7 @@ export class PlanAnualComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `plan?query=activo:true,formato:true`).subscribe((data: any) => {
       if (data) {
         this.planes = data.Data;
+        this.auxPlanes = this.planes;
       }
     }, (error) => {
       Swal.fire({
@@ -209,21 +211,31 @@ export class PlanAnualComponent implements OnInit {
   }
 
 
-  onKey(value) {
-    if (value === "") {
-      this.auxUnidades = this.unidades;
+  onKey(value: string, type: string) {
+    if (value == undefined || value.trim() === '') {
+      if (type === 'plan') {
+        this.auxPlanes = [...this.planes];
+      } else if (type === 'unidad') {
+        this.auxUnidades = [...this.unidades];
+      }
     } else {
-      this.auxUnidades = this.search(value);
+      if (type === 'plan') {
+        this.auxPlanes = this.buscarPlanes(value);
+      } else if (type === 'unidad') {
+        this.auxUnidades = this.buscarUnidades(value);
+      }
     }
   }
-
-  search(value) {
-    let filter = value.toLowerCase();
-    if (this.unidades != undefined) {
-      return this.unidades.filter(option => option.Nombre.toLowerCase().startsWith(filter));
-    }
+  
+  buscarPlanes(value: string) {
+    return this.planes.filter(plan => 
+      plan.nombre.toLowerCase().includes(value.toLowerCase()));
   }
-
+  
+  buscarUnidades(value: string) {
+    return this.unidades.filter(unidad => 
+      unidad.Nombre.toLowerCase().includes(value.toLowerCase()));
+  }
 
   onChangeT(tipo) {
     if (tipo === 'unidad') {
