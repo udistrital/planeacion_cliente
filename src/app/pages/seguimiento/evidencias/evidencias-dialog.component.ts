@@ -28,7 +28,6 @@ export class EvidenciasDialogComponent implements OnInit {
     private gestorDocumental: GestorDocumentalService,
     @Inject(MAT_DIALOG_DATA) public data: Object[]) {
     this.getRol();
-    console.log("DATOS QUE LLEGAN EN EVIDENCIAS: ", data);
     this.dataFiltered = JSON.parse(JSON.stringify(data[0]));
     this.readonlyFormulario = JSON.parse(JSON.stringify(data[1]));
     this.unidad = String(data[3]);

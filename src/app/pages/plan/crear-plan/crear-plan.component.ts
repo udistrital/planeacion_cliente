@@ -21,6 +21,7 @@ export class CrearPlanComponent implements OnInit {
   tipos: any[]
   tipoPlan: any;
   tipoPlanPAF: any;
+  nombreFormatoPAF: string;
   nombrePlan: string;
   banderaFormato: boolean = false;
   vigencias: any[];
@@ -38,7 +39,6 @@ export class CrearPlanComponent implements OnInit {
     private codigosService: CodigosService
   ) {
     this.loadTipos();
-
   }
 
   getErrorMessage(campo: FormControl) {
@@ -102,33 +102,61 @@ export class CrearPlanComponent implements OnInit {
         formato: JSON.parse(this.formCrearPlan.get('radioFormato').value)
       }
       if(this.tipoPlanPAF == this.tipoPlan._id) {
-        this.request.post(environment.PLANES_MID, 'formulacion/clonar-formato-paf', dataPlan).subscribe(
-          (data) => {
-            if (data) {
+        if (dataPlan.nombre !== this.nombreFormatoPAF) {
+          this.request.post(environment.PLANES_MID, 'formulacion/clonar-formato-paf', dataPlan).subscribe(
+            (data) => {
+              if (data) {
+                Swal.fire({
+                  title: 'Registro correcto',
+                  text: `Se ingresaron correctamente los datos`,
+                  icon: 'success',
+                  allowEscapeKey: false,
+                  allowOutsideClick: false,
+                }).then((result) => {
+                  if (result.value) {
+                    this.dialogRef.close();
+                    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                      this.router.navigate(['pages/plan/construir-plan-proyecto']);
+                    });
+                  }
+                })
+              }
+            }, (error) => {
               Swal.fire({
-                title: 'Registro correcto',
-                text: `Se ingresaron correctamente los datos`,
-                icon: 'success',
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-              }).then((result) => {
-                if (result.value) {
-                  this.dialogRef.close();
-                  this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                    this.router.navigate(['pages/plan/construir-plan-proyecto']);
-                  });
-                }
+                title: 'Error en la operación',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 2500
               })
             }
-          }, (error) => {
-            Swal.fire({
-              title: 'Error en la operación',
-              icon: 'error',
-              showConfirmButton: false,
-              timer: 2500
-            })
-          }
-        )
+          )
+        } else {
+          this.request.post(environment.PLANES_CRUD, 'plan', dataPlan).subscribe(
+            (data) => {
+              if (data) {
+                Swal.fire({
+                  title: 'Registro correcto',
+                  text: `Se ingresaron correctamente los datos`,
+                  icon: 'success',
+                }).then((result) => {
+                  if (result.value) {
+                    this.dialogRef.close();
+                    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                      this.router.navigate(['pages/plan/construir-plan-proyecto']);
+                    });
+                  }
+                })
+              }
+            }, (error) => {
+              Swal.fire({
+                title: 'Error en la operación',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 2500
+              })
+            }
+          )
+        }
       } else {
         let vigencia_aplica = this.formCrearPlan.get('vigencia_aplica').value;
         if (Array.isArray(vigencia_aplica)) {
@@ -163,6 +191,25 @@ export class CrearPlanComponent implements OnInit {
         )
       }
     }
+  }
+
+  async obtenerParametroFormatoPAF() {
+    await new Promise((resolve) => {
+      this.request
+        .get(
+          environment.PARAMETROS_SERVICE, `parametro_periodo?query=ParametroId.CodigoAbreviacion:FORMATO_PAF,ParametroId.TipoParametroId.CodigoAbreviacion:P_SISGPLAN,Activo:true`
+        )
+        .subscribe((data: any) => {
+          if (data?.Data) {
+            let parametroPeriodo = data.Data[0];
+            if (parametroPeriodo.Valor != undefined && parametroPeriodo.Valor != null && parametroPeriodo.Valor != "") {
+              this.nombreFormatoPAF = JSON.parse(parametroPeriodo.Valor).Valor;
+              console.log(this.nombreFormatoPAF)
+              resolve(this.nombreFormatoPAF);
+            }
+          }
+        });
+    });
   }
 
   async select(tipo) {
@@ -322,6 +369,7 @@ export class CrearPlanComponent implements OnInit {
       radioFormato: ['', Validators.required],
       vigencia: ['', Validators.required],
     });
+    await this.obtenerParametroFormatoPAF();
     this.tipoPlanPAF = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP'); 
   }
 
