@@ -34,6 +34,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
 
   activedStep = 0;
   planes: any[];
+  auxPlanes: any[];
   unidades: any[] = [];
   auxUnidades: any[] = [];
   planesInteresArray: any[] = []
@@ -571,6 +572,7 @@ async onChangeU(unidad) {
         } else {
           this.planes = [];
         }
+        this.auxPlanes = this.planes;
         await this.loadPlanesPeriodoSeguimiento();
         resolve(this.planes)
       }, (error) => {
@@ -644,7 +646,8 @@ async onChangeU(unidad) {
               }
             }
           }
-          this.planes = [...this.planes, ...this.planesInteresArray]
+          this.planes = [...this.planes, ...this.planesInteresArray];
+          this.auxPlanes = [...this.planes, ...this.planesInteresArray];
           Swal.close();
           if (this.planes.length == 0) {
             Swal.fire({
@@ -665,19 +668,30 @@ async onChangeU(unidad) {
     });
   }
 
-  onKey(value) {
-    if (value === "") {
-      this.auxUnidades = this.unidades;
+  onKey(value: string, type: string) {
+    if (value == undefined || value.trim() === '') {
+      if (type === 'plan') {
+        this.auxPlanes = [...this.planes];
+      } else if (type === 'unidad') {
+        this.auxUnidades = [...this.unidades];
+      }
     } else {
-      this.auxUnidades = this.search(value);
+      if (type === 'plan') {
+        this.auxPlanes = this.buscarPlanes(value);
+      } else if (type === 'unidad') {
+        this.auxUnidades = this.buscarUnidades(value);
+      }
     }
   }
-
-  search(value) {
-    let filter = value.toLowerCase();
-    if (this.unidades != undefined) {
-      return this.unidades.filter(option => option.Nombre.toLowerCase().startsWith(filter));
-    }
+  
+  buscarPlanes(value: string) {
+    return this.planes.filter(plan => 
+      plan.nombre.toLowerCase().includes(value.toLowerCase()));
+  }
+  
+  buscarUnidades(value: string) {
+    return this.unidades.filter(unidad => 
+      unidad.Nombre.toLowerCase().includes(value.toLowerCase()));
   }
 
   prevStep(step) {
@@ -1917,7 +1931,6 @@ async onChangeU(unidad) {
                 }
               })
             } else {
-              console.log(this.actividadConObservacion)
               let message: string = '<b>Actividades</b><br/>';
               for (let i = 0; i < this.actividadConObservacion.length; i++) {
                 message = message + (i + 1).toString() + '. ' + this.actividadConObservacion[i].Actividad + "<br/>"

@@ -203,34 +203,30 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
     })
   }
 
-  onKey(value) {
-    if (value === "") {
-      this.auxUnidades = this.unidades;
+  onKey(value: string, type: string) {
+    if (value == undefined || value.trim() === '') {
+      if (type === 'plan') {
+        this.auxPlanes = [...this.planes];
+      } else if (type === 'unidad') {
+        this.auxUnidades = [...this.unidades];
+      }
     } else {
-      this.auxUnidades = this.search(value);
+      if (type === 'plan') {
+        this.auxPlanes = this.buscarPlanes(value);
+      } else if (type === 'unidad') {
+        this.auxUnidades = this.buscarUnidades(value);
+      }
     }
   }
-
-  onKeyP(value) {
-    if (value === "") {
-      this.auxPlanes = this.planes;
-    } else {
-      this.auxPlanes = this.searchP(value);
-    }
+  
+  buscarPlanes(value: string) {
+    return this.planes.filter(plan => 
+      plan.nombre.toLowerCase().includes(value.toLowerCase()));
   }
-
-  search(value) {
-    let filter = value.toLowerCase();
-    if (this.unidades != undefined) {
-      return this.unidades.filter(option => option.Nombre.toLowerCase().startsWith(filter));
-    }
-  }
-
-  searchP(value:string) {
-    let filtro = value.toLowerCase();
-    if (this.planes != undefined) {
-      return this.planes.filter(plan => plan.nombre.toLowerCase().includes(filtro));
-    }
+  
+  buscarUnidades(value: string) {
+    return this.unidades.filter(unidad => 
+      unidad.Nombre.toLowerCase().includes(value.toLowerCase()));
   }
 
   searchPlanById(value:string) {

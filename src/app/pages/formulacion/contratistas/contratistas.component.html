@@ -85,7 +85,7 @@
               <td mat-cell *matCellDef="let element; let rowIndex=index">
                 <mat-form-field floatLabel="never">
                   <input [readonly]="readonlyTable" min="0" type="number" matInput class="form-control"
-                    placeholder="Cantidad" (change)="getTotal(element,rowIndex)" [value]="element.cantidad"
+                    placeholder="Cantidad" (input)="getTotal(element,rowIndex)" [value]="element.cantidad"
                     [(ngModel)]="element.cantidad" [ngModelOptions]="{standalone: true}" required>
                 </mat-form-field>
               </td>
@@ -99,7 +99,7 @@
               <td mat-cell *matCellDef="let element; let rowIndex = index">
                 <mat-form-field floatLabel="never">
                   <input [readonly]="readonlyTable" min="1" max="12" class="form-control" matInput type="number"
-                    [value]="element.meses" (change)="getTotal(element,rowIndex)" [(ngModel)]="element.meses"
+                    [value]="element.meses" (input)="getTotal(element,rowIndex)" [(ngModel)]="element.meses"
                     [ngModelOptions]="{standalone: true}" required>
                 </mat-form-field>
               </td>
@@ -113,7 +113,7 @@
               <td mat-cell *matCellDef="let element; let rowIndex = index">
                 <mat-form-field floatLabel="never">
                   <input [readonly]="readonlyTable" min="1" max="29" class="form-control" matInput type="number"
-                    [value]="element.dias" (change)="getTotal(element,rowIndex)" [(ngModel)]="element.dias"
+                    [value]="element.dias" (input)="getTotal(element,rowIndex)" [(ngModel)]="element.dias"
                     [ngModelOptions]="{standalone: true}" required>
                 </mat-form-field>
               </td>
