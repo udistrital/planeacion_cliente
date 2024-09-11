@@ -204,7 +204,6 @@ export class CrearPlanComponent implements OnInit {
             let parametroPeriodo = data.Data[0];
             if (parametroPeriodo.Valor != undefined && parametroPeriodo.Valor != null && parametroPeriodo.Valor != "") {
               this.nombreFormatoPAF = JSON.parse(parametroPeriodo.Valor).Valor;
-              console.log(this.nombreFormatoPAF)
               resolve(this.nombreFormatoPAF);
             }
           }

@@ -214,7 +214,6 @@ export class TablaUnidadesComponent implements OnInit {
               });
               return unidades;
             });
-            console.log("unidadesDeInteres: ", unidadesDeInteres)
 
             // Encontrar la intersección de las unidades de interés
             unidadesMostrar = unidadesDeInteres.reduce((acumulador, unidades, index) => {
@@ -223,7 +222,6 @@ export class TablaUnidadesComponent implements OnInit {
               }
               return acumulador.filter(item => unidades.some(unidad => unidad.Id === item.Id));
             }, []);
-            console.log("unidadesMostrar: ", unidadesMostrar)
             if(unidadesMostrar.length === 0){
               this.unidadesMostrar = this.dataUnidades;
               this.textBotonMostrarData = 'Mostrar Unidades Interés Habilitadas/Reporte';
@@ -231,7 +229,7 @@ export class TablaUnidadesComponent implements OnInit {
               this.dataSource.paginator = this.paginator;
               Swal.fire({
                 title: 'Error en la operación',
-                text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas1',
+                text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas',
                 icon: 'warning',
                 showConfirmButton: false,
                 timer: 2500
@@ -246,7 +244,7 @@ export class TablaUnidadesComponent implements OnInit {
           } else {
             Swal.fire({
               title: 'Error en la operación',
-              text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas2',
+              text: 'Las planes/proyectos escogidos no cuentan con unidades con fechas parametrizadas',
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500

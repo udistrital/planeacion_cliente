@@ -16,10 +16,12 @@ import { EvaluacionPlanComponent } from './evaluacion-plan/evaluacion-plan.compo
 })
 export class EvaluacionComponent implements OnInit {
   nombresPlanes: string[];
+  auxNombresPlanes: string[];
   periodos: any[];
   bandera: boolean;
   vigencias: any[];
   unidades: any[];
+  auxUnidades: any[];
   unidadSelected: boolean;
   unidad: any;
   vigenciaSelected: boolean;
@@ -142,8 +144,10 @@ export class EvaluacionComponent implements OnInit {
       this.rol = 'PLANEACION';
     }
   }
+
   validarUnidad() {
     this.unidades = [];
+    this.auxUnidades = [];
     this.userService.user$.subscribe((data) => {
       this.request.get(environment.TERCEROS_SERVICE, `datos_identificacion/?query=Numero:` + data['userService']['documento'])
         .subscribe((datosInfoTercero: any) => {
@@ -162,6 +166,7 @@ export class EvaluacionComponent implements OnInit {
                           }
                         }
                         this.unidades.push(unidad);
+                        this.auxUnidades.push(unidad);
                         this.existenUnidades = true;
                         Swal.close();
                       }
@@ -226,6 +231,7 @@ export class EvaluacionComponent implements OnInit {
               if (data.Data.length === 0) {
                 Swal.close();
                 this.unidades = [];
+                this.auxUnidades = [];
                 this.existenUnidades = false;
                 Swal.fire({
                   title: 'Verifica las selecciones',
@@ -236,6 +242,7 @@ export class EvaluacionComponent implements OnInit {
                 });
               } else {
                 this.unidades = data.Data;
+                this.auxUnidades = this.unidades;
                 this.existenUnidades = true;
                 Swal.close();
               }
@@ -245,6 +252,7 @@ export class EvaluacionComponent implements OnInit {
         (error) => {
           Swal.close();
           this.unidades = [];
+          this.auxUnidades = [];
           this.vigenciaSelected = false;
           this.vigencia = '';
           Swal.fire({
@@ -283,9 +291,11 @@ export class EvaluacionComponent implements OnInit {
           this.nombresPlanes = [];
           this.nombrePlanSeleccionado = "";
         }
+        this.auxNombresPlanes = this.nombresPlanes;
       }
     }, (error) => {
       this.nombresPlanes = [];
+      this.auxNombresPlanes = [];
       this.nombrePlanSeleccionado = "";
       Swal.fire({
         title: 'No se lograron obtener planes avalados para seguimiento',
@@ -349,6 +359,32 @@ export class EvaluacionComponent implements OnInit {
     });
   }
 
+  onKey(value: string, type: string) {
+    if (value == undefined || value.trim() === '') {
+      if (type === 'plan') {
+        this.auxNombresPlanes = [...this.nombresPlanes];
+      } else if (type === 'unidad') {
+        this.auxUnidades = [...this.unidades];
+      }
+    } else {
+      if (type === 'plan') {
+        this.auxNombresPlanes = this.buscarPlanes(value);
+      } else if (type === 'unidad') {
+        this.auxUnidades = this.buscarUnidades(value);
+      }
+    }
+  }
+  
+  buscarPlanes(value: string) {
+    return this.nombresPlanes.filter(plan => 
+      plan.toLowerCase().includes(value.toLowerCase()));
+  }
+  
+  buscarUnidades(value: string) {
+    return this.unidades.filter(unidad => 
+      unidad.Nombre.toLowerCase().includes(value.toLowerCase()));
+  }
+
   ngOnInit(): void {
     registerLocaleData(es);
     Swal.fire({
@@ -362,6 +398,7 @@ export class EvaluacionComponent implements OnInit {
     });
     this.getRol();
   }
+
   backClicked() {
     this.router.navigate(['#/pages/dashboard']);
   }
