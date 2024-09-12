@@ -76,6 +76,7 @@ export class VisualizarFechasComponent implements OnInit {
     return await new Promise((resolve, reject) => {
       this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: DataRequest) => {
         if (data.Data && data.Data.length > 0) {
+          data.Data.sort((a, b) => a.Nombre - b.Nombre);
           this.vigencias = data.Data;
           resolve(this.vigencias);
         } else {

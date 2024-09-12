@@ -367,6 +367,7 @@ export class EditarDialogComponent implements OnInit {
     return new Promise((resolve) => {
       this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
         if (data) {
+          data.Data.sort((a, b) => a.Nombre - b.Nombre);
           this.vigencias = data.Data;
           resolve(true);
         }
