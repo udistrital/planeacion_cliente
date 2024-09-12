@@ -647,7 +647,7 @@ async onChangeU(unidad) {
             }
           }
           this.planes = [...this.planes, ...this.planesInteresArray];
-          this.auxPlanes = [...this.planes, ...this.planesInteresArray];
+          this.auxPlanes = [...this.planes];
           Swal.close();
           if (this.planes.length == 0) {
             Swal.fire({
