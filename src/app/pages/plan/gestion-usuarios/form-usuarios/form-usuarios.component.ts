@@ -33,6 +33,7 @@ export class FormUsuariosComponent implements OnInit {
     this.correoPlaneacion = '';
     this.obtenerCorreoPlaneacion();
     this.validarRoles(this.rolesUsuario, this.rolesSistema);
+    Swal.close();
   }
 
   seleccionarRolVincular(item: Rol) {

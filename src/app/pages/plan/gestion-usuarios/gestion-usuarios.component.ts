@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ROL_ASISTENTE_DEPENDENCIA, ROL_ASISTENTE_PLANEACION, ROL_JEFE_DEPENDENCIA, ROL_JEFE_UNIDAD_PLANEACION, ROL_PLANEACION, Dependencia, Usuario, Vinculacion } from './utils';
 import { Vigencia } from '../habilitar-reporte/utils';
-
+import { MensajesCargaService } from 'src/app/@core/services/mensajes-carga.service';
 @Component({
   selector: 'app-gestion-usuarios',
   templateUrl: './gestion-usuarios.component.html',
@@ -29,11 +29,12 @@ export class GestionUsuariosComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
   banderaFormEdicion: boolean;
   errorEnPeticion: boolean;
-  vinculacionesUsuario: Vinculacion[]
+  vinculacionesUsuario: Vinculacion[];
 
   constructor(
     private request: RequestManager,
-    private fb: FormBuilder,) {
+    private fb: FormBuilder,
+    private mensajesCarga: MensajesCargaService) {
       this.formUsuarios = this.fb.group({
         // correo: ['', Validators.required],
         identificacion: ['', [Validators.required, Validators.min(0), Validators.pattern('^[0-9]*$')]],
@@ -222,6 +223,7 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   editar(usuario: Usuario) {
+    this.mensajesCarga.mostrarMensajeCarga();
     if(usuario.VinculacionSeleccionadaId == null) {
       this.banderaFormEdicion = false;
       Swal.fire({

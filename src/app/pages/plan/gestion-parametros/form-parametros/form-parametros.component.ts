@@ -54,6 +54,7 @@ export class FormParametrosComponent implements OnInit, OnChanges {
       this.loadAreaTipo();
       this.loadTipoParametro();
     }
+    Swal.close();
   }
 
   ngOnChanges(changes: SimpleChanges) {

@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 import { Vigencia } from '../habilitar-reporte/utils/habilitar-reporte.models';
 import { CODIGO_ABREVIACION_CORREO_OAP, CODIGO_ABREVIACION_FORMATO_PAF, ParametroPeriodo } from './utils';
+import { MensajesCargaService } from 'src/app/@core/services/mensajes-carga.service';
 
 @Component({
   selector: 'app-gestion-parametros',
@@ -30,6 +31,7 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
 
   constructor(
     private request: RequestManager,
+    private mensajesCarga: MensajesCargaService
   ) { }
 
   ngOnInit(): void {
@@ -73,6 +75,7 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
   }
 
   onChange(event) {
+    this.mensajesCarga.mostrarMensajeCarga();
     if(event == 'agregarParametro') {
       this.banderaAdicion = true;
       this.banderaEdicion = false;
@@ -124,6 +127,7 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
   }
 
   editar(parametroPeriodo: ParametroPeriodo) {
+    this.mensajesCarga.mostrarMensajeCarga();
     this.parametroPeriodoEdicion = parametroPeriodo;
     this.banderaEdicion = true;
     this.banderaAdicion = false;
@@ -150,6 +154,7 @@ export class GestionParametrosComponent implements OnInit, OnDestroy {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.delete(environment.PARAMETROS_SERVICE, `parametro_periodo/`, parametroPeriodo.Id).subscribe((data: any) => {
           if (data) {
             this.request.delete(environment.PARAMETROS_SERVICE, `parametro/`, parametroPeriodo.ParametroId.Id).subscribe((data: any) => {
