@@ -469,7 +469,7 @@ export class ContratistasComponent implements OnInit {
     }
   }
 
-  onSelected(event, rowIndex) {
+  onSelected(event, element, rowIndex) {
     if (event.value == undefined) {
       this.dataSource.data[rowIndex].valorUnitario = '';
     } else {
@@ -479,6 +479,7 @@ export class ContratistasComponent implements OnInit {
           if (elemento[0].Valor != null) {
             let valor = JSON.parse(elemento[0].Valor);
             this.dataSource.data[rowIndex].valorUnitario = formatCurrency(valor.ValorMensual, 'en-US', getCurrencySymbol('USD', 'wide'));
+            this.getTotal(element,rowIndex)
           } else {
             this.readonlyTable = true;
             Swal.fire({
