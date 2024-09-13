@@ -194,6 +194,7 @@ export class EvaluacionComponent implements OnInit {
   loadVigencias() {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: any) => {
       if (data) {
+        data.Data.sort((a, b) => a.Nombre - b.Nombre);
         this.vigencias = data.Data;
       }
     }, (error) => {
