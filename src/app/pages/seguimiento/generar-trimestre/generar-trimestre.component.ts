@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 import { Notificaciones } from "../../services/notificaciones";
 import { RequestManager } from '../../services/requestManager';
 import { EvidenciasDialogComponent } from '../evidencias/evidencias-dialog.component';
+import { MensajesCargaService } from 'src/app/@core/services/mensajes-carga.service';
 
 export interface Indicador {
   nombre: string;
@@ -106,6 +107,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
     private notificacionesService: Notificaciones,
     private gestorDocumental: GestorDocumentalService,
     private _location: Location,
+    private mensajesCarga: MensajesCargaService,
     public dialog: MatDialog) {
     this.datosResultados = new MatTableDataSource();
     this.activatedRoute.params.subscribe(prm => {
@@ -622,6 +624,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_cualitativo`, { "_id": this.seguimiento.id, "informacion": this.seguimiento.informacion, "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.setCodigoNotificacion();
@@ -681,6 +684,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_cuantitativo`, { "_id": this.seguimiento.id, "informacion": this.seguimiento.informacion, "evidencias": this.seguimiento.evidencia, "cualitativo": this.seguimiento.cualitativo, "cuantitativo": this.seguimiento.cuantitativo, "dependencia": this.rol == 'JEFE_DEPENDENCIA' }, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.setCodigoNotificacion();
@@ -732,6 +736,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.put(environment.PLANES_MID, `seguimiento/guardar_seguimiento`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.setCodigoNotificacion();
@@ -783,6 +788,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true)
         let mod = {
           SeguimientoId: this.seguimiento._id
         };
@@ -1122,6 +1128,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.put(environment.PLANES_MID, `seguimiento/revision_actividad_jefe_dependencia`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.setCodigoNotificacion();
@@ -1188,6 +1195,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.put(environment.PLANES_MID, `seguimiento/revision_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.setCodigoNotificacion();
@@ -1293,6 +1301,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.put(environment.PLANES_MID, `seguimiento/retornar_actividad`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.setCodigoNotificacion();
@@ -1343,6 +1352,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.put(environment.PLANES_MID, `seguimiento/retornar_actividad_jefe_dependencia`, this.seguimiento, this.planId + `/` + this.indexActividad + `/` + this.trimestreId).subscribe((data: any) => {
           if (data) {
             this.setCodigoNotificacion();

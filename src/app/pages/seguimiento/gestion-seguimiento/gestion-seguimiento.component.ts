@@ -12,6 +12,8 @@ import { PageEvent } from '@angular/material/paginator';
 import { VerificarFormulario } from '../../services/verificarFormulario'
 import { Subscription } from 'rxjs';
 import * as bigInt from 'big-integer';
+import { MensajesCargaService } from 'src/app/@core/services/mensajes-carga.service';
+
 @Component({
   selector: 'app-seguimiento',
   templateUrl: './gestion-seguimiento.component.html',
@@ -47,7 +49,8 @@ export class SeguimientoComponentGestion implements OnInit {
     private autenticationService: ImplicitAutenticationService,
     private router: Router,
     private _location: Location,
-    private verificarFormulario: VerificarFormulario
+    private verificarFormulario: VerificarFormulario,
+    private mensajesCarga: MensajesCargaService
   ) {}
 
   ngOnInit(): void {
@@ -256,6 +259,7 @@ export class SeguimientoComponentGestion implements OnInit {
       allowEscapeKey: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.put(environment.PLANES_MID, `seguimiento/reportar_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
@@ -347,6 +351,7 @@ export class SeguimientoComponentGestion implements OnInit {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
@@ -410,6 +415,7 @@ export class SeguimientoComponentGestion implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento_jefe_dependencia`, "{}", this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
@@ -555,6 +561,7 @@ export class SeguimientoComponentGestion implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.request.get(environment.PLANES_CRUD, `estado-seguimiento?query=activo:true,codigo_abreviacion:RJU`).subscribe((data: any) => {
           if (data) {
             this.seguimiento.estado_seguimiento_id = data.Data[0]._id;;
@@ -607,6 +614,7 @@ export class SeguimientoComponentGestion implements OnInit {
       allowEscapeKey: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.mensajesCarga.mostrarMensajeCarga(true);
         this.seguimiento.estado_seguimiento_id = "622ba46d16511e32535c326b"
         this.request.put(environment.PLANES_CRUD, `seguimiento`, this.seguimiento, this.seguimiento._id).subscribe((data: any) => {
           if (data) {
