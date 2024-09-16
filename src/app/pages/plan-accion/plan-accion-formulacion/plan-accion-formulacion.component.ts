@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { Router } from '@angular/router';
+import { UserService } from '../../services/userService';
 
 @Component({
   selector: 'app-plan-accion-formulacion',
@@ -26,7 +27,7 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
   informacionTabla: MatTableDataSource<ResumenPlan>;
   inputsFiltros: NodeListOf<HTMLInputElement>;
   planes: ResumenPlan[];
-
+  documentoUsuario: string = '';
   rol: string;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -35,6 +36,7 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
   constructor(
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
+    private userService: UserService,
     private router: Router
   ) {
     let roles: any = this.autenticationService.getRole();
@@ -101,7 +103,7 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
         Swal.showLoading();
       },
     });
-    await new Promise((resolve, reject) => {
+    await new Promise(async (resolve, reject) => {
       if (this.rol == 'PLANEACION') {
         this.request.get(environment.PLANES_MID, `planes_accion`).subscribe(
           (data) => {
@@ -136,16 +138,18 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
           }
         );
       } else {
+        let datosUsuario = await this.getDocumento();
+        this.documentoUsuario = datosUsuario["userService"]["documento"];
         // 'JEFE_DEPENDENCIA'
         //let documento: string = this.autenticationService.getDocument()['__zone_symbol__value'];
-        let documento: string =
-          this.autenticationService.getPayload()['documento'];
+        // let documento: string =
+        //   this.autenticationService.getPayload()['documento'];
         let idTercero: number;
         let idDependencia: string;
         this.request
           .get(
             environment.TERCEROS_SERVICE,
-            'datos_identificacion/?query=Numero:' + documento
+            'datos_identificacion/?query=Numero:' + this.documentoUsuario
           )
           .subscribe(
             (data) => {
@@ -290,5 +294,18 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
         + "/" + plan.dependencia_id
       ]);
     }
+  }
+
+  async getDocumento() {
+    return new Promise((resolve, reject) => {
+      this.userService.user$.subscribe((data) => {
+        if (data) {
+          resolve(data);
+          return (data);
+        } else {
+          reject();
+        }
+      })
+    });
   }
 }

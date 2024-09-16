@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { TrimestreDialogComponent } from '../trimestre-dialog/trimestre-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import * as XLSX from 'sheetjs-style';
+import { UserService } from '../../services/userService';
 
 @Component({
   selector: 'app-plan-accion-seguimiento',
@@ -32,6 +33,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
   auxUnidades: any[] = [];
   estadoDescarga: boolean = false;
 
+  documentoUsuario: string = '';
   rol: string;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -40,6 +42,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
   constructor(
     private request: RequestManager,
     private autenticationService: ImplicitAutenticationService,
+    private userService: UserService,
     public dialog: MatDialog,
     private router: Router
   ) {
@@ -106,7 +109,7 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
       },
     });
     this.estadoDescarga = true;
-    await new Promise((resolve, reject) => {
+    await new Promise(async (resolve, reject) => {
       if (this.rol == 'PLANEACION') {
         this.request.get(environment.PLANES_MID, `planes_accion`).subscribe(
           (data) => {
@@ -152,16 +155,18 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
           }
         );
       } else {
+        let datosUsuario = await this.getDocumento();
+        this.documentoUsuario = datosUsuario["userService"]["documento"];
         // 'JEFE_DEPENDENCIA'
         //let documento: string = this.autenticationService.getDocument()['__zone_symbol__value'];
-        let documento: string =
-          this.autenticationService.getPayload()['documento'];
+        // let documento: string =
+        //   this.autenticationService.getPayload()['documento'];
         let idTercero: number;
         let idDependencia: string;
         this.request
           .get(
             environment.TERCEROS_SERVICE,
-            'datos_identificacion/?query=Numero:' + documento
+            'datos_identificacion/?query=Numero:' + this.documentoUsuario
           )
           .subscribe(
             (data) => {
@@ -651,6 +656,19 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
     const actualUrl = this.router.url;
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       this.router.navigate([actualUrl]);
+    });
+  }
+
+  async getDocumento() {
+    return new Promise((resolve, reject) => {
+      this.userService.user$.subscribe((data) => {
+        if (data) {
+          resolve(data);
+          return (data);
+        } else {
+          reject();
+        }
+      })
     });
   }
 }
