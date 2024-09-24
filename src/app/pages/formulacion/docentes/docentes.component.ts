@@ -44,8 +44,11 @@ export class DocentesComponent implements OnInit {
   data: any;
 
   incrementoInput = new FormControl('7.23');
+  incrementoFormPosgrado = new FormControl('7.36');
   incremento: number = 0.0;
+  incrementoPosgrado: number = 0.0;
   incrementoAnterior: number = 0.0;
+  incrementoAnteriorPosgrado: number = 0.0;
   niveles:string[] = ["Pregrado", "Posgrado"]
   rubroControl:FormControl = new FormControl([]);
   filteredRubros: (Observable<any[]>)[] = [];
@@ -318,6 +321,8 @@ export class DocentesComponent implements OnInit {
                     return 0;
                   })
                   this.checkIncremento(this.data.rhf);
+                  this.checkIncrementoPosgrado(this.data.rhv_pos);
+                  this.onChangeincremento();
 
                   this.dataSourceRHF.data.forEach(recurso => {
                     if (recurso.cantidad == undefined) {
@@ -480,7 +485,7 @@ export class DocentesComponent implements OnInit {
       "cantidad": element.cantidad,
       "semanas": element.semanas,
       "horas": element.horas,
-      "incremento": this.incremento,
+      "incremento": tipo === 'RHVPOS' ? this.incrementoPosgrado : this.incremento,
       "vigencia": this.vigenciaConsulta
     }
 
@@ -933,17 +938,23 @@ export class DocentesComponent implements OnInit {
   }
 
   onChangeincremento() {
-    let value = parseFloat(this.incrementoInput.value);
-    if (value) {
-      this.incremento = value / 100.0;
+    const valuePregrado = parseFloat(this.incrementoInput.value);
+    if (valuePregrado) {
+      this.incremento = valuePregrado / 100.0;
     } else {
       this.incremento = 0.0;
+    }
+    const valuePosgrado = parseFloat(this.incrementoFormPosgrado.value);
+    if (valuePosgrado) {
+      this.incrementoPosgrado = valuePosgrado / 100.0;
+    } else {
+      this.incrementoPosgrado = 0.0;
     }
     this.banderaCerrar = false;
   }
 
   loadIncremento() {
-    this.onChangeincremento()
+    this.onChangeincremento();
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < this.steps[i].data.length; j++) {
         let element =   this.steps[i].data[j];
@@ -980,7 +991,6 @@ export class DocentesComponent implements OnInit {
     this.incrementoAnterior = incrementoFromDB[0].incremento ? parseFloat(incrementoFromDB[0].incremento) : 0.0;
     if (this.incrementoAnterior > 0.0) {
       this.incrementoInput.setValue(this.incrementoAnterior * 100.0);
-      this.onChangeincremento();
       Swal.fire({
         icon: 'info',
         title: 'Identificación de Recurso Docente',
@@ -991,6 +1001,27 @@ export class DocentesComponent implements OnInit {
       Swal.fire({
         icon: 'info',
         title: 'Identificación de Recurso Docente',
+        text: 'Por favor ingrese el porcentaje de incremento asociado a la vigencia en cuestión presionando el botón "Aplicar Incremento". Al ingresar este porcentaje se vera reflejado en todos los valores presupuestados para cada docente.',
+        showConfirmButton: true
+      })
+    }
+  }
+
+  checkIncrementoPosgrado(incrementoFromDB) {
+    this.incrementoAnteriorPosgrado = incrementoFromDB[0].incremento ? parseFloat(incrementoFromDB[0].incremento) :
+      this.vigencia.Id > 32 ? 0.0 : this.incrementoAnterior;
+    if (this.incrementoAnteriorPosgrado > 0.0) {
+      this.incrementoFormPosgrado.setValue(this.incrementoAnteriorPosgrado * 100.0);
+      Swal.fire({
+        icon: 'info',
+        title: 'Identificación de Recurso Docente Posgrado',
+        text: 'El porcentaje de incremento asociado a la vigencia en cuestión ya se encuentra aplicado a los valores presupuestados. Sin embargo, revisar que los valores tanto de cesantias como pensiones coincidan con los totales.',
+        showConfirmButton: true
+      })
+    } else if (Array.isArray(incrementoFromDB) && incrementoFromDB.length) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Identificación de Recurso Docente Posgrado',
         text: 'Por favor ingrese el porcentaje de incremento asociado a la vigencia en cuestión presionando el botón "Aplicar Incremento". Al ingresar este porcentaje se vera reflejado en todos los valores presupuestados para cada docente.',
         showConfirmButton: true
       })
@@ -1169,6 +1200,7 @@ export class DocentesComponent implements OnInit {
         for (var i in aux4) {
           var obj = aux4[i];
           obj["activo"] = true;
+          obj["incremento"] = this.incrementoPosgrado;
           var num = +i + 1;
         }
         let dataRubros = JSON.stringify(Object.assign({}, aux4))
