@@ -240,6 +240,10 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   }
 
   async verificarFechas(plan: any, bandera:boolean) {
+    if (this.rol === 'PLANEACION') {
+      this.moduloVisible = true;
+      return;
+    }
     Swal.fire({
       title: 'Validando fechas de formulación para plan seleccionado...',
       allowEscapeKey: false,
