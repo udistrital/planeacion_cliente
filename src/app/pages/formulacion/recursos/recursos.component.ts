@@ -363,6 +363,7 @@ export class RecursosComponent implements OnInit {
   validarDataSource(data) {
     this.contador = 0;
     for (let i = 0; i < data.length; i++) {
+      data[i].descripcion = data[i].descripcion.replace(/\u0002/g, ' ');
       if (data[i].codigo == '' || data[i].Nombre == '' || data[i].valor == null || data[i].descripcion == '' || data[i].actividades == ""
         || data[i].actividades == null) {
         this.contador++;
