@@ -567,6 +567,7 @@ displayedHeaders: string[] = [];
   validarDataSource(data) {
     this.contador = 0;
     for (let i = 0; i < data.length; i++) {
+      data[i].descripcionNecesidad = data[i].descripcionNecesidad.replace(/\u0002/g, ' ');
       if (data[i].descripcionNecesidad == '' || data[i].requisitos == '' || data[i].perfil == '' || data[i].cantidad == null || data[i].meses == null || data[i].dias == null
         || data[i].valorUnitario == null || data[i].valorTotal == null || data[i].actividades == "" || data[i].actividades == null) {
         this.contador++;
