@@ -430,7 +430,7 @@
             Verificar Revisión
           </button>
         </ng-container>
-        <ng-container *ngIsGranted="['JEFE_DEPENDENCIA']">
+        <ng-container *ngIsGranted="['JEFE_DEPENDENCIA', 'ASISTENTE_DEPENDENCIA']">
           <button class="btn-formulacion"
             *ngIf="plan.estado_plan_id === ID_ESTADO_REVISADO"
             mat-raised-button color="primary" (click)="realizarAjustes()" [disabled]="!dataT">
