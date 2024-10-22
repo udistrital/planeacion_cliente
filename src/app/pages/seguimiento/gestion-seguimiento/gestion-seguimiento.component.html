@@ -81,7 +81,10 @@
                     (click)="backClicked()">Regresar</button>
 
                 <button *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && this.estado == 'En reporte'"
-                    class="background-button" mat-raised-button color="primary" (click)="reportar()">Enviar reporte</button>
+                    class="background-button" mat-raised-button color="primary" (click)="reportar()">Enviar reporte a Jefe Dependencia</button>
+
+                <button *ngIf="rol=='ASISTENTE_DEPENDENCIA' && this.estado == 'En reporte'"
+                    class="background-button" mat-raised-button color="primary" (click)="finalizarRevisionJefeDependencia()">Enviar reporte a OAP</button>
 
                 <button *ngIf="(rol=='JEFE_DEPENDENCIA' || rol=='ASISTENTE_DEPENDENCIA') && (estado == 'Con observaciones' || estado == 'Revisión Verificada con Observaciones')" class="background-button"
                     mat-raised-button color="primary" (click)="reportar()">Enviar corrección</button>
