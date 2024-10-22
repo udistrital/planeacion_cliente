@@ -410,7 +410,7 @@ export class SeguimientoComponentGestion implements OnInit {
       showCancelButton: true
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento_jefe_dependencia`, "{}", this.seguimiento._id).subscribe((data: any) => {
+        this.request.put(environment.PLANES_MID, `seguimiento/revision_seguimiento_jefe_dependencia`, {reporteAsistente: this.rol === 'ASISTENTE_DEPENDENCIA'}, this.seguimiento._id).subscribe((data: any) => {
           if (data) {
             if (data.Success) {
               this.codigoNotificacion = "SERJU"; // NOTIFICACION(SERJU)
