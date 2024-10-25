@@ -1079,7 +1079,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.datosResultados[index].brechaExistente =
           indicadorAcumulado > auxiliarMeta
             ? 0
-            : Math.round((auxiliarMeta - this.datosResultados[index].avanceAcumulado) * 10_000) / 10_000;
+            : Math.round((auxiliarMeta - this.datosResultados[index].indicadorAcumulado) * 10_000) / 10_000;
         
       } else if (indicador.tendencia == "Decreciente") {
         let auxiliarAvance = (auxiliarMeta - indicadorAcumulado) / auxiliarMeta;
