@@ -1055,18 +1055,18 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       } else {
         this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == 'Unidad' ? meta : meta / 100;
       }
-      if(!esDenominadorFijo){
-        if(trimestre == "T1"){
-          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.25;
-        } else if(trimestre == "T2"){
-          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.5;
-        } else if(trimestre == "T3"){
-          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.75;
-        } else if(trimestre == "T4"){
-          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
-        }
+      // if(!esDenominadorFijo){
+        // if(trimestre == "T1"){
+        //   this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.25;
+        // } else if(trimestre == "T2"){
+        //   this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.5;
+        // } else if(trimestre == "T3"){
+        //   this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.75;
+        // } else if(trimestre == "T4"){
+        //   this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+        // }
         
-      }
+      // }
       let indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
       let auxiliarMeta = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
       // Las multiplicaciones y divisiones por mil o 10 mil son para formatear los datos a una cantidad de decimales fijos
