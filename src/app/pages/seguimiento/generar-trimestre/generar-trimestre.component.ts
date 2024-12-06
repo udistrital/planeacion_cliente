@@ -941,7 +941,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             if (indicador.denominador === "Denominador variable") {
               denominador = 100;
               numerador = 100;
-              this.datosResultados[index].indicadorAcumulado = 1 * 0.25;
+              this.datosResultados[index].indicadorAcumulado = 1;
               this.datosResultados[index].acumuladoNumerador = this.datosResultados[index].acumuladoNumerador;
               this.datosResultados[index].acumuladoDenominador = this.datosResultados[index].acumuladoDenominador;
               this.datosResultados[index].indicador = numerador / denominador;
