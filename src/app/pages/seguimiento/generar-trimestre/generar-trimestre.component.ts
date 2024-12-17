@@ -228,8 +228,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.readonlyFormulario = true;
         this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión OAPC');
         this.mostrarObservaciones = true;
-        this.ObservacionesPlaneacion = false;
-        this.ObservacionesDependencia = true;
+        this.ObservacionesPlaneacion = this.estadoActividad === 'Con observaciones';
+        this.ObservacionesDependencia = this.estadoActividad !== 'Con observaciones';
       } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
@@ -302,12 +302,12 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         }
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-        if(this.estadoSeguimiento === 'Con observaciones'){
-          this.ObservacionesPlaneacion = true;
-          this.ObservacionesDependencia = false;
-        } else if (this.estadoSeguimiento === 'Revisión Verificada con Observaciones'){
+        if(this.estadoSeguimiento === 'Revisión Verificada con Observaciones'){
           this.ObservacionesPlaneacion = false;
           this.ObservacionesDependencia = true;
+        } else {
+          this.ObservacionesPlaneacion = true;
+          this.ObservacionesDependencia = false;
         }
       } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
@@ -941,7 +941,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             if (indicador.denominador === "Denominador variable") {
               denominador = 100;
               numerador = 100;
-              this.datosResultados[index].indicadorAcumulado = 1 * 0.25;
+              this.datosResultados[index].indicadorAcumulado = 1;
               this.datosResultados[index].acumuladoNumerador = this.datosResultados[index].acumuladoNumerador;
               this.datosResultados[index].acumuladoDenominador = this.datosResultados[index].acumuladoDenominador;
               this.datosResultados[index].indicador = numerador / denominador;
