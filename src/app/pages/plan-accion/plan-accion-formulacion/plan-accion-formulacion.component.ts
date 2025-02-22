@@ -247,7 +247,6 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
 
                           if (resultados.length != 0) {
                             for (let i = 0; i < resultados.length; i++) {
-                              console.log(resultados);
                               let resultado = [];
 
                               if (resultados[i] == null) {
