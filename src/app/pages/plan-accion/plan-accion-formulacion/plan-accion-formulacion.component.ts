@@ -1,7 +1,13 @@
-import { AfterViewInit, Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { RequestManager } from '../../services/requestManager'
+import { RequestManager } from '../../services/requestManager';
 import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
 import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
@@ -40,7 +46,11 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
     private router: Router
   ) {
     let roles: any = this.autenticationService.getRole();
-    if (roles.__zone_symbol__value.find((x) => x == 'PLANEACION' || x == 'ASISTENTE_PLANEACION')) {
+    if (
+      roles.__zone_symbol__value.find(
+        (x) => x == 'PLANEACION' || x == 'ASISTENTE_PLANEACION'
+      )
+    ) {
       this.rol = 'PLANEACION';
     } else if (
       roles.__zone_symbol__value.find(
@@ -75,7 +85,9 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.inputsFiltros = this.root.nativeElement.querySelectorAll('th.mat-header-cell input');
+    this.inputsFiltros = this.root.nativeElement.querySelectorAll(
+      'th.mat-header-cell input'
+    );
   }
 
   aplicarFiltro(event: Event): void {
@@ -108,7 +120,7 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
         this.request.get(environment.PLANES_MID, `planes_accion`).subscribe(
           (data) => {
             const allData: ResumenPlan[] = data.Data;
-            this.planes = allData.filter(plan => plan.fase === "Formulación");
+            this.planes = allData.filter((plan) => plan.fase === 'Formulación');
             if (this.planes.length != 0) {
               Swal.close();
             } else {
@@ -139,7 +151,7 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
         );
       } else {
         let datosUsuario = await this.getDocumento();
-        this.documentoUsuario = datosUsuario["userService"]["documento"];
+        this.documentoUsuario = datosUsuario['userService']['documento'];
         // 'JEFE_DEPENDENCIA'
         //let documento: string = this.autenticationService.getDocument()['__zone_symbol__value'];
         // let documento: string =
@@ -187,47 +199,67 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
                         let promesas = [];
 
                         for (let i = 0; i < vinculaciones.length; i++) {
-                          promesas.push(new Promise((PromesaResolve, PromesaReject) => {
-                            idDependencia = vinculaciones[i].DependenciaId;
+                          promesas.push(
+                            new Promise((PromesaResolve, PromesaReject) => {
+                              idDependencia = vinculaciones[i].DependenciaId;
 
-                            this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe((data) => {
-                              if (data && data.Success) {
-                                PromesaResolve(data.Data)
-                              } else {
-                                Swal.close();
-                                Swal.fire({
-                                  title:
-                                    'Error al intentar obtener los planes de acción',
-                                  icon: 'error',
-                                  text: 'Ingresa más tarde',
-                                  showConfirmButton: false,
-                                  timer: 2500,
-                                });
-                                PromesaReject();
-                              }
-                            }, (error) => {
-                              Swal.close();
-                              console.error(error);
-                              Swal.fire({
-                                title:
-                                  'Error al intentar obtener los planes de acción',
-                                icon: 'error',
-                                text: 'Ingresa más tarde',
-                                showConfirmButton: false,
-                                timer: 2500,
-                              });
-                              PromesaReject();
-                            });
-                          }));
+                              this.request
+                                .get(
+                                  environment.PLANES_MID,
+                                  `planes_accion/${idDependencia}`
+                                )
+                                .subscribe(
+                                  (data) => {
+                                    if (data && data.Success) {
+                                      PromesaResolve(data.Data);
+                                    } else {
+                                      Swal.close();
+                                      Swal.fire({
+                                        title:
+                                          'Error al intentar obtener los planes de acción',
+                                        icon: 'error',
+                                        text: 'Ingresa más tarde',
+                                        showConfirmButton: false,
+                                        timer: 2500,
+                                      });
+                                      PromesaReject();
+                                    }
+                                  },
+                                  (error) => {
+                                    Swal.close();
+                                    console.error(error);
+                                    Swal.fire({
+                                      title:
+                                        'Error al intentar obtener los planes de acción',
+                                      icon: 'error',
+                                      text: 'Ingresa más tarde',
+                                      showConfirmButton: false,
+                                      timer: 2500,
+                                    });
+                                    PromesaReject();
+                                  }
+                                );
+                            })
+                          );
                         }
-                        Promise.all(promesas).then(resultados => {
+                        Promise.all(promesas).then((resultados) => {
                           let resultadoPlanes = [];
 
                           if (resultados.length != 0) {
                             for (let i = 0; i < resultados.length; i++) {
                               let resultado = [];
-                              resultado = resultados[i].filter(plan => plan.fase === "Formulación");
-                              resultadoPlanes = [...resultadoPlanes, ...resultado];
+
+                              if (resultados[i] == null) {
+                                continue;
+                              }
+
+                              resultado = resultados[i].filter(
+                                (plan) => plan.fase === 'Formulación'
+                              );
+                              resultadoPlanes = [
+                                ...resultadoPlanes,
+                                ...resultado,
+                              ];
                             }
                             this.planes = resultadoPlanes;
                             resolve(this.planes);
@@ -242,7 +274,7 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
                               timer: 2500,
                             });
                           }
-                        })
+                        });
                       }
                     },
                     (error) => {
@@ -282,16 +314,23 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
   consultar(plan: ResumenPlan) {
     if (plan.fase.includes('Formulación')) {
       this.router.navigate([
-        'pages/formulacion/' + plan.dependencia_id
-        + "/" + plan.nombre
-        + "/" + plan.vigencia_id
-        + "/" + plan.version
+        'pages/formulacion/' +
+          plan.dependencia_id +
+          '/' +
+          plan.nombre +
+          '/' +
+          plan.vigencia_id +
+          '/' +
+          plan.version,
       ]);
     } else if (plan.fase == 'Seguimiento') {
       this.router.navigate([
-        'pages/seguimiento/listar-plan-accion-anual/' + plan.vigencia_id
-        + "/" + plan.nombre
-        + "/" + plan.dependencia_id
+        'pages/seguimiento/listar-plan-accion-anual/' +
+          plan.vigencia_id +
+          '/' +
+          plan.nombre +
+          '/' +
+          plan.dependencia_id,
       ]);
     }
   }
@@ -301,11 +340,11 @@ export class PlanAccionFormulacionComponent implements OnInit, AfterViewInit {
       this.userService.user$.subscribe((data) => {
         if (data) {
           resolve(data);
-          return (data);
+          return data;
         } else {
           reject();
         }
-      })
+      });
     });
   }
 }
