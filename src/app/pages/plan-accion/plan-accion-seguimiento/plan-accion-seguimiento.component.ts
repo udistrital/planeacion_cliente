@@ -211,6 +211,9 @@ export class PlanAccionSeguimientoComponent implements OnInit, AfterViewInit {
 
                             this.request.get(environment.PLANES_MID, `planes_accion/${idDependencia}`).subscribe((data) => {
                               if (data && data.Success) {
+                                if (data.Data == null) {
+                                  data.Data = [];
+                                }
                                 PromesaResolve(data.Data)
                               } else {
                                 Swal.close();
