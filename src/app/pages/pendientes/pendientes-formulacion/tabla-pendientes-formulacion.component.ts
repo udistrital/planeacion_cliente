@@ -421,7 +421,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
 
           return new Promise<void>((resolve, reject) => {
             this.request.get(environment.PLANES_MID, `formulacion/observaciones_plan/` + plan.id).subscribe((dataObs: any) => {
-              if (dataObs.Data.length != 0) {
+              if (dataObs.Data?.length != 0) {
                 observaciones = true;
                 nombreObs.push(plan.nombre + " - " + plan.vigencia);
                 resolve(); // Continuar después de agregar la observación
