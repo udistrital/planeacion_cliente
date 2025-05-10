@@ -554,7 +554,7 @@ export class SeguimientoComponentList implements OnInit, AfterViewInit {
               this.allPlanes = this.dataSource.data;
               resolve(true);
             } else {
-              reject()
+              Swal.close();
             }
           });
         });
