@@ -143,20 +143,20 @@ export class ContratistasComponent implements OnInit {
         this.mostrarObservaciones = this.verificarObservaciones();
         this.readonlyTable = false;
         if (this.mostrarObservaciones) {
-          return ['acciones', 'equipoResponsable', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+          return ['acciones',  'descripcionNecesidad', 'equipoResponsable','requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
         } else {
-          return ['acciones', 'equipoResponsable', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+          return ['acciones',  'descripcionNecesidad', 'equipoResponsable','requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada' || this.estadoPlan == 'Pre Aval') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'equipoResponsable', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones',  'descripcionNecesidad','equipoResponsable', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Aval') {
         this.readonlyTable = true;
         this.readonlyObs = true;
-        return ['acciones', 'equipoResponsable', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones', 'descripcionNecesidad', 'equipoResponsable', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
 
@@ -164,22 +164,22 @@ export class ContratistasComponent implements OnInit {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'equipoResponsable', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones',  'descripcionNecesidad', 'equipoResponsable','requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
         this.readonlyTable = true;
-        return ['acciones', 'equipoResponsable', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones',  'descripcionNecesidad', 'equipoResponsable','requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'equipoResponsable', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
+        return ['acciones',  'descripcionNecesidad','equipoResponsable', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
         this.readonlyTable = true;
-        return ['acciones', 'equipoResponsable', 'descripcionNecesidad', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
+        return ['acciones',  'descripcionNecesidad','equipoResponsable', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
   }
@@ -188,33 +188,33 @@ export class ContratistasComponent implements OnInit {
     if (this.rol == 'JEFE_DEPENDENCIA' || this.rol == 'ASISTENTE_DEPENDENCIA') {
       if (this.estadoPlan == 'En formulación') {
         if (this.mostrarObservaciones && !this.readonlyTable) {
-          return ['AccionesP', 'equipoResponsableP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+          return ['AccionesP',  'DescripcionNecesidadP', 'equipoResponsableP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
         } else {
-          return ['AccionesP', 'equipoResponsableP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+          return ['AccionesP',  'DescripcionNecesidadP', 'equipoResponsableP','RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
         }
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada' || this.estadoPlan == 'Pre Aval') {
         this.readonlyObs = true;
-        return ['AccionesP', 'equipoResponsableP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP',  'DescripcionNecesidadP', 'equipoResponsableP','RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Aval') {
         this.readonlyObs = true;
-        return ['AccionesP', 'equipoResponsableP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP',  'DescripcionNecesidadP', 'equipoResponsableP','RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
     }
 
     if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
-        return ['AccionesP', 'equipoResponsableP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP',  'DescripcionNecesidadP','equipoResponsableP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
       if (this.estadoPlan == 'En revisión') {
-        return ['AccionesP', 'equipoResponsableP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP',  'DescripcionNecesidadP', 'equipoResponsableP','RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada') {
-        return ['AccionesP', 'equipoResponsableP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
+        return ['AccionesP',  'DescripcionNecesidadP', 'equipoResponsableP','RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP', 'ObservacionesP'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
-        return ['AccionesP', 'equipoResponsableP', 'DescripcionNecesidadP', 'RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
+        return ['AccionesP', 'DescripcionNecesidadP',  'equipoResponsableP','RequisitosP', 'PerfilP', 'CantidadP', 'TiempoContrato', 'ValorUnitarioP', 'ValorUnitarioIncP', 'ValorTotalP', 'ValorTotalIncP', 'ActividadesP'];
       }
     }
   }
@@ -394,8 +394,8 @@ export class ContratistasComponent implements OnInit {
   addContratista() {
     if (this.rol === 'PLANEACION') {
       this.dataSource.data.unshift({
-        equipoResponsable:'',
         descripcionNecesidad: '',
+        equipoResponsable:'',
         requisitos: '',
         perfil: '',
         cantidad: 0,
@@ -415,8 +415,8 @@ export class ContratistasComponent implements OnInit {
       this.dataSource.sort = this.sort;
     } else {
       this.dataSource.data.unshift({
-        equipoResponsable:'',
         descripcionNecesidad: '',
+        equipoResponsable:'',
         requisitos: '',
         perfil: '',
         cantidad: 0,
