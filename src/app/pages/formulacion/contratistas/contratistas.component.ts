@@ -24,8 +24,8 @@ import { startWith, map } from 'rxjs/operators';
 export class ContratistasComponent implements OnInit {
 
   contratistasGroup: FormGroup
-  displayedColumns: string[];
-  displayedHeaders: string[];
+  displayedColumns: string[] = [];
+displayedHeaders: string[] = [];
   columnsToDisplay: string[];
   dataSource: MatTableDataSource<any>;
   total: number;
@@ -150,11 +150,11 @@ export class ContratistasComponent implements OnInit {
       }
       if (this.estadoPlan == 'Formulado' || this.estadoPlan == 'En revisión' || this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada' || this.estadoPlan == 'Pre Aval') {
         this.readonlyObs = true;
-        this.readonlyTable = true;
+        this.readonlyTable = false;
         return ['acciones',  'descripcionNecesidad','equipoResponsable', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Aval') {
-        this.readonlyTable = true;
+        this.readonlyTable = false;
         this.readonlyObs = true;
         return ['acciones', 'descripcionNecesidad', 'equipoResponsable', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
@@ -163,22 +163,22 @@ export class ContratistasComponent implements OnInit {
     if (this.rol == 'PLANEACION' || this.rol == 'ASISTENTE_PLANEACION') {
       if (this.estadoPlan == 'En formulación') {
         this.readonlyObs = true;
-        this.readonlyTable = true;
+        this.readonlyTable = false;
         return ['acciones',  'descripcionNecesidad', 'equipoResponsable','requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
       if (this.estadoPlan == 'En revisión') {
         this.readonlyObs = false;
-        this.readonlyTable = true;
+        this.readonlyTable = false;
         return ['acciones',  'descripcionNecesidad', 'equipoResponsable','requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Revisado' || this.estadoPlan == 'Revisión Verificada') {
         this.readonlyObs = true;
-        this.readonlyTable = true;
+        this.readonlyTable = false;
         return ['acciones',  'descripcionNecesidad','equipoResponsable', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades', 'observaciones'];
       }
       if (this.estadoPlan == 'Pre Aval' || this.estadoPlan == 'Aval' || this.estadoPlan == 'Formulado') {
         this.readonlyObs = true;
-        this.readonlyTable = true;
+        this.readonlyTable = false;
         return ['acciones',  'descripcionNecesidad','equipoResponsable', 'requisitos', 'perfil', 'cantidad', 'meses', 'dias', 'valorUnitario', 'valorUnitarioInc', 'valorTotal', 'valorTotalInc', 'actividades'];
       }
     }
@@ -483,7 +483,7 @@ export class ContratistasComponent implements OnInit {
             this.dataSource.data[rowIndex].valorUnitario = formatCurrency(valor.ValorMensual, 'en-US', getCurrencySymbol('USD', 'wide'));
             this.getTotal(element,rowIndex)
           } else {
-            this.readonlyTable = true;
+            this.readonlyTable = false;
             Swal.fire({
               title: 'Error en la operación',
               icon: 'error',

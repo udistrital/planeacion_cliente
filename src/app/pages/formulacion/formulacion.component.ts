@@ -294,12 +294,15 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                     Swal.close()
                     resolve(true);
                   } else {
+                    //this.moduloVisible = true;
+                    Swal.close()
+                    resolve(true);
                     this.moduloVisible = false;
-                    Swal.fire({
+                   Swal.fire({
                       title: 'Error en la operación',
-                      text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
+                     text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
                       icon: 'warning',
-                      showConfirmButton: true,
+                     showConfirmButton: true,
                       timer: 10000,
                     });
                     reject();

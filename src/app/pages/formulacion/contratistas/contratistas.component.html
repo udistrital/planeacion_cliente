@@ -60,6 +60,7 @@
                     [ngModelOptions]="{standalone: true}" required></textarea>
                 </mat-form-field>
               </td>
+              <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
 
             <!-- Requisitos mínimos -->
@@ -144,6 +145,7 @@
                     [value]="element.valorUnitario" (change)="updateValue(element, rowIndex)"
                     [(ngModel)]="element.valorUnitario" [ngModelOptions]="{standalone: true}" required disabled>
                 </mat-form-field>
+                </td> 
               <td mat-footer-cell *matFooterCellDef class="footer">
                 Total
               </td>
@@ -158,6 +160,7 @@
                     [value]="element.valorUnitarioInc" (change)="updateValueInc(element, rowIndex)"
                     [(ngModel)]="element.valorUnitarioInc" [ngModelOptions]="{standalone: true}" required disabled>
                 </mat-form-field>
+                </td>
               <td mat-footer-cell *matFooterCellDef class="footer"></td>
             </ng-container>
 
