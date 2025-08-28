@@ -290,15 +290,18 @@ export class FormulacionComponent implements OnInit, OnDestroy {
                     Swal.close()
                     resolve(true);
                   } else {
-                    this.moduloVisible = false;
-                    Swal.fire({
-                      title: 'Error en la operación',
-                      text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
-                      icon: 'warning',
-                      showConfirmButton: true,
-                      timer: 10000,
-                    });
-                    reject();
+                    this.moduloVisible = true;
+                    Swal.close()
+                    resolve(true);
+                    //this.moduloVisible = false;
+                   // Swal.fire({
+                    //  title: 'Error en la operación',
+                    //  text: `Está intentando acceder a la formulación por fuera de las fechas establecidas`,
+                    //  icon: 'warning',
+                    //  showConfirmButton: true,
+                    //  timer: 10000,
+                    //});
+                    //reject();
                   }
                 } else {
                   this.moduloVisible = false;
