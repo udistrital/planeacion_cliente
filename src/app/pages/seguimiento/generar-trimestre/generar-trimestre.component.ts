@@ -228,8 +228,8 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.readonlyFormulario = true;
         this.readonlyObservacion = !(this.estadoSeguimiento === 'En revisión OAPC');
         this.mostrarObservaciones = true;
-        this.ObservacionesPlaneacion = false;
-        this.ObservacionesDependencia = true;
+        this.ObservacionesPlaneacion = this.estadoActividad === 'Con observaciones';
+        this.ObservacionesDependencia = this.estadoActividad !== 'Con observaciones';
       } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
         this.readonlyObservacion = true;
@@ -302,12 +302,12 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         }
         this.readonlyObservacion = true;
         this.mostrarObservaciones = true;
-        if(this.estadoSeguimiento === 'Con observaciones'){
-          this.ObservacionesPlaneacion = true;
-          this.ObservacionesDependencia = false;
-        } else if (this.estadoSeguimiento === 'Revisión Verificada con Observaciones'){
+        if(this.estadoSeguimiento === 'Revisión Verificada con Observaciones'){
           this.ObservacionesPlaneacion = false;
           this.ObservacionesDependencia = true;
+        } else {
+          this.ObservacionesPlaneacion = true;
+          this.ObservacionesDependencia = false;
         }
       } else if (this.estadoActividad === 'Actividad avalada' || this.estadoActividad === 'Actividad Verificada') {
         this.readonlyFormulario = true;
@@ -941,7 +941,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
             if (indicador.denominador === "Denominador variable") {
               denominador = 100;
               numerador = 100;
-              this.datosResultados[index].indicadorAcumulado = 1 * 0.25;
+              this.datosResultados[index].indicadorAcumulado = 1;
               this.datosResultados[index].acumuladoNumerador = this.datosResultados[index].acumuladoNumerador;
               this.datosResultados[index].acumuladoDenominador = this.datosResultados[index].acumuladoDenominador;
               this.datosResultados[index].indicador = numerador / denominador;
@@ -1055,18 +1055,18 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
       } else {
         this.datosResultados[index].indicadorAcumulado = this.datosIndicadores[index].unidad == 'Unidad' ? meta : meta / 100;
       }
-      if(!esDenominadorFijo){
-        if(trimestre == "T1"){
-          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.25;
-        } else if(trimestre == "T2"){
-          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.5;
-        } else if(trimestre == "T3"){
-          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.75;
-        } else if(trimestre == "T4"){
-          this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
-        }
+      // if(!esDenominadorFijo){
+        // if(trimestre == "T1"){
+        //   this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.25;
+        // } else if(trimestre == "T2"){
+        //   this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.5;
+        // } else if(trimestre == "T3"){
+        //   this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado * 0.75;
+        // } else if(trimestre == "T4"){
+        //   this.datosResultados[index].indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
+        // }
         
-      }
+      // }
       let indicadorAcumulado = this.datosResultados[index].indicadorAcumulado;
       let auxiliarMeta = this.datosIndicadores[index].unidad == "Unidad" || this.datosIndicadores[index].unidad == "Tasa" ? meta : meta / 100;
       // Las multiplicaciones y divisiones por mil o 10 mil son para formatear los datos a una cantidad de decimales fijos
@@ -1079,7 +1079,7 @@ export class GenerarTrimestreComponent implements OnInit, AfterViewInit {
         this.datosResultados[index].brechaExistente =
           indicadorAcumulado > auxiliarMeta
             ? 0
-            : Math.round((auxiliarMeta - this.datosResultados[index].avanceAcumulado) * 10_000) / 10_000;
+            : Math.round((auxiliarMeta - this.datosResultados[index].indicadorAcumulado) * 10_000) / 10_000;
         
       } else if (indicador.tendencia == "Decreciente") {
         let auxiliarAvance = (auxiliarMeta - indicadorAcumulado) / auxiliarMeta;
