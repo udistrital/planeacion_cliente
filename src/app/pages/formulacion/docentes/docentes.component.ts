@@ -1058,28 +1058,6 @@ private onRowChanged(element: any, rowIndex: number, tipo: string): void {
     }
   }
 
-  onChangeTipo(element, rowIndex, tipo) {
-    if (element.tipo != "H. Catedra Honorarios") {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Por favor complete los campos de cesantias y pensiones',
-        timer: 3500,
-        showConfirmButton: false
-      })
-      if (tipo === 'RHF') {
-        if (element.tipo === "Medio Tiempo") {
-          this.dataSourceRHF.data[rowIndex].horas = 20;
-        } else if (element.tipo === "Tiempo Completo") {
-          this.dataSourceRHF.data[rowIndex].horas = 40;
-        }
-      }
-    }
-    this.getCalculosDocentes(element, rowIndex, tipo)
-  }
-
-  onChangeCategoria(element, rowIndex, tipo){
-    this.getCalculosDocentes(element, rowIndex, tipo)
-  }
 
   mostrarMensajeValorInvalido() {
     Swal.fire({
