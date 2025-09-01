@@ -43,8 +43,8 @@ export class DocentesComponent implements OnInit {
   nivel: any;
   data: any;
 
-  incrementoInput = new FormControl('7.23');
-  incrementoFormPosgrado = new FormControl('7.36');
+  incrementoInput = new FormControl('7.52');
+  incrementoFormPosgrado = new FormControl('6.42');
   incremento: number = 0.0;
   incrementoPosgrado: number = 0.0;
   incrementoAnterior: number = 0.0;
