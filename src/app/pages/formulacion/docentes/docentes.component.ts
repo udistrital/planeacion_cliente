@@ -45,6 +45,8 @@ export class DocentesComponent implements OnInit {
 
   incrementoInput = new FormControl('7.23');
   incrementoFormPosgrado = new FormControl('7.36');
+  private readonly DEFAULT_INC_PRE = 0.0752;  
+  private readonly DEFAULT_INC_POS = 0.0642; 
   incremento: number = 0.0;
   incrementoPosgrado: number = 0.0;
   incrementoAnterior: number = 0.0;
@@ -78,6 +80,14 @@ export class DocentesComponent implements OnInit {
   async ngOnInit(){
     this.CODIGO_ESTADO_PRE_AVAL = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'PA_SP')
     this.CODIGO_ESTADO_REVISADO = await this.codigosService.getId('PLANES_CRUD', 'estado-plan', 'R_SP')
+
+    this.incremento = this.DEFAULT_INC_PRE;
+    this.incrementoPosgrado = this.DEFAULT_INC_POS;
+
+    this.incrementoInput.setValue((this.DEFAULT_INC_PRE * 100).toFixed(2), { emitEvent: false });
+    this.incrementoInput.disable({ emitEvent: false });
+    this.incrementoFormPosgrado.setValue((this.DEFAULT_INC_POS * 100).toFixed(2), { emitEvent: false });
+    this.incrementoFormPosgrado.disable({ emitEvent: false });
 
     this.dataSourceRHF = new MatTableDataSource<any>();
     this.dataSourceRHVPRE = new MatTableDataSource<any>();
@@ -968,7 +978,7 @@ private onRowChanged(element: any, rowIndex: number, tipo: string): void {
   }
 
   onChangeincremento() {
-    const valuePregrado = parseFloat(this.incrementoInput.value);
+    /*const valuePregrado = parseFloat(this.incrementoInput.value);
     if (valuePregrado) {
       this.incremento = valuePregrado / 100.0;
     } else {
@@ -980,6 +990,9 @@ private onRowChanged(element: any, rowIndex: number, tipo: string): void {
     } else {
       this.incrementoPosgrado = 0.0;
     }
+    this.banderaCerrar = false;*/
+    this.incremento = this.DEFAULT_INC_PRE;
+    this.incrementoPosgrado = this.DEFAULT_INC_POS;
     this.banderaCerrar = false;
   }
 
