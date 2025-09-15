@@ -9,21 +9,19 @@
         </u>
         <br><br>
         <form>
-            <div class="label-inc">Incremento Pregrado:
+            
+            <div class="label-inc">
+                Incremento Pregrado:
                 <mat-form-field floatLabel="never">
-                    <input [readonly]="true" min="0" type="number" step="0.01" matInput class="form-control"
-                        id="incremento" [formControl]="incrementoInput"  placeholder="%"
-                        required>
+                    <input readonly matInput class="form-control" value="7,52" placeholder="%" />
                 </mat-form-field>
+
                 Incremento Posgrado:
                 <mat-form-field floatLabel="never">
-                    <input [readonly]="true" min="0" type="number" step="0.01" matInput class="form-control"
-                        id="incrementoPos" [formControl]="incrementoFormPosgrado"  placeholder="%"
-                        required>
-                </mat-form-field> <!-- index 
-                <button mat-raised-button style="margin: 10px;" color="primary" (click)="loadIncremento()">Aplicar
-                    Incremento</button>-->
+                    <input readonly matInput class="form-control" value="6,42" placeholder="%" />
+                </mat-form-field>
             </div>
+
             <mat-vertical-stepper>
                 <mat-step *ngFor="let step of steps; let index = index; let last = last;">
                     <div class="container-border" *ngIf="!last">
@@ -111,8 +109,8 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input [readonly]="readonlyTable" type="number" class="form-control"
-                                                    (change)="onChangeSemanas(element, rowIndex, step.tipo)"
-                                                    matInput placeholder="Semanas" [value]="element.semanas"
+                                                    (change)="onChangeSemanas(element, rowIndex, step.tipo)" matInput
+                                                    placeholder="Semanas" [value]="element.semanas"
                                                     [(ngModel)]="element.semanas" [ngModelOptions]="{standalone: true}"
                                                     required>
                                             </mat-form-field>
@@ -144,8 +142,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="number" class="form-control" matInput
-                                                    placeholder="Total horas"
-                                                    [value]="element.totalHoras"
+                                                    placeholder="Total horas" [value]="element.totalHoras"
                                                     [(ngModel)]="element.totalHoras"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -161,8 +158,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="number" class="form-control" matInput
-                                                    placeholder="Total horas"
-                                                    [value]="element.totalHorasIndividual"
+                                                    placeholder="Total horas" [value]="element.totalHorasIndividual"
                                                     [(ngModel)]="element.totalHorasIndividual"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -177,9 +173,8 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="number" class="form-control" matInput placeholder="Meses"
-                                                    [value]="element.meses"
-                                                    [(ngModel)]="element.meses" [ngModelOptions]="{standalone: true}"
-                                                    required readonly>
+                                                    [value]="element.meses" [(ngModel)]="element.meses"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
                                         </td>
                                         <td mat-footer-cell *matFooterCellDef class="footer">
@@ -193,8 +188,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Sueldo Básico"
-                                                    [value]="element.sueldoBasico"
+                                                    placeholder="Sueldo Básico" [value]="element.sueldoBasico"
                                                     [(ngModel)]="element.sueldoBasico"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -210,8 +204,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Sueldo Básico"
-                                                    [value]="element.sueldoBasicoIndividual"
+                                                    placeholder="Sueldo Básico" [value]="element.sueldoBasicoIndividual"
                                                     [(ngModel)]="element.sueldoBasicoIndividual"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -227,8 +220,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Sueldo Mensual"
-                                                    [value]="element.sueldoMensual"
+                                                    placeholder="Sueldo Mensual" [value]="element.sueldoMensual"
                                                     [(ngModel)]="element.sueldoMensual"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -258,8 +250,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Prima de Servicios"
-                                                    [value]="element.primaServicios"
+                                                    placeholder="Prima de Servicios" [value]="element.primaServicios"
                                                     [(ngModel)]="element.primaServicios"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -273,8 +264,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Prima de Navidad"
-                                                    [value]="element.primaNavidad"
+                                                    placeholder="Prima de Navidad" [value]="element.primaNavidad"
                                                     [(ngModel)]="element.primaNavidad"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -288,8 +278,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Prima de Vacaciones"
-                                                    [value]="element.primaVacaciones"
+                                                    placeholder="Prima de Vacaciones" [value]="element.primaVacaciones"
                                                     [(ngModel)]="element.primaVacaciones"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -304,8 +293,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Vacaciones Proyección"
-                                                    [value]="element.vacaciones"
+                                                    placeholder="Vacaciones Proyección" [value]="element.vacaciones"
                                                     [(ngModel)]="element.vacaciones"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -322,8 +310,7 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
                                                     placeholder="Bonificación por Servicios"
-                                                    [value]="element.bonificacion"
-                                                    [(ngModel)]="element.bonificacion"
+                                                    [value]="element.bonificacion" [(ngModel)]="element.bonificacion"
                                                     [ngModelOptions]="{standalone: true}" readonly>
                                             </mat-form-field>
                                         </td>
@@ -372,8 +359,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Intereses Cesantias"
-                                                    [value]="element.intereses"
+                                                    placeholder="Intereses Cesantias" [value]="element.intereses"
                                                     [(ngModel)]="element.intereses"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -387,8 +373,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput placeholder="Cesantias"
-                                                    [value]="element.cesantias"
-                                                    [(ngModel)]="element.cesantias"
+                                                    [value]="element.cesantias" [(ngModel)]="element.cesantias"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
                                         </td>
@@ -435,8 +420,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Total Salud"
-                                                    [value]="element.totalSalud"
+                                                    placeholder="Total Salud" [value]="element.totalSalud"
                                                     [(ngModel)]="element.totalSalud"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -452,8 +436,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Total Salud"
-                                                    [value]="element.totalSaludIndividual"
+                                                    placeholder="Total Salud" [value]="element.totalSaludIndividual"
                                                     [(ngModel)]="element.totalSaludIndividual"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -504,8 +487,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Total Pensiones"
-                                                    [value]="element.totalPensiones"
+                                                    placeholder="Total Pensiones" [value]="element.totalPensiones"
                                                     [(ngModel)]="element.totalPensiones"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -536,9 +518,8 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput placeholder="Total ARL"
-                                                    [value]="element.totalArl"
-                                                    [(ngModel)]="element.totalArl" [ngModelOptions]="{standalone: true}"
-                                                    required readonly>
+                                                    [value]="element.totalArl" [(ngModel)]="element.totalArl"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
                                         </td>
                                         <td mat-footer-cell *matFooterCellDef class="footer">
@@ -551,8 +532,8 @@
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput placeholder="Total ARL"
                                                     [value]="element.totalArlIndividual"
-                                                    [(ngModel)]="element.totalArlIndividual" [ngModelOptions]="{standalone: true}"
-                                                    required readonly>
+                                                    [(ngModel)]="element.totalArlIndividual"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
                                         </td>
                                         <td mat-footer-cell *matFooterCellDef class="footer">
@@ -564,8 +545,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Caja de Compensación"
-                                                    [value]="element.caja"
+                                                    placeholder="Caja de Compensación" [value]="element.caja"
                                                     [(ngModel)]="element.caja" [ngModelOptions]="{standalone: true}"
                                                     required readonly>
                                             </mat-form-field>
@@ -579,9 +559,8 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput placeholder="ICBF"
-                                                    [value]="element.icbf"
-                                                    [(ngModel)]="element.icbf" [ngModelOptions]="{standalone: true}"
-                                                    required readonly>
+                                                    [value]="element.icbf" [(ngModel)]="element.icbf"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
                                         </td>
                                         <td mat-footer-cell *matFooterCellDef class="footer">
@@ -593,8 +572,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Total Sueldo Básico"
-                                                    [value]="element.totalBasico"
+                                                    placeholder="Total Sueldo Básico" [value]="element.totalBasico"
                                                     [(ngModel)]="element.totalBasico"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -624,8 +602,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Total Aportes UD"
-                                                    [value]="element.totalAportes"
+                                                    placeholder="Total Aportes UD" [value]="element.totalAportes"
                                                     [(ngModel)]="element.totalAportes"
                                                     [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
@@ -657,8 +634,7 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Total Recurso"
-                                                    [value]="element.total"
+                                                    placeholder="Total Recurso" [value]="element.total"
                                                     [(ngModel)]="element.total" [ngModelOptions]="{standalone: true}"
                                                     required readonly>
                                             </mat-form-field>
@@ -674,10 +650,9 @@
                                         <td mat-cell *matCellDef="let element; let rowIndex = index">
                                             <mat-form-field floatLabel="never">
                                                 <input type="text" class="form-control" matInput
-                                                    placeholder="Total Recurso"
-                                                    [value]="element.totalIndividual"
-                                                    [(ngModel)]="element.totalIndividual" [ngModelOptions]="{standalone: true}"
-                                                    required readonly>
+                                                    placeholder="Total Recurso" [value]="element.totalIndividual"
+                                                    [(ngModel)]="element.totalIndividual"
+                                                    [ngModelOptions]="{standalone: true}" required readonly>
                                             </mat-form-field>
                                         </td>
                                         <td mat-footer-cell *matFooterCellDef class="footer">
@@ -694,9 +669,9 @@
                                         </th>
                                         <td mat-cell *matCellDef="let element; let rowIndex = index"
                                             class="td-align-right">
-                                            <button [disabled]="readonlyTable" class="material-icons-delete" matTooltip="Eliminar elemento"
-                                                matTooltipPosition="right" mat-icon-button
-                                                (click)="deleteElement(rowIndex, step.tipo)">
+                                            <button [disabled]="readonlyTable" class="material-icons-delete"
+                                                matTooltip="Eliminar elemento" matTooltipPosition="right"
+                                                mat-icon-button (click)="deleteElement(rowIndex, step.tipo)">
                                                 <mat-icon>delete_outline</mat-icon>
                                             </button>
                                         </td>
@@ -709,8 +684,8 @@
                                         </th>
                                         <td mat-cell *matCellDef="let element">
                                             <mat-form-field floatLabel="never">
-                                                <textarea [readonly]="readonlyObs" class="textareaContenidoModificable" matInput
-                                                    placeholder="Observaciones" [value]="element.observaciones"
+                                                <textarea [readonly]="readonlyObs" class="textareaContenidoModificable"
+                                                    matInput placeholder="Observaciones" [value]="element.observaciones"
                                                     [(ngModel)]="element.observaciones"
                                                     [ngModelOptions]="{standalone: true}"></textarea>
                                             </mat-form-field>
@@ -876,7 +851,7 @@
                             </div>
                             <div class="container-border" style="margin: 20px 0px 0px 0px;" *ngIf="nivel">
                                 <h4>Rubros {{nivel}} </h4>
-                                <ng-container >
+                                <ng-container>
                                     <table mat-table matSort [dataSource]="step.data">
                                         <!-- Categoria -->
                                         <ng-container matColumnDef="categoria">
@@ -894,12 +869,16 @@
                                             <td mat-cell *matCellDef="let element; let rowIndex = index">
                                                 <mat-form-field floatLabel="never">
                                                     <mat-select [disabled]="readonlyTable" class="form-control"
-                                                        [(ngModel)]="element.rubro" [ngModelOptions]="{standalone: true}"
+                                                        [(ngModel)]="element.rubro"
+                                                        [ngModelOptions]="{standalone: true}"
                                                         (selectionChange)="onChangeRubro($event, rowIndex)"
                                                         placeholder="Seleccione el rubro" required>
-                                                        <input type="text" (keydown.space)="$event.stopPropagation()" [formControl]="rubroControl[rowIndex]" class="input-search" (input)="tomarFila(rowIndex)">
+                                                        <input type="text" (keydown.space)="$event.stopPropagation()"
+                                                            [formControl]="rubroControl[rowIndex]" class="input-search"
+                                                            (input)="tomarFila(rowIndex)">
                                                         <mat-option>--</mat-option>
-                                                        <mat-option class="multiline-mat-option" *ngFor="let rubro of filteredRubros[rowIndex] | async"
+                                                        <mat-option class="multiline-mat-option"
+                                                            *ngFor="let rubro of filteredRubros[rowIndex] | async"
                                                             [value]="rubro.Codigo">
                                                             {{rubro.Nombre}}
                                                         </mat-option>
@@ -943,7 +922,8 @@
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
                 (click)="ocultarRecursos()">Cerrar</button>
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
-                [disabled]="banderaCerrar" (click)="guardarRecursos()" *ngIf="!readonlyObs || estadoPlan === 'En formulación'">Guardar</button>
+                [disabled]="banderaCerrar" (click)="guardarRecursos()"
+                *ngIf="!readonlyObs || estadoPlan === 'En formulación'">Guardar</button>
         </ng-container>
     </mat-card-footer>
 </mat-card>
