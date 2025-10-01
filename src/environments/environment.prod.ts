@@ -21,7 +21,8 @@ export const environment = {
   //PARAMETROS_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/parametros/v1/',
   CONFIGURACION_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/configuracion_crud_api/v1/',
   CONF_MENU_SERVICE: 'https://autenticacion.portaloas.udistrital.edu.co/apioas/configuracion_crud_api/v1/menu_opcion_padre/ArbolMenus/',
-  ASSETS_SERVICE: "https://pruebasassets.portaloas.udistrital.edu.co/",
+  ASSETS_SERVICE: "https://assets.portaloas.udistrital.edu.co/",
+  //ASSETS_SERVICE: "https://pruebasassets.portaloas.udistrital.edu.co/",
 
   // Notificaciones
   NOTIFICACION_MID: "https://pruebasapi.intranetoas.udistrital.edu.co:8527/v1/",
