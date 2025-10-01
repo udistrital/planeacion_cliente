@@ -30,9 +30,10 @@ export class ImplicitAutenticationService {
     private logoutSubject = new BehaviorSubject('');
     public logout$ = this.logoutSubject.asObservable();
 
+
     httpOptions: { headers: HttpHeaders; };
     constructor(private httpClient: HttpClient) {
-        this.init(this.environment);
+        //this.init(this.environment);
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === 'visible') {
                 const expires = this.setExpiresAt();
@@ -94,7 +95,6 @@ export class ImplicitAutenticationService {
         this.autologout(expires);
         this.clearUrl();
     }
-
 
     updateAuth(payload) {
         const user = localStorage.getItem('user');

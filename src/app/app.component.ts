@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Router, NavigationEnd } from '@angular/router';
 import { UserService } from './pages/services/userService';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { Notificaciones } from './pages/services/notificaciones';
 declare let gtag: Function;
 
@@ -19,7 +20,8 @@ export class AppComponent implements OnInit {
   constructor(
     private router: Router,
     private userService: UserService,
-    private notificacionesService: Notificaciones
+    private notificacionesService: Notificaciones,
+    private implicitAutenticationService: ImplicitAutenticationService
   ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -39,6 +41,8 @@ export class AppComponent implements OnInit {
         this.loadRouting = true;
         this.userService.updateUser(event.detail);
         this.notificacionesService.connectWebSocket();
+
+        this.implicitAutenticationService.init(environment.TOKEN);
       }
     });
 
