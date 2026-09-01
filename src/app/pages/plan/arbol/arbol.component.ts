@@ -19,6 +19,7 @@ interface Subgrupo {
   nombre: string;
   descripcion: string;
   id: string;
+  orden?: number;
   children?: Subgrupo[];
 }
 
@@ -30,6 +31,7 @@ interface Nodo {
   nombre: string;
   descripcion: string;
   id: string;
+  orden?: number;
   level: number;
   icon?: string;
   idx?: number;
@@ -68,6 +70,7 @@ export class ArbolComponent implements OnInit {
         nombre: node.nombre,
         descripcion: node.descripcion,
         id: node.id,
+        orden: node.orden,
         level: level,
         icon: this.iconArmonizacion(node.id)
       };
@@ -78,6 +81,7 @@ export class ArbolComponent implements OnInit {
         nombre: node.nombre,
         descripcion: node.descripcion,
         id: node.id,
+        orden: node.orden,
         level: level,
       };
     }
@@ -161,7 +165,7 @@ export class ArbolComponent implements OnInit {
       this.request.get(environment.PLANES_MID, `arbol/` + this.idPlan).subscribe(async (data: any) => {
         if (data.Data !== null) {
           this.mostrar = true;
-          this.dataSource.data = data.Data;
+          this.dataSource.data = this.ordenarArbol(data.Data);
           if (this.armonizacionPED || this.armonizacionPI) {
             await this.linksArbol()
             await this.expandNodes()
@@ -211,6 +215,63 @@ export class ArbolComponent implements OnInit {
 
   editar(fila, bandera) {
     this.grupo.emit({ fila, bandera })
+  }
+
+  mover(fila: Nodo, direccion: number) {
+    const hermanos = this.obtenerHermanos(this.dataSource.data, fila.id);
+    if (!hermanos) {
+      return;
+    }
+
+    const indice = hermanos.findIndex(hermano => hermano.id === fila.id);
+    const nuevoIndice = indice + direccion;
+    if (indice < 0 || nuevoIndice < 0 || nuevoIndice >= hermanos.length) {
+      return;
+    }
+
+    [hermanos[indice], hermanos[nuevoIndice]] = [hermanos[nuevoIndice], hermanos[indice]];
+    hermanos.forEach((hermano, i) => hermano.orden = i + 1);
+    this.dataSource.data = this.ordenarArbol(this.dataSource.data);
+    this.grupo.emit({
+      bandera: 'reordenar',
+      ordenes: hermanos.map(hermano => ({ id: hermano.id, orden: hermano.orden }))
+    });
+  }
+
+  puedeMover(fila: Nodo, direccion: number): boolean {
+    const hermanos = this.obtenerHermanos(this.dataSource.data, fila.id);
+    if (!hermanos) {
+      return false;
+    }
+    const indice = hermanos.findIndex(hermano => hermano.id === fila.id);
+    return indice + direccion >= 0 && indice + direccion < hermanos.length;
+  }
+
+  private obtenerHermanos(nodos: any[], id: string): any[] {
+    const nodo = nodos.find(item => item.id === id);
+    if (nodo) {
+      return nodos;
+    }
+    for (const item of nodos) {
+      if (item.children && item.children.length) {
+        const resultado = this.obtenerHermanos(item.children, id);
+        if (resultado) {
+          return resultado;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  private ordenarArbol(nodos: any[]): any[] {
+    return (nodos || []).map(nodo => ({
+      ...nodo,
+      children: nodo.children ? this.ordenarArbol(nodo.children) : nodo.children
+    })).sort((a, b) => {
+      const ordenA = a.orden !== undefined && a.orden !== null ? Number(a.orden) : Number.MAX_SAFE_INTEGER;
+      const ordenB = b.orden !== undefined && b.orden !== null ? Number(b.orden) : Number.MAX_SAFE_INTEGER;
+      return ordenA - ordenB;
+    });
   }
 
   agregar(fila, bandera) {
