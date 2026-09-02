@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { take } from 'rxjs/operators';
 
 interface Subgrupo {
   activo: string;
@@ -382,7 +383,10 @@ export class ArbolComponent implements OnInit {
 
   private persistirOrdenPrimerNivel(planId: string, idsOrdenados: string[], anterior: any[]) {
     this.padresGuardando.add(planId);
-    forkJoin(idsOrdenados.map(id => this.request.get(environment.PLANES_CRUD, `subgrupo/${id}`))).subscribe(
+    forkJoin(idsOrdenados.map(id => this.request.get(
+      environment.PLANES_CRUD,
+      `subgrupo/${id}`
+    ).pipe(take(1)))).subscribe(
       (consultas: any[]) => {
         const subgrupos = consultas.map(consulta => consulta && consulta.Data);
         if (subgrupos.some(subgrupo => !subgrupo || !subgrupo.fecha_creacion)) {
@@ -402,7 +406,12 @@ export class ArbolComponent implements OnInit {
           // El CRUD nuevo reserva la presencia de "hijos" para el flujo de
           // reordenamiento interno. Se omite aquí para actualizar la fecha.
           delete payload.hijos;
-          return this.request.put(environment.PLANES_CRUD, 'subgrupo', payload, subgrupo._id);
+          return this.request.put(
+            environment.PLANES_CRUD,
+            'subgrupo',
+            payload,
+            subgrupo._id
+          ).pipe(take(1));
         });
 
         forkJoin(actualizaciones).subscribe(
