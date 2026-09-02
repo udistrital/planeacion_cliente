@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
 import { ParametroPeriodo } from '../gestion-parametros/utils/gestion-parametros.models';
+import { asignarOrdenDescripcion, limpiarOrdenDescripcion, obtenerOrdenDescripcion } from '../utils/orden-descripcion';
 
 @Component({
   selector: 'app-construir-plan',
@@ -33,6 +34,7 @@ export class ConstruirPlanComponent implements OnInit {
   formato_id_paf: string;
   hijos_formato_paf: any[];
   hijos_plan: any[];
+  ordenDescripcionActual: number;
 
   @Output() eventChange = new EventEmitter();
   constructor(
@@ -232,7 +234,9 @@ export class ConstruirPlanComponent implements OnInit {
     this.mostrarMensajeCarga(true);
     let subgrupo: any = {
       nombre: res.nombre,
-      descripcion: res.descripcion,
+      descripcion: this.ordenDescripcionActual !== undefined
+        ? asignarOrdenDescripcion(res.descripcion, this.ordenDescripcionActual)
+        : res.descripcion,
       activo: res.activo,
       bandera_tabla: res.banderaTabla
     }
@@ -263,7 +267,7 @@ export class ConstruirPlanComponent implements OnInit {
       subgrupoDetalle["fecha_creacion"] = data.Data[0].fecha_creacion;
       subgrupoDetalle["subgrupo_id"] = data.Data[0].subgrupo_id;
       subgrupoDetalle["activo"] = true;
-      subgrupoDetalle["descripcion"] = subgrupo.descripcion;
+      subgrupoDetalle["descripcion"] = limpiarOrdenDescripcion(subgrupo.descripcion);
       subgrupoDetalle["nombre"] = subgrupo.nombre;
       subgrupo["padre"] = this.padreSub;
       subgrupo["fecha_creacion"] = data.Data[0].fecha_creacion;
@@ -365,6 +369,7 @@ export class ConstruirPlanComponent implements OnInit {
       this.uid = event.fila.id; // id del nivel a editar
       this.request.get(environment.PLANES_CRUD, `subgrupo/` + this.uid).subscribe((data: any) => {
         if (data) {
+          this.ordenDescripcionActual = obtenerOrdenDescripcion(data.Data.descripcion);
           this.request.get(environment.PLANES_CRUD, 'subgrupo-detalle/detalle/' + this.uid).subscribe((dataDetalle: any) => {
             if (dataDetalle) {
               if (dataDetalle.Data.length > 0) {
@@ -381,7 +386,7 @@ export class ConstruirPlanComponent implements OnInit {
                   }
                   let subData = {
                     nombre: data.Data.nombre,
-                    descripcion: data.Data.descripcion,
+                    descripcion: limpiarOrdenDescripcion(data.Data.descripcion),
                     activo: data.Data.activo,
                     banderaTabla: data.Data.bandera_tabla,
                     padre: data.Data.padre,
@@ -400,7 +405,7 @@ export class ConstruirPlanComponent implements OnInit {
                   }
                   let subData = {
                     nombre: data.Data.nombre,
-                    descripcion: data.Data.descripcion,
+                    descripcion: limpiarOrdenDescripcion(data.Data.descripcion),
                     activo: data.Data.activo,
                     banderaTabla: data.Data.bandera_tabla,
                     padre: data.Data.padre,
@@ -420,7 +425,7 @@ export class ConstruirPlanComponent implements OnInit {
                 }
                 let subData = {
                   nombre: data.Data.nombre,
-                  descripcion: data.Data.descripcion,
+                  descripcion: limpiarOrdenDescripcion(data.Data.descripcion),
                   activo: data.Data.activo,
                   banderaTabla: data.Data.bandera_tabla,
                   hijos: {
