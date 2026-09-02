@@ -92,7 +92,7 @@
                     <button mat-icon-button (click)="editar(row, 'editar')"><mat-icon>edit</mat-icon></button>
                     <button mat-icon-button (click)="agregar(row, 'agregar')"><mat-icon>add_circle_outline</mat-icon></button>
                     <button mat-icon-button cdkDragHandle [disabled]="!puedeArrastrar(row)"
-                      [matTooltip]="puedeArrastrar(row) ? 'Arrastrar para reordenar' : 'Este elemento no se puede reordenar'">
+                      [matTooltip]="puedeArrastrar(row) ? 'Arrastrar para reordenar' : 'Los elementos inactivos no se pueden reordenar'">
                       <mat-icon>drag_indicator</mat-icon>
                     </button>
                 </td>

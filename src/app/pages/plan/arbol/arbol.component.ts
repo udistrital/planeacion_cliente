@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, ViewChild, AfterViewIni
 import { ControlValueAccessor, FormBuilder, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { MatPaginator } from '@angular/material/paginator';
-import { Observable } from 'rxjs'
+import { forkJoin, Observable } from 'rxjs'
 import { MatSort } from '@angular/material/sort';
 import {
   MatTreeFlatDataSource,
@@ -224,7 +224,7 @@ export class ArbolComponent implements OnInit {
   }
 
   puedeArrastrar(fila: Nodo): boolean {
-    return fila.level > 0 && this.esActivo(fila) && !this.padresGuardando.has(fila.parentId);
+    return this.esActivo(fila) && !this.padresGuardando.has(fila.parentId);
   }
 
   puedeSoltar = (indice: number, drag: CdkDrag<Nodo>, drop: CdkDropList<Nodo[]>): boolean => {
@@ -278,7 +278,12 @@ export class ArbolComponent implements OnInit {
       hermanos[indice].orden = indice;
     });
     this.refrescarArbol();
-    this.persistirOrden(origen.parentId, hermanos.map(hermano => hermano.id), anterior);
+    const idsOrdenados = hermanos.map(hermano => hermano.id);
+    if (origen.level === 0) {
+      this.persistirOrdenPrimerNivel(origen.parentId, idsOrdenados, anterior);
+    } else {
+      this.persistirOrden(origen.parentId, idsOrdenados, anterior);
+    }
   }
 
   private obtenerHermanos(nodos: any[], id: string): any[] {
@@ -326,7 +331,18 @@ export class ArbolComponent implements OnInit {
 
   private persistirOrden(parentId: string, hijos: string[], anterior: any[]) {
     this.padresGuardando.add(parentId);
-    this.request.put(environment.PLANES_CRUD, 'subgrupo', { hijos }, parentId).subscribe(
+    this.request.get(environment.PLANES_CRUD, `subgrupo/${parentId}`).subscribe((consulta: any) => {
+      const padre = consulta && consulta.Data;
+      if (!padre) {
+        this.manejarErrorOrden({ status: 404 }, parentId, anterior);
+        return;
+      }
+
+      // Compatibilidad: el CRUD desplegado todavía valida el esquema completo
+      // aunque el contrato nuevo permite actualizar únicamente { hijos }.
+      const payload = { ...padre, hijos };
+      delete payload.orden;
+      this.request.put(environment.PLANES_CRUD, 'subgrupo', payload, parentId).subscribe(
       async (respuesta: any) => {
         const hijosRespuesta = respuesta && respuesta.Data && respuesta.Data.hijos;
         if (respuesta && respuesta.Success === false || !this.mismoOrden(hijos, hijosRespuesta)) {
@@ -359,24 +375,80 @@ export class ArbolComponent implements OnInit {
           timer: 2000
         });
       },
-      async (error) => {
-        this.restaurarArbol(anterior);
-        this.padresGuardando.delete(parentId);
-        if (Number(error && error.status) === 409) {
-          await this.loadArbolMid();
-          Swal.fire({
-            title: 'Estructura actualizada',
-            text: 'La estructura fue modificada por otro usuario. Se cargó el orden más reciente.',
-            icon: 'warning'
-          });
+      (error) => this.manejarErrorOrden(error, parentId, anterior)
+      );
+    }, (error) => this.manejarErrorOrden(error, parentId, anterior));
+  }
+
+  private persistirOrdenPrimerNivel(planId: string, idsOrdenados: string[], anterior: any[]) {
+    this.padresGuardando.add(planId);
+    forkJoin(idsOrdenados.map(id => this.request.get(environment.PLANES_CRUD, `subgrupo/${id}`))).subscribe(
+      (consultas: any[]) => {
+        const subgrupos = consultas.map(consulta => consulta && consulta.Data);
+        if (subgrupos.some(subgrupo => !subgrupo || !subgrupo.fecha_creacion)) {
+          this.manejarErrorOrden({ status: 404 }, planId, anterior);
           return;
         }
-        const mensaje = error && error.error && error.error.Message
-          ? error.error.Message
-          : 'No fue posible guardar el nuevo orden. Se restauró la estructura anterior.';
-        Swal.fire({ title: 'Error en la operación', text: mensaje, icon: 'error' });
-      }
+
+        const fechas = subgrupos.map(subgrupo => new Date(subgrupo.fecha_creacion).getTime());
+        const fechaBase = Math.min(...fechas);
+        const unaHora = 60 * 60 * 1000;
+        const actualizaciones = subgrupos.map((subgrupo, indice) => {
+          const payload = {
+            ...subgrupo,
+            fecha_creacion: new Date(fechaBase + indice * unaHora).toISOString()
+          };
+          delete payload.orden;
+          // El CRUD nuevo reserva la presencia de "hijos" para el flujo de
+          // reordenamiento interno. Se omite aquí para actualizar la fecha.
+          delete payload.hijos;
+          return this.request.put(environment.PLANES_CRUD, 'subgrupo', payload, subgrupo._id);
+        });
+
+        forkJoin(actualizaciones).subscribe(
+          async () => {
+            await this.loadArbolMid();
+            this.padresGuardando.delete(planId);
+            const confirmados = this.dataSource.data.map(nodo => String(nodo.id));
+            if (!this.mismoOrden(idsOrdenados, confirmados)) {
+              Swal.fire({
+                title: 'El orden no pudo verificarse',
+                text: 'La estructura recargada no coincide con el orden enviado.',
+                icon: 'warning'
+              });
+              return;
+            }
+            Swal.fire({
+              title: 'Orden actualizado',
+              text: 'El primer nivel se ordenó actualizando la hora de creación.',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 2000
+            });
+          },
+          (error) => this.manejarErrorOrden(error, planId, anterior)
+        );
+      },
+      (error) => this.manejarErrorOrden(error, planId, anterior)
     );
+  }
+
+  private async manejarErrorOrden(error: any, parentId: string, anterior: any[]) {
+    this.restaurarArbol(anterior);
+    this.padresGuardando.delete(parentId);
+    if (Number(error && error.status) === 409) {
+      await this.loadArbolMid();
+      Swal.fire({
+        title: 'Estructura actualizada',
+        text: 'La estructura fue modificada por otro usuario. Se cargó el orden más reciente.',
+        icon: 'warning'
+      });
+      return;
+    }
+    const mensaje = error && error.error && error.error.Message
+      ? error.error.Message
+      : 'No fue posible guardar el nuevo orden. Se restauró la estructura anterior.';
+    Swal.fire({ title: 'Error en la operación', text: mensaje, icon: 'error' });
   }
 
   private restaurarArbol(anterior: any[]) {
