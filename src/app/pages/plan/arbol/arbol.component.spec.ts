@@ -23,8 +23,9 @@ describe('ArbolComponent - orden del formato', () => {
     expect(arbol[0].children[0].parentId).toBe('raiz');
   });
 
-  it('deshabilita el movimiento de los hijos directos del plan', () => {
-    expect(component.puedeArrastrar({ level: 0, activo: 'activo', parentId: 'plan' } as any)).toBeFalse();
+  it('permite mover hijos directos del plan y bloquea los inactivos', () => {
+    expect(component.puedeArrastrar({ level: 0, activo: 'activo', parentId: 'plan' } as any)).toBeTrue();
+    expect(component.puedeArrastrar({ level: 0, activo: 'inactivo', parentId: 'plan' } as any)).toBeFalse();
   });
 
   it('reordena activos sin desplazar la posición absoluta de los inactivos', () => {
