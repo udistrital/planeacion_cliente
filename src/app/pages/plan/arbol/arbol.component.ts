@@ -399,13 +399,8 @@ export class ArbolComponent implements OnInit {
         const unaHora = 60 * 60 * 1000;
         const actualizaciones = subgrupos.map((subgrupo, indice) => {
           const payload = {
-            ...subgrupo,
             fecha_creacion: new Date(fechaBase + indice * unaHora).toISOString()
           };
-          delete payload.orden;
-          // El CRUD nuevo reserva la presencia de "hijos" para el flujo de
-          // reordenamiento interno. Se omite aquí para actualizar la fecha.
-          delete payload.hijos;
           return this.request.put(
             environment.PLANES_CRUD,
             'subgrupo',
@@ -415,28 +410,49 @@ export class ArbolComponent implements OnInit {
         });
 
         forkJoin(actualizaciones).subscribe(
-          async () => {
-            await this.loadArbolMid();
-            this.padresGuardando.delete(planId);
-            const confirmados = this.dataSource.data.map(nodo => String(nodo.id));
-            if (!this.mismoOrden(idsOrdenados, confirmados)) {
-              Swal.fire({
-                title: 'El orden no pudo verificarse',
-                text: 'La estructura recargada no coincide con el orden enviado.',
-                icon: 'warning'
-              });
-              return;
-            }
-            Swal.fire({
-              title: 'Orden actualizado',
-              text: 'El primer nivel se ordenó actualizando la hora de creación.',
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 2000
-            });
-          },
+          () => this.verificarOrdenPrimerNivel(planId, idsOrdenados, anterior),
           (error) => this.manejarErrorOrden(error, planId, anterior)
         );
+      },
+      (error) => this.manejarErrorOrden(error, planId, anterior)
+    );
+  }
+
+  private verificarOrdenPrimerNivel(planId: string, idsOrdenados: string[], anterior: any[]) {
+    this.request.get(environment.PLANES_CRUD, `subgrupo/hijos/${planId}`).pipe(take(1)).subscribe(
+      async (respuesta: any) => {
+        const hijosCrud = respuesta && Array.isArray(respuesta.Data)
+          ? respuesta.Data.map(hijo => String(hijo._id))
+          : [];
+        if (!this.mismoOrden(idsOrdenados, hijosCrud)) {
+          this.restaurarArbol(anterior);
+          this.padresGuardando.delete(planId);
+          Swal.fire({
+            title: 'El orden no se guardó en planes_crud',
+            text: `Esperado: ${idsOrdenados.join(', ')}. Recibido: ${hijosCrud.join(', ')}.`,
+            icon: 'warning'
+          });
+          return;
+        }
+
+        await this.loadArbolMid();
+        this.padresGuardando.delete(planId);
+        const hijosMid = this.dataSource.data.map(nodo => String(nodo.id));
+        if (!this.mismoOrden(idsOrdenados, hijosMid)) {
+          Swal.fire({
+            title: 'planes_crud guardó el orden, pero planeacion_mid no lo refleja',
+            text: 'Verifique que planeacion_mid consuma la misma instancia actualizada de planes_crud.',
+            icon: 'warning'
+          });
+          return;
+        }
+        Swal.fire({
+          title: 'Orden actualizado',
+          text: 'El primer nivel se ordenó actualizando la hora de creación.',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 2000
+        });
       },
       (error) => this.manejarErrorOrden(error, planId, anterior)
     );
