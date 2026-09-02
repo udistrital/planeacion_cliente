@@ -9,8 +9,6 @@ import Swal from 'sweetalert2';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
 import { ParametroPeriodo } from '../gestion-parametros/utils/gestion-parametros.models';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-construir-plan',
@@ -238,9 +236,6 @@ export class ConstruirPlanComponent implements OnInit {
       activo: res.activo,
       bandera_tabla: res.banderaTabla
     }
-    if (res.orden !== undefined && res.orden !== null) {
-      subgrupo['orden'] = res.orden;
-    }
     if (res.hasOwnProperty("opciones")) {
       var array = res.opciones.split(",");
       let jsonArray = []
@@ -364,10 +359,6 @@ export class ConstruirPlanComponent implements OnInit {
   // }
 
   receiveMessage(event) {
-    if (event.bandera == 'reordenar') {
-      this.guardarOrden(event.ordenes);
-      return;
-    }
     this.mostrarMensajeCarga();
     if (event.bandera == 'editar') {
       this.uid_n = event.fila.level + 1;
@@ -392,7 +383,6 @@ export class ConstruirPlanComponent implements OnInit {
                     nombre: data.Data.nombre,
                     descripcion: data.Data.descripcion,
                     activo: data.Data.activo,
-                    orden: data.Data.orden,
                     banderaTabla: data.Data.bandera_tabla,
                     padre: data.Data.padre,
                     hijos: {
@@ -412,7 +402,6 @@ export class ConstruirPlanComponent implements OnInit {
                     nombre: data.Data.nombre,
                     descripcion: data.Data.descripcion,
                     activo: data.Data.activo,
-                    orden: data.Data.orden,
                     banderaTabla: data.Data.bandera_tabla,
                     padre: data.Data.padre,
                     hijos: {
@@ -433,7 +422,6 @@ export class ConstruirPlanComponent implements OnInit {
                   nombre: data.Data.nombre,
                   descripcion: data.Data.descripcion,
                   activo: data.Data.activo,
-                  orden: data.Data.orden,
                   banderaTabla: data.Data.bandera_tabla,
                   hijos: {
                     hijos_formato_paf: this.hijos_formato_paf,
@@ -481,15 +469,6 @@ export class ConstruirPlanComponent implements OnInit {
         }
       }
     }
-  }
-
-  guardarOrden(ordenes: Array<{ id: string, orden: number }>) {
-    forkJoin(ordenes.map(item => this.request.put(
-      environment.PLANES_CRUD,
-      'subgrupo',
-      { orden: item.orden },
-      item.id
-    ).pipe(catchError(() => of(null))))).subscribe();
   }
 
   agregarSub(niv: number) {
