@@ -13,6 +13,7 @@ import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 interface Subgrupo {
   activo: string;
@@ -20,6 +21,7 @@ interface Subgrupo {
   descripcion: string;
   id: string;
   orden?: number;
+  parentId?: string;
   children?: Subgrupo[];
 }
 
@@ -32,6 +34,7 @@ interface Nodo {
   descripcion: string;
   id: string;
   orden?: number;
+  parentId?: string;
   level: number;
   icon?: string;
   idx?: number;
@@ -61,6 +64,7 @@ export class ArbolComponent implements OnInit {
   icon: string;
   idIcon: string;
   rol: string;
+  padresGuardando = new Set<string>();
 
   private transformer = (node: Subgrupo, level: number) => {
     if (this.armonizacionPED || this.armonizacionPI) {
@@ -71,6 +75,7 @@ export class ArbolComponent implements OnInit {
         descripcion: node.descripcion,
         id: node.id,
         orden: node.orden,
+        parentId: node.parentId,
         level: level,
         icon: this.iconArmonizacion(node.id)
       };
@@ -82,6 +87,7 @@ export class ArbolComponent implements OnInit {
         descripcion: node.descripcion,
         id: node.id,
         orden: node.orden,
+        parentId: node.parentId,
         level: level,
       };
     }
@@ -165,7 +171,7 @@ export class ArbolComponent implements OnInit {
       this.request.get(environment.PLANES_MID, `arbol/` + this.idPlan).subscribe(async (data: any) => {
         if (data.Data !== null) {
           this.mostrar = true;
-          this.dataSource.data = this.ordenarArbol(data.Data);
+          this.dataSource.data = this.prepararArbol(data.Data, this.idPlan);
           if (this.armonizacionPED || this.armonizacionPI) {
             await this.linksArbol()
             await this.expandNodes()
@@ -217,34 +223,62 @@ export class ArbolComponent implements OnInit {
     this.grupo.emit({ fila, bandera })
   }
 
-  mover(fila: Nodo, direccion: number) {
-    const hermanos = this.obtenerHermanos(this.dataSource.data, fila.id);
-    if (!hermanos) {
-      return;
-    }
-
-    const indice = hermanos.findIndex(hermano => hermano.id === fila.id);
-    const nuevoIndice = indice + direccion;
-    if (indice < 0 || nuevoIndice < 0 || nuevoIndice >= hermanos.length) {
-      return;
-    }
-
-    [hermanos[indice], hermanos[nuevoIndice]] = [hermanos[nuevoIndice], hermanos[indice]];
-    hermanos.forEach((hermano, i) => hermano.orden = i + 1);
-    this.dataSource.data = this.ordenarArbol(this.dataSource.data);
-    this.grupo.emit({
-      bandera: 'reordenar',
-      ordenes: hermanos.map(hermano => ({ id: hermano.id, orden: hermano.orden }))
-    });
+  puedeArrastrar(fila: Nodo): boolean {
+    return fila.level > 0 && this.esActivo(fila) && !this.padresGuardando.has(fila.parentId);
   }
 
-  puedeMover(fila: Nodo, direccion: number): boolean {
-    const hermanos = this.obtenerHermanos(this.dataSource.data, fila.id);
-    if (!hermanos) {
-      return false;
+  puedeSoltar = (indice: number, drag: CdkDrag<Nodo>, drop: CdkDropList<Nodo[]>): boolean => {
+    const destino = drop.data && drop.data[indice];
+    const origen = drag.data;
+    return !!destino && this.puedeArrastrar(origen) && this.esActivo(destino) &&
+      origen.level === destino.level && origen.parentId === destino.parentId;
+  }
+
+  obtenerNodosVisibles(): Nodo[] {
+    const visibles: Nodo[] = [];
+    const ancestrosExpandidos: boolean[] = [];
+    for (const nodo of this.treeControl.dataNodes || []) {
+      const visible = nodo.level === 0 || ancestrosExpandidos.slice(0, nodo.level).every(expandido => expandido);
+      if (visible) {
+        visibles.push(nodo);
+      }
+      ancestrosExpandidos[nodo.level] = visible && this.treeControl.isExpanded(nodo);
+      ancestrosExpandidos.length = nodo.level + 1;
     }
-    const indice = hermanos.findIndex(hermano => hermano.id === fila.id);
-    return indice + direccion >= 0 && indice + direccion < hermanos.length;
+    return visibles;
+  }
+
+  soltar(event: CdkDragDrop<Nodo[]>) {
+    const origen: Nodo = event.item.data;
+    const visibles = event.container.data || [];
+    const destino = visibles[event.currentIndex];
+    if (!destino || origen.id === destino.id || !this.puedeArrastrar(origen) ||
+      !this.esActivo(destino) || origen.level !== destino.level || origen.parentId !== destino.parentId) {
+      return;
+    }
+
+    const hermanos = this.obtenerHermanos(this.dataSource.data, origen.id);
+    if (!hermanos) {
+      return;
+    }
+    const anterior = this.clonarArbol(this.dataSource.data);
+    const activos = hermanos.filter(hermano => this.esActivo(hermano));
+    const indiceOrigen = activos.findIndex(hermano => hermano.id === origen.id);
+    const indiceDestino = activos.findIndex(hermano => hermano.id === destino.id);
+    if (indiceOrigen < 0 || indiceDestino < 0) {
+      return;
+    }
+
+    moveItemInArray(activos, indiceOrigen, indiceDestino);
+    let siguienteActivo = 0;
+    hermanos.forEach((hermano, indice) => {
+      if (this.esActivo(hermano)) {
+        hermanos[indice] = activos[siguienteActivo++];
+      }
+      hermanos[indice].orden = indice;
+    });
+    this.refrescarArbol();
+    this.persistirOrden(origen.parentId, hermanos.map(hermano => hermano.id), anterior);
   }
 
   private obtenerHermanos(nodos: any[], id: string): any[] {
@@ -263,15 +297,108 @@ export class ArbolComponent implements OnInit {
     return undefined;
   }
 
-  private ordenarArbol(nodos: any[]): any[] {
+  private prepararArbol(nodos: any[], parentId: string): any[] {
     return (nodos || []).map(nodo => ({
       ...nodo,
-      children: nodo.children ? this.ordenarArbol(nodo.children) : nodo.children
+      parentId,
+      children: nodo.children ? this.prepararArbol(nodo.children, nodo.id) : nodo.children
     })).sort((a, b) => {
       const ordenA = a.orden !== undefined && a.orden !== null ? Number(a.orden) : Number.MAX_SAFE_INTEGER;
       const ordenB = b.orden !== undefined && b.orden !== null ? Number(b.orden) : Number.MAX_SAFE_INTEGER;
       return ordenA - ordenB;
     });
+  }
+
+  private refrescarArbol() {
+    this.dataSource.data = [...this.dataSource.data];
+  }
+
+  private esActivo(nodo: { activo: string | boolean }): boolean {
+    return nodo.activo === true || String(nodo.activo).toLowerCase() === 'activo';
+  }
+
+  private clonarArbol(nodos: any[]): any[] {
+    return nodos.map(nodo => ({
+      ...nodo,
+      children: nodo.children ? this.clonarArbol(nodo.children) : nodo.children
+    }));
+  }
+
+  private persistirOrden(parentId: string, hijos: string[], anterior: any[]) {
+    this.padresGuardando.add(parentId);
+    this.request.put(environment.PLANES_CRUD, 'subgrupo', { hijos }, parentId).subscribe(
+      async (respuesta: any) => {
+        const hijosRespuesta = respuesta && respuesta.Data && respuesta.Data.hijos;
+        if (respuesta && respuesta.Success === false || !this.mismoOrden(hijos, hijosRespuesta)) {
+          this.restaurarArbol(anterior);
+          this.padresGuardando.delete(parentId);
+          await Swal.fire({
+            title: 'No fue posible guardar el orden',
+            text: respuesta && respuesta.Message ? respuesta.Message : 'El backend no confirmó el orden enviado.',
+            icon: 'error'
+          });
+          return;
+        }
+
+        await this.loadArbolMid();
+        this.padresGuardando.delete(parentId);
+        const confirmados = this.obtenerHijosPorPadre(this.dataSource.data, parentId);
+        if (!this.mismoOrden(hijos, confirmados)) {
+          await Swal.fire({
+            title: 'El orden no pudo verificarse',
+            text: 'La estructura recargada no coincide con el orden enviado.',
+            icon: 'warning'
+          });
+          return;
+        }
+        Swal.fire({
+          title: 'Orden actualizado',
+          text: 'El nuevo orden se guardó correctamente.',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 2000
+        });
+      },
+      async (error) => {
+        this.restaurarArbol(anterior);
+        this.padresGuardando.delete(parentId);
+        if (Number(error && error.status) === 409) {
+          await this.loadArbolMid();
+          Swal.fire({
+            title: 'Estructura actualizada',
+            text: 'La estructura fue modificada por otro usuario. Se cargó el orden más reciente.',
+            icon: 'warning'
+          });
+          return;
+        }
+        const mensaje = error && error.error && error.error.Message
+          ? error.error.Message
+          : 'No fue posible guardar el nuevo orden. Se restauró la estructura anterior.';
+        Swal.fire({ title: 'Error en la operación', text: mensaje, icon: 'error' });
+      }
+    );
+  }
+
+  private restaurarArbol(anterior: any[]) {
+    this.dataSource.data = anterior;
+  }
+
+  private mismoOrden(esperado: string[], recibido: any[]): boolean {
+    return Array.isArray(recibido) && esperado.length === recibido.length &&
+      esperado.every((id, indice) => String(id) === String(recibido[indice]));
+  }
+
+  private obtenerHijosPorPadre(nodos: any[], parentId: string): string[] {
+    for (const nodo of nodos) {
+      if (String(nodo.id) === String(parentId)) {
+        return (nodo.children || []).map(hijo => String(hijo.id));
+      }
+      const encontrados = this.obtenerHijosPorPadre(nodo.children || [], parentId);
+      if (encontrados) {
+        return encontrados;
+      }
+    }
+    return undefined;
   }
 
   agregar(fila, bandera) {
