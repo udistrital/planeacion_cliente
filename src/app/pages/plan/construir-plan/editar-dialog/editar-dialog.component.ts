@@ -20,7 +20,6 @@ export class EditarDialogComponent implements OnInit {
   aplicativoId: string;
   fechaCreacion: Date;
   nombre: string;
-  orden: number;
   descripcion: string;
   activoS: string;
   tipoDato: string;
@@ -87,7 +86,6 @@ export class EditarDialogComponent implements OnInit {
     this.aplicativoId = data.sub.aplicativo_id;
     this.fechaCreacion = data.sub.fecha_creacion;
     this.nombre = data.sub.nombre;
-    this.orden = data.sub.orden;
     this.padre = data.sub.padre;
     if(data.sub.vigencia_aplica) {
       this.vigencia_aplica_selected = data.sub.vigencia_aplica;
@@ -124,7 +122,6 @@ export class EditarDialogComponent implements OnInit {
       fecha_creacion: [this.fechaCreacion, Validators.required],
       descripcion: [this.descripcion, Validators.required],
       nombre: [this.nombre, Validators.required],
-      orden: [this.orden],
       activo: [this.activoS, Validators.required],
       tipo_plan_id: [this.tipoPlan, Validators.required],
       formato: [this.formatoS, Validators.required],

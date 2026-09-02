@@ -1231,7 +1231,7 @@ async onChangeU(unidad) {
           } else {
             this.banderaEstadoDatos = true;//bandera validacion de la data
             this.estado = plan.estado_plan_id;
-            this.steps = data[0];
+            this.steps = this.ordenarFormato(data[0]);
             this.json = data[1][0];
             this.form = this.formBuilder.group(this.json);
             Swal.close()
@@ -1249,6 +1249,20 @@ async onChangeU(unidad) {
         })
       });
     }
+  }
+
+  private ordenarFormato(nodos: any[]): any[] {
+    if (!Array.isArray(nodos)) {
+      return nodos;
+    }
+    return nodos.map(nodo => ({
+      ...nodo,
+      sub: Array.isArray(nodo.sub) ? this.ordenarFormato(nodo.sub) : nodo.sub
+    })).sort((a, b) => {
+      const ordenA = a.orden !== undefined && a.orden !== null ? Number(a.orden) : Number.MAX_SAFE_INTEGER;
+      const ordenB = b.orden !== undefined && b.orden !== null ? Number(b.orden) : Number.MAX_SAFE_INTEGER;
+      return ordenA - ordenB;
+    });
   }
 
   async editar(fila): Promise<void> {
@@ -1284,7 +1298,7 @@ async onChangeU(unidad) {
       this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.plan._id + `/` + fila.index).subscribe((data: any) => {
         if (data) {
           this.estado = this.plan.estado_plan_id;
-          this.steps = data.Data[0]
+          this.steps = this.ordenarFormato(data.Data[0])
           this.json = data.Data[1][0]
           this.form = this.formBuilder.group(this.json);
 
