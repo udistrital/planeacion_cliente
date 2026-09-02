@@ -42,6 +42,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { CrearPlanComponent } from './plan/crear-plan/crear-plan.component';
@@ -294,7 +296,9 @@ const MY_FORMATS = {
     MatGridListModule,
     MatButtonModule,
     MatButtonToggleModule,
+    MatTooltipModule,
     GoogleChartsModule,
+    DragDropModule,
     ...materialModules,
   ],
   providers: [

@@ -16,6 +16,7 @@ import { ResumenPlan } from 'src/app/@core/models/plan/resumen_plan';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
 import { MensajesCargaService } from 'src/app/@core/services/mensajes-carga.service';
+import { obtenerOrdenDescripcion } from '../plan/utils/orden-descripcion';
 
 @Component({
   selector: 'app-formulacion',
@@ -96,6 +97,7 @@ export class FormulacionComponent implements OnInit, OnDestroy {
   private miObservableSubscription: Subscription;
   private routeSubscription: Subscription;
   pendienteCheck: boolean;
+  ordenFormatoCliente = new Map<string, number>();
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -1222,16 +1224,17 @@ async onChangeU(unidad) {
       Swal.close();
     } else {
       return new Promise((resolve, reject) => {
-        this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe((data: any) => {
+        this.request.get(environment.PLANES_MID, `formato/` + plan._id).subscribe(async (data: any) => {
           if (Array.isArray(data) && data[0] === null && Array.isArray(data[1]) &&
             data[1].length > 0 && Object.keys(data[1][0]).length === 0) {
             this.banderaEstadoDatos = false;
             Swal.close()
             reject();
           } else {
+            await this.cargarOrdenFormatoCliente(plan._id);
             this.banderaEstadoDatos = true;//bandera validacion de la data
             this.estado = plan.estado_plan_id;
-            this.steps = data[0];
+            this.steps = this.ordenarFormato(data[0]);
             this.json = data[1][0];
             this.form = this.formBuilder.group(this.json);
             Swal.close()
@@ -1249,6 +1252,48 @@ async onChangeU(unidad) {
         })
       });
     }
+  }
+
+  private ordenarFormato(nodos: any[]): any[] {
+    if (!Array.isArray(nodos)) {
+      return nodos;
+    }
+    return nodos.map(nodo => ({
+      ...nodo,
+      sub: Array.isArray(nodo.sub) ? this.ordenarFormato(nodo.sub) : nodo.sub
+    })).sort((a, b) => {
+      const ordenClienteA = this.ordenFormatoCliente.get(String(a.id));
+      const ordenClienteB = this.ordenFormatoCliente.get(String(b.id));
+      const ordenA = ordenClienteA !== undefined
+        ? ordenClienteA
+        : (a.orden !== undefined && a.orden !== null ? Number(a.orden) : Number.MAX_SAFE_INTEGER);
+      const ordenB = ordenClienteB !== undefined
+        ? ordenClienteB
+        : (b.orden !== undefined && b.orden !== null ? Number(b.orden) : Number.MAX_SAFE_INTEGER);
+      return ordenA - ordenB;
+    });
+  }
+
+  private cargarOrdenFormatoCliente(planId: string): Promise<void> {
+    return new Promise(resolve => {
+      this.request.get(environment.PLANES_MID, `arbol/${planId}`).subscribe((respuesta: any) => {
+        this.ordenFormatoCliente.clear();
+        const recorrer = (nodos: any[]) => {
+          (nodos || []).forEach(nodo => {
+            const orden = obtenerOrdenDescripcion(nodo.descripcion);
+            if (orden !== undefined) {
+              this.ordenFormatoCliente.set(String(nodo.id), orden);
+            }
+            recorrer(nodo.children || []);
+          });
+        };
+        recorrer(respuesta && respuesta.Data);
+        resolve();
+      }, () => {
+        this.ordenFormatoCliente.clear();
+        resolve();
+      });
+    });
   }
 
   async editar(fila): Promise<void> {
@@ -1281,10 +1326,11 @@ async onChangeU(unidad) {
           Swal.showLoading();
         },
       })
-      this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.plan._id + `/` + fila.index).subscribe((data: any) => {
+      this.request.get(environment.PLANES_MID, `formulacion/get_plan/` + this.plan._id + `/` + fila.index).subscribe(async (data: any) => {
         if (data) {
+          await this.cargarOrdenFormatoCliente(this.plan._id);
           this.estado = this.plan.estado_plan_id;
-          this.steps = data.Data[0]
+          this.steps = this.ordenarFormato(data.Data[0])
           this.json = data.Data[1][0]
           this.form = this.formBuilder.group(this.json);
 
