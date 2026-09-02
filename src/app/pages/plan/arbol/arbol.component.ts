@@ -15,6 +15,7 @@ import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_auten
 import { CodigosService } from 'src/app/@core/services/codigos.service';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { take } from 'rxjs/operators';
+import { asignarOrdenDescripcion, limpiarOrdenDescripcion, obtenerOrdenDescripcion } from '../utils/orden-descripcion';
 
 interface Subgrupo {
   activo: string;
@@ -73,7 +74,7 @@ export class ArbolComponent implements OnInit {
         expandable: !!node.children && node.children.length > 0,
         activo: node.activo,
         nombre: node.nombre,
-        descripcion: node.descripcion,
+        descripcion: limpiarOrdenDescripcion(node.descripcion),
         id: node.id,
         orden: node.orden,
         parentId: node.parentId,
@@ -85,7 +86,7 @@ export class ArbolComponent implements OnInit {
         expandable: !!node.children && node.children.length > 0,
         activo: node.activo,
         nombre: node.nombre,
-        descripcion: node.descripcion,
+        descripcion: limpiarOrdenDescripcion(node.descripcion),
         id: node.id,
         orden: node.orden,
         parentId: node.parentId,
@@ -309,8 +310,14 @@ export class ArbolComponent implements OnInit {
       parentId,
       children: nodo.children ? this.prepararArbol(nodo.children, nodo.id) : nodo.children
     })).sort((a, b) => {
-      const ordenA = a.orden !== undefined && a.orden !== null ? Number(a.orden) : Number.MAX_SAFE_INTEGER;
-      const ordenB = b.orden !== undefined && b.orden !== null ? Number(b.orden) : Number.MAX_SAFE_INTEGER;
+      const ordenDescripcionA = parentId === this.idPlan ? obtenerOrdenDescripcion(a.descripcion) : undefined;
+      const ordenDescripcionB = parentId === this.idPlan ? obtenerOrdenDescripcion(b.descripcion) : undefined;
+      const ordenA = ordenDescripcionA !== undefined
+        ? ordenDescripcionA
+        : (a.orden !== undefined && a.orden !== null ? Number(a.orden) : Number.MAX_SAFE_INTEGER);
+      const ordenB = ordenDescripcionB !== undefined
+        ? ordenDescripcionB
+        : (b.orden !== undefined && b.orden !== null ? Number(b.orden) : Number.MAX_SAFE_INTEGER);
       return ordenA - ordenB;
     });
   }
@@ -332,18 +339,7 @@ export class ArbolComponent implements OnInit {
 
   private persistirOrden(parentId: string, hijos: string[], anterior: any[]) {
     this.padresGuardando.add(parentId);
-    this.request.get(environment.PLANES_CRUD, `subgrupo/${parentId}`).subscribe((consulta: any) => {
-      const padre = consulta && consulta.Data;
-      if (!padre) {
-        this.manejarErrorOrden({ status: 404 }, parentId, anterior);
-        return;
-      }
-
-      // Compatibilidad: el CRUD desplegado todavía valida el esquema completo
-      // aunque el contrato nuevo permite actualizar únicamente { hijos }.
-      const payload = { ...padre, hijos };
-      delete payload.orden;
-      this.request.put(environment.PLANES_CRUD, 'subgrupo', payload, parentId).subscribe(
+    this.request.put(environment.PLANES_CRUD, 'subgrupo', { hijos }, parentId).subscribe(
       async (respuesta: any) => {
         const hijosRespuesta = respuesta && respuesta.Data && respuesta.Data.hijos;
         if (respuesta && respuesta.Success === false || !this.mismoOrden(hijos, hijosRespuesta)) {
@@ -377,8 +373,7 @@ export class ArbolComponent implements OnInit {
         });
       },
       (error) => this.manejarErrorOrden(error, parentId, anterior)
-      );
-    }, (error) => this.manejarErrorOrden(error, parentId, anterior));
+    );
   }
 
   private persistirOrdenPrimerNivel(planId: string, idsOrdenados: string[], anterior: any[]) {
@@ -389,17 +384,14 @@ export class ArbolComponent implements OnInit {
     ).pipe(take(1)))).subscribe(
       (consultas: any[]) => {
         const subgrupos = consultas.map(consulta => consulta && consulta.Data);
-        if (subgrupos.some(subgrupo => !subgrupo || !subgrupo.fecha_creacion)) {
+        if (subgrupos.some(subgrupo => !subgrupo)) {
           this.manejarErrorOrden({ status: 404 }, planId, anterior);
           return;
         }
 
-        const fechas = subgrupos.map(subgrupo => new Date(subgrupo.fecha_creacion).getTime());
-        const fechaBase = Math.min(...fechas);
-        const unaHora = 60 * 60 * 1000;
         const actualizaciones = subgrupos.map((subgrupo, indice) => {
           const payload = {
-            fecha_creacion: new Date(fechaBase + indice * unaHora).toISOString()
+            descripcion: asignarOrdenDescripcion(subgrupo.descripcion, indice)
           };
           return this.request.put(
             environment.PLANES_CRUD,
@@ -410,7 +402,14 @@ export class ArbolComponent implements OnInit {
         });
 
         forkJoin(actualizaciones).subscribe(
-          () => this.verificarOrdenPrimerNivel(planId, idsOrdenados, anterior),
+          (respuestas: any[]) => {
+            const error = respuestas.find(respuesta => respuesta && respuesta.Success === false);
+            if (error) {
+              this.manejarErrorOrden({ status: error.Status, error }, planId, anterior);
+              return;
+            }
+            this.verificarOrdenPrimerNivel(planId, idsOrdenados, anterior);
+          },
           (error) => this.manejarErrorOrden(error, planId, anterior)
         );
       },
@@ -422,7 +421,12 @@ export class ArbolComponent implements OnInit {
     this.request.get(environment.PLANES_CRUD, `subgrupo/hijos/${planId}`).pipe(take(1)).subscribe(
       async (respuesta: any) => {
         const hijosCrud = respuesta && Array.isArray(respuesta.Data)
-          ? respuesta.Data.map(hijo => String(hijo._id))
+          ? [...respuesta.Data].sort((a, b) => {
+            const ordenA = obtenerOrdenDescripcion(a.descripcion);
+            const ordenB = obtenerOrdenDescripcion(b.descripcion);
+            return (ordenA !== undefined ? ordenA : Number.MAX_SAFE_INTEGER) -
+              (ordenB !== undefined ? ordenB : Number.MAX_SAFE_INTEGER);
+          }).map(hijo => String(hijo._id))
           : [];
         if (!this.mismoOrden(idsOrdenados, hijosCrud)) {
           this.restaurarArbol(anterior);
@@ -448,7 +452,7 @@ export class ArbolComponent implements OnInit {
         }
         Swal.fire({
           title: 'Orden actualizado',
-          text: 'El primer nivel se ordenó actualizando la hora de creación.',
+          text: 'El nuevo orden se guardó correctamente.',
           icon: 'success',
           showConfirmButton: false,
           timer: 2000
