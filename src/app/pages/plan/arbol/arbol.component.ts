@@ -120,6 +120,7 @@ export class ArbolComponent implements OnInit {
   @Input() armonizacionPI: boolean;
   @Input() dataArmonizacion: any[];
   @Input() estado: string;
+  @Input() usarOrdenDescripcion: boolean = false;
   @Input() updateSignal: Observable<String[]>;
   @Output() grupo = new EventEmitter<any>();
   @Output() componentLoaded: EventEmitter<void> = new EventEmitter<void>();
@@ -174,6 +175,9 @@ export class ArbolComponent implements OnInit {
         if (data.Data !== null) {
           this.mostrar = true;
           this.dataSource.data = this.prepararArbol(data.Data, this.idPlan);
+          if (this.usarOrdenDescripcion) {
+            this.normalizarOrdenPrimerNivel();
+          }
           if (this.armonizacionPED || this.armonizacionPI) {
             await this.linksArbol()
             await this.expandNodes()
@@ -226,7 +230,8 @@ export class ArbolComponent implements OnInit {
   }
 
   puedeArrastrar(fila: Nodo): boolean {
-    return this.esActivo(fila) && !this.padresGuardando.has(fila.parentId);
+    return (fila.level > 0 || this.usarOrdenDescripcion) && this.esActivo(fila) &&
+      !this.padresGuardando.has(fila.parentId);
   }
 
   puedeSoltar = (indice: number, drag: CdkDrag<Nodo>, drop: CdkDropList<Nodo[]>): boolean => {
@@ -391,8 +396,10 @@ export class ArbolComponent implements OnInit {
 
         const actualizaciones = subgrupos.map((subgrupo, indice) => {
           const payload = {
+            ...subgrupo,
             descripcion: asignarOrdenDescripcion(subgrupo.descripcion, indice)
           };
+          delete payload.orden;
           return this.request.put(
             environment.PLANES_CRUD,
             'subgrupo',
@@ -415,6 +422,66 @@ export class ArbolComponent implements OnInit {
       },
       (error) => this.manejarErrorOrden(error, planId, anterior)
     );
+  }
+
+  private normalizarOrdenPrimerNivel() {
+    if (this.padresGuardando.has(this.idPlan)) {
+      return;
+    }
+    const pendientes = (this.dataSource.data || [])
+      .map((nodo, indice) => ({ nodo, indice }))
+      .filter(item => obtenerOrdenDescripcion(item.nodo.descripcion) === undefined);
+    if (pendientes.length === 0) {
+      return;
+    }
+
+    this.padresGuardando.add(this.idPlan);
+    forkJoin(pendientes.map(item => this.request.get(
+      environment.PLANES_CRUD,
+      `subgrupo/${item.nodo.id}`
+    ).pipe(take(1)))).subscribe((consultas: any[]) => {
+      const actualizaciones = consultas.map((consulta, indice) => {
+        const subgrupo = consulta && consulta.Data;
+        if (!subgrupo) {
+          return null;
+        }
+        const posicion = pendientes[indice].indice;
+        const descripcion = asignarOrdenDescripcion(subgrupo.descripcion, posicion);
+        pendientes[indice].nodo.descripcion = descripcion;
+        const payload = { ...subgrupo, descripcion };
+        delete payload.orden;
+        return this.request.put(
+          environment.PLANES_CRUD,
+          'subgrupo',
+          payload,
+          subgrupo._id
+        ).pipe(take(1));
+      });
+
+      if (actualizaciones.some(actualizacion => !actualizacion)) {
+        this.mostrarErrorInicializacionOrden();
+        return;
+      }
+      forkJoin(actualizaciones).subscribe(
+        (respuestas: any[]) => {
+          this.padresGuardando.delete(this.idPlan);
+          const error = respuestas.find(respuesta => respuesta && respuesta.Success === false);
+          if (error) {
+            this.mostrarErrorInicializacionOrden(error.Message);
+          }
+        },
+        () => this.mostrarErrorInicializacionOrden()
+      );
+    }, () => this.mostrarErrorInicializacionOrden());
+  }
+
+  private mostrarErrorInicializacionOrden(mensaje?: string) {
+    this.padresGuardando.delete(this.idPlan);
+    Swal.fire({
+      title: 'No fue posible inicializar el orden',
+      text: mensaje || 'No se pudo guardar el orden de los elementos del primer nivel.',
+      icon: 'warning'
+    });
   }
 
   private verificarOrdenPrimerNivel(planId: string, idsOrdenados: string[], anterior: any[]) {
