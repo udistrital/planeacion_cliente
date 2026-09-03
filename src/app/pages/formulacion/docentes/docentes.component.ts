@@ -43,8 +43,8 @@ export class DocentesComponent implements OnInit {
   nivel: any;
   data: any;
 
-  incrementoInput = new FormControl('7.52');
-  incrementoFormPosgrado = new FormControl('6.42');
+  incrementoInput = new FormControl('9.3');
+  incrementoFormPosgrado = new FormControl('8.2');
   private readonly DEFAULT_INC_PRE = 0.0752;   // Pregrado
   private readonly DEFAULT_INC_POS = 0.0642; 
   incremento: number = 0.0;
