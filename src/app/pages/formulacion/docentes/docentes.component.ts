@@ -45,8 +45,8 @@ export class DocentesComponent implements OnInit {
 
   incrementoInput = new FormControl('9.3');
   incrementoFormPosgrado = new FormControl('8.2');
-  private readonly DEFAULT_INC_PRE = 0.0752;   // Pregrado
-  private readonly DEFAULT_INC_POS = 0.0642; 
+  private readonly DEFAULT_INC_PRE = 0.093;   // Pregrado
+  private readonly DEFAULT_INC_POS = 0.082; 
   incremento: number = 0.0;
   incrementoPosgrado: number = 0.0;
   incrementoAnterior: number = 0.0;
