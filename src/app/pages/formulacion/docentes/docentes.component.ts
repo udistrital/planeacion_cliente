@@ -106,9 +106,9 @@ private toNum(v: any, d = 0): number {
   return Number.isFinite(n) ? n : d;
 }
 
-// Convención: 4.33 semanas ≈ 1 mes
+// Convención: 4 semanas = 1 mes
 private semanasAMeses(semanas: number): number {
-  const m = semanas / 4.33;
+  const m = semanas / 4;
   return Math.round(m * 100) / 100; // 2 decimales
 }
 
