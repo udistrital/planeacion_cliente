@@ -83,27 +83,33 @@
           </mat-select>
         </mat-form-field>
         <div *ngIf="form.get('categoria').value === 'planAccion' && form.get('tipoReporte').value === 'general'">
-          <mat-form-field appearance="fill" [style.width.%]="90">
-            <mat-label>Dependencias incluidas</mat-label>
-            <mat-select formControlName="dependencias" multiple>
-              <mat-option *ngFor="let dependencia of dependenciasDisponibles" [value]="dependencia.Id.toString()">
-                {{dependencia.Nombre}}
-              </mat-option>
-            </mat-select>
-            <mat-hint *ngIf="cargandoDependencias">Consultando dependencias disponibles...</mat-hint>
-            <mat-hint *ngIf="!cargandoDependencias && dependenciasDisponibles.length === 0">
-              No hay dependencias que coincidan con los filtros seleccionados.
-            </mat-hint>
-          </mat-form-field>
-          <div>
-            <button mat-button type="button" color="primary" (click)="seleccionarTodasDependencias()"
-              [disabled]="cargandoDependencias || dependenciasDisponibles.length === 0">
-              Seleccionar todas
-            </button>
-            <button mat-button type="button" (click)="desmarcarTodasDependencias()"
-              [disabled]="cargandoDependencias || form.get('dependencias').value.length === 0">
-              Desmarcar todas
-            </button>
+          <mat-checkbox [checked]="filtrarDependencias"
+            (change)="onChangeFiltrarDependencias($event.checked)">
+            Filtrar dependencias
+          </mat-checkbox>
+          <div *ngIf="filtrarDependencias">
+            <mat-form-field appearance="fill" [style.width.%]="90">
+              <mat-label>Dependencias incluidas</mat-label>
+              <mat-select formControlName="dependencias" multiple>
+                <mat-option *ngFor="let dependencia of dependenciasDisponibles" [value]="dependencia.Id.toString()">
+                  {{dependencia.Nombre}}
+                </mat-option>
+              </mat-select>
+              <mat-hint *ngIf="cargandoDependencias">Consultando dependencias disponibles...</mat-hint>
+              <mat-hint *ngIf="!cargandoDependencias && dependenciasDisponibles.length === 0">
+                No hay dependencias que coincidan con los filtros seleccionados.
+              </mat-hint>
+            </mat-form-field>
+            <div>
+              <button mat-button type="button" color="primary" (click)="seleccionarTodasDependencias()"
+                [disabled]="cargandoDependencias || dependenciasDisponibles.length === 0">
+                Seleccionar todas
+              </button>
+              <button mat-button type="button" (click)="desmarcarTodasDependencias()"
+                [disabled]="cargandoDependencias || form.get('dependencias').value.length === 0">
+                Desmarcar todas
+              </button>
+            </div>
           </div>
         </div>
         <button [disabled]="!form.valid || cargandoDependencias" mat-raised-button color="primary" type="submit" class="col-3 mt-2 mb-3"
