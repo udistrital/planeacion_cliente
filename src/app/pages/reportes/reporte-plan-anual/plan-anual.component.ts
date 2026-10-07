@@ -31,6 +31,9 @@ export class PlanAnualComponent implements OnInit {
   planes: any[];
   auxPlanes: any[];
   evaluacion: boolean = false;
+  dependenciasDisponibles: any[] = [];
+  cargandoDependencias: boolean = false;
+  private consultaDependenciasId: number = 0;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -62,6 +65,7 @@ export class PlanAnualComponent implements OnInit {
       unidad: ['', Validators.required],
       estado: ['', Validators.required],
       plan: ['', Validators.required],
+      dependencias: [{ value: [], disabled: true }, Validators.required],
     });
   }
 
@@ -137,6 +141,7 @@ export class PlanAnualComponent implements OnInit {
       if (data) {
         this.unidades = data.Data;
         this.auxUnidades = data.Data;
+        this.actualizarDependenciasDisponibles();
       }
     }, (error) => {
       Swal.fire({
@@ -241,11 +246,16 @@ export class PlanAnualComponent implements OnInit {
   onChangeT(tipo) {
     if (tipo === 'unidad') {
       this.form.get('unidad').enable();
+      this.form.get('dependencias').disable();
+      this.form.get('dependencias').setValue([]);
+      this.dependenciasDisponibles = [];
       this.unidadVisible = true;
     } else if (tipo === 'general') {
       this.form.get('unidad').setValue(null);
       this.form.get('unidad').disable();
+      this.form.get('dependencias').enable();
       this.unidadVisible = false;
+      this.actualizarDependenciasDisponibles();
     }
   }
 
@@ -257,6 +267,9 @@ export class PlanAnualComponent implements OnInit {
       this.form.get('tipoReporte').disable();
       this.form.get('unidad').setValue(null);
       this.form.get('unidad').disable();
+      this.form.get('dependencias').disable();
+      this.form.get('dependencias').setValue([]);
+      this.dependenciasDisponibles = [];
       this.form.get('estado').enable();
       this.unidadVisible = false;
     } else if (categoria == 'evaluacion') {
@@ -268,6 +281,9 @@ export class PlanAnualComponent implements OnInit {
       this.form.get('estado').disable();
       this.form.get('unidad').enable();
       this.form.get('unidad').setValue(null);
+      this.form.get('dependencias').disable();
+      this.form.get('dependencias').setValue([]);
+      this.dependenciasDisponibles = [];
       this.evaluacion = true;
     } else {
       if (this.rol == 'PLANEACION') {
@@ -276,7 +292,92 @@ export class PlanAnualComponent implements OnInit {
       this.form.get('unidad').enable();
       this.form.get('estado').enable();
       this.unidadVisible = true;
+      if (this.form.get('tipoReporte').value === 'general') {
+        this.form.get('unidad').disable();
+        this.form.get('dependencias').enable();
+        this.unidadVisible = false;
+        this.actualizarDependenciasDisponibles();
+      } else {
+        this.form.get('dependencias').disable();
+      }
     }
+  }
+
+  async actualizarDependenciasDisponibles() {
+    const consultaId = ++this.consultaDependenciasId;
+    const categoria = this.form && this.form.get('categoria').value;
+    const tipoReporte = this.form && this.form.get('tipoReporte').value;
+    const vigencia = this.form && this.form.get('vigencia').value;
+    const estado = this.form && this.form.get('estado').value;
+    const plan = this.form && this.form.get('plan').value;
+
+    if (categoria !== 'planAccion' || tipoReporte !== 'general' || !vigencia || !estado || !plan || !this.unidades) {
+      this.dependenciasDisponibles = [];
+      this.cargandoDependencias = false;
+      if (this.form) {
+        this.form.get('dependencias').setValue([]);
+      }
+      return;
+    }
+
+    this.cargandoDependencias = true;
+    this.dependenciasDisponibles = [];
+    this.form.get('dependencias').setValue([]);
+    let tipoPlanId;
+    try {
+      tipoPlanId = await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP');
+    } catch (_) {
+      if (consultaId === this.consultaDependenciasId) {
+        this.dependenciasDisponibles = [];
+        this.form.get('dependencias').setValue([]);
+        this.cargandoDependencias = false;
+      }
+      return;
+    }
+    if (consultaId !== this.consultaDependenciasId) {
+      return;
+    }
+    const query = `plan?query=activo:true,tipo_plan_id:${tipoPlanId},vigencia:${vigencia.Id},estado_plan_id:${estado},nombre:${encodeURIComponent(plan.nombre)}&fields=dependencia_id`;
+
+    this.request.get(environment.PLANES_CRUD, query).subscribe((data: any) => {
+      if (consultaId !== this.consultaDependenciasId) {
+        return;
+      }
+      const planesDisponibles = data && Array.isArray(data.Data) ? data.Data : [];
+      const idsDisponibles = new Set(planesDisponibles
+        .map(planDisponible => String(planDisponible.dependencia_id))
+        .filter(id => id !== 'undefined' && id !== 'null'));
+
+      this.dependenciasDisponibles = this.unidades
+        .filter(unidad => idsDisponibles.has(String(unidad.Id)))
+        .filter((unidad, index, unidades) => unidades.findIndex(item => String(item.Id) === String(unidad.Id)) === index)
+        .sort((a, b) => a.Nombre.localeCompare(b.Nombre));
+
+      this.seleccionarTodasDependencias();
+      this.cargandoDependencias = false;
+    }, () => {
+      if (consultaId !== this.consultaDependenciasId) {
+        return;
+      }
+      this.dependenciasDisponibles = [];
+      this.form.get('dependencias').setValue([]);
+      this.cargandoDependencias = false;
+      Swal.fire({
+        title: 'Error en la operación',
+        text: 'No fue posible consultar las dependencias disponibles para el reporte',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      });
+    });
+  }
+
+  seleccionarTodasDependencias() {
+    this.form.get('dependencias').setValue(this.dependenciasDisponibles.map(unidad => String(unidad.Id)));
+  }
+
+  desmarcarTodasDependencias() {
+    this.form.get('dependencias').setValue([]);
   }
 
   async verificar() {
@@ -411,10 +512,11 @@ export class PlanAnualComponent implements OnInit {
           tipo_plan_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP'),
           estado_plan_id: estado,
           vigencia: (vigencia.Id).toString(),
+          dependencias_ids: this.form.get('dependencias').value,
         }
 
 
-        this.request.post(environment.PLANES_MID, `reportes/plan_anual_general/`+ plan.nombre, body).subscribe((data: any) => {
+        this.request.post(environment.PLANES_MID, `reportes/plan_anual_general/` + encodeURIComponent(plan.nombre), body).subscribe((data: any) => {
           if (data) {
             let infoReportes: any[] = data.Data.generalData;
             this.dataSource.data = [];
