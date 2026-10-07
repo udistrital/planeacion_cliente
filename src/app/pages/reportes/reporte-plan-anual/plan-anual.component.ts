@@ -33,6 +33,7 @@ export class PlanAnualComponent implements OnInit {
   evaluacion: boolean = false;
   dependenciasDisponibles: any[] = [];
   cargandoDependencias: boolean = false;
+  filtrarDependencias: boolean = false;
   private consultaDependenciasId: number = 0;
 
   constructor(
@@ -245,34 +246,30 @@ export class PlanAnualComponent implements OnInit {
 
   onChangeT(tipo) {
     if (tipo === 'unidad') {
+      this.desactivarFiltroDependencias();
       this.form.get('unidad').enable();
-      this.form.get('dependencias').disable();
-      this.form.get('dependencias').setValue([]);
-      this.dependenciasDisponibles = [];
       this.unidadVisible = true;
     } else if (tipo === 'general') {
       this.form.get('unidad').setValue(null);
       this.form.get('unidad').disable();
-      this.form.get('dependencias').enable();
+      this.desactivarFiltroDependencias();
       this.unidadVisible = false;
-      this.actualizarDependenciasDisponibles();
     }
   }
 
   onChangeC(categoria) {
     this.evaluacion = false;
     if (categoria == 'necesidades') {
+      this.desactivarFiltroDependencias();
       this.form.get('tipoReporte').setValue('general');
       this.form.get('tipoReporte').setValue(null);
       this.form.get('tipoReporte').disable();
       this.form.get('unidad').setValue(null);
       this.form.get('unidad').disable();
-      this.form.get('dependencias').disable();
-      this.form.get('dependencias').setValue([]);
-      this.dependenciasDisponibles = [];
       this.form.get('estado').enable();
       this.unidadVisible = false;
     } else if (categoria == 'evaluacion') {
+      this.desactivarFiltroDependencias();
       if (this.rol == 'PLANEACION') {
         this.form.get('tipoReporte').setValue(null);
         this.form.get('tipoReporte').disable();
@@ -281,9 +278,6 @@ export class PlanAnualComponent implements OnInit {
       this.form.get('estado').disable();
       this.form.get('unidad').enable();
       this.form.get('unidad').setValue(null);
-      this.form.get('dependencias').disable();
-      this.form.get('dependencias').setValue([]);
-      this.dependenciasDisponibles = [];
       this.evaluacion = true;
     } else {
       if (this.rol == 'PLANEACION') {
@@ -294,12 +288,31 @@ export class PlanAnualComponent implements OnInit {
       this.unidadVisible = true;
       if (this.form.get('tipoReporte').value === 'general') {
         this.form.get('unidad').disable();
-        this.form.get('dependencias').enable();
         this.unidadVisible = false;
-        this.actualizarDependenciasDisponibles();
       } else {
-        this.form.get('dependencias').disable();
+        this.desactivarFiltroDependencias();
       }
+    }
+  }
+
+  onChangeFiltrarDependencias(activar: boolean) {
+    if (activar) {
+      this.filtrarDependencias = true;
+      this.form.get('dependencias').enable();
+      this.actualizarDependenciasDisponibles();
+    } else {
+      this.desactivarFiltroDependencias();
+    }
+  }
+
+  desactivarFiltroDependencias() {
+    this.consultaDependenciasId++;
+    this.filtrarDependencias = false;
+    this.cargandoDependencias = false;
+    this.dependenciasDisponibles = [];
+    if (this.form) {
+      this.form.get('dependencias').setValue([]);
+      this.form.get('dependencias').disable();
     }
   }
 
@@ -311,7 +324,7 @@ export class PlanAnualComponent implements OnInit {
     const estado = this.form && this.form.get('estado').value;
     const plan = this.form && this.form.get('plan').value;
 
-    if (categoria !== 'planAccion' || tipoReporte !== 'general' || !vigencia || !estado || !plan || !this.unidades) {
+    if (!this.filtrarDependencias || categoria !== 'planAccion' || tipoReporte !== 'general' || !vigencia || !estado || !plan || !this.unidades) {
       this.dependenciasDisponibles = [];
       this.cargandoDependencias = false;
       if (this.form) {
@@ -508,11 +521,14 @@ export class PlanAnualComponent implements OnInit {
           })
         })
       } else if (tipoReporte === 'general') {
-        let body = {
+        let body: any = {
           tipo_plan_id: await this.codigosService.getId('PLANES_CRUD', 'tipo-plan', 'PAF_SP'),
           estado_plan_id: estado,
           vigencia: (vigencia.Id).toString(),
-          dependencias_ids: this.form.get('dependencias').value,
+        }
+
+        if (this.filtrarDependencias) {
+          body.dependencias_ids = this.form.get('dependencias').value;
         }
 
 
