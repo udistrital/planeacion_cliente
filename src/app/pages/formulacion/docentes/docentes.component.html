@@ -580,6 +580,19 @@
                                         <td mat-footer-cell *matFooterCellDef class="footer">
                                         </td>
                                     </ng-container>
+                                    <!-- Total Sueldo Básico más Vacaciones -->
+                                    <ng-container matColumnDef="totalBasicoVacaciones">
+                                        <th mat-header-cell *matHeaderCellDef> Total Sueldo Básico + Vacaciones</th>
+                                        <td mat-cell *matCellDef="let element">
+                                            <mat-form-field floatLabel="never">
+                                                <input type="text" class="form-control" matInput
+                                                    placeholder="Total Sueldo Básico + Vacaciones"
+                                                    [value]="totalSueldoBasicoVacaciones(element)" readonly>
+                                            </mat-form-field>
+                                        </td>
+                                        <td mat-footer-cell *matFooterCellDef class="footer">
+                                        </td>
+                                    </ng-container>
                                     <!-- Total Sueldo Básico Individual -->
                                     <ng-container matColumnDef="totalBasicoIndividual">
                                         <th mat-header-cell *matHeaderCellDef> Total Sueldo Básico Individual</th>
