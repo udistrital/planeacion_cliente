@@ -45,8 +45,8 @@ export class DocentesComponent implements OnInit {
 
   incrementoInput = new FormControl('9.3');
   incrementoFormPosgrado = new FormControl('8.2');
-  private readonly DEFAULT_INC_PRE = 0.0752;   // Pregrado
-  private readonly DEFAULT_INC_POS = 0.0642; 
+  private readonly DEFAULT_INC_PRE = 0.093;   // Pregrado
+  private readonly DEFAULT_INC_POS = 0.082; 
   incremento: number = 0.0;
   incrementoPosgrado: number = 0.0;
   incrementoAnterior: number = 0.0;
@@ -106,9 +106,24 @@ private toNum(v: any, d = 0): number {
   return Number.isFinite(n) ? n : d;
 }
 
-// Convención: 4.33 semanas ≈ 1 mes
+private valorMonetario(valor: any): number {
+  if (valor === null || valor === undefined || valor === '' || valor === 'N/A') {
+    return 0;
+  }
+  const numero = Number(String(valor).replace(/[$,]/g, ''));
+  return Number.isFinite(numero) ? numero : 0;
+}
+
+totalSueldoBasicoVacaciones(element: any): string {
+  const sueldoBasico = this.valorMonetario(element.sueldoBasico);
+  const vacaciones = this.valorMonetario(element.vacaciones);
+  const cantidad = Math.max(0, this.toNum(element.cantidad));
+  return formatCurrency(sueldoBasico + (vacaciones * cantidad), 'en-US', getCurrencySymbol('USD', 'wide'));
+}
+
+// Convención: 4 semanas = 1 mes
 private semanasAMeses(semanas: number): number {
-  const m = semanas / 4.33;
+  const m = semanas / 4;
   return Math.round(m * 100) / 100; // 2 decimales
 }
 
@@ -584,7 +599,7 @@ private onRowChanged(element: any, rowIndex: number, tipo: string): void {
     this.request.get(environment.PLANES_CRUD, `estado-plan/` + this.Plan.estado_plan_id).subscribe((data: any) => {
       if (data) {
         this.estadoPlan = data.Data.nombre;
-        this.displayedColumns = this.visualizarColumnas();
+        this.displayedColumns = this.agregarColumnaTotalBasicoVacaciones(this.visualizarColumnas());
         this.displayedHeaders = this.visualizarHeaders();
       }
     }),
@@ -597,6 +612,14 @@ private onRowChanged(element: any, rowIndex: number, tipo: string): void {
           timer: 2500
         })
       }
+  }
+
+  private agregarColumnaTotalBasicoVacaciones(columnas: string[]): string[] {
+    const posicionTotalIndividual = columnas.indexOf('totalBasicoIndividual');
+    if (posicionTotalIndividual >= 0) {
+      columnas.splice(posicionTotalIndividual, 0, 'totalBasicoVacaciones');
+    }
+    return columnas;
   }
 
   visualizarColumnas(): string[] {
