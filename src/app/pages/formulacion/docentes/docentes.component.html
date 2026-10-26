@@ -28,6 +28,20 @@
                         <h4>{{step.descripcion}}</h4>
                         <ng-template matStepLabel>{{step.nombre}}</ng-template>
                         <ng-container>
+                            <div class="asignacion-fondos">
+                                <mat-checkbox
+                                    [checked]="asignarPensionesPublico[step.tipo]"
+                                    [disabled]="readonlyTable || banderaCerrar"
+                                    (change)="cambiarAsignacionPensionesPublico($event.checked, step.tipo)">
+                                    Asignar pensiones a fondo público
+                                </mat-checkbox>
+                                <mat-checkbox
+                                    [checked]="asignarCesantiasPublico[step.tipo]"
+                                    [disabled]="readonlyTable || banderaCerrar"
+                                    (change)="cambiarAsignacionCesantiasPublico($event.checked, step.tipo)">
+                                    Asignar cesantías a fondo público
+                                </mat-checkbox>
+                            </div>
                             <br><br>
                             <div class="table-responsive">
                                 <table mat-table matSort [dataSource]="step.data">
@@ -934,6 +948,9 @@
         <ng-container>
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
                 (click)="ocultarRecursos()">Cerrar</button>
+            <button mat-raised-button style="margin: 10px;" color="accent" type="button" class="col-3 mt-2 mb-3"
+                [disabled]="banderaCerrar" (click)="recalcularRecursos()"
+                *ngIf="!readonlyObs || estadoPlan === 'En formulación'">Recalcular valores</button>
             <button mat-raised-button style="margin: 10px;" color="primary" type="submit" class="col-3 mt-2 mb-3"
                 [disabled]="banderaCerrar" (click)="guardarRecursos()"
                 *ngIf="!readonlyObs || estadoPlan === 'En formulación'">Guardar</button>
