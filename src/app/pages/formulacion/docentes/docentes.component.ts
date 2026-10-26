@@ -51,6 +51,8 @@ export class DocentesComponent implements OnInit {
   incrementoPosgrado: number = 0.0;
   incrementoAnterior: number = 0.0;
   incrementoAnteriorPosgrado: number = 0.0;
+  asignarPensionesPublico: { [tipo: string]: boolean } = {};
+  asignarCesantiasPublico: { [tipo: string]: boolean } = {};
   niveles:string[] = ["Pregrado", "Posgrado"]
   rubroControl:FormControl = new FormControl([]);
   filteredRubros: (Observable<any[]>)[] = [];
@@ -531,7 +533,7 @@ private onRowChanged(element: any, rowIndex: number, tipo: string): void {
     }
   }
 
-  getCalculosDocentes(element, rowIndex, tipo) {
+  getCalculosDocentes(element, rowIndex, tipo, gestionarEstado = true): Promise<boolean> {
     //Recrear body
     let data = {
       "tipoDocente": tipo,
@@ -545,26 +547,182 @@ private onRowChanged(element: any, rowIndex: number, tipo: string): void {
     }
 
     if (data.tipo != "" && data.categoria != "" && data.cantidad != 0 && data.semanas != 0 && data.horas != 0) {
-      this.banderaCerrar = true
-      this.request.post(environment.PLANES_MID, "formulacion/calculos_docentes", data).subscribe((response: any) => {
-        if (response) {
-          let dataResponse = this.formatData(response.Data)
-          this.limpiarPublicosyPrivados(dataResponse)
-          const dataSource = this.getDataSource(tipo);
-          Object.assign(dataSource[rowIndex], dataResponse);
-          this.banderaCerrar = false
-        } else {
-          this.readonlyTable = false;
-          Swal.fire({
-            title: 'Error al obtener calculos',
-            icon: 'error',
-            text: `No se pudieron obtener los calculos para la identificación de recursos docente`,
-            showConfirmButton: false,
-            timer: 2500
-          })
-        }
-      })
+      if (gestionarEstado) this.banderaCerrar = true;
+
+      return new Promise((resolve) => {
+        this.request.post(environment.PLANES_MID, "formulacion/calculos_docentes", data).subscribe(
+          (response: any) => {
+            if (response) {
+              const dataResponse = this.formatData(response.Data);
+              this.limpiarPublicosyPrivados(dataResponse);
+              this.asignarPensionesPublico[tipo] = false;
+              this.asignarCesantiasPublico[tipo] = false;
+              // `element` es la referencia real de la fila. `rowIndex` puede ser
+              // relativo a la página visible y no a la colección completa.
+              Object.assign(element, dataResponse);
+              if (gestionarEstado) this.banderaCerrar = false;
+              resolve(true);
+            } else {
+              if (gestionarEstado) {
+                this.banderaCerrar = false;
+                this.mostrarErrorCalculos();
+              }
+              resolve(false);
+            }
+          },
+          () => {
+            if (gestionarEstado) {
+              this.banderaCerrar = false;
+              this.mostrarErrorCalculos();
+            }
+            resolve(false);
+          }
+        );
+      });
     }
+
+    return Promise.resolve(true);
+  }
+
+  private mostrarErrorCalculos(): void {
+    this.readonlyTable = false;
+    Swal.fire({
+      title: 'Error al obtener cálculos',
+      icon: 'error',
+      text: 'No se pudieron obtener los cálculos para la identificación de recursos docente',
+      showConfirmButton: false,
+      timer: 2500
+    });
+  }
+
+  async recalcularRecursos(): Promise<void> {
+    const confirmacion = await Swal.fire({
+      icon: 'warning',
+      title: 'Recalcular valores docentes',
+      text: 'Al recalcular, los valores de cesantías y pensiones que requieren ingreso manual deberán ser diligenciados nuevamente.',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, recalcular',
+      cancelButtonText: 'Cancelar',
+      allowOutsideClick: false
+    });
+
+    if (!confirmacion.isConfirmed) return;
+
+    this.onChangeincremento();
+    this.asignarPensionesPublico = {};
+    this.asignarCesantiasPublico = {};
+    this.banderaCerrar = true;
+    Swal.fire({
+      title: 'Recalculando valores',
+      text: 'Por favor espere mientras se actualizan todos los registros docentes.',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      willOpen: () => Swal.showLoading()
+    });
+
+    const grupos = [
+      { tipo: 'RHF', filas: this.dataSourceRHF.data },
+      { tipo: 'RHVPRE', filas: this.dataSourceRHVPRE.data },
+      { tipo: 'RHVPOS', filas: this.dataSourceRHVPOS.data }
+    ];
+    const registros: Array<{ tipo: string, fila: any }> = [];
+    grupos.forEach(grupo => {
+      grupo.filas.forEach(fila => registros.push({ tipo: grupo.tipo, fila }));
+    });
+    let errores = 0;
+
+    try {
+      const solicitudesSimultaneas = 5;
+      for (let i = 0; i < registros.length; i += solicitudesSimultaneas) {
+        const lote = registros.slice(i, i + solicitudesSimultaneas);
+        const resultados = await Promise.all(
+          lote.map(registro => this.getCalculosDocentes(registro.fila, -1, registro.tipo, false))
+        );
+        errores += resultados.filter(calculado => !calculado).length;
+      }
+    } finally {
+      this.banderaCerrar = false;
+    }
+
+    if (errores > 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Recálculo incompleto',
+        text: `No fue posible recalcular ${errores} registro(s). Revise la información e intente nuevamente.`,
+        showConfirmButton: true
+      });
+      return;
+    }
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Recálculo exitoso',
+      text: 'Los valores fueron actualizados. Recuerde diligenciar nuevamente las cesantías y pensiones de ingreso manual antes de guardar.',
+      showConfirmButton: true
+    });
+  }
+
+  async cambiarAsignacionPensionesPublico(marcado: boolean, tipo: string): Promise<void> {
+    this.asignarPensionesPublico[tipo] = marcado;
+    if (!marcado) return;
+
+    const confirmacion = await Swal.fire({
+      icon: 'warning',
+      title: 'Asignar pensiones al fondo público',
+      text: 'Se asignará el total de pensiones de todas las filas de este tipo de docente al fondo público y el fondo privado quedará en cero. Los valores podrán modificarse manualmente después.',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, asignar',
+      cancelButtonText: 'Cancelar',
+      allowOutsideClick: false
+    });
+
+    if (!confirmacion.isConfirmed) {
+      this.asignarPensionesPublico[tipo] = false;
+      return;
+    }
+
+    this.asignarTotalAFondoPublico(tipo, 'totalPensiones', 'pensionesPublico', 'pensionesPrivado');
+  }
+
+  async cambiarAsignacionCesantiasPublico(marcado: boolean, tipo: string): Promise<void> {
+    this.asignarCesantiasPublico[tipo] = marcado;
+    if (!marcado) return;
+
+    const confirmacion = await Swal.fire({
+      icon: 'warning',
+      title: 'Asignar cesantías al fondo público',
+      text: 'Se asignará el total de cesantías de todas las filas de este tipo de docente al fondo público y el fondo privado quedará en cero. Los valores podrán modificarse manualmente después.',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, asignar',
+      cancelButtonText: 'Cancelar',
+      allowOutsideClick: false
+    });
+
+    if (!confirmacion.isConfirmed) {
+      this.asignarCesantiasPublico[tipo] = false;
+      return;
+    }
+
+    this.asignarTotalAFondoPublico(tipo, 'totalCesantias', 'cesantiasPublico', 'cesantiasPrivado');
+  }
+
+  private asignarTotalAFondoPublico(tipo: string, campoTotal: string, campoPublico: string, campoPrivado: string): void {
+    const filas = this.getDataSource(tipo) || [];
+    const cero = formatCurrency(0, 'en-US', getCurrencySymbol('USD', 'wide'));
+
+    filas.forEach(fila => {
+      if (fila.tipo === 'H. Catedra Honorarios' || fila[campoTotal] === 'N/A') {
+        fila[campoPublico] = 'N/A';
+        fila[campoPrivado] = 'N/A';
+        return;
+      }
+
+      const total = this.valorMonetario(fila[campoTotal]);
+      fila[campoPublico] = formatCurrency(total, 'en-US', getCurrencySymbol('USD', 'wide'));
+      fila[campoPrivado] = cero;
+    });
+
+    this.banderaCerrar = false;
   }
 
   async getData() {
@@ -1127,25 +1285,25 @@ private onRowChanged(element: any, rowIndex: number, tipo: string): void {
 
   onChangeHoras(element, rowIndex, tipo) {
   if (tipo === "RHF") {
-    if (element.tipo === "Medio Tiempo")  this.dataSourceRHF.data[rowIndex].horas = 20;
-    else if (element.tipo === "Tiempo Completo") this.dataSourceRHF.data[rowIndex].horas = 40;
+    if (element.tipo === "Medio Tiempo") element.horas = 20;
+    else if (element.tipo === "Tiempo Completo") element.horas = 40;
   }
   if (tipo === "RHVPRE") {
     if (element.tipo === "H. Catedra Honorarios") {
-      if (element.horas < 1) this.dataSourceRHVPRE.data[rowIndex].horas = 1;
-      else if (element.horas > 8) this.dataSourceRHVPRE.data[rowIndex].horas = 8;
+      if (element.horas < 1) element.horas = 1;
+      else if (element.horas > 8) element.horas = 8;
     } else if (element.tipo === "H. Catedra Prestacional") {
-      if (element.horas < 1) this.dataSourceRHVPRE.data[rowIndex].horas = 1;
-      else if (element.horas > 16) this.dataSourceRHVPRE.data[rowIndex].horas = 16;
+      if (element.horas < 1) element.horas = 1;
+      else if (element.horas > 16) element.horas = 16;
     }
   }
   if (tipo === "RHVPOS") {
     if (element.tipo === "H. Catedra Honorarios") {
-      if (element.horas < 1) this.dataSourceRHVPOS.data[rowIndex].horas = 1;
-      else if (element.horas > 8) this.dataSourceRHVPOS.data[rowIndex].horas = 8;
+      if (element.horas < 1) element.horas = 1;
+      else if (element.horas > 8) element.horas = 8;
     } else if (element.tipo === "H. Catedra Prestacional") {
-      if (element.horas < 1) this.dataSourceRHVPOS.data[rowIndex].horas = 1;
-      else if (element.horas > 16) this.dataSourceRHVPOS.data[rowIndex].horas = 16;
+      if (element.horas < 1) element.horas = 1;
+      else if (element.horas > 16) element.horas = 16;
     }
   }
   this.onRowChanged(element, rowIndex, tipo);
@@ -1160,8 +1318,8 @@ onChangeTipo(element, rowIndex, tipo) {
       showConfirmButton: false
     });
     if (tipo === 'RHF') {
-      if (element.tipo === "Medio Tiempo")  this.dataSourceRHF.data[rowIndex].horas = 20;
-      else if (element.tipo === "Tiempo Completo") this.dataSourceRHF.data[rowIndex].horas = 40;
+      if (element.tipo === "Medio Tiempo") element.horas = 20;
+      else if (element.tipo === "Tiempo Completo") element.horas = 40;
     }
   }
   this.onRowChanged(element, rowIndex, tipo);
@@ -1307,11 +1465,11 @@ onChangeCategoria(element, rowIndex, tipo){
   }
 
   verificarCesantias(element, rowIndex, tipo) {
-    const dataSource = this.getDataSource(tipo)
+    this.asignarCesantiasPublico[tipo] = false;
 
     if (element.cesantias === "N/A") {
-      dataSource[rowIndex].cesantiasPrivado = "N/A"
-      dataSource[rowIndex].cesantiasPublico = "N/A"
+      element.cesantiasPrivado = "N/A"
+      element.cesantiasPublico = "N/A"
     }
 
     if (element.tipo != "H. Catedra Honorarios")
@@ -1320,8 +1478,8 @@ onChangeCategoria(element, rowIndex, tipo){
         let cesantiasPrivado = parseInt(element.cesantiasPrivado.replace(/\$|,/g, ''));
         let cesantias = parseInt(element.totalCesantias.replace(/\$|,/g, ''));
 
-        dataSource[rowIndex].cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-        dataSource[rowIndex].cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        element.cesantiasPrivado = formatCurrency(cesantiasPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+        element.cesantiasPublico = formatCurrency(cesantiasPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
 
         if (cesantiasPublico + cesantiasPrivado == cesantias) {
           this.banderaCerrar = false;
@@ -1347,11 +1505,11 @@ onChangeCategoria(element, rowIndex, tipo){
   }
 
   verificarPensiones(element, rowIndex, tipo) {
-    const dataSource = this.getDataSource(tipo)
+    this.asignarPensionesPublico[tipo] = false;
 
-    if (element.cesantias === "N/A") {
-      dataSource[rowIndex].pensionesPrivado = "N/A"
-      dataSource[rowIndex].pensionesPublico = "N/A"
+    if (element.totalPensiones === "N/A") {
+      element.pensionesPrivado = "N/A"
+      element.pensionesPublico = "N/A"
     }
 
     if (element.tipo != "H. Catedra Honorarios")
@@ -1360,8 +1518,8 @@ onChangeCategoria(element, rowIndex, tipo){
         let pensionesPrivado = parseInt(element.pensionesPrivado.replace(/\$|,/g, ''));
         let pensiones = parseInt(element.totalPensiones.replace(/\$|,/g, ''));
 
-        dataSource[rowIndex].pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
-        dataSource[rowIndex].pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
+        element.pensionesPrivado = formatCurrency(pensionesPrivado, 'en-US', getCurrencySymbol('USD', 'wide'));
+        element.pensionesPublico = formatCurrency(pensionesPublico, 'en-US', getCurrencySymbol('USD', 'wide'));
 
         if (pensionesPublico + pensionesPrivado == pensiones) {
           this.banderaCerrar = false;
