@@ -1,0 +1,52 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.iniciativa-campo {
+  width: 100%;
+}
+
+.iniciativa-campo--corto {
+  max-width: 420px;
+}
+
+.iniciativa-grupo {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  padding: 0.75rem 1rem 1rem;
+  margin: 0.5rem 0 1rem;
+
+  legend {
+    font-weight: 600;
+    padding: 0 0.5rem;
+  }
+}
+
+.iniciativa-calculado {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid #3f51b5;
+  background: rgba(63, 81, 181, 0.06);
+}
+
+.iniciativa-etiqueta {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.iniciativa-ayuda {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0 0 0.5rem;
+}
+
+.iniciativa-error {
+  font-size: 0.85rem;
+  margin: -0.5rem 0 0.75rem;
+  color: #c62828;
+}

@@ -1,0 +1,35 @@
+<section class="iniciativa-matriz">
+  <h4>{{ nodo.nombre }}</h4>
+  <p class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</p>
+  <div class="iniciativa-matriz__desplazable">
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2" class="iniciativa-matriz__fila">Grupo</th>
+          <th *ngFor="let grupo of grupos" [attr.colspan]="grupo.columnas.length">{{ grupo.nombre }}</th>
+          <th rowspan="2" *ngIf="conTotalesPorFila">Total</th>
+        </tr>
+        <tr>
+          <th *ngFor="let columna of columnas" class="iniciativa-matriz__columna">{{ columna.nombre }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let fila of filas">
+          <th scope="row" class="iniciativa-matriz__fila">{{ fila.nombre }}</th>
+          <td *ngFor="let columna of columnas" [class.iniciativa-matriz__con-error]="tieneError(fila.clave, columna.clave)">
+            <input type="number" min="0" step="1" [(ngModel)]="matriz[fila.clave][columna.clave]"
+              [disabled]="contexto.soloLectura" [attr.aria-label]="fila.nombre + ', ' + columna.nombre">
+          </td>
+          <td *ngIf="conTotalesPorFila" class="iniciativa-matriz__total">{{ totalDeFila(fila.clave) | number }}</td>
+        </tr>
+      </tbody>
+      <tfoot *ngIf="conTotalesPorColumna">
+        <tr>
+          <th scope="row" class="iniciativa-matriz__fila">Total</th>
+          <td *ngFor="let columna of columnas" class="iniciativa-matriz__total">{{ totalDeColumna(columna.clave) | number }}</td>
+          <td *ngIf="conTotalesPorFila" class="iniciativa-matriz__total">{{ totalGeneral() | number }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</section>

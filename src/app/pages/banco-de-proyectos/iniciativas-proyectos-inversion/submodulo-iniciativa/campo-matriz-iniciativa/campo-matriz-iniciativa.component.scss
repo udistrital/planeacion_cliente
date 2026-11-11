@@ -1,0 +1,68 @@
+.iniciativa-matriz {
+  margin: 0.5rem 0 1.25rem;
+
+  h4 {
+    margin: 0 0 0.25rem;
+  }
+}
+
+.iniciativa-ayuda {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0 0 0.5rem;
+}
+
+.iniciativa-matriz__desplazable {
+  overflow-x: auto;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+}
+
+table {
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  min-width: 100%;
+}
+
+th,
+td {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0.25rem;
+  text-align: center;
+}
+
+thead th {
+  background: rgba(63, 81, 181, 0.08);
+  font-weight: 600;
+}
+
+.iniciativa-matriz__columna {
+  min-width: 72px;
+  max-width: 120px;
+  white-space: normal;
+}
+
+.iniciativa-matriz__fila {
+  text-align: left;
+  white-space: nowrap;
+  position: sticky;
+  left: 0;
+  background: #fafafa;
+}
+
+td input {
+  width: 64px;
+  border: none;
+  text-align: right;
+  background: transparent;
+  font: inherit;
+}
+
+.iniciativa-matriz__total {
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.iniciativa-matriz__con-error {
+  background: rgba(198, 40, 40, 0.12);
+}

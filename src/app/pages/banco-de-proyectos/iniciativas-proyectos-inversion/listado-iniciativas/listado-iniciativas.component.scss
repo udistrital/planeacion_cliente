@@ -1,0 +1,66 @@
+/* Mismos estilos de la tabla de plan/construir-plan-proyecto (Listar planes): tarjeta y tabla a todo el ancho. */
+.mat-card {
+  background-color: #f1f5f8;
+}
+
+th {
+  color: white;
+}
+
+th,
+td {
+  text-align: center !important;
+  padding: 8px !important;
+}
+
+.columnaId {
+  width: 8%;
+}
+
+.botonesAcciones {
+  width: 15%;
+}
+
+.textGuide {
+  background-color: #ffff;
+  border: 1px solid var(--primary);
+  border-radius: 15px;
+  box-shadow: var(--primary) 3px 4px 0;
+  color: #0a0a0a;
+  display: inline-block;
+  font-size: 1.1em;
+  padding: 1%;
+  text-decoration: none;
+  margin-bottom: 1%;
+  width: 97%;
+}
+
+.mat-row:nth-child(even) {
+  background-color: #e7d6d6;
+}
+
+.mat-row:nth-child(odd) {
+  background-color: white;
+}
+
+/* Scroll horizontal en pantallas pequeñas */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+@media (max-width: 640px) {
+  table {
+    font-size: 12px;
+  }
+
+  th,
+  td {
+    padding: 4px;
+  }
+}

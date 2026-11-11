@@ -86,11 +86,15 @@ import { FormularProyectoInversionComponent } from './banco-de-proyectos/proyect
 import { SeguimientoProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/seguimiento-proyecto-inversion/seguimiento-proyecto-inversion.component';
 import { EvaluacionProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/evaluacion-proyecto-inversion/evaluacion-proyecto-inversion.component';
 import { ReportesProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/reportes-proyecto-inversion/reportes-proyecto-inversion.component';
-import { ConsultarSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/consultar-sub-proyecto-inversion/consultar-sub-proyecto-inversion.component';
-import { FormularSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/formular-sub-proyecto-inversion/formular-sub-proyecto-inversion.component';
-import { SeguimientoSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/seguimiento-sub-proyecto-inversion/seguimiento-sub-proyecto-inversion.component';
-import { EvaluacionSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/evaluacion-sub-proyecto-inversion/evaluacion-sub-proyecto-inversion.component';
-import { ReportesSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/reportes-sub-proyecto-inversion/reportes-sub-proyecto-inversion.component';
+import { ListadoIniciativasComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/listado-iniciativas/listado-iniciativas.component';
+import { SeleccionarUnidadDialogoComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/listado-iniciativas/seleccionar-unidad-dialogo/seleccionar-unidad-dialogo.component';
+import { VistaIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/vista-iniciativa/vista-iniciativa.component';
+import { SubmoduloIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/submodulo-iniciativa.component';
+import { ObservacionesSubmoduloIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/observaciones-submodulo-iniciativa/observaciones-submodulo-iniciativa.component';
+import { CamposIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campos-iniciativa/campos-iniciativa.component';
+import { GrupoRepetibleIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/grupo-repetible-iniciativa/grupo-repetible-iniciativa.component';
+import { CampoCatalogoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-catalogo-iniciativa/campo-catalogo-iniciativa.component';
+import { CampoMatrizIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-matriz-iniciativa/campo-matriz-iniciativa.component';
 import { ProyectosOtrosFondosComponent } from './banco-de-proyectos/proyectos-otros-fondos/proyectos-otros-fondos.component';
 import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/reporte-funcionamiento/reporte-funcionamiento.component';
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
@@ -126,6 +130,7 @@ import { EvaluacionPlanComponent } from './evaluacion/evaluacion-plan/evaluacion
 import { ResumenComponent } from './evaluacion/resumen/resumen.component';
 import { TablaResumenEvaluacionComponent } from './evaluacion/tabla-resumen-evaluacion/tabla-resumen-evaluacion.component';
 import { AutoResizeDirective } from './directives/resize.directive';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
 import { FormUsuariosComponent } from './plan/gestion-usuarios/form-usuarios/form-usuarios.component';
 import { CodigosService } from '../@core/services/codigos.service';
@@ -236,11 +241,15 @@ const MY_FORMATS = {
     SeguimientoProyectoInversionComponent,
     EvaluacionProyectoInversionComponent,
     ReportesProyectoInversionComponent,
-    ConsultarSubProyectoInversionComponent,
-    FormularSubProyectoInversionComponent,
-    SeguimientoSubProyectoInversionComponent,
-    EvaluacionSubProyectoInversionComponent,
-    ReportesSubProyectoInversionComponent,
+    ListadoIniciativasComponent,
+    SeleccionarUnidadDialogoComponent,
+    VistaIniciativaComponent,
+    SubmoduloIniciativaComponent,
+    ObservacionesSubmoduloIniciativaComponent,
+    CamposIniciativaComponent,
+    GrupoRepetibleIniciativaComponent,
+    CampoCatalogoIniciativaComponent,
+    CampoMatrizIniciativaComponent,
     ProyectosOtrosFondosComponent,
     ReporteFuncionamientoComponent,
     ReporteInversionComponent,
@@ -299,6 +308,7 @@ const MY_FORMATS = {
     MatTooltipModule,
     GoogleChartsModule,
     DragDropModule,
+    MatAutocompleteModule,
     ...materialModules,
   ],
   providers: [

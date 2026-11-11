@@ -1,0 +1,20 @@
+<mat-card class="tarjeta">
+  <mat-card-title class="titulo">Nueva iniciativa</mat-card-title>
+
+  <div class="textGuide">
+    Usted está vinculado a varias unidades. Seleccione la unidad a la que pertenece la iniciativa.
+  </div>
+
+  <mat-form-field appearance="fill" class="campo">
+    <mat-label>Unidad</mat-label>
+    <mat-select [(ngModel)]="unidad">
+      <mat-option *ngFor="let opcion of datos.unidades" [value]="opcion">{{ opcion.Nombre }}</mat-option>
+    </mat-select>
+    <mat-hint>La iniciativa quedará a nombre de esta unidad</mat-hint>
+  </mat-form-field>
+
+  <div class="acciones">
+    <button mat-raised-button color="primary" [disabled]="!unidad" [mat-dialog-close]="unidad">Crear</button>
+    <button mat-raised-button color="primary" mat-dialog-close>Cancelar</button>
+  </div>
+</mat-card>

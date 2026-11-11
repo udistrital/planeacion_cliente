@@ -1,0 +1,101 @@
+/* Modal de observaciones como blog: cuadro para publicar arriba y entradas debajo, la más reciente primero. */
+.titulo {
+  color: var(--primary);
+}
+
+/* Las entradas son blancas: el fondo del sistema las separa del contenedor. */
+.contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background-color: #f1f5f8;
+}
+
+.nueva {
+  padding: 12px 16px 8px;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+}
+
+.nueva__campo {
+  width: 100%;
+}
+
+.nueva__enviar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.vacio {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.6);
+  font-style: italic;
+}
+
+.entrada {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+}
+
+/* El avatar distingue a Planeación (vino institucional) de la dependencia (gris). */
+.entrada__avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: #6b7580;
+}
+
+.entrada--planeacion .entrada__avatar {
+  background-color: var(--primary);
+}
+
+.entrada__cuerpo {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.entrada__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+
+.entrada__autor {
+  font-weight: 500;
+}
+
+.entrada__propia {
+  padding: 0 6px;
+  border: 1px solid var(--primary);
+  border-radius: 3px;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.entrada__meta {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.entrada__texto {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

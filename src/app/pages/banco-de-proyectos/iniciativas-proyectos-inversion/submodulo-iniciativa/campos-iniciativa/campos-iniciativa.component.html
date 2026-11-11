@@ -1,0 +1,90 @@
+<ng-container *ngFor="let nodo of nodos; trackBy: porClave">
+  <ng-container [ngSwitch]="claseDe(nodo)">
+
+    <!-- Grupo de campos -->
+    <fieldset *ngSwitchCase="'grupo'" class="iniciativa-grupo">
+      <legend>{{ nodo.nombre }}</legend>
+      <p class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</p>
+      <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos[nodo.dato.clave]" [ruta]="rutaDe(nodo)"
+        [contexto]="contexto" [filaOrigen]="filaOrigen"></app-campos-iniciativa>
+    </fieldset>
+
+    <!-- Lista de filas (y espejos) -->
+    <app-grupo-repetible-iniciativa *ngSwitchCase="'repetible'" [nodo]="nodo" [filas]="datos[nodo.dato.clave]"
+      [ruta]="rutaDe(nodo)" [contexto]="contexto" [filaOrigen]="filaOrigen"></app-grupo-repetible-iniciativa>
+
+    <!-- Matriz -->
+    <app-campo-matriz-iniciativa *ngSwitchCase="'matriz'" [nodo]="nodo" [matriz]="datos[nodo.dato.clave]"
+      [ruta]="rutaDe(nodo)" [contexto]="contexto"></app-campo-matriz-iniciativa>
+
+    <!-- Calculado. Si es editable, el usuario puede escribir otro valor; vacío = el propuesto -->
+    <ng-container *ngSwitchCase="'calculado'">
+      <mat-form-field *ngIf="nodo.dato.editable; else calculadoFijo" appearance="outline" floatLabel="always" class="iniciativa-campo">
+        <mat-label>{{ nodo.nombre }}</mat-label>
+        <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="1" [(ngModel)]="datos[nodo.dato.clave]"
+          [placeholder]="calculado(nodo) || 'Se propone con los campos anteriores'"
+          [attr.maxlength]="nodo.dato.maxlength || null" [disabled]="contexto.soloLectura"></textarea>
+        <mat-hint>
+          {{ datos[nodo.dato.clave] ? 'Escrito por usted.' : 'Se usará el valor propuesto (en gris).' }}
+          {{ nodo.descripcion }}
+        </mat-hint>
+        <button mat-icon-button matSuffix type="button" *ngIf="datos[nodo.dato.clave] && !contexto.soloLectura"
+          (click)="datos[nodo.dato.clave] = ''" matTooltip="Volver al valor propuesto">
+          <mat-icon>undo</mat-icon>
+        </button>
+      </mat-form-field>
+      <ng-template #calculadoFijo>
+        <div class="iniciativa-calculado">
+          <span class="iniciativa-etiqueta">{{ nodo.nombre }}</span>
+          <strong>{{ calculado(nodo) || 'Se completa con los campos anteriores' }}</strong>
+          <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <!-- Catálogo -->
+    <app-campo-catalogo-iniciativa *ngSwitchCase="'catalogo'" [nodo]="nodo" [(valor)]="datos[nodo.dato.clave]"
+      [padre]="nodo.dato.depende_de ? datos[nodo.dato.depende_de] : null"
+      [deshabilitado]="contexto.soloLectura"></app-campo-catalogo-iniciativa>
+
+    <!-- Texto -->
+    <mat-form-field *ngSwitchCase="'input'" appearance="outline" class="iniciativa-campo">
+      <mat-label>{{ nodo.nombre }}</mat-label>
+      <textarea matInput cdkTextareaAutosize [cdkAutosizeMinRows]="nodo.dato.multilinea ? 3 : 1"
+        [(ngModel)]="datos[nodo.dato.clave]" [required]="nodo.dato.required"
+        [attr.maxlength]="nodo.dato.maxlength || null" [disabled]="contexto.soloLectura"></textarea>
+      <mat-hint *ngIf="nodo.descripcion">{{ nodo.descripcion }}</mat-hint>
+      <mat-hint align="end" *ngIf="nodo.dato.maxlength">{{ (datos[nodo.dato.clave] || '').length }} / {{ nodo.dato.maxlength }}</mat-hint>
+    </mat-form-field>
+
+    <!-- Número -->
+    <mat-form-field *ngSwitchCase="'numeric'" appearance="outline" class="iniciativa-campo iniciativa-campo--corto">
+      <mat-label>{{ nodo.nombre }}</mat-label>
+      <input matInput type="number" [(ngModel)]="datos[nodo.dato.clave]" [required]="nodo.dato.required"
+        [attr.min]="nodo.dato.min" [attr.max]="nodo.dato.max" [disabled]="contexto.soloLectura">
+      <mat-hint *ngIf="nodo.descripcion">{{ nodo.descripcion }}</mat-hint>
+    </mat-form-field>
+
+    <!-- Lista de opciones fijas -->
+    <mat-form-field *ngSwitchCase="'select'" appearance="outline" class="iniciativa-campo iniciativa-campo--corto">
+      <mat-label>{{ nodo.nombre }}</mat-label>
+      <mat-select [(ngModel)]="datos[nodo.dato.clave]" [required]="nodo.dato.required" [disabled]="contexto.soloLectura">
+        <mat-option *ngFor="let opcion of nodo.dato.options" [value]="opcion.valor">{{ opcion.valor }}</mat-option>
+      </mat-select>
+      <mat-hint *ngIf="nodo.descripcion">{{ nodo.descripcion }}</mat-hint>
+    </mat-form-field>
+
+    <!-- Referencia a filas de otro grupo -->
+    <mat-form-field *ngSwitchCase="'referencia'" appearance="outline" class="iniciativa-campo">
+      <mat-label>{{ nodo.nombre }}</mat-label>
+      <mat-select [(ngModel)]="datos[nodo.dato.clave]" [multiple]="!!nodo.dato.multiple"
+        [required]="nodo.dato.required" [disabled]="contexto.soloLectura">
+        <mat-option *ngFor="let opcion of opcionesDe(nodo); trackBy: porId" [value]="opcion.id" [matTooltip]="opcion.etiqueta">
+          {{ opcion.etiqueta }}
+        </mat-option>
+      </mat-select>
+      <mat-hint *ngIf="nodo.descripcion">{{ nodo.descripcion }}</mat-hint>
+    </mat-form-field>
+  </ng-container>
+
+  <div class="iniciativa-error" *ngFor="let mensaje of erroresDe(nodo)"><mat-icon inline>error_outline</mat-icon> {{ mensaje }}</div></ng-container>

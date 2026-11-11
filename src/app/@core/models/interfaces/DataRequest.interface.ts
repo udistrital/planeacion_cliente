@@ -1,6 +1,6 @@
-export interface DataRequest {
-  Data:    any[] | any;
+export interface DataRequest<T = any> {
+  Data: T;
   Message: string;
-  Status:  string;
+  Status: string;
   Success: boolean;
 }

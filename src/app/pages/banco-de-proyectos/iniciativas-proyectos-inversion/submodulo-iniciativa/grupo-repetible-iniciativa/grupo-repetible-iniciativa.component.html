@@ -1,0 +1,29 @@
+<section class="iniciativa-repetible">
+  <header class="iniciativa-repetible__encabezado">
+    <h4>{{ nodo.nombre }}</h4>
+    <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
+    <span class="iniciativa-ayuda" *ngIf="minimo > 1">Mínimo {{ minimo }}.</span>
+  </header>
+
+  <p *ngIf="!filas.length" class="iniciativa-vacio">
+    {{ esEspejo ? 'Aún no hay elementos de origen: complete primero el submódulo del que depende.' : 'Aún no hay registros.' }}
+  </p>
+
+  <div *ngFor="let fila of filas; let posicion = index; trackBy: porId" class="iniciativa-fila">
+    <div class="iniciativa-fila__titulo">
+      <strong>{{ etiqueta }} {{ posicion + 1 }}</strong>
+      <button *ngIf="puedeModificar" mat-icon-button color="warn" type="button" (click)="eliminar(posicion)"
+        matTooltip="Eliminar {{ etiqueta | lowercase }}">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    <blockquote *ngIf="esEspejo" class="iniciativa-fila__origen">{{ textoOrigen(fila) }}</blockquote>
+    <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="fila" [ruta]="rutaDeFila(fila)" [contexto]="contexto"
+      [filaOrigen]="origenDe(fila)"></app-campos-iniciativa>
+    <div class="iniciativa-error" *ngFor="let mensaje of erroresDeFila(fila)"><mat-icon inline>error_outline</mat-icon> {{ mensaje }}</div>
+  </div>
+
+  <button *ngIf="puedeAgregar" mat-stroked-button color="primary" type="button" (click)="agregar()">
+    <mat-icon>add</mat-icon> Agregar {{ etiqueta | lowercase }}
+  </button>
+</section>

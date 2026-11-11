@@ -1,0 +1,74 @@
+<mat-card class="card-oas" *ngIf="resumen">
+  <mat-card-header>
+    <mat-card-title>{{ resumen.nombre }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <u class="textGuide">
+      En esta sección usted podrá formular o revisar, según su rol, cada submódulo de la iniciativa y consultar sus observaciones.
+    </u>
+  </mat-card-content>
+
+  <mat-card-content>
+    <div class="estado-general">
+      <span class="estado-general__titulo">Estado general</span>
+      <span class="estado-general__valor">{{ resumen.estado.nombre }}</span>
+    </div>
+
+    <div class="mat-elevation-z8 tabla-contenedor">
+      <div class="table-responsive">
+        <table class="componentes">
+          <caption>Componentes para la formulación de la iniciativa</caption>
+          <colgroup>
+            <col />
+            <col class="componentes__col-estado" />
+            <col class="componentes__col-acciones" />
+          </colgroup>
+          <tbody *ngFor="let modulo of resumen.modulos">
+            <tr class="componentes__modulo">
+              <th scope="colgroup" class="componentes__nombre">{{ modulo.nombre }}</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acciones</th>
+            </tr>
+            <tr *ngFor="let submodulo of modulo.submodulos" class="componentes__submodulo">
+              <td class="componentes__nombre">{{ submodulo.nombre }}</td>
+              <td>
+                <span class="iniciativa-estado">
+                  <span class="iniciativa-estado__punto" [style.background-color]="submodulo.estado.color" aria-hidden="true"></span>
+                  {{ submodulo.estado.nombre }}
+                </span>
+              </td>
+              <td class="componentes__acciones">
+                <ng-container *ngIf="accionDe(submodulo) as accion">
+                  <button mat-icon-button [matTooltip]="accion.etiqueta" [attr.aria-label]="accion.etiqueta + ' ' + submodulo.nombre"
+                    (click)="abrir(submodulo)">
+                    <mat-icon>{{ accion.icono }}</mat-icon>
+                  </button>
+                </ng-container>
+                <!-- El tooltip va en un span porque un botón deshabilitado no lo muestra. -->
+                <span [matTooltip]="textoObservaciones(submodulo)">
+                  <button mat-icon-button [attr.aria-label]="textoObservaciones(submodulo) + ' de ' + submodulo.nombre"
+                    [disabled]="!puedeAbrirObservaciones(submodulo) || consultandoObservaciones === submodulo.clave"
+                    (click)="verObservaciones(submodulo)">
+                    <mat-icon>forum</mat-icon>
+                  </button>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions class="barra-acciones">
+    <button mat-raised-button color="primary" (click)="volver()">Regresar</button>
+    <span class="espacio"></span>
+    <ng-container *ngIf="enviarPendiente">
+      <span class="ayuda">Podrá enviarla a revisión cuando todos los submódulos estén formulados.</span>
+      <button mat-raised-button color="primary" disabled>{{ acciones.enviar.etiqueta }}</button>
+    </ng-container>
+    <button *ngFor="let accion of accionesDisponibles" mat-raised-button [color]="acciones[accion].color"
+      [disabled]="procesando" (click)="ejecutar(accion)">{{ acciones[accion].etiqueta }}</button>
+  </mat-card-actions>
+</mat-card>

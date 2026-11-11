@@ -1,0 +1,62 @@
+<mat-card class="card-oas" *ngIf="!cargando && nodo && submodulo">
+  <mat-card-header>
+    <mat-card-title>{{ nodo.nombre }}</mat-card-title>
+    <mat-card-subtitle>
+      {{ resumen.nombre }}<span *ngIf="nodo.descripcion"> · {{ nodo.descripcion }}</span>
+    </mat-card-subtitle>
+    <span class="iniciativa-estado iniciativa-estado-submodulo">
+      <span class="iniciativa-estado__punto" [style.background-color]="submodulo.estado.color" aria-hidden="true"></span>
+      {{ submodulo.estado.nombre }}
+    </span>
+  </mat-card-header>
+
+  <mat-card-content class="iniciativa-contenido">
+    <div class="iniciativa-aviso iniciativa-aviso--observaciones" *ngIf="conObservaciones">
+      <h4><mat-icon inline>rate_review</mat-icon> Planeación dejó observaciones sobre este submódulo</h4>
+      <p class="iniciativa-texto-observacion" *ngIf="puedeEditar">
+        Léalas en Observaciones, corrija el submódulo y guárdelo.
+      </p>
+      <button mat-button color="primary" (click)="abrirObservaciones()">Ver observaciones</button>
+    </div>
+
+    <div class="iniciativa-aviso iniciativa-aviso--errores" *ngIf="submodulo.errores.length">
+      <h4><mat-icon inline>error_outline</mat-icon> Pendientes para formular este submódulo ({{ submodulo.errores.length }})</h4>
+      <ul>
+        <li *ngFor="let error of submodulo.errores">{{ error.mensaje }}</li>
+      </ul>
+    </div>
+
+    <p *ngIf="contexto.soloLectura" class="iniciativa-ayuda">
+      <mat-icon inline>lock</mat-icon> Solo lectura: la iniciativa está «{{ resumen.estado.nombre }}».
+    </p>
+
+    <div class="iniciativa-formulario">
+      <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos" ruta="" [contexto]="contexto"></app-campos-iniciativa>
+    </div>
+
+    <section *ngIf="puedeRevisar" class="iniciativa-revision">
+      <h4>Revisión del submódulo</h4>
+      <p class="iniciativa-ayuda">
+        Si hay algo por corregir, publíquelo en Observaciones: el submódulo quedará «Con observaciones».
+        Si está bien, márquelo sin observaciones.
+      </p>
+      <div class="iniciativa-acciones">
+        <button mat-raised-button color="accent" [disabled]="guardando" (click)="abrirObservaciones()">Escribir observación</button>
+        <button mat-raised-button color="primary" [disabled]="guardando" (click)="marcarSinObservaciones()">Sin observaciones</button>
+      </div>
+    </section>
+  </mat-card-content>
+
+  <mat-card-actions class="iniciativa-acciones iniciativa-barra">
+    <button mat-raised-button color="primary" (click)="volver()">Volver a la iniciativa</button>
+    <button mat-stroked-button (click)="abrirObservaciones()">
+      <mat-icon>forum</mat-icon> Observaciones<span *ngIf="submodulo.observaciones.length"> ({{ submodulo.observaciones.length }})</span>
+    </button>
+    <span class="iniciativa-espacio"></span>
+    <button mat-button *ngIf="anterior" (click)="irA(anterior)"><mat-icon>chevron_left</mat-icon> {{ anterior.nombre }}</button>
+    <button mat-button *ngIf="siguiente" (click)="irA(siguiente)">{{ siguiente.nombre }} <mat-icon>chevron_right</mat-icon></button>
+    <button mat-raised-button color="primary" *ngIf="puedeEditar" [disabled]="guardando" (click)="guardar()">
+      <mat-icon>save</mat-icon> Guardar
+    </button>
+  </mat-card-actions>
+</mat-card>

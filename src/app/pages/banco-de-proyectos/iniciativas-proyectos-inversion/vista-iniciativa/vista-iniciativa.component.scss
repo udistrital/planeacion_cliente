@@ -1,0 +1,184 @@
+/* Misma base que el listado de iniciativas (y plan/construir-plan-proyecto): tarjeta a todo el ancho, fondo, recuadro guía y filas alternas. */
+.mat-card {
+  background-color: #f1f5f8;
+}
+
+.textGuide {
+  background-color: #ffff;
+  border: 1px solid var(--primary);
+  border-radius: 15px;
+  box-shadow: var(--primary) 3px 4px 0;
+  color: #0a0a0a;
+  display: inline-block;
+  font-size: 1.1em;
+  padding: 1%;
+  text-decoration: none;
+  margin-bottom: 1%;
+  width: 97%;
+}
+
+/* Estado general: rótulo y valor unidos, como en el mockup. */
+.estado-general {
+  display: inline-flex;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: var(--primary) 2px 3px 0;
+}
+
+.estado-general__titulo {
+  padding: 0.5rem 1rem;
+  color: #fff;
+  font-weight: 500;
+  background-color: var(--primary);
+}
+
+.estado-general__valor {
+  min-width: 10rem;
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.tabla-contenedor {
+  background-color: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Tabla de componentes: un tbody por módulo, con su propio encabezado. */
+.componentes {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  border-bottom: 4px solid var(--primary);
+
+  caption {
+    caption-side: top;
+    padding: 0.75rem 1rem;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    background-color: var(--primary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  }
+
+  /* styles.scss fija con !important el padding de todos los td; aquí se usa el vertical de las tablas del sistema. */
+  th,
+  td {
+    padding: 8px 16px !important;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .componentes__nombre {
+    text-align: left;
+  }
+
+  td.componentes__acciones {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    white-space: nowrap;
+  }
+}
+
+.componentes__col-estado {
+  width: 22%;
+}
+
+.componentes__col-acciones {
+  width: 16%;
+}
+
+.componentes__modulo th {
+  color: #fff;
+  font-weight: 600;
+  background-color: var(--primary);
+}
+
+.componentes__modulo th.componentes__nombre {
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+/* Las filas alternas se cuentan dentro de cada módulo (la primera es el encabezado). */
+.componentes__submodulo {
+  background-color: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+  &:nth-child(odd) {
+    background-color: #e7d6d6;
+  }
+}
+
+/*
+ * Estado del submódulo: punto con el color del estado (estado_submodulo.color en la BD,
+ * tal cual; gris si no trae) y el nombre en texto normal. El ancho mínimo alinea los
+ * puntos en la columna centrada.
+ */
+.iniciativa-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 8.6rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.iniciativa-estado__punto {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #9e9e9e;
+}
+
+/*
+ * Botones alineados con los bordes de la tabla: se anulan los márgenes negativos de
+ * mat-card-actions y el margen que Material les pone a los botones (el espacio lo da gap).
+ */
+.mat-card > .barra-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.25rem 0 0;
+  padding: 0 0 0.5rem;
+
+  .mat-raised-button {
+    margin: 0;
+  }
+}
+
+.espacio {
+  flex: 1 1 auto;
+}
+
+.ayuda {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 640px) {
+  .estado-general {
+    display: flex;
+  }
+
+  .estado-general__valor {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .espacio {
+    display: none;
+  }
+}

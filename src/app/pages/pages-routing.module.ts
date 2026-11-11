@@ -32,11 +32,9 @@ import { FormularProyectoInversionComponent } from './banco-de-proyectos/proyect
 import { SeguimientoProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/seguimiento-proyecto-inversion/seguimiento-proyecto-inversion.component';
 import { EvaluacionProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/evaluacion-proyecto-inversion/evaluacion-proyecto-inversion.component';
 import { ReportesProyectoInversionComponent } from './banco-de-proyectos/proyectos-inversion-macro/reportes-proyecto-inversion/reportes-proyecto-inversion.component';
-import { ConsultarSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/consultar-sub-proyecto-inversion/consultar-sub-proyecto-inversion.component';
-import { FormularSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/formular-sub-proyecto-inversion/formular-sub-proyecto-inversion.component';
-import { SeguimientoSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/seguimiento-sub-proyecto-inversion/seguimiento-sub-proyecto-inversion.component';
-import { EvaluacionSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/evaluacion-sub-proyecto-inversion/evaluacion-sub-proyecto-inversion.component';
-import { ReportesSubProyectoInversionComponent } from './banco-de-proyectos/banco-iniciativas-inversion/reportes-sub-proyecto-inversion/reportes-sub-proyecto-inversion.component';
+import { ListadoIniciativasComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/listado-iniciativas/listado-iniciativas.component';
+import { VistaIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/vista-iniciativa/vista-iniciativa.component';
+import { SubmoduloIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/submodulo-iniciativa.component';
 import { ProyectosOtrosFondosComponent } from './banco-de-proyectos/proyectos-otros-fondos/proyectos-otros-fondos.component';
 import { ConstruirPlanProyectoComponent } from './plan/construir-plan-proyecto/construir-plan-proyecto.component';
 
@@ -280,30 +278,16 @@ const routes: Routes = [{
       ]
     },
     {
-      path: 'banco-inicaitivas',
-      component: PagesComponent,
-      children: [
-        {
-          path: 'consultar-subproyecto',
-          component: ConsultarSubProyectoInversionComponent,
-        },
-        {
-          path: 'formular-subproyecto',
-          component: FormularSubProyectoInversionComponent,
-        },
-        {
-          path: 'seguimiento-subproyecto',
-          component: SeguimientoSubProyectoInversionComponent,
-        },
-        {
-          path: 'evaluacion-subproyecto',
-          component: EvaluacionSubProyectoInversionComponent,
-        },
-        {
-          path: 'reporte-subproyecto',
-          component: ReportesSubProyectoInversionComponent,
-        },
-      ]
+      path: 'iniciativas-inversion',
+      component: ListadoIniciativasComponent,
+    },
+    {
+      path: 'iniciativas-inversion/:id',
+      component: VistaIniciativaComponent,
+    },
+    {
+      path: 'iniciativas-inversion/:id/submodulo/:clave',
+      component: SubmoduloIniciativaComponent,
     },
     {
       path: 'proyecto-otro',
