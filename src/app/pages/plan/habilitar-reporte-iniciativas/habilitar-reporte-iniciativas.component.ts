@@ -42,7 +42,7 @@ export class HabilitarReporteIniciativasComponent implements OnInit {
 
   async ngOnInit() {
     this.user = JSON.parse(atob(localStorage.getItem('user')));
-    this.CODIGO_TIPO_SEGUIMIENTO_F = await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'F_SP');
+    this.CODIGO_TIPO_SEGUIMIENTO_F = await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'FIPI_SP');
     this.cargarVigencias();
   }
 
@@ -50,6 +50,7 @@ export class HabilitarReporteIniciativasComponent implements OnInit {
     this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=codigo_abreviacion:VG,activo:true`)
       .subscribe((data: DataRequest) => {
         if (data && data.Data) {
+          data.Data.sort((a, b) => a.Nombre - b.Nombre);
           this.vigencias = data.Data;
         }
       }, () => {
@@ -121,12 +122,11 @@ export class HabilitarReporteIniciativasComponent implements OnInit {
       periodoSeguimiento.fecha_fin = fechaFin;
       periodoSeguimiento.tipo_seguimiento_id = this.CODIGO_TIPO_SEGUIMIENTO_F;
       periodoSeguimiento.unidades_interes = JSON.stringify(this.unidadesInteres);
-      periodoSeguimiento.planes_interes = JSON.stringify([]); // sin planes en esta vista
       periodoSeguimiento.usuario_modificacion = this.user.userService.documento ? this.user.userService.documento : '';
       periodoSeguimiento.activo = true;
 
       // revisar el endpoint
-      this.request.post(environment.PLANES_MID, 'formulacion/habilitar_fechas_funcionamiento', periodoSeguimiento)
+      this.request.post(environment.PLANES_MID, 'formulacion_iniciativas/habilitar_fechas_iniciativa', periodoSeguimiento)
         .subscribe((data: DataRequest) => {
           if (data && data.Success) {
             Swal.fire({
