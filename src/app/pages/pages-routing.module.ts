@@ -14,6 +14,7 @@ import { SeguimientoComponentGestion } from './seguimiento/gestion-seguimiento/g
 import { GenerarTrimestreComponent } from './seguimiento/generar-trimestre/generar-trimestre.component';
 import { FormulacionComponent } from './formulacion/formulacion.component';
 import { HabilitarReporteComponent } from './plan/habilitar-reporte/habilitar-reporte.component';
+import { HabilitarReporteIniciativasComponent } from './plan/habilitar-reporte-iniciativas/habilitar-reporte-iniciativas.component';
 import { ConstruccionModulComponent } from './construccion-modul/construccion-modul.component';
 import { PUIComponent } from './pui/pui.component';
 import { PedComponent } from './ped/ped.component';
@@ -98,6 +99,10 @@ const routes: Routes = [{
         {
           path: 'habilitar-reporte',
           component: HabilitarReporteComponent,
+        },
+        {
+          path: 'habilitar-reporte-iniciativas',
+          component: HabilitarReporteIniciativasComponent,
         },
         {
           path: 'consultar-plan-formulacion',

@@ -1,0 +1,33 @@
+th, td {
+  text-align: center !important;
+  padding: 8px;
+}
+
+th {
+  color: white;
+}
+
+td {
+  white-space: nowrap !important; /* Evita que el texto se envuelva en pantallas pequeñas */
+}
+
+/* Hacer que la tabla tenga scroll horizontal en pantallas pequeñas */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+@media (max-width: 640px) {
+  table {
+    font-size: 12px; /* Ajusta el tamaño de fuente */
+  }
+
+  th, td {
+    padding: 4px; /* Reduce el padding */
+  }
+}

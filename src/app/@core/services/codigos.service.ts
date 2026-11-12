@@ -39,7 +39,7 @@ export class CodigosService {
         PDD_SP: '',
         API_SP: '',
       },
-      'tipo-seguimiento': { F_SP: '', S_SP: '', SI_SP: '', FI_SP: '' },
+      'tipo-seguimiento': { F_SP: '', S_SP: '', SI_SP: '', FI_SP: '', FIPI_SP: '' },
     },
   };
 
