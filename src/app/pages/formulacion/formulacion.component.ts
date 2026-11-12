@@ -1735,6 +1735,59 @@ async onChangeU(unidad) {
     }
   }
 
+  private mensajeErrorEstado(error: any): string {
+    const respuesta = error && error.error ? error.error : error;
+    const detalle = respuesta && (respuesta.Data || respuesta.Message || respuesta.message);
+    const mensaje = typeof detalle === 'string' ? detalle :
+      detalle ? JSON.stringify(detalle) : error && error.message;
+    const estado = respuesta && (respuesta.Status || respuesta.status) || error && error.status;
+    return `${mensaje || 'No se recibió una respuesta válida del servicio.'}${estado ? ` (estado ${estado})` : ''}`;
+  }
+
+  private cambiarEstadoPlan(estado: string, titulo: string, codigoNotificacion: string): void {
+    const planActualizado = { ...this.plan, estado_plan_id: estado };
+    this.request.put(environment.PLANES_CRUD, 'plan', planActualizado, this.plan._id).subscribe(
+      (respuesta: any) => {
+        if (!respuesta || respuesta.Success !== true || !respuesta.Data ||
+            respuesta.Data.estado_plan_id !== estado) {
+          const detalle = respuesta && respuesta.Success === true
+            ? respuesta.Data
+              ? 'El servicio respondió, pero el plan conserva un estado distinto al solicitado.'
+              : 'El servicio no devolvió el plan actualizado.'
+            : this.mensajeErrorEstado(respuesta);
+          Swal.fire({
+            title: 'No se pudo cambiar el estado del plan',
+            icon: 'error',
+            text: detalle,
+            confirmButtonText: 'Entendido',
+          });
+          return;
+        }
+
+        this.plan = respuesta.Data;
+        this.codigoNotificacion = codigoNotificacion;
+        Swal.fire({
+          title: titulo,
+          icon: 'success',
+          confirmButtonText: 'Continuar',
+          allowOutsideClick: false,
+        }).then((resultado) => {
+          if (resultado.isConfirmed) {
+            this.busquedaPlanes(respuesta.Data);
+            this.loadData();
+            this.addActividad = false;
+          }
+        });
+      },
+      (error) => Swal.fire({
+        title: 'No se pudo cambiar el estado del plan',
+        icon: 'error',
+        text: this.mensajeErrorEstado(error),
+        confirmButtonText: 'Entendido',
+      }),
+    );
+  }
+
   culminarPlan() {
     // Revisar si tiene actividades (!)
     this.getPoderacionActividades().then(() => {
@@ -1746,8 +1799,8 @@ async onChangeU(unidad) {
         })
       } else {
         this.request.get(environment.PLANES_MID, `formulacion/verificar_identificaciones/` + this.plan._id).subscribe((data: any) => {
-          if (data) {
-            if (data.Data == true) {
+          if (data && data.Success === true) {
+            if (data.Data === true) {
               Swal.fire({
                 title: 'Culminar Plan',
                 text: `¿Está seguro de enviar este Plan Culminado?`,
@@ -1758,22 +1811,7 @@ async onChangeU(unidad) {
                 allowOutsideClick: false,
               }).then((result) => {
                 if (result.isConfirmed) {
-                  this.plan.estado_plan_id = this.ID_ESTADO_FORMULADO;
-                  this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
-                    if (data) {
-                      this.codigoNotificacion = "FEF"; // NOTIFICACION(FEF)
-                      Swal.fire({
-                        title: 'Plan enviado',
-                        icon: 'success',
-                      }).then((result) => {
-                        if (result.value) {
-                          this.busquedaPlanes(data.Data);
-                          this.loadData();
-                          this.addActividad = false;
-                        }
-                      })
-                    }
-                  })
+                  this.cambiarEstadoPlan(this.ID_ESTADO_FORMULADO, 'Plan enviado', 'FEF');
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
                   Swal.fire({
                     title: 'Envío cancelado',
@@ -1793,18 +1831,34 @@ async onChangeU(unidad) {
               })
             } else {
               Swal.fire({
-                title: 'Error en la operación',
+                title: 'Identificaciones incompletas',
                 icon: 'error',
                 text: `Por favor complete las identificaciones de contratistas y/o docentes para continuar`,
-                showConfirmButton: false,
-                timer: 2500
+                confirmButtonText: 'Entendido',
               })
             }
+          } else {
+            Swal.fire({
+              title: 'No se pudieron verificar las identificaciones',
+              icon: 'error',
+              text: this.mensajeErrorEstado(data),
+              confirmButtonText: 'Entendido',
+            });
           }
-        })
+        }, (error) => Swal.fire({
+          title: 'No se pudieron verificar las identificaciones',
+          icon: 'error',
+          text: this.mensajeErrorEstado(error),
+          confirmButtonText: 'Entendido',
+        }))
 
       }
-    })
+    }).catch((error) => Swal.fire({
+      title: 'No se pudo calcular la ponderación',
+      icon: 'error',
+      text: this.mensajeErrorEstado(error),
+      confirmButtonText: 'Entendido',
+    }))
 
   }
 
@@ -1818,7 +1872,7 @@ async onChangeU(unidad) {
       rejectRef = reject;
     });
     this.request.get(environment.PLANES_MID, `formulacion/ponderacion_actividades/` + this.plan._id).subscribe((data: any) => {
-      if (data && data.Success) {
+      if (data && data.Success === true && data.Data) {
         let aux: object = data.Data
         let keys: string[];
 
@@ -1834,22 +1888,10 @@ async onChangeU(unidad) {
         this.ponderacionActividades = message
         resolveRef(message)
       } else {
-        Swal.fire({
-          title: 'Error en solicitud de cálculo de ponderación, por favor contactarse con el administrador del sistema.',
-          icon: 'error',
-          text: 'El formato del plan construido, presenta fallas.',
-          showConfirmButton: false,
-          timer: 3500
-        })
+        rejectRef(data);
       }
     }, (error) => {
-      Swal.fire({
-        title: 'Error en solicitud de cálculo de ponderación, por favor contactarse con el administrador del sistema.',
-        icon: 'error',
-        text: 'El formato del plan construido, presenta fallas.',
-        showConfirmButton: false,
-        timer: 3500
-      })
+      rejectRef(error);
     })
     return dataPromise
   }
@@ -1865,22 +1907,7 @@ async onChangeU(unidad) {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = this.ID_ESTADO_EN_REVISION;
-        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
-          if (data) {
-            this.codigoNotificacion = "FF"; // NOTIFICACION(FF)
-            Swal.fire({
-              title: 'Plan En Revisión',
-              icon: 'success',
-            }).then((result) => {
-              if (result.value) {
-                this.busquedaPlanes(data.Data);
-                this.loadData();
-                this.addActividad = false;
-              }
-            })
-          }
-        })
+        this.cambiarEstadoPlan(this.ID_ESTADO_EN_REVISION, 'Plan en revisión', 'FF');
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Inicio de Revisión Cancelado',
@@ -1911,22 +1938,7 @@ async onChangeU(unidad) {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = this.ID_ESTADO_REVISADO;
-        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
-          if (data) {
-            this.codigoNotificacion = "FER"; // NOTIFICACION(FER)
-            Swal.fire({
-              title: 'Revisión Enviada',
-              icon: 'success',
-            }).then((result) => {
-              if (result.value) {
-                this.busquedaPlanes(data.Data);
-                this.loadData();
-                this.addActividad = false;
-              }
-            })
-          }
-        })
+        this.cambiarEstadoPlan(this.ID_ESTADO_REVISADO, 'Revisión enviada', 'FER');
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Envio de Revisión Cancelado',
@@ -1968,22 +1980,7 @@ async onChangeU(unidad) {
         }).then((result) => {
           if (result.isConfirmed) {
             if (this.actividadConObservacion.length == 0) {
-              this.plan.estado_plan_id = this.ID_ESTADO_REVISION_VERIFICADA;
-              this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
-                if (data) {
-                  this.codigoNotificacion = "FR2"; // NOTIFICACION(FR2)
-                  Swal.fire({
-                    title: 'Revisión Verficada Enviada',
-                    icon: 'success',
-                  }).then((result) => {
-                    if (result.value) {
-                      this.busquedaPlanes(data.Data);
-                      this.loadData();
-                      this.addActividad = false;
-                    }
-                  })
-                }
-              })
+              this.cambiarEstadoPlan(this.ID_ESTADO_REVISION_VERIFICADA, 'Revisión verificada enviada', 'FR2');
             } else {
               let message: string = '<b>Actividades</b><br/>';
               for (let i = 0; i < this.actividadConObservacion.length; i++) {
@@ -2027,7 +2024,6 @@ async onChangeU(unidad) {
   }
 
   realizarAjustes() {
-    this.banderaRealizarAjustes = true;
     Swal.fire({
       title: 'Realizar Ajustes',
       text: `¿Desea realizar ajustes al Plan?`,
@@ -2038,32 +2034,7 @@ async onChangeU(unidad) {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
-          if (data) {
-            if (this.estadoPlan == 'Revisado') {
-              this.codigoNotificacion = "FR1"; // NOTIFICACION(FR1)
-            } else if (this.estadoPlan == 'Pre Aval') {
-              this.codigoNotificacion = "FPA1"; // NOTIFICACION(FPA1)
-            }
-            this.getVersiones(data.Data);
-            Swal.fire({
-              title: 'Nueva Versión',
-              text: 'Nueva versión del plan creada, ya puede realizar los ajustes al plan.',
-              icon: 'success',
-            }).then(async (result) => {
-              if (result.value) {
-                await this.cleanBeforeLoad();
-              }
-            })
-          } else {
-            Swal.fire({
-              title: 'Error al versionar el plan. Por favor intente de nuevo',
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 2500
-            })
-          }
-        })
+        this.crearNuevaVersion(true);
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Envio de Ajustes Cancelado',
@@ -2083,28 +2054,41 @@ async onChangeU(unidad) {
     })
   }
 
-  crearNuevaVersion(){
+  crearNuevaVersion(seleccionarUltimaVersion: boolean = false) {
     this.request.post(environment.PLANES_MID, `formulacion/versionar_plan/` + this.plan._id, this.plan).subscribe((data: any) => {
-      if (data) {
-        this.getVersiones(data.Data);
+      if (data && data.Success === true && data.Data) {
+        if (this.estadoPlan === 'Revisado') {
+          this.codigoNotificacion = 'FR1';
+        } else if (this.estadoPlan === 'Pre Aval') {
+          this.codigoNotificacion = 'FPA1';
+        }
         Swal.fire({
           title: 'Nueva Versión',
           text: 'Nueva versión del plan creada, ya puede realizar los ajustes al plan.',
           icon: 'success',
+          confirmButtonText: 'Continuar',
+          allowOutsideClick: false,
         }).then(async (result) => {
-          if (result.value) {
+          if (result.isConfirmed) {
             await this.cleanBeforeLoad();
+            this.banderaRealizarAjustes = seleccionarUltimaVersion;
+            this.getVersiones(data.Data);
           }
         })
       } else {
         Swal.fire({
-          title: 'Error al versionar el plan. Por favor intente de nuevo',
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2500
+          title: 'No se pudo crear una nueva versión del plan',
+          icon: 'error',
+          text: this.mensajeErrorEstado(data),
+          confirmButtonText: 'Entendido',
         })
       }
-    })
+    }, (error) => Swal.fire({
+      title: 'No se pudo crear una nueva versión del plan',
+      icon: 'error',
+      text: this.mensajeErrorEstado(error),
+      confirmButtonText: 'Entendido',
+    }))
   }
 
   preAval() {
@@ -2118,22 +2102,7 @@ async onChangeU(unidad) {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.plan.estado_plan_id = this.ID_ESTADO_PRE_AVAL;
-        this.request.put(environment.PLANES_CRUD, `plan`, this.plan, this.plan._id).subscribe((data: any) => {
-          if (data) {
-            this.codigoNotificacion = "FV"; // NOTIFICACION(FV)
-            Swal.fire({
-              title: 'Plan pre avalado',
-              icon: 'success',
-            }).then((result) => {
-              if (result.value) {
-                this.busquedaPlanes(data.Data);
-                this.loadData();
-                this.addActividad = false;
-              }
-            })
-          }
-        })
+        this.cambiarEstadoPlan(this.ID_ESTADO_PRE_AVAL, 'Plan pre avalado', 'FV');
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Envio de Pre Aval Cancelado',
@@ -2166,46 +2135,66 @@ async onChangeU(unidad) {
     }).then((result) => {
       if (result.isConfirmed) {
         this.mostrarMensajeCarga();
-        return new Promise((resolve, reject) => {
-          this.request.post(environment.PLANES_MID, `seguimiento/avalar/` + this.plan._id, {}).subscribe((data: any) => {
-            Swal.close();
-            if (data.Success == true) {
-              this.codigoNotificacion = "FPA2"; // NOTIFICACION(FPA2)
+        this.request.post(environment.PLANES_MID, `seguimiento/avalar/` + this.plan._id, {}).subscribe(
+          (respuesta: any) => {
+            if (!respuesta || respuesta.Success !== true) {
               Swal.fire({
-                title: 'Plan Avalado',
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 2500
-              }).then((result) => {
-                this.plan.estado_plan_id = this.ID_ESTADO_AVAL;
-                this.busquedaPlanes(this.plan, false);
-                this.loadData();
-                this.addActividad = false;
-              })
-              resolve(data);
-            } else {
-              Swal.fire({
-                title: 'Error en la operación',
+                title: 'No se pudo avalar el plan',
                 icon: 'error',
-                text: `Error creando reportes de seguimiento`,
-                showConfirmButton: false,
-                timer: 2500
-              })
-              reject();
+                text: this.mensajeErrorEstado(respuesta),
+                confirmButtonText: 'Entendido',
+              });
+              return;
             }
-          }, (error) => {
-            Swal.close();
-            const mensaje = error.error.Data ? error.error.Data : error.message
-            Swal.fire({
-              title: 'Error en la operación',
-              text: `${mensaje}, por favor diríjase al módulo de administración y diligencie las fechas correspondientes al periodo de seguimiento para la vigencia requerida.`,
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 4000
-            });
-            reject();
-          })
-        })
+
+            this.request.get(environment.PLANES_CRUD, `plan/` + this.plan._id).subscribe(
+              (consulta: any) => {
+                if (!consulta || consulta.Success !== true || !consulta.Data ||
+                    consulta.Data.estado_plan_id !== this.ID_ESTADO_AVAL) {
+                  const detalle = consulta && consulta.Success === true
+                    ? consulta.Data
+                      ? 'La operación terminó, pero el plan aún no figura en estado Aval.'
+                      : 'El servicio no devolvió el plan para confirmar el aval.'
+                    : this.mensajeErrorEstado(consulta);
+                  Swal.fire({
+                    title: 'No se pudo confirmar el aval del plan',
+                    icon: 'error',
+                    text: detalle,
+                    confirmButtonText: 'Entendido',
+                  });
+                  return;
+                }
+
+                this.plan = consulta.Data;
+                this.codigoNotificacion = 'FPA2';
+                Swal.fire({
+                  title: 'Plan avalado',
+                  icon: 'success',
+                  confirmButtonText: 'Continuar',
+                  allowOutsideClick: false,
+                }).then((resultado) => {
+                  if (resultado.isConfirmed) {
+                    this.busquedaPlanes(this.plan, false);
+                    this.loadData();
+                    this.addActividad = false;
+                  }
+                });
+              },
+              (error) => Swal.fire({
+                title: 'No se pudo confirmar el aval del plan',
+                icon: 'error',
+                text: this.mensajeErrorEstado(error),
+                confirmButtonText: 'Entendido',
+              }),
+            );
+          },
+          (error) => Swal.fire({
+            title: 'No se pudo avalar el plan',
+            icon: 'error',
+            text: this.mensajeErrorEstado(error),
+            confirmButtonText: 'Entendido',
+          }),
+        );
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Envio de Aval Cancelado',

@@ -537,9 +537,9 @@ displayedHeaders: string[] = [];
           var num = +i + 1;
           obj["index"] = num.toString();
         }
-        let dataS = JSON.stringify(Object.assign({}, data))
-        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, `${this.plan}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((data: any) => {
-          if (data) {
+        const dataS = Object.assign({}, data);
+        this.request.put(environment.PLANES_MID, `formulacion/guardar_identificacion`, dataS, `${this.plan}/${await this.codigosService.getId('PLANES_CRUD', 'tipo-identificacion', 'IC_SP')}`).subscribe((respuesta: any) => {
+          if (respuesta && respuesta.Success === true && respuesta.Status === '200') {
             Swal.fire({
               title: 'Guardado exitoso',
               icon: 'success',
@@ -547,7 +547,23 @@ displayedHeaders: string[] = [];
               timer: 3500
             })
             this.acciones.emit({ dataS, accion, identi });
+          } else {
+            Swal.fire({
+              title: 'No fue posible guardar la identificación de contratistas',
+              icon: 'error',
+              text: respuesta && respuesta.Message ? respuesta.Message : 'El servidor rechazó la actualización.',
+              showConfirmButton: false,
+              timer: 3500
+            })
           }
+        }, (error) => {
+          Swal.fire({
+            title: 'No fue posible guardar la identificación de contratistas',
+            icon: 'error',
+            text: error && error.error && error.error.Message ? error.error.Message : 'Ocurrió un error al actualizar la información.',
+            showConfirmButton: false,
+            timer: 3500
+          })
         })
       }
     } else {
