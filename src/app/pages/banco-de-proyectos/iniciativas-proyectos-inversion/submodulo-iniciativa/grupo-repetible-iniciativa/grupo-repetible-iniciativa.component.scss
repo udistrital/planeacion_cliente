@@ -52,3 +52,20 @@
   color: #c62828;
   font-size: 0.85rem;
 }
+
+/* Filas sin fondo para que los campos blancos resalten sobre el gris de la tarjeta */
+:host-context(.con-secciones) {
+  .iniciativa-repetible__encabezado h4,
+  .iniciativa-fila__titulo {
+    color: var(--primary);
+  }
+
+  .iniciativa-fila {
+    border-left-color: var(--primary);
+    background: transparent;
+  }
+
+  .iniciativa-fila__origen {
+    background: #fff;
+  }
+}

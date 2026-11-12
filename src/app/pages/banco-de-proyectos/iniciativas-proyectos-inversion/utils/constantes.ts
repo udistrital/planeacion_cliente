@@ -16,6 +16,16 @@ export const ESTADO_SUBMODULO_SIN_FORMULAR = 'SF_SUB';
 /** Código del estado de submódulo con observaciones de Planeación por atender. */
 export const ESTADO_SUBMODULO_CON_OBSERVACIONES = 'CO_SUB';
 
+/**
+ * Listas del nivel superior (clave) que cada submódulo muestra como tabla jerárquica:
+ * cada fila con su número y, debajo, con sangría y número 1.1, las de su lista interna.
+ * Las demás listas se muestran como filas en recuadros.
+ */
+export const LISTAS_EN_TABLA: { [submodulo: string]: string[] } = {
+  problematica: ['causas_directas', 'efectos_directos'],
+  objetivos: ['objetivos_especificos', 'resultados_esperados'],
+};
+
 /** Largo máximo de una observación (igual que en el mid y el crud). */
 export const MAXIMO_TEXTO_OBSERVACION = 4000;
 

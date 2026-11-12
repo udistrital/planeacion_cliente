@@ -1,3 +1,16 @@
+/* .card-oas usa 100vw en styles.scss, que incluye la barra de scroll y cortaba la tarjeta a la derecha */
+:host {
+  display: block;
+}
+
+.mat-card.card-oas {
+  width: auto;
+}
+
+.mat-card.con-secciones {
+  background-color: #f1f5f8;
+}
+
 /* Estado del submódulo (igual que en la vista de la iniciativa): punto con el color de la BD y el nombre; gris si no trae color. */
 .iniciativa-estado {
   display: inline-flex;
@@ -55,6 +68,18 @@
   border-left: 4px solid #ef6c00;
 }
 
+/* Mismo estilo de textGuide en la vista de la iniciativa */
+.con-secciones .iniciativa-aviso {
+  background-color: #fff;
+  border: 1px solid var(--primary);
+  border-radius: 15px;
+  box-shadow: var(--primary) 3px 4px 0;
+
+  h4 {
+    color: var(--primary);
+  }
+}
+
 .iniciativa-texto-observacion {
   margin: 0;
   white-space: pre-wrap;
@@ -64,14 +89,23 @@
   padding: 0.25rem 0;
 }
 
-.iniciativa-revision {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
+/* Igual que en campos-iniciativa.component.scss */
+.container-border {
+  min-width: 0;
+  margin: 0;
+  padding: 0.25rem 1rem 0.75rem;
+  border: 1px solid var(--primary);
+  border-radius: 15px;
+}
 
-  h4 {
-    margin: 0 0 0.5rem;
-  }
+.titulo {
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 0.5rem;
+  color: var(--primary);
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .iniciativa-acciones {
@@ -86,10 +120,16 @@
 }
 
 .iniciativa-barra {
-  position: sticky;
-  bottom: 0;
   padding: 0.75rem 0;
-  background: #fafafa;
   border-top: 1px solid rgba(0, 0, 0, 0.12);
-  z-index: 2;
+}
+
+/* Deja espacio al botón fijo de IRIS (.icono-fijo en app.component), que tapaba el último botón */
+.mat-card > .iniciativa-barra {
+  padding-right: 96px;
+}
+
+/* Material deja el borde gris aunque el botón tenga color */
+.mat-stroked-button.boton-contorno:not([disabled]) {
+  border-color: var(--primary);
 }

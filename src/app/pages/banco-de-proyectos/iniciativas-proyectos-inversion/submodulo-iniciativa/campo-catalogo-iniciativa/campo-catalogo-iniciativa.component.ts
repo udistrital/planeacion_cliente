@@ -4,6 +4,7 @@ import { Observable, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { IniciativaService } from '../../iniciativa.service';
 import { ItemCatalogo, NodoDefinicion } from '../../utils';
+import { AparienciaCampo } from '../../utils/formulario.utils';
 
 const MAXIMO_SUGERENCIAS = 50;
 
@@ -23,6 +24,9 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
   @Output() valorChange = new EventEmitter<string | null>();
   @Input() padre: string | null = null;
   @Input() deshabilitado = false;
+  /** Falso cuando el campo va solo en una sección cuyo título ya lo nombra. */
+  @Input() conEtiqueta = true;
+  @Input() apariencia: AparienciaCampo = 'outline';
 
   readonly control = new FormControl('');
   sugerencias$: Observable<ItemCatalogo[]>;

@@ -2,6 +2,7 @@ import { NodoDefinicion } from './iniciativa.models';
 import {
   calcular,
   ContextoFormulario,
+  estructuraDeTabla,
   indexarPorRuta,
   nuevoIdFila,
   opcionesDeReferencia,
@@ -26,6 +27,8 @@ function contexto(parcial: Partial<ContextoFormulario> = {}): ContextoFormulario
     relacionadas: {},
     soloLectura: false,
     errores: {},
+    apariencia: 'outline',
+    listasEnTabla: [],
     nombreEnCatalogo: (catalogo, codigo) => (catalogo === 'procesos' && codigo === 'Implementación' ? 'Implementación' : codigo),
     ...parcial,
   };
@@ -141,5 +144,29 @@ describe('formulario.utils', () => {
     expect(totalFila(matriz, 'a', ['x', 'y'])).toBe(3);
     expect(totalFila(matriz, 'b', ['x', 'y'])).toBe(3);
     expect(totalColumna(matriz, ['a', 'b'], 'x')).toBe(4);
+  });
+
+  it('reparte en columnas una lista de textos con su lista interna', () => {
+    const efectos = nodo('efectos_directos', 'repetible', {}, [
+      nodo('descripcion', 'input'),
+      nodo('linea_base', 'input'),
+      nodo('efectos_indirectos', 'repetible', {}, [nodo('descripcion', 'input'), nodo('linea_base', 'input')]),
+    ]);
+
+    const estructura = estructuraDeTabla(efectos);
+
+    expect(estructura.campos.map((c) => c.dato.clave)).toEqual(['descripcion', 'linea_base']);
+    expect(estructura.interna.dato.clave).toBe('efectos_indirectos');
+    expect(estructura.camposInternos.map((c) => c.dato.clave)).toEqual(['descripcion', 'linea_base']);
+  });
+
+  it('no arma tabla si hay campos que no son texto, espejos o más de una lista interna', () => {
+    const texto = nodo('descripcion', 'input');
+    const interna = () => nodo('medios', 'repetible', {}, [nodo('descripcion', 'input')]);
+
+    expect(estructuraDeTabla(nodo('actores', 'repetible', {}, [texto, nodo('actor', 'select')]))).toBeNull();
+    expect(estructuraDeTabla(nodo('actividades', 'repetible', { espejo_de: 'objetivos.objetivos_especificos' }, [texto]))).toBeNull();
+    expect(estructuraDeTabla(nodo('objetivos', 'repetible', {}, [texto, interna(), interna()]))).toBeNull();
+    expect(estructuraDeTabla(nodo('objetivos', 'repetible', {}, [texto]))).not.toBeNull();
   });
 });

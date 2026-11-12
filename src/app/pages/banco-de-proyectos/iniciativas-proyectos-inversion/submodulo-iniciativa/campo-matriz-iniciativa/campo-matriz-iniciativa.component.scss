@@ -14,14 +14,16 @@
 
 .iniciativa-matriz__desplazable {
   overflow-x: auto;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 6px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 table {
   border-collapse: collapse;
   font-size: 0.8rem;
   min-width: 100%;
+  border-bottom: 3px solid var(--primary);
 }
 
 th,
@@ -31,9 +33,13 @@ td {
   text-align: center;
 }
 
-thead th {
-  background: rgba(63, 81, 181, 0.08);
-  font-weight: 600;
+/* La celda "Grupo" también tiene .iniciativa-matriz__fila y tomaría su fondo claro */
+thead th,
+thead th.iniciativa-matriz__fila {
+  color: #fff;
+  font-weight: 500;
+  background-color: var(--primary);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .iniciativa-matriz__columna {

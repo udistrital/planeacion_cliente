@@ -14,6 +14,8 @@ export class CampoMatrizIniciativaComponent implements OnChanges {
   @Input() matriz: Datos = {};
   @Input() ruta = '';
   @Input() contexto: ContextoFormulario;
+  /** Falso cuando la matriz va sola en una sección cuyo título ya la nombra. */
+  @Input() conTitulo = true;
 
   filas: ElementoClave[] = [];
   grupos: GrupoColumnas[] = [];

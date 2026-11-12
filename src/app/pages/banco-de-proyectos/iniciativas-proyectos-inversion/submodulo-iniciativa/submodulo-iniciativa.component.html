@@ -1,4 +1,5 @@
-<mat-card class="card-oas" *ngIf="!cargando && nodo && submodulo">
+<!-- con-secciones da el estilo de SISGPLAN aquí y en los componentes del formulario (:host-context) -->
+<mat-card class="card-oas con-secciones" *ngIf="!cargando && nodo && submodulo">
   <mat-card-header>
     <mat-card-title>{{ nodo.nombre }}</mat-card-title>
     <mat-card-subtitle>
@@ -31,11 +32,11 @@
     </p>
 
     <div class="iniciativa-formulario">
-      <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos" ruta="" [contexto]="contexto"></app-campos-iniciativa>
+      <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos" ruta="" [contexto]="contexto" [secciones]="true"></app-campos-iniciativa>
     </div>
 
-    <section *ngIf="puedeRevisar" class="iniciativa-revision">
-      <h4>Revisión del submódulo</h4>
+    <fieldset *ngIf="puedeRevisar" class="container-border">
+      <legend class="titulo">Revisión del submódulo</legend>
       <p class="iniciativa-ayuda">
         Si hay algo por corregir, publíquelo en Observaciones: el submódulo quedará «Con observaciones».
         Si está bien, márquelo sin observaciones.
@@ -44,17 +45,17 @@
         <button mat-raised-button color="accent" [disabled]="guardando" (click)="abrirObservaciones()">Escribir observación</button>
         <button mat-raised-button color="primary" [disabled]="guardando" (click)="marcarSinObservaciones()">Sin observaciones</button>
       </div>
-    </section>
+    </fieldset>
   </mat-card-content>
 
   <mat-card-actions class="iniciativa-acciones iniciativa-barra">
     <button mat-raised-button color="primary" (click)="volver()">Volver a la iniciativa</button>
-    <button mat-stroked-button (click)="abrirObservaciones()">
+    <button mat-stroked-button color="primary" class="boton-contorno" (click)="abrirObservaciones()">
       <mat-icon>forum</mat-icon> Observaciones<span *ngIf="submodulo.observaciones.length"> ({{ submodulo.observaciones.length }})</span>
     </button>
     <span class="iniciativa-espacio"></span>
-    <button mat-button *ngIf="anterior" (click)="irA(anterior)"><mat-icon>chevron_left</mat-icon> {{ anterior.nombre }}</button>
-    <button mat-button *ngIf="siguiente" (click)="irA(siguiente)">{{ siguiente.nombre }} <mat-icon>chevron_right</mat-icon></button>
+    <button mat-button color="primary" *ngIf="anterior" (click)="irA(anterior)"><mat-icon>chevron_left</mat-icon> {{ anterior.nombre }}</button>
+    <button mat-button color="primary" *ngIf="siguiente" (click)="irA(siguiente)">{{ siguiente.nombre }} <mat-icon>chevron_right</mat-icon></button>
     <button mat-raised-button color="primary" *ngIf="puedeEditar" [disabled]="guardando" (click)="guardar()">
       <mat-icon>save</mat-icon> Guardar
     </button>

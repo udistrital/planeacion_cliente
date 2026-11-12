@@ -12,16 +12,29 @@
   max-width: 420px;
 }
 
-.iniciativa-grupo {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 6px;
-  padding: 0.75rem 1rem 1rem;
-  margin: 0.5rem 0 1rem;
+/* Sin etiqueta: quita el espacio que Material reserva para la etiqueta flotante */
+:host ::ng-deep .iniciativa-campo--sin-etiqueta .mat-form-field-infix {
+  border-top-width: 0;
+  padding: 0.25em 0 0.6em !important;
+}
 
-  legend {
-    font-weight: 600;
-    padding: 0 0.5rem;
-  }
+/* Secciones como las de plan/habilitar-reporte */
+.container-border {
+  min-width: 0; /* Para que la matriz se desplace dentro y no estire el fieldset */
+  margin: 0 0 1.25rem;
+  padding: 0.25rem 1rem 0.5rem;
+  border: 1px solid var(--primary);
+  border-radius: 15px;
+}
+
+.titulo {
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 0.5rem;
+  color: var(--primary);
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .iniciativa-calculado {
@@ -49,4 +62,49 @@
   font-size: 0.85rem;
   margin: -0.5rem 0 0.75rem;
   color: #c62828;
+}
+
+/* Colores del sistema; con-secciones va en la tarjeta del submódulo */
+:host-context(.con-secciones) {
+  .iniciativa-calculado {
+    border-left-color: var(--primary);
+    background: #fff;
+  }
+
+  /* El 75% de Material queda muy pequeño para las ayudas largas */
+  ::ng-deep .mat-form-field-subscript-wrapper {
+    font-size: 12px;
+  }
+
+  .iniciativa-error {
+    margin: 0.25rem 0 0.5rem;
+    font-size: 12px;
+    color: var(--primary);
+
+    mat-icon {
+      display: none;
+    }
+  }
+
+  /* Vino en lugar del rojo de Material */
+  ::ng-deep .mat-form-field-invalid {
+    .mat-form-field-ripple {
+      background-color: var(--primary);
+    }
+
+    .mat-form-field-label,
+    .mat-form-field-required-marker {
+      color: var(--primary);
+    }
+
+    .mat-input-element {
+      caret-color: var(--primary);
+    }
+  }
+
+  /* Alinea el error con la ayuda del campo */
+  .mat-form-field + .iniciativa-error,
+  app-campo-catalogo-iniciativa + .iniciativa-error {
+    padding: 0 1em;
+  }
 }

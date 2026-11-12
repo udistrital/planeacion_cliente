@@ -1,5 +1,5 @@
 <section class="iniciativa-matriz">
-  <h4>{{ nodo.nombre }}</h4>
+  <h4 *ngIf="conTitulo">{{ nodo.nombre }}</h4>
   <p class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</p>
   <div class="iniciativa-matriz__desplazable">
     <table>

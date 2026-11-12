@@ -1,0 +1,99 @@
+<p class="iniciativa-ayuda" *ngIf="nodo.descripcion">
+  {{ nodo.descripcion }}<span *ngIf="minimo > 1"> Mínimo {{ minimo }}.</span>
+</p>
+<p class="iniciativa-ayuda" *ngIf="estructura.interna?.descripcion">
+  <strong>{{ estructura.interna.nombre }}:</strong> {{ estructura.interna.descripcion }}
+</p>
+
+<div class="tabla-caja">
+  <table class="tabla-jerarquica">
+    <thead>
+      <tr>
+        <th scope="col" class="col-numero">N.°</th>
+        <th scope="col" *ngFor="let columna of columnas">{{ encabezados[columna] }}</th>
+        <th scope="col" class="col-acciones" *ngIf="puedeModificar">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="!filas.length">
+        <td [attr.colspan]="totalColumnas" class="vacio">Aún no hay registros.</td>
+      </tr>
+
+      <ng-container *ngFor="let fila of filas; let posicion = index; trackBy: porId">
+        <!-- Primer nivel -->
+        <tr class="nivel-1">
+          <td class="numero"><span class="chip">{{ posicion + 1 }}</span></td>
+          <td *ngFor="let columna of columnas" [class.con-error]="erroresDeCampo(rutaDeFila(fila), estructura.campos[columna]).length">
+            <ng-container *ngTemplateOutlet="celda; context: { fila: fila, campo: estructura.campos[columna], ruta: rutaDeFila(fila), numero: posicion + 1 }"></ng-container>
+          </td>
+          <td class="acciones" *ngIf="puedeModificar">
+            <button mat-icon-button color="primary" type="button" *ngIf="puedeAgregarInterna(fila)" (click)="agregarInterna(fila)"
+              matTooltip="Agregar {{ etiquetaInterna | lowercase }}"
+              [attr.aria-label]="'Agregar ' + (etiquetaInterna | lowercase) + ' a ' + (posicion + 1)">
+              <mat-icon>add_circle_outline</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" type="button" (click)="eliminar(posicion)"
+              matTooltip="Eliminar {{ etiqueta | lowercase }}"
+              [attr.aria-label]="'Eliminar ' + (etiqueta | lowercase) + ' ' + (posicion + 1)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+
+        <!-- Lista interna: con sangría y número 1.1, 1.2... -->
+        <tr class="nivel-2" *ngFor="let hija of internas(fila); let posicionHija = index; trackBy: porId">
+          <td class="numero"><span class="rama" aria-hidden="true"></span>{{ posicion + 1 }}.{{ posicionHija + 1 }}</td>
+          <td *ngFor="let columna of columnas"
+            [class.con-error]="erroresDeCampo(rutaDeInterna(fila, hija), estructura.camposInternos[columna]).length">
+            <ng-container *ngTemplateOutlet="celda; context: {
+              fila: hija,
+              campo: estructura.camposInternos[columna],
+              ruta: rutaDeInterna(fila, hija),
+              numero: (posicion + 1) + '.' + (posicionHija + 1)
+            }"></ng-container>
+          </td>
+          <td class="acciones" *ngIf="puedeModificar">
+            <button mat-icon-button color="primary" type="button" (click)="eliminarInterna(fila, posicion, posicionHija)"
+              matTooltip="Eliminar {{ etiquetaInterna | lowercase }}"
+              [attr.aria-label]="'Eliminar ' + (etiquetaInterna | lowercase) + ' ' + (posicion + 1) + '.' + (posicionHija + 1)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+
+        <tr class="fila-errores" *ngIf="erroresDeFila(fila).length">
+          <td [attr.colspan]="totalColumnas">
+            <div class="iniciativa-error" *ngFor="let mensaje of erroresDeFila(fila)">{{ mensaje }}</div>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>
+
+<button *ngIf="puedeAgregar" mat-stroked-button color="primary" type="button" class="agregar" (click)="agregar()">
+  <mat-icon>add</mat-icon> Agregar {{ etiqueta | lowercase }}
+</button>
+
+<!--
+  Celda de texto: se escribe en la misma tabla. Cerrada muestra hasta cuatro líneas; al escribir se
+  abre completa y «Ver todo» la deja abierta (también en solo lectura). El error del servidor queda debajo.
+  Lo que mide el alto (estaCortada) va después del textarea, cuando el autoajuste ya le dio su alto.
+-->
+<ng-template #celda let-fila="fila" let-campo="campo" let-ruta="ruta" let-numero="numero">
+  <ng-container *ngIf="campo">
+    <div class="celda-caja" [class.abierta]="estaAbierta(rutaDeCampo(ruta, campo))">
+      <textarea #area class="celda" cdkTextareaAutosize cdkAutosizeMinRows="1" [(ngModel)]="fila[campo.dato.clave]"
+        [placeholder]="esObligatorio(campo) ? 'Obligatorio' : 'Opcional'" [attr.aria-label]="campo.nombre + ' ' + numero"
+        [attr.maxlength]="campo.dato.maxlength || null" [disabled]="contexto.soloLectura"></textarea>
+      <span class="desvanecido" *ngIf="estaCortada(area)" aria-hidden="true"></span>
+    </div>
+    <button type="button" class="ver-todo" *ngIf="estaAbierta(rutaDeCampo(ruta, campo)) || estaCortada(area)"
+      [attr.aria-expanded]="estaAbierta(rutaDeCampo(ruta, campo))" [attr.aria-label]="(estaAbierta(rutaDeCampo(ruta, campo)) ? 'Ver menos de ' : 'Ver todo ') + campo.nombre + ' ' + numero"
+      (click)="alternarCelda(rutaDeCampo(ruta, campo))">
+      {{ estaAbierta(rutaDeCampo(ruta, campo)) ? 'Ver menos' : 'Ver todo' }}
+      <mat-icon inline>{{ estaAbierta(rutaDeCampo(ruta, campo)) ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+    <div class="error-celda" *ngFor="let mensaje of erroresDeCampo(ruta, campo)">{{ mensaje }}</div>
+  </ng-container>
+</ng-template>

@@ -16,6 +16,9 @@ import {
 
 export const PREFIJO_ORIGEN = 'origen.';
 
+/** Apariencia de los mat-form-field del formulario. */
+export type AparienciaCampo = 'fill' | 'outline';
+
 /** Contexto que comparten todos los niveles del formulario de un submódulo. */
 export interface ContextoFormulario {
   claveSubmodulo: string;
@@ -23,6 +26,10 @@ export interface ContextoFormulario {
   relacionadas: { [submodulo: string]: Datos };
   soloLectura: boolean;
   errores: { [ruta: string]: string[] };
+  /** 'fill' en el formulario del submódulo (estilo de SISGPLAN). */
+  apariencia: AparienciaCampo;
+  /** Claves de las listas del nivel superior que se dibujan como tabla jerárquica (LISTAS_EN_TABLA). */
+  listasEnTabla: string[];
   /** Devuelve el nombre de un elemento de catálogo ya cargado (o el código). */
   nombreEnCatalogo: (catalogo: string, codigo: string) => string;
 }
@@ -124,6 +131,41 @@ export function opcionesDeReferencia(dato: DatoCampo, filaOrigen: Datos | null, 
 export function textoDeFila(fila: Datos, campo: string | undefined, posicion: number): string {
   const texto = campo ? String(fila[campo] || '').trim() : '';
   return texto || `Elemento ${posicion + 1} (sin descripción)`;
+}
+
+/** Cómo se reparte una lista en la tabla jerárquica: una columna por campo de texto. */
+export interface EstructuraTabla {
+  /** Campos del primer nivel, en orden de columna. */
+  campos: NodoDefinicion[];
+  /** Lista interna (segundo nivel) o null si no tiene. */
+  interna: NodoDefinicion | null;
+  /** Campos de la lista interna, en las mismas columnas. */
+  camposInternos: NodoDefinicion[];
+}
+
+/**
+ * Estructura de tabla de una lista, o null si no cabe en una: solo campos de texto y,
+ * como mucho, una lista interna de campos de texto. Ninguna de las dos puede ser espejo.
+ */
+export function estructuraDeTabla(nodo: NodoDefinicion): EstructuraTabla | null {
+  const hijos = nodo.hijos || [];
+  const campos = hijos.filter(esTexto);
+  const internas = hijos.filter((hijo) => claseDe(hijo) === 'repetible');
+  const interna = internas[0] || null;
+  const hijosInternos = interna ? interna.hijos || [] : [];
+  const camposInternos = hijosInternos.filter(esTexto);
+  const valida =
+    claseDe(nodo) === 'repetible' &&
+    !nodo.dato.espejo_de &&
+    campos.length > 0 &&
+    internas.length <= 1 &&
+    campos.length + internas.length === hijos.length &&
+    (!interna || (!interna.dato.espejo_de && camposInternos.length > 0 && camposInternos.length === hijosInternos.length));
+  return valida ? { campos, interna, camposInternos } : null;
+}
+
+function esTexto(nodo: NodoDefinicion): boolean {
+  return claseDe(nodo) === 'input';
 }
 
 // ---------------------------------------------------------------------------

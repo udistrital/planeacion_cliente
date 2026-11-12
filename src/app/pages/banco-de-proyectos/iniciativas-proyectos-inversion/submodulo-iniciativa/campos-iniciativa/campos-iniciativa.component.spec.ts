@@ -14,6 +14,7 @@ import { ContextoFormulario, prepararEstructura } from '../../utils/formulario.u
 import { CampoCatalogoIniciativaComponent } from '../campo-catalogo-iniciativa/campo-catalogo-iniciativa.component';
 import { CampoMatrizIniciativaComponent } from '../campo-matriz-iniciativa/campo-matriz-iniciativa.component';
 import { GrupoRepetibleIniciativaComponent } from '../grupo-repetible-iniciativa/grupo-repetible-iniciativa.component';
+import { TablaJerarquicaIniciativaComponent } from '../tabla-jerarquica-iniciativa/tabla-jerarquica-iniciativa.component';
 import { CamposIniciativaComponent } from './campos-iniciativa.component';
 
 function nodo(clave: string, nombre: string, tipo?: any, extra: any = {}, hijos: NodoDefinicion[] = []): NodoDefinicion {
@@ -57,20 +58,23 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
   let fixture: ComponentFixture<CamposIniciativaComponent>;
   let elemento: HTMLElement;
 
-  function montar(nodos: NodoDefinicion[], clave: string, datos: Datos, parcial: Partial<ContextoFormulario> = {}): Datos {
+  function montar(nodos: NodoDefinicion[], clave: string, datos: Datos, parcial: Partial<ContextoFormulario> = {},
+                  secciones = false): Datos {
     const contexto: ContextoFormulario = {
       claveSubmodulo: clave,
       datosSubmodulo: datos,
       relacionadas: {},
       soloLectura: false,
       errores: {},
+      apariencia: 'outline',
+      listasEnTabla: [],
       nombreEnCatalogo: (catalogo, codigo) => codigo,
       ...parcial,
     };
     contexto.datosSubmodulo = datos;
     prepararEstructura(nodos, datos, contexto);
     fixture = TestBed.createComponent(CamposIniciativaComponent);
-    Object.assign(fixture.componentInstance, { nodos, datos, ruta: '', contexto });
+    Object.assign(fixture.componentInstance, { nodos, datos, ruta: '', contexto, secciones });
     fixture.detectChanges();
     elemento = fixture.nativeElement;
     return datos;
@@ -90,6 +94,7 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
         GrupoRepetibleIniciativaComponent,
         CampoCatalogoIniciativaComponent,
         CampoMatrizIniciativaComponent,
+        TablaJerarquicaIniciativaComponent,
       ],
       imports: [
         FormsModule, ReactiveFormsModule, NoopAnimationsModule, MatInputModule, MatSelectModule,
@@ -110,6 +115,53 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
     const valores = Array.from(elemento.querySelectorAll('textarea')).map((t) => (t as HTMLTextAreaElement).value);
     expect(valores).toContain('Falta de mantenimiento');
   }));
+
+  it('con secciones pone cada apartado en su recuadro con el nombre como título, sin repetirlo dentro', fakeAsync(() => {
+    montar(PROBLEMATICA, 'problematica', problematicaDeEjemplo(), { apariencia: 'fill' }, true);
+    tick();
+    fixture.detectChanges();
+
+    expect(textos('fieldset.container-border > legend')).toEqual(['Problema central *', 'Causas directas *']);
+    // El título del apartado reemplaza la etiqueta del campo y el encabezado de la lista...
+    expect(textos('.iniciativa-repetible__encabezado h4')).not.toContain('Causas directas');
+    // ...pero los campos y listas de cada fila conservan los suyos.
+    expect(textos('.iniciativa-repetible__encabezado h4')).toContain('Causas indirectas');
+    expect(textos('mat-label')).not.toContain('Problema central');
+    expect(textos('mat-label')).toContain('Descripción');
+  }));
+
+  it('en las secciones el texto empieza arriba del campo y no queda pegado a la línea', fakeAsync(() => {
+    const nodos = [
+      nodo('objetivo_central', 'Objetivo central', 'input', { multilinea: true }),
+      nodo('tipo_fuente', 'Tipo de fuente de verificación', 'input'),
+    ];
+    montar(nodos, 'objetivos', { objetivo_central: 'Texto', tipo_fuente: 'Informe' }, { apariencia: 'fill' }, true);
+    tick();
+    fixture.detectChanges();
+
+    Array.from(elemento.querySelectorAll('mat-form-field')).forEach((campo) => {
+      const caja = campo.querySelector('.mat-form-field-flex').getBoundingClientRect();
+      const texto = campo.querySelector('textarea').getBoundingClientRect();
+      // Sin la franja de la etiqueta: antes el texto empezaba a ~26 px del borde y terminaba sobre la línea.
+      expect(texto.top - caja.top).toBeLessThan(18);
+      expect(caja.bottom - texto.bottom).toBeGreaterThan(5);
+    });
+  }));
+
+  it('dibuja como tabla jerárquica solo las listas que indica el submódulo', () => {
+    montar(PROBLEMATICA, 'problematica', problematicaDeEjemplo(), { listasEnTabla: ['causas_directas'] }, true);
+
+    expect(elemento.querySelectorAll('app-tabla-jerarquica-iniciativa').length).toBe(1);
+    expect(elemento.querySelectorAll('.iniciativa-fila').length).toBe(0);
+    expect(textos('td.numero')).toEqual(['1', '1.1', '1.2', '2', '2.1']);
+  });
+
+  it('sin secciones (filas y niveles internos) no dibuja recuadros', () => {
+    montar(PROBLEMATICA, 'problematica', problematicaDeEjemplo());
+
+    expect(elemento.querySelectorAll('fieldset').length).toBe(0);
+    expect(textos('.iniciativa-repetible__encabezado h4')).toContain('Causas directas');
+  });
 
   it('agrega una fila nueva con id y su lista anidada vacía', () => {
     const datos = montar(PROBLEMATICA, 'problematica', problematicaDeEjemplo());

@@ -10,6 +10,7 @@ import {
   Datos,
   Definicion,
   ESTADO_SUBMODULO_CON_OBSERVACIONES,
+  LISTAS_EN_TABLA,
   NodoDefinicion,
   ResumenIniciativa,
   ResumenSubmodulo,
@@ -220,6 +221,8 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       relacionadas: this.relacionadas,
       soloLectura: !this.puedeEditar,
       errores: indexarPorRuta(vista.errores),
+      apariencia: 'fill',
+      listasEnTabla: LISTAS_EN_TABLA[this.clave] || [],
       nombreEnCatalogo: (catalogo, codigo) => this.servicio.nombreEnCatalogo(catalogo, codigo),
     };
     if (this.nodo) {

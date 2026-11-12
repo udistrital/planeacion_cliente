@@ -1,7 +1,8 @@
-<mat-form-field appearance="outline" class="iniciativa-campo">
-  <mat-label>{{ nodo.nombre }}</mat-label>
+<mat-form-field [appearance]="apariencia" class="iniciativa-campo" [class.iniciativa-campo--sin-etiqueta]="!conEtiqueta">
+  <mat-label *ngIf="conEtiqueta">{{ nodo.nombre }}</mat-label>
   <input matInput [formControl]="control" [matAutocomplete]="sugerencias" (blur)="alSalir()"
-    [required]="nodo.dato.required" placeholder="Escriba el código o parte del nombre">
+    [required]="nodo.dato.required" placeholder="Escriba el código o parte del nombre"
+    [attr.aria-label]="conEtiqueta ? null : nodo.nombre">
   <mat-autocomplete #sugerencias="matAutocomplete" [displayWith]="mostrar" (optionSelected)="seleccionar($event.option.value)">
     <mat-option *ngFor="let item of sugerencias$ | async" [value]="item">{{ item.codigo }} - {{ item.nombre }}</mat-option>
   </mat-autocomplete>

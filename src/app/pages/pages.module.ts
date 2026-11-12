@@ -95,6 +95,7 @@ import { CamposIniciativaComponent } from './banco-de-proyectos/iniciativas-proy
 import { GrupoRepetibleIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/grupo-repetible-iniciativa/grupo-repetible-iniciativa.component';
 import { CampoCatalogoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-catalogo-iniciativa/campo-catalogo-iniciativa.component';
 import { CampoMatrizIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-matriz-iniciativa/campo-matriz-iniciativa.component';
+import { TablaJerarquicaIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/tabla-jerarquica-iniciativa/tabla-jerarquica-iniciativa.component';
 import { ProyectosOtrosFondosComponent } from './banco-de-proyectos/proyectos-otros-fondos/proyectos-otros-fondos.component';
 import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/reporte-funcionamiento/reporte-funcionamiento.component';
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
@@ -250,6 +251,7 @@ const MY_FORMATS = {
     GrupoRepetibleIniciativaComponent,
     CampoCatalogoIniciativaComponent,
     CampoMatrizIniciativaComponent,
+    TablaJerarquicaIniciativaComponent,
     ProyectosOtrosFondosComponent,
     ReporteFuncionamientoComponent,
     ReporteInversionComponent,

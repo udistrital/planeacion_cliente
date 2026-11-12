@@ -1,6 +1,6 @@
 <section class="iniciativa-repetible">
   <header class="iniciativa-repetible__encabezado">
-    <h4>{{ nodo.nombre }}</h4>
+    <h4 *ngIf="conTitulo">{{ nodo.nombre }}</h4>
     <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
     <span class="iniciativa-ayuda" *ngIf="minimo > 1">Mínimo {{ minimo }}.</span>
   </header>

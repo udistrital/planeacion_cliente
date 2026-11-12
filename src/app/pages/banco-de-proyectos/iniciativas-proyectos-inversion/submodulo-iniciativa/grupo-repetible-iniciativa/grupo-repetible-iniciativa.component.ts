@@ -28,6 +28,8 @@ export class GrupoRepetibleIniciativaComponent {
   @Input() ruta = '';
   @Input() contexto: ContextoFormulario;
   @Input() filaOrigen: Datos | null = null;
+  /** Falso cuando la lista va sola en una sección cuyo título ya la nombra. */
+  @Input() conTitulo = true;
 
   get esEspejo(): boolean {
     return !!this.nodo.dato.espejo_de;
