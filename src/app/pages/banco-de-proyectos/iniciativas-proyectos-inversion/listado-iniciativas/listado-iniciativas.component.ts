@@ -15,6 +15,8 @@ import {
   DatosSeleccionarUnidad,
   SeleccionarUnidadDialogoComponent,
 } from './seleccionar-unidad-dialogo/seleccionar-unidad-dialogo.component';
+import { RequestManager } from 'src/app/pages/services/requestManager';
+import { environment } from 'src/environments/environment';
 
 /**
  * Tabla de las iniciativas de inversión registradas. Planeación ve todas; la
@@ -46,6 +48,7 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     private autenticacion: ImplicitAutenticationService,
     private router: Router,
     private dialogo: MatDialog,
+    private request: RequestManager
   ) {
     this.iniciativas.filterPredicate = (fila, filtro) => this.textoDeBusqueda(fila).includes(filtro);
   }
@@ -113,18 +116,39 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     if (!unidad) {
       return;
     }
-    this.creando = true;
-    Swal.fire({ title: 'Creando la iniciativa…', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });
-    this.servicio.crearIniciativa({ dependencia_id: String(unidad.Id) }).subscribe(
-      (creada) => {
-        Swal.close();
-        this.abrir(creada.id);
-      },
-      (error) => {
-        this.creando = false;
-        Swal.fire({ icon: 'error', title: 'No se pudo crear la iniciativa', text: mensajeDeError(error) });
-      },
-    );
+    const body = { dependenciaId: String(unidad.Id) };
+    this.request.post(environment.PLANES_MID, `formulacion_iniciativas/validar_fechas_iniciativa`, body).subscribe((data: any) => {
+      if (data.Data != null) {
+        const datos = data.Data;
+
+        if (datos.habilitado && datos.unidadEncontrada) {
+          this.creando = true;
+          Swal.fire({ title: 'Creando la iniciativa…', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });
+          this.servicio.crearIniciativa({ dependencia_id: String(unidad.Id) }).subscribe(
+            (creada) => {
+              Swal.close();
+              this.abrir(creada.id);
+            },
+            (error) => {
+              this.creando = false;
+              Swal.fire({ icon: 'error', title: 'No se pudo crear la iniciativa', text: mensajeDeError(error) });
+            },
+          );
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Nueva iniciativa',
+            text: 'No se puede crear la iniciativa porque no está dentro del rango de fechas habilitado para su unidad.',
+          });
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No se puede crear la iniciativa ',
+        text: 'No se pudo validar el rango de fechas habilitado para su unidad. Intente nuevamente más tarde.',
+      });
+    });
   }
 
   abrir(iniciativaId: string): void {
