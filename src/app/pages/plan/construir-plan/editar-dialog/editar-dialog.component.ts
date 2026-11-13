@@ -314,7 +314,9 @@ export class EditarDialogComponent implements OnInit {
       this.request.get(environment.PLANES_CRUD, `tipo-plan?query=activo:true`).subscribe(
         (data: any) => {
           if (data) {
-            this.tiposPlanes = data.Data;
+            this.tiposPlanes = (data.Data || []).filter(
+              (tipo: any) => tipo.codigo_abreviacion != 'IPI_SP'
+            );
             resolve(true);
           } else {
             Swal.fire({
@@ -323,7 +325,8 @@ export class EditarDialogComponent implements OnInit {
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500
-            })
+            });
+            resolve(false);
           }
         },
         (error) => {
@@ -333,7 +336,8 @@ export class EditarDialogComponent implements OnInit {
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500
-          })
+          });
+          resolve(false);
         }
       );
     });
