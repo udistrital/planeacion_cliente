@@ -151,8 +151,41 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     });
   }
 
-  abrir(iniciativaId: string): void {
-    this.router.navigate([RUTA_INICIATIVAS, iniciativaId]);
+  async abrir(iniciativaId: string): Promise<void> {
+    let unidad: Dependencia | null;
+
+    try {
+      unidad = await this.unidadParaCrear();
+    } catch (error) {
+      this.mostrarError(error, 'No se pudieron consultar sus unidades');
+      return;
+    }
+    if (!unidad) {
+      return;
+    }
+
+    const body = { dependenciaId: String(unidad.Id) };
+    this.request.post(environment.PLANES_MID, `formulacion_iniciativas/validar_fechas_iniciativa`, body).subscribe((data: any) => {
+      if (data.Data != null) {
+        const datos = data.Data;
+
+        if (datos.habilitado && datos.unidadEncontrada) {
+          this.router.navigate([RUTA_INICIATIVAS, iniciativaId]);
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Nueva iniciativa',
+            text: 'No se puede editar la iniciativa porque no está dentro del rango de fechas habilitado para su unidad.',
+          });
+        }
+      }
+    }, (error) => {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No se puede crear la iniciativa ',
+        text: 'No se pudo validar el rango de fechas habilitado para su unidad. Intente nuevamente más tarde.',
+      });
+    });
   }
 
   private cargarDeUnidades(unidades: Dependencia[]): void {
