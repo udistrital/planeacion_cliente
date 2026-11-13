@@ -1,19 +1,32 @@
-/* Modal de observaciones como blog: cuadro para publicar arriba y entradas debajo, la más reciente primero. */
+/* Igual que "Nueva iniciativa": el relleno de 24px de mat-dialog-container queda como contorno blanco. */
+.tarjeta {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px;
+  background-color: #f1f5f8;
+  max-height: calc(90vh - 48px);
+  overflow: hidden;
+}
+
+.titulo,
+.nueva,
+.acciones {
+  flex: none;
+}
+
 .titulo {
+  margin: 0;
   color: var(--primary);
 }
 
-/* Las entradas son blancas: el fondo del sistema las separa del contenedor. */
-.contenido {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  background-color: #f1f5f8;
-}
-
 .nueva {
+  box-sizing: border-box;
+  max-width: 100%;
   padding: 12px 16px 8px;
   background-color: #fff;
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -24,10 +37,24 @@
   width: 100%;
 }
 
+.nueva__campo textarea {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .nueva__enviar {
   display: flex;
   justify-content: flex-end;
   margin-top: 4px;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0; 
+  overflow-y: auto;
 }
 
 .vacio {
@@ -37,15 +64,18 @@
 }
 
 .entrada {
+  box-sizing: border-box;
   display: flex;
+  flex: none;
   gap: 12px;
+  min-width: 0;
+  max-width: 100%;
   padding: 12px 16px;
   background-color: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 4px;
+  border: 1px solid var(--primary);
+  border-radius: 10px;
 }
 
-/* El avatar distingue a Planeación (vino institucional) de la dependencia (gris). */
 .entrada__avatar {
   flex: none;
   display: grid;
@@ -90,12 +120,21 @@
 }
 
 .entrada__meta {
+  margin-left: auto; 
   font-size: 0.8rem;
   color: rgba(0, 0, 0, 0.6);
+  white-space: nowrap; 
 }
 
 .entrada__texto {
   margin: 6px 0 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding-top: 4px;
 }

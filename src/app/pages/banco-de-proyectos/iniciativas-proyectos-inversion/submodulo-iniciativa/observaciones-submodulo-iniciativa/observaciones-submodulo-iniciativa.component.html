@@ -1,10 +1,10 @@
-<h2 mat-dialog-title class="titulo">Observaciones · {{ datos.nombreSubmodulo }}</h2>
+<mat-card class="tarjeta">
+  <mat-card-title class="titulo">Observaciones · {{ datos.nombreSubmodulo }}</mat-card-title>
 
-<mat-dialog-content class="contenido">
   <form class="nueva" *ngIf="puedePublicar" (ngSubmit)="publicar()">
     <mat-form-field appearance="outline" class="nueva__campo">
       <mat-label>Nueva observación</mat-label>
-      <textarea matInput name="texto" cdkTextareaAutosize cdkAutosizeMinRows="3" cdkAutosizeMaxRows="10"
+      <textarea matInput name="texto" cdkTextareaAutosize cdkAutosizeMinRows="3" cdkAutosizeMaxRows="6"
         [(ngModel)]="texto" [attr.maxlength]="maximo" [disabled]="publicando"
         placeholder="Escriba su observación sobre este submódulo"></textarea>
       <mat-hint *ngIf="datos.aviso">{{ datos.aviso }}</mat-hint>
@@ -15,25 +15,26 @@
     </div>
   </form>
 
-  <p class="vacio" *ngIf="!entradas.length">Aún no hay observaciones para este submódulo.</p>
+  <div class="lista">
+    <p class="vacio" *ngIf="!entradas.length">Aún no hay observaciones para este submódulo.</p>
 
-  <article *ngFor="let observacion of entradas; trackBy: porId" class="entrada"
-    [class.entrada--planeacion]="esDePlaneacion(observacion)">
-    <div class="entrada__avatar" aria-hidden="true">{{ iniciales(observacion) }}</div>
-    <div class="entrada__cuerpo">
-      <header class="entrada__cabecera">
-        <strong class="entrada__autor">{{ nombreDeRol(observacion.rol) }}</strong>
-        <span class="entrada__propia" *ngIf="esPropia(observacion)">Usted</span>
-        <span class="entrada__meta">
-          {{ observacion.usuario }} ·
-          <time [attr.datetime]="observacion.fecha">{{ observacion.fecha | date: 'dd/MM/yyyy HH:mm' }}</time>
-        </span>
-      </header>
-      <p class="entrada__texto">{{ observacion.texto }}</p>
-    </div>
-  </article>
-</mat-dialog-content>
+    <article *ngFor="let observacion of entradas; trackBy: porId" class="entrada"
+      [class.entrada--planeacion]="esDePlaneacion(observacion)">
+      <div class="entrada__avatar" aria-hidden="true">{{ iniciales(observacion) }}</div>
+      <div class="entrada__cuerpo">
+        <header class="entrada__cabecera">
+          <strong class="entrada__autor">{{ nombreDeRol(observacion.rol) }}</strong>
+          <span class="entrada__propia" *ngIf="esPropia(observacion)">Usted</span>
+          <span class="entrada__meta">
+            <time [attr.datetime]="observacion.fecha">{{ observacion.fecha | date: 'dd/MM/yyyy HH:mm' }}</time>
+          </span>
+        </header>
+        <p class="entrada__texto">{{ observacion.texto }}</p>
+      </div>
+    </article>
+  </div>
 
-<mat-dialog-actions align="end">
-  <button mat-raised-button color="primary" mat-dialog-close [disabled]="publicando">Cerrar</button>
-</mat-dialog-actions>
+  <div class="acciones">
+    <button mat-raised-button color="primary" mat-dialog-close [disabled]="publicando">Cerrar</button>
+  </div>
+</mat-card>
