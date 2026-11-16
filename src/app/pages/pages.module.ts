@@ -139,6 +139,7 @@ import { HabilitarReporteService } from './plan/habilitar-reporte/habilitar-repo
 import { Notificaciones } from './services/notificaciones';
 import { GestorDocumentalService } from '../@core/utils/gestor_documental.service';
 import { VisualizarFechasComponent } from './plan/visualizar-fechas/visualizar-fechas.component';
+import { VisualizarFechasIniciativasComponent } from './plan/visualizar-fechas-iniciativas/visualizar-fechas-iniciativas.component';
 import { HabilitarReporteIniciativasComponent } from './plan/habilitar-reporte-iniciativas/habilitar-reporte-iniciativas.component';
 
 const pagesComponents = [
@@ -288,6 +289,7 @@ const MY_FORMATS = {
     GestionUsuariosComponent,
     FormUsuariosComponent,
     VisualizarFechasComponent,
+    VisualizarFechasIniciativasComponent,
     HabilitarReporteIniciativasComponent,
   ],
   imports: [
