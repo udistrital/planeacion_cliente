@@ -232,7 +232,9 @@ export class CrearPlanComponent implements OnInit {
   loadTipos() {
     this.request.get(environment.PLANES_CRUD, `tipo-plan?query=activo:true`).subscribe((data: any) => {
       if (data) {
-        this.tipos = data.Data;
+        this.tipos = (data.Data || []).filter(
+          (tipo: any) => tipo.codigo_abreviacion !== 'IPI_SP'
+        );
       }
     }, (error) => {
       Swal.fire({
@@ -241,8 +243,8 @@ export class CrearPlanComponent implements OnInit {
         icon: 'warning',
         showConfirmButton: false,
         timer: 2500
-      })
-    })
+      });
+    });
   }
 
   loadPeriodos() {
