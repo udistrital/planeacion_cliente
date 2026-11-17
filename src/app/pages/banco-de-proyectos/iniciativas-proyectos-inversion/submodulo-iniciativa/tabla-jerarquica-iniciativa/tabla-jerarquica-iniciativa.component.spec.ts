@@ -1,12 +1,19 @@
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { of } from 'rxjs';
+import { IniciativaService } from '../../iniciativa.service';
 import { Datos, NodoDefinicion } from '../../utils';
 import { ContextoFormulario } from '../../utils/formulario.utils';
+import { CampoCatalogoIniciativaComponent } from '../campo-catalogo-iniciativa/campo-catalogo-iniciativa.component';
+import { CeldaIniciativaComponent } from '../celda-iniciativa/celda-iniciativa.component';
 import { TablaJerarquicaIniciativaComponent } from './tabla-jerarquica-iniciativa.component';
 
 function nodo(clave: string, nombre: string, tipo?: any, extra: any = {}, hijos: NodoDefinicion[] = []): NodoDefinicion {
@@ -38,7 +45,7 @@ describe('TablaJerarquicaIniciativaComponent', () => {
   let fixture: ComponentFixture<TablaJerarquicaIniciativaComponent>;
   let elemento: HTMLElement;
 
-  function montar(filas: Datos[], parcial: Partial<ContextoFormulario> = {}): Datos[] {
+  function montar(filas: Datos[], parcial: Partial<ContextoFormulario> = {}, definicion: NodoDefinicion = EFECTOS): Datos[] {
     const contexto: ContextoFormulario = {
       claveSubmodulo: 'problematica',
       datosSubmodulo: { efectos_directos: filas },
@@ -47,11 +54,12 @@ describe('TablaJerarquicaIniciativaComponent', () => {
       errores: {},
       apariencia: 'fill',
       listasEnTabla: ['efectos_directos'],
+      gruposEnCasillas: [],
       nombreEnCatalogo: (catalogo, codigo) => codigo,
       ...parcial,
     };
     fixture = TestBed.createComponent(TablaJerarquicaIniciativaComponent);
-    Object.assign(fixture.componentInstance, { nodo: EFECTOS, filas, ruta: 'efectos_directos', contexto });
+    Object.assign(fixture.componentInstance, { nodo: definicion, filas, ruta: definicion.dato.clave, contexto });
     fixture.componentInstance.ngOnChanges();
     fixture.detectChanges();
     elemento = fixture.nativeElement;
@@ -65,9 +73,72 @@ describe('TablaJerarquicaIniciativaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TablaJerarquicaIniciativaComponent],
-      imports: [FormsModule, TextFieldModule, NoopAnimationsModule, MatIconModule, MatButtonModule, MatTooltipModule],
+      declarations: [TablaJerarquicaIniciativaComponent, CeldaIniciativaComponent, CampoCatalogoIniciativaComponent],
+      imports: [
+        FormsModule, ReactiveFormsModule, TextFieldModule, NoopAnimationsModule, MatIconModule, MatButtonModule,
+        MatTooltipModule, MatSelectModule, MatAutocompleteModule, MatCheckboxModule,
+      ],
+      providers: [{ provide: IniciativaService, useValue: { catalogo: () => of([]) } }],
     }).compileComponents();
+  });
+
+  it('sin lista interna dibuja una columna por campo, con número y opciones en su celda', fakeAsync(() => {
+    const necesidades = nodo('analisis_anual', 'Análisis anual', 'repetible', { etiqueta_fila: 'Año' }, [
+      nodo('tipo_analisis', 'Tipo de análisis', 'select', { options: [{ valor: 'Histórico' }, { valor: 'Proyectado' }] }),
+      nodo('anio', 'Año', 'numeric', { decimales: 0 }),
+      nodo('demanda', 'Demanda', 'numeric', { required: false }),
+    ]);
+    montar([{ id: 'aa-1', tipo_analisis: 'Histórico', anio: 2024, demanda: 120 }], {}, necesidades);
+    tick();
+    fixture.detectChanges();
+
+    expect(textos('thead th')).toEqual(['N.°', 'Tipo de análisis', 'Año', 'Demanda', 'Acciones']);
+    expect(elemento.querySelectorAll('th.col-numerica').length).toBe(2);
+    expect(elemento.querySelectorAll('td mat-select').length).toBe(1);
+    const numeros = Array.from(elemento.querySelectorAll('input[type=number]')) as HTMLInputElement[];
+    expect(numeros.map((n) => n.value)).toEqual(['2024', '120']);
+    expect(numeros.map((n) => n.placeholder)).toEqual(['Obligatorio', 'Opcional']);
+  }));
+
+  it('muestra el déficit (oferta - demanda) en su columna y lo recalcula al cambiar los valores', () => {
+    const anual = nodo('analisis_anual', 'Demanda y oferta por año', 'repetible', { etiqueta_fila: 'Año' }, [
+      nodo('demanda', 'Demanda', 'numeric'),
+      nodo('oferta', 'Oferta', 'numeric'),
+      nodo('deficit', 'Déficit', 'calculado', { required: false, operacion: 'resta', operandos: ['oferta', 'demanda'] }),
+    ]);
+    const filas = montar([{ id: 'aa-1', demanda: 60, oferta: 40 }, { id: 'aa-2', demanda: 10 }], {}, anual);
+
+    expect(textos('thead th')).toEqual(['N.°', 'Demanda', 'Oferta', 'Déficit', 'Acciones']);
+    expect(elemento.querySelectorAll('th.col-numerica').length).toBe(3);
+    expect(textos('output.celda--calculada')).toEqual(['-20', 'Se calcula']);
+
+    filas[1].oferta = 25;
+    fixture.detectChanges();
+    expect(textos('output.celda--calculada')).toEqual(['-20', '15']);
+  });
+
+  it('deja marcada la casilla única en una sola fila', () => {
+    const alternativas = nodo('alternativas_solucion', 'Alternativas de solución', 'repetible', { etiqueta_fila: 'Alternativa' }, [
+      nodo('descripcion_alternativa', 'Descripción de la alternativa de solución', 'input'),
+      nodo('pasa_preparacion', '¿Pasa al módulo de preparación?', 'casilla', { unica: true }),
+    ]);
+    const filas = montar([
+      { id: 'as-1', descripcion_alternativa: 'Modernizar la infraestructura', pasa_preparacion: true },
+      { id: 'as-2', descripcion_alternativa: 'Contratar el servicio en la nube' },
+    ], {}, alternativas);
+    const casillas = () => Array.from(elemento.querySelectorAll('td input[type=checkbox]')) as HTMLInputElement[];
+
+    expect(textos('thead th')).toEqual(['N.°', 'Descripción de la alternativa de solución', '¿Pasa al módulo de preparación?', 'Acciones']);
+    // El título y la casilla van centrados en su columna, uno bajo el otro.
+    expect(textos('th.col-casilla')).toEqual(['¿Pasa al módulo de preparación?']);
+    expect(elemento.querySelectorAll('td.col-casilla input[type=checkbox]').length).toBe(2);
+    expect(casillas().map((c) => c.checked)).toEqual([true, false]);
+
+    casillas()[1].click();
+    fixture.detectChanges();
+
+    expect(filas.map((f) => f.pasa_preparacion)).toEqual([false, true]);
+    expect(casillas().map((c) => c.checked)).toEqual([false, true]);
   });
 
   it('numera las filas 1, 1.1, 1.2 y nombra los dos niveles en la primera columna', fakeAsync(() => {

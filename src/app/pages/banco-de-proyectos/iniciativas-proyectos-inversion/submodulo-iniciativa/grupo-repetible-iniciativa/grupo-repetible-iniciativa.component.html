@@ -1,29 +1,87 @@
-<section class="iniciativa-repetible">
-  <header class="iniciativa-repetible__encabezado">
-    <h4 *ngIf="conTitulo">{{ nodo.nombre }}</h4>
-    <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
-    <span class="iniciativa-ayuda" *ngIf="minimo > 1">Mínimo {{ minimo }}.</span>
-  </header>
+<header class="iniciativa-repetible__encabezado" *ngIf="conTitulo || nodo.descripcion || minimo > 1">
+  <h4 *ngIf="conTitulo">{{ nodo.nombre }}</h4>
+  <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
+  <span class="iniciativa-ayuda" *ngIf="minimo > 1">Mínimo {{ minimo }}.</span>
+</header>
 
-  <p *ngIf="!filas.length" class="iniciativa-vacio">
-    {{ esEspejo ? 'Aún no hay elementos de origen: complete primero el submódulo del que depende.' : 'Aún no hay registros.' }}
-  </p>
+<!-- Tabla resumen: una fila por elemento; ✎ (o clic en la fila) abre sus campos debajo -->
+<div class="tabla-caja tabla-resumen">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col" class="col-numero">N.°</th>
+        <th scope="col" *ngIf="esEspejo">{{ etiqueta }}</th>
+        <th scope="col" *ngFor="let columna of columnas" [class.col-numerica]="columna.numerica">{{ columna.nombre }}</th>
+        <th scope="col" class="col-datos">Datos</th>
+        <th scope="col" class="col-acciones" [class.col-acciones--una]="!puedeModificar">
+          <button *ngIf="puedeAgregar; else tituloAcciones" mat-icon-button type="button" class="agregar-encabezado" (click)="agregar()"
+            matTooltip="Agregar {{ etiqueta | lowercase }}" [attr.aria-label]="'Agregar ' + (etiqueta | lowercase)">
+            <mat-icon>add_circle_outline</mat-icon>
+          </button>
+          <ng-template #tituloAcciones>Acciones</ng-template>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="!filas.length">
+        <td [attr.colspan]="totalColumnas" class="vacio">
+          {{ esEspejo ? 'Aún no hay elementos de origen: complete primero el submódulo del que depende.' : 'Aún no hay registros.' }}
+        </td>
+      </tr>
+      <tr *ngFor="let fila of filas; let posicion = index; trackBy: porId" class="fila-resumen"
+        [class.fila-resumen--seleccionada]="fila === seleccionada" (click)="seleccionar(fila)">
+        <td class="numero"><span class="chip">{{ posicion + 1 }}</span></td>
+        <td class="origen" *ngIf="esEspejo">{{ textoOrigen(fila) }}</td>
+        <td *ngFor="let columna of columnas" [class.col-numerica]="columna.numerica">
+          <span *ngIf="textoColumna(fila, columna) as texto; else sinValor">{{ texto }}</span>
+          <ng-template #sinValor><span class="sin-valor">—</span></ng-template>
+        </td>
+        <td class="estado-datos">
+          <span class="punto" [class.punto--completo]="completa(fila)" aria-hidden="true"></span>
+          {{ completa(fila) ? 'Completos' : 'Incompletos' }}
+        </td>
+        <td class="acciones">
+          <button mat-icon-button color="primary" type="button" (click)="$event.stopPropagation(); seleccionar(fila)"
+            [matTooltip]="contexto.soloLectura ? 'Consultar' : 'Editar'"
+            [attr.aria-label]="(contexto.soloLectura ? 'Consultar ' : 'Editar ') + (etiqueta | lowercase) + ' ' + (posicion + 1)">
+            <mat-icon>{{ contexto.soloLectura ? 'search' : 'edit' }}</mat-icon>
+          </button>
+          <button *ngIf="puedeModificar" mat-icon-button color="primary" type="button" (click)="$event.stopPropagation(); eliminar(posicion)"
+            matTooltip="Eliminar {{ etiqueta | lowercase }}" [attr.aria-label]="'Eliminar ' + (etiqueta | lowercase) + ' ' + (posicion + 1)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<p class="iniciativa-ayuda contador" *ngIf="filas.length">
+  Total: {{ filas.length }}<ng-container *ngIf="incompletas"> · {{ incompletas }} con datos incompletos</ng-container>
+</p>
 
-  <div *ngFor="let fila of filas; let posicion = index; trackBy: porId" class="iniciativa-fila">
+<!-- Campos de la fila seleccionada -->
+<ng-container *ngIf="filas.length">
+  <section *ngIf="seleccionada; else sinSeleccion" #formulario class="iniciativa-fila">
     <div class="iniciativa-fila__titulo">
-      <strong>{{ etiqueta }} {{ posicion + 1 }}</strong>
-      <button *ngIf="puedeModificar" mat-icon-button color="warn" type="button" (click)="eliminar(posicion)"
-        matTooltip="Eliminar {{ etiqueta | lowercase }}">
-        <mat-icon>delete</mat-icon>
+      <div class="iniciativa-fila__nombre">
+        <strong>{{ etiqueta }} {{ posicionSeleccionada + 1 }}<ng-container *ngIf="resumenDe(seleccionada) as resumen">: {{ resumen }}</ng-container></strong>
+        <small *ngIf="!contexto.soloLectura">Los cambios se guardan con el botón Guardar del submódulo.</small>
+      </div>
+      <button mat-icon-button color="primary" type="button" (click)="cerrar()" matTooltip="Cerrar" aria-label="Cerrar">
+        <mat-icon>close</mat-icon>
       </button>
     </div>
-    <blockquote *ngIf="esEspejo" class="iniciativa-fila__origen">{{ textoOrigen(fila) }}</blockquote>
-    <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="fila" [ruta]="rutaDeFila(fila)" [contexto]="contexto"
-      [filaOrigen]="origenDe(fila)"></app-campos-iniciativa>
-    <div class="iniciativa-error" *ngFor="let mensaje of erroresDeFila(fila)"><mat-icon inline>error_outline</mat-icon> {{ mensaje }}</div>
-  </div>
-
-  <button *ngIf="puedeAgregar" mat-stroked-button color="primary" type="button" (click)="agregar()">
-    <mat-icon>add</mat-icon> Agregar {{ etiqueta | lowercase }}
-  </button>
-</section>
+    <ng-container *ngFor="let fila of [seleccionada]; trackBy: porId">
+      <blockquote *ngIf="esEspejo" class="iniciativa-fila__origen">{{ textoOrigen(fila) }}</blockquote>
+      <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="fila" [ruta]="rutaDeFila(fila)" [contexto]="contexto"
+        [filaOrigen]="origenDe(fila)" [filasHermanas]="filas"></app-campos-iniciativa>
+      <div class="iniciativa-error" *ngFor="let mensaje of erroresDeFila(fila)"><mat-icon inline>error_outline</mat-icon> {{ mensaje }}</div>
+    </ng-container>
+  </section>
+  <ng-template #sinSeleccion>
+    <p class="sin-seleccion">
+      Seleccione <mat-icon inline>{{ contexto.soloLectura ? 'search' : 'edit' }}</mat-icon> en un registro de la tabla para
+      {{ contexto.soloLectura ? 'consultar' : 'diligenciar' }} sus datos.
+    </p>
+  </ng-template>
+</ng-container>

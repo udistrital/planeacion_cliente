@@ -10,6 +10,7 @@ import {
   AccionIniciativa,
   DescripcionAccionSubmodulo,
   ResumenIniciativa,
+  ResumenModulo,
   ResumenSubmodulo,
   RUTA_INICIATIVAS,
 } from '../utils';
@@ -20,11 +21,11 @@ import {
 } from '../submodulo-iniciativa/observaciones-submodulo-iniciativa/observaciones-submodulo-iniciativa.component';
 
 /**
- * Componentes para la formulación de la iniciativa: estado general y una tabla con
- * los módulos y sus submódulos (hojas), cada uno con su estado (punto con el color
- * del semáforo y el nombre) y sus acciones: formular, revisar o consultar, y leer las
- * observaciones (se publican dentro del submódulo). Desde aquí se envía, devuelve o
- * avala la iniciativa.
+ * Componentes para la formulación de la iniciativa: estado general y una tabla por módulo
+ * de la plantilla (Identificación, Preparación, Anexos), con cada submódulo (hoja), su
+ * estado (punto con el color del semáforo y el nombre) y sus acciones: formular, revisar o
+ * consultar, y leer las observaciones (se publican dentro del submódulo). Desde aquí se
+ * envía, devuelve o avala la iniciativa.
  */
 @Component({
   selector: 'app-vista-iniciativa',
@@ -61,6 +62,10 @@ export class VistaIniciativaComponent implements OnInit {
     return (this.resumen ? this.resumen.acciones_posibles : []).filter((accion) =>
       tieneAlgunRol(this.roles, ACCIONES_INICIATIVA[accion].roles),
     );
+  }
+
+  porClave(_: number, modulo: ResumenModulo): string {
+    return modulo.clave;
   }
 
   /** El formulador aún no puede enviarla: el botón se muestra deshabilitado con el motivo. */

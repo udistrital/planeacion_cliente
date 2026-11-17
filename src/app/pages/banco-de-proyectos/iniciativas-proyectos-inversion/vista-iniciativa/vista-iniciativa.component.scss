@@ -1,6 +1,15 @@
+/* .card-oas usa 100vw (incluye la barra de scroll): se ajusta al contenedor para evitar el scroll horizontal. */
+:host {
+  display: block;
+}
+
 /* Misma base que el listado de iniciativas (y plan/construir-plan-proyecto): tarjeta a todo el ancho, fondo, recuadro guía y filas alternas. */
 .mat-card {
   background-color: #f1f5f8;
+}
+
+.mat-card.card-oas {
+  width: auto;
 }
 
 .textGuide {
@@ -53,23 +62,32 @@
   overflow-x: auto;
 }
 
-/* Tabla de componentes: un tbody por módulo, con su propio encabezado. */
+/* Título de las tablas de componentes */
+.componentes-titulo {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: normal;
+  text-align: center;
+  background-color: var(--primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/*
+ * Tablas de componentes: una por módulo (Identificación, Preparación, Anexos), seguidas, con el
+ * nombre del módulo en el encabezado (como en el mockup). Las columnas miden lo mismo en todas, así que
+ * quedan alineadas. La línea gruesa de cierre va solo en la última.
+ */
 .componentes {
   width: 100%;
   min-width: 560px;
   border-collapse: collapse;
   font-size: 0.875rem;
-  border-bottom: 4px solid var(--primary);
 
-  caption {
-    caption-side: top;
-    padding: 0.75rem 1rem;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 600;
-    text-align: center;
-    background-color: var(--primary);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  &:last-of-type {
+    border-bottom: 4px solid var(--primary);
   }
 
   /* styles.scss fija con !important el padding de todos los td; aquí se usa el vertical de las tablas del sistema. */
@@ -99,23 +117,18 @@
   width: 16%;
 }
 
-.componentes__modulo th {
+.componentes__encabezado th {
   color: #fff;
   font-weight: 600;
   background-color: var(--primary);
 }
 
-.componentes__modulo th.componentes__nombre {
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
-}
-
-/* Las filas alternas se cuentan dentro de cada módulo (la primera es el encabezado). */
+/* Filas alternas: la primera blanca y la segunda de color */
 .componentes__submodulo {
   background-color: #fff;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 
-  &:nth-child(odd) {
+  &:nth-child(even) {
     background-color: #e7d6d6;
   }
 }
@@ -145,6 +158,7 @@
 /*
  * Botones alineados con los bordes de la tabla: se anulan los márgenes negativos de
  * mat-card-actions y el margen que Material les pone a los botones (el espacio lo da gap).
+ * A la derecha deja espacio al botón fijo de IRIS.
  */
 .mat-card > .barra-acciones {
   display: flex;
@@ -152,7 +166,7 @@
   align-items: center;
   gap: 0.5rem;
   margin: 1.25rem 0 0;
-  padding: 0 0 0.5rem;
+  padding: 0 96px 0.5rem 0;
 
   .mat-raised-button {
     margin: 0;

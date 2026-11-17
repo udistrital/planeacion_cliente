@@ -1,25 +1,33 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, of, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { forkJoin, from, Observable, of, Subject } from 'rxjs';
+import { switchMap, takeUntil } from 'rxjs/operators';
 import Swal from 'sweetalert2';
+import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { mensajeDeError, IniciativaService } from '../iniciativa.service';
 import {
   Datos,
   Definicion,
   ESTADO_SUBMODULO_CON_OBSERVACIONES,
+  GRUPOS_EN_CASILLAS,
+  COLUMNAS_RESUMEN,
+  GRUPOS_EN_COLUMNAS,
   LISTAS_EN_TABLA,
   NodoDefinicion,
+  ReferenciaDocumento,
   ResumenIniciativa,
   ResumenSubmodulo,
   RUTA_INICIATIVAS,
+  SECCIONES_LADO_A_LADO,
   SubmoduloVista,
 } from '../utils';
 import {
   ContextoFormulario,
   copiar,
+  EstructuraDocumentos,
+  estructuraDeDocumentos,
   indexarPorRuta,
   prepararEstructura,
   submodulosDeDefinicion,
@@ -46,6 +54,8 @@ const HTTP_CONFLICTO = 409;
 export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   resumen: ResumenIniciativa | null = null;
   nodo: NodoDefinicion | null = null;
+  /** Si el submódulo solo tiene documentos (Anexos), se dibuja como una sola tabla; si no, null. */
+  documentos: EstructuraDocumentos | null = null;
   submodulo: SubmoduloVista | null = null;
   datos: Datos = {};
   contexto: ContextoFormulario | null = null;
@@ -66,6 +76,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     private servicio: IniciativaService,
     private autenticacion: ImplicitAutenticationService,
     private dialogo: MatDialog,
+    private gestor: GestorDocumentalService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -105,6 +116,10 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   /** Planeación dejó observaciones que la dependencia debe atender. */
   get conObservaciones(): boolean {
     return !!this.submodulo && this.submodulo.estado.codigo_abreviacion === ESTADO_SUBMODULO_CON_OBSERVACIONES;
+  }
+
+  get claveActual(): string {
+    return this.clave;
   }
 
   get anterior(): ResumenSubmodulo | null {
@@ -199,6 +214,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
         this.resumen = resumen;
         this.definicion = definicion;
         this.nodo = submodulosDeDefinicion(definicion).find((s) => s.dato.clave === this.clave) || null;
+        this.documentos = this.nodo ? estructuraDeDocumentos(this.nodo.hijos) : null;
         this.relacionadas = submodulo.relacionadas || {};
         this.mostrar(submodulo.submodulo);
         this.cargando = false;
@@ -223,7 +239,12 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       errores: indexarPorRuta(vista.errores),
       apariencia: 'fill',
       listasEnTabla: LISTAS_EN_TABLA[this.clave] || [],
+      gruposEnCasillas: GRUPOS_EN_CASILLAS[this.clave] || [],
+      seccionesLadoALado: SECCIONES_LADO_A_LADO[this.clave] || [],
+      gruposEnColumnas: GRUPOS_EN_COLUMNAS[this.clave] || [],
+      columnasResumen: COLUMNAS_RESUMEN[this.clave] || {},
       nombreEnCatalogo: (catalogo, codigo) => this.servicio.nombreEnCatalogo(catalogo, codigo),
+      subirDocumento: (clave, archivo) => this.subirDocumento(clave, archivo),
     };
     if (this.nodo) {
       prepararEstructura(this.nodo.hijos, this.datos, this.contexto);
@@ -256,6 +277,15 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       return;
     }
     Swal.fire({ icon: 'error', title: 'No se guardó', text: mensajeDeError(error) });
+  }
+
+  /** Pasa el archivo a base64 (como el resto de SISGPLAN) y lo sube por el mid; responde la referencia. */
+  private subirDocumento(clave: string, archivo: File): Observable<ReferenciaDocumento> {
+    return from(this.gestor.fileToBase64(archivo)).pipe(
+      switchMap((base64) =>
+        this.servicio.subirDocumento(this.iniciativaId, { clave, nombre: archivo.name, archivo: String(base64), usuario: this.usuario }),
+      ),
+    );
   }
 
   private vecina(desplazamiento: number): ResumenSubmodulo | null {

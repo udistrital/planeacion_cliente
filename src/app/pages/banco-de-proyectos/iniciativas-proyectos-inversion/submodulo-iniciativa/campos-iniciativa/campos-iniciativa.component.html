@@ -1,28 +1,48 @@
+<!-- Los campos con solo_si que no aplican (p. ej. «¿Cuál otra sede?» sin «Otra» marcada) no se muestran -->
 <ng-container *ngFor="let nodo of nodos; trackBy: porClave">
-  <!-- Apartado del submódulo (o grupo): recuadro con el nombre en el borde, como en el resto de SISGPLAN -->
-  <fieldset *ngIf="enSeccion(nodo); else suelto" class="container-border">
-    <legend class="titulo">{{ nodo.nombre }}<span *ngIf="esObligatorio(nodo)" aria-hidden="true"> *</span></legend>
-    <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
-  </fieldset>
-  <ng-template #suelto>
-    <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
-  </ng-template>
+  <ng-container *ngIf="visible(nodo)">
+    <!-- Apartado del submódulo (o grupo): recuadro con el nombre en el borde, como en el resto de SISGPLAN -->
+    <fieldset *ngIf="enSeccion(nodo); else suelto" class="container-border" [class.seccion--lado-a-lado]="ladoALado(nodo)">
+      <legend class="titulo">{{ nodo.nombre }}<span *ngIf="esObligatorio(nodo)" aria-hidden="true"> *</span></legend>
+      <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
+    </fieldset>
+    <ng-template #suelto>
+      <!-- En columnas (GRUPOS_EN_COLUMNAS) cada campo va en su celda, con sus errores debajo -->
+      <div *ngIf="enColumnas; else directo" class="campo-en-columna">
+        <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
+      </div>
+      <ng-template #directo>
+        <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
+      </ng-template>
+    </ng-template>
+  </ng-container>
 </ng-container>
 
 <ng-template #campo let-nodo>
   <ng-container [ngSwitch]="claseDe(nodo)">
 
-    <!-- Grupo de campos (el recuadro ya lo pone la sección) -->
+    <!-- Grupo de campos (el recuadro ya lo pone la sección); los de GRUPOS_EN_CASILLAS van como casillas -->
     <ng-container *ngSwitchCase="'grupo'">
       <p class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</p>
-      <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos[nodo.dato.clave]" [ruta]="rutaDe(nodo)"
-        [contexto]="contexto" [filaOrigen]="filaOrigen"></app-campos-iniciativa>
+      <ng-container *ngIf="enCasillas(nodo); else camposDelGrupo">
+        <div class="iniciativa-casillas" role="group" [attr.aria-label]="nodo.nombre">
+          <mat-checkbox *ngFor="let campo of nodo.hijos; trackBy: porClave" color="primary"
+            [checked]="marcada(nodo, campo)" (change)="marcar(nodo, campo, $event.checked)" [disabled]="contexto.soloLectura">
+            {{ campo.nombre }}
+          </mat-checkbox>
+        </div>
+        <div class="iniciativa-error" *ngFor="let mensaje of erroresDeCasillas(nodo)"><mat-icon inline>error_outline</mat-icon> {{ mensaje }}</div>
+      </ng-container>
+      <ng-template #camposDelGrupo>
+        <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos[nodo.dato.clave]" [ruta]="rutaDe(nodo)"
+          [contexto]="contexto" [filaOrigen]="filaOrigen" [enColumnas]="grupoEnColumnas(nodo)"></app-campos-iniciativa>
+      </ng-template>
     </ng-container>
 
-    <!-- Lista de filas (y espejos); las de LISTAS_EN_TABLA van como tabla jerárquica -->
+    <!-- Lista de filas (y espejos): en tabla si cabe en una (seMuestraEnTabla); si no, en recuadros -->
     <ng-container *ngSwitchCase="'repetible'">
       <app-tabla-jerarquica-iniciativa *ngIf="enTabla(nodo); else filasEnRecuadros" [nodo]="nodo" [filas]="datos[nodo.dato.clave]"
-        [ruta]="rutaDe(nodo)" [contexto]="contexto"></app-tabla-jerarquica-iniciativa>
+        [ruta]="rutaDe(nodo)" [contexto]="contexto" [conTitulo]="!secciones"></app-tabla-jerarquica-iniciativa>
       <ng-template #filasEnRecuadros>
         <app-grupo-repetible-iniciativa [nodo]="nodo" [filas]="datos[nodo.dato.clave]"
           [ruta]="rutaDe(nodo)" [contexto]="contexto" [filaOrigen]="filaOrigen" [conTitulo]="!secciones"></app-grupo-repetible-iniciativa>
@@ -50,18 +70,41 @@
         </button>
       </mat-form-field>
       <ng-template #calculadoFijo>
-        <div class="iniciativa-calculado">
+        <!-- Con desde, el texto de otro submódulo (p. ej. el objetivo general en Cadena de valor) -->
+        <div class="iniciativa-calculado" [class.iniciativa-traida]="nodo.dato.desde">
           <span class="iniciativa-etiqueta" *ngIf="!secciones">{{ nodo.nombre }}</span>
-          <strong>{{ calculado(nodo) || 'Se completa con los campos anteriores' }}</strong>
+          <strong *ngIf="calculado(nodo) as valor; else calculadoVacio">{{ valor }}</strong>
+          <ng-template #calculadoVacio>
+            <span class="iniciativa-traida__vacia">
+              {{ nodo.dato.desde ? 'Aún no se ha diligenciado en el submódulo de donde se trae.' : 'Se completa con los campos anteriores' }}
+            </span>
+          </ng-template>
           <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
         </div>
       </ng-template>
     </ng-container>
 
-    <!-- Catálogo -->
-    <app-campo-catalogo-iniciativa *ngSwitchCase="'catalogo'" [nodo]="nodo" [(valor)]="datos[nodo.dato.clave]"
-      [padre]="nodo.dato.depende_de ? datos[nodo.dato.depende_de] : null"
-      [deshabilitado]="contexto.soloLectura" [conEtiqueta]="!secciones" [apariencia]="contexto.apariencia"></app-campo-catalogo-iniciativa>
+    <!-- Casilla. Con `unica`, marcarla desmarca la de las demás filas de la lista -->
+    <div *ngSwitchCase="'casilla'" class="iniciativa-casilla">
+      <mat-checkbox color="primary" [checked]="datos[nodo.dato.clave] === true" (change)="cambiarCasilla(nodo, $event.checked)"
+        [disabled]="contexto.soloLectura" [aria-label]="nodo.nombre">{{ secciones ? '' : nodo.nombre }}</mat-checkbox>
+      <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
+    </div>
+
+    <!-- Documento suelto. Un submódulo de solo documentos (Anexos) va en una tabla (tabla-documentos-iniciativa) -->
+    <app-campo-documento-iniciativa *ngSwitchCase="'documento'" [nodo]="nodo" [(valor)]="datos[nodo.dato.clave]"
+      [ruta]="rutaDe(nodo)" [contexto]="contexto"></app-campo-documento-iniciativa>
+
+    <!-- Catálogo: con búsqueda; con varias opciones (multiple), como casillas igual que los factores -->
+    <ng-container *ngSwitchCase="'catalogo'">
+      <app-casillas-catalogo-iniciativa *ngIf="nodo.dato.multiple; else catalogoUnico" [nodo]="nodo"
+        [(valor)]="datos[nodo.dato.clave]" [deshabilitado]="contexto.soloLectura"></app-casillas-catalogo-iniciativa>
+      <ng-template #catalogoUnico>
+        <app-campo-catalogo-iniciativa [nodo]="nodo" [(valor)]="datos[nodo.dato.clave]"
+          [padre]="nodo.dato.depende_de ? datos[nodo.dato.depende_de] : null"
+          [deshabilitado]="contexto.soloLectura" [conEtiqueta]="!secciones" [apariencia]="contexto.apariencia"></app-campo-catalogo-iniciativa>
+      </ng-template>
+    </ng-container>
 
     <!-- Texto -->
     <mat-form-field *ngSwitchCase="'input'" [appearance]="contexto.apariencia" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo">
@@ -92,17 +135,27 @@
       <mat-hint *ngIf="nodo.descripcion">{{ nodo.descripcion }}</mat-hint>
     </mat-form-field>
 
-    <!-- Referencia a filas de otro grupo -->
-    <mat-form-field *ngSwitchCase="'referencia'" [appearance]="contexto.apariencia" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo">
-      <mat-label *ngIf="!secciones">{{ nodo.nombre }}</mat-label>
-      <mat-select [(ngModel)]="datos[nodo.dato.clave]" [multiple]="!!nodo.dato.multiple"
-        [required]="nodo.dato.required" [disabled]="contexto.soloLectura" [placeholder]="secciones ? 'Seleccione' : ''" [aria-label]="nodo.nombre">
-        <mat-option *ngFor="let opcion of opcionesDe(nodo); trackBy: porId" [value]="opcion.id" [matTooltip]="opcion.etiqueta">
-          {{ opcion.etiqueta }}
-        </mat-option>
-      </mat-select>
-      <mat-hint *ngIf="nodo.descripcion">{{ nodo.descripcion }}</mat-hint>
-    </mat-form-field>
+    <!-- Referencia a filas de otro grupo. La de la fila marcada (marcada_en) se trae sola y no se edita -->
+    <ng-container *ngSwitchCase="'referencia'">
+      <div *ngIf="nodo.dato.marcada_en; else referenciaElegida" class="iniciativa-calculado iniciativa-traida">
+        <span class="iniciativa-etiqueta" *ngIf="!secciones">{{ nodo.nombre }}</span>
+        <strong *ngIf="textoMarcada(nodo) as texto; else sinMarcada">{{ texto }}</strong>
+        <ng-template #sinMarcada><span class="iniciativa-traida__vacia">Aún no se ha marcado ninguna.</span></ng-template>
+        <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
+      </div>
+      <ng-template #referenciaElegida>
+        <mat-form-field [appearance]="contexto.apariencia" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo">
+          <mat-label *ngIf="!secciones">{{ nodo.nombre }}</mat-label>
+          <mat-select [(ngModel)]="datos[nodo.dato.clave]" [multiple]="!!nodo.dato.multiple"
+            [required]="nodo.dato.required" [disabled]="contexto.soloLectura" [placeholder]="secciones ? 'Seleccione' : ''" [aria-label]="nodo.nombre">
+            <mat-option *ngFor="let opcion of opcionesDe(nodo); trackBy: porId" [value]="opcion.id" [matTooltip]="opcion.etiqueta">
+              {{ opcion.etiqueta }}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="nodo.descripcion">{{ nodo.descripcion }}</mat-hint>
+        </mat-form-field>
+      </ng-template>
+    </ng-container>
   </ng-container>
 
   <div class="iniciativa-error" *ngFor="let mensaje of erroresDe(nodo)"><mat-icon inline>error_outline</mat-icon> {{ mensaje }}</div>

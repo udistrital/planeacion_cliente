@@ -1,0 +1,37 @@
+<!-- El archivo (o «Sin adjuntar») a la izquierda y sus acciones a la derecha, con los íconos del sistema -->
+<div class="documento" [class.documento--vacio]="!valor && !subiendo">
+  <mat-icon class="documento__icono" aria-hidden="true">{{ valor || subiendo ? 'description' : 'insert_drive_file' }}</mat-icon>
+
+  <div class="documento__texto">
+    <span *ngIf="subiendo; else estado" class="documento__nombre">Subiendo «{{ subiendo }}»…</span>
+    <ng-template #estado>
+      <ng-container *ngIf="valor?.nombre; else sinArchivo">
+        <span class="documento__nombre">{{ valor.nombre }}</span>
+        <small class="documento__detalle" *ngIf="detalle">{{ detalle }}</small>
+      </ng-container>
+      <ng-template #sinArchivo><span class="documento__sin-archivo">Sin adjuntar</span></ng-template>
+    </ng-template>
+    <span class="documento__error" *ngIf="error" role="alert">{{ error }}</span>
+  </div>
+
+  <div class="documento__acciones">
+    <button *ngIf="puedeVer" mat-icon-button color="primary" type="button" [disabled]="abriendo" (click)="ver()"
+      [matTooltip]="esPdf ? 'Ver' : 'Descargar'" [attr.aria-label]="(esPdf ? 'Ver ' : 'Descargar ') + nombre">
+      <mat-icon>{{ esPdf ? 'visibility' : 'file_download' }}</mat-icon>
+    </button>
+    <ng-container *ngIf="!soloLectura">
+      <button mat-icon-button color="primary" type="button" [disabled]="!!subiendo" (click)="entrada.click()"
+        [matTooltip]="valor ? 'Reemplazar archivo' : 'Adjuntar archivo'"
+        [attr.aria-label]="(valor ? 'Reemplazar archivo de ' : 'Adjuntar archivo de ') + nombre">
+        <mat-icon>attach_file</mat-icon>
+      </button>
+      <button *ngIf="valor" mat-icon-button color="primary" type="button" [disabled]="!!subiendo" (click)="quitar()"
+        matTooltip="Quitar archivo" [attr.aria-label]="'Quitar archivo de ' + nombre">
+        <mat-icon>close</mat-icon>
+      </button>
+    </ng-container>
+  </div>
+
+  <!-- El selector de archivos del navegador va oculto: lo abre el botón 📎 -->
+  <input #entrada type="file" class="documento__entrada" [accept]="aceptados" (change)="elegir(entrada)" tabindex="-1" aria-hidden="true">
+</div>

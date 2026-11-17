@@ -1,0 +1,57 @@
+@import '../tabla-iniciativa';
+
+.tabla-caja > table {
+  min-width: 560px;
+
+  td {
+    vertical-align: middle;
+  }
+
+  td.numero {
+    padding-top: 7px !important;
+  }
+}
+
+.col-documento {
+  width: 36%;
+}
+
+/* El ⊕ del encabezado va en blanco sobre el color del sistema, como en las tablas resumen */
+th .agregar-encabezado {
+  color: #fff;
+}
+
+/* Documento fijo: su nombre y, debajo, si es obligatorio */
+.fijo {
+  line-height: 1.35;
+}
+
+.fijo__nombre {
+  display: block;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+/* La descripción del documento sale al pasar el mouse por el nombre */
+.fijo__nombre.con-ayuda {
+  text-decoration-color: rgba(0, 0, 0, 0.35);
+}
+
+.fijo__marca {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+}
+
+.error-celda {
+  font-size: 12px;
+  color: var(--primary);
+}
+
+.fila-errores td {
+  background-color: #fff;
+}
+
+.iniciativa-ayuda mat-icon {
+  color: var(--primary);
+  vertical-align: -2px;
+}

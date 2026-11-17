@@ -1,17 +1,30 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Observable, Subject } from 'rxjs';
+import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { IniciativaService } from '../../iniciativa.service';
 import { ItemCatalogo, NodoDefinicion } from '../../utils';
 import { AparienciaCampo } from '../../utils/formulario.utils';
 
-const MAXIMO_SUGERENCIAS = 50;
+/**
+ * Opciones que muestra la lista. Alcanza para casi todos los catálogos completos (sectores,
+ * procesos, municipios de un departamento…); solo en los más grandes (productos, bienes y
+ * servicios) hay que escribir para encontrar el resto.
+ */
+export const MAXIMO_SUGERENCIAS = 150;
+
+/** Opciones de la lista y cuántas coinciden pero no se muestran. */
+export interface Sugerencias {
+  items: ItemCatalogo[];
+  ocultas: number;
+}
 
 /**
- * Selección de un elemento de catálogo con búsqueda (los catálogos de la iniciativa pueden
- * tener miles de elementos). Si el campo depende de otro (depende_de), solo
- * muestra los hijos del valor elegido allí. Emite el código del elemento.
+ * Selección de un elemento de catálogo. Se usa como una lista: al hacer clic se despliegan
+ * las opciones, y escribir las filtra (algunos catálogos tienen miles de elementos). Si el
+ * campo depende de otro (depende_de), solo muestra los hijos del valor elegido allí.
+ * Emite el código del elemento.
  */
 @Component({
   selector: 'app-campo-catalogo-iniciativa',
@@ -27,19 +40,24 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
   /** Falso cuando el campo va solo en una sección cuyo título ya lo nombra. */
   @Input() conEtiqueta = true;
   @Input() apariencia: AparienciaCampo = 'outline';
+  /** Dentro de una celda de tabla: un renglón sin marco ni ayudas, que muestra solo el nombre. */
+  @Input() enCelda = false;
+  /** Nombre accesible de la celda (p. ej. "Fase 2"). */
+  @Input() etiquetaCelda = '';
 
   readonly control = new FormControl('');
-  sugerencias$: Observable<ItemCatalogo[]>;
+  sugerencias$: Observable<Sugerencias>;
   cargando = true;
   private items: ItemCatalogo[] = [];
+  /** Vuelve a calcular la lista sin que el usuario escriba: cuando llega el catálogo y cuando cambia el padre. */
+  private readonly refrescar$ = new BehaviorSubject<void>(undefined);
   private readonly destruir$ = new Subject<void>();
 
   constructor(private servicio: IniciativaService) {}
 
   ngOnInit(): void {
-    this.sugerencias$ = this.control.valueChanges.pipe(
-      startWith(''),
-      map((texto) => this.filtrar(typeof texto === 'string' ? texto : '')),
+    this.sugerencias$ = combineLatest([this.control.valueChanges.pipe(startWith('')), this.refrescar$]).pipe(
+      map(([texto]) => this.filtrar(typeof texto === 'string' ? texto : '')),
     );
     this.servicio
       .catalogo(this.nodo.dato.catalogo)
@@ -48,6 +66,7 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
         this.items = items;
         this.cargando = false;
         this.mostrarValorActual();
+        this.refrescar$.next();
       });
   }
 
@@ -55,14 +74,36 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
     if (cambios.deshabilitado) {
       this.deshabilitado ? this.control.disable({ emitEvent: false }) : this.control.enable({ emitEvent: false });
     }
-    const padreCambio = cambios.padre && !cambios.padre.firstChange;
-    if (padreCambio && !this.cargando && this.valor && !this.perteneceAlPadre(this.buscar(this.valor))) {
-      // El valor ya no pertenece al padre elegido. Se limpia en el siguiente ciclo
-      // para no cambiar los datos del formulario en plena detección de cambios.
-      Promise.resolve().then(() => this.seleccionar(null));
+    if (cambios.padre && !cambios.padre.firstChange) {
+      this.refrescar$.next();
+      if (!this.cargando && this.valor && !this.perteneceAlPadre(this.buscar(this.valor))) {
+        // El valor ya no pertenece al padre elegido. Se limpia en el siguiente ciclo
+        // para no cambiar los datos del formulario en plena detección de cambios.
+        Promise.resolve().then(() => this.seleccionar(null));
+      }
     }
     if (cambios.valor) {
       this.mostrarValorActual();
+    }
+  }
+
+  /** Falta elegir el campo del que depende (p. ej. el sector antes que el programa). */
+  get faltaPadre(): boolean {
+    return !!this.nodo.dato.depende_de && !this.padre;
+  }
+
+  /** Texto del campo vacío. */
+  get textoGuia(): string {
+    if (this.cargando) {
+      return 'Cargando…';
+    }
+    return this.faltaPadre ? 'Elija primero el campo anterior' : 'Seleccione o escriba para buscar';
+  }
+
+  /** Despliega la lista al hacer clic, aunque el campo ya tenga el foco (como un select). */
+  abrir(disparador: MatAutocompleteTrigger): void {
+    if (!this.deshabilitado && !disparador.panelOpen) {
+      disparador.openPanel();
     }
   }
 
@@ -76,7 +117,26 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
     if (typeof item === 'string') {
       return item;
     }
-    return item ? `${item.codigo} - ${item.nombre}` : '';
+    return item ? etiquetaCompleta(item) : '';
+  }
+
+  /** En la celda basta el nombre; el código completo queda en la ayuda emergente. */
+  readonly mostrarNombre = (item: ItemCatalogo | string | null): string => {
+    if (typeof item === 'string') {
+      return item;
+    }
+    return item ? item.nombre : '';
+  }
+
+  /** Código y nombre del elemento elegido, para la ayuda emergente de la celda. */
+  get detalleElegido(): string {
+    const valor = this.control.value;
+    return valor && typeof valor === 'object' ? this.mostrar(valor) : '';
+  }
+
+  /** Texto de cada opción de la lista. */
+  etiquetaDe(item: ItemCatalogo): string {
+    return etiquetaCompleta(item);
   }
 
   seleccionar(item: ItemCatalogo | null): void {
@@ -92,12 +152,15 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
     }
   }
 
-  private filtrar(texto: string): ItemCatalogo[] {
+  private filtrar(texto: string): Sugerencias {
     const busqueda = normalizar(texto);
-    return this.items
+    const coincidencias = this.items
       .filter((item) => this.perteneceAlPadre(item))
-      .filter((item) => !busqueda || normalizar(`${item.codigo} ${item.nombre}`).includes(busqueda))
-      .slice(0, MAXIMO_SUGERENCIAS);
+      .filter((item) => !busqueda || normalizar(`${item.codigo} ${item.nombre}`).includes(busqueda));
+    return {
+      items: coincidencias.slice(0, MAXIMO_SUGERENCIAS),
+      ocultas: Math.max(0, coincidencias.length - MAXIMO_SUGERENCIAS),
+    };
   }
 
   private perteneceAlPadre(item: ItemCatalogo | undefined): boolean {
@@ -111,6 +174,11 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
   private mostrarValorActual(): void {
     this.control.setValue(this.valor ? this.buscar(this.valor) || this.valor : '', { emitEvent: false });
   }
+}
+
+/** "Código - Nombre", o solo el nombre si el código es el mismo nombre (catálogos como procesos o sedes). */
+function etiquetaCompleta(item: ItemCatalogo): string {
+  return item.codigo === item.nombre ? item.nombre : `${item.codigo} - ${item.nombre}`;
 }
 
 function normalizar(texto: string): string {

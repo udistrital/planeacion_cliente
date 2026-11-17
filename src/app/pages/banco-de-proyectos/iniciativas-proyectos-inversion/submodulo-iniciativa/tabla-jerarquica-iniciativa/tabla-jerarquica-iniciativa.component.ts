@@ -1,24 +1,31 @@
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, Input, OnChanges } from '@angular/core';
 import Swal from 'sweetalert2';
 import { Datos, NodoDefinicion } from '../../utils';
 import {
+  claseDe,
   ContextoFormulario,
+  esCampoNumerico,
   EstructuraTabla,
   estructuraDeTabla,
+  filasDeRuta,
   nuevoIdFila,
   prefijoDeClave,
   prepararEstructura,
   rutaCampo,
   rutaFila,
+  textoDeFila,
 } from '../../utils/formulario.utils';
 
 const SIN_ESTRUCTURA: EstructuraTabla = { campos: [], interna: null, camposInternos: [] };
 
+/** Anchos mínimos (px) para que la tabla se desplace en pantallas angostas en vez de apretar las columnas. */
+const ANCHO = { numero: 76, columna: 160, numerica: 110, acciones: 96, accion: 56, minimo: 560 };
+
 /**
- * Lista de dos niveles como tabla jerárquica (p. ej. efectos directos y sus efectos
- * indirectos): cada fila con su número y, debajo, con sangría y número 1.1, las filas de
- * su lista interna. Cada campo de texto es una columna y se escribe en la misma celda.
+ * Lista como tabla: una columna por campo y cada campo se edita en su celda (CeldaIniciativa:
+ * texto, número, opciones o catálogo). Si la lista tiene lista interna, sus filas van debajo de cada fila,
+ * con sangría y número 1.1 (tabla jerárquica). Si es espejo, la primera columna muestra el
+ * elemento de origen y no se agregan ni eliminan filas.
  * Edita los mismos datos que el grupo repetible; solo cambia la presentación.
  */
 @Component({
@@ -32,19 +39,22 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
   @Input() filas: Datos[] = [];
   @Input() ruta = '';
   @Input() contexto: ContextoFormulario;
+  /** Verdadero cuando la tabla va dentro de una fila: no hay recuadro de sección que la nombre. */
+  @Input() conTitulo = false;
 
   estructura: EstructuraTabla = SIN_ESTRUCTURA;
   /** Posiciones de las columnas de campos (0, 1, ...). */
   columnas: number[] = [];
   encabezados: string[] = [];
-  /** Celdas que el usuario dejó abiertas con «Ver todo», por ruta del campo. */
-  private readonly abiertas = new Set<string>();
+  /** Descripción de los campos de cada columna, para la ayuda del encabezado. */
+  ayudas: string[] = [];
 
   ngOnChanges(): void {
     this.estructura = estructuraDeTabla(this.nodo) || SIN_ESTRUCTURA;
     const { campos, camposInternos } = this.estructura;
     this.columnas = Array.from({ length: Math.max(campos.length, camposInternos.length) }, (_, posicion) => posicion);
     this.encabezados = this.columnas.map((posicion) => this.encabezado(posicion));
+    this.ayudas = this.columnas.map((posicion) => this.ayuda(posicion));
   }
 
   get etiqueta(): string {
@@ -56,8 +66,17 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     return interna ? interna.dato.etiqueta_fila || interna.nombre : '';
   }
 
+  /** Las filas de un espejo salen del grupo de origen: no se agregan ni se eliminan aquí. */
+  get esEspejo(): boolean {
+    return !!this.nodo.dato.espejo_de;
+  }
+
+  get tieneInterna(): boolean {
+    return !!this.estructura.interna;
+  }
+
   get puedeModificar(): boolean {
-    return !this.contexto.soloLectura;
+    return !this.contexto.soloLectura && !this.esEspejo;
   }
 
   get puedeAgregar(): boolean {
@@ -68,9 +87,27 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     return this.nodo.dato.min || 0;
   }
 
-  /** Número, columnas de campos y, si se puede editar, acciones. */
+  /** Número, origen (espejo), columnas de campos y, si se puede editar, acciones. */
   get totalColumnas(): number {
-    return this.columnas.length + (this.puedeModificar ? 2 : 1);
+    return this.columnas.length + (this.esEspejo ? 2 : 1) + (this.puedeModificar ? 1 : 0);
+  }
+
+  get anchoMinimo(): number {
+    const campos = this.columnas.reduce((suma, posicion) => suma + (this.esNumerica(posicion) ? ANCHO.numerica : ANCHO.columna), 0);
+    const acciones = this.puedeModificar ? (this.tieneInterna ? ANCHO.acciones : ANCHO.accion) : 0;
+    return Math.max(ANCHO.minimo, ANCHO.numero + (this.esEspejo ? ANCHO.columna : 0) + campos + acciones);
+  }
+
+  /** Columna en la que todos los campos son números (escritos o calculados): va más angosta. */
+  esNumerica(posicion: number): boolean {
+    const { campos, camposInternos } = this.estructura;
+    return [campos[posicion], camposInternos[posicion]].filter((campo) => !!campo).every(esCampoNumerico);
+  }
+
+  /** Columna en la que todos los campos son casillas: el título y la casilla van centrados. */
+  esCasilla(posicion: number): boolean {
+    const { campos, camposInternos } = this.estructura;
+    return [campos[posicion], camposInternos[posicion]].filter((campo) => !!campo).every((campo) => claseDe(campo) === 'casilla');
   }
 
   puedeAgregarInterna(fila: Datos): boolean {
@@ -87,8 +124,10 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     return interna && Array.isArray(fila[interna.dato.clave]) ? fila[interna.dato.clave] : [];
   }
 
-  esObligatorio(campo: NodoDefinicion): boolean {
-    return coerceBooleanProperty(campo.dato.required);
+  /** Texto del elemento de origen de una fila de espejo. */
+  textoOrigen(fila: Datos): string {
+    const origen = filasDeRuta(this.nodo.dato.espejo_de, this.contexto).find((candidata) => candidata.id === fila.origen);
+    return origen ? textoDeFila(origen, this.nodo.dato.mostrar, 0) : '';
   }
 
   rutaDeFila(fila: Datos): string {
@@ -103,25 +142,9 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     return rutaCampo(rutaBase, campo.dato.clave);
   }
 
+  /** Para marcar la celda con error; el mensaje lo muestra la celda. */
   erroresDeCampo(rutaBase: string, campo: NodoDefinicion | undefined): string[] {
     return campo ? this.errores(this.rutaDeCampo(rutaBase, campo)) : [];
-  }
-
-  estaAbierta(rutaDelCampo: string): boolean {
-    return this.abiertas.has(rutaDelCampo);
-  }
-
-  alternarCelda(rutaDelCampo: string): void {
-    if (this.abiertas.has(rutaDelCampo)) {
-      this.abiertas.delete(rutaDelCampo);
-    } else {
-      this.abiertas.add(rutaDelCampo);
-    }
-  }
-
-  /** El texto no cabe en las líneas que muestra la celda cerrada. */
-  estaCortada(area: HTMLTextAreaElement): boolean {
-    return area.scrollHeight > area.clientHeight + 1;
   }
 
   /** Errores que no van en una celda: de la fila, de su lista interna (p. ej. el mínimo) y de cada fila interna. */
@@ -151,9 +174,10 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
   }
 
   async eliminar(posicion: number): Promise<void> {
+    const aviso = 'Los cambios se aplican al guardar.';
     const confirmado = await confirmarEliminacion(
       `¿Eliminar ${this.etiqueta.toLowerCase()} ${posicion + 1}?`,
-      'Se eliminará con todo lo que contiene. Los cambios se aplican al guardar.',
+      this.tieneInterna ? `Se eliminará con todo lo que contiene. ${aviso}` : aviso,
     );
     if (confirmado) {
       this.filas.splice(posicion, 1);
@@ -170,7 +194,7 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     }
   }
 
-  /** La primera columna nombra los dos niveles; las demás, el campo (o los dos si difieren). */
+  /** Con lista interna, la primera columna nombra los dos niveles; las demás, el campo (o los dos si difieren). */
   private encabezado(posicion: number): string {
     const { campos, interna, camposInternos } = this.estructura;
     if (posicion === 0 && interna) {
@@ -179,6 +203,14 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     const primero = campos[posicion] ? campos[posicion].nombre : '';
     const segundo = camposInternos[posicion] ? camposInternos[posicion].nombre : '';
     return primero && segundo && primero !== segundo ? `${primero} / ${segundo}` : primero || segundo;
+  }
+
+  private ayuda(posicion: number): string {
+    const { campos, camposInternos } = this.estructura;
+    const descripciones = [campos[posicion], camposInternos[posicion]]
+      .filter((campo) => !!campo && !!campo.descripcion)
+      .map((campo) => campo.descripcion);
+    return Array.from(new Set(descripciones)).join(' / ');
   }
 
   private errores(ruta: string): string[] {

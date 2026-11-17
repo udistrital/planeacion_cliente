@@ -1,0 +1,10 @@
+<p class="casillas-catalogo__estado" *ngIf="cargando">Cargando opciones…</p>
+<p class="casillas-catalogo__estado" *ngIf="!cargando && !items.length">
+  No se encontraron las opciones de este campo. Comuníquese con el administrador del sistema.
+</p>
+<div class="casillas-catalogo" role="group" [attr.aria-label]="nodo.nombre" *ngIf="items.length">
+  <mat-checkbox *ngFor="let item of items; trackBy: porCodigo" color="primary"
+    [checked]="marcada(item)" (change)="marcar(item, $event.checked)" [disabled]="deshabilitado">
+    {{ item.nombre }}
+  </mat-checkbox>
+</div>

@@ -12,10 +12,12 @@ import {
   Definicion,
   ItemCatalogo,
   IniciativaListado,
+  ReferenciaDocumento,
   ResumenIniciativa,
   SubmoduloConRelacionadas,
   SubmoduloVista,
   SolicitudCrearIniciativa,
+  SolicitudDocumento,
   SolicitudObservacion,
 } from './utils';
 
@@ -85,6 +87,14 @@ export class IniciativaService {
   /** Planeación da el submódulo por revisado sin observaciones (el historial se conserva). */
   marcarSinObservaciones(iniciativaId: string, clave: string, version: number): Observable<SubmoduloVista> {
     return this.datos(this.request.put(environment.PLANES_MID, `${this.base}/iniciativas/${iniciativaId}/submodulos/${clave}`, { version }, 'revision'));
+  }
+
+  /**
+   * Sube el archivo de un campo documento (Anexos) al gestor documental, a través del mid, y
+   * devuelve su referencia. No guarda el submódulo: la referencia se guarda con el botón Guardar.
+   */
+  subirDocumento(iniciativaId: string, solicitud: SolicitudDocumento): Observable<ReferenciaDocumento> {
+    return this.datos(this.request.post(environment.PLANES_MID, `${this.base}/iniciativas/${iniciativaId}/documentos`, solicitud));
   }
 
   ejecutarAccion(iniciativaId: string, accion: AccionIniciativa): Observable<ResumenIniciativa> {
