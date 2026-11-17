@@ -1,0 +1,39 @@
+<!-- Lo que mide el alto (estaCortada) va después del textarea, cuando el autoajuste ya le dio su alto. -->
+<ng-container [ngSwitch]="claseDe(campo)">
+  <ng-container *ngSwitchCase="'input'">
+    <div class="celda-caja" [class.abierta]="abierta">
+      <textarea #area class="celda" [class.celda--resaltada]="resaltada" cdkTextareaAutosize cdkAutosizeMinRows="1"
+        [(ngModel)]="fila[campo.dato.clave]" [placeholder]="marca" [attr.aria-label]="etiqueta"
+        [attr.maxlength]="campo.dato.maxlength || null" [disabled]="contexto.soloLectura"></textarea>
+      <span class="desvanecido" *ngIf="estaCortada(area)" aria-hidden="true"></span>
+    </div>
+    <button type="button" class="ver-todo" *ngIf="abierta || estaCortada(area)" [attr.aria-expanded]="abierta"
+      [attr.aria-label]="(abierta ? 'Ver menos de ' : 'Ver todo ') + etiqueta" (click)="abierta = !abierta">
+      {{ abierta ? 'Ver menos' : 'Ver todo' }}
+      <mat-icon inline>{{ abierta ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+  </ng-container>
+
+  <input *ngSwitchCase="'numeric'" type="number" class="celda celda--numero" [(ngModel)]="fila[campo.dato.clave]"
+    [placeholder]="marca" [attr.aria-label]="etiqueta" [attr.min]="campo.dato.min" [attr.max]="campo.dato.max"
+    [attr.step]="campo.dato.decimales === 0 ? 1 : 'any'" [disabled]="contexto.soloLectura">
+
+  <mat-select *ngSwitchCase="'select'" class="celda celda--opciones" [(ngModel)]="fila[campo.dato.clave]"
+    [placeholder]="esObligatorio ? 'Seleccione' : 'Opcional'" [aria-label]="etiqueta" [disabled]="contexto.soloLectura">
+    <mat-option *ngFor="let opcion of campo.dato.options" [value]="opcion.valor">{{ opcion.valor }}</mat-option>
+  </mat-select>
+
+  <app-campo-catalogo-iniciativa *ngSwitchCase="'catalogo'" [nodo]="campo" [(valor)]="fila[campo.dato.clave]"
+    [padre]="campo.dato.depende_de ? fila[campo.dato.depende_de] : null" [deshabilitado]="contexto.soloLectura"
+    [enCelda]="true" [etiquetaCelda]="etiqueta"></app-campo-catalogo-iniciativa>
+
+  <div *ngSwitchCase="'casilla'" class="celda celda--casilla">
+    <mat-checkbox color="primary" [checked]="fila[campo.dato.clave] === true" (change)="marcar($event.checked)"
+      [aria-label]="etiqueta" [disabled]="contexto.soloLectura"></mat-checkbox>
+  </div>
+
+  <!-- Calculado numérico (p. ej. el déficit): lo guarda el servidor; aquí se muestra con los valores de la fila -->
+  <output *ngSwitchCase="'calculado'" class="celda celda--numero celda--calculada" [class.vacia]="!calculado"
+    [attr.aria-label]="etiqueta">{{ calculado || 'Se calcula' }}</output>
+</ng-container>
+<div class="error-celda" *ngFor="let mensaje of errores">{{ mensaje }}</div>

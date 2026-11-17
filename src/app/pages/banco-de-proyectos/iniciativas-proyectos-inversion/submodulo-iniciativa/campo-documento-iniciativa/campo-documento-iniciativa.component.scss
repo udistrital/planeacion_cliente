@@ -1,0 +1,57 @@
+:host {
+  display: block;
+}
+
+/* Archivo a la izquierda y acciones a la derecha, a la altura de los botones de ícono */
+.documento {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.documento__icono {
+  flex: none;
+  color: var(--primary);
+}
+
+.documento--vacio .documento__icono {
+  color: #b7bec6;
+}
+
+.documento__texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.documento__nombre {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.documento__detalle {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+}
+
+/* Mismo gris que el texto de una celda vacía (celda-iniciativa) */
+.documento__sin-archivo {
+  color: #8a9097;
+}
+
+.documento__error {
+  color: var(--primary);
+  font-size: 12px;
+}
+
+.documento__acciones {
+  display: flex;
+  flex: none;
+}
+
+.documento__entrada {
+  display: none;
+}

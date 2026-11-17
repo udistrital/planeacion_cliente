@@ -1,0 +1,31 @@
+<!-- Selector fijo arriba, con anterior y siguiente; al abrirlo, los submódulos van bajo el nombre de su módulo -->
+<div class="selector">
+  <button mat-icon-button color="primary" type="button" [disabled]="!anterior" (click)="ir(anterior)"
+    [matTooltip]="anterior ? 'Anterior: ' + anterior.nombre : ''" aria-label="Submódulo anterior">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+  <mat-form-field appearance="fill" class="selector__campo">
+    <mat-label>Submódulo · {{ formulados }} de {{ submodulos.length }} formulados</mat-label>
+    <mat-select [value]="actual" (selectionChange)="irAClave($event.value)" panelClass="selector-submodulos__panel">
+      <mat-select-trigger>
+        <span class="opcion" *ngIf="seleccionado">
+          <span class="punto" [style.background-color]="seleccionado.estado?.color" aria-hidden="true"></span>
+          <span class="opcion__nombre">{{ seleccionado.nombre }}</span>
+        </span>
+      </mat-select-trigger>
+      <mat-optgroup *ngFor="let modulo of modulos; trackBy: porClave" [label]="modulo.nombre">
+        <mat-option *ngFor="let submodulo of modulo.submodulos; trackBy: porClave" [value]="submodulo.clave">
+          <span class="opcion">
+            <span class="punto" [style.background-color]="submodulo.estado?.color" aria-hidden="true"></span>
+            <span class="opcion__nombre">{{ submodulo.nombre }}</span>
+            <small class="opcion__estado">{{ submodulo.estado?.nombre }}</small>
+          </span>
+        </mat-option>
+      </mat-optgroup>
+    </mat-select>
+  </mat-form-field>
+  <button mat-icon-button color="primary" type="button" [disabled]="!siguiente" (click)="ir(siguiente)"
+    [matTooltip]="siguiente ? 'Siguiente: ' + siguiente.nombre : ''" aria-label="Submódulo siguiente">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+</div>

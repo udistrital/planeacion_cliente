@@ -1,3 +1,60 @@
 .iniciativa-campo {
   width: 100%;
 }
+
+/* Flecha de lista, como la de mat-select: también despliega las opciones */
+.flecha {
+  color: rgba(0, 0, 0, 0.54);
+  cursor: pointer;
+}
+
+.flecha--deshabilitada {
+  visibility: hidden;
+}
+
+/* En la celda la flecha va a la derecha del texto, sin quitarle espacio a la línea */
+.celda-catalogo-caja {
+  display: flex;
+  align-items: center;
+
+  .celda-catalogo {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.flecha--celda {
+  flex: none;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Misma línea y foco que las celdas de texto de la tabla (tabla-jerarquica .celda) */
+.celda-catalogo {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 6px 0 5px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+
+  &:focus {
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 4px;
+  }
+
+  &::placeholder {
+    color: #8a9097;
+  }
+
+  &:disabled {
+    color: #333;
+  }
+}

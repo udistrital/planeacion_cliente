@@ -1,25 +1,94 @@
-.iniciativa-repetible {
-  margin: 0.5rem 0 1rem;
-}
+@import '../tabla-iniciativa';
 
-.iniciativa-repetible__encabezado {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 1rem;
-  margin-bottom: 0.5rem;
+/* ---------- Tabla resumen ---------- */
 
-  h4 {
-    margin: 0;
+/* Crece hasta unas seis filas y luego se desplaza por dentro, con el encabezado fijo */
+.tabla-resumen {
+  max-height: 330px;
+  overflow-y: auto;
+
+  > table {
+    min-width: 560px;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    vertical-align: middle;
+  }
+
+  td {
+    vertical-align: middle;
+    overflow-wrap: anywhere;
   }
 }
 
+.col-datos {
+  width: 130px;
+}
+
+/* El ⊕ del encabezado va en blanco sobre el color del sistema */
+th .agregar-encabezado {
+  color: #fff;
+}
+
+.fila-resumen {
+  cursor: pointer;
+
+  &:hover td {
+    --fondo-celda: #faf6f6;
+  }
+}
+
+/* Fila que se está diligenciando debajo */
+.tabla-caja > table .fila-resumen--seleccionada td {
+  --fondo-celda: #f3ebeb;
+  box-shadow: inset 0 2px 0 var(--primary), inset 0 -2px 0 var(--primary);
+}
+
+.tabla-caja > table .fila-resumen--seleccionada td:first-child {
+  box-shadow: inset 4px 0 0 var(--primary), inset 0 2px 0 var(--primary), inset 0 -2px 0 var(--primary);
+}
+
+.origen {
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.sin-valor {
+  color: rgba(0, 0, 0, 0.38);
+}
+
+.estado-datos {
+  white-space: nowrap;
+}
+
+.punto {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background-color: #c62828;
+  vertical-align: 1px;
+}
+
+.punto--completo {
+  background-color: #2e7d32;
+}
+
+.contador {
+  margin-top: -0.5rem;
+}
+
+/* ---------- Campos de la fila seleccionada ---------- */
+
 .iniciativa-fila {
   border: 1px solid rgba(0, 0, 0, 0.12);
-  border-left: 4px solid #3f51b5;
+  border-top: 3px solid var(--primary);
   border-radius: 6px;
-  padding: 0.5rem 1rem 0.75rem;
-  margin-bottom: 0.75rem;
+  padding: 0 1rem 0.75rem;
   background: #fff;
 }
 
@@ -27,7 +96,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 40px;
+  gap: 1rem;
+  min-height: 44px;
+  margin: 0 -1rem 0.5rem;
+  padding: 0.5rem 0.25rem 0 1rem;
+  color: var(--primary);
+}
+
+.iniciativa-fila__nombre {
+  min-width: 0;
+  overflow-wrap: anywhere;
+
+  small {
+    display: block;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 12px;
+  }
 }
 
 .iniciativa-fila__origen {
@@ -38,30 +122,25 @@
   font-size: 0.9rem;
 }
 
-.iniciativa-ayuda {
-  font-size: 0.85rem;
+.sin-seleccion {
+  margin: 0;
+  padding: 1rem;
+  border: 2px dashed #c7cdd3;
+  border-radius: 6px;
   color: rgba(0, 0, 0, 0.6);
-}
+  text-align: center;
 
-.iniciativa-vacio {
-  color: rgba(0, 0, 0, 0.6);
-  font-style: italic;
-}
-
-.iniciativa-error {
-  color: #c62828;
-  font-size: 0.85rem;
-}
-
-/* Filas sin fondo para que los campos blancos resalten sobre el gris de la tarjeta */
-:host-context(.con-secciones) {
-  .iniciativa-repetible__encabezado h4,
-  .iniciativa-fila__titulo {
+  mat-icon {
     color: var(--primary);
+    vertical-align: -3px;
   }
+}
 
+/* Sin fondo para que los campos blancos resalten sobre el gris de la tarjeta del submódulo */
+:host-context(.con-secciones) {
   .iniciativa-fila {
-    border-left-color: var(--primary);
+    border-color: #e0d2d2;
+    border-top-color: var(--primary);
     background: transparent;
   }
 

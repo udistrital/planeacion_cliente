@@ -1,6 +1,15 @@
+/* .card-oas usa 100vw (incluye la barra de scroll): se ajusta al contenedor para evitar el scroll horizontal. */
+:host {
+  display: block;
+}
+
 /* Mismos estilos de la tabla de plan/construir-plan-proyecto (Listar planes): tarjeta y tabla a todo el ancho. */
 .mat-card {
   background-color: #f1f5f8;
+}
+
+.mat-card.card-oas {
+  width: auto;
 }
 
 th {

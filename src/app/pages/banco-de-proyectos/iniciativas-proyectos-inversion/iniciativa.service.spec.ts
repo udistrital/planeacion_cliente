@@ -7,7 +7,7 @@ describe('IniciativaService', () => {
   const sinCompletar = (data: any) => new BehaviorSubject({ Success: true, Status: '200', Message: 'Successful', Data: data });
   const request = {
     get: (base: string, ruta: string) => sinCompletar({ ruta }),
-    post: () => sinCompletar({ id: 'creado' }),
+    post: (base: string, ruta: string, cuerpo: any) => sinCompletar({ ruta, cuerpo }),
     put: (base: string, ruta: string, cuerpo: any, id: string) => sinCompletar({ ruta, id }),
   };
   const usuario = { user$: new BehaviorSubject({ userService: { documento: '1020' } }) };
@@ -35,6 +35,14 @@ describe('IniciativaService', () => {
     servicio.guardarSubmodulo('p1', 'problematica', 3, {}).subscribe((r) => (guardada = r));
 
     expect(guardada).toEqual({ ruta: 'iniciativa-inversion/iniciativas/p1/submodulos', id: 'problematica' });
+  });
+
+  it('sube un documento en /iniciativas/:id/documentos con la ruta del campo, el nombre y el archivo', () => {
+    const solicitud = { clave: 'otros_anexos.archivo', nombre: 'cotizacion.pdf', archivo: 'JVBERi0=', usuario: '1020' };
+    let referencia: any;
+    servicio.subirDocumento('p1', solicitud).subscribe((r) => (referencia = r));
+
+    expect(referencia).toEqual({ ruta: 'iniciativa-inversion/iniciativas/p1/documentos', cuerpo: solicitud });
   });
 
   it('marca el submódulo como revisado en /submodulos/:clave/revision', () => {

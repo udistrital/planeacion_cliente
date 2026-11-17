@@ -11,25 +11,103 @@
   background-color: #f1f5f8;
 }
 
-/* Estado del submódulo (igual que en la vista de la iniciativa): punto con el color de la BD y el nombre; gris si no trae color. */
-.iniciativa-estado {
+/* Encabezado: la iniciativa, el submódulo y su descripción a la izquierda; el estado a la derecha. */
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.encabezado__textos {
+  flex: 1 1 24rem;
+  min-width: 0;
+}
+
+/* La iniciativa arriba, fuera de la tarjeta, como título de la página */
+.pagina {
+  padding: 0.5rem 0 1rem;
+}
+
+.pagina__iniciativa {
+  margin: 0 0 1.25rem;
+}
+
+.pagina__rotulo {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+.pagina__titulo {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: rgba(0, 0, 0, 0.87);
+  overflow-wrap: anywhere;
+}
+
+/* La tarjeta ocupa su columna (card-oas trae un ancho fijo de pantalla completa) */
+.cuerpo__contenido > .mat-card.card-oas {
+  width: auto;
+  margin: 0;
+}
+
+.encabezado__submodulo {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--primary);
+}
+
+.encabezado__descripcion {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* Estado del submódulo: rótulo y valor unidos, como el Estado general de la vista de la iniciativa.
+   El punto lleva el color de la BD (estado_submodulo.color); gris si no trae. */
+.estado-submodulo {
+  display: inline-flex;
+  flex: none;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: var(--primary) 2px 3px 0;
+}
+
+.estado-submodulo__titulo {
+  padding: 0.5rem 1rem;
+  color: #fff;
+  font-weight: 500;
+  background-color: var(--primary);
+}
+
+.estado-submodulo__valor {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  min-width: 10rem;
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
   white-space: nowrap;
 }
 
 .iniciativa-estado__punto {
   flex: none;
-  width: 9px;
-  height: 9px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   background-color: #9e9e9e;
-}
-
-.iniciativa-estado-submodulo {
-  margin-left: auto;
-  align-self: flex-start;
 }
 
 .iniciativa-contenido {
@@ -115,18 +193,43 @@
   gap: 0.5rem;
 }
 
-.iniciativa-espacio {
-  flex: 1 1 auto;
-}
-
 .iniciativa-barra {
   padding: 0.75rem 0;
   border-top: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-/* Deja espacio al botón fijo de IRIS (.icono-fijo en app.component), que tapaba el último botón */
+/* Deja espacio al botón fijo de IRIS (.icono-fijo en app.component) */
 .mat-card > .iniciativa-barra {
   padding-right: 96px;
+}
+
+.iniciativa-espacio {
+  flex: 1 1 auto;
+}
+
+/*
+ * El formulario usa todo el ancho; minmax(0, 1fr) y min-width: 0 hacen que las tablas anchas
+ * se desplacen por dentro en vez de estirar la página. El selector de submódulos queda fijo
+ * arriba al bajar, en cualquier pantalla.
+ */
+.cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cuerpo__contenido {
+  min-width: 0;
+}
+
+.selector-fijo {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: 0 0 1rem;
+  padding: 6px 4px;
+  /* Fuera de la tarjeta: el fondo de la página, opaco para que no se vea el formulario debajo al bajar */
+  background-color: #fafafa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 /* Material deja el borde gris aunque el botón tenga color */

@@ -1,12 +1,35 @@
-<mat-form-field [appearance]="apariencia" class="iniciativa-campo" [class.iniciativa-campo--sin-etiqueta]="!conEtiqueta">
+<!-- Funciona como una lista: clic (o la flecha) despliega las opciones y escribir las filtra -->
+<mat-form-field *ngIf="!enCelda; else celda" [appearance]="apariencia" class="iniciativa-campo" [class.iniciativa-campo--sin-etiqueta]="!conEtiqueta">
   <mat-label *ngIf="conEtiqueta">{{ nodo.nombre }}</mat-label>
-  <input matInput [formControl]="control" [matAutocomplete]="sugerencias" (blur)="alSalir()"
-    [required]="nodo.dato.required" placeholder="Escriba el código o parte del nombre"
+  <input matInput [formControl]="control" [matAutocomplete]="sugerencias" #disparador="matAutocompleteTrigger"
+    (click)="abrir(disparador)" (blur)="alSalir()" [required]="nodo.dato.required" [placeholder]="textoGuia"
     [attr.aria-label]="conEtiqueta ? null : nodo.nombre">
-  <mat-autocomplete #sugerencias="matAutocomplete" [displayWith]="mostrar" (optionSelected)="seleccionar($event.option.value)">
-    <mat-option *ngFor="let item of sugerencias$ | async" [value]="item">{{ item.codigo }} - {{ item.nombre }}</mat-option>
-  </mat-autocomplete>
+  <mat-icon matSuffix class="flecha" [class.flecha--deshabilitada]="deshabilitado" (click)="abrir(disparador)"
+    aria-hidden="true">arrow_drop_down</mat-icon>
   <mat-hint *ngIf="cargando">Cargando catálogo…</mat-hint>
-  <mat-hint *ngIf="!cargando && nodo.dato.depende_de && !padre">Primero seleccione el campo del que depende.</mat-hint>
-  <mat-hint *ngIf="!cargando && nodo.descripcion && (!nodo.dato.depende_de || padre)">{{ nodo.descripcion }}</mat-hint>
+  <mat-hint *ngIf="!cargando && faltaPadre">Primero seleccione el campo del que depende.</mat-hint>
+  <mat-hint *ngIf="!cargando && nodo.descripcion && !faltaPadre">{{ nodo.descripcion }}</mat-hint>
 </mat-form-field>
+
+<!-- En una celda de tabla: un renglón con la misma línea que las demás celdas -->
+<ng-template #celda>
+  <span class="celda-catalogo-caja">
+    <input class="celda-catalogo" [formControl]="control" [matAutocomplete]="sugerencias" #disparadorCelda="matAutocompleteTrigger"
+      (click)="abrir(disparadorCelda)" (blur)="alSalir()" [placeholder]="cargando ? 'Cargando…' : (faltaPadre ? 'Elija primero el anterior' : 'Seleccione')"
+      [attr.aria-label]="etiquetaCelda || nodo.nombre" [matTooltip]="detalleElegido">
+    <mat-icon class="flecha flecha--celda" *ngIf="!deshabilitado" (click)="abrir(disparadorCelda)" aria-hidden="true">arrow_drop_down</mat-icon>
+  </span>
+</ng-template>
+
+<mat-autocomplete #sugerencias="matAutocomplete" [displayWith]="enCelda ? mostrarNombre : mostrar"
+  (optionSelected)="seleccionar($event.option.value)" class="sugerencias-catalogo">
+  <ng-container *ngIf="sugerencias$ | async as lista">
+    <mat-option *ngFor="let item of lista.items" [value]="item">{{ etiquetaDe(item) }}</mat-option>
+    <mat-option *ngIf="!cargando && !lista.items.length" disabled>
+      {{ faltaPadre ? 'Primero seleccione el campo del que depende.' : 'No hay opciones que coincidan.' }}
+    </mat-option>
+    <mat-option *ngIf="lista.ocultas" disabled class="sugerencias-catalogo__mas">
+      Hay {{ lista.ocultas }} opciones más: escriba para filtrar.
+    </mat-option>
+  </ng-container>
+</mat-autocomplete>

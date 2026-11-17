@@ -4,6 +4,69 @@
   gap: 0.25rem;
 }
 
+/*
+ * Nivel superior del submódulo: cada sección ocupa toda la fila, salvo las de
+ * SECCIONES_LADO_A_LADO, que se reparten la fila (p. ej. Sedes y Factores en Localización).
+ * Si no caben (menos de 22rem cada una), vuelven a quedar una debajo de la otra.
+ */
+:host(.campos--secciones) {
+  flex-flow: row wrap;
+  column-gap: 1.25rem;
+  align-items: stretch;
+
+  > .container-border {
+    flex: 1 1 100%;
+  }
+
+  > .container-border.seccion--lado-a-lado {
+    flex: 1 1 22rem;
+  }
+}
+
+/*
+ * Campos de un grupo en columnas (GRUPOS_EN_COLUMNAS), p. ej. la ubicación de Localización:
+ * hasta 4 columnas que llenan el ancho (2 filas para los 8 campos de la ubicación), y menos
+ * en pantallas angostas. Cada campo va en su celda con sus errores debajo.
+ */
+:host(.campos--columnas) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(14rem, 22%), 1fr));
+  gap: 0.25rem 1rem;
+  align-items: start;
+
+  .campo-en-columna {
+    min-width: 0;
+  }
+
+  /* El aviso va debajo de la ayuda */
+  .campo-en-columna .iniciativa-error {
+    margin: 0.25rem 0 0.5rem;
+  }
+
+  .iniciativa-campo--corto {
+    max-width: none;
+  }
+
+  /*
+   * La ayuda ocupa las líneas que necesite y empuja lo de abajo (Material reserva solo una).
+   * ::ng-deep para que también aplique a los catálogos.
+   */
+  ::ng-deep .mat-form-field-wrapper {
+    padding-bottom: 0;
+  }
+
+  ::ng-deep .mat-form-field-subscript-wrapper {
+    position: static;
+    margin-top: 0.3em;
+  }
+
+  /* La línea del campo va justo debajo de la caja, antes de la ayuda */
+  ::ng-deep .mat-form-field-underline {
+    position: relative;
+    bottom: auto;
+  }
+}
+
 .iniciativa-campo {
   width: 100%;
 }
@@ -37,6 +100,23 @@
   font-weight: bold;
 }
 
+/* Casillas en columnas: dos en pantalla ancha, una en celular. El texto largo se parte en líneas. */
+.iniciativa-casillas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.5rem 1.5rem;
+  margin: 0.25rem 0 0.75rem;
+
+  ::ng-deep .mat-checkbox-layout {
+    white-space: normal;
+  }
+
+  ::ng-deep .mat-checkbox-inner-container {
+    margin-top: 2px;
+    margin-bottom: auto;
+  }
+}
+
 .iniciativa-calculado {
   display: flex;
   flex-direction: column;
@@ -45,6 +125,23 @@
   margin-bottom: 1rem;
   border-left: 4px solid #3f51b5;
   background: rgba(63, 81, 181, 0.06);
+}
+
+/* Valor traído de otro submódulo (referencia con marcada_en): conserva los saltos de línea */
+.iniciativa-traida strong {
+  white-space: pre-line;
+}
+
+.iniciativa-traida__vacia {
+  color: #8a9097;
+}
+
+/* Casilla suelta (campo casilla): la ayuda va debajo */
+.iniciativa-casilla {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.25rem 0 0.75rem;
 }
 
 .iniciativa-etiqueta {
@@ -83,6 +180,14 @@
 
     mat-icon {
       display: none;
+    }
+  }
+
+  /* Casilla marcada en el color del sistema */
+  .iniciativa-casillas,
+  .iniciativa-casilla {
+    ::ng-deep .mat-checkbox-checked:not(.mat-checkbox-disabled) .mat-checkbox-background {
+      background-color: var(--primary);
     }
   }
 

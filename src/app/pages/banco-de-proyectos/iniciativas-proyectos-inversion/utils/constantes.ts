@@ -1,4 +1,10 @@
-import { AccionIniciativa, AccionSubmodulo, DescripcionAccion, DescripcionAccionSubmodulo } from './iniciativa.models';
+import {
+  AccionIniciativa,
+  AccionSubmodulo,
+  ColumnaResumen,
+  DescripcionAccion,
+  DescripcionAccionSubmodulo,
+} from './iniciativa.models';
 
 /**
  * Roles que crean y formulan iniciativas: la dependencia y también Planeación.
@@ -17,14 +23,63 @@ export const ESTADO_SUBMODULO_SIN_FORMULAR = 'SF_SUB';
 export const ESTADO_SUBMODULO_CON_OBSERVACIONES = 'CO_SUB';
 
 /**
- * Listas del nivel superior (clave) que cada submódulo muestra como tabla jerárquica:
- * cada fila con su número y, debajo, con sangría y número 1.1, las de su lista interna.
- * Las demás listas se muestran como filas en recuadros.
+ * Listas del nivel superior (clave) con lista interna que cada submódulo muestra como tabla
+ * jerárquica: cada fila con su número y, debajo, con sangría y número 1.1, las de su lista
+ * interna. Las listas sin lista interna van siempre en tabla, sin necesidad de nombrarlas aquí
+ * (seMuestraEnTabla); las que tienen lista interna y no están aquí van en recuadros.
  */
 export const LISTAS_EN_TABLA: { [submodulo: string]: string[] } = {
   problematica: ['causas_directas', 'efectos_directos'],
-  objetivos: ['objetivos_especificos', 'resultados_esperados'],
 };
+
+/**
+ * Grupos (clave) que cada submódulo muestra como casillas, como la "X" del Excel: cada
+ * campo del grupo es un select Sí/No y el usuario marca solo los que aplican. Marcar
+ * una casilla guarda VALOR_CASILLA_MARCADA y dejarla sin marcar, VALOR_CASILLA_SIN_MARCAR.
+ * Si el grupo tiene otro tipo de campos, se muestra como un grupo normal.
+ */
+export const GRUPOS_EN_CASILLAS: { [submodulo: string]: string[] } = {
+  localizacion: ['factores'],
+};
+
+/**
+ * Secciones (clave de un campo del nivel superior) que cada submódulo muestra una al lado de la
+ * otra, a media pantalla, en lugar de una debajo de la otra. En pantallas angostas vuelven a
+ * quedar una debajo de la otra.
+ */
+export const SECCIONES_LADO_A_LADO: { [submodulo: string]: string[] } = {
+  localizacion: ['sedes', 'factores'],
+};
+
+/**
+ * Grupos (clave) que cada submódulo muestra con sus campos en columnas, como una fila de
+ * formulario, en lugar de uno debajo del otro (p. ej. la única ubicación de Localización).
+ */
+export const GRUPOS_EN_COLUMNAS: { [submodulo: string]: string[] } = {
+  localizacion: ['ubicacion'],
+};
+
+/**
+ * Columnas de la tabla resumen de las listas que no caben en una tabla (grupo repetible): cada
+ * fila se resume en la tabla y se diligencia debajo de ella. Por submódulo y clave de la lista;
+ * la que no está aquí muestra su primer campo de texto, número u opciones. Un espejo muestra
+ * además su elemento de origen.
+ */
+export const COLUMNAS_RESUMEN: { [submodulo: string]: { [lista: string]: ColumnaResumen[] } } = {
+  necesidades: {
+    bienes_servicios: [{ clave: 'descripcion_bien' }, { clave: 'unidad_medida' }, { clave: 'analisis_anual', nombre: 'Años' }],
+  },
+  cadena_valor: {
+    productos_por_objetivo: [{ clave: 'productos', nombre: 'Productos' }],
+    productos: [{ clave: 'producto' }, { clave: 'meta' }, { clave: 'actividades', nombre: 'Actividades' }],
+  },
+  ingresos_beneficios: {
+    conceptos: [{ clave: 'tipo' }, { clave: 'descripcion' }, { clave: 'valores_anuales', nombre: 'Años' }],
+  },
+};
+
+export const VALOR_CASILLA_MARCADA = 'Sí';
+export const VALOR_CASILLA_SIN_MARCAR = 'No';
 
 /** Largo máximo de una observación (igual que en el mid y el crud). */
 export const MAXIMO_TEXTO_OBSERVACION = 4000;

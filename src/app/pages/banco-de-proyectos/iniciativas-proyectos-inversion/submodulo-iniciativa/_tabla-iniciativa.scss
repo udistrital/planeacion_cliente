@@ -1,0 +1,141 @@
+/*
+ * Estilos comunes de las tablas del formulario (tabla jerárquica).
+ * Cada componente lo importa en su .scss; la celda editable tiene los suyos (celda-iniciativa).
+ */
+
+:host {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.iniciativa-ayuda {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Igual que el encabezado de las listas en recuadros (grupo-repetible) */
+.iniciativa-repetible__encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+
+  h4 {
+    margin: 0;
+    color: var(--primary);
+  }
+}
+
+.tabla-caja {
+  overflow-x: auto;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* Columnas del mismo ancho sin importar el contenido; el ancho mínimo lo calcula el componente */
+.tabla-caja > table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  border-bottom: 3px solid var(--primary);
+
+  /* styles.scss fija con !important el padding de todos los td. */
+  th,
+  td {
+    padding: 6px 10px !important;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+    color: #fff;
+    font-weight: 500;
+    background-color: var(--primary);
+  }
+
+  td {
+    --fondo-celda: #fff;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    background-color: var(--fondo-celda);
+  }
+
+  /* Columnas de casillas y de números (p. ej. "¿Pasa al módulo de preparación?", Demanda, Déficit):
+     título y valor centrados, para que el valor quede bajo su título aunque la columna sea ancha */
+  .col-acciones,
+  .col-casilla,
+  .col-numerica {
+    text-align: center;
+  }
+
+  td.acciones {
+    padding: 2px 4px !important;
+    white-space: nowrap;
+    text-align: right;
+  }
+}
+
+.col-numero {
+  width: 76px;
+}
+
+.col-numerica {
+  width: 110px;
+}
+.col-acciones {
+  width: 96px;
+}
+
+.col-acciones--una {
+  width: 56px;
+}
+
+/* Encabezado con la descripción del campo al pasar el mouse */
+.con-ayuda {
+  cursor: help;
+  text-decoration: underline dotted rgba(255, 255, 255, 0.6);
+  text-underline-offset: 3px;
+}
+
+.numero {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.chip {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 7px;
+  border: 1px solid #c39a9a;
+  border-radius: 4px;
+  background-color: #f3ebeb;
+  color: var(--primary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fondo de error opaco para que empate con el degradado de la celda */
+.tabla-caja > table td.con-error {
+  --fondo-celda: #faeeee;
+}
+
+.iniciativa-error {
+  font-size: 12px;
+  color: var(--primary);
+}
+
+.vacio {
+  color: rgba(0, 0, 0, 0.6);
+  font-style: italic;
+}
+
+.agregar {
+  justify-self: start;
+}

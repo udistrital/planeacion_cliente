@@ -92,10 +92,15 @@ import { VistaIniciativaComponent } from './banco-de-proyectos/iniciativas-proye
 import { SubmoduloIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/submodulo-iniciativa.component';
 import { ObservacionesSubmoduloIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/observaciones-submodulo-iniciativa/observaciones-submodulo-iniciativa.component';
 import { CamposIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campos-iniciativa/campos-iniciativa.component';
+import { MenuSubmodulosIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/menu-submodulos-iniciativa/menu-submodulos-iniciativa.component';
 import { GrupoRepetibleIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/grupo-repetible-iniciativa/grupo-repetible-iniciativa.component';
 import { CampoCatalogoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-catalogo-iniciativa/campo-catalogo-iniciativa.component';
 import { CampoMatrizIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-matriz-iniciativa/campo-matriz-iniciativa.component';
 import { TablaJerarquicaIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/tabla-jerarquica-iniciativa/tabla-jerarquica-iniciativa.component';
+import { CeldaIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/celda-iniciativa/celda-iniciativa.component';
+import { CasillasCatalogoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/casillas-catalogo-iniciativa/casillas-catalogo-iniciativa.component';
+import { CampoDocumentoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-documento-iniciativa/campo-documento-iniciativa.component';
+import { TablaDocumentosIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/tabla-documentos-iniciativa/tabla-documentos-iniciativa.component';
 import { ProyectosOtrosFondosComponent } from './banco-de-proyectos/proyectos-otros-fondos/proyectos-otros-fondos.component';
 import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/reporte-funcionamiento/reporte-funcionamiento.component';
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
@@ -250,9 +255,14 @@ const MY_FORMATS = {
     ObservacionesSubmoduloIniciativaComponent,
     CamposIniciativaComponent,
     GrupoRepetibleIniciativaComponent,
+    MenuSubmodulosIniciativaComponent,
     CampoCatalogoIniciativaComponent,
     CampoMatrizIniciativaComponent,
     TablaJerarquicaIniciativaComponent,
+    CeldaIniciativaComponent,
+    CasillasCatalogoIniciativaComponent,
+    CampoDocumentoIniciativaComponent,
+    TablaDocumentosIniciativaComponent,
     ProyectosOtrosFondosComponent,
     ReporteFuncionamientoComponent,
     ReporteInversionComponent,
