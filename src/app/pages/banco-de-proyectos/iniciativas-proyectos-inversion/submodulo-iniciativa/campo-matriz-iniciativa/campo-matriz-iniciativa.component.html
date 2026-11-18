@@ -5,20 +5,34 @@
     <table>
       <thead>
         <tr>
-          <th rowspan="2" class="iniciativa-matriz__fila">Grupo</th>
-          <th *ngFor="let grupo of grupos" [attr.colspan]="grupo.columnas.length">{{ grupo.nombre }}</th>
+          <th rowspan="2" class="iniciativa-matriz__fila titulo-matriz__fila">Grupo</th>
+          <th *ngFor="let grupo of grupos; let i = index"
+              [attr.colspan]="grupo.columnas.length"
+              class="iniciativa-matriz__grupo"
+              [ngClass]="'iniciativa-matriz__grupo--' + (i % 4)">{{ grupo.nombre }}</th>
           <th rowspan="2" *ngIf="conTotalesPorFila">Total</th>
         </tr>
         <tr>
-          <th *ngFor="let columna of columnas" class="iniciativa-matriz__columna">{{ columna.nombre }}</th>
+          <th *ngFor="let columna of columnas" class="iniciativa-matriz__columna">
+            <div class="iniciativa-matriz__texto">{{ columna.nombre }}</div>
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let fila of filas">
           <th scope="row" class="iniciativa-matriz__fila">{{ fila.nombre }}</th>
-          <td *ngFor="let columna of columnas" [class.iniciativa-matriz__con-error]="tieneError(fila.clave, columna.clave)">
-            <input type="number" min="0" step="1" [(ngModel)]="matriz[fila.clave][columna.clave]"
-              [disabled]="contexto.soloLectura" [attr.aria-label]="fila.nombre + ', ' + columna.nombre">
+          <td *ngFor="let columna of columnas"
+              class="iniciativa-matriz__celda"
+              [class.iniciativa-matriz__con-error]="tieneError(fila.clave, columna.clave)">
+            <div class="iniciativa-matriz__campo">
+              <input type="number" min="0" step="1" inputmode="numeric"
+                [(ngModel)]="matriz[fila.clave][columna.clave]"
+                (keydown)="bloquearTecla($event)"
+                (paste)="validarPegado($event)"
+                (ngModelChange)="normalizar(fila.clave, columna.clave)"
+                [disabled]="contexto.soloLectura"
+                [attr.aria-label]="fila.nombre + ', ' + columna.nombre">
+            </div>
           </td>
           <td *ngIf="conTotalesPorFila" class="iniciativa-matriz__total">{{ totalDeFila(fila.clave) | number }}</td>
         </tr>

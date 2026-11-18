@@ -52,4 +52,25 @@ export class CampoMatrizIniciativaComponent implements OnChanges {
   tieneError(fila: string, columna: string): boolean {
     return !!this.contexto.errores[rutaCampo(rutaCampo(this.ruta, fila), columna)];
   }
+  bloquearTecla(evento: KeyboardEvent): void {
+  // Caracteres que un input number acepta pero no queremos
+  if (['-', '+', 'e', 'E', '.', ','].includes(evento.key)) {
+    evento.preventDefault();
+  }
+}
+
+validarPegado(evento: ClipboardEvent): void {
+  const texto = evento.clipboardData?.getData('text') ?? '';
+  if (!/^\d+$/.test(texto)) {
+    evento.preventDefault();
+  }
+}
+
+normalizar(filaClave: string, columnaClave: string): void {
+  const valor = this.matriz[filaClave][columnaClave];
+  // Red de seguridad: cubre arrastrar y soltar, autocompletado, etc.
+  if (valor !== null && valor !== undefined && Number(valor) < 0) {
+    this.matriz[filaClave][columnaClave] = Math.abs(Number(valor));
+  }
+}
 }
