@@ -1,16 +1,29 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ScrollDispatcher } from '@angular/cdk/scrolling';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { IniciativaService } from '../../iniciativa.service';
 import { ItemCatalogo, NodoDefinicion } from '../../utils';
-import { AparienciaCampo } from '../../utils/formulario.utils';
+import { seVe } from '../../utils/scroll.utils';
 
 /**
- * Opciones que muestra la lista. Alcanza para casi todos los catálogos completos (sectores,
- * procesos, municipios de un departamento…); solo en los más grandes (productos, bienes y
- * servicios) hay que escribir para encontrar el resto.
+ * Máximo de opciones en la lista. Cubre casi todos los catálogos completos (sectores, procesos,
+ * municipios de un departamento…); en los más grandes (productos, bienes y servicios) hay que
+ * escribir para filtrar.
  */
 export const MAXIMO_SUGERENCIAS = 150;
 
@@ -39,11 +52,15 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
   @Input() deshabilitado = false;
   /** Falso cuando el campo va solo en una sección cuyo título ya lo nombra. */
   @Input() conEtiqueta = true;
-  @Input() apariencia: AparienciaCampo = 'outline';
   /** Dentro de una celda de tabla: un renglón sin marco ni ayudas, que muestra solo el nombre. */
   @Input() enCelda = false;
   /** Nombre accesible de la celda (p. ej. "Fase 2"). */
   @Input() etiquetaCelda = '';
+  /** El disparador de la lista que está en pantalla (el del campo o el de la celda). */
+  @ViewChild(MatAutocompleteTrigger) private disparador?: MatAutocompleteTrigger;
+
+  /** Ancho (px) de la lista dentro de una celda: más que la columna, para que se lean las opciones largas. */
+  readonly anchoListaEnCelda = 420;
 
   readonly control = new FormControl('');
   sugerencias$: Observable<Sugerencias>;
@@ -53,9 +70,21 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
   private readonly refrescar$ = new BehaviorSubject<void>(undefined);
   private readonly destruir$ = new Subject<void>();
 
-  constructor(private servicio: IniciativaService) {}
+  constructor(
+    private servicio: IniciativaService,
+    private elemento: ElementRef<HTMLElement>,
+    private despachadorScroll: ScrollDispatcher,
+    private zona: NgZone,
+  ) {}
 
   ngOnInit(): void {
+    // La lista sigue al campo porque la pantalla registra el contenedor con scroll
+    // (registrarContenedorConScroll); si el campo deja de verse (p. ej. bajo la barra de OAS),
+    // se cierra para no quedar flotando. El aviso llega fuera de la zona de Angular.
+    this.despachadorScroll
+      .ancestorScrolled(this.elemento, 20)
+      .pipe(takeUntil(this.destruir$))
+      .subscribe(() => this.cerrarSiNoSeVe());
     this.sugerencias$ = combineLatest([this.control.valueChanges.pipe(startWith('')), this.refrescar$]).pipe(
       map(([texto]) => this.filtrar(typeof texto === 'string' ? texto : '')),
     );
@@ -104,6 +133,14 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
   abrir(disparador: MatAutocompleteTrigger): void {
     if (!this.deshabilitado && !disparador.panelOpen) {
       disparador.openPanel();
+    }
+  }
+
+  /** Cierra la lista abierta si el campo ya no se ve en pantalla. */
+  cerrarSiNoSeVe(): void {
+    const disparador = this.disparador;
+    if (disparador && disparador.panelOpen && !seVe(this.elemento.nativeElement)) {
+      this.zona.run(() => disparador.closePanel());
     }
   }
 

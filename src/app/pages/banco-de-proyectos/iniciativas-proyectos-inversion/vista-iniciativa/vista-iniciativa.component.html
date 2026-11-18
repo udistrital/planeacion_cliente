@@ -17,7 +17,6 @@
 
     <div class="mat-elevation-z8 tabla-contenedor">
       <h3 class="componentes-titulo">Componentes para la formulación de la iniciativa</h3>
-      <!-- Una tabla por módulo de la plantilla: Identificación, Preparación y Anexos. -->
       <div class="table-responsive">
         <table *ngFor="let modulo of resumen.modulos; trackBy: porClave" class="componentes" [attr.aria-label]="modulo.nombre">
           <colgroup>

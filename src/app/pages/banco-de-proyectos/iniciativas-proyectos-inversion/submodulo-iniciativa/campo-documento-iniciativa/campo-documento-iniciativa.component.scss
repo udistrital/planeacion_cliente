@@ -2,7 +2,7 @@
   display: block;
 }
 
-/* Archivo a la izquierda y acciones a la derecha, a la altura de los botones de ícono */
+/* 40px: el alto de un botón de ícono */
 .documento {
   display: flex;
   align-items: center;
@@ -37,7 +37,7 @@
   font-size: 12px;
 }
 
-/* Mismo gris que el texto de una celda vacía (celda-iniciativa) */
+/* Mismo gris que el placeholder de celda-iniciativa */
 .documento__sin-archivo {
   color: #8a9097;
 }

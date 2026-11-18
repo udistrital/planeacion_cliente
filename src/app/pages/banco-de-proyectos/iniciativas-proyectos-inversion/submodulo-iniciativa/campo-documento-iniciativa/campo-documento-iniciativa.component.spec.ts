@@ -10,7 +10,7 @@ import { ContextoFormulario } from '../../utils/formulario.utils';
 import { CampoDocumentoIniciativaComponent } from './campo-documento-iniciativa.component';
 
 const ARCHIVO: NodoDefinicion = {
-  id: 'archivo', nombre: 'Archivo', descripcion: '', bandera_tabla: false, hijos: [],
+  id: 'archivo', nombre: 'Archivo', descripcion: '', hijos: [],
   dato: { clave: 'archivo', type: 'documento', required: true, formatos: ['pdf', 'doc', 'docx'], tamano_maximo_mb: 1 },
 };
 

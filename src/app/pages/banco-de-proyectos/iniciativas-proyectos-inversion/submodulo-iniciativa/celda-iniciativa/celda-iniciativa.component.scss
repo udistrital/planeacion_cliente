@@ -47,12 +47,11 @@
   font-weight: 500;
 }
 
-/* Centrado, como el título de su columna (col-numerica en _tabla-iniciativa.scss) */
+/* Igual que .col-numerica en _tabla-iniciativa.scss */
 .celda--numero {
   text-align: center;
 }
 
-/* Casilla centrada en su columna, marcada en el color del sistema */
 .celda--casilla {
   text-align: center;
 
@@ -61,30 +60,12 @@
   }
 }
 
-/* Calculado: solo lectura; "Se calcula" en gris mientras falte un valor */
 .celda--calculada {
   font-weight: 500;
 
   &.vacia {
     color: #8a9097;
     font-weight: normal;
-  }
-}
-
-/* Lista de opciones (mat-select): usa la línea de foco de .celda */
-.celda--opciones {
-  ::ng-deep .mat-select-placeholder {
-    color: #8a9097;
-  }
-
-  &.mat-select-disabled {
-    ::ng-deep .mat-select-value {
-      color: #333;
-    }
-
-    ::ng-deep .mat-select-arrow {
-      visibility: hidden;
-    }
   }
 }
 

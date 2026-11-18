@@ -4,7 +4,7 @@
   <span class="iniciativa-ayuda" *ngIf="minimo > 1">Mínimo {{ minimo }}.</span>
 </header>
 
-<!-- Tabla resumen: una fila por elemento; ✎ (o clic en la fila) abre sus campos debajo -->
+<!-- Tabla resumen -->
 <div class="tabla-caja tabla-resumen">
   <table>
     <thead>
@@ -15,7 +15,7 @@
         <th scope="col" class="col-datos">Datos</th>
         <th scope="col" class="col-acciones" [class.col-acciones--una]="!puedeModificar">
           <button *ngIf="puedeAgregar; else tituloAcciones" mat-icon-button type="button" class="agregar-encabezado" (click)="agregar()"
-            matTooltip="Agregar {{ etiqueta | lowercase }}" [attr.aria-label]="'Agregar ' + (etiqueta | lowercase)">
+            matTooltip="Agregar {{ etiquetaAccion | lowercase }}" [attr.aria-label]="'Agregar ' + (etiquetaAccion | lowercase)">
             <mat-icon>add_circle_outline</mat-icon>
           </button>
           <ng-template #tituloAcciones>Acciones</ng-template>
@@ -43,11 +43,11 @@
         <td class="acciones">
           <button mat-icon-button color="primary" type="button" (click)="$event.stopPropagation(); seleccionar(fila)"
             [matTooltip]="contexto.soloLectura ? 'Consultar' : 'Editar'"
-            [attr.aria-label]="(contexto.soloLectura ? 'Consultar ' : 'Editar ') + (etiqueta | lowercase) + ' ' + (posicion + 1)">
+            [attr.aria-label]="(contexto.soloLectura ? 'Consultar ' : 'Editar ') + (etiquetaAccion | lowercase) + ' ' + (posicion + 1)">
             <mat-icon>{{ contexto.soloLectura ? 'search' : 'edit' }}</mat-icon>
           </button>
           <button *ngIf="puedeModificar" mat-icon-button color="primary" type="button" (click)="$event.stopPropagation(); eliminar(posicion)"
-            matTooltip="Eliminar {{ etiqueta | lowercase }}" [attr.aria-label]="'Eliminar ' + (etiqueta | lowercase) + ' ' + (posicion + 1)">
+            matTooltip="Eliminar {{ etiquetaAccion | lowercase }}" [attr.aria-label]="'Eliminar ' + (etiquetaAccion | lowercase) + ' ' + (posicion + 1)">
             <mat-icon>delete</mat-icon>
           </button>
         </td>

@@ -1,34 +1,20 @@
-<!--
-  La iniciativa arriba, grande; debajo el selector de submódulos, fijo arriba al bajar, y la tarjeta solo con
-  el submódulo. El título y el selector se quedan mientras carga otro submódulo; la tarjeta espera a tener sus datos.
--->
 <div class="pagina" *ngIf="resumen">
   <header class="pagina__iniciativa">
-    <span class="pagina__rotulo">Iniciativa</span>
-    <h1 class="pagina__titulo">{{ resumen.nombre }}</h1>
+    <div class="pagina__textos">
+      <span class="pagina__rotulo">Iniciativa</span>
+      <h1 class="pagina__titulo">{{ resumen.nombre }}</h1>
+    </div>
+    <app-menu-submodulos-iniciativa class="pagina__selector" [modulos]="resumen.modulos" [actual]="claveActual"
+      (elegir)="irA($event)"></app-menu-submodulos-iniciativa>
   </header>
 
   <div class="cuerpo">
     <div class="cuerpo__contenido">
-      <app-menu-submodulos-iniciativa class="selector-fijo" [modulos]="resumen.modulos" [actual]="claveActual"
-        (elegir)="irA($event)"></app-menu-submodulos-iniciativa>
-
-      <!-- con-secciones da el estilo de SISGPLAN aquí y en los componentes del formulario (:host-context) -->
+      <!-- Los componentes del formulario leen con-secciones con :host-context -->
       <mat-card class="card-oas con-secciones" *ngIf="!cargando && nodo && submodulo">
-        <!-- El submódulo con su descripción a la izquierda y el estado a la derecha -->
         <header class="encabezado">
-          <div class="encabezado__textos">
-            <h2 class="encabezado__submodulo">{{ nodo.nombre }}</h2>
-            <p class="encabezado__descripcion" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</p>
-          </div>
-          <!-- Mismo estilo que el "Estado general" de la vista de la iniciativa -->
-          <div class="estado-submodulo">
-            <span class="estado-submodulo__titulo">Estado</span>
-            <span class="estado-submodulo__valor">
-              <span class="iniciativa-estado__punto" [style.background-color]="submodulo.estado.color" aria-hidden="true"></span>
-              {{ submodulo.estado.nombre }}
-            </span>
-          </div>
+          <h2 class="encabezado__submodulo">{{ nodo.nombre }}</h2>
+          <p class="encabezado__descripcion" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</p>
         </header>
 
         <mat-card-content class="iniciativa-contenido">
@@ -52,7 +38,6 @@
           </p>
 
           <div class="iniciativa-formulario">
-            <!-- Submódulo de solo documentos (Anexos): una sola tabla; los demás, el formulario por secciones -->
             <fieldset *ngIf="documentos; else formulario" class="container-border">
               <legend class="titulo">Documentos</legend>
               <app-tabla-documentos-iniciativa [estructura]="documentos" [datos]="datos" [contexto]="contexto"></app-tabla-documentos-iniciativa>
@@ -66,11 +51,11 @@
             <legend class="titulo">Revisión del submódulo</legend>
             <p class="iniciativa-ayuda">
               Si hay algo por corregir, publíquelo en Observaciones: el submódulo quedará «Con observaciones».
-              Si está bien, márquelo sin observaciones.
+              Si está bien, apruébelo: quedará «Aprobado».
             </p>
             <div class="iniciativa-acciones">
               <button mat-raised-button color="accent" [disabled]="guardando" (click)="abrirObservaciones()">Escribir observación</button>
-              <button mat-raised-button color="primary" [disabled]="guardando" (click)="marcarSinObservaciones()">Sin observaciones</button>
+              <button mat-raised-button color="primary" [disabled]="guardando" (click)="marcarSinObservaciones()">Aprobar</button>
             </div>
           </fieldset>
         </mat-card-content>

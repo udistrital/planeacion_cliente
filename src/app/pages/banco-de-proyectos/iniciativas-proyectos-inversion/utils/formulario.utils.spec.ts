@@ -6,15 +6,20 @@ import {
   ContextoFormulario,
   filaCompleta,
   textoResumen,
-  esGrupoDeCasillas,
+  esEspejoTraido,
+  esExigido,
   esVisible,
+  estructuraDeDesglose,
   estructuraDeDocumentos,
+  estructuraDeSubfilas,
   estructuraDeTabla,
   filasDeRuta,
   formatearNumero,
   indexarPorRuta,
   marcarCasilla,
   nuevoIdFila,
+  numeroDeFila,
+  numerosDeLista,
   opcionesDeReferencia,
   prefijoDeClave,
   prepararEstructura,
@@ -24,13 +29,16 @@ import {
   seMuestraEnTabla,
   submodulosDeDefinicion,
   sincronizarEspejo,
+  textoDeTraido,
+  textoTraido,
   totalColumna,
   totalFila,
-  valorDeRuta,
+  valorTraido,
+  valorTraidoEnEspejo,
 } from './formulario.utils';
 
 function nodo(clave: string, tipo?: any, extra: any = {}, hijos: NodoDefinicion[] = []): NodoDefinicion {
-  return { id: clave, nombre: clave, descripcion: '', bandera_tabla: false, dato: { clave, type: tipo, required: false, ...extra }, hijos };
+  return { id: clave, nombre: clave, descripcion: '', dato: { clave, type: tipo, required: false, ...extra }, hijos };
 }
 
 function contexto(parcial: Partial<ContextoFormulario> = {}): ContextoFormulario {
@@ -40,9 +48,7 @@ function contexto(parcial: Partial<ContextoFormulario> = {}): ContextoFormulario
     relacionadas: {},
     soloLectura: false,
     errores: {},
-    apariencia: 'outline',
     listasEnTabla: [],
-    gruposEnCasillas: [],
     nombreEnCatalogo: (catalogo, codigo) => (catalogo === 'procesos' && codigo === 'Implementación' ? 'Implementación' : codigo),
     ...parcial,
   };
@@ -136,26 +142,18 @@ describe('formulario.utils', () => {
     expect(filasDeRuta('cadena_valor.productos_por_objetivo.productos.actividades', ctx).map((f) => f.id)).toEqual(['a-1', 'a-2', 'a-3']);
   });
 
-  it('dibuja como casillas solo los grupos indicados cuyos campos son todos Sí/No', () => {
-    const siNo = { options: [{ valor: 'Sí' }, { valor: 'No' }] };
-    const factores = nodo('factores', undefined, {}, [nodo('orden_publico', 'select', siNo), nodo('topografia', 'select', siNo)]);
-    const mixto = nodo('factores', undefined, {}, [nodo('orden_publico', 'select', siNo), nodo('detalle', 'input')]);
-    const ctx = contexto({ gruposEnCasillas: ['factores'] });
+  it('arma un espejo de catálogo con una fila por elemento que manda el mid en relacionadas.catalogo', () => {
+    const ctx = contexto({
+      relacionadas: { catalogo: { resultados_esperados: [{ id: 'est', nombre: 'Estudiantes' }, { id: 'doc', nombre: 'Docentes' }] } },
+    });
+    const origen = filasDeRuta('catalogo.resultados_esperados', ctx);
+    const actuales = [{ id: 're-1', origen: 'doc', cantidad: 12 }];
 
-    expect(esGrupoDeCasillas(factores, ctx)).toBe(true);
-    expect(esGrupoDeCasillas(factores, contexto())).toBe(false);
-    expect(esGrupoDeCasillas(mixto, ctx)).toBe(false);
-  });
+    const resultado = sincronizarEspejo(actuales, origen, 're');
 
-  it('deja en «No» las casillas sin marcar y conserva las marcadas', () => {
-    const siNo = { options: [{ valor: 'Sí' }, { valor: 'No' }] };
-    const definicion = [nodo('factores', undefined, {}, [nodo('orden_publico', 'select', siNo), nodo('topografia', 'select', siNo)])];
-
-    const datos = prepararEstructura(definicion, { factores: { orden_publico: 'Sí' } }, contexto({ gruposEnCasillas: ['factores'] }));
-    const sinCasillas = prepararEstructura(definicion, {}, contexto());
-
-    expect(datos.factores).toEqual({ orden_publico: 'Sí', topografia: 'No' });
-    expect(sinCasillas.factores).toEqual({});
+    expect(resultado.map((fila) => fila.origen)).toEqual(['est', 'doc']);
+    expect(resultado[1]).toBe(actuales[0]);
+    expect(filasDeRuta('catalogo.sedes', ctx)).toEqual([]);
   });
 
   it('resuelve las opciones de una referencia "origen.*" con la fila de origen', () => {
@@ -180,15 +178,28 @@ describe('formulario.utils', () => {
     ] } };
 
     expect(opcionesDeReferencia(referencia.dato, null, contexto({ relacionadas })))
-      .toEqual([{ id: 'as-2', etiqueta: 'Contratar en la nube' }]);
+      .toEqual([{ id: 'as-2', etiqueta: 'Contratar en la nube', detalle: '' }]);
     expect(opcionesDeReferencia(referencia.dato, null, contexto())).toEqual([]);
+  });
+
+  it('con mostrar_detalle, la opción trae también ese texto (nombre y descripción de la alternativa)', () => {
+    const referencia = nodo('alternativa_seleccionada', 'referencia', {
+      opciones_desde: 'alternativas.alternativas_solucion', mostrar: 'nombre_alternativa', mostrar_detalle: 'descripcion_alternativa',
+      marcada_en: 'pasa_preparacion',
+    });
+    const relacionadas = { alternativas: { alternativas_solucion: [
+      { id: 'as-1', nombre_alternativa: 'Nube', descripcion_alternativa: '  Migrar los servicios a la nube. ', pasa_preparacion: true },
+    ] } };
+
+    expect(opcionesDeReferencia(referencia.dato, null, contexto({ relacionadas })))
+      .toEqual([{ id: 'as-1', etiqueta: 'Nube', detalle: 'Migrar los servicios a la nube.' }]);
   });
 
   it('calcula la vista previa del nombre en mayúsculas', () => {
     const hermanos = [
       nodo('proceso', 'catalogo', { catalogo: 'procesos' }),
       nodo('objeto', 'input'),
-      nodo('localizacion', 'select'),
+      nodo('localizacion', 'catalogo', { catalogo: 'localizaciones_proyecto' }),
       nodo('nombre_proyecto', 'calculado', { plantilla: '{proceso} {objeto} {localizacion}', transformar: 'mayusculas' }),
     ];
     const valores = { proceso: 'Implementación', objeto: ' de la política ', localizacion: 'Bogotá D.C.' };
@@ -232,7 +243,6 @@ describe('formulario.utils', () => {
 
   it('toma los submódulos de todos los módulos, en orden', () => {
     const definicion = {
-      plantilla_id: 'p', nombre: 'Iniciativa', tipo_plan_id: 't',
       modulos: [
         nodo('identificacion', undefined, { modulo: true }, [nodo('nombre'), nodo('problematica')]),
         nodo('preparacion', undefined, { modulo: true }, [nodo('necesidades')]),
@@ -262,9 +272,9 @@ describe('formulario.utils', () => {
     expect(estructura.camposInternos.map((c) => c.dato.clave)).toEqual(['descripcion', 'linea_base']);
   });
 
-  it('arma tabla con campos de texto, número, opciones y catálogo, y con espejos sin lista interna', () => {
+  it('arma tabla con campos de texto, número y catálogo, y con espejos sin lista interna', () => {
     const actores = nodo('actores', 'repetible', {}, [
-      nodo('actor', 'select'), nodo('entidad', 'input'), nodo('valor', 'numeric'), nodo('fase', 'catalogo', { catalogo: 'niveles_riesgo' }),
+      nodo('actor', 'catalogo', { catalogo: 'niveles_actor' }), nodo('entidad', 'input'), nodo('valor', 'numeric'), nodo('fase', 'catalogo', { catalogo: 'niveles_riesgo' }),
     ]);
     const espejo = nodo('actividades', 'repetible', { espejo_de: 'objetivos.objetivos_especificos' }, [nodo('descripcion', 'input')]);
 
@@ -294,6 +304,34 @@ describe('formulario.utils', () => {
     expect(esVisible(otra, { seleccionadas: 'Otra' })).toBe(true);
     expect(esVisible(otra, {})).toBe(false);
     expect(esVisible(nodo('sin_condicion', 'input'), {})).toBe(true);
+  });
+
+  it('solo_si con distinto: el campo aplica si el hermano no vale el valor', () => {
+    const discriminado = nodo('discriminado', 'input', { solo_si: { campo: 'origen', valor: 'Grupos Étnicos', distinto: true } });
+
+    expect(esVisible(discriminado, { origen: 'Juventud' })).toBe(true);
+    expect(esVisible(discriminado, { origen: 'Grupos Étnicos' })).toBe(false);
+  });
+
+  it('reconoce un espejo con desglose: campos en celdas y una lista espejo que aplica solo a algunas filas', () => {
+    const noEtnicos = { solo_si: { campo: 'origen', valor: 'etn', distinto: true } };
+    const comunidades = nodo('grupos_etnicos', 'repetible', {
+      espejo_de: 'catalogo.grupos_etnicos_trazador', solo_si: { campo: 'origen', valor: 'etn' },
+    }, [nodo('numero_beneficiarios', 'numeric')]);
+    const campos = [
+      nodo('descripcion', 'input'),
+      nodo('discriminado', 'input', noEtnicos),
+      nodo('numero_beneficiarios', 'numeric', noEtnicos),
+    ];
+    const trazadores = nodo('trazadores', 'repetible', { espejo_de: 'catalogo.trazadores_presupuestales' }, [...campos, comunidades]);
+
+    const estructura = estructuraDeDesglose(trazadores);
+
+    expect(estructura.campos.map((campo) => campo.dato.clave)).toEqual(['descripcion', 'discriminado', 'numero_beneficiarios']);
+    expect(estructura.desglose.dato.clave).toBe('grupos_etnicos');
+    const sinCondicion = nodo('grupos_etnicos', 'repetible', { espejo_de: 'catalogo.grupos_etnicos_trazador' }, comunidades.hijos);
+    expect(estructuraDeDesglose(nodo('trazadores', 'repetible', trazadores.dato, [...campos, sinCondicion]))).toBeNull();
+    expect(estructuraDeDesglose(nodo('trazadores', 'repetible', {}, trazadores.hijos))).toBeNull();
   });
 
   it('no arma tabla con catálogos de varias opciones (casillas) ni con campos que dependen de otro (solo_si)', () => {
@@ -358,7 +396,7 @@ describe('formulario.utils', () => {
   });
 
   it('muestra en tabla las listas sin lista interna y las jerárquicas solo si el submódulo las pide arriba', () => {
-    const plana = nodo('actores', 'repetible', {}, [nodo('actor', 'select'), nodo('entidad', 'input')]);
+    const plana = nodo('actores', 'repetible', {}, [nodo('actor', 'catalogo', { catalogo: 'niveles_actor' }), nodo('entidad', 'input')]);
     const jerarquica = nodo('efectos_directos', 'repetible', {}, [
       nodo('descripcion', 'input'),
       nodo('efectos_indirectos', 'repetible', {}, [nodo('descripcion', 'input')]),
@@ -372,16 +410,121 @@ describe('formulario.utils', () => {
     expect(seMuestraEnTabla(jerarquica, conLista, false)).toBe(false);
   });
 
-  it('lee un valor de otro submódulo o del actual', () => {
+  it('lee un valor de otro submódulo, del actual o de la fila de origen', () => {
     const ctx = contexto({
       claveSubmodulo: 'cadena_valor',
       datosSubmodulo: { justificacion: 'Porque sí' },
       relacionadas: { objetivos: { objetivo_central: 'Fortalecer los componentes tecnológicos' } },
     });
+    const origen = { id: 'a-1', periodo_0: 500000000 };
 
-    expect(valorDeRuta('objetivos.objetivo_central', ctx)).toBe('Fortalecer los componentes tecnológicos');
-    expect(valorDeRuta('cadena_valor.justificacion', ctx)).toBe('Porque sí');
-    expect(valorDeRuta('plurianual.total', ctx)).toBeUndefined();
+    expect(valorTraido('objetivos.objetivo_central', null, ctx)).toBe('Fortalecer los componentes tecnológicos');
+    expect(valorTraido('cadena_valor.justificacion', null, ctx)).toBe('Porque sí');
+    expect(valorTraido('riesgos.total', null, ctx)).toBeUndefined();
+    expect(valorTraido('origen.periodo_0', origen, ctx)).toBe(500000000);
+    expect(valorTraido('origen.periodo_0', null, ctx)).toBeUndefined();
+    expect(textoTraido({ clave: 'anio_0', required: false, desde: 'origen.periodo_0' }, origen, ctx)).toBe('500.000.000');
+    expect(textoTraido({ clave: 'anio_1', required: false, desde: 'origen.periodo_1' }, origen, ctx)).toBe('');
+  });
+
+  describe('Cronograma: actividades de la Cadena de valor', () => {
+    const cadena = {
+      productos_por_objetivo: [
+        { id: 'ppo-1', productos: [
+          { id: 'p-1', actividades: [{ id: 'a-1' }, { id: 'a-2' }] },
+          { id: 'p-2', actividades: [{ id: 'a-3' }] },
+        ] },
+        { id: 'ppo-2', productos: [{ id: 'p-3', actividades: [{ id: 'a-4' }] }] },
+      ],
+    };
+
+    it('numera las actividades n.m por objetivo específico, también a través de los productos', () => {
+      const actividades = nodo('actividades', 'repetible', { numerar_por: 'productos_por_objetivo' }, [nodo('actividad', 'input')]);
+      const ctx = contexto({ claveSubmodulo: 'cadena_valor', datosSubmodulo: cadena });
+
+      const numeros = numerosDeLista(actividades, 'productos_por_objetivo[ppo-1].productos[p-2].actividades', ctx);
+
+      expect(Array.from(numeros.entries())).toEqual([['a-1', '1.1'], ['a-2', '1.2'], ['a-3', '1.3'], ['a-4', '2.1']]);
+      expect(numeroDeFila(actividades, { id: 'a-3' }, 0, numeros)).toBe('1.3');
+      expect(numeroDeFila(actividades, { id: 'nueva' }, 4, numeros)).toBe('5');
+    });
+
+    it('el espejo muestra el número de su actividad de origen; sin numerar_por, la posición', () => {
+      const espejo = nodo('actividades', 'repetible', {
+        espejo_de: 'cadena_valor.productos_por_objetivo.productos.actividades',
+        numerar_por: 'productos_por_objetivo',
+      }, [nodo('fisica', undefined, {}, [nodo('anio_0', 'input')])]);
+      const ctx = contexto({ claveSubmodulo: 'cronograma', relacionadas: { cadena_valor: cadena } });
+
+      const numeros = numerosDeLista(espejo, 'actividades', ctx);
+
+      expect(numeroDeFila(espejo, { id: 'cr-9', origen: 'a-4' }, 0, numeros)).toBe('2.1');
+      const sinNumeracion = nodo('actividades', 'repetible', {}, [nodo('actividad', 'input')]);
+      expect(numerosDeLista(sinNumeracion, 'actividades', ctx).size).toBe(0);
+    });
+
+    it('dibuja cada actividad en una subfila por grupo, con las columnas de todos los grupos', () => {
+      const anio = (clave: string, extra: any) => nodo(clave, extra.desde ? 'calculado' : 'input', extra);
+      const cronograma = nodo('actividades', 'repetible', { espejo_de: 'cadena_valor.productos_por_objetivo.productos.actividades' }, [
+        nodo('programacion_fisica', undefined, {}, [anio('anio_0', { obligatorio_si: 'origen.periodo_0' }), anio('anio_1', {})]),
+        nodo('programacion_financiera', undefined, {}, [
+          anio('anio_0', { desde: 'origen.periodo_0' }),
+          anio('anio_1', { desde: 'origen.periodo_1' }),
+          anio('valor_total', { desde: 'origen.costo_total' }),
+        ]),
+      ]);
+
+      const estructura = estructuraDeSubfilas(cronograma);
+
+      expect(estructura.subfilas.map((grupo) => grupo.dato.clave)).toEqual(['programacion_fisica', 'programacion_financiera']);
+      expect(estructura.columnas.map((columna) => columna.clave)).toEqual(['anio_0', 'anio_1', 'valor_total']);
+      const espejo = { espejo_de: 'cadena_valor.productos_por_objetivo.productos.actividades' };
+      const casillas = nodo('grupo', undefined, {}, [nodo('sedes', 'catalogo', { multiple: true })]);
+      expect(estructuraDeSubfilas(nodo('lista', 'repetible', espejo, [nodo('texto', 'input')]))).toBeNull();
+      expect(estructuraDeSubfilas(nodo('lista', 'repetible', espejo, [casillas]))).toBeNull();
+      // Solo espejos: la tabla de subfilas no agrega ni elimina filas.
+      expect(estructuraDeSubfilas(nodo('lista', 'repetible', {}, cronograma.hijos))).toBeNull();
+    });
+
+    it('el Presupuesto inicial trae el producto de la fila que contiene cada actividad y los costos de la actividad', () => {
+      const espejoDe = 'cadena_valor.productos_por_objetivo.productos.actividades';
+      const conProducto = {
+        productos_por_objetivo: [{ id: 'ppo-1', productos: [
+          { id: 'p-1', producto: '2201001', actividades: [{ id: 'a-1', periodo_0: 500 }] },
+          { id: 'p-2', producto: '2201002', actividades: [{ id: 'a-2' }] },
+        ] }],
+      };
+      const ctx = contexto({
+        claveSubmodulo: 'presupuesto_inicial',
+        relacionadas: { cadena_valor: conProducto },
+        nombreEnCatalogo: (catalogo, codigo) => (catalogo === 'productos' ? `Producto ${codigo}` : codigo),
+      });
+      const [a1, a2] = filasDeRuta(espejoDe, ctx);
+      const producto = { clave: 'producto', required: false, desde: 'cadena_valor.productos_por_objetivo.productos.producto', catalogo: 'productos' };
+
+      expect(valorTraidoEnEspejo(producto, espejoDe, a1, ctx)).toBe('2201001');
+      expect(valorTraidoEnEspejo(producto, espejoDe, a2, ctx)).toBe('2201002');
+      expect(valorTraidoEnEspejo({ clave: 'anio_0', required: false, desde: 'origen.periodo_0' }, espejoDe, a1, ctx)).toBe(500);
+      expect(textoDeTraido(producto, '2201002', ctx)).toBe('Producto 2201002');
+      expect(textoDeTraido(producto, undefined, ctx)).toBe('');
+    });
+
+    it('reconoce un espejo de solo lectura: todos sus campos se traen', () => {
+      const espejo = { espejo_de: 'cadena_valor.productos_por_objetivo.productos.actividades' };
+      const traido = (clave: string) => nodo(clave, 'calculado', { desde: `origen.${clave}` });
+
+      expect(esEspejoTraido(nodo('actividades', 'repetible', espejo, [traido('actividad'), traido('costo_total')]))).toBeTrue();
+      expect(esEspejoTraido(nodo('actividades', 'repetible', espejo, [traido('actividad'), nodo('meses', 'input')]))).toBeFalse();
+      expect(esEspejoTraido(nodo('actividades', 'repetible', {}, [traido('actividad')]))).toBeFalse();
+    });
+
+    it('con obligatorio_si, el año se exige solo si la actividad tiene costo en ese periodo', () => {
+      const anio0 = { clave: 'anio_0', required: false, obligatorio_si: 'origen.periodo_0' };
+      expect(esExigido(anio0, { periodo_0: 500 })).toBeTrue();
+      expect(esExigido(anio0, { periodo_0: 0 })).toBeFalse();
+      expect(esExigido(anio0, {})).toBeFalse();
+      expect(esExigido({ clave: 'texto', required: true }, null)).toBeTrue();
+    });
   });
 
   it('formatea los números con separadores de Colombia', () => {

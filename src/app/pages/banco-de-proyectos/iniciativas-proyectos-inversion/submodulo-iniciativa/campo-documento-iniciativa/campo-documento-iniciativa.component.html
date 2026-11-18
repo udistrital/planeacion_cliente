@@ -1,4 +1,3 @@
-<!-- El archivo (o «Sin adjuntar») a la izquierda y sus acciones a la derecha, con los íconos del sistema -->
 <div class="documento" [class.documento--vacio]="!valor && !subiendo">
   <mat-icon class="documento__icono" aria-hidden="true">{{ valor || subiendo ? 'description' : 'insert_drive_file' }}</mat-icon>
 
@@ -32,6 +31,6 @@
     </ng-container>
   </div>
 
-  <!-- El selector de archivos del navegador va oculto: lo abre el botón 📎 -->
+  <!-- Oculto: lo abre el botón de adjuntar -->
   <input #entrada type="file" class="documento__entrada" [accept]="aceptados" (change)="elegir(entrada)" tabindex="-1" aria-hidden="true">
 </div>

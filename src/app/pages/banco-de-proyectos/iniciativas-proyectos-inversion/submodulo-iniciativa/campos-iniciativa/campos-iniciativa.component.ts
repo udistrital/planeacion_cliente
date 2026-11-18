@@ -1,13 +1,15 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, HostBinding, Input } from '@angular/core';
-import { Datos, NodoDefinicion, VALOR_CASILLA_MARCADA, VALOR_CASILLA_SIN_MARCAR } from '../../utils';
+import { Datos, NodoDefinicion } from '../../utils';
 import {
   calcular,
   calcularNumero,
   claseDe,
   ContextoFormulario,
   esCalculoNumerico,
-  esGrupoDeCasillas,
+  esEspejoTraido,
+  estructuraDeDesglose,
+  estructuraDeSubfilas,
   esVisible,
   formatearNumero,
   marcarCasilla,
@@ -15,16 +17,15 @@ import {
   OpcionReferencia,
   rutaCampo,
   seMuestraEnTabla,
-  valorDeRuta,
+  textoTraido,
 } from '../../utils/formulario.utils';
 
 /**
  * Dibuja un nivel del formulario: cada nodo según su tipo. Es recursivo: los
  * grupos y las filas de los repetibles vuelven a usar este componente.
  *
- * Con `secciones` (nivel superior del submódulo) cada apartado va en un recuadro
- * con su nombre en el borde, como el resto de SISGPLAN; el título reemplaza la
- * etiqueta del campo. Los grupos van siempre en recuadro.
+ * Con `secciones` (nivel superior del submódulo) cada apartado va en un recuadro con
+ * título, que reemplaza la etiqueta del campo. Los grupos van siempre en recuadro.
  */
 @Component({
   selector: 'app-campos-iniciativa',
@@ -44,12 +45,6 @@ export class CamposIniciativaComponent {
   /** Los campos de este nivel van en columnas (grupo de GRUPOS_EN_COLUMNAS). */
   @Input() enColumnas = false;
 
-  /** Con secciones, el contenedor deja poner secciones lado a lado (SECCIONES_LADO_A_LADO). */
-  @HostBinding('class.campos--secciones')
-  get conSecciones(): boolean {
-    return this.secciones;
-  }
-
   @HostBinding('class.campos--columnas')
   get conColumnas(): boolean {
     return this.enColumnas;
@@ -64,45 +59,34 @@ export class CamposIniciativaComponent {
     return esVisible(nodo, this.datos);
   }
 
-  /** Sección del nivel superior que va al lado de otra (SECCIONES_LADO_A_LADO), p. ej. Sedes y Factores. */
-  ladoALado(nodo: NodoDefinicion): boolean {
-    return this.secciones && (this.contexto.seccionesLadoALado || []).includes(nodo.dato.clave);
-  }
-
   enSeccion(nodo: NodoDefinicion): boolean {
     return this.secciones || claseDe(nodo) === 'grupo';
   }
 
-  /** Lista que se dibuja como tabla (seMuestraEnTabla); las demás van en recuadros. */
-  enTabla(nodo: NodoDefinicion): boolean {
-    return seMuestraEnTabla(nodo, this.contexto, !this.ruta);
+  /**
+   * Cómo se dibuja una lista:
+   * - 'traida': espejo de solo lectura, todo traído de otro submódulo (el Presupuesto inicial).
+   * - 'subfilas': espejo cuyos hijos son grupos, una subfila por grupo (el Cronograma).
+   * - 'desglose': espejo con una lista interna que parte algunas filas en subfilas (Trazadores presupuestales).
+   * - 'tabla': tabla editable, también jerárquica (seMuestraEnTabla).
+   * - 'recuadros': tabla resumen y la fila seleccionada debajo (grupo repetible).
+   */
+  vistaDeLista(nodo: NodoDefinicion): 'traida' | 'subfilas' | 'desglose' | 'tabla' | 'recuadros' {
+    if (esEspejoTraido(nodo)) {
+      return 'traida';
+    }
+    if (estructuraDeSubfilas(nodo)) {
+      return 'subfilas';
+    }
+    if (estructuraDeDesglose(nodo)) {
+      return 'desglose';
+    }
+    return seMuestraEnTabla(nodo, this.contexto, !this.ruta) ? 'tabla' : 'recuadros';
   }
 
   /** Grupo de GRUPOS_EN_COLUMNAS: sus campos van en columnas. */
   grupoEnColumnas(grupo: NodoDefinicion): boolean {
     return (this.contexto.gruposEnColumnas || []).includes(grupo.dato.clave);
-  }
-
-  /** Grupo de GRUPOS_EN_CASILLAS: se marcan solo los campos que aplican. */
-  enCasillas(grupo: NodoDefinicion): boolean {
-    return esGrupoDeCasillas(grupo, this.contexto);
-  }
-
-  marcada(grupo: NodoDefinicion, campo: NodoDefinicion): boolean {
-    return this.datos[grupo.dato.clave][campo.dato.clave] === VALOR_CASILLA_MARCADA;
-  }
-
-  marcar(grupo: NodoDefinicion, campo: NodoDefinicion, marcada: boolean): void {
-    this.datos[grupo.dato.clave][campo.dato.clave] = marcada ? VALOR_CASILLA_MARCADA : VALOR_CASILLA_SIN_MARCAR;
-  }
-
-  /** Errores de los campos del grupo de casillas: el mensaje ya trae el nombre del campo. */
-  erroresDeCasillas(grupo: NodoDefinicion): string[] {
-    const rutaGrupo = this.rutaDe(grupo);
-    return (grupo.hijos || []).reduce(
-      (todos, campo) => todos.concat(this.contexto.errores[rutaCampo(rutaGrupo, campo.dato.clave)] || []),
-      [] as string[],
-    );
   }
 
   /** La plantilla trae `required` como texto ("true"/"false") o booleano. */
@@ -128,8 +112,7 @@ export class CamposIniciativaComponent {
 
   calculado(nodo: NodoDefinicion): string {
     if (nodo.dato.desde) {
-      const valor = valorDeRuta(nodo.dato.desde, this.contexto);
-      return valor === undefined || valor === null ? '' : String(valor);
+      return textoTraido(nodo.dato, this.filaOrigen, this.contexto);
     }
     if (esCalculoNumerico(nodo)) {
       const valor = calcularNumero(nodo.dato, this.datos);
@@ -148,7 +131,17 @@ export class CamposIniciativaComponent {
 
   /** Texto de la fila marcada que trae una referencia con marcada_en; vacío si no hay ninguna. */
   textoMarcada(nodo: NodoDefinicion): string {
-    const opcion = this.opcionesDe(nodo).find((candidata) => candidata.id === this.datos[nodo.dato.clave]);
+    const opcion = this.opcionMarcada(nodo);
     return opcion ? opcion.etiqueta : '';
+  }
+
+  /** Segundo texto de la fila marcada (mostrar_detalle), p. ej. la descripción de la alternativa. */
+  detalleMarcada(nodo: NodoDefinicion): string {
+    const opcion = this.opcionMarcada(nodo);
+    return (opcion && opcion.detalle) || '';
+  }
+
+  private opcionMarcada(nodo: NodoDefinicion): OpcionReferencia | undefined {
+    return this.opcionesDe(nodo).find((candidata) => candidata.id === this.datos[nodo.dato.clave]);
   }
 }

@@ -21,7 +21,7 @@ import { TablaJerarquicaIniciativaComponent } from '../tabla-jerarquica-iniciati
 import { CamposIniciativaComponent } from './campos-iniciativa.component';
 
 function nodo(clave: string, nombre: string, tipo?: any, extra: any = {}, hijos: NodoDefinicion[] = []): NodoDefinicion {
-  return { id: clave, nombre, descripcion: '', bandera_tabla: false, dato: { clave, type: tipo, required: true, ...extra }, hijos };
+  return { id: clave, nombre, descripcion: '', dato: { clave, type: tipo, required: true, ...extra }, hijos };
 }
 
 const PROBLEMATICA: NodoDefinicion[] = [
@@ -46,7 +46,7 @@ const OBJETIVOS: NodoDefinicion[] = [
 
 const PARTICIPANTES: NodoDefinicion[] = [
   nodo('actores', 'Actores', 'repetible', { min: 2, etiqueta_fila: 'Participante' }, [
-    nodo('actor', 'Actor', 'select', { options: [{ valor: 'Distrital' }, { valor: 'Nacional' }] }),
+    nodo('actor', 'Actor', 'catalogo', { catalogo: 'niveles_actor' }),
     nodo('entidad', 'Entidad', 'input'),
   ]),
 ];
@@ -83,9 +83,7 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
       relacionadas: {},
       soloLectura: false,
       errores: {},
-      apariencia: 'outline',
       listasEnTabla: [],
-      gruposEnCasillas: [],
       nombreEnCatalogo: (catalogo, codigo) => codigo,
       ...parcial,
     };
@@ -193,21 +191,6 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
     expect(textos('app-tabla-jerarquica-iniciativa output.celda--calculada')).toEqual(['150']);
   }));
 
-  it('pone lado a lado solo las secciones que el submódulo pide (SECCIONES_LADO_A_LADO)', () => {
-    const localizacion = [
-      nodo('ubicaciones', 'Localización de la alternativa', 'repetible', { etiqueta_fila: 'Ubicación' }, [
-        nodo('region', 'Región', 'input'),
-      ]),
-      nodo('sedes', 'Sedes', undefined, {}, [nodo('seleccionadas', 'Sedes', 'input')]),
-      nodo('factores', 'Factores', undefined, {}, [nodo('otros', 'Otros', 'input')]),
-    ];
-    montar(localizacion, 'localizacion', {}, { seccionesLadoALado: ['sedes', 'factores'] }, true);
-
-    const secciones = Array.from(elemento.querySelectorAll('fieldset.container-border')) as HTMLElement[];
-    expect(fixture.nativeElement.classList).toContain('campos--secciones');
-    expect(secciones.map((s) => s.classList.contains('seccion--lado-a-lado'))).toEqual([false, true, true]);
-  });
-
   it('una sola ubicación: los campos del grupo van en columnas solo si el submódulo lo pide (GRUPOS_EN_COLUMNAS)', () => {
     const localizacion = [
       nodo('ubicacion', 'Localización de la alternativa', undefined, {}, [
@@ -292,7 +275,7 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
 
     expect(elemento.querySelectorAll('.iniciativa-fila').length).toBe(0);
     expect(textos('thead th')).toEqual(['N.°', 'Actor', 'Entidad', 'Acciones']);
-    expect(elemento.querySelectorAll('td mat-select').length).toBe(1);
+    expect(elemento.querySelectorAll('td app-campo-catalogo-iniciativa').length).toBe(1);
     const valores = Array.from(elemento.querySelectorAll('textarea')).map((t) => (t as HTMLTextAreaElement).value);
     expect(valores).toEqual(['Secretaría de Educación']);
   }));
@@ -315,7 +298,7 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
   }));
 
   it('con secciones pone cada apartado en su recuadro con el nombre como título, sin repetirlo dentro', fakeAsync(() => {
-    montar(PROBLEMATICA, 'problematica', problematicaDeEjemplo(), { apariencia: 'fill' }, true);
+    montar(PROBLEMATICA, 'problematica', problematicaDeEjemplo(), {}, true);
     tick();
     fixture.detectChanges();
 
@@ -333,7 +316,7 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
       nodo('objetivo_central', 'Objetivo central', 'input', { multilinea: true }),
       nodo('tipo_fuente', 'Tipo de fuente de verificación', 'input'),
     ];
-    montar(nodos, 'objetivos', { objetivo_central: 'Texto', tipo_fuente: 'Informe' }, { apariencia: 'fill' }, true);
+    montar(nodos, 'objetivos', { objetivo_central: 'Texto', tipo_fuente: 'Informe' }, {}, true);
     tick();
     fixture.detectChanges();
 

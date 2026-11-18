@@ -1,13 +1,12 @@
-/* .card-oas usa 100vw (incluye la barra de scroll): se ajusta al contenedor para evitar el scroll horizontal. */
 :host {
   display: block;
 }
 
-/* Misma base que el listado de iniciativas (y plan/construir-plan-proyecto): tarjeta a todo el ancho, fondo, recuadro guía y filas alternas. */
 .mat-card {
   background-color: #f1f5f8;
 }
 
+/* .card-oas usa 100vw, que incluye la barra de scroll y provoca scroll horizontal */
 .mat-card.card-oas {
   width: auto;
 }
@@ -26,7 +25,6 @@
   width: 97%;
 }
 
-/* Estado general: rótulo y valor unidos, como en el mockup. */
 .estado-general {
   display: inline-flex;
   margin-bottom: 1.25rem;
@@ -62,7 +60,6 @@
   overflow-x: auto;
 }
 
-/* Título de las tablas de componentes */
 .componentes-titulo {
   margin: 0;
   padding: 0.75rem 1rem;
@@ -75,11 +72,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-/*
- * Tablas de componentes: una por módulo (Identificación, Preparación, Anexos), seguidas, con el
- * nombre del módulo en el encabezado (como en el mockup). Las columnas miden lo mismo en todas, así que
- * quedan alineadas. La línea gruesa de cierre va solo en la última.
- */
+/* Una tabla por módulo; los anchos fijos de columna (componentes__col-*) mantienen alineadas todas */
 .componentes {
   width: 100%;
   min-width: 560px;
@@ -90,7 +83,7 @@
     border-bottom: 4px solid var(--primary);
   }
 
-  /* styles.scss fija con !important el padding de todos los td; aquí se usa el vertical de las tablas del sistema. */
+  /* styles.scss fija con !important el padding de todos los td */
   th,
   td {
     padding: 8px 16px !important;
@@ -123,7 +116,6 @@
   background-color: var(--primary);
 }
 
-/* Filas alternas: la primera blanca y la segunda de color */
 .componentes__submodulo {
   background-color: #fff;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
@@ -134,9 +126,8 @@
 }
 
 /*
- * Estado del submódulo: punto con el color del estado (estado_submodulo.color en la BD,
- * tal cual; gris si no trae) y el nombre en texto normal. El ancho mínimo alinea los
- * puntos en la columna centrada.
+ * El color del punto llega en línea desde estado_submodulo.color (gris si no trae).
+ * El ancho mínimo alinea los puntos en la columna centrada.
  */
 .iniciativa-estado {
   display: inline-flex;
@@ -156,9 +147,8 @@
 }
 
 /*
- * Botones alineados con los bordes de la tabla: se anulan los márgenes negativos de
- * mat-card-actions y el margen que Material les pone a los botones (el espacio lo da gap).
- * A la derecha deja espacio al botón fijo de IRIS.
+ * Anula los márgenes negativos de mat-card-actions y el margen de Material en los botones
+ * (el espacio lo da gap). Los 96px a la derecha dejan libre el botón fijo de IRIS.
  */
 .mat-card > .barra-acciones {
   display: flex;

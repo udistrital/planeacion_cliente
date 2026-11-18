@@ -1,4 +1,4 @@
-import { ESTADO_SUBMODULO_SIN_FORMULAR, ROLES_FORMULADORES, ROLES_REVISORES } from './constantes';
+import { ESTADOS_SUBMODULO_POR_FORMULAR, ROLES_FORMULADORES, ROLES_REVISORES } from './constantes';
 import { Estado, ResumenIniciativa } from './iniciativa.models';
 
 /** Indica si el usuario tiene al menos uno de los roles permitidos. */
@@ -17,6 +17,6 @@ export function puedeRevisar(resumen: ResumenIniciativa | null, estadoSubmodulo:
     !!resumen &&
     resumen.permite_revisar &&
     tieneAlgunRol(roles, ROLES_REVISORES) &&
-    estadoSubmodulo.codigo_abreviacion !== ESTADO_SUBMODULO_SIN_FORMULAR
+    !ESTADOS_SUBMODULO_POR_FORMULAR.includes(estadoSubmodulo.codigo_abreviacion)
   );
 }

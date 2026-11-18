@@ -1,8 +1,8 @@
-/* .card-oas usa 100vw en styles.scss, que incluye la barra de scroll y cortaba la tarjeta a la derecha */
 :host {
   display: block;
 }
 
+/* .card-oas usa 100vw en styles.scss, que incluye la barra de scroll y desborda la tarjeta */
 .mat-card.card-oas {
   width: auto;
 }
@@ -11,27 +11,40 @@
   background-color: #f1f5f8;
 }
 
-/* Encabezado: la iniciativa, el submódulo y su descripción a la izquierda; el estado a la derecha. */
 .encabezado {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0.75rem 1.5rem;
   margin-bottom: 1rem;
 }
 
-.encabezado__textos {
-  flex: 1 1 24rem;
-  min-width: 0;
-}
-
-/* La iniciativa arriba, fuera de la tarjeta, como título de la página */
 .pagina {
   padding: 0.5rem 0 1rem;
 }
 
 .pagina__iniciativa {
-  margin: 0 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 4rem;
+  margin: 0 0 1rem;
+  padding: 0.5rem 1rem 0.625rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.pagina__textos {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pagina__selector {
+  flex: none;
+  max-width: 100%;
+}
+
+/* Mismo corte que menu-submodulos-iniciativa.component.scss */
+@media (max-width: 780px) {
+  .pagina__iniciativa {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .pagina__rotulo {
@@ -53,7 +66,6 @@
   overflow-wrap: anywhere;
 }
 
-/* La tarjeta ocupa su columna (card-oas trae un ancho fijo de pantalla completa) */
 .cuerpo__contenido > .mat-card.card-oas {
   width: auto;
   margin: 0;
@@ -71,43 +83,6 @@
   margin: 0.25rem 0 0;
   font-size: 0.9rem;
   color: rgba(0, 0, 0, 0.7);
-}
-
-/* Estado del submódulo: rótulo y valor unidos, como el Estado general de la vista de la iniciativa.
-   El punto lleva el color de la BD (estado_submodulo.color); gris si no trae. */
-.estado-submodulo {
-  display: inline-flex;
-  flex: none;
-  border: 1px solid var(--primary);
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #fff;
-  box-shadow: var(--primary) 2px 3px 0;
-}
-
-.estado-submodulo__titulo {
-  padding: 0.5rem 1rem;
-  color: #fff;
-  font-weight: 500;
-  background-color: var(--primary);
-}
-
-.estado-submodulo__valor {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 10rem;
-  padding: 0.5rem 1.25rem;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.iniciativa-estado__punto {
-  flex: none;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background-color: #9e9e9e;
 }
 
 .iniciativa-contenido {
@@ -146,7 +121,6 @@
   border-left: 4px solid #ef6c00;
 }
 
-/* Mismo estilo de textGuide en la vista de la iniciativa */
 .con-secciones .iniciativa-aviso {
   background-color: #fff;
   border: 1px solid var(--primary);
@@ -167,7 +141,6 @@
   padding: 0.25rem 0;
 }
 
-/* Igual que en campos-iniciativa.component.scss */
 .container-border {
   min-width: 0;
   margin: 0;
@@ -207,11 +180,7 @@
   flex: 1 1 auto;
 }
 
-/*
- * El formulario usa todo el ancho; minmax(0, 1fr) y min-width: 0 hacen que las tablas anchas
- * se desplacen por dentro en vez de estirar la página. El selector de submódulos queda fijo
- * arriba al bajar, en cualquier pantalla.
- */
+/* minmax(0, 1fr) y min-width: 0 hacen que las tablas anchas se desplacen por dentro en vez de estirar la página */
 .cuerpo {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -219,17 +188,6 @@
 
 .cuerpo__contenido {
   min-width: 0;
-}
-
-.selector-fijo {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  margin: 0 0 1rem;
-  padding: 6px 4px;
-  /* Fuera de la tarjeta: el fondo de la página, opaco para que no se vea el formulario debajo al bajar */
-  background-color: #fafafa;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 /* Material deja el borde gris aunque el botón tenga color */

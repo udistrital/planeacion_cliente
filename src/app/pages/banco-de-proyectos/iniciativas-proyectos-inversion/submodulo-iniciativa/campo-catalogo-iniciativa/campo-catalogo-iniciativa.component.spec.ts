@@ -14,7 +14,7 @@ import { CampoCatalogoIniciativaComponent, MAXIMO_SUGERENCIAS } from './campo-ca
 
 function nodo(clave: string, catalogo: string, extra: any = {}): NodoDefinicion {
   const dato = { clave, type: 'catalogo' as const, required: true, catalogo, ...extra };
-  return { id: clave, nombre: clave, descripcion: '', bandera_tabla: false, dato, hijos: [] };
+  return { id: clave, nombre: clave, descripcion: '', dato, hijos: [] };
 }
 
 const PROGRAMAS: ItemCatalogo[] = [
@@ -96,5 +96,33 @@ describe('CampoCatalogoIniciativaComponent', () => {
     const lista = opciones();
     expect(lista.length).toBe(MAXIMO_SUGERENCIAS + 1);
     expect(lista[lista.length - 1]).toBe('Hay 5 opciones más: escriba para filtrar.');
+  }));
+  it('al hacer scroll cierra la lista solo si el campo dejó de verse (p. ej. bajo algo fijo)', fakeAsync(() => {
+    items = PROGRAMAS;
+    const componente = montar(nodo('programa', 'programas_pnd'));
+    abrirLista();
+    expect(opciones().length).toBe(3);
+
+    // El campo se ve: la lista sigue abierta.
+    componente.cerrarSiNoSeVe();
+    fixture.detectChanges();
+    expect(opciones().length).toBe(3);
+
+    // Algo fijo lo tapa (como la barra de OAS al bajar): la lista se cierra.
+    const caja = (fixture.nativeElement as HTMLElement).getBoundingClientRect();
+    const tapa = document.createElement('div');
+    Object.assign(tapa.style, {
+      position: 'fixed', zIndex: '99999', background: '#fff',
+      left: `${caja.left}px`, top: `${caja.top}px`, width: `${caja.width}px`, height: `${caja.height}px`,
+    });
+    document.body.appendChild(tapa);
+    try {
+      componente.cerrarSiNoSeVe();
+      fixture.detectChanges();
+      tick();
+      expect(opciones()).toEqual([]);
+    } finally {
+      tapa.remove();
+    }
   }));
 });

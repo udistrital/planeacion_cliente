@@ -1,11 +1,9 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { ESTADO_SUBMODULO_SIN_FORMULAR, ResumenModulo, ResumenSubmodulo } from '../../utils';
+import { ESTADOS_SUBMODULO_POR_FORMULAR, ResumenModulo, ResumenSubmodulo } from '../../utils';
 
 /**
- * Selector de los submódulos de la iniciativa (mat-select fill, como los de Formulación), fijo
- * arriba del formulario, con ‹ › para pasar al anterior o al siguiente (también de un módulo al
- * otro). Al abrirlo, los submódulos van agrupados por módulo (Identificación, Preparación,
- * Anexos), cada uno con el punto y el nombre de su estado.
+ * Selector de los submódulos de la iniciativa, agrupados por módulo y con su estado. Permite pasar
+ * al anterior o al siguiente (también entre módulos) y muestra cuántos van formulados.
  */
 @Component({
   selector: 'app-menu-submodulos-iniciativa',
@@ -27,7 +25,7 @@ export class MenuSubmodulosIniciativaComponent implements OnChanges {
   }
 
   get formulados(): number {
-    return this.submodulos.filter((s) => s.estado && s.estado.codigo_abreviacion !== ESTADO_SUBMODULO_SIN_FORMULAR).length;
+    return this.submodulos.filter((s) => s.estado && !ESTADOS_SUBMODULO_POR_FORMULAR.includes(s.estado.codigo_abreviacion)).length;
   }
 
   get posicion(): number {

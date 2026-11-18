@@ -6,12 +6,10 @@ import { NodoDefinicion, ReferenciaDocumento } from '../../utils';
 import { ContextoFormulario, rutaEnPlantilla } from '../../utils/formulario.utils';
 
 /**
- * Campo `documento` (Anexos): el archivo adjunto con su nombre, cuándo y quién lo subió, y las
- * acciones con los íconos del sistema: adjuntar o reemplazar (📎), ver el PDF o descargar el Word,
- * y quitar. Al elegir el archivo revisa el formato (`formatos`) y el tamaño (`tamano_maximo_mb`)
- * y lo sube de una vez (contexto.subirDocumento: el mid lo pasa al gestor documental); la
- * referencia que responde queda en los datos y se guarda con el Guardar del submódulo.
- * En solo lectura solo se ve o descarga. Los errores del servidor los muestra quien lo contiene.
+ * Campo `documento` (Anexos). Al elegir el archivo revisa `formatos` y `tamano_maximo_mb` y lo sube
+ * de una vez (contexto.subirDocumento: el mid lo pasa al gestor documental); la referencia que
+ * responde queda en los datos y se guarda con el Guardar del submódulo. Los errores del servidor
+ * los muestra el componente que lo contiene.
  */
 @Component({
   selector: 'app-campo-documento-iniciativa',
@@ -44,7 +42,7 @@ export class CampoDocumentoIniciativaComponent {
     return this.nodo.dato.formatos || [];
   }
 
-  /** Para el atributo accept del input: ".pdf,.doc,.docx". */
+  /** Para el atributo accept del input, p. ej. ".pdf,.doc,.docx,.xls,.xlsx,.txt" (los formatos salen de la plantilla). */
   get aceptados(): string {
     return this.formatos.map((formato) => `.${formato}`).join(',');
   }
@@ -58,7 +56,7 @@ export class CampoDocumentoIniciativaComponent {
     return !!(this.valor && this.valor.enlace);
   }
 
-  /** El PDF se abre en el navegador; el Word se descarga, porque el navegador no lo muestra. */
+  /** El PDF se abre en el navegador; los demás formatos (Word, Excel, texto) se descargan. */
   get esPdf(): boolean {
     return extensionDe(this.valor && this.valor.nombre) === 'pdf';
   }

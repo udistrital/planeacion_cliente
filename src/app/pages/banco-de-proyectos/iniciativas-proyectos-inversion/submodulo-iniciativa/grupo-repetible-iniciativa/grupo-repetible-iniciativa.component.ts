@@ -23,11 +23,9 @@ export interface ColumnaVista {
 }
 
 /**
- * Lista cuyas filas no caben en una tabla (p. ej. los bienes o servicios de Necesidades): arriba,
- * una tabla resumen con una fila por elemento y si tiene sus datos completos; debajo, los campos
- * de la fila seleccionada (con ✎). Las columnas del resumen salen de COLUMNAS_RESUMEN.
- * Si el grupo es espejo de otro (p. ej. productos por objetivo específico), las filas salen del
- * grupo de origen: no se agregan ni se eliminan aquí y cada una muestra su elemento de origen.
+ * Lista cuyas filas no caben en una tabla (p. ej. los bienes o servicios de Necesidades): una tabla
+ * resumen (columnas de COLUMNAS_RESUMEN) y los campos de la fila seleccionada. Si el grupo es espejo
+ * de otro, las filas salen del grupo de origen: no se agregan ni se eliminan aquí.
  */
 @Component({
   selector: 'app-grupo-repetible-iniciativa',
@@ -65,6 +63,11 @@ export class GrupoRepetibleIniciativaComponent implements OnChanges {
 
   get etiqueta(): string {
     return this.nodo.dato.etiqueta_fila || 'Elemento';
+  }
+
+  /** La etiqueta para nombrar una fila en botones y avisos, sin el «No.» final del título (p. ej. Necesidades). */
+  get etiquetaAccion(): string {
+    return this.etiqueta.replace(/\s+No\.?$/i, '');
   }
 
   get puedeModificar(): boolean {
@@ -157,7 +160,7 @@ export class GrupoRepetibleIniciativaComponent implements OnChanges {
 
   async eliminar(posicion: number): Promise<void> {
     const respuesta = await Swal.fire({
-      title: `¿Eliminar ${this.etiqueta.toLowerCase()} ${posicion + 1}?`,
+      title: `¿Eliminar ${this.etiquetaAccion.toLowerCase()} ${posicion + 1}?`,
       text: 'Se eliminará con todo lo que contiene. Los cambios se aplican al guardar.',
       icon: 'warning',
       showCancelButton: true,

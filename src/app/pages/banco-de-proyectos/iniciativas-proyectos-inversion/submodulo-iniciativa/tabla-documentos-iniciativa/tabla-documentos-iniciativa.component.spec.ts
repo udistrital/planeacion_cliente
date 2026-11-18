@@ -5,7 +5,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
@@ -20,7 +19,7 @@ import { CeldaIniciativaComponent } from '../celda-iniciativa/celda-iniciativa.c
 import { TablaDocumentosIniciativaComponent } from './tabla-documentos-iniciativa.component';
 
 function nodo(clave: string, nombre: string, tipo?: any, extra: any = {}, hijos: NodoDefinicion[] = []): NodoDefinicion {
-  return { id: clave, nombre, descripcion: '', bandera_tabla: false, dato: { clave, type: tipo, required: true, ...extra }, hijos };
+  return { id: clave, nombre, descripcion: '', dato: { clave, type: tipo, required: true, ...extra }, hijos };
 }
 
 const PDF_O_WORD = { formatos: ['pdf', 'doc', 'docx'], tamano_maximo_mb: 10 };
@@ -46,9 +45,7 @@ describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => 
       relacionadas: {},
       soloLectura: false,
       errores: {},
-      apariencia: 'fill',
       listasEnTabla: [],
-      gruposEnCasillas: [],
       nombreEnCatalogo: (catalogo, codigo) => codigo,
       subirDocumento: () => of({ nombre: 'x.pdf' }),
       ...parcial,
@@ -70,7 +67,7 @@ describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => 
       ],
       imports: [
         FormsModule, ReactiveFormsModule, TextFieldModule, NoopAnimationsModule, MatIconModule, MatButtonModule,
-        MatTooltipModule, MatSelectModule, MatAutocompleteModule, MatCheckboxModule,
+        MatTooltipModule, MatAutocompleteModule, MatCheckboxModule,
       ],
       providers: [
         { provide: IniciativaService, useValue: { catalogo: () => of([]) } },

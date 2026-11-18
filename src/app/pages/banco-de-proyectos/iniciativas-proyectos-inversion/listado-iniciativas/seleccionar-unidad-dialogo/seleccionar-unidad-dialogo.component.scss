@@ -1,13 +1,4 @@
-/*
- * Estilo de los diálogos del sistema (plan/crear-plan, agregar-fuente-dialog): fondo
- * gris claro, título vino, recuadro guía y botones vino. No usa la clase global
- * card-dialog porque fija un ancho (75vw) mayor que este diálogo y lo desborda.
- */
-
-/*
- * El relleno de 24px de mat-dialog-container queda como contorno blanco, igual en los
- * cuatro lados. El diálogo no lleva alto fijo, así que no sobra espacio abajo.
- */
+/* No usa la clase global card-dialog: fija un ancho (75vw) mayor que este diálogo y lo desborda. */
 
 /* El ancho de mat-card no incluye su relleno: sin border-box se sale 48px del diálogo. */
 .tarjeta {

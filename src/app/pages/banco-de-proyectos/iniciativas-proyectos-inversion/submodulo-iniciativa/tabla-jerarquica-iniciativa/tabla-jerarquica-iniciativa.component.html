@@ -28,40 +28,45 @@
       <ng-container *ngFor="let fila of filas; let posicion = index; trackBy: porId">
         <!-- Primer nivel -->
         <tr class="nivel-1">
-          <td class="numero"><span class="chip">{{ posicion + 1 }}</span></td>
-          <td class="origen" *ngIf="esEspejo">{{ textoOrigen(fila) }}</td>
+          <td class="numero"><span class="chip">{{ numero(fila, posicion) }}</span></td>
+          <td class="origen" *ngIf="esEspejo" [class.con-error]="campoEnOrigen(fila) && erroresDeCampo(rutaDeFila(fila), campoEnOrigen(fila)).length">
+            {{ textoOrigen(fila) }}<span *ngIf="esFilaObligatoria(fila)" aria-hidden="true"> *</span>
+            <app-celda-iniciativa *ngIf="campoEnOrigen(fila) as campo" [fila]="fila" [filas]="filas" [campo]="campo" [ruta]="rutaDeFila(fila)"
+              [numero]="numero(fila, posicion)" [contexto]="contexto" [textoVacio]="'Escriba cuál'"></app-celda-iniciativa>
+          </td>
           <td *ngFor="let columna of columnas" [class.con-error]="erroresDeCampo(rutaDeFila(fila), estructura.campos[columna]).length"
             [class.col-casilla]="esCasilla(columna)">
             <app-celda-iniciativa *ngIf="estructura.campos[columna] as campo" [fila]="fila" [filas]="filas" [campo]="campo" [ruta]="rutaDeFila(fila)"
-              [numero]="'' + (posicion + 1)" [contexto]="contexto" [resaltada]="tieneInterna"></app-celda-iniciativa>
+              [numero]="numero(fila, posicion)" [contexto]="contexto" [resaltada]="tieneInterna"
+              [textoVacio]="textoVacio(fila)"></app-celda-iniciativa>
           </td>
           <td class="acciones" *ngIf="puedeModificar">
             <button mat-icon-button color="primary" type="button" *ngIf="puedeAgregarInterna(fila)" (click)="agregarInterna(fila)"
               matTooltip="Agregar {{ etiquetaInterna | lowercase }}"
-              [attr.aria-label]="'Agregar ' + (etiquetaInterna | lowercase) + ' a ' + (posicion + 1)">
+              [attr.aria-label]="'Agregar ' + (etiquetaInterna | lowercase) + ' a ' + numero(fila, posicion)">
               <mat-icon>add_circle_outline</mat-icon>
             </button>
             <button mat-icon-button color="primary" type="button" (click)="eliminar(posicion)"
               matTooltip="Eliminar {{ etiqueta | lowercase }}"
-              [attr.aria-label]="'Eliminar ' + (etiqueta | lowercase) + ' ' + (posicion + 1)">
+              [attr.aria-label]="'Eliminar ' + (etiqueta | lowercase) + ' ' + numero(fila, posicion)">
               <mat-icon>delete</mat-icon>
             </button>
           </td>
         </tr>
 
-        <!-- Lista interna: con sangría y número 1.1, 1.2... -->
+        <!-- Lista interna -->
         <tr class="nivel-2" *ngFor="let hija of internas(fila); let posicionHija = index; trackBy: porId">
-          <td class="numero"><span class="rama" aria-hidden="true"></span>{{ posicion + 1 }}.{{ posicionHija + 1 }}</td>
+          <td class="numero"><span class="rama" aria-hidden="true"></span>{{ numero(fila, posicion) }}.{{ posicionHija + 1 }}</td>
           <td *ngFor="let columna of columnas"
             [class.con-error]="erroresDeCampo(rutaDeInterna(fila, hija), estructura.camposInternos[columna]).length"
             [class.col-casilla]="esCasilla(columna)">
             <app-celda-iniciativa *ngIf="estructura.camposInternos[columna] as campo" [fila]="hija" [filas]="internas(fila)" [campo]="campo"
-              [ruta]="rutaDeInterna(fila, hija)" [numero]="(posicion + 1) + '.' + (posicionHija + 1)" [contexto]="contexto"></app-celda-iniciativa>
+              [ruta]="rutaDeInterna(fila, hija)" [numero]="numero(fila, posicion) + '.' + (posicionHija + 1)" [contexto]="contexto"></app-celda-iniciativa>
           </td>
           <td class="acciones" *ngIf="puedeModificar">
             <button mat-icon-button color="primary" type="button" (click)="eliminarInterna(fila, posicion, posicionHija)"
               matTooltip="Eliminar {{ etiquetaInterna | lowercase }}"
-              [attr.aria-label]="'Eliminar ' + (etiquetaInterna | lowercase) + ' ' + (posicion + 1) + '.' + (posicionHija + 1)">
+              [attr.aria-label]="'Eliminar ' + (etiquetaInterna | lowercase) + ' ' + numero(fila, posicion) + '.' + (posicionHija + 1)">
               <mat-icon>delete</mat-icon>
             </button>
           </td>

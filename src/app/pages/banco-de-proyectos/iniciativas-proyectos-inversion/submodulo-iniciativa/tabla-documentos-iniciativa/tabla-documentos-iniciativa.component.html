@@ -15,7 +15,7 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Documentos fijos (p. ej. la carta de presentación y el presupuesto) -->
+      <!-- Documentos fijos -->
       <tr *ngFor="let campo of estructura.fijos; let posicion = index; trackBy: porClave" class="fila-fija">
         <td class="numero"><span class="chip">{{ posicion + 1 }}</span></td>
         <td class="fijo">
@@ -30,7 +30,7 @@
         <td *ngIf="conAcciones" class="acciones"></td>
       </tr>
 
-      <!-- Adicionales (otros anexos): el nombre se escribe en la celda -->
+      <!-- Adicionales (otros anexos) -->
       <ng-container *ngIf="lista">
         <tr *ngFor="let fila of filas; let posicion = index; trackBy: porId" class="fila-adicional">
           <td class="numero"><span class="chip">{{ numero(posicion) }}</span></td>

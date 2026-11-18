@@ -1,13 +1,12 @@
-<!-- Los campos con solo_si que no aplican (p. ej. «¿Cuál otra sede?» sin «Otra» marcada) no se muestran -->
+<!-- Los campos con solo_si que no aplican no se muestran -->
 <ng-container *ngFor="let nodo of nodos; trackBy: porClave">
   <ng-container *ngIf="visible(nodo)">
-    <!-- Apartado del submódulo (o grupo): recuadro con el nombre en el borde, como en el resto de SISGPLAN -->
-    <fieldset *ngIf="enSeccion(nodo); else suelto" class="container-border" [class.seccion--lado-a-lado]="ladoALado(nodo)">
+    <fieldset *ngIf="enSeccion(nodo); else suelto" class="container-border">
       <legend class="titulo">{{ nodo.nombre }}<span *ngIf="esObligatorio(nodo)" aria-hidden="true"> *</span></legend>
       <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
     </fieldset>
     <ng-template #suelto>
-      <!-- En columnas (GRUPOS_EN_COLUMNAS) cada campo va en su celda, con sus errores debajo -->
+      <!-- En columnas, el div deja cada campo y sus errores en la misma celda de la grilla -->
       <div *ngIf="enColumnas; else directo" class="campo-en-columna">
         <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
       </div>
@@ -21,41 +20,34 @@
 <ng-template #campo let-nodo>
   <ng-container [ngSwitch]="claseDe(nodo)">
 
-    <!-- Grupo de campos (el recuadro ya lo pone la sección); los de GRUPOS_EN_CASILLAS van como casillas -->
+    <!-- Grupo: el recuadro ya lo pone la sección -->
     <ng-container *ngSwitchCase="'grupo'">
       <p class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</p>
-      <ng-container *ngIf="enCasillas(nodo); else camposDelGrupo">
-        <div class="iniciativa-casillas" role="group" [attr.aria-label]="nodo.nombre">
-          <mat-checkbox *ngFor="let campo of nodo.hijos; trackBy: porClave" color="primary"
-            [checked]="marcada(nodo, campo)" (change)="marcar(nodo, campo, $event.checked)" [disabled]="contexto.soloLectura">
-            {{ campo.nombre }}
-          </mat-checkbox>
-        </div>
-        <div class="iniciativa-error" *ngFor="let mensaje of erroresDeCasillas(nodo)"><mat-icon inline>error_outline</mat-icon> {{ mensaje }}</div>
-      </ng-container>
-      <ng-template #camposDelGrupo>
-        <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos[nodo.dato.clave]" [ruta]="rutaDe(nodo)"
-          [contexto]="contexto" [filaOrigen]="filaOrigen" [enColumnas]="grupoEnColumnas(nodo)"></app-campos-iniciativa>
-      </ng-template>
+      <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos[nodo.dato.clave]" [ruta]="rutaDe(nodo)"
+        [contexto]="contexto" [filaOrigen]="filaOrigen" [enColumnas]="grupoEnColumnas(nodo)"></app-campos-iniciativa>
     </ng-container>
 
-    <!-- Lista de filas (y espejos): en tabla si cabe en una (seMuestraEnTabla); si no, en recuadros -->
-    <ng-container *ngSwitchCase="'repetible'">
-      <app-tabla-jerarquica-iniciativa *ngIf="enTabla(nodo); else filasEnRecuadros" [nodo]="nodo" [filas]="datos[nodo.dato.clave]"
+    <!-- Lista de filas (también espejos), según vistaDeLista -->
+    <ng-container *ngSwitchCase="'repetible'" [ngSwitch]="vistaDeLista(nodo)">
+      <app-tabla-traida-iniciativa *ngSwitchCase="'traida'" [nodo]="nodo" [filas]="datos[nodo.dato.clave]"
+        [ruta]="rutaDe(nodo)" [contexto]="contexto" [conTitulo]="!secciones"></app-tabla-traida-iniciativa>
+      <app-tabla-subfilas-iniciativa *ngSwitchCase="'subfilas'" [nodo]="nodo" [filas]="datos[nodo.dato.clave]"
+        [ruta]="rutaDe(nodo)" [contexto]="contexto" [conTitulo]="!secciones"></app-tabla-subfilas-iniciativa>
+      <app-tabla-desglose-iniciativa *ngSwitchCase="'desglose'" [nodo]="nodo" [filas]="datos[nodo.dato.clave]"
+        [ruta]="rutaDe(nodo)" [contexto]="contexto" [conTitulo]="!secciones"></app-tabla-desglose-iniciativa>
+      <app-tabla-jerarquica-iniciativa *ngSwitchCase="'tabla'" [nodo]="nodo" [filas]="datos[nodo.dato.clave]"
         [ruta]="rutaDe(nodo)" [contexto]="contexto" [conTitulo]="!secciones"></app-tabla-jerarquica-iniciativa>
-      <ng-template #filasEnRecuadros>
-        <app-grupo-repetible-iniciativa [nodo]="nodo" [filas]="datos[nodo.dato.clave]"
-          [ruta]="rutaDe(nodo)" [contexto]="contexto" [filaOrigen]="filaOrigen" [conTitulo]="!secciones"></app-grupo-repetible-iniciativa>
-      </ng-template>
+      <app-grupo-repetible-iniciativa *ngSwitchDefault [nodo]="nodo" [filas]="datos[nodo.dato.clave]"
+        [ruta]="rutaDe(nodo)" [contexto]="contexto" [filaOrigen]="filaOrigen" [conTitulo]="!secciones"></app-grupo-repetible-iniciativa>
     </ng-container>
 
     <!-- Matriz -->
     <app-campo-matriz-iniciativa *ngSwitchCase="'matriz'" [nodo]="nodo" [matriz]="datos[nodo.dato.clave]"
       [ruta]="rutaDe(nodo)" [contexto]="contexto" [conTitulo]="!secciones"></app-campo-matriz-iniciativa>
 
-    <!-- Calculado. Si es editable, el usuario puede escribir otro valor; vacío = el propuesto -->
+    <!-- Calculado. Si es editable, vacío significa usar el valor propuesto -->
     <ng-container *ngSwitchCase="'calculado'">
-      <mat-form-field *ngIf="nodo.dato.editable; else calculadoFijo" [appearance]="contexto.apariencia" [class.iniciativa-campo--sin-etiqueta]="secciones" floatLabel="always" class="iniciativa-campo">
+      <mat-form-field *ngIf="nodo.dato.editable; else calculadoFijo" appearance="fill" [class.iniciativa-campo--sin-etiqueta]="secciones" floatLabel="always" class="iniciativa-campo">
         <mat-label *ngIf="!secciones">{{ nodo.nombre }}</mat-label>
         <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="1" [(ngModel)]="datos[nodo.dato.clave]"
           [placeholder]="calculado(nodo) || 'Se propone con los campos anteriores'" [attr.aria-label]="secciones ? nodo.nombre : null"
@@ -95,19 +87,19 @@
     <app-campo-documento-iniciativa *ngSwitchCase="'documento'" [nodo]="nodo" [(valor)]="datos[nodo.dato.clave]"
       [ruta]="rutaDe(nodo)" [contexto]="contexto"></app-campo-documento-iniciativa>
 
-    <!-- Catálogo: con búsqueda; con varias opciones (multiple), como casillas igual que los factores -->
+    <!-- Catálogo: multiple va como casillas; si no, con búsqueda -->
     <ng-container *ngSwitchCase="'catalogo'">
       <app-casillas-catalogo-iniciativa *ngIf="nodo.dato.multiple; else catalogoUnico" [nodo]="nodo"
         [(valor)]="datos[nodo.dato.clave]" [deshabilitado]="contexto.soloLectura"></app-casillas-catalogo-iniciativa>
       <ng-template #catalogoUnico>
         <app-campo-catalogo-iniciativa [nodo]="nodo" [(valor)]="datos[nodo.dato.clave]"
           [padre]="nodo.dato.depende_de ? datos[nodo.dato.depende_de] : null"
-          [deshabilitado]="contexto.soloLectura" [conEtiqueta]="!secciones" [apariencia]="contexto.apariencia"></app-campo-catalogo-iniciativa>
+          [deshabilitado]="contexto.soloLectura" [conEtiqueta]="!secciones"></app-campo-catalogo-iniciativa>
       </ng-template>
     </ng-container>
 
     <!-- Texto -->
-    <mat-form-field *ngSwitchCase="'input'" [appearance]="contexto.apariencia" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo">
+    <mat-form-field *ngSwitchCase="'input'" appearance="fill" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo">
       <mat-label *ngIf="!secciones">{{ nodo.nombre }}</mat-label>
       <textarea matInput cdkTextareaAutosize [cdkAutosizeMinRows]="nodo.dato.multilinea ? 3 : 1"
         [(ngModel)]="datos[nodo.dato.clave]" [required]="nodo.dato.required" [attr.aria-label]="secciones ? nodo.nombre : null"
@@ -117,21 +109,11 @@
     </mat-form-field>
 
     <!-- Número -->
-    <mat-form-field *ngSwitchCase="'numeric'" [appearance]="contexto.apariencia" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo iniciativa-campo--corto">
+    <mat-form-field *ngSwitchCase="'numeric'" appearance="fill" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo iniciativa-campo--corto">
       <mat-label *ngIf="!secciones">{{ nodo.nombre }}</mat-label>
       <input matInput type="number" [(ngModel)]="datos[nodo.dato.clave]" [required]="nodo.dato.required"
         [attr.aria-label]="secciones ? nodo.nombre : null"
         [attr.min]="nodo.dato.min" [attr.max]="nodo.dato.max" [disabled]="contexto.soloLectura">
-      <mat-hint *ngIf="nodo.descripcion">{{ nodo.descripcion }}</mat-hint>
-    </mat-form-field>
-
-    <!-- Lista de opciones fijas -->
-    <mat-form-field *ngSwitchCase="'select'" [appearance]="contexto.apariencia" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo iniciativa-campo--corto">
-      <mat-label *ngIf="!secciones">{{ nodo.nombre }}</mat-label>
-      <mat-select [(ngModel)]="datos[nodo.dato.clave]" [required]="nodo.dato.required" [disabled]="contexto.soloLectura"
-        [placeholder]="secciones ? 'Seleccione' : ''" [aria-label]="nodo.nombre">
-        <mat-option *ngFor="let opcion of nodo.dato.options" [value]="opcion.valor">{{ opcion.valor }}</mat-option>
-      </mat-select>
       <mat-hint *ngIf="nodo.descripcion">{{ nodo.descripcion }}</mat-hint>
     </mat-form-field>
 
@@ -140,11 +122,12 @@
       <div *ngIf="nodo.dato.marcada_en; else referenciaElegida" class="iniciativa-calculado iniciativa-traida">
         <span class="iniciativa-etiqueta" *ngIf="!secciones">{{ nodo.nombre }}</span>
         <strong *ngIf="textoMarcada(nodo) as texto; else sinMarcada">{{ texto }}</strong>
+        <span class="iniciativa-traida__detalle" *ngIf="detalleMarcada(nodo) as detalle">{{ detalle }}</span>
         <ng-template #sinMarcada><span class="iniciativa-traida__vacia">Aún no se ha marcado ninguna.</span></ng-template>
         <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
       </div>
       <ng-template #referenciaElegida>
-        <mat-form-field [appearance]="contexto.apariencia" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo">
+        <mat-form-field appearance="fill" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo">
           <mat-label *ngIf="!secciones">{{ nodo.nombre }}</mat-label>
           <mat-select [(ngModel)]="datos[nodo.dato.clave]" [multiple]="!!nodo.dato.multiple"
             [required]="nodo.dato.required" [disabled]="contexto.soloLectura" [placeholder]="secciones ? 'Seleccione' : ''" [aria-label]="nodo.nombre">

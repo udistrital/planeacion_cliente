@@ -1,0 +1,59 @@
+@import '../tabla-iniciativa';
+
+/* Anchos de las columnas fijas (colgroup); las de los campos se reparten el resto */
+.col-origen {
+  width: 260px;
+}
+
+.tabla-caja > table {
+  .col-valor {
+    text-align: center;
+  }
+
+  /* Cada fila del espejo empieza con una línea más marcada que separa sus subfilas de las anteriores */
+  tr.primera-subfila > td {
+    border-top: 2px solid rgba(0, 0, 0, 0.16);
+  }
+
+  /* El padding de los td lo fija styles.scss con !important. */
+  td.numero {
+    padding-top: 7px !important;
+  }
+
+  td.origen {
+    padding-top: 9px !important;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  /* Elemento del desglose (p. ej. la comunidad): solo lectura */
+  td.elemento {
+    padding-top: 9px !important;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+}
+
+.origen__nombre {
+  display: block;
+  font-weight: 500;
+}
+
+/* Ayuda del elemento de origen (p. ej. la definición del trazador) */
+.origen__ayuda {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.no-aplica {
+  display: block;
+  padding: 6px 0 5px;
+  color: #8a9097;
+  text-align: center;
+}
+
+.fila-errores td {
+  background-color: #fff;
+}

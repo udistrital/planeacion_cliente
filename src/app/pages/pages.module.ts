@@ -97,6 +97,9 @@ import { GrupoRepetibleIniciativaComponent } from './banco-de-proyectos/iniciati
 import { CampoCatalogoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-catalogo-iniciativa/campo-catalogo-iniciativa.component';
 import { CampoMatrizIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-matriz-iniciativa/campo-matriz-iniciativa.component';
 import { TablaJerarquicaIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/tabla-jerarquica-iniciativa/tabla-jerarquica-iniciativa.component';
+import { TablaSubfilasIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/tabla-subfilas-iniciativa/tabla-subfilas-iniciativa.component';
+import { TablaTraidaIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/tabla-traida-iniciativa/tabla-traida-iniciativa.component';
+import { TablaDesgloseIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/tabla-desglose-iniciativa/tabla-desglose-iniciativa.component';
 import { CeldaIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/celda-iniciativa/celda-iniciativa.component';
 import { CasillasCatalogoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/casillas-catalogo-iniciativa/casillas-catalogo-iniciativa.component';
 import { CampoDocumentoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-documento-iniciativa/campo-documento-iniciativa.component';
@@ -260,6 +263,9 @@ const MY_FORMATS = {
     CampoCatalogoIniciativaComponent,
     CampoMatrizIniciativaComponent,
     TablaJerarquicaIniciativaComponent,
+    TablaSubfilasIniciativaComponent,
+    TablaTraidaIniciativaComponent,
+    TablaDesgloseIniciativaComponent,
     CeldaIniciativaComponent,
     CasillasCatalogoIniciativaComponent,
     CampoDocumentoIniciativaComponent,

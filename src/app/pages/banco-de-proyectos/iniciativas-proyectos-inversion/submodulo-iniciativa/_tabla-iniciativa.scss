@@ -15,7 +15,6 @@
   color: rgba(0, 0, 0, 0.6);
 }
 
-/* Igual que el encabezado de las listas en recuadros (grupo-repetible) */
 .iniciativa-repetible__encabezado {
   display: flex;
   flex-wrap: wrap;
@@ -65,8 +64,6 @@
     background-color: var(--fondo-celda);
   }
 
-  /* Columnas de casillas y de números (p. ej. "¿Pasa al módulo de preparación?", Demanda, Déficit):
-     título y valor centrados, para que el valor quede bajo su título aunque la columna sea ancha */
   .col-acciones,
   .col-casilla,
   .col-numerica {

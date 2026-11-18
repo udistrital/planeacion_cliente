@@ -5,10 +5,9 @@ import { IniciativaService } from '../../iniciativa.service';
 import { ItemCatalogo, NodoDefinicion } from '../../utils';
 
 /**
- * Catálogo con varias opciones (dato.multiple) como casillas, igual que los factores de la
- * localización: una casilla por elemento y se marcan los que aplican (p. ej. las sedes). Emite
- * la lista de códigos marcados en el orden del catálogo. Es para listas cortas; los catálogos
- * largos usan la búsqueda de campo-catalogo.
+ * Catálogo con varias opciones (dato.multiple) como casillas, una por elemento. Emite la lista de
+ * códigos marcados en el orden del catálogo. Es para listas cortas; los catálogos largos usan la
+ * búsqueda de campo-catalogo.
  */
 @Component({
   selector: 'app-casillas-catalogo-iniciativa',

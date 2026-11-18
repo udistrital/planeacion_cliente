@@ -1,5 +1,4 @@
-<!-- Funciona como una lista: clic (o la flecha) despliega las opciones y escribir las filtra -->
-<mat-form-field *ngIf="!enCelda; else celda" [appearance]="apariencia" class="iniciativa-campo" [class.iniciativa-campo--sin-etiqueta]="!conEtiqueta">
+<mat-form-field *ngIf="!enCelda; else celda" appearance="fill" class="iniciativa-campo" [class.iniciativa-campo--sin-etiqueta]="!conEtiqueta">
   <mat-label *ngIf="conEtiqueta">{{ nodo.nombre }}</mat-label>
   <input matInput [formControl]="control" [matAutocomplete]="sugerencias" #disparador="matAutocompleteTrigger"
     (click)="abrir(disparador)" (blur)="alSalir()" [required]="nodo.dato.required" [placeholder]="textoGuia"
@@ -11,7 +10,6 @@
   <mat-hint *ngIf="!cargando && nodo.descripcion && !faltaPadre">{{ nodo.descripcion }}</mat-hint>
 </mat-form-field>
 
-<!-- En una celda de tabla: un renglón con la misma línea que las demás celdas -->
 <ng-template #celda>
   <span class="celda-catalogo-caja">
     <input class="celda-catalogo" [formControl]="control" [matAutocomplete]="sugerencias" #disparadorCelda="matAutocompleteTrigger"
@@ -22,7 +20,7 @@
 </ng-template>
 
 <mat-autocomplete #sugerencias="matAutocomplete" [displayWith]="enCelda ? mostrarNombre : mostrar"
-  (optionSelected)="seleccionar($event.option.value)" class="sugerencias-catalogo">
+  (optionSelected)="seleccionar($event.option.value)" class="sugerencias-catalogo" [panelWidth]="enCelda ? anchoListaEnCelda : ''">
   <ng-container *ngIf="sugerencias$ | async as lista">
     <mat-option *ngFor="let item of lista.items" [value]="item">{{ etiquetaDe(item) }}</mat-option>
     <mat-option *ngIf="!cargando && !lista.items.length" disabled>

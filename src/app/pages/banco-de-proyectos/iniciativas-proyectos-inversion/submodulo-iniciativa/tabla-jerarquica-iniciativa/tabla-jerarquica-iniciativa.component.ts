@@ -5,10 +5,13 @@ import {
   claseDe,
   ContextoFormulario,
   esCampoNumerico,
+  esVisible,
   EstructuraTabla,
   estructuraDeTabla,
   filasDeRuta,
   nuevoIdFila,
+  numeroDeFila,
+  numerosDeLista,
   prefijoDeClave,
   prepararEstructura,
   rutaCampo,
@@ -22,11 +25,10 @@ const SIN_ESTRUCTURA: EstructuraTabla = { campos: [], interna: null, camposInter
 const ANCHO = { numero: 76, columna: 160, numerica: 110, acciones: 96, accion: 56, minimo: 560 };
 
 /**
- * Lista como tabla: una columna por campo y cada campo se edita en su celda (CeldaIniciativa:
- * texto, número, opciones o catálogo). Si la lista tiene lista interna, sus filas van debajo de cada fila,
- * con sangría y número 1.1 (tabla jerárquica). Si es espejo, la primera columna muestra el
- * elemento de origen y no se agregan ni eliminan filas.
- * Edita los mismos datos que el grupo repetible; solo cambia la presentación.
+ * Lista como tabla: una columna por campo, editado en su celda (CeldaIniciativa). Las filas de la
+ * lista interna van debajo de su fila, numeradas 1.1, 1.2… Si es espejo, la primera columna muestra
+ * el elemento de origen y no se agregan ni eliminan filas. Edita los mismos datos que el grupo repetible.
+ * Con numerar_por, las filas se numeran n.m (las actividades de Cadena de valor, por objetivo específico).
  */
 @Component({
   selector: 'app-tabla-jerarquica-iniciativa',
@@ -55,6 +57,14 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     this.columnas = Array.from({ length: Math.max(campos.length, camposInternos.length) }, (_, posicion) => posicion);
     this.encabezados = this.columnas.map((posicion) => this.encabezado(posicion));
     this.ayudas = this.columnas.map((posicion) => this.ayuda(posicion));
+  }
+
+  /**
+   * Número de la fila: su posición o, con numerar_por, n.m. Se calcula cada vez porque cambia al
+   * agregar o eliminar filas aquí o en otra lista del mismo grupo (otro producto del objetivo).
+   */
+  numero(fila: Datos, posicion: number): string {
+    return numeroDeFila(this.nodo, fila, posicion, numerosDeLista(this.nodo, this.ruta, this.contexto));
   }
 
   get etiqueta(): string {
@@ -130,6 +140,22 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     return origen ? textoDeFila(origen, this.nodo.dato.mostrar, 0) : '';
   }
 
+  /** Campo que se escribe en la celda del elemento de origen de esta fila (p. ej. el «¿Cuál?» de «Otro»), o null. */
+  campoEnOrigen(fila: Datos): NodoDefinicion | null {
+    const campo = this.estructura.campoEnOrigen;
+    return campo && esVisible(campo, fila) ? campo : null;
+  }
+
+  /** En un espejo con filas opcionales, la fila que sí se exige (filas_obligatorias). */
+  esFilaObligatoria(fila: Datos): boolean {
+    return !!this.nodo.dato.filas_opcionales && (this.nodo.dato.filas_obligatorias || []).includes(fila.origen);
+  }
+
+  /** Texto de la celda vacía: en un espejo con filas opcionales, "Si aplica" salvo en las obligatorias. */
+  textoVacio(fila: Datos): string {
+    return this.nodo.dato.filas_opcionales && !this.esFilaObligatoria(fila) ? 'Si aplica' : '';
+  }
+
   rutaDeFila(fila: Datos): string {
     return rutaFila(this.ruta, fila.id);
   }
@@ -176,7 +202,7 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
   async eliminar(posicion: number): Promise<void> {
     const aviso = 'Los cambios se aplican al guardar.';
     const confirmado = await confirmarEliminacion(
-      `¿Eliminar ${this.etiqueta.toLowerCase()} ${posicion + 1}?`,
+      `¿Eliminar ${this.etiqueta.toLowerCase()} ${this.numero(this.filas[posicion], posicion)}?`,
       this.tieneInterna ? `Se eliminará con todo lo que contiene. ${aviso}` : aviso,
     );
     if (confirmado) {
@@ -186,7 +212,7 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
 
   async eliminarInterna(fila: Datos, posicionFila: number, posicion: number): Promise<void> {
     const confirmado = await confirmarEliminacion(
-      `¿Eliminar ${this.etiquetaInterna.toLowerCase()} ${posicionFila + 1}.${posicion + 1}?`,
+      `¿Eliminar ${this.etiquetaInterna.toLowerCase()} ${this.numero(fila, posicionFila)}.${posicion + 1}?`,
       'Los cambios se aplican al guardar.',
     );
     if (confirmado) {

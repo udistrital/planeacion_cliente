@@ -107,7 +107,7 @@ export class HabilitarReporteIniciativasComponent implements OnInit {
 
     Swal.fire({
       title: 'Habilitar Fechas',
-      text: `¿Desea habilitar la formulación de planes para la vigencia ${this.vigencia.Nombre} ?`,
+      text: `¿Desea habilitar la formulación de iniciativas para proyectos de inversión para la vigencia ${this.vigencia.Nombre} ?`,
       showCancelButton: true,
       confirmButtonText: 'Sí',
       cancelButtonText: 'No',

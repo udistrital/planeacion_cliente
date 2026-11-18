@@ -20,11 +20,9 @@ export interface DatosObservaciones {
 }
 
 /**
- * Modal de observaciones de un submódulo, como un blog: arriba el cuadro para publicar
- * (solo si se abre con un rol) y debajo las entradas, de la más reciente a la más
- * antigua. Desde el formulario del submódulo se abre para leer y publicar; desde la
- * tabla de submódulos, solo para leer. Cada publicación se avisa con (publicada) para
- * que la pantalla actualice el estado del submódulo sin esperar a que se cierre el modal.
+ * Modal de observaciones de un submódulo, de la más reciente a la más antigua. Abierto con un
+ * rol permite publicar; sin rol es solo lectura. Cada publicación se emite en (publicada) para que
+ * la pantalla actualice el estado del submódulo sin esperar a que se cierre el modal.
  */
 @Component({
   selector: 'app-observaciones-submodulo-iniciativa',

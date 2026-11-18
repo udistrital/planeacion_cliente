@@ -6,49 +6,31 @@ import {
   DescripcionAccionSubmodulo,
 } from './iniciativa.models';
 
-/**
- * Roles que crean y formulan iniciativas: la dependencia y también Planeación.
- * La iniciativa queda a nombre de la unidad del usuario. Para que solo formule
- * la dependencia, basta quitar 'PLANEACION' de esta lista.
- */
+/** Roles que crean y formulan iniciativas (la dependencia y Planeación). */
 export const ROLES_FORMULADORES = ['JEFE_DEPENDENCIA', 'ASISTENTE_DEPENDENCIA', 'PLANEACION'];
 
 /** Roles que revisan las iniciativas (OAPC). */
 export const ROLES_REVISORES = ['PLANEACION', 'ASISTENTE_PLANEACION'];
 
-/** Código del estado de submódulo que no se puede revisar. */
+/** Submódulo sin información. */
 export const ESTADO_SUBMODULO_SIN_FORMULAR = 'SF_SUB';
+
+/** Submódulo con información, pero incompleto o con errores. */
+export const ESTADO_SUBMODULO_FORMULANDO = 'FN_SUB';
+
+/** Estados de submódulo que aún no están formulados: no cuentan como formulados ni se pueden revisar. */
+export const ESTADOS_SUBMODULO_POR_FORMULAR = [ESTADO_SUBMODULO_SIN_FORMULAR, ESTADO_SUBMODULO_FORMULANDO];
 
 /** Código del estado de submódulo con observaciones de Planeación por atender. */
 export const ESTADO_SUBMODULO_CON_OBSERVACIONES = 'CO_SUB';
 
 /**
  * Listas del nivel superior (clave) con lista interna que cada submódulo muestra como tabla
- * jerárquica: cada fila con su número y, debajo, con sangría y número 1.1, las de su lista
- * interna. Las listas sin lista interna van siempre en tabla, sin necesidad de nombrarlas aquí
+ * jerárquica. Las listas sin lista interna van siempre en tabla sin nombrarlas aquí
  * (seMuestraEnTabla); las que tienen lista interna y no están aquí van en recuadros.
  */
 export const LISTAS_EN_TABLA: { [submodulo: string]: string[] } = {
   problematica: ['causas_directas', 'efectos_directos'],
-};
-
-/**
- * Grupos (clave) que cada submódulo muestra como casillas, como la "X" del Excel: cada
- * campo del grupo es un select Sí/No y el usuario marca solo los que aplican. Marcar
- * una casilla guarda VALOR_CASILLA_MARCADA y dejarla sin marcar, VALOR_CASILLA_SIN_MARCAR.
- * Si el grupo tiene otro tipo de campos, se muestra como un grupo normal.
- */
-export const GRUPOS_EN_CASILLAS: { [submodulo: string]: string[] } = {
-  localizacion: ['factores'],
-};
-
-/**
- * Secciones (clave de un campo del nivel superior) que cada submódulo muestra una al lado de la
- * otra, a media pantalla, en lugar de una debajo de la otra. En pantallas angostas vuelven a
- * quedar una debajo de la otra.
- */
-export const SECCIONES_LADO_A_LADO: { [submodulo: string]: string[] } = {
-  localizacion: ['sedes', 'factores'],
 };
 
 /**
@@ -71,15 +53,15 @@ export const COLUMNAS_RESUMEN: { [submodulo: string]: { [lista: string]: Columna
   },
   cadena_valor: {
     productos_por_objetivo: [{ clave: 'productos', nombre: 'Productos' }],
-    productos: [{ clave: 'producto' }, { clave: 'meta' }, { clave: 'actividades', nombre: 'Actividades' }],
+    productos: [{ clave: 'producto' }, { clave: 'indicador_producto' }, { clave: 'actividades', nombre: 'Actividades' }],
   },
   ingresos_beneficios: {
     conceptos: [{ clave: 'tipo' }, { clave: 'descripcion' }, { clave: 'valores_anuales', nombre: 'Años' }],
   },
 };
 
+/** Texto de una casilla marcada en la tabla resumen. */
 export const VALOR_CASILLA_MARCADA = 'Sí';
-export const VALOR_CASILLA_SIN_MARCAR = 'No';
 
 /** Largo máximo de una observación (igual que en el mid y el crud). */
 export const MAXIMO_TEXTO_OBSERVACION = 4000;
@@ -95,7 +77,7 @@ export const NOMBRES_ROL: { [rol: string]: string } = {
   ASISTENTE_DEPENDENCIA: 'Asistente de dependencia',
 };
 
-/** Ícono y texto de la acción principal de cada submódulo (como el lápiz y la lupa del listado). */
+/** Ícono y texto de la acción principal de cada submódulo. */
 export const ACCIONES_SUBMODULO: { [accion in AccionSubmodulo]: DescripcionAccionSubmodulo } = {
   formular: { etiqueta: 'Formular', icono: 'edit' },
   revisar: { etiqueta: 'Revisar', icono: 'rate_review' },
@@ -121,11 +103,5 @@ export const ACCIONES_INICIATIVA: { [accion in AccionIniciativa]: DescripcionAcc
     confirmacion: 'La iniciativa quedará avalada y no se podrá editar.',
     roles: ROLES_REVISORES,
     color: 'primary',
-  },
-  'no-avalar': {
-    etiqueta: 'No avalar',
-    confirmacion: 'La iniciativa quedará como no avalada.',
-    roles: ROLES_REVISORES,
-    color: 'warn',
   },
 };

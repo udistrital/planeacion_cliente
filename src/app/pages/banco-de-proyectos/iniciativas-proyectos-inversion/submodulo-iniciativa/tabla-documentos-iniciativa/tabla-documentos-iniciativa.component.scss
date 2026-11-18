@@ -16,12 +16,10 @@
   width: 36%;
 }
 
-/* El ⊕ del encabezado va en blanco sobre el color del sistema, como en las tablas resumen */
 th .agregar-encabezado {
   color: #fff;
 }
 
-/* Documento fijo: su nombre y, debajo, si es obligatorio */
 .fijo {
   line-height: 1.35;
 }
@@ -32,7 +30,6 @@ th .agregar-encabezado {
   overflow-wrap: anywhere;
 }
 
-/* La descripción del documento sale al pasar el mouse por el nombre */
 .fijo__nombre.con-ayuda {
   text-decoration-color: rgba(0, 0, 0, 0.35);
 }

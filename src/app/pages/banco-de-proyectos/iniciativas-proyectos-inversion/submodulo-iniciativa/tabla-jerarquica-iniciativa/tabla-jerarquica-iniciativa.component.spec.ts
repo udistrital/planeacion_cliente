@@ -5,7 +5,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
@@ -17,7 +16,7 @@ import { CeldaIniciativaComponent } from '../celda-iniciativa/celda-iniciativa.c
 import { TablaJerarquicaIniciativaComponent } from './tabla-jerarquica-iniciativa.component';
 
 function nodo(clave: string, nombre: string, tipo?: any, extra: any = {}, hijos: NodoDefinicion[] = []): NodoDefinicion {
-  return { id: clave, nombre, descripcion: '', bandera_tabla: false, dato: { clave, type: tipo, required: true, ...extra }, hijos };
+  return { id: clave, nombre, descripcion: '', dato: { clave, type: tipo, required: true, ...extra }, hijos };
 }
 
 const EFECTOS = nodo('efectos_directos', 'Efectos directos', 'repetible', { min: 1, etiqueta_fila: 'Efecto directo' }, [
@@ -52,9 +51,7 @@ describe('TablaJerarquicaIniciativaComponent', () => {
       relacionadas: {},
       soloLectura: false,
       errores: {},
-      apariencia: 'fill',
       listasEnTabla: ['efectos_directos'],
-      gruposEnCasillas: [],
       nombreEnCatalogo: (catalogo, codigo) => codigo,
       ...parcial,
     };
@@ -76,25 +73,25 @@ describe('TablaJerarquicaIniciativaComponent', () => {
       declarations: [TablaJerarquicaIniciativaComponent, CeldaIniciativaComponent, CampoCatalogoIniciativaComponent],
       imports: [
         FormsModule, ReactiveFormsModule, TextFieldModule, NoopAnimationsModule, MatIconModule, MatButtonModule,
-        MatTooltipModule, MatSelectModule, MatAutocompleteModule, MatCheckboxModule,
+        MatTooltipModule, MatAutocompleteModule, MatCheckboxModule,
       ],
       providers: [{ provide: IniciativaService, useValue: { catalogo: () => of([]) } }],
     }).compileComponents();
   });
 
-  it('sin lista interna dibuja una columna por campo, con número y opciones en su celda', fakeAsync(() => {
-    const necesidades = nodo('analisis_anual', 'Análisis anual', 'repetible', { etiqueta_fila: 'Año' }, [
-      nodo('tipo_analisis', 'Tipo de análisis', 'select', { options: [{ valor: 'Histórico' }, { valor: 'Proyectado' }] }),
+  it('sin lista interna dibuja una columna por campo, con número y catálogo en su celda', fakeAsync(() => {
+    const valores = nodo('valores_anuales', 'Valores por año', 'repetible', { etiqueta_fila: 'Año' }, [
+      nodo('tipo', 'Tipo', 'catalogo', { catalogo: 'tipos_ingreso_beneficio' }),
       nodo('anio', 'Año', 'numeric', { decimales: 0 }),
       nodo('demanda', 'Demanda', 'numeric', { required: false }),
     ]);
-    montar([{ id: 'aa-1', tipo_analisis: 'Histórico', anio: 2024, demanda: 120 }], {}, necesidades);
+    montar([{ id: 'va-1', tipo: 'Ingreso', anio: 2024, demanda: 120 }], {}, valores);
     tick();
     fixture.detectChanges();
 
-    expect(textos('thead th')).toEqual(['N.°', 'Tipo de análisis', 'Año', 'Demanda', 'Acciones']);
+    expect(textos('thead th')).toEqual(['N.°', 'Tipo', 'Año', 'Demanda', 'Acciones']);
     expect(elemento.querySelectorAll('th.col-numerica').length).toBe(2);
-    expect(elemento.querySelectorAll('td mat-select').length).toBe(1);
+    expect(elemento.querySelectorAll('td app-campo-catalogo-iniciativa').length).toBe(1);
     const numeros = Array.from(elemento.querySelectorAll('input[type=number]')) as HTMLInputElement[];
     expect(numeros.map((n) => n.value)).toEqual(['2024', '120']);
     expect(numeros.map((n) => n.placeholder)).toEqual(['Obligatorio', 'Opcional']);
@@ -152,6 +149,32 @@ describe('TablaJerarquicaIniciativaComponent', () => {
     expect(valores).toContain('Mayores costos de operación');
   }));
 
+  it('con numerar_por numera las actividades n.m por objetivo específico, a través de los productos', () => {
+    const numeradas = { etiqueta_fila: 'Actividad', numerar_por: 'productos_por_objetivo' };
+    const actividades = nodo('actividades', 'Actividades', 'repetible', numeradas, [nodo('actividad', 'Actividad', 'input')]);
+    const segundoProducto = [{ id: 'a-3', actividad: 'Instalar equipos' }];
+    const cadena = {
+      productos_por_objetivo: [
+        { id: 'ppo-1', productos: [
+          { id: 'p-1', actividades: [{ id: 'a-1', actividad: 'Diseñar' }, { id: 'a-2', actividad: 'Comprar' }] },
+          { id: 'p-2', actividades: segundoProducto },
+        ] },
+        { id: 'ppo-2', productos: [{ id: 'p-3', actividades: [{ id: 'a-4', actividad: 'Capacitar' }] }] },
+      ],
+    };
+    // La tabla del segundo producto del objetivo 1 sigue la numeración de las del primero.
+    montar(segundoProducto, { claveSubmodulo: 'cadena_valor', datosSubmodulo: cadena }, actividades);
+    fixture.componentInstance.ruta = 'productos_por_objetivo[ppo-1].productos[p-2].actividades';
+    fixture.detectChanges();
+
+    expect(textos('td.numero')).toEqual(['1.3']);
+
+    boton('Agregar actividad').click();
+    fixture.detectChanges();
+    expect(textos('td.numero')).toEqual(['1.3', '1.4']);
+    expect(boton('Eliminar actividad 1.4')).toBeTruthy();
+  });
+
   it('agrega filas internas y del primer nivel con su id y su lista interna vacía', () => {
     const filas = montar(efectosDeEjemplo());
 
@@ -205,6 +228,34 @@ describe('TablaJerarquicaIniciativaComponent', () => {
 
     const marcas = Array.from(elemento.querySelectorAll('tr.nivel-2 textarea')).map((t) => t.getAttribute('placeholder'));
     expect(marcas.slice(0, 2)).toEqual(['Obligatorio', 'Opcional']);
+  });
+
+  it('en un espejo de catálogo con filas opcionales marca solo las obligatorias', () => {
+    const resultados = nodo('resultados', 'Resultados', 'repetible', {
+      espejo_de: 'catalogo.resultados', mostrar: 'nombre', etiqueta_fila: 'Resultado',
+      filas_opcionales: true, filas_obligatorias: ['est'],
+    }, [nodo('sede', 'Sede', 'input')]);
+    const relacionadas = { catalogo: { resultados: [{ id: 'est', nombre: 'Estudiantes' }, { id: 'aul', nombre: 'Aulas' }] } };
+    montar([{ id: 'r-1', origen: 'est' }, { id: 'r-2', origen: 'aul' }], { claveSubmodulo: 'objetivos', relacionadas }, resultados);
+
+    expect(textos('td.origen')).toEqual(['Estudiantes *', 'Aulas']);
+    expect(Array.from(elemento.querySelectorAll('textarea')).map((c) => c.getAttribute('placeholder'))).toEqual(['Obligatorio', 'Si aplica']);
+  });
+
+  it('en un espejo de catálogo, la fila «Otro» pide cuál dentro de la celda del elemento', () => {
+    const resultados = nodo('resultados', 'Resultados', 'repetible', {
+      espejo_de: 'catalogo.resultados', mostrar: 'nombre', etiqueta_fila: 'Resultado', filas_opcionales: true,
+    }, [
+      nodo('cual', '¿Cuál?', 'input', { solo_si: { campo: 'origen', valor: 'Otro' } }),
+      nodo('sede', 'Sede', 'input'),
+    ]);
+    const relacionadas = { catalogo: { resultados: [{ id: 'aul', nombre: 'Aulas' }, { id: 'Otro', nombre: 'Otro: ¿Cuál?' }] } };
+    montar([{ id: 'r-1', origen: 'aul' }, { id: 'r-2', origen: 'Otro' }], { claveSubmodulo: 'objetivos', relacionadas }, resultados);
+
+    expect(textos('thead th')).not.toContain('¿Cuál?');
+    const celdasOrigen = elemento.querySelectorAll('td.origen');
+    expect(celdasOrigen[0].querySelector('textarea')).toBeNull();
+    expect(celdasOrigen[1].querySelector('textarea').getAttribute('placeholder')).toBe('Escriba cuál');
   });
 
   it('en solo lectura no muestra acciones ni botones y deshabilita las celdas', fakeAsync(() => {

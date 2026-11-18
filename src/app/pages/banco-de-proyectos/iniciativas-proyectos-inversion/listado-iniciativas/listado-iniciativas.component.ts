@@ -19,11 +19,9 @@ import { RequestManager } from 'src/app/pages/services/requestManager';
 import { environment } from 'src/environments/environment';
 
 /**
- * Tabla de las iniciativas de inversión registradas. Planeación ve todas; la
- * dependencia, las de sus unidades. Con + se crea una iniciativa (con la
- * plantilla vigente) y se abre su listado de componentes para formularla.
- * Las unidades del usuario solo se consultan cuando hacen falta: al entrar, para
- * filtrar a la dependencia, y al crear.
+ * Listado de iniciativas. Planeación ve todas; la dependencia, las de sus unidades.
+ * Las unidades del usuario se consultan solo cuando hacen falta: al entrar (para
+ * filtrar a la dependencia) y al crear.
  */
 @Component({
   selector: 'app-listado-iniciativas',
@@ -142,10 +140,10 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
           });
         }
       }
-    }, (error) => {
+    }, () => {
       Swal.fire({
         icon: 'warning',
-        title: 'No se puede crear la iniciativa ',
+        title: 'No se puede crear la iniciativa',
         text: 'No se pudo validar el rango de fechas habilitado para su unidad. Intente nuevamente más tarde.',
       });
     });
@@ -174,15 +172,15 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
         } else {
           Swal.fire({
             icon: 'warning',
-            title: 'Nueva iniciativa',
+            title: 'Editar iniciativa',
             text: 'No se puede editar la iniciativa porque no está dentro del rango de fechas habilitado para su unidad.',
           });
         }
       }
-    }, (error) => {
+    }, () => {
       Swal.fire({
         icon: 'warning',
-        title: 'No se puede crear la iniciativa ',
+        title: 'No se puede abrir la iniciativa',
         text: 'No se pudo validar el rango de fechas habilitado para su unidad. Intente nuevamente más tarde.',
       });
     });

@@ -1,0 +1,34 @@
+@import '../tabla-iniciativa';
+
+.tabla-caja > table {
+  .col-valor {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  td {
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  /* El padding de los td lo fija styles.scss con !important. */
+  td.numero {
+    padding-top: 7px !important;
+  }
+
+  /* Fila de totales: encabezado de fila a la izquierda y las sumas en negrita */
+  .fila-total > * {
+    border-top: 2px solid rgba(0, 0, 0, 0.16);
+    background-color: #f3ebeb;
+    color: rgba(0, 0, 0, 0.87);
+    font-weight: 600;
+  }
+
+  .fila-total th {
+    text-align: right;
+  }
+}
+
+.sin-valor {
+  color: #8a9097;
+}

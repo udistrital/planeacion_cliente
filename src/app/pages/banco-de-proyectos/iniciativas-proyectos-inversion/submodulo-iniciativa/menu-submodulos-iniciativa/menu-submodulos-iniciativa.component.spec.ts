@@ -9,12 +9,11 @@ import { ResumenModulo, ResumenSubmodulo } from '../../utils';
 import { MenuSubmodulosIniciativaComponent } from './menu-submodulos-iniciativa.component';
 
 function submodulo(clave: string, nombre: string, codigo: string, estado: string, color: string): ResumenSubmodulo {
-  return { clave, nombre, descripcion: '', orden: 0, version: 1, observaciones: 0,
-    estado: { _id: codigo, nombre: estado, codigo_abreviacion: codigo, color } };
+  return { clave, nombre, observaciones: 0, estado: { nombre: estado, codigo_abreviacion: codigo, color } };
 }
 
 function modulo(clave: string, nombre: string, submodulos: ResumenSubmodulo[]): ResumenModulo {
-  return { clave, nombre, descripcion: '', submodulos };
+  return { clave, nombre, submodulos };
 }
 
 const MODULOS = [
@@ -53,11 +52,12 @@ describe('MenuSubmodulosIniciativaComponent (selector de submódulos)', () => {
     }).compileComponents();
   });
 
-  it('muestra el submódulo actual y cuántos van formulados', async () => {
+  it('muestra el submódulo actual con su estado y cuántos van formulados', async () => {
     await montar('necesidades');
 
-    expect(textos(fixture.nativeElement, '.mat-select-value')).toEqual(['Necesidades']);
-    expect(textos(fixture.nativeElement, 'mat-label')).toEqual(['Submódulo · 2 de 3 formulados']);
+    expect(textos(fixture.nativeElement, '.mat-select-value .opcion__nombre')).toEqual(['Necesidades']);
+    expect(textos(fixture.nativeElement, '.mat-select-value .opcion__estado')).toEqual(['Formulado']);
+    expect(textos(fixture.nativeElement, '.selector__conteo')).toEqual(['2 de 3 formulados']);
   });
 
   it('al abrirlo agrupa los submódulos por módulo, con su estado', async () => {

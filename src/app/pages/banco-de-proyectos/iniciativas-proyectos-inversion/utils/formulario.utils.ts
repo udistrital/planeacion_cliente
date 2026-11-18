@@ -1,3 +1,4 @@
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Observable } from 'rxjs';
 import {
   ColumnaResumen,
@@ -10,7 +11,7 @@ import {
   ResumenIniciativa,
   ResumenSubmodulo,
 } from './iniciativa.models';
-import { VALOR_CASILLA_MARCADA, VALOR_CASILLA_SIN_MARCAR } from './constantes';
+import { VALOR_CASILLA_MARCADA } from './constantes';
 
 /**
  * Funciones puras del formulario dinámico. Repiten las reglas de forma del mid
@@ -20,9 +21,6 @@ import { VALOR_CASILLA_MARCADA, VALOR_CASILLA_SIN_MARCAR } from './constantes';
 
 export const PREFIJO_ORIGEN = 'origen.';
 
-/** Apariencia de los mat-form-field del formulario. */
-export type AparienciaCampo = 'fill' | 'outline';
-
 /** Contexto que comparten todos los niveles del formulario de un submódulo. */
 export interface ContextoFormulario {
   claveSubmodulo: string;
@@ -30,14 +28,8 @@ export interface ContextoFormulario {
   relacionadas: { [submodulo: string]: Datos };
   soloLectura: boolean;
   errores: { [ruta: string]: string[] };
-  /** 'fill' en el formulario del submódulo (estilo de SISGPLAN). */
-  apariencia: AparienciaCampo;
   /** Claves de las listas del nivel superior que se dibujan como tabla jerárquica (LISTAS_EN_TABLA). */
   listasEnTabla: string[];
-  /** Claves de los grupos que se dibujan como casillas Sí/No (GRUPOS_EN_CASILLAS). */
-  gruposEnCasillas: string[];
-  /** Secciones del nivel superior que van una al lado de la otra (SECCIONES_LADO_A_LADO). */
-  seccionesLadoALado?: string[];
   /** Grupos cuyos campos van en columnas (GRUPOS_EN_COLUMNAS). */
   gruposEnColumnas?: string[];
   /** Columnas de la tabla resumen de las listas que se editan debajo de la tabla (COLUMNAS_RESUMEN). */
@@ -56,7 +48,6 @@ export type ClaseNodo =
   | 'repetible'
   | 'input'
   | 'numeric'
-  | 'select'
   | 'catalogo'
   | 'calculado'
   | 'referencia'
@@ -122,18 +113,58 @@ export function filasDe(valor: any): Datos[] {
   return Array.isArray(valor) ? valor.filter((fila) => fila && typeof fila === 'object') : [];
 }
 
+/** Datos del submódulo actual o de uno relacionado. */
+function datosDeSubmodulo(submodulo: string, contexto: ContextoFormulario): Datos | undefined {
+  return submodulo === contexto.claveSubmodulo ? contexto.datosSubmodulo : contexto.relacionadas[submodulo];
+}
+
+/** Baja por los grupos anidados: las filas de claves[0] de cada fila, luego las de claves[1] de esas… */
+function filasAnidadas(filas: Datos[], claves: string[]): Datos[] {
+  return claves.reduce(
+    (actuales, clave) => actuales.reduce((internas, fila) => internas.concat(filasDe(fila && fila[clave])), [] as Datos[]),
+    filas,
+  );
+}
+
 /**
  * Filas de "<submodulo>.<grupo>" en los datos del submódulo actual o de los relacionados.
  * La ruta puede seguir por grupos anidados ("<submodulo>.<grupo>.<subgrupo>"): entonces
  * devuelve, en orden, las filas de <subgrupo> de todas las filas de <grupo>.
  */
 export function filasDeRuta(ruta: string, contexto: ContextoFormulario): Datos[] {
-  const [submodulo, grupo, ...anidados] = (ruta || '').split('.');
-  const datos = submodulo === contexto.claveSubmodulo ? contexto.datosSubmodulo : contexto.relacionadas[submodulo];
-  return anidados.reduce(
-    (filas, clave) => filas.reduce((internas, fila) => internas.concat(filasDe(fila[clave])), [] as Datos[]),
-    filasDe(datos && datos[grupo]),
+  const [submodulo, ...grupos] = (ruta || '').split('.');
+  return grupos.length ? filasAnidadas([datosDeSubmodulo(submodulo, contexto) || {}], grupos) : [];
+}
+
+/**
+ * Números de las filas de una lista con numerar_por, por id: n.m, con n la fila del grupo numerar_por
+ * que la contiene y m su consecutivo dentro de ella (en Cadena de valor, 1.3 es la tercera actividad
+ * del objetivo específico 1, aunque esté en otro producto). La lista se lee de `ruta` (la de un espejo
+ * es su espejo_de: las claves son entonces los ids de origen). Vacío si la lista no tiene numerar_por.
+ */
+export function numerosDeLista(nodo: NodoDefinicion, ruta: string, contexto: ContextoFormulario): Map<string, string> {
+  const numeros = new Map<string, string>();
+  const numerarPor = nodo.dato.numerar_por;
+  if (!numerarPor) {
+    return numeros;
+  }
+  const [submodulo, ...grupos] = (nodo.dato.espejo_de || rutaCampo(contexto.claveSubmodulo, rutaEnPlantilla(ruta))).split('.');
+  const nivel = grupos.indexOf(numerarPor);
+  if (nivel < 0) {
+    return numeros;
+  }
+  const contenedoras = filasAnidadas([datosDeSubmodulo(submodulo, contexto) || {}], grupos.slice(0, nivel + 1));
+  contenedoras.forEach((contenedora, posicion) =>
+    filasAnidadas([contenedora], grupos.slice(nivel + 1)).forEach((fila, consecutivo) =>
+      numeros.set(fila.id, `${posicion + 1}.${consecutivo + 1}`),
+    ),
   );
+  return numeros;
+}
+
+/** Número de una fila: el de numerosDeLista (por su origen, si es espejo) o, si no tiene, su posición. */
+export function numeroDeFila(nodo: NodoDefinicion, fila: Datos, posicion: number, numeros: Map<string, string>): string {
+  return numeros.get(nodo.dato.espejo_de ? fila.origen : fila.id) || String(posicion + 1);
 }
 
 /**
@@ -155,6 +186,8 @@ export function sincronizarEspejo(actuales: Datos[], origen: Datos[], prefijo: s
 export interface OpcionReferencia {
   id: string;
   etiqueta: string;
+  /** Texto del campo mostrar_detalle de la fila, si la referencia lo pide; vacío si no. */
+  detalle?: string;
 }
 
 /**
@@ -169,7 +202,11 @@ export function opcionesDeReferencia(dato: DatoCampo, filaOrigen: Datos | null, 
   return filas
     .map((fila, posicion) => ({ fila, posicion }))
     .filter(({ fila }) => fila.id && (!dato.marcada_en || fila[dato.marcada_en] === true))
-    .map(({ fila, posicion }) => ({ id: fila.id, etiqueta: textoDeFila(fila, dato.mostrar, posicion) }));
+    .map(({ fila, posicion }) => ({
+      id: fila.id,
+      etiqueta: textoDeFila(fila, dato.mostrar, posicion),
+      detalle: dato.mostrar_detalle ? String(fila[dato.mostrar_detalle] || '').trim() : '',
+    }));
 }
 
 export function textoDeFila(fila: Datos, campo: string | undefined, posicion: number): string {
@@ -185,14 +222,22 @@ export interface EstructuraTabla {
   interna: NodoDefinicion | null;
   /** Campos de la lista interna, en las mismas columnas. */
   camposInternos: NodoDefinicion[];
+  /**
+   * En un espejo, el campo que solo aplica a una fila de origen (solo_si sobre "origen"): no tiene
+   * columna, se escribe en la celda del elemento de origen de esa fila (p. ej. el «¿Cuál?» de «Otro»).
+   */
+  campoEnOrigen?: NodoDefinicion | null;
 }
 
+/** En solo_si de un campo de un espejo: la fila de origen (su id o, en un espejo de catálogo, su código). */
+export const CAMPO_ORIGEN = 'origen';
+
 /** Tipos de campo que se editan dentro de una celda de tabla (además del calculado numérico, que solo se muestra). */
-const TIPOS_EN_CELDA: ClaseNodo[] = ['input', 'numeric', 'select', 'catalogo', 'casilla'];
+const TIPOS_EN_CELDA: ClaseNodo[] = ['input', 'numeric', 'catalogo', 'casilla'];
 
 /**
  * Estructura de tabla de una lista, o null si no cabe en una: solo campos que se editan
- * en una celda (texto, número, opciones, catálogo, casilla o calculado numérico) y, como mucho, una lista interna con
+ * en una celda (texto, número, catálogo, casilla o calculado numérico) y, como mucho, una lista interna con
  * campos de ese tipo. Un espejo cabe solo si no tiene lista interna; la interna no puede ser espejo.
  */
 export function estructuraDeTabla(nodo: NodoDefinicion): EstructuraTabla | null {
@@ -202,14 +247,18 @@ export function estructuraDeTabla(nodo: NodoDefinicion): EstructuraTabla | null 
   const interna = internas[0] || null;
   const hijosInternos = interna ? interna.hijos || [] : [];
   const camposInternos = hijosInternos.filter(cabeEnCelda);
+  const enOrigen = nodo.dato.espejo_de
+    ? hijos.filter((hijo) => hijo.dato.solo_si && hijo.dato.solo_si.campo === CAMPO_ORIGEN && claseDe(hijo) === 'input')
+    : [];
+  const campoEnOrigen = enOrigen.length === 1 ? enOrigen[0] : null;
   const valida =
     claseDe(nodo) === 'repetible' &&
     !(nodo.dato.espejo_de && interna) &&
     campos.length > 0 &&
     internas.length <= 1 &&
-    campos.length + internas.length === hijos.length &&
+    campos.length + internas.length + (campoEnOrigen ? 1 : 0) === hijos.length &&
     (!interna || (!interna.dato.espejo_de && camposInternos.length > 0 && camposInternos.length === hijosInternos.length));
-  return valida ? { campos, interna, camposInternos } : null;
+  return valida ? { campos, interna, camposInternos, campoEnOrigen } : null;
 }
 
 /**
@@ -225,13 +274,52 @@ export function seMuestraEnTabla(nodo: NodoDefinicion, contexto: ContextoFormula
 /** Ni el catálogo multiple (casillas) ni los campos con solo_si caben en una celda: la lista va en recuadros. */
 function cabeEnCelda(nodo: NodoDefinicion): boolean {
   const enCelda = TIPOS_EN_CELDA.includes(claseDe(nodo)) && !(claseDe(nodo) === 'catalogo' && nodo.dato.multiple);
-  return (enCelda || esCalculoNumerico(nodo)) && !nodo.dato.solo_si;
+  return (enCelda || esCalculoNumerico(nodo) || esCalculoTraido(nodo)) && !nodo.dato.solo_si;
+}
+
+/** Columna de una tabla de subfilas: los campos con esa clave en las subfilas que la tienen. */
+export interface ColumnaSubfilas {
+  clave: string;
+  /** Nombre del primer campo con esa clave (p. ej. «Año 0»). */
+  nombre: string;
+  /** Descripciones de los campos de la columna, para la ayuda del encabezado. */
+  ayuda: string;
+}
+
+/** Espejo cuyas filas se dibujan en varias subfilas, una por grupo, con las columnas de todas. */
+export interface EstructuraSubfilas {
+  subfilas: NodoDefinicion[];
+  columnas: ColumnaSubfilas[];
+}
+
+/**
+ * Estructura de un espejo cuyos hijos son todos grupos con campos que caben en una celda, o null
+ * si no lo es. Cada fila se dibuja en una subfila por grupo, y las columnas son las claves de los
+ * campos en orden de aparición: en el Cronograma, la programación física (Año 0 a 4) y la financiera
+ * (Año 0 a 4 y el valor total) de cada actividad. La subfila que no tiene una columna dice N/A.
+ */
+export function estructuraDeSubfilas(nodo: NodoDefinicion): EstructuraSubfilas | null {
+  const subfilas = nodo.hijos || [];
+  const grupoEnCeldas = (grupo: NodoDefinicion) =>
+    claseDe(grupo) === 'grupo' && !grupo.dato.solo_si && (grupo.hijos || []).length > 0 && grupo.hijos.every(cabeEnCelda);
+  const valida = claseDe(nodo) === 'repetible' && !!nodo.dato.espejo_de && subfilas.length > 0 && subfilas.every(grupoEnCeldas);
+  if (!valida) {
+    return null;
+  }
+  const campos = subfilas.reduce((todos, grupo) => todos.concat(grupo.hijos), [] as NodoDefinicion[]);
+  const claves = Array.from(new Set(campos.map((campo) => campo.dato.clave)));
+  const columnas = claves.map((clave) => {
+    const deLaColumna = campos.filter((campo) => campo.dato.clave === clave);
+    const ayudas = deLaColumna.map((campo) => campo.descripcion).filter((descripcion) => !!descripcion);
+    return { clave, nombre: deLaColumna[0].nombre, ayuda: Array.from(new Set(ayudas)).join(' / ') };
+  });
+  return { subfilas, columnas };
 }
 
 /**
  * Si el campo aplica con los valores de su nivel: sin solo_si, siempre; con solo_si, si el hermano
- * vale el valor o, si es una lista (catálogo multiple), lo incluye. Igual que el mid, que no
- * exige ni guarda lo que no aplica.
+ * vale el valor o, si es una lista (catálogo multiple), lo incluye; con distinto, si no. Igual que
+ * el mid, que no exige ni guarda lo que no aplica.
  */
 export function esVisible(nodo: NodoDefinicion, hermanos: Datos): boolean {
   const condicion = nodo.dato.solo_si;
@@ -239,12 +327,64 @@ export function esVisible(nodo: NodoDefinicion, hermanos: Datos): boolean {
     return true;
   }
   const valor = hermanos && hermanos[condicion.campo];
-  return Array.isArray(valor) ? valor.includes(condicion.valor) : valor === condicion.valor;
+  const coincide = Array.isArray(valor) ? valor.includes(condicion.valor) : valor === condicion.valor;
+  return coincide !== !!condicion.distinto;
+}
+
+/** Espejo con desglose: sus campos en columnas y una lista interna (espejo) que aplica solo a algunas filas. */
+export interface EstructuraDesglose {
+  campos: NodoDefinicion[];
+  desglose: NodoDefinicion;
+}
+
+/**
+ * Estructura de un espejo con desglose, o null si no lo es: sus campos caben en una celda (pueden
+ * tener solo_si) y tiene una sola lista interna, espejo, con solo_si y con campos que caben en una
+ * celda. En las filas a las que aplica el desglose, las columnas de los campos que no aplican se
+ * parten en una subfila por elemento del desglose: la primera muestra el elemento y las demás el
+ * campo del desglose con la misma clave. En Trazadores presupuestales, Grupos Étnicos lleva una
+ * subfila por comunidad (Discriminado = la comunidad, con su número de beneficiarios).
+ */
+export function estructuraDeDesglose(nodo: NodoDefinicion): EstructuraDesglose | null {
+  const hijos = nodo.hijos || [];
+  const listas = hijos.filter((hijo) => claseDe(hijo) === 'repetible');
+  const campos = hijos.filter((hijo) => claseDe(hijo) !== 'repetible');
+  const desglose = listas[0];
+  const enCelda = (campo: NodoDefinicion) => cabeEnCelda({ ...campo, dato: { ...campo.dato, solo_si: undefined } });
+  const valida =
+    claseDe(nodo) === 'repetible' &&
+    !!nodo.dato.espejo_de &&
+    listas.length === 1 &&
+    campos.length > 0 &&
+    campos.every(enCelda) &&
+    !!desglose.dato.espejo_de &&
+    !!desglose.dato.solo_si &&
+    (desglose.hijos || []).length > 0 &&
+    desglose.hijos.every(cabeEnCelda);
+  return valida ? { campos, desglose } : null;
 }
 
 /** Calculado con operación (p. ej. el déficit): su valor es un número. */
 export function esCalculoNumerico(nodo: NodoDefinicion): boolean {
   return claseDe(nodo) === 'calculado' && !!nodo.dato.operacion;
+}
+
+/** Calculado que solo muestra un valor de otro submódulo o de la fila de origen (desde). */
+export function esCalculoTraido(nodo: NodoDefinicion): boolean {
+  return claseDe(nodo) === 'calculado' && !!nodo.dato.desde;
+}
+
+/**
+ * Si el campo se exige: required o, con obligatorio_si "origen.<campo>", si ese campo de la fila de
+ * origen tiene valor (un número distinto de 0, un texto…), igual que el mid.
+ */
+export function esExigido(dato: DatoCampo, filaOrigen: Datos | null): boolean {
+  if (!dato.obligatorio_si) {
+    // La plantilla trae required como texto ("true"/"false") o booleano.
+    return coerceBooleanProperty(dato.required);
+  }
+  const valor = valorTraido(dato.obligatorio_si, filaOrigen, null);
+  return typeof valor === 'number' ? isFinite(valor) && valor !== 0 : tieneValor(valor);
 }
 
 /** Campo cuyo valor es un número: se escribe o se calcula. */
@@ -314,9 +454,9 @@ export function estructuraDeDocumentos(nodos: NodoDefinicion[]): EstructuraDocum
 // ---------------------------------------------------------------------------
 
 /** Tipos de campo que el resumen muestra por defecto cuando la lista no tiene COLUMNAS_RESUMEN. */
-const TIPOS_RESUMEN_POR_DEFECTO: ClaseNodo[] = ['input', 'numeric', 'select', 'catalogo'];
+const TIPOS_RESUMEN_POR_DEFECTO: ClaseNodo[] = ['input', 'numeric', 'catalogo'];
 
-/** Campo que resume una fila cuando la lista no tiene columnas configuradas: el primero de texto, número u opciones. */
+/** Campo que resume una fila cuando la lista no tiene columnas configuradas: el primero de texto, número o catálogo. */
 export function campoResumenPorDefecto(nodo: NodoDefinicion): NodoDefinicion | null {
   return (nodo.hijos || []).find((hijo) => TIPOS_RESUMEN_POR_DEFECTO.includes(claseDe(hijo)) && !hijo.dato.solo_si) || null;
 }
@@ -333,7 +473,7 @@ function campoCompleto(nodo: NodoDefinicion, datos: Datos, contexto: ContextoFor
   const valor = datos ? datos[nodo.dato.clave] : undefined;
   switch (claseDe(nodo)) {
     case 'grupo':
-      return esGrupoDeCasillas(nodo, contexto) || filaCompleta(nodo.hijos, esObjeto(valor) ? valor : {}, contexto);
+      return filaCompleta(nodo.hijos, esObjeto(valor) ? valor : {}, contexto);
     case 'repetible': {
       const filas = filasDe(valor);
       // Las filas de un espejo salen del origen: aquí no se exige cuántas hay.
@@ -396,11 +536,66 @@ export function textoResumen(campo: NodoDefinicion, fila: Datos, filaOrigen: Dat
   }
 }
 
-/** Valor de "<submodulo>.<campo>" en el submódulo actual o en los relacionados. */
-export function valorDeRuta(ruta: string, contexto: ContextoFormulario): any {
+/**
+ * Valor de "origen.<campo>" en la fila de origen del espejo o de "<submodulo>.<campo>" en el submódulo
+ * actual o en los relacionados.
+ */
+export function valorTraido(ruta: string, filaOrigen: Datos | null, contexto: ContextoFormulario | null): any {
+  if ((ruta || '').startsWith(PREFIJO_ORIGEN)) {
+    return filaOrigen ? filaOrigen[ruta.slice(PREFIJO_ORIGEN.length)] : undefined;
+  }
   const [submodulo, campo] = (ruta || '').split('.');
-  const datos = submodulo === contexto.claveSubmodulo ? contexto.datosSubmodulo : contexto.relacionadas[submodulo];
+  const datos = contexto ? datosDeSubmodulo(submodulo, contexto) : undefined;
   return datos ? datos[campo] : undefined;
+}
+
+/**
+ * Valor que trae un campo de un espejo (desde) para una de sus filas: además de "origen.<campo>" y
+ * "<submodulo>.<campo>" (valorTraido), "<ruta de un grupo>.<campo>" lee la fila de ese grupo que
+ * contiene la fila de origen, si su ruta empieza espejo_de (p. ej. el producto de cada actividad de
+ * Cadena de valor en el Presupuesto inicial).
+ */
+export function valorTraidoEnEspejo(dato: DatoCampo, espejoDe: string, filaOrigen: Datos | null, contexto: ContextoFormulario): any {
+  const desde = dato.desde || '';
+  const grupo = desde.slice(0, desde.lastIndexOf('.'));
+  if (desde.startsWith(PREFIJO_ORIGEN) || grupo.split('.').length < 2 || !(espejoDe || '').startsWith(`${grupo}.`)) {
+    return valorTraido(desde, filaOrigen, contexto);
+  }
+  const internas = espejoDe.slice(grupo.length + 1).split('.');
+  const contiene = (fila: Datos) => filasAnidadas([fila], internas).some((interna) => interna.id === filaOrigen.id);
+  const contenedora = filaOrigen && filasDeRuta(grupo, contexto).find(contiene);
+  return contenedora ? contenedora[desde.slice(grupo.length + 1)] : undefined;
+}
+
+/** Texto de lo que muestra un calculado con desde (textoDeTraido con valorTraido). */
+export function textoTraido(dato: DatoCampo, filaOrigen: Datos | null, contexto: ContextoFormulario): string {
+  return textoDeTraido(dato, valorTraido(dato.desde, filaOrigen, contexto), contexto);
+}
+
+/**
+ * Texto de un valor traído: con catalogo, el nombre del elemento (si el catálogo ya se cargó); los
+ * números con separadores; vacío si no hay valor.
+ */
+export function textoDeTraido(dato: DatoCampo, valor: any, contexto: ContextoFormulario): string {
+  if (valor === undefined || valor === null || valor === '') {
+    return '';
+  }
+  if (dato.catalogo) {
+    return contexto.nombreEnCatalogo(dato.catalogo, String(valor));
+  }
+  if (typeof valor === 'number') {
+    return isFinite(valor) ? formatearNumero(valor) : '';
+  }
+  return String(valor);
+}
+
+/**
+ * Espejo de solo lectura: todos sus campos se traen (calculados con desde), así que no hay nada que
+ * escribir y se muestra como un resumen (p. ej. el Presupuesto inicial con lo cargado en Cadena de valor).
+ */
+export function esEspejoTraido(nodo: NodoDefinicion): boolean {
+  const campos = nodo.hijos || [];
+  return claseDe(nodo) === 'repetible' && !!nodo.dato.espejo_de && campos.length > 0 && campos.every(esCalculoTraido);
 }
 
 /** Número con separadores de Colombia: 19.528.962.455 o $ 19.528.962.455. */
@@ -411,28 +606,6 @@ export function formatearNumero(valor: number, moneda = false): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(valor);
-}
-
-/**
- * Grupo que se dibuja como casillas: está en GRUPOS_EN_CASILLAS y todos sus campos
- * son selects con las opciones de marcada y sin marcar (Sí y No).
- */
-export function esGrupoDeCasillas(nodo: NodoDefinicion, contexto: ContextoFormulario): boolean {
-  const campos = nodo.hijos || [];
-  return (
-    claseDe(nodo) === 'grupo' &&
-    contexto.gruposEnCasillas.includes(nodo.dato.clave) &&
-    campos.length > 0 &&
-    campos.every((campo) => claseDe(campo) === 'select' && tieneOpcionesDeCasilla(campo))
-  );
-}
-
-function tieneOpcionesDeCasilla(nodo: NodoDefinicion): boolean {
-  return tieneOpcion(nodo, VALOR_CASILLA_MARCADA) && tieneOpcion(nodo, VALOR_CASILLA_SIN_MARCAR);
-}
-
-function tieneOpcion(nodo: NodoDefinicion, valor: string): boolean {
-  return (nodo.dato.options || []).some((opcion) => opcion.valor === valor);
 }
 
 // ---------------------------------------------------------------------------
@@ -528,15 +701,6 @@ export function prepararEstructura(nodos: NodoDefinicion[], datos: Datos, contex
       case 'grupo':
         datos[clave] = esObjeto(datos[clave]) ? datos[clave] : {};
         prepararEstructura(nodo.hijos, datos[clave], contexto);
-        if (esGrupoDeCasillas(nodo, contexto)) {
-          // Una casilla sin marcar es «No»: así el campo no queda vacío ni se reporta como pendiente.
-          for (const campo of nodo.hijos) {
-            const valor = datos[clave][campo.dato.clave];
-            if (valor === undefined || valor === null || valor === '') {
-              datos[clave][campo.dato.clave] = VALOR_CASILLA_SIN_MARCAR;
-            }
-          }
-        }
         break;
       case 'repetible': {
         let filas = filasDe(datos[clave]);
@@ -578,12 +742,12 @@ function esObjeto(valor: any): boolean {
 // Módulos: los submódulos (hojas) son los hijos de cada módulo
 // ---------------------------------------------------------------------------
 
-/** Submodulos de todos los módulos de la construcción, en orden. */
+/** Submódulos de todos los módulos de la construcción, en orden. */
 export function submodulosDeDefinicion(definicion: Definicion): NodoDefinicion[] {
   return (definicion.modulos || []).reduce((todas, modulo) => todas.concat(modulo.hijos || []), [] as NodoDefinicion[]);
 }
 
-/** Submodulos de todos los módulos de la vista general, en orden. */
+/** Submódulos de todos los módulos de la vista general, en orden. */
 export function submodulosDeResumen(resumen: ResumenIniciativa): ResumenSubmodulo[] {
   return (resumen.modulos || []).reduce((todas, modulo) => todas.concat(modulo.submodulos || []), [] as ResumenSubmodulo[]);
 }

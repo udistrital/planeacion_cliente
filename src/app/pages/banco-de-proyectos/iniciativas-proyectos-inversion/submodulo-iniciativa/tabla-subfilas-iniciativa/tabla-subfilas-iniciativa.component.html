@@ -1,0 +1,51 @@
+<header class="iniciativa-repetible__encabezado" *ngIf="conTitulo || nodo.descripcion">
+  <h4 *ngIf="conTitulo">{{ nodo.nombre }}</h4>
+  <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
+</header>
+
+<div class="tabla-caja">
+  <table class="tabla-subfilas" [style.min-width.px]="anchoMinimo">
+    <colgroup>
+      <col class="col-numero">
+      <col class="col-origen">
+      <col class="col-subfila">
+      <col *ngFor="let columna of estructura.columnas; trackBy: porColumna">
+    </colgroup>
+    <thead>
+      <tr>
+        <th scope="col">N.°</th>
+        <!-- Como en el formato: el encabezado de la fila de origen cubre también el nombre de la subfila -->
+        <th scope="colgroup" colspan="2">{{ etiqueta }}</th>
+        <th scope="col" *ngFor="let columna of estructura.columnas; trackBy: porColumna" class="col-valor"
+          [class.con-ayuda]="columna.ayuda" [matTooltip]="columna.ayuda">{{ columna.nombre }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="!filas.length">
+        <td [attr.colspan]="totalColumnas" class="vacio">Aún no hay elementos de origen: complete primero el submódulo del que depende.</td>
+      </tr>
+
+      <ng-container *ngFor="let fila of filas; let posicion = index; trackBy: porId">
+        <tr *ngFor="let subfila of estructura.subfilas; let primera = first; trackBy: porSubfila" [class.primera-subfila]="primera">
+          <ng-container *ngIf="primera">
+            <td class="numero" [attr.rowspan]="estructura.subfilas.length"><span class="chip">{{ numero(fila, posicion) }}</span></td>
+            <td class="origen" [attr.rowspan]="estructura.subfilas.length">{{ textoOrigen(fila) }}</td>
+          </ng-container>
+          <th scope="row" class="subfila">{{ subfila.nombre }}</th>
+          <td *ngFor="let columna of estructura.columnas; trackBy: porColumna" [class.con-error]="conError(fila, subfila, campoDe(subfila, columna))">
+            <app-celda-iniciativa *ngIf="campoDe(subfila, columna) as campo; else noAplica" [fila]="datosDe(fila, subfila)" [campo]="campo"
+              [ruta]="rutaDeSubfila(fila, subfila)" [numero]="numero(fila, posicion) + ', ' + (subfila.nombre | lowercase)"
+              [contexto]="contexto" [filaOrigen]="origenDe(fila)"></app-celda-iniciativa>
+            <ng-template #noAplica><span class="no-aplica" matTooltip="No aplica">N/A</span></ng-template>
+          </td>
+        </tr>
+
+        <tr class="fila-errores" *ngIf="erroresDeFila(fila).length">
+          <td [attr.colspan]="totalColumnas">
+            <div class="iniciativa-error" *ngFor="let mensaje of erroresDeFila(fila)">{{ mensaje }}</div>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>

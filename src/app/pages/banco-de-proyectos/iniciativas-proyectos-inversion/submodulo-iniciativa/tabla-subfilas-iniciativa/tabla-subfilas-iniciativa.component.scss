@@ -1,0 +1,54 @@
+@import '../tabla-iniciativa';
+
+/* Anchos de las columnas fijas (colgroup); las de valores se reparten el resto */
+.col-origen {
+  width: 220px;
+}
+
+.col-subfila {
+  width: 130px;
+}
+
+.tabla-caja > table {
+  .col-valor {
+    text-align: center;
+  }
+
+  /* Nombre de la subfila (p. ej. «Programación física»): encabezado de fila, no de columna */
+  th.subfila {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    background-color: #f3ebeb;
+    color: rgba(0, 0, 0, 0.87);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* Cada fila de origen empieza con una línea más marcada que separa sus subfilas de las anteriores */
+  tr.primera-subfila > td,
+  tr.primera-subfila > th {
+    border-top: 2px solid rgba(0, 0, 0, 0.16);
+  }
+
+  /* Elemento de origen: solo lectura. El padding de los td lo fija styles.scss con !important. */
+  td.origen {
+    padding-top: 11px !important;
+    font-weight: 500;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  td.numero {
+    padding-top: 7px !important;
+  }
+}
+
+.no-aplica {
+  display: block;
+  padding: 6px 0 5px;
+  color: #8a9097;
+  text-align: center;
+}
+
+.fila-errores td {
+  background-color: #fff;
+}

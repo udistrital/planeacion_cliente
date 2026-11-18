@@ -21,11 +21,8 @@ import {
 } from '../submodulo-iniciativa/observaciones-submodulo-iniciativa/observaciones-submodulo-iniciativa.component';
 
 /**
- * Componentes para la formulación de la iniciativa: estado general y una tabla por módulo
- * de la plantilla (Identificación, Preparación, Anexos), con cada submódulo (hoja), su
- * estado (punto con el color del semáforo y el nombre) y sus acciones: formular, revisar o
- * consultar, y leer las observaciones (se publican dentro del submódulo). Desde aquí se
- * envía, devuelve o avala la iniciativa.
+ * Vista general de la iniciativa: el estado de cada submódulo, agrupados por módulo, y las
+ * acciones sobre la iniciativa (enviar, devolver, avalar).
  */
 @Component({
   selector: 'app-vista-iniciativa',
@@ -68,7 +65,7 @@ export class VistaIniciativaComponent implements OnInit {
     return modulo.clave;
   }
 
-  /** El formulador aún no puede enviarla: el botón se muestra deshabilitado con el motivo. */
+  /** Es formulador, pero el servidor todavía no ofrece la acción de enviar. */
   get enviarPendiente(): boolean {
     return puedeFormular(this.resumen, this.roles) && !this.accionesDisponibles.includes('enviar');
   }
@@ -84,7 +81,6 @@ export class VistaIniciativaComponent implements OnInit {
     return ACCIONES_SUBMODULO.consultar;
   }
 
-  /** Desde la tabla las observaciones solo se leen: el ícono se habilita si hay alguna. */
   puedeAbrirObservaciones(submodulo: ResumenSubmodulo): boolean {
     return submodulo.observaciones > 0;
   }

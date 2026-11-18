@@ -18,11 +18,6 @@
     [placeholder]="marca" [attr.aria-label]="etiqueta" [attr.min]="campo.dato.min" [attr.max]="campo.dato.max"
     [attr.step]="campo.dato.decimales === 0 ? 1 : 'any'" [disabled]="contexto.soloLectura">
 
-  <mat-select *ngSwitchCase="'select'" class="celda celda--opciones" [(ngModel)]="fila[campo.dato.clave]"
-    [placeholder]="esObligatorio ? 'Seleccione' : 'Opcional'" [aria-label]="etiqueta" [disabled]="contexto.soloLectura">
-    <mat-option *ngFor="let opcion of campo.dato.options" [value]="opcion.valor">{{ opcion.valor }}</mat-option>
-  </mat-select>
-
   <app-campo-catalogo-iniciativa *ngSwitchCase="'catalogo'" [nodo]="campo" [(valor)]="fila[campo.dato.clave]"
     [padre]="campo.dato.depende_de ? fila[campo.dato.depende_de] : null" [deshabilitado]="contexto.soloLectura"
     [enCelda]="true" [etiquetaCelda]="etiqueta"></app-campo-catalogo-iniciativa>
@@ -32,8 +27,9 @@
       [aria-label]="etiqueta" [disabled]="contexto.soloLectura"></mat-checkbox>
   </div>
 
-  <!-- Calculado numérico (p. ej. el déficit): lo guarda el servidor; aquí se muestra con los valores de la fila -->
+  <!-- Calculado numérico (p. ej. el déficit): lo guarda el servidor; aquí se muestra con los valores de la fila.
+       El traído (desde, p. ej. el costo de un año en el Cronograma) solo se muestra. -->
   <output *ngSwitchCase="'calculado'" class="celda celda--numero celda--calculada" [class.vacia]="!calculado"
-    [attr.aria-label]="etiqueta">{{ calculado || 'Se calcula' }}</output>
+    [attr.aria-label]="etiqueta">{{ calculado || calculadoVacio }}</output>
 </ng-container>
 <div class="error-celda" *ngFor="let mensaje of errores">{{ mensaje }}</div>

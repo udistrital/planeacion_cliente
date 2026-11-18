@@ -1,4 +1,4 @@
-import { ESTADO_SUBMODULO_SIN_FORMULAR } from './constantes';
+import { ESTADO_SUBMODULO_FORMULANDO, ESTADO_SUBMODULO_SIN_FORMULAR } from './constantes';
 import { Estado, Observacion, ResumenIniciativa } from './iniciativa.models';
 import { delMasReciente, esDePlaneacion, nombreDeRol, rolParaComentar } from './observaciones.utils';
 
@@ -11,7 +11,7 @@ function resumen(editable: boolean, revisable: boolean): ResumenIniciativa {
 }
 
 function estado(codigo: string): Estado {
-  return { _id: codigo, nombre: codigo, codigo_abreviacion: codigo };
+  return { nombre: codigo, codigo_abreviacion: codigo };
 }
 
 describe('observaciones.utils', () => {
@@ -42,6 +42,7 @@ describe('observaciones.utils', () => {
     expect(rolParaComentar(resumen(true, false), sinFormular, ['PLANEACION'])).toBe('PLANEACION');
     expect(rolParaComentar(resumen(false, true), formulado, ['JEFE_DEPENDENCIA', 'PLANEACION'])).toBe('PLANEACION');
     expect(rolParaComentar(resumen(false, true), sinFormular, ['PLANEACION'])).toBeNull();
+    expect(rolParaComentar(resumen(false, true), estado(ESTADO_SUBMODULO_FORMULANDO), ['PLANEACION'])).toBeNull();
     expect(rolParaComentar(resumen(false, true), formulado, ['JEFE_DEPENDENCIA'])).toBeNull();
     expect(rolParaComentar(resumen(false, false), formulado, ['PLANEACION', 'JEFE_DEPENDENCIA'])).toBeNull();
     expect(rolParaComentar(null, formulado, ['PLANEACION'])).toBeNull();

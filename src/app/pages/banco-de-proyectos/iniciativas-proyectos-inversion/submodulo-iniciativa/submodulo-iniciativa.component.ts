@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ScrollDispatcher } from '@angular/cdk/scrolling';
+import { Component, ElementRef, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
@@ -11,7 +12,6 @@ import {
   Datos,
   Definicion,
   ESTADO_SUBMODULO_CON_OBSERVACIONES,
-  GRUPOS_EN_CASILLAS,
   COLUMNAS_RESUMEN,
   GRUPOS_EN_COLUMNAS,
   LISTAS_EN_TABLA,
@@ -20,7 +20,6 @@ import {
   ResumenIniciativa,
   ResumenSubmodulo,
   RUTA_INICIATIVAS,
-  SECCIONES_LADO_A_LADO,
   SubmoduloVista,
 } from '../utils';
 import {
@@ -34,6 +33,7 @@ import {
   submodulosDeResumen,
 } from '../utils/formulario.utils';
 import { rolParaComentar } from '../utils/observaciones.utils';
+import { registrarContenedorConScroll } from '../utils/scroll.utils';
 import { puedeFormular, puedeRevisar } from '../utils/roles.utils';
 import {
   DatosObservaciones,
@@ -69,6 +69,8 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   /** La definición es la plantilla y no cambia: se pide una vez por iniciativa, no en cada submódulo. */
   private definicion: Definicion | null = null;
   private readonly destruir$ = new Subject<void>();
+  /** Quita del ScrollDispatcher el contenedor con scroll de la página (ver registrarContenedorConScroll). */
+  private quitarContenedorConScroll: () => void = () => {};
 
   constructor(
     private ruta: ActivatedRoute,
@@ -77,9 +79,14 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     private autenticacion: ImplicitAutenticationService,
     private dialogo: MatDialog,
     private gestor: GestorDocumentalService,
+    private elemento: ElementRef<HTMLElement>,
+    private despachadorScroll: ScrollDispatcher,
+    private zona: NgZone,
   ) {}
 
   async ngOnInit(): Promise<void> {
+    // Las listas (catálogos, selects) siguen a su campo al bajar por el formulario.
+    this.quitarContenedorConScroll = registrarContenedorConScroll(this.elemento.nativeElement, this.despachadorScroll, this.zona);
     this.roles = (await this.autenticacion.getRole()) as string[];
     this.usuario = String((await this.autenticacion.getDocument()) || '');
     // La misma instancia se reutiliza al pasar al submódulo anterior o siguiente.
@@ -91,6 +98,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.quitarContenedorConScroll();
     this.destruir$.next();
     this.destruir$.complete();
   }
@@ -237,10 +245,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       relacionadas: this.relacionadas,
       soloLectura: !this.puedeEditar,
       errores: indexarPorRuta(vista.errores),
-      apariencia: 'fill',
       listasEnTabla: LISTAS_EN_TABLA[this.clave] || [],
-      gruposEnCasillas: GRUPOS_EN_CASILLAS[this.clave] || [],
-      seccionesLadoALado: SECCIONES_LADO_A_LADO[this.clave] || [],
       gruposEnColumnas: GRUPOS_EN_COLUMNAS[this.clave] || [],
       columnasResumen: COLUMNAS_RESUMEN[this.clave] || {},
       nombreEnCatalogo: (catalogo, codigo) => this.servicio.nombreEnCatalogo(catalogo, codigo),
@@ -279,7 +284,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     Swal.fire({ icon: 'error', title: 'No se guardó', text: mensajeDeError(error) });
   }
 
-  /** Pasa el archivo a base64 (como el resto de SISGPLAN) y lo sube por el mid; responde la referencia. */
+  /** Pasa el archivo a base64 y lo sube por el mid; responde la referencia. */
   private subirDocumento(clave: string, archivo: File): Observable<ReferenciaDocumento> {
     return from(this.gestor.fileToBase64(archivo)).pipe(
       switchMap((base64) =>

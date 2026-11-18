@@ -14,11 +14,8 @@ import {
 } from '../../utils/formulario.utils';
 
 /**
- * Submódulo de solo documentos (Anexos) en una sola tabla: una fila por documento fijo
- * (p. ej. la carta de presentación y el presupuesto, obligatorios) y debajo los adicionales de la
- * lista (otros anexos), cada uno con su nombre editable. En la columna Archivo cada documento se
- * adjunta, ve o quita (campo-documento-iniciativa); el ⊕ del encabezado agrega un adicional y la
- * caneca lo elimina. Edita los mismos datos del submódulo (estructuraDeDocumentos).
+ * Submódulo de solo documentos (Anexos) como una tabla: una fila por documento fijo y, debajo, los
+ * adicionales de la lista, cada uno con su nombre editable. La estructura sale de estructuraDeDocumentos.
  */
 @Component({
   selector: 'app-tabla-documentos-iniciativa',
@@ -46,7 +43,7 @@ export class TablaDocumentosIniciativaComponent {
     return this.lista ? this.lista.nodo.dato.etiqueta_fila || this.lista.nodo.nombre : '';
   }
 
-  /** La columna Acciones (⊕ y caneca) solo existe si hay lista y se puede editar. */
+  /** La columna Acciones solo existe si hay lista y se puede editar. */
   get conAcciones(): boolean {
     return !!this.lista && !this.contexto.soloLectura;
   }

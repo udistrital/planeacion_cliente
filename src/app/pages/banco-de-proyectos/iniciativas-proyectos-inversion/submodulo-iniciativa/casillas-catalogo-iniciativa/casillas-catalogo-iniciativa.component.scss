@@ -1,4 +1,3 @@
-/* Igual que las casillas de los factores (campos-iniciativa .iniciativa-casillas): columnas que se parten en celular. */
 .casillas-catalogo {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -14,7 +13,6 @@
     margin-bottom: auto;
   }
 
-  /* Casilla marcada en el color del sistema */
   ::ng-deep .mat-checkbox-checked:not(.mat-checkbox-disabled) .mat-checkbox-background {
     background-color: var(--primary);
   }
