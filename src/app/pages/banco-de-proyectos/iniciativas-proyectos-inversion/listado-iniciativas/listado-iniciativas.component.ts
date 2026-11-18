@@ -46,8 +46,7 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     private autenticacion: ImplicitAutenticationService,
     private router: Router,
     private dialogo: MatDialog,
-    private request: RequestManager,
-    private autenticacionService: ImplicitAutenticationService
+    private request: RequestManager
   ) {
     this.iniciativas.filterPredicate = (fila, filtro) => this.textoDeBusqueda(fila).includes(filtro);
   }
@@ -123,7 +122,16 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
         if (datos.habilitado && datos.unidadEncontrada) {
           this.creando = true;
           Swal.fire({ title: 'Creando la iniciativa…', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });
-          this.autenticacionService.getDocument().then((documento) => {
+          this.autenticacion.getDocument().then((documento) => {
+            if (!documento) {
+              this.creando = false;
+              Swal.fire({
+                icon: 'error',
+                title: 'No se pudo crear la iniciativa',
+                text: 'No se pudo identificar su documento. Vuelva a iniciar sesión e intente de nuevo.',
+              });
+              return;
+            }
             this.servicio.crearIniciativa({
               dependencia_id: String(unidad.Id),
               responsable: String(documento)

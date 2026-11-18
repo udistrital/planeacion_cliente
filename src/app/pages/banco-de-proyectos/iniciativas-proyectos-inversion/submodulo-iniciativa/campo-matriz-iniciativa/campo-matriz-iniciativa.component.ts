@@ -52,25 +52,23 @@ export class CampoMatrizIniciativaComponent implements OnChanges {
   tieneError(fila: string, columna: string): boolean {
     return !!this.contexto.errores[rutaCampo(rutaCampo(this.ruta, fila), columna)];
   }
+
+  /** Bloquea las teclas que el input number acepta pero que no caben en un entero no negativo. */
   bloquearTecla(evento: KeyboardEvent): void {
-  // Caracteres que un input number acepta pero no queremos
-  if (['-', '+', 'e', 'E', '.', ','].includes(evento.key)) {
-    evento.preventDefault();
+    if (['-', '+', 'e', 'E', '.', ','].includes(evento.key)) {
+      evento.preventDefault();
+    }
   }
-}
 
-validarPegado(evento: ClipboardEvent): void {
-  const texto = evento.clipboardData?.getData('text') ?? '';
-  if (!/^\d+$/.test(texto)) {
+  /**
+   * Pega un entero no negativo en la celda y reemplaza lo que tenga; cualquier otro texto se ignora.
+   * Quita los espacios y el salto de línea que Excel agrega al copiar una celda.
+   */
+  pegar(evento: ClipboardEvent, fila: string, columna: string): void {
     evento.preventDefault();
+    const texto = (evento.clipboardData?.getData('text') ?? '').trim();
+    if (/^\d+$/.test(texto)) {
+      this.matriz[fila][columna] = Number(texto);
+    }
   }
-}
-
-normalizar(filaClave: string, columnaClave: string): void {
-  const valor = this.matriz[filaClave][columnaClave];
-  // Red de seguridad: cubre arrastrar y soltar, autocompletado, etc.
-  if (valor !== null && valor !== undefined && Number(valor) < 0) {
-    this.matriz[filaClave][columnaClave] = Math.abs(Number(valor));
-  }
-}
 }

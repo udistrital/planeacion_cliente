@@ -5,7 +5,7 @@
     <table>
       <thead>
         <tr>
-          <th rowspan="2" class="iniciativa-matriz__fila titulo-matriz__fila">Grupo</th>
+          <th rowspan="2" class="iniciativa-matriz__fila">Grupo</th>
           <th *ngFor="let grupo of grupos; let i = index"
               [attr.colspan]="grupo.columnas.length"
               class="iniciativa-matriz__grupo"
@@ -28,8 +28,7 @@
               <input type="number" min="0" step="1" inputmode="numeric"
                 [(ngModel)]="matriz[fila.clave][columna.clave]"
                 (keydown)="bloquearTecla($event)"
-                (paste)="validarPegado($event)"
-                (ngModelChange)="normalizar(fila.clave, columna.clave)"
+                (paste)="pegar($event, fila.clave, columna.clave)"
                 [disabled]="contexto.soloLectura"
                 [attr.aria-label]="fila.nombre + ', ' + columna.nombre">
             </div>
