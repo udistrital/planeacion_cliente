@@ -252,6 +252,7 @@ export interface DescripcionAccionSubmodulo {
 /** La iniciativa se crea con la plantilla vigente; solo hace falta la unidad. */
 export interface SolicitudCrearIniciativa {
   dependencia_id: string;
+  responsable: string;
 }
 
 /** Cómo se presenta una acción sobre el estado general y quién puede ejecutarla. */

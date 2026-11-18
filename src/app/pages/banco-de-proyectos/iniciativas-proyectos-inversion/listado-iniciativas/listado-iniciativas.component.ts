@@ -46,7 +46,8 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     private autenticacion: ImplicitAutenticationService,
     private router: Router,
     private dialogo: MatDialog,
-    private request: RequestManager
+    private request: RequestManager,
+    private autenticacionService: ImplicitAutenticationService
   ) {
     this.iniciativas.filterPredicate = (fila, filtro) => this.textoDeBusqueda(fila).includes(filtro);
   }
@@ -122,16 +123,21 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
         if (datos.habilitado && datos.unidadEncontrada) {
           this.creando = true;
           Swal.fire({ title: 'Creando la iniciativa…', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });
-          this.servicio.crearIniciativa({ dependencia_id: String(unidad.Id) }).subscribe(
-            (creada) => {
-              Swal.close();
-              this.abrir(creada.id);
-            },
-            (error) => {
-              this.creando = false;
-              Swal.fire({ icon: 'error', title: 'No se pudo crear la iniciativa', text: mensajeDeError(error) });
-            },
-          );
+          this.autenticacionService.getDocument().then((documento) => {
+            this.servicio.crearIniciativa({
+              dependencia_id: String(unidad.Id),
+              responsable: String(documento)
+            }).subscribe(
+              (creada) => {
+                Swal.close();
+                this.abrir(creada.id);
+              },
+              (error) => {
+                this.creando = false;
+                Swal.fire({ icon: 'error', title: 'No se pudo crear la iniciativa', text: mensajeDeError(error) });
+              },
+            );
+          });
         } else {
           Swal.fire({
             icon: 'warning',
