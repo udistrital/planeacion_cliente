@@ -6,6 +6,7 @@ import {
   DatoCampo,
   Definicion,
   ErrorCampo,
+  FilasAdicionales,
   NodoDefinicion,
   ReferenciaDocumento,
   ResumenIniciativa,
@@ -170,17 +171,41 @@ export function numeroDeFila(nodo: NodoDefinicion, fila: Datos, posicion: number
 /**
  * Deja una fila de espejo por cada fila de origen, en el mismo orden: conserva
  * las existentes, crea las que faltan y descarta las de elementos que ya no existen.
+ * Con filas_adicionales, al final quedan las que agregó el usuario (las de su origen).
  */
-export function sincronizarEspejo(actuales: Datos[], origen: Datos[], prefijo: string): Datos[] {
+export function sincronizarEspejo(actuales: Datos[], origen: Datos[], prefijo: string, adicionales?: FilasAdicionales): Datos[] {
   const porOrigen = new Map<string, Datos>();
   for (const fila of actuales) {
     if (fila.origen && !porOrigen.has(fila.origen)) {
       porOrigen.set(fila.origen, fila);
     }
   }
+  const agregadas = adicionales ? actuales.filter((fila) => fila.origen === adicionales.origen) : [];
   return origen
     .filter((filaOrigen) => filaOrigen.id)
-    .map((filaOrigen) => porOrigen.get(filaOrigen.id) || { id: nuevoIdFila(prefijo), origen: filaOrigen.id });
+    .map((filaOrigen) => porOrigen.get(filaOrigen.id) || { id: nuevoIdFila(prefijo), origen: filaOrigen.id })
+    .concat(agregadas);
+}
+
+/** Si la fila la agregó el usuario en un espejo con filas_adicionales (p. ej. un «Otro: ¿Cuál?»). */
+export function esFilaAgregada(nodo: NodoDefinicion, fila: Datos): boolean {
+  const adicionales = nodo.dato.filas_adicionales;
+  return !!adicionales && !!fila && fila.origen === adicionales.origen;
+}
+
+/** Si se puede agregar otra fila de filas_adicionales: sin max, siempre. */
+export function cabeOtraAgregada(nodo: NodoDefinicion, filas: Datos[]): boolean {
+  const adicionales = nodo.dato.filas_adicionales;
+  if (!adicionales) {
+    return false;
+  }
+  return !adicionales.max || (filas || []).filter((fila) => esFilaAgregada(nodo, fila)).length < adicionales.max;
+}
+
+/** Fila nueva de filas_adicionales, con el origen que la distingue y su estructura lista. */
+export function nuevaFilaAgregada(nodo: NodoDefinicion, contexto: ContextoFormulario): Datos {
+  const fila = { id: nuevoIdFila(prefijoDeClave(nodo.dato.clave)), origen: nodo.dato.filas_adicionales.origen };
+  return prepararEstructura(nodo.hijos, fila, contexto);
 }
 
 export interface OpcionReferencia {
@@ -227,18 +252,27 @@ export interface EstructuraTabla {
    * columna, se escribe en la celda del elemento de origen de esa fila (p. ej. el «¿Cuál?» de «Otro»).
    */
   campoEnOrigen?: NodoDefinicion | null;
+  /**
+   * En un espejo con columna_codigo.campo: el campo en el que las filas agregadas escriben su código
+   * (solo_si sobre su origen). No tiene columna propia: va en la columna del código.
+   */
+  campoCodigo?: NodoDefinicion | null;
 }
 
 /** En solo_si de un campo de un espejo: la fila de origen (su id o, en un espejo de catálogo, su código). */
 export const CAMPO_ORIGEN = 'origen';
 
-/** Tipos de campo que se editan dentro de una celda de tabla (además del calculado numérico, que solo se muestra). */
-const TIPOS_EN_CELDA: ClaseNodo[] = ['input', 'numeric', 'catalogo', 'casilla'];
+/**
+ * Tipos de campo que se editan dentro de una celda de tabla (además del calculado numérico, que solo
+ * se muestra). La referencia, como lista de selección (p. ej. el objetivo específico de un impacto),
+ * y el catálogo multiple, como lista con casillas; cabeEnCelda deja fuera algunas referencias.
+ */
+const TIPOS_EN_CELDA: ClaseNodo[] = ['input', 'numeric', 'catalogo', 'casilla', 'referencia'];
 
 /**
- * Estructura de tabla de una lista, o null si no cabe en una: solo campos que se editan
- * en una celda (texto, número, catálogo, casilla o calculado numérico) y, como mucho, una lista interna con
- * campos de ese tipo. Un espejo cabe solo si no tiene lista interna; la interna no puede ser espejo.
+ * Estructura de tabla de una lista, o null si no cabe en una: solo campos que se editan en una
+ * celda (texto, número, catálogo, casilla, referencia o calculado numérico) y, como mucho, una lista
+ * interna con campos de ese tipo. Un espejo cabe solo si no tiene lista interna; la interna no puede ser espejo.
  */
 export function estructuraDeTabla(nodo: NodoDefinicion): EstructuraTabla | null {
   const hijos = nodo.hijos || [];
@@ -250,15 +284,18 @@ export function estructuraDeTabla(nodo: NodoDefinicion): EstructuraTabla | null 
   const enOrigen = nodo.dato.espejo_de
     ? hijos.filter((hijo) => hijo.dato.solo_si && hijo.dato.solo_si.campo === CAMPO_ORIGEN && claseDe(hijo) === 'input')
     : [];
-  const campoEnOrigen = enOrigen.length === 1 ? enOrigen[0] : null;
+  const claveCodigo = nodo.dato.columna_codigo && nodo.dato.columna_codigo.campo;
+  const campoCodigo = (claveCodigo && enOrigen.find((hijo) => hijo.dato.clave === claveCodigo)) || null;
+  const enNombre = enOrigen.filter((hijo) => hijo !== campoCodigo);
+  const campoEnOrigen = enNombre.length === 1 ? enNombre[0] : null;
   const valida =
     claseDe(nodo) === 'repetible' &&
     !(nodo.dato.espejo_de && interna) &&
     campos.length > 0 &&
     internas.length <= 1 &&
-    campos.length + internas.length + (campoEnOrigen ? 1 : 0) === hijos.length &&
+    campos.length + internas.length + (campoEnOrigen ? 1 : 0) + (campoCodigo ? 1 : 0) === hijos.length &&
     (!interna || (!interna.dato.espejo_de && camposInternos.length > 0 && camposInternos.length === hijosInternos.length));
-  return valida ? { campos, interna, camposInternos, campoEnOrigen } : null;
+  return valida ? { campos, interna, camposInternos, campoEnOrigen, campoCodigo } : null;
 }
 
 /**
@@ -271,9 +308,17 @@ export function seMuestraEnTabla(nodo: NodoDefinicion, contexto: ContextoFormula
   return !!estructura && (!estructura.interna || (enNivelSuperior && contexto.listasEnTabla.includes(nodo.dato.clave)));
 }
 
-/** Ni el catálogo multiple (casillas) ni los campos con solo_si caben en una celda: la lista va en recuadros. */
+/**
+ * No caben en una celda la referencia multiple, la referencia a la fila marcada (se muestra traída),
+ * la de "origen.*" (sus opciones salen de la fila de origen, que la tabla no tiene) ni los campos con
+ * solo_si: la lista va en recuadros. El catálogo multiple sí: la celda lo despliega con casillas
+ * (p. ej. las sedes de un resultado esperado).
+ */
 function cabeEnCelda(nodo: NodoDefinicion): boolean {
-  const enCelda = TIPOS_EN_CELDA.includes(claseDe(nodo)) && !(claseDe(nodo) === 'catalogo' && nodo.dato.multiple);
+  const referencia = claseDe(nodo) === 'referencia';
+  const referenciaQueNoCabe =
+    referencia && (!!nodo.dato.multiple || !!nodo.dato.marcada_en || (nodo.dato.opciones_desde || '').startsWith(PREFIJO_ORIGEN));
+  const enCelda = TIPOS_EN_CELDA.includes(claseDe(nodo)) && !referenciaQueNoCabe;
   return (enCelda || esCalculoNumerico(nodo) || esCalculoTraido(nodo)) && !nodo.dato.solo_si;
 }
 
@@ -335,6 +380,11 @@ export function esVisible(nodo: NodoDefinicion, hermanos: Datos): boolean {
 export interface EstructuraDesglose {
   campos: NodoDefinicion[];
   desglose: NodoDefinicion;
+  /**
+   * Campo de texto que solo aplica a un origen (solo_si sobre "origen", sin distinto): no tiene
+   * columna, se escribe en la celda del elemento (el «¿Cuál?» de los otros trazadores presupuestales).
+   */
+  campoEnOrigen: NodoDefinicion | null;
 }
 
 /**
@@ -348,7 +398,11 @@ export interface EstructuraDesglose {
 export function estructuraDeDesglose(nodo: NodoDefinicion): EstructuraDesglose | null {
   const hijos = nodo.hijos || [];
   const listas = hijos.filter((hijo) => claseDe(hijo) === 'repetible');
-  const campos = hijos.filter((hijo) => claseDe(hijo) !== 'repetible');
+  const enOrigen = hijos.filter(
+    (hijo) => claseDe(hijo) === 'input' && hijo.dato.solo_si && hijo.dato.solo_si.campo === CAMPO_ORIGEN && !hijo.dato.solo_si.distinto,
+  );
+  const campoEnOrigen = enOrigen.length === 1 ? enOrigen[0] : null;
+  const campos = hijos.filter((hijo) => claseDe(hijo) !== 'repetible' && hijo !== campoEnOrigen);
   const desglose = listas[0];
   const enCelda = (campo: NodoDefinicion) => cabeEnCelda({ ...campo, dato: { ...campo.dato, solo_si: undefined } });
   const valida =
@@ -361,7 +415,7 @@ export function estructuraDeDesglose(nodo: NodoDefinicion): EstructuraDesglose |
     !!desglose.dato.solo_si &&
     (desglose.hijos || []).length > 0 &&
     desglose.hijos.every(cabeEnCelda);
-  return valida ? { campos, desglose } : null;
+  return valida ? { campos, desglose, campoEnOrigen } : null;
 }
 
 /** Calculado con operación (p. ej. el déficit): su valor es un número. */
@@ -705,7 +759,7 @@ export function prepararEstructura(nodos: NodoDefinicion[], datos: Datos, contex
       case 'repetible': {
         let filas = filasDe(datos[clave]);
         if (nodo.dato.espejo_de) {
-          filas = sincronizarEspejo(filas, filasDeRuta(nodo.dato.espejo_de, contexto), prefijoDeClave(clave));
+          filas = sincronizarEspejo(filas, filasDeRuta(nodo.dato.espejo_de, contexto), prefijoDeClave(clave), nodo.dato.filas_adicionales);
         }
         filas.forEach((fila) => prepararEstructura(nodo.hijos, fila, contexto));
         datos[clave] = filas;

@@ -1,17 +1,21 @@
+import { OverlayModule } from '@angular/cdk/overlay';
 import { TextFieldModule } from '@angular/cdk/text-field';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
+import Swal from 'sweetalert2';
 import { IniciativaService } from '../../iniciativa.service';
 import { Datos, NodoDefinicion } from '../../utils';
 import { ContextoFormulario } from '../../utils/formulario.utils';
 import { CampoCatalogoIniciativaComponent } from '../campo-catalogo-iniciativa/campo-catalogo-iniciativa.component';
+import { CasillasCatalogoIniciativaComponent } from '../casillas-catalogo-iniciativa/casillas-catalogo-iniciativa.component';
 import { CeldaIniciativaComponent } from '../celda-iniciativa/celda-iniciativa.component';
 import { TablaJerarquicaIniciativaComponent } from './tabla-jerarquica-iniciativa.component';
 
@@ -27,6 +31,23 @@ const EFECTOS = nodo('efectos_directos', 'Efectos directos', 'repetible', { min:
     nodo('linea_base', 'Línea base', 'input', { required: false }),
   ]),
 ]);
+
+/** Fuentes de financiación como en la plantilla: código en su columna y otras fuentes agregadas sin límite. */
+const OTRA = { solo_si: { campo: 'origen', valor: 'Otra' } };
+const FUENTES = nodo('fuentes', 'Fuentes de financiación', 'repetible', {
+  espejo_de: 'catalogo.fuentes_financiacion', mostrar: 'nombre', etiqueta_fila: 'Fuente de financiación', filas_opcionales: true,
+  filas_adicionales: { origen: 'Otra', nombre: 'Otras, ¿cuáles?', etiqueta: 'Otra fuente' },
+  columna_codigo: { nombre: 'Código', campo: 'codigo' },
+}, [
+  nodo('codigo', 'Código', 'input', { required: false, ...OTRA }),
+  nodo('cual', '¿Cuál?', 'input', OTRA),
+  nodo('anio_0', 'Año 0', 'numeric', { required: false }),
+  nodo('valor_total', 'Valor total', 'calculado', { operacion: 'suma', operandos: ['anio_0'] }),
+]);
+const CON_FUENTES: Partial<ContextoFormulario> = {
+  claveSubmodulo: 'fuentes_financiacion',
+  relacionadas: { catalogo: { fuentes_financiacion: [{ id: '1-100-I013', nombre: 'VA-Estampilla Universidad Distrital' }] } },
+};
 
 function efectosDeEjemplo(): Datos[] {
   return [
@@ -70,10 +91,12 @@ describe('TablaJerarquicaIniciativaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TablaJerarquicaIniciativaComponent, CeldaIniciativaComponent, CampoCatalogoIniciativaComponent],
+      declarations: [
+        TablaJerarquicaIniciativaComponent, CeldaIniciativaComponent, CampoCatalogoIniciativaComponent, CasillasCatalogoIniciativaComponent,
+      ],
       imports: [
         FormsModule, ReactiveFormsModule, TextFieldModule, NoopAnimationsModule, MatIconModule, MatButtonModule,
-        MatTooltipModule, MatAutocompleteModule, MatCheckboxModule,
+        MatTooltipModule, MatAutocompleteModule, MatCheckboxModule, MatSelectModule, OverlayModule,
       ],
       providers: [{ provide: IniciativaService, useValue: { catalogo: () => of([]) } }],
     }).compileComponents();
@@ -257,6 +280,137 @@ describe('TablaJerarquicaIniciativaComponent', () => {
     expect(celdasOrigen[0].querySelector('textarea')).toBeNull();
     expect(celdasOrigen[1].querySelector('textarea').getAttribute('placeholder')).toBe('Escriba cuál');
   });
+
+  it('en Fuentes de financiación muestra el código antes del nombre y agrega las otras fuentes, sin límite', () => {
+    const filas = montar([{ id: 'ff-1', origen: '1-100-I013', anio_0: 100 }], CON_FUENTES, FUENTES);
+
+    expect(textos('thead th:not(.col-acciones)')).toEqual(['N.°', 'Código', 'Fuente de financiación', 'Año 0', 'Valor total']);
+    expect(textos('td.codigo')).toEqual(['1-100-I013']);
+    expect(textos('td.origen')).toEqual(['VA-Estampilla Universidad Distrital']);
+    expect(elemento.querySelector('th.col-acciones')).toBeNull();
+    expect(elemento.querySelector('button.agregar').textContent).toContain('Agregar otra fuente');
+
+    boton('Agregar otra fuente').click();
+    boton('Agregar otra fuente').click();
+    fixture.detectChanges();
+
+    expect(filas.map((fila) => fila.origen)).toEqual(['1-100-I013', 'Otra', 'Otra']);
+    const otra = elemento.querySelectorAll('tbody tr.nivel-1')[1];
+    expect(otra.querySelector('td.codigo textarea').getAttribute('placeholder')).toBe('Opcional');
+    expect(otra.querySelector('td.origen').textContent).toContain('Otras, ¿cuáles?');
+    expect(otra.querySelector('td.origen textarea').getAttribute('placeholder')).toBe('Escriba cuál');
+    expect(boton('Agregar otra fuente')).toBeTruthy();
+    expect(boton('Eliminar otra fuente 2')).toBeTruthy();
+    expect(boton('Eliminar fuente de financiación 1')).toBeUndefined();
+  });
+
+  it('elimina solo las otras fuentes y en solo lectura no tiene Acciones', fakeAsync(() => {
+    spyOn(Swal, 'fire').and.returnValue(Promise.resolve({ isConfirmed: true }) as any);
+    const guardadas = () => [{ id: 'ff-1', origen: '1-100-I013' }, { id: 'ff-2', origen: 'Otra', cual: 'Cooperación' }];
+    const filas = montar(guardadas(), CON_FUENTES, FUENTES);
+
+    boton('Eliminar otra fuente 2').click();
+    tick();
+    fixture.detectChanges();
+    expect(filas.map((fila) => fila.origen)).toEqual(['1-100-I013']);
+
+    montar(guardadas(), { ...CON_FUENTES, soloLectura: true }, FUENTES);
+    expect(textos('thead th')).not.toContain('Acciones');
+    expect(elemento.querySelectorAll('td.acciones, button.agregar').length).toBe(0);
+  }));
+
+  it('elige el objetivo específico de un impacto en su celda: opcional y numerado como en su lista', fakeAsync(() => {
+    const impactos = nodo('impactos_esperados', 'Impactos esperados', 'repetible', { etiqueta_fila: 'Impacto esperado' }, [
+      nodo('descripcion', 'Impacto esperado', 'input'),
+      nodo('objetivo_especifico', 'Objetivo específico', 'referencia', {
+        required: false, opciones_desde: 'objetivos.objetivos_especificos', mostrar: 'objetivo_especifico',
+      }),
+    ]);
+    const objetivos = {
+      objetivos_especificos: [
+        { id: 'oe-1', objetivo_especifico: 'Modernizar la red' },
+        { id: 'oe-2', objetivo_especifico: 'Renovar equipos' },
+      ],
+    };
+    const filas = montar([{ id: 'ie-1', descripcion: 'Mayor cobertura', objetivo_especifico: 'oe-2' }],
+      { claveSubmodulo: 'objetivos', datosSubmodulo: objetivos }, impactos);
+    tick();
+    fixture.detectChanges();
+
+    expect(textos('thead th')).toEqual(['N.°', 'Impacto esperado', 'Objetivo específico', 'Acciones']);
+    const lista = elemento.querySelector('td mat-select');
+    expect(lista.textContent).toContain('2. Renovar equipos');
+
+    (lista.querySelector('.mat-select-trigger') as HTMLElement).click();
+    fixture.detectChanges();
+    tick();
+    const opciones = Array.from(document.querySelectorAll('.opciones-celda-iniciativa mat-option')) as HTMLElement[];
+    expect(opciones.map((opcion) => opcion.textContent.trim())).toEqual(['Ninguno', '1. Modernizar la red', '2. Renovar equipos']);
+
+    opciones[0].click();
+    fixture.detectChanges();
+    flush();
+    expect(filas[0].objetivo_especifico).toBeNull();
+  }));
+
+  it('marca varias sedes de un resultado en una lista de opciones con casilla que se abre debajo y se cierra al hacer clic afuera', fakeAsync(() => {
+    const servicio = TestBed.inject(IniciativaService) as any;
+    servicio.catalogo = () => of([
+      { codigo: '10', nombre: 'Sede Macarena A' },
+      { codigo: '20', nombre: 'Sede Tecnológica' },
+      { codigo: 'Otra', nombre: 'Otra' },
+    ]);
+    const resultados = nodo('resultados', 'Resultados', 'repetible', { etiqueta_fila: 'Resultado' }, [
+      nodo('cantidad', 'Cantidad', 'numeric'),
+      nodo('sedes', 'Localización (Sede)', 'catalogo', { catalogo: 'sedes', multiple: true }),
+      nodo('espacios_especificos', 'Espacios específicos', 'input', { required: false }),
+    ]);
+    const filas = montar([{ id: 'r-1', cantidad: 10, sedes: ['20'] }], {}, resultados);
+    tick();
+    fixture.detectChanges();
+
+    expect(textos('thead th')).toEqual(['N.°', 'Cantidad', 'Localización (Sede)', 'Espacios específicos', 'Acciones']);
+    const campo = elemento.querySelector('td app-casillas-catalogo-iniciativa button.celda-casillas') as HTMLButtonElement;
+    expect(campo.textContent.trim()).toBe('Sede Tecnológica');
+    const panel = () => document.querySelector('.lista-opciones');
+
+    campo.click();
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+    const opciones = () => Array.from(document.querySelectorAll('.lista-opciones mat-option')) as HTMLElement[];
+    expect(opciones().map((opcion) => opcion.textContent.trim())).toEqual(['Sede Macarena A', 'Sede Tecnológica', 'Otra']);
+    // Las opciones son las de Material con casilla, y la sede guardada aparece marcada.
+    expect(opciones().every((opcion) => !!opcion.querySelector('mat-pseudo-checkbox'))).toBeTrue();
+    expect(opciones().map((opcion) => opcion.classList.contains('mat-selected'))).toEqual([false, true, false]);
+    expect(campo.getAttribute('aria-expanded')).toBe('true');
+    // Debajo del campo, del ancho de las demás listas de las tablas y con el texto a la izquierda.
+    expect(panel().getBoundingClientRect().top).toBeGreaterThanOrEqual(campo.getBoundingClientRect().bottom - 1);
+    expect(panel().getBoundingClientRect().width).toBe(420);
+    expect(getComputedStyle(opciones()[0]).textAlign).toBe('left');
+
+    // Marcar una sede no cierra la lista.
+    opciones()[0].click();
+    fixture.detectChanges();
+    expect(filas[0].sedes).toEqual(['10', '20']);
+    expect(campo.textContent.trim()).toBe('Sede Macarena A, Sede Tecnológica');
+    expect(panel()).not.toBeNull();
+
+    // Un clic fuera de la lista la cierra.
+    document.body.click();
+    fixture.detectChanges();
+    flush();
+    expect(panel()).toBeNull();
+
+    // Escape también.
+    campo.click();
+    fixture.detectChanges();
+    tick();
+    panel().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+    flush();
+    expect(panel()).toBeNull();
+  }));
 
   it('en solo lectura no muestra acciones ni botones y deshabilita las celdas', fakeAsync(() => {
     montar(efectosDeEjemplo(), { soloLectura: true });

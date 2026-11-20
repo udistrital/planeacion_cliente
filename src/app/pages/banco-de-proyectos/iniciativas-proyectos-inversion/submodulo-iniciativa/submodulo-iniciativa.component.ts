@@ -199,6 +199,11 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     this.router.navigate([RUTA_INICIATIVAS, this.iniciativaId, 'submodulo', submodulo.clave]);
   }
 
+  /** El nombre de la iniciativa no cabe en las dos líneas del título (termina en «…»). */
+  estaCortado(titulo: HTMLElement): boolean {
+    return titulo.scrollHeight > titulo.clientHeight + 1;
+  }
+
   volver(): void {
     this.router.navigate([RUTA_INICIATIVAS, this.iniciativaId]);
   }

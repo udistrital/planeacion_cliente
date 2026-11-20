@@ -23,7 +23,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem 4rem;
+  gap: 0.5rem 8rem;
   margin: 0 0 1rem;
   padding: 0.5rem 1rem 0.625rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
@@ -57,13 +57,26 @@
   text-transform: uppercase;
 }
 
+/* Máximo dos líneas: un nombre más largo termina en «…» y la ayuda (matTooltip) lo muestra completo */
 .pagina__titulo {
+  display: -webkit-box;
+  /* autoprefixer: ignore next */
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
   margin: 0;
   font-size: 1.5rem;
   font-weight: 500;
   line-height: 1.3;
   color: rgba(0, 0, 0, 0.87);
   overflow-wrap: anywhere;
+}
+
+/* La ayuda del nombre completo: más ancha que la de Material (280px) para que no quede en una columna angosta */
+::ng-deep .tooltip-nombre-iniciativa {
+  max-width: 40rem !important;
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .cuerpo__contenido > .mat-card.card-oas {

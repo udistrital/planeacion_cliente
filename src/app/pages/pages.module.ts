@@ -44,6 +44,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { OverlayModule } from '@angular/cdk/overlay';
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { CrearPlanComponent } from './plan/crear-plan/crear-plan.component';
@@ -330,6 +331,7 @@ const MY_FORMATS = {
     MatTooltipModule,
     GoogleChartsModule,
     DragDropModule,
+    OverlayModule,
     MatAutocompleteModule,
     ...materialModules,
   ],

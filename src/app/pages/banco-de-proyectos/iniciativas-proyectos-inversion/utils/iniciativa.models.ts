@@ -42,6 +42,8 @@ export interface DatoCampo {
   decimales?: number;
   catalogo?: string;
   depende_de?: string;
+  /** Catálogo cuyos códigos son ids internos (p. ej. los nodos de un plan): la lista muestra solo el nombre. */
+  sin_codigo?: boolean;
   plantilla?: string;
   /**
    * Calculado numérico: 'resta' = el primer operando menos los demás (p. ej. oferta - demanda);
@@ -59,6 +61,7 @@ export interface DatoCampo {
   transformar?: string;
   /** Calculado editable: se propone el valor calculado y el usuario puede escribir otro. */
   editable?: boolean;
+  /** Cómo se nombran las filas de una lista; en una matriz, el encabezado de la columna de las filas. */
   etiqueta_fila?: string;
   /**
    * Grupo del que salen las filas: "<submodulo>.<grupo>" o "catalogo.<nombre>" (una fila por
@@ -69,6 +72,10 @@ export interface DatoCampo {
   filas_opcionales?: boolean;
   /** Con filas_opcionales: ids de origen (códigos del catálogo) cuya fila sí se exige. */
   filas_obligatorias?: string[];
+  /** Espejo: filas que el usuario agrega además de las del origen (p. ej. los otros trazadores presupuestales). */
+  filas_adicionales?: FilasAdicionales;
+  /** Espejo de catálogo: columna con el código de cada elemento, antes de su nombre (Fuentes de financiación). */
+  columna_codigo?: ColumnaCodigo;
   mostrar?: string;
   /** Referencia: segundo texto de la opción, debajo del principal (p. ej. la descripción bajo el nombre de la alternativa). */
   mostrar_detalle?: string;
@@ -94,9 +101,37 @@ export interface DatoCampo {
   /** Documento: extensiones admitidas (p. ej. ["pdf", "docx"]) y tamaño máximo. */
   formatos?: string[];
   tamano_maximo_mb?: number;
-  totales?: { filas: boolean; columnas: boolean };
+  /**
+   * Matriz: qué totales muestra y, si no son «Total», sus títulos: titulo_filas, el de la columna con el
+   * total de cada fila; titulo_columnas, el de la fila con el total de cada columna. En un espejo,
+   * columnas = fila de totales.
+   */
+  totales?: { filas: boolean; columnas: boolean; titulo_filas?: string; titulo_columnas?: string };
   filas?: ElementoClave[];
   grupos_columnas?: GrupoColumnas[];
+}
+
+/**
+ * Filas de un espejo que el usuario agrega, hasta `max` (sin él, las que quiera), además de una por
+ * elemento de origen (p. ej. «Otro: ¿Cuál?» en Trazadores presupuestales). Su `origen` vale `origen`,
+ * que no es un elemento del origen: los campos que solo les aplican llevan solo_si sobre él.
+ */
+export interface FilasAdicionales {
+  origen: string;
+  max?: number;
+  /** Texto de su celda de origen (p. ej. «Otro: ¿Cuál?»). */
+  nombre?: string;
+  /** Nombre de la fila en los botones (p. ej. «Otro trazador»: «Agregar otro trazador»). */
+  etiqueta?: string;
+}
+
+/**
+ * Columna «Código» de un espejo de catálogo: el código de cada elemento, antes de su nombre. En las
+ * filas agregadas (filas_adicionales), el código se escribe en el campo `campo`, si lo hay.
+ */
+export interface ColumnaCodigo {
+  nombre: string;
+  campo?: string;
 }
 
 /**
@@ -213,6 +248,8 @@ export interface ItemCatalogo {
   codigo: string;
   nombre: string;
   padre?: string;
+  /** Texto que explica el elemento (p. ej. el enunciado de una meta del Plan Estratégico de Desarrollo). */
+  descripcion?: string;
 }
 
 /**

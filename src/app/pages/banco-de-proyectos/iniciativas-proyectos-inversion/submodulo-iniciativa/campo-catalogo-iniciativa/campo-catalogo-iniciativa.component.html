@@ -9,6 +9,7 @@
   <mat-hint *ngIf="!cargando && faltaPadre">Primero seleccione el campo del que depende.</mat-hint>
   <mat-hint *ngIf="!cargando && nodo.descripcion && !faltaPadre">{{ nodo.descripcion }}</mat-hint>
 </mat-form-field>
+<p *ngIf="!enCelda && descripcionElegida" class="detalle-elegido">{{ descripcionElegida }}</p>
 
 <ng-template #celda>
   <span class="celda-catalogo-caja">
@@ -22,7 +23,10 @@
 <mat-autocomplete #sugerencias="matAutocomplete" [displayWith]="enCelda ? mostrarNombre : mostrar"
   (optionSelected)="seleccionar($event.option.value)" class="sugerencias-catalogo" [panelWidth]="enCelda ? anchoListaEnCelda : ''">
   <ng-container *ngIf="sugerencias$ | async as lista">
-    <mat-option *ngFor="let item of lista.items" [value]="item">{{ etiquetaDe(item) }}</mat-option>
+    <mat-option *ngFor="let item of lista.items" [value]="item">
+      {{ etiquetaDe(item) }}
+      <span *ngIf="item.descripcion" class="sugerencias-catalogo__detalle">{{ item.descripcion }}</span>
+    </mat-option>
     <mat-option *ngIf="!cargando && !lista.items.length" disabled>
       {{ faltaPadre ? 'Primero seleccione el campo del que depende.' : 'No hay opciones que coincidan.' }}
     </mat-option>

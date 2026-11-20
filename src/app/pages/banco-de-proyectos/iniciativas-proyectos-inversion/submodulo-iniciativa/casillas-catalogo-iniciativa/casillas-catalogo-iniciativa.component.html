@@ -1,10 +1,34 @@
-<p class="casillas-catalogo__estado" *ngIf="cargando">Cargando opciones…</p>
-<p class="casillas-catalogo__estado" *ngIf="!cargando && !items.length">
-  No se encontraron las opciones de este campo. Comuníquese con el administrador del sistema.
-</p>
-<div class="casillas-catalogo" role="group" [attr.aria-label]="nodo.nombre" *ngIf="items.length">
-  <mat-checkbox *ngFor="let item of items; trackBy: porCodigo" color="primary"
-    [checked]="marcada(item)" (change)="marcar(item, $event.checked)" [disabled]="deshabilitado">
-    {{ item.nombre }}
-  </mat-checkbox>
-</div>
+<!-- Dentro de una celda de tabla: como las listas de campo-catalogo (campo con flecha y lista debajo, del mismo ancho) -->
+<ng-container *ngIf="enCelda; else enCasillas">
+  <span #caja class="celda-casillas-caja" cdkOverlayOrigin #origen="cdkOverlayOrigin" [matTooltip]="textoElegidas">
+    <button #disparador type="button" class="celda-casillas" [class.celda-casillas--vacia]="!textoElegidas" [disabled]="deshabilitado"
+      (click)="alternar($event)" aria-haspopup="listbox" [attr.aria-expanded]="abierta" [attr.aria-label]="etiquetaCelda || nodo.nombre">
+      {{ textoElegidas || textoGuia }}
+    </button>
+    <mat-icon class="flecha" *ngIf="!deshabilitado" (click)="alternar()" aria-hidden="true">arrow_drop_down</mat-icon>
+  </span>
+
+  <ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="origen" [cdkConnectedOverlayOpen]="abierta"
+    [cdkConnectedOverlayPositions]="posiciones" [cdkConnectedOverlayWidth]="anchoLista"
+    (attach)="alAbrir()" (detach)="cerrar()" (overlayOutsideClick)="alHacerClicAfuera($event)" (overlayKeydown)="alTeclear($event)">
+    <div class="lista-opciones" role="listbox" aria-multiselectable="true" [attr.aria-label]="etiquetaCelda || nodo.nombre">
+      <mat-option *ngFor="let item of items; trackBy: porCodigo" [value]="item.codigo" (onSelectionChange)="alElegir(item, $event)">
+        {{ item.nombre }}
+      </mat-option>
+      <p class="lista-opciones__vacia" *ngIf="!items.length">{{ cargando ? 'Cargando opciones…' : 'No se encontraron las opciones de este campo.' }}</p>
+    </div>
+  </ng-template>
+</ng-container>
+
+<ng-template #enCasillas>
+  <p class="casillas-catalogo__estado" *ngIf="cargando">Cargando opciones…</p>
+  <p class="casillas-catalogo__estado" *ngIf="!cargando && !items.length">
+    No se encontraron las opciones de este campo. Comuníquese con el administrador del sistema.
+  </p>
+  <div class="casillas-catalogo" role="group" [attr.aria-label]="nodo.nombre" *ngIf="items.length">
+    <mat-checkbox *ngFor="let item of items; trackBy: porCodigo" color="primary"
+      [checked]="marcada(item)" (change)="marcar(item, $event.checked)" [disabled]="deshabilitado">
+      {{ item.nombre }}
+    </mat-checkbox>
+  </div>
+</ng-template>

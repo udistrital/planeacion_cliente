@@ -1,5 +1,6 @@
 import { Datos, NodoDefinicion } from './iniciativa.models';
 import {
+  cabeOtraAgregada,
   calcular,
   calcularNumero,
   campoResumenPorDefecto,
@@ -8,6 +9,7 @@ import {
   textoResumen,
   esEspejoTraido,
   esExigido,
+  esFilaAgregada,
   esVisible,
   estructuraDeDesglose,
   estructuraDeDocumentos,
@@ -17,6 +19,7 @@ import {
   formatearNumero,
   indexarPorRuta,
   marcarCasilla,
+  nuevaFilaAgregada,
   nuevoIdFila,
   numeroDeFila,
   numerosDeLista,
@@ -154,6 +157,36 @@ describe('formulario.utils', () => {
     expect(resultado.map((fila) => fila.origen)).toEqual(['est', 'doc']);
     expect(resultado[1]).toBe(actuales[0]);
     expect(filasDeRuta('catalogo.sedes', ctx)).toEqual([]);
+  });
+
+  it('con filas_adicionales, el espejo conserva al final las filas que agregó el usuario', () => {
+    const actuales = [
+      { id: 'tp-9', origen: 'Otro', cual: 'Trazador de Paz' },
+      { id: 'tp-1', origen: 'cul', descripcion: 'Talleres' },
+    ];
+    const origen = [{ id: 'cul' }, { id: 'juv' }];
+
+    const resultado = sincronizarEspejo(actuales, origen, 'tp', { origen: 'Otro', max: 2 });
+
+    expect(resultado.map((fila) => fila.origen)).toEqual(['cul', 'juv', 'Otro']);
+    expect(resultado[2]).toBe(actuales[0]);
+    expect(sincronizarEspejo(actuales, origen, 'tp').map((fila) => fila.origen)).toEqual(['cul', 'juv']);
+  });
+
+  it('reconoce las filas agregadas de un espejo y si cabe otra, con máximo (trazadores) o sin él (fuentes)', () => {
+    const trazadores = nodo('trazadores', 'repetible', { espejo_de: 'catalogo.t', filas_adicionales: { origen: 'Otro', max: 2 } }, [nodo('cual', 'input')]);
+    const fuentes = nodo('fuentes', 'repetible', { espejo_de: 'catalogo.f', filas_adicionales: { origen: 'Otra' } }, [nodo('cual', 'input')]);
+    const filas = [{ id: 'a', origen: 'Otro' }, { id: 'b', origen: 'Otro' }, { id: 'c', origen: 'cul' }];
+    const otras = ['x', 'y', 'z'].map((id) => ({ id, origen: 'Otra' }));
+
+    expect(filas.map((fila) => esFilaAgregada(trazadores, fila))).toEqual([true, true, false]);
+    expect(cabeOtraAgregada(trazadores, filas.slice(1))).toBeTrue();
+    expect(cabeOtraAgregada(trazadores, filas)).toBeFalse();
+    expect(cabeOtraAgregada(fuentes, otras)).toBeTrue();
+    expect(cabeOtraAgregada(nodo('lista', 'repetible', {}, []), [])).toBeFalse();
+    const nueva = nuevaFilaAgregada(fuentes, contexto());
+    expect(nueva.origen).toBe('Otra');
+    expect(nueva.id).toMatch(/^f-/);
   });
 
   it('resuelve las opciones de una referencia "origen.*" con la fila de origen', () => {
@@ -323,21 +356,48 @@ describe('formulario.utils', () => {
       nodo('discriminado', 'input', noEtnicos),
       nodo('numero_beneficiarios', 'numeric', noEtnicos),
     ];
-    const trazadores = nodo('trazadores', 'repetible', { espejo_de: 'catalogo.trazadores_presupuestales' }, [...campos, comunidades]);
+    // El «¿Cuál?» de los otros trazadores (filas agregadas) no tiene columna: va en la celda del trazador.
+    const cual = nodo('cual', 'input', { solo_si: { campo: 'origen', valor: 'Otro' } });
+    const trazadores = nodo('trazadores', 'repetible', { espejo_de: 'catalogo.trazadores_presupuestales' }, [cual, ...campos, comunidades]);
 
     const estructura = estructuraDeDesglose(trazadores);
 
     expect(estructura.campos.map((campo) => campo.dato.clave)).toEqual(['descripcion', 'discriminado', 'numero_beneficiarios']);
+    expect(estructura.campoEnOrigen).toBe(cual);
     expect(estructura.desglose.dato.clave).toBe('grupos_etnicos');
     const sinCondicion = nodo('grupos_etnicos', 'repetible', { espejo_de: 'catalogo.grupos_etnicos_trazador' }, comunidades.hijos);
     expect(estructuraDeDesglose(nodo('trazadores', 'repetible', trazadores.dato, [...campos, sinCondicion]))).toBeNull();
     expect(estructuraDeDesglose(nodo('trazadores', 'repetible', {}, trazadores.hijos))).toBeNull();
   });
 
-  it('no arma tabla con catálogos de varias opciones (casillas) ni con campos que dependen de otro (solo_si)', () => {
+  it('con columna de código, el código de las filas agregadas va en esa columna y el «¿Cuál?» en la del nombre', () => {
+    const otra = { solo_si: { campo: 'origen', valor: 'Otra' } };
+    const codigo = nodo('codigo', 'input', otra);
+    const cual = nodo('cual', 'input', otra);
+    const fuentes = nodo('fuentes', 'repetible', {
+      espejo_de: 'catalogo.fuentes_financiacion', filas_adicionales: { origen: 'Otra' }, columna_codigo: { nombre: 'Código', campo: 'codigo' },
+    }, [codigo, cual, nodo('anio_0', 'numeric')]);
+
+    const estructura = estructuraDeTabla(fuentes);
+
+    expect(estructura.campos.map((campo) => campo.dato.clave)).toEqual(['anio_0']);
+    expect(estructura.campoCodigo).toBe(codigo);
+    expect(estructura.campoEnOrigen).toBe(cual);
+  });
+
+  it('la referencia cabe en una celda, salvo la de la fila marcada, la de varias opciones y la de la fila de origen', () => {
+    const lista = (campo: NodoDefinicion) => nodo('impactos', 'repetible', {}, [nodo('descripcion', 'input'), campo]);
+
+    expect(estructuraDeTabla(lista(nodo('objetivo_especifico', 'referencia', { opciones_desde: 'objetivos.objetivos_especificos' })))).not.toBeNull();
+    expect(estructuraDeTabla(lista(nodo('alternativa', 'referencia', { opciones_desde: 'a.b', marcada_en: 'pasa' })))).toBeNull();
+    expect(estructuraDeTabla(lista(nodo('varias', 'referencia', { opciones_desde: 'a.b', multiple: true })))).toBeNull();
+    expect(estructuraDeTabla(lista(nodo('causa', 'referencia', { opciones_desde: 'origen.causas_indirectas' })))).toBeNull();
+  });
+
+  it('arma tabla con catálogos de varias opciones (casillas en la celda), pero no con campos que dependen de otro (solo_si)', () => {
     const lista = (campo: NodoDefinicion) => nodo('lista', 'repetible', {}, [nodo('descripcion', 'input'), campo]);
 
-    expect(estructuraDeTabla(lista(nodo('sedes', 'catalogo', { catalogo: 'sedes', multiple: true })))).toBeNull();
+    expect(estructuraDeTabla(lista(nodo('sedes', 'catalogo', { catalogo: 'sedes', multiple: true })))).not.toBeNull();
     expect(estructuraDeTabla(lista(nodo('otra', 'input', { solo_si: { campo: 'descripcion', valor: 'x' } })))).toBeNull();
     expect(estructuraDeTabla(lista(nodo('sede', 'catalogo', { catalogo: 'sedes' })))).not.toBeNull();
   });
@@ -389,7 +449,7 @@ describe('formulario.utils', () => {
     const texto = nodo('descripcion', 'input');
     const interna = () => nodo('medios', 'repetible', {}, [nodo('descripcion', 'input')]);
 
-    expect(estructuraDeTabla(nodo('medios', 'repetible', {}, [texto, nodo('causa', 'referencia')]))).toBeNull();
+    expect(estructuraDeTabla(nodo('medios', 'repetible', {}, [texto, nodo('soporte', 'documento')]))).toBeNull();
     expect(estructuraDeTabla(nodo('objetivos', 'repetible', { espejo_de: 'problematica.causas_directas' }, [texto, interna()]))).toBeNull();
     expect(estructuraDeTabla(nodo('objetivos', 'repetible', {}, [texto, interna(), interna()]))).toBeNull();
     expect(estructuraDeTabla(nodo('objetivos', 'repetible', {}, [texto]))).not.toBeNull();
@@ -479,9 +539,9 @@ describe('formulario.utils', () => {
       expect(estructura.subfilas.map((grupo) => grupo.dato.clave)).toEqual(['programacion_fisica', 'programacion_financiera']);
       expect(estructura.columnas.map((columna) => columna.clave)).toEqual(['anio_0', 'anio_1', 'valor_total']);
       const espejo = { espejo_de: 'cadena_valor.productos_por_objetivo.productos.actividades' };
-      const casillas = nodo('grupo', undefined, {}, [nodo('sedes', 'catalogo', { multiple: true })]);
+      const sinCelda = nodo('grupo', undefined, {}, [nodo('soporte', 'documento')]);
       expect(estructuraDeSubfilas(nodo('lista', 'repetible', espejo, [nodo('texto', 'input')]))).toBeNull();
-      expect(estructuraDeSubfilas(nodo('lista', 'repetible', espejo, [casillas]))).toBeNull();
+      expect(estructuraDeSubfilas(nodo('lista', 'repetible', espejo, [sinCelda]))).toBeNull();
       // Solo espejos: la tabla de subfilas no agrega ni elimina filas.
       expect(estructuraDeSubfilas(nodo('lista', 'repetible', {}, cronograma.hijos))).toBeNull();
     });

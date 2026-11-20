@@ -12,10 +12,11 @@
     <thead>
       <tr>
         <th scope="col" class="col-numero">N.°</th>
+        <th scope="col" class="col-codigo" *ngIf="conCodigo">{{ nodo.dato.columna_codigo.nombre }}</th>
         <th scope="col" *ngIf="esEspejo">{{ etiqueta }}</th>
         <th scope="col" *ngFor="let columna of columnas" [class.col-numerica]="esNumerica(columna)" [class.col-casilla]="esCasilla(columna)"
           [class.con-ayuda]="ayudas[columna]" [matTooltip]="ayudas[columna]">{{ encabezados[columna] }}</th>
-        <th scope="col" class="col-acciones" [class.col-acciones--una]="!tieneInterna" *ngIf="puedeModificar">Acciones</th>
+        <th scope="col" class="col-acciones" [class.col-acciones--una]="accionAngosta" *ngIf="conAcciones">Acciones</th>
       </tr>
     </thead>
     <tbody>
@@ -29,6 +30,12 @@
         <!-- Primer nivel -->
         <tr class="nivel-1">
           <td class="numero"><span class="chip">{{ numero(fila, posicion) }}</span></td>
+          <!-- Código del elemento; una fila agregada lo escribe -->
+          <td class="codigo" *ngIf="conCodigo" [class.con-error]="campoCodigo(fila) && erroresDeCampo(rutaDeFila(fila), campoCodigo(fila)).length">
+            <app-celda-iniciativa *ngIf="campoCodigo(fila) as campo; else codigoDelOrigen" [fila]="fila" [campo]="campo" [ruta]="rutaDeFila(fila)"
+              [numero]="numero(fila, posicion)" [contexto]="contexto"></app-celda-iniciativa>
+            <ng-template #codigoDelOrigen><span class="codigo__texto">{{ codigoDe(fila) }}</span></ng-template>
+          </td>
           <td class="origen" *ngIf="esEspejo" [class.con-error]="campoEnOrigen(fila) && erroresDeCampo(rutaDeFila(fila), campoEnOrigen(fila)).length">
             {{ textoOrigen(fila) }}<span *ngIf="esFilaObligatoria(fila)" aria-hidden="true"> *</span>
             <app-celda-iniciativa *ngIf="campoEnOrigen(fila) as campo" [fila]="fila" [filas]="filas" [campo]="campo" [ruta]="rutaDeFila(fila)"
@@ -40,15 +47,15 @@
               [numero]="numero(fila, posicion)" [contexto]="contexto" [resaltada]="tieneInterna"
               [textoVacio]="textoVacio(fila)"></app-celda-iniciativa>
           </td>
-          <td class="acciones" *ngIf="puedeModificar">
+          <td class="acciones" *ngIf="conAcciones">
             <button mat-icon-button color="primary" type="button" *ngIf="puedeAgregarInterna(fila)" (click)="agregarInterna(fila)"
               matTooltip="Agregar {{ etiquetaInterna | lowercase }}"
               [attr.aria-label]="'Agregar ' + (etiquetaInterna | lowercase) + ' a ' + numero(fila, posicion)">
               <mat-icon>add_circle_outline</mat-icon>
             </button>
-            <button mat-icon-button color="primary" type="button" (click)="eliminar(posicion)"
-              matTooltip="Eliminar {{ etiqueta | lowercase }}"
-              [attr.aria-label]="'Eliminar ' + (etiqueta | lowercase) + ' ' + numero(fila, posicion)">
+            <button mat-icon-button color="primary" type="button" *ngIf="puedeEliminar(fila)" (click)="eliminar(posicion)"
+              matTooltip="Eliminar {{ etiquetaDeFila(fila) | lowercase }}"
+              [attr.aria-label]="'Eliminar ' + (etiquetaDeFila(fila) | lowercase) + ' ' + numero(fila, posicion)">
               <mat-icon>delete</mat-icon>
             </button>
           </td>
@@ -84,4 +91,8 @@
 
 <button *ngIf="puedeAgregar" mat-stroked-button color="primary" type="button" class="agregar" (click)="agregar()">
   <mat-icon>add</mat-icon> Agregar {{ etiqueta | lowercase }}
+</button>
+<!-- En un espejo, las filas que agrega el usuario (filas_adicionales, p. ej. «Otras, ¿cuáles?») -->
+<button *ngIf="puedeAgregarOtra" mat-stroked-button color="primary" type="button" class="agregar" (click)="agregarOtra()">
+  <mat-icon>add</mat-icon> Agregar {{ etiquetaAgregada | lowercase }}
 </button>

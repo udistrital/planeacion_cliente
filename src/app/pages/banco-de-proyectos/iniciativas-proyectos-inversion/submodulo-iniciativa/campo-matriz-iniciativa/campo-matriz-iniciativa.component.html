@@ -5,12 +5,12 @@
     <table>
       <thead>
         <tr>
-          <th rowspan="2" class="iniciativa-matriz__fila">Grupo</th>
+          <th rowspan="2" class="iniciativa-matriz__fila">{{ etiquetaFilas }}</th>
           <th *ngFor="let grupo of grupos; let i = index"
               [attr.colspan]="grupo.columnas.length"
               class="iniciativa-matriz__grupo"
               [ngClass]="'iniciativa-matriz__grupo--' + (i % 4)">{{ grupo.nombre }}</th>
-          <th rowspan="2" *ngIf="conTotalesPorFila">Total</th>
+          <th rowspan="2" class="iniciativa-matriz__columna" *ngIf="conTotalesPorFila">{{ tituloTotalesPorFila }}</th>
         </tr>
         <tr>
           <th *ngFor="let columna of columnas" class="iniciativa-matriz__columna">
@@ -38,7 +38,7 @@
       </tbody>
       <tfoot *ngIf="conTotalesPorColumna">
         <tr>
-          <th scope="row" class="iniciativa-matriz__fila">Total</th>
+          <th scope="row" class="iniciativa-matriz__fila">{{ tituloTotalesPorColumna }}</th>
           <td *ngFor="let columna of columnas" class="iniciativa-matriz__total">{{ totalDeColumna(columna.clave) | number }}</td>
           <td *ngIf="conTotalesPorFila" class="iniciativa-matriz__total">{{ totalGeneral() | number }}</td>
         </tr>

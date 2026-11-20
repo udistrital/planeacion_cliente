@@ -2,13 +2,16 @@ import { Component, Input, OnChanges } from '@angular/core';
 import Swal from 'sweetalert2';
 import { Datos, NodoDefinicion } from '../../utils';
 import {
+  cabeOtraAgregada,
   claseDe,
   ContextoFormulario,
   esCampoNumerico,
+  esFilaAgregada,
   esVisible,
   EstructuraTabla,
   estructuraDeTabla,
   filasDeRuta,
+  nuevaFilaAgregada,
   nuevoIdFila,
   numeroDeFila,
   numerosDeLista,
@@ -22,12 +25,14 @@ import {
 const SIN_ESTRUCTURA: EstructuraTabla = { campos: [], interna: null, camposInternos: [] };
 
 /** Anchos mínimos (px) para que la tabla se desplace en pantallas angostas en vez de apretar las columnas. */
-const ANCHO = { numero: 76, columna: 160, numerica: 110, acciones: 96, accion: 56, minimo: 560 };
+const ANCHO = { numero: 76, codigo: 120, columna: 160, numerica: 110, acciones: 96, accion: 56, minimo: 560 };
 
 /**
  * Lista como tabla: una columna por campo, editado en su celda (CeldaIniciativa). Las filas de la
  * lista interna van debajo de su fila, numeradas 1.1, 1.2… Si es espejo, la primera columna muestra
- * el elemento de origen y no se agregan ni eliminan filas. Edita los mismos datos que el grupo repetible.
+ * el elemento de origen (con columna_codigo, antes va su código) y sus filas no se agregan ni se
+ * eliminan, salvo las de filas_adicionales: el botón «Agregar …» de debajo de la tabla las agrega y
+ * cada una tiene su caneca (las otras fuentes de financiación). Edita los mismos datos que el grupo repetible.
  * Con numerar_por, las filas se numeran n.m (las actividades de Cadena de valor, por objetivo específico).
  */
 @Component({
@@ -76,7 +81,7 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     return interna ? interna.dato.etiqueta_fila || interna.nombre : '';
   }
 
-  /** Las filas de un espejo salen del grupo de origen: no se agregan ni se eliminan aquí. */
+  /** Las filas de un espejo salen del grupo de origen: no se agregan ni se eliminan aquí (salvo las de filas_adicionales). */
   get esEspejo(): boolean {
     return !!this.nodo.dato.espejo_de;
   }
@@ -89,23 +94,58 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     return !this.contexto.soloLectura && !this.esEspejo;
   }
 
+  /** Espejo editable con filas_adicionales: el usuario agrega y elimina las suyas. */
+  get conAgregadas(): boolean {
+    return this.esEspejo && !!this.nodo.dato.filas_adicionales && !this.contexto.soloLectura;
+  }
+
+  /** La columna Acciones: en una lista editable o, en un espejo, cuando ya hay filas agregadas (su caneca). */
+  get conAcciones(): boolean {
+    return this.puedeModificar || (this.conAgregadas && this.filas.some((fila) => this.esAgregada(fila)));
+  }
+
   get puedeAgregar(): boolean {
     return this.puedeModificar && cabeOtra(this.filas, this.nodo);
+  }
+
+  /** En un espejo con filas_adicionales, si cabe otra (el botón «Agregar …» de debajo de la tabla). */
+  get puedeAgregarOtra(): boolean {
+    return this.conAgregadas && cabeOtraAgregada(this.nodo, this.filas);
+  }
+
+  /** Cómo se nombra una fila agregada en los botones: «Otra fuente». */
+  get etiquetaAgregada(): string {
+    const adicionales = this.nodo.dato.filas_adicionales;
+    return (adicionales && adicionales.etiqueta) || this.etiqueta;
+  }
+
+  /**
+   * Columna Acciones angosta (un solo botón): en las listas sin lista interna. En un espejo con filas
+   * agregadas va ancha, como en Trazadores presupuestales, para que quepa el encabezado «Acciones».
+   */
+  get accionAngosta(): boolean {
+    return !this.tieneInterna && !this.esEspejo;
+  }
+
+  /** Columna con el código del elemento de origen, antes de su nombre (columna_codigo). */
+  get conCodigo(): boolean {
+    return this.esEspejo && !!this.nodo.dato.columna_codigo;
   }
 
   get minimo(): number {
     return this.nodo.dato.min || 0;
   }
 
-  /** Número, origen (espejo), columnas de campos y, si se puede editar, acciones. */
+  /** Número, código y origen (espejo), columnas de campos y, si hay, acciones. */
   get totalColumnas(): number {
-    return this.columnas.length + (this.esEspejo ? 2 : 1) + (this.puedeModificar ? 1 : 0);
+    return this.columnas.length + 1 + (this.esEspejo ? 1 : 0) + (this.conCodigo ? 1 : 0) + (this.conAcciones ? 1 : 0);
   }
 
   get anchoMinimo(): number {
     const campos = this.columnas.reduce((suma, posicion) => suma + (this.esNumerica(posicion) ? ANCHO.numerica : ANCHO.columna), 0);
-    const acciones = this.puedeModificar ? (this.tieneInterna ? ANCHO.acciones : ANCHO.accion) : 0;
-    return Math.max(ANCHO.minimo, ANCHO.numero + (this.esEspejo ? ANCHO.columna : 0) + campos + acciones);
+    const acciones = this.conAcciones ? (this.accionAngosta ? ANCHO.accion : ANCHO.acciones) : 0;
+    const origen = (this.esEspejo ? ANCHO.columna : 0) + (this.conCodigo ? ANCHO.codigo : 0);
+    return Math.max(ANCHO.minimo, ANCHO.numero + origen + campos + acciones);
   }
 
   /** Columna en la que todos los campos son números (escritos o calculados): va más angosta. */
@@ -134,16 +174,44 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     return interna && Array.isArray(fila[interna.dato.clave]) ? fila[interna.dato.clave] : [];
   }
 
-  /** Texto del elemento de origen de una fila de espejo. */
+  /** Texto del elemento de origen de una fila de espejo; en una fila agregada, el de filas_adicionales («Otras, ¿cuáles?»). */
   textoOrigen(fila: Datos): string {
+    if (this.esAgregada(fila)) {
+      return this.nodo.dato.filas_adicionales.nombre || '';
+    }
     const origen = filasDeRuta(this.nodo.dato.espejo_de, this.contexto).find((candidata) => candidata.id === fila.origen);
     return origen ? textoDeFila(origen, this.nodo.dato.mostrar, 0) : '';
+  }
+
+  /** Código del elemento de origen (en un espejo de catálogo, su id); una fila agregada lo escribe en campoCodigo. */
+  codigoDe(fila: Datos): string {
+    return this.esAgregada(fila) ? '' : fila.origen || '';
   }
 
   /** Campo que se escribe en la celda del elemento de origen de esta fila (p. ej. el «¿Cuál?» de «Otro»), o null. */
   campoEnOrigen(fila: Datos): NodoDefinicion | null {
     const campo = this.estructura.campoEnOrigen;
     return campo && esVisible(campo, fila) ? campo : null;
+  }
+
+  /** Campo en el que una fila agregada escribe su código (columna_codigo.campo), o null. */
+  campoCodigo(fila: Datos): NodoDefinicion | null {
+    const campo = this.estructura.campoCodigo;
+    return campo && esVisible(campo, fila) ? campo : null;
+  }
+
+  esAgregada(fila: Datos): boolean {
+    return esFilaAgregada(this.nodo, fila);
+  }
+
+  /** Se eliminan las filas de una lista editable y, en un espejo, solo las agregadas. */
+  puedeEliminar(fila: Datos): boolean {
+    return this.puedeModificar || (this.conAgregadas && this.esAgregada(fila));
+  }
+
+  /** Nombre de la fila en los botones: el de la lista o, si es agregada, el de filas_adicionales. */
+  etiquetaDeFila(fila: Datos): string {
+    return this.esAgregada(fila) ? this.etiquetaAgregada : this.etiqueta;
   }
 
   /** En un espejo con filas opcionales, la fila que sí se exige (filas_obligatorias). */
@@ -190,6 +258,11 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     this.filas.push(prepararEstructura(this.nodo.hijos, { id: nuevoIdFila(prefijoDeClave(this.nodo.dato.clave)) }, this.contexto));
   }
 
+  /** Agrega al final una fila de filas_adicionales (p. ej. otra fuente de financiación). */
+  agregarOtra(): void {
+    this.filas.push(nuevaFilaAgregada(this.nodo, this.contexto));
+  }
+
   agregarInterna(fila: Datos): void {
     const interna = this.estructura.interna;
     const clave = interna.dato.clave;
@@ -201,8 +274,9 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
 
   async eliminar(posicion: number): Promise<void> {
     const aviso = 'Los cambios se aplican al guardar.';
+    const fila = this.filas[posicion];
     const confirmado = await confirmarEliminacion(
-      `¿Eliminar ${this.etiqueta.toLowerCase()} ${this.numero(this.filas[posicion], posicion)}?`,
+      `¿Eliminar ${this.etiquetaDeFila(fila).toLowerCase()} ${this.numero(fila, posicion)}?`,
       this.tieneInterna ? `Se eliminará con todo lo que contiene. ${aviso}` : aviso,
     );
     if (confirmado) {

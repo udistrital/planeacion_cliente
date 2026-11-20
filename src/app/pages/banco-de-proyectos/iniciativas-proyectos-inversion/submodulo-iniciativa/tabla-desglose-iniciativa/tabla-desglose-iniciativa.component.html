@@ -9,6 +9,7 @@
       <col class="col-numero">
       <col class="col-origen">
       <col *ngFor="let campo of estructura.campos; trackBy: porClave" [class.col-numerica]="esCampoNumerico(campo)">
+      <col class="col-acciones" *ngIf="conAcciones">
     </colgroup>
     <thead>
       <tr>
@@ -16,6 +17,7 @@
         <th scope="col">{{ etiqueta }}</th>
         <th scope="col" *ngFor="let campo of estructura.campos; trackBy: porClave" [class.col-valor]="esCampoNumerico(campo)"
           [class.con-ayuda]="campo.descripcion" [matTooltip]="campo.descripcion">{{ campo.nombre }}</th>
+        <th scope="col" class="col-acciones" *ngIf="conAcciones">Acciones</th>
       </tr>
     </thead>
     <tbody>
@@ -28,9 +30,12 @@
           [class.subfila]="!primera">
           <ng-container *ngIf="primera">
             <td class="numero" [attr.rowspan]="fila.partes.length"><span class="chip">{{ fila.numero }}</span></td>
-            <td class="origen" [attr.rowspan]="fila.partes.length">
+            <!-- Elemento de origen; en una fila agregada, «Otro: ¿Cuál?» y el nombre que escribe el usuario -->
+            <td class="origen" [attr.rowspan]="fila.partes.length" [class.con-error]="conError(rutaDeFila(fila), campoEnOrigen(fila))">
               <span class="origen__nombre">{{ textoOrigen(fila) }}</span>
               <span class="origen__ayuda" *ngIf="ayudaOrigen(fila) as ayuda">{{ ayuda }}</span>
+              <app-celda-iniciativa *ngIf="campoEnOrigen(fila) as campo" [fila]="fila.fila" [campo]="campo" [ruta]="rutaDeFila(fila)"
+                [numero]="fila.numero" [contexto]="contexto" [textoVacio]="'Escriba cuál'"></app-celda-iniciativa>
             </td>
           </ng-container>
 
@@ -59,6 +64,14 @@
               </ng-template>
             </ng-template>
           </ng-container>
+
+          <!-- Solo las filas agregadas se eliminan: las del origen salen de él -->
+          <td *ngIf="primera && conAcciones" class="acciones" [attr.rowspan]="fila.partes.length">
+            <button *ngIf="fila.agregada" mat-icon-button color="primary" type="button" (click)="eliminar(fila)"
+              matTooltip="Eliminar {{ etiquetaAdicional | lowercase }}" [attr.aria-label]="'Eliminar ' + (etiquetaAdicional | lowercase) + ' ' + fila.numero">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
         </tr>
 
         <tr class="fila-errores" *ngIf="erroresDeFila(fila).length">
@@ -70,3 +83,8 @@
     </tbody>
   </table>
 </div>
+
+<!-- Filas que agrega el usuario (filas_adicionales, p. ej. «Otro: ¿Cuál?»); desaparece al llegar al máximo -->
+<button *ngIf="puedeAgregar" mat-stroked-button color="primary" type="button" class="agregar" (click)="agregar()">
+  <mat-icon>add</mat-icon> Agregar {{ etiquetaAdicional | lowercase }}
+</button>

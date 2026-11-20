@@ -29,6 +29,21 @@ export class CampoMatrizIniciativaComponent implements OnChanges {
     this.clavesColumnas = columnasDe(this.nodo.dato);
   }
 
+  /** Encabezado de la columna de las filas (etiqueta_fila; en Población, «Grupo etáreo y ciclo de vida»). */
+  get etiquetaFilas(): string {
+    return this.nodo.dato.etiqueta_fila || 'Grupo';
+  }
+
+  /** Título de la columna con el total de cada fila (en Población, «SUBTOTALES»). */
+  get tituloTotalesPorFila(): string {
+    return (this.nodo.dato.totales && this.nodo.dato.totales.titulo_filas) || 'Total';
+  }
+
+  /** Título de la fila con el total de cada columna (en Población, «TOTAL DE POBLACIÓN DE REFERENCIA»). */
+  get tituloTotalesPorColumna(): string {
+    return (this.nodo.dato.totales && this.nodo.dato.totales.titulo_columnas) || 'Total';
+  }
+
   get conTotalesPorFila(): boolean {
     return !!(this.nodo.dato.totales && this.nodo.dato.totales.filas);
   }

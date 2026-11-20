@@ -7,13 +7,15 @@ import {
   esExigido,
   formatearNumero,
   marcarCasilla,
+  OpcionReferencia,
+  opcionesDeReferencia,
   rutaCampo,
   textoTraido,
 } from '../../utils/formulario.utils';
 
 /**
- * Un campo editado dentro de una celda de tabla, según su tipo: texto, número, catálogo o
- * casilla; el calculado numérico (p. ej. el déficit) y el traído de la fila de origen (p. ej. el
+ * Un campo editado dentro de una celda de tabla, según su tipo: texto, número, catálogo, casilla o
+ * referencia; el calculado numérico (p. ej. el déficit) y el traído de la fila de origen (p. ej. el
  * costo de un año en el Cronograma) solo se muestran. El error del servidor queda debajo. La usan
  * la tabla jerárquica, la de subfilas y la de documentos.
  *
@@ -76,6 +78,21 @@ export class CeldaIniciativaComponent {
   /** Lo que muestra el calculado sin valor: el traído no tiene nada que calcular. */
   get calculadoVacio(): string {
     return this.campo.dato.desde ? '—' : 'Se calcula';
+  }
+
+  /** Opciones de una referencia (p. ej. los objetivos específicos), en el orden de su lista. */
+  get opciones(): OpcionReferencia[] {
+    return opcionesDeReferencia(this.campo.dato, this.filaOrigen, this.contexto);
+  }
+
+  /** Texto completo de la opción elegida en una referencia: la celda lo corta y la ayuda lo muestra. */
+  get textoReferencia(): string {
+    const elegida = this.opciones.find((opcion) => opcion.id === this.fila[this.campo.dato.clave]);
+    return elegida ? elegida.etiqueta : '';
+  }
+
+  porId(_: number, opcion: OpcionReferencia): string {
+    return opcion.id;
   }
 
   marcar(marcada: boolean): void {

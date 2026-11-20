@@ -18,9 +18,26 @@
     [placeholder]="marca" [attr.aria-label]="etiqueta" [attr.min]="campo.dato.min" [attr.max]="campo.dato.max"
     [attr.step]="campo.dato.decimales === 0 ? 1 : 'any'" [disabled]="contexto.soloLectura">
 
-  <app-campo-catalogo-iniciativa *ngSwitchCase="'catalogo'" [nodo]="campo" [(valor)]="fila[campo.dato.clave]"
-    [padre]="campo.dato.depende_de ? fila[campo.dato.depende_de] : null" [deshabilitado]="contexto.soloLectura"
-    [enCelda]="true" [etiquetaCelda]="etiqueta"></app-campo-catalogo-iniciativa>
+  <ng-container *ngSwitchCase="'catalogo'">
+    <!-- Varias opciones (multiple, p. ej. las sedes de un resultado esperado): lista de casillas que se abre debajo -->
+    <app-casillas-catalogo-iniciativa *ngIf="campo.dato.multiple; else catalogoUnico" [nodo]="campo" [(valor)]="fila[campo.dato.clave]"
+      [deshabilitado]="contexto.soloLectura" [enCelda]="true" [etiquetaCelda]="etiqueta" [textoVacio]="marca"></app-casillas-catalogo-iniciativa>
+    <ng-template #catalogoUnico>
+      <app-campo-catalogo-iniciativa [nodo]="campo" [(valor)]="fila[campo.dato.clave]"
+        [padre]="campo.dato.depende_de ? fila[campo.dato.depende_de] : null" [deshabilitado]="contexto.soloLectura"
+        [enCelda]="true" [etiquetaCelda]="etiqueta"></app-campo-catalogo-iniciativa>
+    </ng-template>
+  </ng-container>
+
+  <!-- Referencia a una fila de otro grupo (p. ej. el objetivo específico de un impacto), numerada como en su lista -->
+  <mat-select *ngSwitchCase="'referencia'" class="celda celda--seleccion" [(ngModel)]="fila[campo.dato.clave]"
+    [placeholder]="marca" [aria-label]="etiqueta" [disabled]="contexto.soloLectura" panelClass="opciones-celda-iniciativa"
+    [matTooltip]="textoReferencia">
+    <mat-option *ngIf="!esObligatorio" [value]="null">Ninguno</mat-option>
+    <mat-option *ngFor="let opcion of opciones; let posicion = index; trackBy: porId" [value]="opcion.id">
+      {{ posicion + 1 }}. {{ opcion.etiqueta }}
+    </mat-option>
+  </mat-select>
 
   <div *ngSwitchCase="'casilla'" class="celda celda--casilla">
     <mat-checkbox color="primary" [checked]="fila[campo.dato.clave] === true" (change)="marcar($event.checked)"

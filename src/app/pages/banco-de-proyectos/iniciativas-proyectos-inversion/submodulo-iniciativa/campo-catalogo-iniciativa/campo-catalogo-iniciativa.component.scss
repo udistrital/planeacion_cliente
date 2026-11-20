@@ -7,6 +7,15 @@
   cursor: pointer;
 }
 
+/* Descripción del elemento elegido, bajo el campo (mismo gris que las ayudas del formulario) */
+.detalle-elegido {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.6);
+  white-space: pre-line;
+}
+
 .flecha--deshabilitada {
   visibility: hidden;
 }
@@ -74,6 +83,13 @@
     overflow: visible;
     text-overflow: clip;
   }
+}
+
+::ng-deep .sugerencias-catalogo .sugerencias-catalogo__detalle {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
 }
 
 ::ng-deep .sugerencias-catalogo .mat-option + .mat-option {

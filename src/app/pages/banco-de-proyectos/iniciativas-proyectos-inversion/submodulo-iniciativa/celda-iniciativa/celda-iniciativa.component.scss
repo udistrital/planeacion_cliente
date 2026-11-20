@@ -60,6 +60,41 @@
   }
 }
 
+/* Referencia: lista de selección; el texto elegido se corta en una línea (la ayuda lo muestra completo) */
+.celda--seleccion {
+  max-height: none;
+  padding: 7px 0 6px;
+
+  &:focus {
+    padding-bottom: 5px;
+  }
+
+  &.mat-select-disabled ::ng-deep .mat-select-value {
+    color: #333;
+  }
+
+  ::ng-deep .mat-select-placeholder {
+    color: #8a9097;
+  }
+}
+
+/* Opciones de la referencia completas, en varias líneas si son largas */
+::ng-deep .opciones-celda-iniciativa {
+  min-width: 22rem !important;
+
+  .mat-option {
+    height: auto;
+    min-height: 40px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    line-height: 1.35;
+  }
+
+  .mat-option-text {
+    white-space: normal;
+  }
+}
+
 .celda--calculada {
   font-weight: 500;
 

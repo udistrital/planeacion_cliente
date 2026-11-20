@@ -18,6 +18,7 @@ import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { IniciativaService } from '../../iniciativa.service';
 import { ItemCatalogo, NodoDefinicion } from '../../utils';
+import { ANCHO_LISTA_EN_CELDA } from '../../utils/constantes';
 import { seVe } from '../../utils/scroll.utils';
 
 /**
@@ -36,7 +37,8 @@ export interface Sugerencias {
 /**
  * Selección de un elemento de catálogo. Se usa como una lista: al hacer clic se despliegan
  * las opciones, y escribir las filtra (algunos catálogos tienen miles de elementos). Si el
- * campo depende de otro (depende_de), solo muestra los hijos del valor elegido allí.
+ * campo depende de otro (depende_de), solo muestra los hijos del valor elegido allí. Si el
+ * elemento tiene descripción, va en gris bajo su nombre en la lista y bajo el campo al elegirlo.
  * Emite el código del elemento.
  */
 @Component({
@@ -60,7 +62,7 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
   @ViewChild(MatAutocompleteTrigger) private disparador?: MatAutocompleteTrigger;
 
   /** Ancho (px) de la lista dentro de una celda: más que la columna, para que se lean las opciones largas. */
-  readonly anchoListaEnCelda = 420;
+  readonly anchoListaEnCelda = ANCHO_LISTA_EN_CELDA;
 
   readonly control = new FormControl('');
   sugerencias$: Observable<Sugerencias>;
@@ -154,7 +156,7 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
     if (typeof item === 'string') {
       return item;
     }
-    return item ? etiquetaCompleta(item) : '';
+    return item ? this.etiquetaDe(item) : '';
   }
 
   /** En la celda basta el nombre; el código completo queda en la ayuda emergente. */
@@ -171,9 +173,15 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
     return valor && typeof valor === 'object' ? this.mostrar(valor) : '';
   }
 
-  /** Texto de cada opción de la lista. */
+  /** Descripción del elemento elegido, que se muestra bajo el campo (p. ej. el enunciado de una meta). */
+  get descripcionElegida(): string {
+    const valor = this.control.value;
+    return (valor && typeof valor === 'object' && valor.descripcion) || '';
+  }
+
+  /** Texto de cada opción de la lista: con el código, salvo que sea un id interno (sin_codigo). */
   etiquetaDe(item: ItemCatalogo): string {
-    return etiquetaCompleta(item);
+    return this.nodo.dato.sin_codigo ? item.nombre : etiquetaCompleta(item);
   }
 
   seleccionar(item: ItemCatalogo | null): void {
@@ -193,11 +201,17 @@ export class CampoCatalogoIniciativaComponent implements OnInit, OnChanges, OnDe
     const busqueda = normalizar(texto);
     const coincidencias = this.items
       .filter((item) => this.perteneceAlPadre(item))
-      .filter((item) => !busqueda || normalizar(`${item.codigo} ${item.nombre}`).includes(busqueda));
+      .filter((item) => !busqueda || normalizar(this.textoDeBusqueda(item)).includes(busqueda));
     return {
       items: coincidencias.slice(0, MAXIMO_SUGERENCIAS),
       ocultas: Math.max(0, coincidencias.length - MAXIMO_SUGERENCIAS),
     };
+  }
+
+  /** Lo que se busca al escribir: código (si se muestra), nombre y descripción. */
+  private textoDeBusqueda(item: ItemCatalogo): string {
+    const codigo = this.nodo.dato.sin_codigo ? '' : item.codigo;
+    return `${codigo} ${item.nombre} ${item.descripcion || ''}`;
   }
 
   private perteneceAlPadre(item: ItemCatalogo | undefined): boolean {

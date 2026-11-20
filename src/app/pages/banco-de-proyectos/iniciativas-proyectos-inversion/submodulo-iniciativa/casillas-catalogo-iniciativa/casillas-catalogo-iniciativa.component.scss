@@ -23,3 +23,101 @@
   font-size: 0.85rem;
   color: #8a9097;
 }
+
+/* En una celda: igual que la celda de campo-catalogo (.celda-catalogo-caja, .celda-catalogo y .flecha--celda) */
+.celda-casillas-caja {
+  display: flex;
+  align-items: center;
+}
+
+.celda-casillas {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 0 5px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.4;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+
+  &:focus {
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 4px;
+  }
+
+  &:disabled {
+    color: #333;
+    cursor: default;
+  }
+}
+
+.celda-casillas--vacia {
+  color: #8a9097;
+}
+
+.flecha {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.54);
+  cursor: pointer;
+}
+
+/*
+ * La lista va en el overlay de CDK, pero sus elementos son de esta plantilla y llevan sus estilos.
+ * Mismo aspecto que la lista de campo-catalogo: el panel de mat-autocomplete (fondo blanco, sombra,
+ * esquinas redondeadas abajo y máximo 256px de alto) y sus opciones (.sugerencias-catalogo: en varias
+ * líneas, separadas por una raya). text-align: los estilos globales de la página alinean distinto.
+ * width: el panel del overlay es flex; sin él, la lista se encoge al ancho de su texto.
+ */
+.lista-opciones {
+  box-sizing: border-box;
+  width: 100%;
+  max-height: 256px;
+  overflow-y: auto;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  background: #fff;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+  text-align: left;
+
+  .mat-option {
+    height: auto;
+    min-height: 40px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    line-height: 1.35;
+    white-space: normal;
+
+    & + .mat-option {
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    ::ng-deep .mat-option-text {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+    }
+
+    /* La casilla, en el color del sistema (el tema la pinta con el color de acento) */
+    ::ng-deep .mat-pseudo-checkbox-checked {
+      background: var(--primary);
+    }
+  }
+}
+
+.lista-opciones__vacia {
+  margin: 0;
+  padding: 12px 16px;
+  color: #8a9097;
+}

@@ -8,6 +8,19 @@
   overflow-wrap: anywhere;
 }
 
+/* Código del elemento de origen (columna_codigo) */
+.col-codigo {
+  width: 120px;
+}
+
+/* Alineado con el nombre del elemento (.origen); la celda de una fila agregada lleva su propio espacio */
+.codigo__texto {
+  display: block;
+  padding-top: 5px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
 .nivel-1 .numero {
   padding-top: 7px !important;
 }

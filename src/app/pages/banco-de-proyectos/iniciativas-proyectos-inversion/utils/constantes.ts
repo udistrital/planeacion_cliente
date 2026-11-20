@@ -52,13 +52,15 @@ export const COLUMNAS_RESUMEN: { [submodulo: string]: { [lista: string]: Columna
     bienes_servicios: [{ clave: 'descripcion_bien' }, { clave: 'unidad_medida' }, { clave: 'analisis_anual', nombre: 'Años' }],
   },
   cadena_valor: {
-    productos_por_objetivo: [{ clave: 'productos', nombre: 'Productos' }],
-    productos: [{ clave: 'producto' }, { clave: 'indicador_producto' }, { clave: 'actividades', nombre: 'Actividades' }],
+    productos_por_objetivo: [{ clave: 'producto' }, { clave: 'actividades', nombre: 'Actividades' }],
   },
   ingresos_beneficios: {
     conceptos: [{ clave: 'tipo' }, { clave: 'descripcion' }, { clave: 'valores_anuales', nombre: 'Años' }],
   },
 };
+
+/** Ancho (px) de las listas que se abren desde una celda de tabla: más que la columna, para que se lean las opciones largas. */
+export const ANCHO_LISTA_EN_CELDA = 420;
 
 /** Texto de una casilla marcada en la tabla resumen. */
 export const VALOR_CASILLA_MARCADA = 'Sí';

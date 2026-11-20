@@ -35,7 +35,7 @@ td {
   text-align: center;
 }
 
-/* La celda "Grupo" también tiene .iniciativa-matriz__fila y tomaría su fondo claro */
+/* El título de la columna de las filas también tiene .iniciativa-matriz__fila y tomaría su fondo claro */
 thead th,
 thead th.iniciativa-matriz__fila {
   min-width: 64px;
@@ -57,45 +57,62 @@ thead th.iniciativa-matriz__grupo {
   border-top: 2px solid var(--primary);
 }
 
+/*
+ * Un color por grupo de columnas (Género, Localización geográfica, Grupo étnico y Condición): azul,
+ * amarillo, verde y gris, de la paleta de OAS (gaia-style.css, que importa styles.scss). El valor de
+ * respaldo es el mismo de OAS, por si la hoja no cargara.
+ */
 thead th.iniciativa-matriz__grupo--0 {
-  background-color: var(--others-base);
+  background-color: var(--others-base, #869fc7);
 }
 
 thead th.iniciativa-matriz__grupo--1 {
-  background-color: var(--warning-main);
+  background-color: var(--warning-main, #fcd17e);
 }
 
 thead th.iniciativa-matriz__grupo--2 {
-  background-color: var(--success-main);
+  background-color: var(--success-main, #9ebf77);
 }
 
 thead th.iniciativa-matriz__grupo--3 {
-  background-color: var(--color100);
+  background-color: var(--md-accent-50, #e3e7ee);
 }
 
+/* Todas las columnas de datos (y la de subtotales) del mismo ancho; los encabezados largos se parten en líneas */
 .iniciativa-matriz__columna {
-  min-width: 105px;
+  width: 140px;
+  min-width: 140px;
+  max-width: 140px;
   white-space: normal;
   border-color: rgba(112, 112, 112, 0.35);
 }
 
 .iniciativa-matriz__texto {
-  width: max-content;
-  max-width: 160px;
-  margin: 0 auto;
   line-height: 1.25;
   overflow-wrap: break-word;
 }
 
+/*
+ * Columna fija de las filas: los grupos de edad en una línea (el alto de la fila lo fija el campo,
+ * .iniciativa-matriz__campo); sus títulos largos, arriba y en la fila de totales
+ * («TOTAL DE POBLACIÓN DE REFERENCIA»), se parten en líneas para no ensancharla.
+ */
 .iniciativa-matriz__fila {
   position: sticky;
   left: 0;
   z-index: 1; /* por encima de las celdas al desplazar la tabla */
+  width: 200px;
+  min-width: 200px;
   padding: 10px;
   text-align: left;
   white-space: nowrap;
   background: #fafafa;
   background-clip: padding-box;
+}
+
+thead th.iniciativa-matriz__fila,
+tfoot th.iniciativa-matriz__fila {
+  white-space: normal;
 }
 
 /* styles.scss fija con !important el padding de todos los td; sin él, el campo llena la celda */

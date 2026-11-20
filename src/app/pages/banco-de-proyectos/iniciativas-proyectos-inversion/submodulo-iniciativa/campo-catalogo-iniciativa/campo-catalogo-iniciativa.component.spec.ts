@@ -51,7 +51,24 @@ describe('CampoCatalogoIniciativaComponent', () => {
   }
 
   const opciones = () =>
-    Array.from(TestBed.inject(OverlayContainer).getContainerElement().querySelectorAll('mat-option')).map((o) => o.textContent.trim());
+    Array.from(TestBed.inject(OverlayContainer).getContainerElement().querySelectorAll('mat-option')).map((o) =>
+      o.textContent.replace(/\s+/g, ' ').trim(),
+    );
+
+  /** Escribe en el campo, como quien filtra la lista. */
+  function escribir(texto: string): void {
+    const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+    input.value = texto;
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+  }
+
+  const METAS: ItemCatalogo[] = [
+    { codigo: '6166a1', nombre: 'Meta 1', padre: 'L1', descripcion: 'Mantener la acreditación institucional' },
+    { codigo: '6166a2', nombre: 'Meta 2', padre: 'L1' },
+  ];
 
   it('al hacer clic despliega todas las opciones, sin escribir; si el código es el nombre, muestra solo el nombre', fakeAsync(() => {
     items = [{ codigo: 'Adecuación', nombre: 'Adecuación' }, { codigo: '01', nombre: 'Agricultura' }];
@@ -85,6 +102,38 @@ describe('CampoCatalogoIniciativaComponent', () => {
     abrirLista();
 
     expect(opciones()).toEqual(['Primero seleccione el campo del que depende.']);
+  }));
+
+  it('con sin_codigo muestra solo el nombre, y la descripción va en la lista y bajo el campo al elegir', fakeAsync(() => {
+    items = METAS;
+    const componente = montar(nodo('meta_estrategica', 'metas_ped', { depende_de: 'lineamiento', sin_codigo: true }), { padre: 'L1' });
+
+    abrirLista();
+    expect(opciones()).toEqual(['Meta 1 Mantener la acreditación institucional', 'Meta 2']);
+
+    // El autocompletado escribe el valor en el campo después de un ciclo (tick).
+    componente.seleccionar(METAS[0]);
+    tick();
+    fixture.detectChanges();
+    expect((fixture.nativeElement.querySelector('input') as HTMLInputElement).value).toBe('Meta 1');
+    expect(fixture.nativeElement.querySelector('.detalle-elegido').textContent.trim()).toBe('Mantener la acreditación institucional');
+
+    componente.seleccionar(METAS[1]);
+    tick();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.detalle-elegido')).toBeNull();
+  }));
+
+  it('al escribir busca también en la descripción, y con sin_codigo no en el código', fakeAsync(() => {
+    items = METAS;
+    montar(nodo('meta_estrategica', 'metas_ped', { depende_de: 'lineamiento', sin_codigo: true }), { padre: 'L1' });
+    abrirLista();
+
+    escribir('acreditacion');
+    expect(opciones()).toEqual(['Meta 1 Mantener la acreditación institucional']);
+
+    escribir('6166');
+    expect(opciones()).toEqual(['No hay opciones que coincidan.']);
   }));
 
   it('en catálogos grandes muestra las primeras opciones y avisa cuántas faltan', fakeAsync(() => {

@@ -2,7 +2,9 @@
   <header class="pagina__iniciativa">
     <div class="pagina__textos">
       <span class="pagina__rotulo">Iniciativa</span>
-      <h1 class="pagina__titulo">{{ resumen.nombre }}</h1>
+      <!-- Si el nombre no cabe en dos líneas termina en «…»; la ayuda lo muestra completo -->
+      <h1 #titulo class="pagina__titulo" [matTooltip]="resumen.nombre" [matTooltipDisabled]="!estaCortado(titulo)"
+        matTooltipClass="tooltip-nombre-iniciativa">{{ resumen.nombre }}</h1>
     </div>
     <app-menu-submodulos-iniciativa class="pagina__selector" [modulos]="resumen.modulos" [actual]="claveActual"
       (elegir)="irA($event)"></app-menu-submodulos-iniciativa>
