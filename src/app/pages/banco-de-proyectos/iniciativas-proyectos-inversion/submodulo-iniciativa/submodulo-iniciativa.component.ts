@@ -66,7 +66,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   guardando = false;
   private roles: string[] = [];
   private usuario = '';
-  private iniciativaId: string;
+  iniciativaId: string;
   private clave: string;
   private relacionadas: { [submodulo: string]: Datos } = {};
   /** La definición es la plantilla y no cambia: se pide una vez por iniciativa, no en cada submódulo. */

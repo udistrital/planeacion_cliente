@@ -42,7 +42,7 @@
           <div class="iniciativa-formulario">
             <fieldset *ngIf="documentos; else formulario" class="container-border">
               <legend class="titulo">Documentos</legend>
-              <app-tabla-documentos-iniciativa [estructura]="documentos" [datos]="datos" [contexto]="contexto"></app-tabla-documentos-iniciativa>
+              <app-tabla-documentos-iniciativa [iniciativaId]="iniciativaId" [estructura]="documentos" [datos]="datos" [contexto]="contexto"></app-tabla-documentos-iniciativa>
             </fieldset>
             <ng-template #formulario>
               <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos" ruta="" [contexto]="contexto" [secciones]="true"></app-campos-iniciativa>

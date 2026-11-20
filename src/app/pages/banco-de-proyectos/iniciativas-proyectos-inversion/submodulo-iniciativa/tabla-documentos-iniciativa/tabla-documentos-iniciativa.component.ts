@@ -27,6 +27,7 @@ export class TablaDocumentosIniciativaComponent {
   /** Datos del submódulo (se modifican en el mismo objeto). */
   @Input() datos: Datos = {};
   @Input() contexto: ContextoFormulario;
+  @Input() iniciativaId: string;
 
   get lista(): ListaDocumentos | null {
     return this.estructura.lista;

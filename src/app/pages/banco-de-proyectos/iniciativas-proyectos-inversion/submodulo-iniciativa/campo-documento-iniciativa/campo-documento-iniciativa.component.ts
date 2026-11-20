@@ -4,6 +4,10 @@ import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.s
 import { mensajeDeError } from '../../iniciativa.service';
 import { NodoDefinicion, ReferenciaDocumento } from '../../utils';
 import { ContextoFormulario, rutaEnPlantilla } from '../../utils/formulario.utils';
+import Swal from 'sweetalert2';
+import { RequestManager } from 'src/app/pages/services/requestManager';
+import { environment } from 'src/environments/environment';
+import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 /**
  * Campo `documento` (Anexos). Al elegir el archivo revisa `formatos` y `tamano_maximo_mb` y lo sube
@@ -26,13 +30,24 @@ export class CampoDocumentoIniciativaComponent {
   @Input() contexto: ContextoFormulario;
   /** Nombre del documento para los botones (p. ej. el que se escribió en la fila); si falta, el del campo. */
   @Input() etiqueta = '';
+  @Input() iniciativaId: string;
 
   /** Nombre del archivo que se está subiendo; vacío si no hay ninguno. */
   subiendo = '';
   abriendo = false;
   error = '';
+  formatosPermitidos = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'];
+  private usuario = '';
 
-  constructor(private gestor: GestorDocumentalService) {}
+  constructor(
+    private gestor: GestorDocumentalService,
+    private request: RequestManager,
+    private autenticacion: ImplicitAutenticationService,
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    this.usuario = String((await this.autenticacion.getDocument()) || '');
+  }
 
   get soloLectura(): boolean {
     return !this.contexto || this.contexto.soloLectura;
@@ -107,6 +122,8 @@ export class CampoDocumentoIniciativaComponent {
   quitar(): void {
     this.error = '';
     this.cambiar(null);
+
+
   }
 
   ver(): void {
@@ -145,6 +162,93 @@ export class CampoDocumentoIniciativaComponent {
   private cambiar(valor: ReferenciaDocumento | null): void {
     this.valor = valor;
     this.valorChange.emit(valor);
+
+    const documentoPorEliminar = {
+      referencia_tipo: this.ruta,
+      iniciativa_id: this.iniciativaId
+    }
+
+    this.request.post(environment.PLANES_MID, `formulacion_iniciativas/eliminar_anexo_iniciativas`, documentoPorEliminar).subscribe((data: any) => {
+      if (data.Data.eliminado) {
+        Swal.fire({
+          title: 'Documento eliminado',
+          text: `Se ha eliminado el documento`,
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      }
+    }, (error) => {
+      Swal.fire({
+        title: 'Error eliminando documento',
+        text: `No se pudo aplicar los cambios`,
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    })
+  }
+
+  async onChangeDocumento(entrada: HTMLInputElement): Promise<void> {
+    if (entrada != undefined) {
+      const archivo = entrada.files[0];
+      entrada.value = '';
+
+      if (!this.formatosPermitidos.includes(extensionDe(archivo.name))) {
+        Swal.fire({
+          title: 'Archivo no válido',
+          text: `No se admite el tipo de archivo que selecciono`,
+          icon: 'warning',
+          showConfirmButton: false,
+          timer: 2500
+        })
+      } else {
+        Swal.fire({
+          title: 'Guardando documento',
+          timerProgressBar: true,
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          willOpen: () => {
+            Swal.showLoading();
+          },
+        })
+
+        let documento = [{
+          IdTipoDocumento: 66,
+          nombre: this.etiqueta+ "." + extensionDe(archivo.name),
+          descripcion: "Documento de anexo de la iniciativa " + this.iniciativaId,
+          metadatos:{},
+          file: await this.gestor.fileToBase64(archivo),
+        }];
+
+        let documentoPorSubir = {
+          documento: documento,
+          referencia_tipo: this.ruta,
+          iniciativa_id: this.iniciativaId,
+          responsable: this.usuario
+        }
+
+        this.request.post(environment.PLANES_MID, `formulacion_iniciativas/guardar_anexo_iniciativas`, documentoPorSubir).subscribe((data: any) => {
+          if (data) {
+            Swal.fire({
+              title: 'Anexo actualizado',
+              text: `Se ha actualizado el anexo de la iniciativa`,
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 2000
+            })
+          }
+        }, (error) => {
+          Swal.fire({
+            title: 'Error al guardar el documento',
+            text: `No se pudo aplicar los cambios`,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 2500
+          })
+        })
+      }
+    }
   }
 }
 
