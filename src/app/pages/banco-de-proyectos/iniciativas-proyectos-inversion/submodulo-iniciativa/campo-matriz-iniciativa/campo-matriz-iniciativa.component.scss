@@ -52,6 +52,12 @@ thead th.iniciativa-matriz__fila {
   text-align: center;
 }
 
+/* Primera fila del encabezado (título de las filas, grupos de columnas y subtotales): mayúsculas y negrilla */
+thead tr:first-child th {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 thead th.iniciativa-matriz__grupo {
   color: rgba(0, 0, 0, 0.87);
   border-top: 2px solid var(--primary);

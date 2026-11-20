@@ -1,7 +1,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, HostBinding, Input } from '@angular/core';
+import { Component, HostBinding, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Datos, NodoDefinicion } from '../../utils';
 import {
+  cadenaDeCatalogos,
   calcular,
   calcularNumero,
   claseDe,
@@ -25,14 +26,16 @@ import {
  * grupos y las filas de los repetibles vuelven a usar este componente.
  *
  * Con `secciones` (nivel superior del submódulo) cada apartado va en un recuadro con
- * título, que reemplaza la etiqueta del campo. Los grupos van siempre en recuadro.
+ * título, que reemplaza la etiqueta del campo. Los grupos van siempre en recuadro. Si el
+ * submódulo es de SUBMODULOS_PLEGABLES, los recuadros del nivel superior son paneles que se
+ * pliegan y solo uno queda abierto.
  */
 @Component({
   selector: 'app-campos-iniciativa',
   templateUrl: './campos-iniciativa.component.html',
   styleUrls: ['./campos-iniciativa.component.scss'],
 })
-export class CamposIniciativaComponent {
+export class CamposIniciativaComponent implements OnChanges {
   @Input() nodos: NodoDefinicion[] = [];
   @Input() datos: Datos = {};
   @Input() ruta = '';
@@ -53,6 +56,70 @@ export class CamposIniciativaComponent {
   @Input() filasHermanas: Datos[] = [];
 
   readonly claseDe = claseDe;
+
+  /** Clave de la sección plegable abierta; null si están todas plegadas. */
+  abierta: string | null = null;
+
+  /** Al llegar las secciones se abre la primera con errores o, si ninguna tiene, la primera. */
+  ngOnChanges(cambios: SimpleChanges): void {
+    if (cambios.nodos && this.plegables) {
+      const visibles = this.nodos.filter((nodo) => this.visible(nodo));
+      const inicial = visibles.find((nodo) => this.conErrores(nodo)) || visibles[0];
+      this.abierta = inicial ? inicial.dato.clave : null;
+    }
+  }
+
+  /** Las secciones del nivel superior se pliegan (SUBMODULOS_PLEGABLES). */
+  get plegables(): boolean {
+    return this.secciones && !!this.contexto && !!this.contexto.seccionesPlegables;
+  }
+
+  /**
+   * Pliega la sección si es la abierta. Al abrir otra, el acordeón avisa el cierre de esta después
+   * de la apertura de aquella, y `abierta` ya es la nueva.
+   */
+  alCerrar(nodo: NodoDefinicion): void {
+    if (this.abierta === nodo.dato.clave) {
+      this.abierta = null;
+    }
+  }
+
+  /** La sección tiene errores en algún campo, para señalarla aunque esté plegada. */
+  conErrores(nodo: NodoDefinicion): boolean {
+    const ruta = this.rutaDe(nodo);
+    return Object.keys(this.contexto.errores).some(
+      (error) => error === ruta || error.startsWith(`${ruta}.`) || error.startsWith(`${ruta}[`),
+    );
+  }
+
+  /** Ícono de la sección plegable (ICONOS_SECCIONES); vacío si no tiene. */
+  iconoDe(nodo: NodoDefinicion): string {
+    return (this.contexto.iconosSecciones || {})[nodo.dato.clave] || '';
+  }
+
+  /**
+   * Lo último que se eligió en un grupo de catálogos (p. ej. los programas del plan), para verlo
+   * con la sección plegada. Vacío si no se ha elegido nada. Mientras su catálogo carga, cuántos
+   * hay seleccionados en lugar de los códigos internos (sin_codigo).
+   */
+  resumenDe(nodo: NodoDefinicion): string {
+    const datos = this.datos[nodo.dato.clave];
+    if (claseDe(nodo) !== 'grupo' || !datos) {
+      return '';
+    }
+    const codigosDe = (campo: NodoDefinicion): string[] => [].concat(datos[campo.dato.clave] || []).filter((codigo) => !!codigo);
+    const elegidos = (nodo.hijos || []).filter((campo) => claseDe(campo) === 'catalogo' && codigosDe(campo).length);
+    const ultimo = elegidos[elegidos.length - 1];
+    if (!ultimo) {
+      return '';
+    }
+    const codigos = codigosDe(ultimo);
+    const nombres = codigos.map((codigo) => this.contexto.nombreEnCatalogo(ultimo.dato.catalogo, codigo));
+    if (ultimo.dato.sin_codigo && nombres.some((nombre, i) => nombre === codigos[i])) {
+      return codigos.length === 1 ? '1 seleccionado' : `${codigos.length} seleccionados`;
+    }
+    return nombres.join('; ');
+  }
 
   /** Si el campo aplica (solo_si) con los valores de este nivel. */
   visible(nodo: NodoDefinicion): boolean {
@@ -87,6 +154,11 @@ export class CamposIniciativaComponent {
   /** Grupo de GRUPOS_EN_COLUMNAS: sus campos van en columnas. */
   grupoEnColumnas(grupo: NodoDefinicion): boolean {
     return (this.contexto.gruposEnColumnas || []).includes(grupo.dato.clave);
+  }
+
+  /** Grupo de GRUPOS_EN_ARBOL cuyos campos son catálogos encadenados: se elige en un árbol. */
+  grupoEnArbol(grupo: NodoDefinicion): boolean {
+    return (this.contexto.gruposEnArbol || []).includes(grupo.dato.clave) && !!cadenaDeCatalogos(grupo.hijos);
   }
 
   /** La plantilla trae `required` como texto ("true"/"false") o booleano. */

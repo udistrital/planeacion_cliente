@@ -1,30 +1,59 @@
-<!-- Los campos con solo_si que no aplican no se muestran -->
-<ng-container *ngFor="let nodo of nodos; trackBy: porClave">
-  <ng-container *ngIf="visible(nodo)">
-    <fieldset *ngIf="enSeccion(nodo); else suelto" class="container-border">
-      <legend class="titulo">{{ nodo.nombre }}<span *ngIf="esObligatorio(nodo)" aria-hidden="true"> *</span></legend>
+<!-- Secciones plegables (SUBMODULOS_PLEGABLES): al abrir una se cierran las demás -->
+<mat-accordion *ngIf="plegables; else campos" class="plegables" displayMode="flat">
+  <ng-container *ngFor="let nodo of nodos; trackBy: porClave">
+    <mat-expansion-panel #panel *ngIf="visible(nodo)" class="plegable" [expanded]="abierta === nodo.dato.clave" hideToggle
+      (opened)="abierta = nodo.dato.clave" (closed)="alCerrar(nodo)">
+      <mat-expansion-panel-header class="plegable__encabezado" collapsedHeight="64px" expandedHeight="64px">
+        <mat-panel-title class="plegable__titulo">
+          <span class="plegable__icono" *ngIf="iconoDe(nodo) as icono" aria-hidden="true"><mat-icon>{{ icono }}</mat-icon></span>
+          <span class="plegable__nombre">{{ nodo.nombre }}<span *ngIf="esObligatorio(nodo)" aria-hidden="true"> *</span></span>
+        </mat-panel-title>
+        <mat-panel-description class="plegable__resumen">
+          <mat-icon *ngIf="conErrores(nodo)" class="plegable__pendiente" matTooltip="Tiene pendientes" aria-label="Tiene pendientes">error_outline</mat-icon>
+          <span class="plegable__chip" [class.plegable__chip--vacio]="!resumenDe(nodo)" [matTooltip]="resumenDe(nodo)">
+            {{ resumenDe(nodo) || 'Sin diligenciar' }}
+          </span>
+          <span class="plegable__flecha" aria-hidden="true"><mat-icon>{{ panel.expanded ? 'expand_less' : 'expand_more' }}</mat-icon></span>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
       <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
-    </fieldset>
-    <ng-template #suelto>
-      <!-- En columnas, el div deja cada campo y sus errores en la misma celda de la grilla -->
-      <div *ngIf="enColumnas; else directo" class="campo-en-columna">
-        <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
-      </div>
-      <ng-template #directo>
-        <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
-      </ng-template>
-    </ng-template>
+    </mat-expansion-panel>
   </ng-container>
-</ng-container>
+</mat-accordion>
+
+<!-- Los campos con solo_si que no aplican no se muestran -->
+<ng-template #campos>
+  <ng-container *ngFor="let nodo of nodos; trackBy: porClave">
+    <ng-container *ngIf="visible(nodo)">
+      <fieldset *ngIf="enSeccion(nodo); else suelto" class="container-border">
+        <legend class="titulo">{{ nodo.nombre }}<span *ngIf="esObligatorio(nodo)" aria-hidden="true"> *</span></legend>
+        <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
+      </fieldset>
+      <ng-template #suelto>
+        <!-- En columnas, el div deja cada campo y sus errores en la misma celda de la grilla -->
+        <div *ngIf="enColumnas; else directo" class="campo-en-columna">
+          <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
+        </div>
+        <ng-template #directo>
+          <ng-container *ngTemplateOutlet="campo; context: { $implicit: nodo }"></ng-container>
+        </ng-template>
+      </ng-template>
+    </ng-container>
+  </ng-container>
+</ng-template>
 
 <ng-template #campo let-nodo>
   <ng-container [ngSwitch]="claseDe(nodo)">
 
-    <!-- Grupo: el recuadro ya lo pone la sección -->
+    <!-- Grupo: el recuadro ya lo pone la sección. Los de GRUPOS_EN_ARBOL se eligen en un árbol -->
     <ng-container *ngSwitchCase="'grupo'">
       <p class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</p>
-      <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos[nodo.dato.clave]" [ruta]="rutaDe(nodo)"
-        [contexto]="contexto" [filaOrigen]="filaOrigen" [enColumnas]="grupoEnColumnas(nodo)"></app-campos-iniciativa>
+      <app-arbol-catalogo-iniciativa *ngIf="grupoEnArbol(nodo); else camposDelGrupo" [nodo]="nodo"
+        [datos]="datos[nodo.dato.clave]" [ruta]="rutaDe(nodo)" [contexto]="contexto"></app-arbol-catalogo-iniciativa>
+      <ng-template #camposDelGrupo>
+        <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos[nodo.dato.clave]" [ruta]="rutaDe(nodo)"
+          [contexto]="contexto" [filaOrigen]="filaOrigen" [enColumnas]="grupoEnColumnas(nodo)"></app-campos-iniciativa>
+      </ng-template>
     </ng-container>
 
     <!-- Lista de filas (también espejos), según vistaDeLista -->

@@ -1,6 +1,7 @@
 import { Datos, NodoDefinicion } from './iniciativa.models';
 import {
   cabeOtraAgregada,
+  cadenaDeCatalogos,
   calcular,
   calcularNumero,
   campoResumenPorDefecto,
@@ -619,5 +620,26 @@ describe('formulario.utils', () => {
     expect(rutaEnPlantilla('carta_presentacion')).toBe('carta_presentacion');
     expect(rutaEnPlantilla('otros_anexos[oa-1].archivo')).toBe('otros_anexos.archivo');
     expect(rutaEnPlantilla('a[x-1].b[y-2].c')).toBe('a.b.c');
+  });
+
+  describe('catálogos encadenados (Articulación)', () => {
+    const catalogo = (clave: string, extra: any = {}) => nodo(clave, 'catalogo', { catalogo: `${clave}s`, ...extra });
+
+    it('ordena los campos siguiendo depende_de, desde el que no depende de ninguno; los de abajo pueden ser múltiples', () => {
+      const plan = catalogo('plan');
+      const objetivo = catalogo('objetivo', { depende_de: 'plan', multiple: true });
+      const estrategia = catalogo('estrategia', { depende_de: 'objetivo', multiple: true });
+      expect(cadenaDeCatalogos([estrategia, plan, objetivo])).toEqual([plan, objetivo, estrategia]);
+    });
+
+    it('no arma la cadena si un campo no es catálogo, tiene solo_si, se ramifica o el primero es múltiple', () => {
+      const plan = catalogo('plan');
+      expect(cadenaDeCatalogos([plan])).toBeNull();
+      expect(cadenaDeCatalogos([plan, nodo('nota', 'input', { depende_de: 'plan' })])).toBeNull();
+      expect(cadenaDeCatalogos([catalogo('planes', { multiple: true }), catalogo('objetivo', { depende_de: 'planes' })])).toBeNull();
+      expect(cadenaDeCatalogos([plan, catalogo('otro', { depende_de: 'plan', solo_si: { campo: 'plan', valor: 'x' } })])).toBeNull();
+      expect(cadenaDeCatalogos([plan, catalogo('a', { depende_de: 'plan' }), catalogo('b', { depende_de: 'plan' })])).toBeNull();
+      expect(cadenaDeCatalogos([plan, catalogo('suelto')])).toBeNull();
+    });
   });
 });

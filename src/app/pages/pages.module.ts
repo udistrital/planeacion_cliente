@@ -105,6 +105,7 @@ import { CeldaIniciativaComponent } from './banco-de-proyectos/iniciativas-proye
 import { CasillasCatalogoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/casillas-catalogo-iniciativa/casillas-catalogo-iniciativa.component';
 import { CampoDocumentoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-documento-iniciativa/campo-documento-iniciativa.component';
 import { TablaDocumentosIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/tabla-documentos-iniciativa/tabla-documentos-iniciativa.component';
+import { ArbolCatalogoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/arbol-catalogo-iniciativa/arbol-catalogo-iniciativa.component';
 import { ProyectosOtrosFondosComponent } from './banco-de-proyectos/proyectos-otros-fondos/proyectos-otros-fondos.component';
 import { ReporteFuncionamientoComponent } from './apropiacion-presupuestal/reporte-funcionamiento/reporte-funcionamiento.component';
 import { ReporteInversionComponent } from './apropiacion-presupuestal/reporte-inversion/reporte-inversion.component';
@@ -271,6 +272,7 @@ const MY_FORMATS = {
     CasillasCatalogoIniciativaComponent,
     CampoDocumentoIniciativaComponent,
     TablaDocumentosIniciativaComponent,
+    ArbolCatalogoIniciativaComponent,
     ProyectosOtrosFondosComponent,
     ReporteFuncionamientoComponent,
     ReporteInversionComponent,

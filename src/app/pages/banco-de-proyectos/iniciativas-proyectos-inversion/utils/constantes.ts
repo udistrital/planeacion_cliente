@@ -42,6 +42,28 @@ export const GRUPOS_EN_COLUMNAS: { [submodulo: string]: string[] } = {
 };
 
 /**
+ * Grupos (clave) de catálogos encadenados con depende_de que cada submódulo muestra como un
+ * árbol, igual que la armonización de Formulación: el primer campo (el plan) se elige en su
+ * lista y los demás, en una tabla que se despliega nivel por nivel, donde se seleccionan varios
+ * elementos de cualquier nivel (al seleccionar uno quedan seleccionados los de arriba). Cada
+ * nivel se guarda en su campo del grupo.
+ */
+export const GRUPOS_EN_ARBOL: { [submodulo: string]: string[] } = {
+  articulacion_pnd: ['pdd', 'ped', 'pi'],
+};
+
+/**
+ * Submódulos cuyas secciones (los recuadros del nivel superior) se pliegan: al abrir una se
+ * cierran las demás, para trabajar solo en la que se edita.
+ */
+export const SUBMODULOS_PLEGABLES: string[] = ['articulacion_pnd'];
+
+/** Ícono (Material Icons) de cada sección plegable, por submódulo y clave de la sección. */
+export const ICONOS_SECCIONES: { [submodulo: string]: { [seccion: string]: string } } = {
+  articulacion_pnd: { pnd: 'menu_book', pdd: 'apartment', ped: 'bar_chart', pi: 'assignment' },
+};
+
+/**
  * Columnas de la tabla resumen de las listas que no caben en una tabla (grupo repetible): cada
  * fila se resume en la tabla y se diligencia debajo de ella. Por submódulo y clave de la lista;
  * la que no está aquí muestra su primer campo de texto, número u opciones. Un espejo muestra

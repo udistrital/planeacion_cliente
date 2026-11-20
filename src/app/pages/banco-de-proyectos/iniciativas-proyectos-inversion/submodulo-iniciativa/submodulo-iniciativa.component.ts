@@ -13,7 +13,9 @@ import {
   Definicion,
   ESTADO_SUBMODULO_CON_OBSERVACIONES,
   COLUMNAS_RESUMEN,
+  GRUPOS_EN_ARBOL,
   GRUPOS_EN_COLUMNAS,
+  ICONOS_SECCIONES,
   LISTAS_EN_TABLA,
   NodoDefinicion,
   ReferenciaDocumento,
@@ -21,6 +23,7 @@ import {
   ResumenSubmodulo,
   RUTA_INICIATIVAS,
   SubmoduloVista,
+  SUBMODULOS_PLEGABLES,
 } from '../utils';
 import {
   ContextoFormulario,
@@ -252,6 +255,9 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       errores: indexarPorRuta(vista.errores),
       listasEnTabla: LISTAS_EN_TABLA[this.clave] || [],
       gruposEnColumnas: GRUPOS_EN_COLUMNAS[this.clave] || [],
+      gruposEnArbol: GRUPOS_EN_ARBOL[this.clave] || [],
+      seccionesPlegables: SUBMODULOS_PLEGABLES.includes(this.clave),
+      iconosSecciones: ICONOS_SECCIONES[this.clave] || {},
       columnasResumen: COLUMNAS_RESUMEN[this.clave] || {},
       nombreEnCatalogo: (catalogo, codigo) => this.servicio.nombreEnCatalogo(catalogo, codigo),
       subirDocumento: (clave, archivo) => this.subirDocumento(clave, archivo),

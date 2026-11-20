@@ -43,7 +43,8 @@
 
   /*
    * Sin rótulo, fill igual reserva espacio arriba (borde de .84375em y relleno) y descentra el
-   * texto y la flecha: se deja el mismo relleno arriba y abajo.
+   * texto y la flecha: se deja el mismo relleno arriba y abajo. Lleva !important porque
+   * styles.scss deja el relleno de todo campo fill en .25em arriba y 0 abajo con !important.
    */
   ::ng-deep .mat-form-field-flex {
     padding-top: 0;
@@ -51,7 +52,7 @@
 
   ::ng-deep .mat-form-field-infix {
     border-top: 0;
-    padding: 0.75em 0;
+    padding: 0.5em 0 !important;
   }
 
   ::ng-deep .mat-select-arrow-wrapper {
@@ -96,12 +97,12 @@
  * La lista va en el overlay (fuera del componente), por eso ::ng-deep.
  * - Con disableOptionCentering (sin él la lista sube hasta tapar la barra de OAS) Material la pone
  *   sobre el texto del campo; el margen la baja el alto del texto (1.125em), el relleno inferior
- *   (.75em) y 2px.
+ *   (.5em) y 2px.
  * - 30rem: caben el submódulo más largo y su estado. Lleva !important porque la animación de
  *   mat-select escribe min-width en línea (calc(100% + 32px)).
  */
 ::ng-deep .mat-select-panel.selector-submodulos__panel {
-  margin-top: calc(1.875em + 2px);
+  margin-top: calc(1.625em + 2px);
   min-width: 30rem !important;
 }
 

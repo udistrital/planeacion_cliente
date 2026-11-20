@@ -75,6 +75,140 @@
   font-weight: bold;
 }
 
+/*
+ * Secciones plegables (SUBMODULOS_PLEGABLES): tarjetas blancas separadas, con el borde izquierdo
+ * vino, el ícono de la sección en un círculo rosado, lo elegido en una etiqueta y la flecha en un
+ * círculo. Material pone sombra, márgenes y esquinas propias al panel: aquí se reemplazan.
+ */
+.plegables {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 1.25rem;
+}
+
+/* .plegables delante para ganarle a las reglas de esquinas y márgenes de mat-accordion */
+.plegables .mat-expansion-panel.plegable {
+  margin: 0;
+  overflow: hidden;
+  border-left: 3px solid var(--primary);
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
+  transition: box-shadow 150ms ease;
+
+  &.mat-expanded {
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.12), 0 1px 3px rgba(16, 24, 40, 0.08);
+
+    /* Abierto, el encabezado toma el gris del contenido: así el selector (blanco) no se pierde */
+    .plegable__encabezado {
+      background-color: #f1f5f8;
+    }
+  }
+
+  /*
+   * El contenido, separado del encabezado por una línea y con el fondo de la tarjeta del submódulo
+   * (.con-secciones): los campos son cajas blancas (styles.scss) y sobre blanco no se distinguirían.
+   */
+  ::ng-deep .mat-expansion-panel-body {
+    padding: 16px 20px 12px;
+    border-top: 1px solid #e3e7ee;
+    background-color: #f1f5f8;
+  }
+}
+
+.plegable__encabezado {
+  padding: 0 16px 0 20px;
+}
+
+.plegable__titulo {
+  flex: none;
+  align-items: center;
+  gap: 14px;
+  max-width: 55%;
+  margin-right: 16px;
+}
+
+.plegable__icono {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #f7eaea;
+  color: var(--primary);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    line-height: 18px;
+  }
+}
+
+.plegable__nombre {
+  overflow: hidden;
+  color: #1f2937;
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Lo elegido en la sección, en una etiqueta de una línea que termina en «…»; completo al pasar el mouse */
+.plegable__resumen {
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+  margin-right: 0;
+}
+
+.plegable__chip {
+  overflow: hidden;
+  max-width: 100%;
+  padding: 3px 10px;
+  border: 1px solid #e3e7ee;
+  border-radius: 999px;
+  background-color: #f3f5f8;
+  color: #374151;
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plegable__chip--vacio {
+  color: #8a9097;
+  font-style: italic;
+}
+
+.plegable__pendiente {
+  flex: none;
+  color: var(--primary);
+}
+
+.plegable__flecha {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #e3e7ee;
+  border-radius: 50%;
+  background-color: #f9fafb;
+  color: #4b5563;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+  }
+}
+
 .iniciativa-calculado {
   display: flex;
   flex-direction: column;

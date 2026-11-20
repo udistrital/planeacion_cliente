@@ -3,15 +3,18 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { IniciativaService } from '../../iniciativa.service';
 import { Datos, NodoDefinicion } from '../../utils';
 import { ContextoFormulario, prepararEstructura } from '../../utils/formulario.utils';
+import { ArbolCatalogoIniciativaComponent } from '../arbol-catalogo-iniciativa/arbol-catalogo-iniciativa.component';
 import { CampoCatalogoIniciativaComponent } from '../campo-catalogo-iniciativa/campo-catalogo-iniciativa.component';
 import { CampoMatrizIniciativaComponent } from '../campo-matriz-iniciativa/campo-matriz-iniciativa.component';
 import { CasillasCatalogoIniciativaComponent } from '../casillas-catalogo-iniciativa/casillas-catalogo-iniciativa.component';
@@ -113,10 +116,11 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
         TablaJerarquicaIniciativaComponent,
         CeldaIniciativaComponent,
         CasillasCatalogoIniciativaComponent,
+        ArbolCatalogoIniciativaComponent,
       ],
       imports: [
         FormsModule, ReactiveFormsModule, NoopAnimationsModule, MatInputModule, MatSelectModule,
-        MatAutocompleteModule, MatIconModule, MatButtonModule, MatTooltipModule, MatCheckboxModule,
+        MatAutocompleteModule, MatIconModule, MatButtonModule, MatTooltipModule, MatCheckboxModule, MatExpansionModule, MatTableModule,
       ],
       providers: [{ provide: IniciativaService, useValue: servicioFalso }],
     }).compileComponents();
@@ -409,5 +413,48 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
       .find((c) => c.nodos[0] && c.nodos[0].dato.clave === 'causa_indirecta');
     const opciones = grupo.opcionesDe(grupo.nodos[0]).map((o) => o.etiqueta);
     expect(opciones).toEqual(['Fallas en los equipos', 'Falta de mantenimiento']);
+  }));
+
+  it('en Articulación pliega los planes (uno abierto a la vez) y elige el PED en un árbol', fakeAsync(() => {
+    const ARTICULACION = [
+      nodo('pnd', 'Plan Nacional de Desarrollo', undefined, { required: false }, [nodo('sector', 'Sector', 'catalogo', { catalogo: 'sectores_pnd' })]),
+      nodo('ped', 'Plan Estratégico de Desarrollo', undefined, { required: false }, [
+        nodo('plan', 'Plan estratégico', 'catalogo', { catalogo: 'planes_ped', sin_codigo: true }),
+        nodo('meta', 'Meta estratégica', 'catalogo', { catalogo: 'metas_ped', depende_de: 'plan', sin_codigo: true, multiple: true }),
+      ]),
+    ];
+    montar(ARTICULACION, 'articulacion_pnd', { ped: { plan: 'p1', meta: ['m1'] } }, {
+      seccionesPlegables: true,
+      iconosSecciones: { pnd: 'menu_book' },
+      gruposEnArbol: ['ped'],
+      errores: { 'ped.meta': ['Meta estratégica: «Meta 1» no pertenece a la opción seleccionada en Plan estratégico.'] },
+      nombreEnCatalogo: (catalogo, codigo) => (codigo === 'm1' ? 'Meta 1' : codigo),
+    }, true);
+    const campos = fixture.componentInstance;
+    campos.ngOnChanges({ nodos: {} as any });
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const paneles = () => Array.from(elemento.querySelectorAll('mat-expansion-panel'));
+    const abiertos = () => paneles().map((panel) => panel.classList.contains('mat-expanded'));
+    expect(elemento.querySelector('fieldset')).toBeNull();
+    expect(textos('.plegable__nombre')).toEqual(['Plan Nacional de Desarrollo', 'Plan Estratégico de Desarrollo']);
+    expect(textos('.plegable__icono')).toEqual(['menu_book']);
+    // Abre la sección con pendientes y la señala; la plegada muestra que no tiene nada elegido.
+    expect(abiertos()).toEqual([false, true]);
+    expect(textos('.plegable__chip')).toEqual(['Sin diligenciar', 'Meta 1']);
+    expect(textos('.plegable__flecha')).toEqual(['expand_more', 'expand_less']);
+    expect(paneles()[1].querySelector('.plegable__pendiente')).not.toBeNull();
+    expect(paneles()[1].querySelector('app-arbol-catalogo-iniciativa')).not.toBeNull();
+    expect(paneles()[0].querySelector('app-arbol-catalogo-iniciativa')).toBeNull();
+
+    (paneles()[0].querySelector('mat-expansion-panel-header') as HTMLElement).click();
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+    expect(abiertos()).toEqual([true, false]);
+    expect(campos.abierta).toBe('pnd');
+    expect(textos('.plegable__flecha')).toEqual(['expand_less', 'expand_more']);
   }));
 });

@@ -33,6 +33,12 @@ export interface ContextoFormulario {
   listasEnTabla: string[];
   /** Grupos cuyos campos van en columnas (GRUPOS_EN_COLUMNAS). */
   gruposEnColumnas?: string[];
+  /** Grupos de catálogos encadenados que se eligen en un árbol (GRUPOS_EN_ARBOL). */
+  gruposEnArbol?: string[];
+  /** Las secciones del nivel superior se pliegan y solo una queda abierta (SUBMODULOS_PLEGABLES). */
+  seccionesPlegables?: boolean;
+  /** Ícono de cada sección plegable, por clave (ICONOS_SECCIONES). */
+  iconosSecciones?: { [seccion: string]: string };
   /** Columnas de la tabla resumen de las listas que se editan debajo de la tabla (COLUMNAS_RESUMEN). */
   columnasResumen?: { [lista: string]: ColumnaResumen[] };
   /** Devuelve el nombre de un elemento de catálogo ya cargado (o el código). */
@@ -501,6 +507,37 @@ export function estructuraDeDocumentos(nodos: NodoDefinicion[]): EstructuraDocum
     return null;
   }
   return { fijos, lista: { nodo: listas[0], nombre, archivo } };
+}
+
+// ---------------------------------------------------------------------------
+// Grupo de catálogos encadenados que se elige en un árbol (Articulación)
+// ---------------------------------------------------------------------------
+
+/**
+ * Campos de catálogo encadenados por depende_de (p. ej. plan → objetivo → estrategia → programa),
+ * en el orden de la cadena: el primero (de una opción) no depende de ningún otro y cada uno depende
+ * del anterior; los de abajo pueden ser multiple. Null si los nodos no son todos catálogos sin
+ * solo_si encadenados así.
+ */
+export function cadenaDeCatalogos(nodos: NodoDefinicion[]): NodoDefinicion[] | null {
+  const campos = nodos || [];
+  if (campos.length < 2 || campos.some((nodo) => claseDe(nodo) !== 'catalogo' || nodo.dato.solo_si)) {
+    return null;
+  }
+  const raices = campos.filter((nodo) => !nodo.dato.depende_de);
+  if (raices.length !== 1 || raices[0].dato.multiple) {
+    return null;
+  }
+  const cadena = [raices[0]];
+  while (cadena.length < campos.length) {
+    const anterior = cadena[cadena.length - 1].dato.clave;
+    const siguientes = campos.filter((nodo) => nodo.dato.depende_de === anterior);
+    if (siguientes.length !== 1) {
+      return null;
+    }
+    cadena.push(siguientes[0]);
+  }
+  return cadena;
 }
 
 // ---------------------------------------------------------------------------

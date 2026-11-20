@@ -1,0 +1,56 @@
+<!-- El plan, con el mismo campo de catálogo del resto del formulario; la tabla, igual que la armonización de Formulación (plan/arbol) -->
+<ng-container *ngIf="campoPlan">
+  <app-campo-catalogo-iniciativa [nodo]="campoPlan" [valor]="datos[campoPlan.dato.clave]" (valorChange)="cambiarPlan($event)"
+    [deshabilitado]="contexto.soloLectura"></app-campo-catalogo-iniciativa>
+  <div class="iniciativa-error" *ngFor="let mensaje of erroresDe(campoPlan)">{{ mensaje }}</div>
+
+  <p *ngIf="!cargando && errorDeCarga">{{ errorDeCarga }}</p>
+
+  <ng-container *ngIf="plan && !cargando && !errorDeCarga">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" *ngIf="dataSource.data.length">
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef>
+          <span [style.paddingLeft.px]="40"> Nombre </span>
+        </th>
+        <td mat-cell *matCellDef="let data" class="mat-column-nombre" [ngClass]="data.icon == 'done' ? 'highlightSelection' : ''">
+          <button mat-icon-button type="button"
+                  [style.visibility]="!data.expandable ? 'hidden' : ''"
+                  [style.marginLeft.px]="data.level * 16"
+                  (click)="treeControl.toggle(data)">
+            <mat-icon class="mat-icon-rtl-mirror">
+              {{treeControl.isExpanded(data) ? 'expand_more' : 'chevron_right'}}
+            </mat-icon>
+          </button>
+          {{data.nombre}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="descripcion">
+        <th mat-header-cell *matHeaderCellDef>
+          <span [style.paddingLeft.px]="40"> Descripción </span>
+        </th>
+        <td mat-cell *matCellDef="let data" class="mat-column-descripcion" [ngClass]="data.icon == 'done' ? 'highlightSelection' : ''"> {{data.descripcion}} </td>
+      </ng-container>
+      <ng-container matColumnDef="activo">
+        <th mat-header-cell *matHeaderCellDef>
+          <span [style.paddingLeft.px]="5"> Estado </span>
+        </th>
+        <td mat-cell *matCellDef="let data" class="mat-column-activo"> {{data.activo}} </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>
+          <span class="header-align-right"> Armonizar </span>
+        </th>
+        <td mat-cell *matCellDef="let row" class="mat-column-actions">
+          <button mat-icon-button type="button" (click)="armonizar(row)" [disabled]="contexto.soloLectura"
+            [attr.aria-label]="(row.icon == 'done' ? 'Quitar ' : 'Armonizar ') + row.nombre"><mat-icon>{{row.icon}}</mat-icon></button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <p *ngIf="!dataSource.data.length">
+      El plan seleccionado no tiene objetivos para la armonización.
+    </p>
+    <div class="iniciativa-error" *ngFor="let mensaje of erroresDeNiveles">{{ mensaje }}</div>
+  </ng-container>
+</ng-container>

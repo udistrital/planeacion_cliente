@@ -65,7 +65,7 @@ export class VistaIniciativaComponent implements OnInit {
     return modulo.clave;
   }
 
-  /** Es formulador, pero el servidor todavía no ofrece la acción de enviar. */
+  /** Puede formular, pero el servidor no ofrece la acción de enviar (faltan submódulos por formular). */
   get enviarPendiente(): boolean {
     return puedeFormular(this.resumen, this.roles) && !this.accionesDisponibles.includes('enviar');
   }
