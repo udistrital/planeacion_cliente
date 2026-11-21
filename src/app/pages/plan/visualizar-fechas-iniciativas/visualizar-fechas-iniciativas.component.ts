@@ -3,7 +3,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
-import { CodigosService } from 'src/app/@core/services/codigos.service';
 import { RequestManager } from '../../services/requestManager';
 import { Vigencia } from '../habilitar-reporte/utils';
 import { DependenciaID } from '../gestion-usuarios/utils';
@@ -31,7 +30,6 @@ export class VisualizarFechasIniciativasComponent implements OnInit {
   unidades: DependenciaID[] = [];
   auxUnidades: DependenciaID[] = [];
   procesos: ProcesoFormulacion[] = [PROCESO_FORMULACION_INICIATIVAS];
-  idTipoSeguimiento: string;
   vCargaCorrecta = true;
 
   fechas: FechaFormulacion[] = [];
@@ -49,14 +47,12 @@ export class VisualizarFechasIniciativasComponent implements OnInit {
 
   constructor(
     private request: RequestManager,
-    private codigosService: CodigosService,
   ) { }
 
   async ngOnInit(): Promise<void> {
     this.mostrarMensajeCarga();
     await this.cargarVigencias();
     await this.cargarUnidades();
-    await this.cargarIdTipoSeguimiento();
     if (this.vCargaCorrecta) Swal.close();
   }
 
@@ -88,15 +84,6 @@ export class VisualizarFechasIniciativasComponent implements OnInit {
     }).catch((error) => this.mostrarErrorCarga(error));
   }
 
-  async cargarIdTipoSeguimiento() {
-    try {
-      this.idTipoSeguimiento = await this.codigosService.getId(
-        'PLANES_CRUD', 'tipo-seguimiento', PROCESO_FORMULACION_INICIATIVAS.CodigoAbreviacion);
-    } catch (error) {
-      this.mostrarErrorCarga(error);
-    }
-  }
-
   vBotonBuscar(): boolean {
     return this.vCargaCorrecta && this.formFechas.valid;
   }
@@ -110,19 +97,16 @@ export class VisualizarFechasIniciativasComponent implements OnInit {
     this.sinResultados = false;
     this.mostrarMensajeCarga(true);
     const body = {
-      periodo_id: vigencia.Id.toString(),
-      tipo_seguimiento_id: this.idTipoSeguimiento,
-      activo: true,
-      unidades_interes: JSON.stringify([{ Id: unidad.Id.toString(), Nombre: unidad.Nombre }]),
-      planes_interes: '[]',
+      periodoId: vigencia.Id.toString(),
+      dependenciaId: unidad.Id,
     };
-    this.request.post(environment.PLANES_CRUD, `periodo-seguimiento-iniciativas/buscar-unidad-planes/1`, body)
+    this.request.post(environment.PLANES_MID, `formulacion_iniciativas/consultar_fechas_iniciativa`, body)
       .subscribe((data: DataRequest) => {
         Swal.close();
         this.unidadConsultada = unidad;
         this.procesoConsultado = proceso;
-        if (data.Data && data.Data.length > 0) {
-          this.fechas = [data.Data[0]]; // El primero es el registro más reciente
+        if (data.Data && data.Data.encontrado) {
+          this.fechas = [data.Data];
           this.mostrarResultados = true;
         } else {
           this.fechas = [];
