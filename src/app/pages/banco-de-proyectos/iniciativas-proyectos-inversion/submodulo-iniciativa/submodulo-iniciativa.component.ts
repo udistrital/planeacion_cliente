@@ -3,7 +3,7 @@ import { Component, ElementRef, NgZone, OnDestroy, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
@@ -35,6 +35,7 @@ import {
   submodulosDeDefinicion,
   submodulosDeResumen,
 } from '../utils/formulario.utils';
+import { GuardadoEnCola } from '../utils/guardado.utils';
 import { rolParaComentar } from '../utils/observaciones.utils';
 import { registrarContenedorConScroll } from '../utils/scroll.utils';
 import { puedeFormular, puedeRevisar } from '../utils/roles.utils';
@@ -66,11 +67,15 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   guardando = false;
   private roles: string[] = [];
   private usuario = '';
-  iniciativaId: string;
+  private iniciativaId: string;
   private clave: string;
   private relacionadas: { [submodulo: string]: Datos } = {};
   /** La definición es la plantilla y no cambia: se pide una vez por iniciativa, no en cada submódulo. */
   private definicion: Definicion | null = null;
+  /** Guardados sin aviso de lo que está en pantalla (contexto.guardarAutomatico); se arma en mostrar. */
+  private guardadoAutomatico: GuardadoEnCola | null = null;
+  /** Se pidió un guardado automático mientras corría el Guardar: se hace cuando este responda. */
+  private guardarTrasGuardar = false;
   private readonly destruir$ = new Subject<void>();
   /** Quita del ScrollDispatcher el contenedor con scroll de la página (ver registrarContenedorConScroll). */
   private quitarContenedorConScroll: () => void = () => {};
@@ -141,12 +146,28 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     return this.vecina(1);
   }
 
+  /** Hay un guardado automático en curso (tras adjuntar, quitar o eliminar un documento). */
+  get guardandoDocumentos(): boolean {
+    return !!this.guardadoAutomatico && this.guardadoAutomatico.ocupado;
+  }
+
   guardar(): void {
+    if (this.guardando || this.guardandoDocumentos) {
+      return;
+    }
     this.guardando = true;
     this.servicio.guardarSubmodulo(this.iniciativaId, this.clave, this.submodulo.version, this.datos).subscribe(
       (vista) => {
         this.guardando = false;
-        this.mostrar(vista);
+        if (this.guardarTrasGuardar) {
+          // Mientras se guardaba se adjuntó, quitó o eliminó un documento: la pantalla ya lo tiene, así
+          // que se conserva y se guarda otra vez con la versión nueva.
+          this.guardarTrasGuardar = false;
+          this.aplicarGuardadoSinAviso(vista);
+          this.guardadoAutomatico.pedir();
+        } else {
+          this.mostrar(vista);
+        }
         const pendientes = vista.errores.length;
         Swal.fire(
           pendientes
@@ -156,6 +177,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       },
       (error) => {
         this.guardando = false;
+        this.guardarTrasGuardar = false;
         this.manejarErrorDeEscritura(error);
       },
     );
@@ -261,10 +283,66 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       columnasResumen: COLUMNAS_RESUMEN[this.clave] || {},
       nombreEnCatalogo: (catalogo, codigo) => this.servicio.nombreEnCatalogo(catalogo, codigo),
       subirDocumento: (clave, archivo) => this.subirDocumento(clave, archivo),
+      guardarAutomatico: () => this.pedirGuardadoAutomatico(),
     };
     if (this.nodo) {
       prepararEstructura(this.nodo.hijos, this.datos, this.contexto);
     }
+    this.guardadoAutomatico = this.nuevoGuardadoAutomatico();
+    this.actualizarEstadoEnResumen(vista);
+  }
+
+  private pedirGuardadoAutomatico(): void {
+    if (this.guardando) {
+      this.guardarTrasGuardar = true;
+      return;
+    }
+    this.guardadoAutomatico.pedir();
+  }
+
+  /**
+   * Cola de guardados sin aviso de los datos que se acaban de mostrar. Si el usuario pasa a otro
+   * submódulo mientras se guarda, lo pendiente se guarda igual en el submódulo de antes (con la
+   * versión que respondió el último guardado), pero ya no cambia la pantalla.
+   */
+  private nuevoGuardadoAutomatico(): GuardadoEnCola {
+    const iniciativaId = this.iniciativaId;
+    const clave = this.clave;
+    const nombre = this.nodo ? this.nodo.nombre : clave;
+    const datos = this.datos;
+    let version = this.submodulo.version;
+    const enPantalla = () => this.datos === datos;
+    return new GuardadoEnCola(
+      () => {
+        // En pantalla manda la versión de this.submodulo: también la cambia el botón Guardar.
+        const vigente = enPantalla() ? this.submodulo.version : version;
+        return this.servicio.guardarSubmodulo(iniciativaId, clave, vigente, datos).pipe(
+          tap((vista: SubmoduloVista) => {
+            version = vista.version;
+            if (enPantalla()) {
+              this.aplicarGuardadoSinAviso(vista);
+            }
+          }),
+        );
+      },
+      (error) => {
+        if (enPantalla()) {
+          this.manejarErrorDeEscritura(error);
+          return;
+        }
+        Swal.fire({ icon: 'error', title: `No se guardó el último cambio de ${nombre}`, text: mensajeDeError(error) });
+      },
+    );
+  }
+
+  /**
+   * Tras guardar sin aviso solo cambian la versión, el estado y los pendientes. Los datos de la
+   * pantalla se conservan: ya tienen lo guardado y quizá algo más (otro archivo que terminó de
+   * subir mientras tanto o un nombre que se está escribiendo).
+   */
+  private aplicarGuardadoSinAviso(vista: SubmoduloVista): void {
+    this.submodulo = vista;
+    this.contexto.errores = indexarPorRuta(vista.errores);
     this.actualizarEstadoEnResumen(vista);
   }
 
@@ -299,7 +377,12 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   private subirDocumento(clave: string, archivo: File): Observable<ReferenciaDocumento> {
     return from(this.gestor.fileToBase64(archivo)).pipe(
       switchMap((base64) =>
-        this.servicio.subirDocumento(this.iniciativaId, { clave, nombre: archivo.name, archivo: String(base64), usuario: this.usuario }),
+        this.servicio.subirDocumento(this.iniciativaId, this.clave, {
+          clave,
+          nombre: archivo.name,
+          archivo: String(base64),
+          usuario: this.usuario,
+        }),
       ),
     );
   }

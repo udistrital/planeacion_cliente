@@ -37,12 +37,12 @@ describe('IniciativaService', () => {
     expect(guardada).toEqual({ ruta: 'iniciativa-inversion/iniciativas/p1/submodulos', id: 'problematica' });
   });
 
-  it('sube un documento en /iniciativas/:id/documentos con la ruta del campo, el nombre y el archivo', () => {
+  it('sube un documento en /submodulos/:clave/documentos con la ruta del campo, el nombre y el archivo', () => {
     const solicitud = { clave: 'otros_anexos.archivo', nombre: 'cotizacion.pdf', archivo: 'JVBERi0=', usuario: '1020' };
     let referencia: any;
-    servicio.subirDocumento('p1', solicitud).subscribe((r) => (referencia = r));
+    servicio.subirDocumento('p1', 'anexos', solicitud).subscribe((r) => (referencia = r));
 
-    expect(referencia).toEqual({ ruta: 'iniciativa-inversion/iniciativas/p1/documentos', cuerpo: solicitud });
+    expect(referencia).toEqual({ ruta: 'iniciativa-inversion/iniciativas/p1/submodulos/anexos/documentos', cuerpo: solicitud });
   });
 
   it('marca el submódulo como revisado en /submodulos/:clave/revision', () => {

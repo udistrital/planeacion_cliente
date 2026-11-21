@@ -91,10 +91,11 @@ export class IniciativaService {
 
   /**
    * Sube el archivo de un campo documento (Anexos) al gestor documental, a través del mid, y
-   * devuelve su referencia. No guarda el submódulo: la referencia se guarda con el botón Guardar.
+   * devuelve su referencia. No guarda el submódulo: eso lo hace el guardado automático que sigue a la carga.
    */
-  subirDocumento(iniciativaId: string, solicitud: SolicitudDocumento): Observable<ReferenciaDocumento> {
-    return this.datos(this.request.post(environment.PLANES_MID, `${this.base}/iniciativas/${iniciativaId}/documentos`, solicitud));
+  subirDocumento(iniciativaId: string, clave: string, solicitud: SolicitudDocumento): Observable<ReferenciaDocumento> {
+    const ruta = `${this.base}/iniciativas/${iniciativaId}/submodulos/${clave}/documentos`;
+    return this.datos(this.request.post(environment.PLANES_MID, ruta, solicitud));
   }
 
   ejecutarAccion(iniciativaId: string, accion: AccionIniciativa): Observable<ResumenIniciativa> {

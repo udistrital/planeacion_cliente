@@ -42,7 +42,7 @@
           <div class="iniciativa-formulario">
             <fieldset *ngIf="documentos; else formulario" class="container-border">
               <legend class="titulo">Documentos</legend>
-              <app-tabla-documentos-iniciativa [iniciativaId]="iniciativaId" [estructura]="documentos" [datos]="datos" [contexto]="contexto"></app-tabla-documentos-iniciativa>
+              <app-tabla-documentos-iniciativa [estructura]="documentos" [datos]="datos" [contexto]="contexto"></app-tabla-documentos-iniciativa>
             </fieldset>
             <ng-template #formulario>
               <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos" ruta="" [contexto]="contexto" [secciones]="true"></app-campos-iniciativa>
@@ -70,7 +70,7 @@
           <span class="iniciativa-espacio"></span>
           <button mat-button color="primary" *ngIf="anterior" (click)="irA(anterior)"><mat-icon>chevron_left</mat-icon> {{ anterior.nombre }}</button>
           <button mat-button color="primary" *ngIf="siguiente" (click)="irA(siguiente)">{{ siguiente.nombre }} <mat-icon>chevron_right</mat-icon></button>
-          <button mat-raised-button color="primary" *ngIf="puedeEditar" [disabled]="guardando" (click)="guardar()">
+          <button mat-raised-button color="primary" *ngIf="puedeEditar" [disabled]="guardando || guardandoDocumentos" (click)="guardar()">
             <mat-icon>save</mat-icon> Guardar
           </button>
         </mat-card-actions>

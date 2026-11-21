@@ -37,8 +37,10 @@ const ANEXOS = [
 describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => {
   let fixture: ComponentFixture<TablaDocumentosIniciativaComponent>;
   let elemento: HTMLElement;
+  let guardar: jasmine.Spy;
 
   function montar(datos: Datos, parcial: Partial<ContextoFormulario> = {}): Datos {
+    guardar = jasmine.createSpy('guardarAutomatico');
     const contexto: ContextoFormulario = {
       claveSubmodulo: 'anexos',
       datosSubmodulo: datos,
@@ -48,6 +50,7 @@ describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => 
       listasEnTabla: [],
       nombreEnCatalogo: (catalogo, codigo) => codigo,
       subirDocumento: () => of({ nombre: 'x.pdf' }),
+      guardarAutomatico: guardar,
       ...parcial,
     };
     fixture = TestBed.createComponent(TablaDocumentosIniciativaComponent);
@@ -94,7 +97,7 @@ describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => 
     expect((elemento.querySelector('.fila-adicional textarea') as HTMLTextAreaElement).value).toBe('Cotización de equipos');
   }));
 
-  it('el ⊕ del encabezado agrega documentos hasta el máximo y la caneca los elimina', async () => {
+  it('el ⊕ del encabezado agrega documentos hasta el máximo y la caneca los elimina y guarda', async () => {
     const datos = montar({ carta_presentacion: null, presupuesto: null, otros_anexos: [] });
 
     boton('Agregar documento').click();
@@ -114,7 +117,22 @@ describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => 
     fixture.detectChanges();
 
     expect(datos.otros_anexos.map((fila: Datos) => fila.id)).not.toContain(primero);
+    expect(guardar).toHaveBeenCalledTimes(1);
     expect(boton('Agregar documento')).not.toBeNull();
+  });
+
+  it('si no se confirma, la caneca no elimina ni guarda', async () => {
+    const datos = montar({
+      carta_presentacion: null,
+      presupuesto: null,
+      otros_anexos: [{ id: 'oa-1', nombre: 'Cotización', archivo: null }],
+    });
+    spyOn(Swal, 'fire').and.returnValue(Promise.resolve({ isConfirmed: false }) as any);
+
+    await fixture.componentInstance.eliminar(0);
+
+    expect(datos.otros_anexos.length).toBe(1);
+    expect(guardar).not.toHaveBeenCalled();
   });
 
   it('muestra el error de cada archivo en su celda y los de la lista debajo', () => {

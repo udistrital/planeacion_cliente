@@ -263,12 +263,14 @@ export interface ReferenciaDocumento {
   nombre: string;
   /** Documento del usuario que lo subió. */
   usuario?: string;
+  /** Nombre en Terceros de quien lo subió; lo pone el mid y falta si no lo obtuvo. */
+  usuario_nombre?: string;
   fecha?: string;
 }
 
-/** Cuerpo de POST /iniciativas/:id/documentos: el mid sube el archivo al gestor y responde la referencia. */
+/** Cuerpo de POST /iniciativas/:id/submodulos/:clave/documentos: el mid sube el archivo al gestor y responde la referencia. */
 export interface SolicitudDocumento {
-  /** Ruta del campo en la plantilla, sin ids de fila: "carta_presentacion" u "otros_anexos.archivo". */
+  /** Ruta del campo en el submódulo, sin ids de fila: "carta_presentacion" u "otros_anexos.archivo". */
   clave: string;
   nombre: string;
   /** Archivo en base64 (GestorDocumentalService.fileToBase64). */

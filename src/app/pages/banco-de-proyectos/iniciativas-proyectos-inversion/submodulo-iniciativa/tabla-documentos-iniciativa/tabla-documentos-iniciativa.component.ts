@@ -27,7 +27,6 @@ export class TablaDocumentosIniciativaComponent {
   /** Datos del submódulo (se modifican en el mismo objeto). */
   @Input() datos: Datos = {};
   @Input() contexto: ContextoFormulario;
-  @Input() iniciativaId: string;
 
   get lista(): ListaDocumentos | null {
     return this.estructura.lista;
@@ -111,17 +110,22 @@ export class TablaDocumentosIniciativaComponent {
     this.datos[lista.nodo.dato.clave].push(nueva);
   }
 
+  /** Quita el adicional de la iniciativa: se guarda de una vez (contexto.guardarAutomatico). */
   async eliminar(posicion: number): Promise<void> {
     const respuesta = await Swal.fire({
       title: `¿Eliminar ${this.etiqueta.toLowerCase()} ${this.numero(posicion)}?`,
-      text: 'Los cambios se aplican al guardar.',
+      text: 'El documento y su archivo se quitan de la iniciativa.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Eliminar',
       cancelButtonText: 'Cancelar',
     });
-    if (respuesta.isConfirmed) {
-      this.filas.splice(posicion, 1);
+    if (!respuesta.isConfirmed) {
+      return;
+    }
+    this.filas.splice(posicion, 1);
+    if (this.contexto.guardarAutomatico) {
+      this.contexto.guardarAutomatico();
     }
   }
 }

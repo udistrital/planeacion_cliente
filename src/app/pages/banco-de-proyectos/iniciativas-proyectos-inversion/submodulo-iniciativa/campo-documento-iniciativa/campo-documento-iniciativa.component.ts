@@ -1,19 +1,16 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { take } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { mensajeDeError } from '../../iniciativa.service';
 import { NodoDefinicion, ReferenciaDocumento } from '../../utils';
 import { ContextoFormulario, rutaEnPlantilla } from '../../utils/formulario.utils';
-import Swal from 'sweetalert2';
-import { RequestManager } from 'src/app/pages/services/requestManager';
-import { environment } from 'src/environments/environment';
-import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 /**
  * Campo `documento` (Anexos). Al elegir el archivo revisa `formatos` y `tamano_maximo_mb` y lo sube
  * de una vez (contexto.subirDocumento: el mid lo pasa al gestor documental); la referencia que
- * responde queda en los datos y se guarda con el Guardar del submódulo. Los errores del servidor
- * los muestra el componente que lo contiene.
+ * responde queda en los datos y el submódulo se guarda solo (contexto.guardarAutomatico), igual que
+ * al quitar el archivo. Los errores del servidor los muestra el componente que lo contiene.
  */
 @Component({
   selector: 'app-campo-documento-iniciativa',
@@ -30,24 +27,13 @@ export class CampoDocumentoIniciativaComponent {
   @Input() contexto: ContextoFormulario;
   /** Nombre del documento para los botones (p. ej. el que se escribió en la fila); si falta, el del campo. */
   @Input() etiqueta = '';
-  @Input() iniciativaId: string;
 
   /** Nombre del archivo que se está subiendo; vacío si no hay ninguno. */
   subiendo = '';
   abriendo = false;
   error = '';
-  formatosPermitidos = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'];
-  private usuario = '';
 
-  constructor(
-    private gestor: GestorDocumentalService,
-    private request: RequestManager,
-    private autenticacion: ImplicitAutenticationService,
-  ) {}
-
-  async ngOnInit(): Promise<void> {
-    this.usuario = String((await this.autenticacion.getDocument()) || '');
-  }
+  constructor(private gestor: GestorDocumentalService) {}
 
   get soloLectura(): boolean {
     return !this.contexto || this.contexto.soloLectura;
@@ -76,7 +62,10 @@ export class CampoDocumentoIniciativaComponent {
     return extensionDe(this.valor && this.valor.nombre) === 'pdf';
   }
 
-  /** "Subido el 15/11/2026 10:00 por 1020304050"; vacío si la referencia no trae fecha ni usuario. */
+  /**
+   * "Subido el 15/11/2026 10:00 por LAURA GOMEZ RIOS" (el nombre, como está en Terceros). Sin él dice solo la
+   * fecha (el documento de identidad no se muestra); vacío si no hay fecha ni nombre.
+   */
   get detalle(): string {
     if (!this.valor) {
       return '';
@@ -85,7 +74,8 @@ export class CampoDocumentoIniciativaComponent {
     const cuando = fecha && !isNaN(fecha.getTime())
       ? ` el ${fecha.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false })}`
       : '';
-    const quien = this.valor.usuario ? ` por ${this.valor.usuario}` : '';
+    const nombre = (this.valor.usuario_nombre || '').trim();
+    const quien = nombre ? ` por ${nombre}` : '';
     return cuando || quien ? `Subido${cuando}${quien}` : '';
   }
 
@@ -110,6 +100,7 @@ export class CampoDocumentoIniciativaComponent {
       (referencia) => {
         this.subiendo = '';
         this.cambiar(referencia);
+        this.guardarCambio();
       },
       (error) => {
         this.subiendo = '';
@@ -118,12 +109,25 @@ export class CampoDocumentoIniciativaComponent {
     );
   }
 
-  /** Quita la referencia de los datos; el archivo sigue en el gestor documental. */
-  quitar(): void {
+  /**
+   * Quita la referencia de la iniciativa. Pide confirmación porque se guarda de una vez. El archivo
+   * sigue en el gestor documental.
+   */
+  async quitar(): Promise<void> {
+    const respuesta = await Swal.fire({
+      title: `¿Quitar el archivo de «${this.nombre}»?`,
+      text: 'El archivo se quita de la iniciativa.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Quitar',
+      cancelButtonText: 'Cancelar',
+    });
+    if (!respuesta.isConfirmed) {
+      return;
+    }
     this.error = '';
     this.cambiar(null);
-
-
+    this.guardarCambio();
   }
 
   ver(): void {
@@ -162,92 +166,12 @@ export class CampoDocumentoIniciativaComponent {
   private cambiar(valor: ReferenciaDocumento | null): void {
     this.valor = valor;
     this.valorChange.emit(valor);
-
-    const documentoPorEliminar = {
-      referencia_tipo: this.ruta,
-      iniciativa_id: this.iniciativaId
-    }
-
-    this.request.post(environment.PLANES_MID, `formulacion_iniciativas/eliminar_anexo_iniciativas`, documentoPorEliminar).subscribe((data: any) => {
-      if (data.Data.eliminado) {
-        Swal.fire({
-          title: 'Documento eliminado',
-          text: `Se ha eliminado el documento`,
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 2500
-        })
-      }
-    }, (error) => {
-      Swal.fire({
-        title: 'Error eliminando documento',
-        text: `No se pudo aplicar los cambios`,
-        icon: 'warning',
-        showConfirmButton: false,
-        timer: 2500
-      })
-    })
   }
 
-  async onChangeDocumento(entrada: HTMLInputElement): Promise<void> {
-    if (entrada != undefined) {
-      const archivo = entrada.files[0];
-      entrada.value = '';
-
-      if (!this.formatosPermitidos.includes(extensionDe(archivo.name))) {
-        Swal.fire({
-          title: 'Archivo no válido',
-          text: `No se admite el tipo de archivo que selecciono`,
-          icon: 'warning',
-          showConfirmButton: false,
-          timer: 2500
-        })
-      } else {
-        Swal.fire({
-          title: 'Guardando documento',
-          timerProgressBar: true,
-          showConfirmButton: false,
-          allowOutsideClick: false,
-          willOpen: () => {
-            Swal.showLoading();
-          },
-        })
-
-        let documento = [{
-          IdTipoDocumento: 66,
-          nombre: this.etiqueta+ "." + extensionDe(archivo.name),
-          descripcion: "Documento de anexo de la iniciativa " + this.iniciativaId,
-          metadatos:{},
-          file: await this.gestor.fileToBase64(archivo),
-        }];
-
-        let documentoPorSubir = {
-          documento: documento,
-          referencia_tipo: this.ruta,
-          iniciativa_id: this.iniciativaId,
-          responsable: this.usuario
-        }
-
-        this.request.post(environment.PLANES_MID, `formulacion_iniciativas/guardar_anexo_iniciativas`, documentoPorSubir).subscribe((data: any) => {
-          if (data) {
-            Swal.fire({
-              title: 'Anexo actualizado',
-              text: `Se ha actualizado el anexo de la iniciativa`,
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 2000
-            })
-          }
-        }, (error) => {
-          Swal.fire({
-            title: 'Error al guardar el documento',
-            text: `No se pudo aplicar los cambios`,
-            icon: 'warning',
-            showConfirmButton: false,
-            timer: 2500
-          })
-        })
-      }
+  /** Va después de cambiar: el valor ya está en los datos del submódulo cuando se guardan. */
+  private guardarCambio(): void {
+    if (this.contexto.guardarAutomatico) {
+      this.contexto.guardarAutomatico();
     }
   }
 }

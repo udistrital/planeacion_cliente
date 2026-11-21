@@ -45,9 +45,14 @@ export interface ContextoFormulario {
   nombreEnCatalogo: (catalogo: string, codigo: string) => string;
   /**
    * Sube el archivo de un campo documento (ruta en la plantilla, sin ids de fila) y devuelve la
-   * referencia, que queda en los datos y se guarda con el Guardar del submódulo.
+   * referencia, que queda en los datos.
    */
   subirDocumento?: (clave: string, archivo: File) => Observable<ReferenciaDocumento>;
+  /**
+   * Guarda el submódulo sin aviso. Lo piden el campo documento y la tabla de documentos después de
+   * adjuntar, quitar o eliminar un archivo, para que el cambio quede en la iniciativa de una vez.
+   */
+  guardarAutomatico?: () => void;
 }
 
 export type ClaseNodo =

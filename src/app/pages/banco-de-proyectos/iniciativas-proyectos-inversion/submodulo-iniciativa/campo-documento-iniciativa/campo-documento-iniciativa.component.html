@@ -32,5 +32,5 @@
   </div>
 
   <!-- Oculto: lo abre el botón de adjuntar -->
-  <input #entrada type="file" class="documento__entrada" [accept]="aceptados" (change)="onChangeDocumento(entrada)" tabindex="-1" aria-hidden="true">
+  <input #entrada type="file" class="documento__entrada" [accept]="aceptados" (change)="elegir(entrada)" tabindex="-1" aria-hidden="true">
 </div>

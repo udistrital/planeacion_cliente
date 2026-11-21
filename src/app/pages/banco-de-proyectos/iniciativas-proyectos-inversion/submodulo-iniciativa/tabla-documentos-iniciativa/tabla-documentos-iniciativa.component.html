@@ -23,7 +23,7 @@
           <small class="fijo__marca">{{ esObligatorio(campo) ? 'Obligatorio' : 'Opcional' }}</small>
         </td>
         <td [class.con-error]="errores(campo.dato.clave).length">
-          <app-campo-documento-iniciativa [iniciativaId]="iniciativaId" [nodo]="campo" [(valor)]="datos[campo.dato.clave]" [ruta]="campo.dato.clave"
+          <app-campo-documento-iniciativa [nodo]="campo" [(valor)]="datos[campo.dato.clave]" [ruta]="campo.dato.clave"
             [contexto]="contexto" [etiqueta]="campo.nombre"></app-campo-documento-iniciativa>
           <div class="error-celda" *ngFor="let mensaje of errores(campo.dato.clave)">{{ mensaje }}</div>
         </td>
@@ -39,7 +39,7 @@
               [numero]="'' + numero(posicion)" [contexto]="contexto" [textoVacio]="'Escriba el nombre del documento'"></app-celda-iniciativa>
           </td>
           <td [class.con-error]="errores(rutaDeArchivo(fila)).length">
-            <app-campo-documento-iniciativa [iniciativaId]="iniciativaId" [nodo]="lista.archivo" [(valor)]="fila[lista.archivo.dato.clave]" [ruta]="rutaDeArchivo(fila)"
+            <app-campo-documento-iniciativa [nodo]="lista.archivo" [(valor)]="fila[lista.archivo.dato.clave]" [ruta]="rutaDeArchivo(fila)"
               [contexto]="contexto" [etiqueta]="nombreDe(fila, posicion)"></app-campo-documento-iniciativa>
             <div class="error-celda" *ngFor="let mensaje of errores(rutaDeArchivo(fila))">{{ mensaje }}</div>
           </td>
@@ -63,5 +63,6 @@
 
 <p class="iniciativa-ayuda" *ngIf="lista?.nodo.descripcion">{{ lista.nodo.descripcion }}</p>
 <p class="iniciativa-ayuda" *ngIf="!contexto.soloLectura">
-  Al adjuntar <mat-icon inline>attach_file</mat-icon> el archivo se sube de una vez; queda en la iniciativa al guardar el submódulo.
+  Al adjuntar <mat-icon inline>attach_file</mat-icon>, quitar o eliminar un documento, el cambio queda guardado en la iniciativa de una vez.
+  El nombre de los documentos adicionales se guarda con Guardar.
 </p>
