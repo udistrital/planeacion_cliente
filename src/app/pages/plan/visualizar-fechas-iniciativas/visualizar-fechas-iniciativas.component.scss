@@ -62,3 +62,39 @@ table {
     padding: 4px !important; /* Reduce el padding */
   }
 }
+/* La regla global de styles.scss da width: 50vmax a las celdas; aquí se anula */
+.table-responsive th.mat-header-cell,
+.table-responsive td.mat-cell {
+  width: auto !important;
+}
+
+.table-responsive table {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0;
+  table-layout: fixed;
+}
+
+.table-responsive th,
+.table-responsive td {
+  white-space: normal !important;
+  word-break: break-word;
+}
+
+.titulo-consulta {
+  width: fit-content;
+}
+
+.textGuide {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.selects-field {
+  font-size: 14px;
+}
+
+:host {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

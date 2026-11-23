@@ -1,8 +1,6 @@
 <mat-card class="card-oas">
 	<div class="container-border">
-		<mat-card-header>
-			<mat-card-title>Consulta de fechas de formulación - Iniciativas</mat-card-title>
-		</mat-card-header>
+                <h2 class="titulo titulo-consulta">Consulta de fechas de formulación - Iniciativas</h2>
 		<mat-card-content>
 			<u class="textGuide">
 				En esta sección usted podrá consultar las fechas de formulación parametrizadas por el Jefe de Planeación
@@ -48,9 +46,7 @@
 		</mat-card-content>
 	</div>
 	<div class="container-border" *ngIf="mostrarResultados || sinResultados">
-		<mat-card-header>
-			<mat-card-title>Visualización de fechas</mat-card-title>
-		</mat-card-header>
+                <h2 class="titulo titulo-consulta">Visualización de fechas</h2>
 		<mat-card-content *ngIf="sinResultados">
 			<u class="textGuide">
 				No se encontraron fechas de formulación parametrizadas para la vigencia y unidad seleccionadas.
