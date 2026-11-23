@@ -100,12 +100,21 @@
 .entrada__cabecera {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px 12px;
 }
 
+// .entrada__autor {
+//   font-weight: 500;
+// }
+
 .entrada__autor {
+  min-width: 0;
+  font-size: 1rem;
   font-weight: 500;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .entrada__propia {
@@ -119,10 +128,50 @@
 }
 
 .entrada__meta {
-  margin-left: auto; 
+  flex: none;
   font-size: 0.8rem;
   color: rgba(0, 0, 0, 0.6);
-  white-space: nowrap; 
+  white-space: nowrap;
+}
+
+.entrada__linea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.entrada__rol {
+  order: -1; // sube el rol por encima del nombre sin tocar el HTML
+  max-width: 100%;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+  overflow-wrap: anywhere;
+}
+
+.entrada--planeacion .entrada__rol {
+  background: none;
+  box-shadow: none;
+  color: var(--primary);
+}
+
+.entrada__identidad {
+  flex: 1 1 200px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
 }
 
 .entrada__texto {

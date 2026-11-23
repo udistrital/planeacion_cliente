@@ -12,7 +12,7 @@ import { DatosObservaciones, ObservacionesSubmoduloIniciativaComponent } from '.
 
 const HISTORIAL: Observacion[] = [
   { _id: 'o1', texto: 'Precisar la fuente.', rol: 'PLANEACION', usuario: '100', fecha: '2026-11-04T10:00:00Z' },
-  { _id: 'o2', texto: 'Se agregó la fuente.', rol: 'JEFE_DEPENDENCIA', usuario: '200', fecha: '2026-11-05T09:00:00Z' },
+  { _id: 'o2', texto: 'Se agregó la fuente.', rol: 'JEFE_DEPENDENCIA', usuario: '200', usuario_nombre: 'Ana María Pérez', fecha: '2026-11-05T09:00:00Z' },
 ];
 
 describe('ObservacionesSubmoduloIniciativaComponent (modal de observaciones)', () => {
@@ -52,7 +52,8 @@ describe('ObservacionesSubmoduloIniciativaComponent (modal de observaciones)', (
     montar({});
 
     expect(textoDe('.entrada__texto')).toEqual(['Se agregó la fuente.', 'Precisar la fuente.']);
-    expect(textoDe('.entrada__autor')).toEqual(['Jefe de dependencia', 'Planeación']);
+    expect(textoDe('.entrada__autor')).toEqual(['Ana María Pérez', 'Planeación']);
+    expect(textoDe('.entrada__rol')).toEqual(['Jefe de dependencia']);
     expect(textoDe('.entrada__propia')).toEqual(['Usted']);
     expect(fixture.nativeElement.querySelector('textarea')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Publicar');
@@ -93,5 +94,11 @@ describe('ObservacionesSubmoduloIniciativaComponent (modal de observaciones)', (
     componente.publicar();
 
     expect(servicio.agregarObservacion).not.toHaveBeenCalled();
+  });
+
+  it('el avatar usa las iniciales del nombre y, sin nombre, las del rol', () => {
+    montar({});
+
+    expect(textoDe('.entrada__avatar')).toEqual(['AM', 'P']);
   });
 });
