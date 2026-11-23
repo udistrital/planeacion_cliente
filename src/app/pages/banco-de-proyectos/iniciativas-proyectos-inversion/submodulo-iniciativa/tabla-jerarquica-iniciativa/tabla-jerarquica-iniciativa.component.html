@@ -8,7 +8,7 @@
 </p>
 
 <div class="tabla-caja">
-  <table class="tabla-jerarquica" [style.min-width.px]="anchoMinimo">
+  <table class="tabla-jerarquica" [class.tabla--solo-numericas]="soloNumericas" [style.min-width.px]="anchoMinimo">
     <thead>
       <tr>
         <th scope="col" class="col-numero">N.°</th>
@@ -48,16 +48,18 @@
               [textoVacio]="textoVacio(fila)"></app-celda-iniciativa>
           </td>
           <td class="acciones" *ngIf="conAcciones">
-            <button mat-icon-button color="primary" type="button" *ngIf="puedeAgregarInterna(fila)" (click)="agregarInterna(fila)"
-              matTooltip="Agregar {{ etiquetaInterna | lowercase }}"
-              [attr.aria-label]="'Agregar ' + (etiquetaInterna | lowercase) + ' a ' + numero(fila, posicion)">
-              <mat-icon>add_circle_outline</mat-icon>
-            </button>
-            <button mat-icon-button color="primary" type="button" *ngIf="puedeEliminar(fila)" (click)="eliminar(posicion)"
-              matTooltip="Eliminar {{ etiquetaDeFila(fila) | lowercase }}"
-              [attr.aria-label]="'Eliminar ' + (etiquetaDeFila(fila) | lowercase) + ' ' + numero(fila, posicion)">
-              <mat-icon>delete</mat-icon>
-            </button>
+            <div class="botones" [class.botones--dos]="dosAcciones">
+              <button mat-icon-button color="primary" type="button" *ngIf="puedeAgregarInterna(fila)" (click)="agregarInterna(fila)"
+                matTooltip="Agregar {{ etiquetaInterna | lowercase }}"
+                [attr.aria-label]="'Agregar ' + (etiquetaInterna | lowercase) + ' a ' + numero(fila, posicion)">
+                <mat-icon>add_circle_outline</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" type="button" class="botones__eliminar" *ngIf="puedeEliminar(fila)" (click)="eliminar(posicion)"
+                matTooltip="Eliminar {{ etiquetaDeFila(fila) | lowercase }}"
+                [attr.aria-label]="'Eliminar ' + (etiquetaDeFila(fila) | lowercase) + ' ' + numero(fila, posicion)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </td>
         </tr>
 
@@ -71,11 +73,13 @@
               [ruta]="rutaDeInterna(fila, hija)" [numero]="numero(fila, posicion) + '.' + (posicionHija + 1)" [contexto]="contexto"></app-celda-iniciativa>
           </td>
           <td class="acciones" *ngIf="puedeModificar">
-            <button mat-icon-button color="primary" type="button" (click)="eliminarInterna(fila, posicion, posicionHija)"
-              matTooltip="Eliminar {{ etiquetaInterna | lowercase }}"
-              [attr.aria-label]="'Eliminar ' + (etiquetaInterna | lowercase) + ' ' + numero(fila, posicion) + '.' + (posicionHija + 1)">
-              <mat-icon>delete</mat-icon>
-            </button>
+            <div class="botones botones--dos">
+              <button mat-icon-button color="primary" type="button" class="botones__eliminar" (click)="eliminarInterna(fila, posicion, posicionHija)"
+                matTooltip="Eliminar {{ etiquetaInterna | lowercase }}"
+                [attr.aria-label]="'Eliminar ' + (etiquetaInterna | lowercase) + ' ' + numero(fila, posicion) + '.' + (posicionHija + 1)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </td>
         </tr>
 

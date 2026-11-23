@@ -13,24 +13,29 @@
     <span class="documento__error" *ngIf="error" role="alert">{{ error }}</span>
   </div>
 
-  <div class="documento__acciones">
-    <button *ngIf="puedeVer" mat-icon-button color="primary" type="button" [disabled]="abriendo" (click)="ver()"
-      [matTooltip]="esPdf ? 'Ver' : 'Descargar'" [attr.aria-label]="(esPdf ? 'Ver ' : 'Descargar ') + nombre">
-      <mat-icon>{{ esPdf ? 'visibility' : 'file_download' }}</mat-icon>
-    </button>
-    <ng-container *ngIf="!soloLectura">
-      <button mat-icon-button color="primary" type="button" [disabled]="!!subiendo" (click)="entrada.click()"
-        [matTooltip]="valor ? 'Reemplazar archivo' : 'Adjuntar archivo'"
-        [attr.aria-label]="(valor ? 'Reemplazar archivo de ' : 'Adjuntar archivo de ') + nombre">
-        <mat-icon>attach_file</mat-icon>
-      </button>
-      <button *ngIf="valor" mat-icon-button color="primary" type="button" [disabled]="!!subiendo" (click)="quitar()"
-        matTooltip="Quitar archivo" [attr.aria-label]="'Quitar archivo de ' + nombre">
-        <mat-icon>close</mat-icon>
-      </button>
-    </ng-container>
+  <div class="documento__acciones" *ngIf="!botonesAparte">
+    <ng-container *ngTemplateOutlet="botones"></ng-container>
   </div>
 
   <!-- Oculto: lo abre el botón de adjuntar -->
   <input #entrada type="file" class="documento__entrada" [accept]="aceptados" (change)="elegir(entrada)" tabindex="-1" aria-hidden="true">
 </div>
+
+<!-- Con botonesAparte los muestra el contenedor (la columna Acciones de Anexos) -->
+<ng-template #botones>
+  <button *ngIf="puedeVer" mat-icon-button color="primary" type="button" class="documento__ver" [disabled]="abriendo" (click)="ver()"
+    [matTooltip]="esPdf ? 'Ver' : 'Descargar'" [attr.aria-label]="(esPdf ? 'Ver ' : 'Descargar ') + nombre">
+    <mat-icon>{{ esPdf ? 'visibility' : 'file_download' }}</mat-icon>
+  </button>
+  <ng-container *ngIf="!soloLectura">
+    <button mat-icon-button color="primary" type="button" class="documento__adjuntar" [disabled]="!!subiendo" (click)="entrada.click()"
+      [matTooltip]="valor ? 'Reemplazar archivo' : 'Adjuntar archivo'"
+      [attr.aria-label]="(valor ? 'Reemplazar archivo de ' : 'Adjuntar archivo de ') + nombre">
+      <mat-icon>attach_file</mat-icon>
+    </button>
+    <button *ngIf="valor && !eliminarAparte" mat-icon-button color="primary" type="button" class="documento__eliminar" [disabled]="!!subiendo"
+      (click)="quitar()" matTooltip="Eliminar archivo" [attr.aria-label]="'Eliminar archivo de ' + nombre">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </ng-container>
+</ng-template>

@@ -16,7 +16,7 @@ import {
 const SIN_ESTRUCTURA: EstructuraSubfilas = { subfilas: [], columnas: [] };
 
 /** Anchos mínimos (px) para que la tabla se desplace en pantallas angostas en vez de apretar las columnas. */
-const ANCHO = { numero: 76, origen: 220, subfila: 130, columna: 120, minimo: 560 };
+const ANCHO = { numero: 48, origen: 220, subfila: 130, columna: 120, minimo: 560 };
 
 /**
  * Espejo cuyos hijos son grupos (estructuraDeSubfilas): cada fila ocupa una subfila por grupo, con

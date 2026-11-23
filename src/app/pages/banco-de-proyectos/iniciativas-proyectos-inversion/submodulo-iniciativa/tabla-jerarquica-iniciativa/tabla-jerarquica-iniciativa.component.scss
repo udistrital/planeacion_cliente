@@ -54,3 +54,23 @@
 .fila-errores td {
   background-color: #fff;
 }
+
+/*
+ * Con dos botones (lista interna), un lugar para cada uno: la caneca va siempre en el segundo y queda
+ * alineada también en las filas internas y en las que ya no dejan agregar.
+ */
+.botones {
+  display: grid;
+  grid-auto-columns: 40px;
+  grid-auto-flow: column;
+  column-gap: 4px;
+  justify-content: center;
+}
+
+.botones--dos {
+  grid-template-columns: repeat(2, 40px);
+
+  .botones__eliminar {
+    grid-column: 2;
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 import { Datos, NodoDefinicion } from '../../utils';
 import {
   calcularNumero,
@@ -43,6 +43,13 @@ export class CeldaIniciativaComponent {
   @Input() textoVacio = '';
   /** Fila de origen del espejo: de ella salen los valores traídos ("origen.*") y obligatorio_si. */
   @Input() filaOrigen: Datos | null = null;
+  /** Texto centrado en la celda, como los números (p. ej. la programación física del Cronograma). */
+  @Input() centrada = false;
+
+  @HostBinding('class.celda--centrada')
+  get conTextoCentrado(): boolean {
+    return this.centrada;
+  }
 
   readonly claseDe = claseDe;
   /** El usuario dejó el texto abierto con «Ver todo». */

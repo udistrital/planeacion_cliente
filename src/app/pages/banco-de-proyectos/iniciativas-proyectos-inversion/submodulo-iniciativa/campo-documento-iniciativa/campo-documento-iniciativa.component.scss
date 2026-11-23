@@ -52,6 +52,22 @@
   flex: none;
 }
 
+/*
+ * Lugar de cada botón en la grilla de Acciones de Anexos (botonesAparte). Va aquí porque los botones
+ * son de esta plantilla y solo los alcanzan sus estilos.
+ */
+.documento__ver {
+  grid-column: 1;
+}
+
+.documento__adjuntar {
+  grid-column: 2;
+}
+
+.documento__eliminar {
+  grid-column: 3;
+}
+
 .documento__entrada {
   display: none;
 }

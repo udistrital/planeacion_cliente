@@ -74,6 +74,11 @@ export class GrupoRepetibleIniciativaComponent implements OnChanges {
     return !this.contexto.soloLectura && !this.esEspejo;
   }
 
+  /** Sin columna de ancho libre (ni origen ni texto): las numéricas se reparten el ancho (tabla--solo-numericas). */
+  get soloNumericas(): boolean {
+    return !this.esEspejo && this.columnas.length > 0 && this.columnas.every((columna) => columna.numerica);
+  }
+
   get puedeAgregar(): boolean {
     const maximo = this.nodo.dato.max;
     return this.puedeModificar && (maximo === undefined || maximo === null || this.filas.length < maximo);

@@ -148,13 +148,15 @@
 
     <!-- Referencia a filas de otro grupo. La de la fila marcada (marcada_en) se trae sola y no se edita -->
     <ng-container *ngSwitchCase="'referencia'">
-      <div *ngIf="nodo.dato.marcada_en; else referenciaElegida" class="iniciativa-calculado iniciativa-traida">
-        <span class="iniciativa-etiqueta" *ngIf="!secciones">{{ nodo.nombre }}</span>
-        <strong *ngIf="textoMarcada(nodo) as texto; else sinMarcada">{{ texto }}</strong>
-        <span class="iniciativa-traida__detalle" *ngIf="detalleMarcada(nodo) as detalle">{{ detalle }}</span>
-        <ng-template #sinMarcada><span class="iniciativa-traida__vacia">Aún no se ha marcado ninguna.</span></ng-template>
-        <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>
-      </div>
+      <ng-container *ngIf="nodo.dato.marcada_en; else referenciaElegida">
+        <div class="iniciativa-calculado iniciativa-traida" [class.iniciativa-traida--con-ayuda]="nodo.descripcion">
+          <span class="iniciativa-etiqueta" *ngIf="!secciones">{{ nodo.nombre }}</span>
+          <strong *ngIf="textoMarcada(nodo) as texto; else sinMarcada">{{ texto }}</strong>
+          <span class="iniciativa-traida__detalle" *ngIf="detalleMarcada(nodo) as detalle">{{ detalle }}</span>
+          <ng-template #sinMarcada><span class="iniciativa-traida__vacia">Aún no se ha marcado ninguna.</span></ng-template>
+        </div>
+        <p class="iniciativa-ayuda iniciativa-traida__ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</p>
+      </ng-container>
       <ng-template #referenciaElegida>
         <mat-form-field appearance="fill" [class.iniciativa-campo--sin-etiqueta]="secciones" class="iniciativa-campo">
           <mat-label *ngIf="!secciones">{{ nodo.nombre }}</mat-label>

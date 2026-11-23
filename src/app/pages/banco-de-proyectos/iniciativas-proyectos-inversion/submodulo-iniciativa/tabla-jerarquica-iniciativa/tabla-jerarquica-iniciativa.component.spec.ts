@@ -114,6 +114,8 @@ describe('TablaJerarquicaIniciativaComponent', () => {
 
     expect(textos('thead th')).toEqual(['N.°', 'Tipo', 'Año', 'Demanda', 'Acciones']);
     expect(elemento.querySelectorAll('th.col-numerica').length).toBe(2);
+    // Con una columna de texto, ella toma el ancho que sobra
+    expect(elemento.querySelector('table').classList).not.toContain('tabla--solo-numericas');
     expect(elemento.querySelectorAll('td app-campo-catalogo-iniciativa').length).toBe(1);
     const numeros = Array.from(elemento.querySelectorAll('input[type=number]')) as HTMLInputElement[];
     expect(numeros.map((n) => n.value)).toEqual(['2024', '120']);
@@ -130,6 +132,8 @@ describe('TablaJerarquicaIniciativaComponent', () => {
 
     expect(textos('thead th')).toEqual(['N.°', 'Demanda', 'Oferta', 'Déficit', 'Acciones']);
     expect(elemento.querySelectorAll('th.col-numerica').length).toBe(3);
+    // Solo numéricas: ellas se reparten el ancho y N.° y Acciones no crecen
+    expect(elemento.querySelector('table').classList).toContain('tabla--solo-numericas');
     expect(textos('output.celda--calculada')).toEqual(['-20', 'Se calcula']);
 
     filas[1].oferta = 25;

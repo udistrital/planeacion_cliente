@@ -61,7 +61,7 @@ describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => 
   }
 
   const textos = (selector: string) => Array.from(elemento.querySelectorAll(selector)).map((e) => e.textContent.trim());
-  const boton = (etiqueta: string) => elemento.querySelector(`button[aria-label="${etiqueta}"]`) as HTMLButtonElement;
+  const botonAgregar = () => elemento.querySelector('button.agregar') as HTMLButtonElement | null;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -97,18 +97,45 @@ describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => 
     expect((elemento.querySelector('.fila-adicional textarea') as HTMLTextAreaElement).value).toBe('Cotización de equipos');
   }));
 
-  it('el ⊕ del encabezado agrega documentos hasta el máximo y la caneca los elimina y guarda', async () => {
+  it('los botones del archivo van en Acciones, con una sola caneca por fila', fakeAsync(() => {
+    montar({
+      carta_presentacion: { id: 1, enlace: 'u-1', nombre: 'carta.pdf' },
+      presupuesto: null,
+      otros_anexos: [
+        { id: 'oa-1', nombre: 'Cotización', archivo: null },
+        { id: 'oa-2', nombre: 'Plano', archivo: { id: 4, enlace: 'u-4', nombre: 'plano.pdf' } },
+      ],
+    });
+    tick();
+    fixture.detectChanges();
+    const acciones = (fila: number) => Array.from(elemento.querySelectorAll('tbody tr')[fila].querySelectorAll('td.acciones button'))
+      .map((b) => b.getAttribute('aria-label'));
+
+    expect(textos('thead th')[3]).toBe('Acciones');
+    expect(elemento.querySelectorAll('td.archivo button').length).toBe(0);
+    expect(acciones(0)).toEqual([
+      'Ver Carta de presentación suscrita',
+      'Reemplazar archivo de Carta de presentación suscrita',
+      'Eliminar archivo de Carta de presentación suscrita',
+    ]);
+    expect(acciones(1)).toEqual(['Adjuntar archivo de Presupuesto']);
+    // En un adicional, la caneca es la de la fila: elimina el documento con su archivo
+    expect(acciones(2)).toEqual(['Adjuntar archivo de Cotización', 'Eliminar documento 3']);
+    expect(acciones(3)).toEqual(['Ver Plano', 'Reemplazar archivo de Plano', 'Eliminar documento 4']);
+  }));
+
+  it('el botón de debajo de la tabla agrega documentos hasta el máximo y la caneca los elimina y guarda', async () => {
     const datos = montar({ carta_presentacion: null, presupuesto: null, otros_anexos: [] });
 
-    boton('Agregar documento').click();
+    botonAgregar().click();
     fixture.detectChanges();
-    boton('Agregar documento').click();
+    botonAgregar().click();
     fixture.detectChanges();
 
     expect(datos.otros_anexos.length).toBe(2);
     expect(datos.otros_anexos.every((fila: Datos) => /^oa-/.test(fila.id))).toBeTrue();
     expect(textos('td.numero')).toEqual(['1', '2', '3', '4']);
-    expect(boton('Agregar documento')).toBeNull();
+    expect(botonAgregar()).toBeNull();
     expect((elemento.querySelector('.fila-adicional textarea') as HTMLTextAreaElement).placeholder).toBe('Escriba el nombre del documento');
 
     spyOn(Swal, 'fire').and.returnValue(Promise.resolve({ isConfirmed: true }) as any);
@@ -118,7 +145,7 @@ describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => 
 
     expect(datos.otros_anexos.map((fila: Datos) => fila.id)).not.toContain(primero);
     expect(guardar).toHaveBeenCalledTimes(1);
-    expect(boton('Agregar documento')).not.toBeNull();
+    expect(botonAgregar().textContent).toContain('Agregar documento');
   });
 
   it('si no se confirma, la caneca no elimina ni guarda', async () => {
@@ -152,7 +179,7 @@ describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => 
     expect(textos('.fila-errores .iniciativa-error')).toEqual(['Otros anexos: se permiten máximo 2.']);
   });
 
-  it('en solo lectura no hay columna de acciones ni botones para cambiar archivos', fakeAsync(() => {
+  it('en solo lectura Acciones solo deja ver el archivo: no hay botones para cambiarlo', fakeAsync(() => {
     montar(
       { carta_presentacion: { id: 1, enlace: 'u-1', nombre: 'carta.pdf' }, presupuesto: null, otros_anexos: [{ id: 'oa-1', nombre: 'Cotización' }] },
       { soloLectura: true },
@@ -160,8 +187,9 @@ describe('TablaDocumentosIniciativaComponent (Anexos en una sola tabla)', () => 
     tick();
     fixture.detectChanges();
 
-    expect(textos('thead th')).toEqual(['N.°', 'Documento', 'Archivo']);
+    expect(textos('thead th')).toEqual(['N.°', 'Documento', 'Archivo', 'Acciones']);
     expect(Array.from(elemento.querySelectorAll('button')).map((b) => b.getAttribute('aria-label'))).toEqual(['Ver Carta de presentación suscrita']);
+    expect(elemento.querySelector('td.acciones button')).not.toBeNull();
     expect((elemento.querySelector('.fila-adicional textarea') as HTMLTextAreaElement).disabled).toBeTrue();
   }));
 });

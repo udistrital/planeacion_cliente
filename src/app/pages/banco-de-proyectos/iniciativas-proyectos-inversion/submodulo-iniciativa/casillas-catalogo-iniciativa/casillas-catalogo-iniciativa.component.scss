@@ -13,6 +13,11 @@
     margin-bottom: auto;
   }
 
+  /* Sin marcar: blanca con el borde gris (Material la deja transparente y toma el gris de la sección) */
+  ::ng-deep .mat-checkbox-frame {
+    background-color: #fff;
+  }
+
   ::ng-deep .mat-checkbox-checked:not(.mat-checkbox-disabled) .mat-checkbox-background {
     background-color: var(--primary);
   }

@@ -39,6 +39,7 @@
   padding: 0.5rem 1rem;
   color: #fff;
   font-weight: 500;
+  text-transform: uppercase;
   background-color: var(--primary);
 }
 
@@ -114,12 +115,8 @@
 .componentes__encabezado th {
   color: #fff;
   font-weight: 600;
-  background-color: var(--primary);
-}
-
-/* El nombre del módulo (Identificación, Preparación, Anexos) va en mayúsculas; Estado y Acciones no */
-.componentes__encabezado th.componentes__nombre {
   text-transform: uppercase;
+  background-color: var(--primary);
 }
 
 .componentes__submodulo {

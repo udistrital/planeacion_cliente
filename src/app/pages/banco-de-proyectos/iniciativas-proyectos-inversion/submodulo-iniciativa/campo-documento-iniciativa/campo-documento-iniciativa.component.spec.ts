@@ -78,7 +78,7 @@ describe('CampoDocumentoIniciativaComponent (archivo de un documento)', () => {
     expect(guardar).toHaveBeenCalledTimes(1);
     expect(texto('.documento__nombre')).toBe('cotizacion.pdf');
     expect(texto('.documento__detalle')).toMatch(/^Subido el 15\/11\/2026 \d\d:\d\d por LAURA GOMEZ RIOS$/);
-    expect(etiquetas()).toEqual(['Ver Cotización', 'Reemplazar archivo de Cotización', 'Quitar archivo de Cotización']);
+    expect(etiquetas()).toEqual(['Ver Cotización', 'Reemplazar archivo de Cotización', 'Eliminar archivo de Cotización']);
   });
 
   it('sin el nombre de quien lo subió muestra solo la fecha, nunca el documento de identidad', () => {
@@ -116,7 +116,7 @@ describe('CampoDocumentoIniciativaComponent (archivo de un documento)', () => {
     await componente.quitar();
     fixture.detectChanges();
 
-    expect(confirmar.calls.mostRecent().args[0]).toEqual(jasmine.objectContaining({ title: '¿Quitar el archivo de «Cotización»?' }));
+    expect(confirmar.calls.mostRecent().args[0]).toEqual(jasmine.objectContaining({ title: '¿Eliminar el archivo de «Cotización»?' }));
     expect(emitidos).toEqual([null]);
     expect(guardar).toHaveBeenCalledTimes(1);
     expect(texto('.documento__sin-archivo')).toBe('Sin adjuntar');

@@ -16,8 +16,29 @@
   width: 36%;
 }
 
-th .agregar-encabezado {
-  color: #fff;
+/*
+ * Acciones: un lugar de 40px por botón (ver, adjuntar y la caneca), 4px entre ellos. Ancho del th:
+ * los lugares más el padding del td (4px por lado) menos el del th (10px por lado).
+ */
+.col-acciones--tres {
+  width: 3 * 40px + 2 * 4px + 8px - 20px;
+}
+
+/* Cada botón en su lugar (los del archivo lo fijan en campo-documento-iniciativa), aunque falten otros */
+.botones {
+  display: grid;
+  grid-auto-columns: 40px;
+  column-gap: 4px;
+  justify-content: center;
+}
+
+.botones--tres {
+  grid-template-columns: repeat(3, 40px);
+}
+
+/* La caneca de un adicional va en el mismo lugar que la del archivo de los fijos */
+.botones__eliminar {
+  grid-column: 3;
 }
 
 .fijo {

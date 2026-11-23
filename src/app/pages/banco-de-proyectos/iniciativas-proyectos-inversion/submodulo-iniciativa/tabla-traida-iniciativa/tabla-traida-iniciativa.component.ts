@@ -19,7 +19,7 @@ export interface FilaTraida {
 }
 
 /** Anchos mínimos (px) para que la tabla se desplace en pantallas angostas en vez de apretar las columnas. */
-const ANCHO = { numero: 76, texto: 200, numerica: 120, minimo: 560 };
+const ANCHO = { numero: 48, texto: 200, numerica: 120, minimo: 560 };
 
 /**
  * Espejo de solo lectura (esEspejoTraido): una fila por elemento de origen, con su número y lo que

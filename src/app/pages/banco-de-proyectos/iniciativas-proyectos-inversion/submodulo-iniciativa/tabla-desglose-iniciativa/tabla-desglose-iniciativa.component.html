@@ -4,12 +4,12 @@
 </header>
 
 <div class="tabla-caja">
-  <table class="tabla-desglose" [style.min-width.px]="anchoMinimo">
+  <table class="tabla-desglose" [class.tabla--solo-numericas]="soloNumericas" [style.min-width.px]="anchoMinimo">
     <colgroup>
       <col class="col-numero">
       <col class="col-origen">
       <col *ngFor="let campo of estructura.campos; trackBy: porClave" [class.col-numerica]="esCampoNumerico(campo)">
-      <col class="col-acciones" *ngIf="conAcciones">
+      <col class="col-acciones col-acciones--una" *ngIf="conAcciones">
     </colgroup>
     <thead>
       <tr>
@@ -17,7 +17,7 @@
         <th scope="col">{{ etiqueta }}</th>
         <th scope="col" *ngFor="let campo of estructura.campos; trackBy: porClave" [class.col-valor]="esCampoNumerico(campo)"
           [class.con-ayuda]="campo.descripcion" [matTooltip]="campo.descripcion">{{ campo.nombre }}</th>
-        <th scope="col" class="col-acciones" *ngIf="conAcciones">Acciones</th>
+        <th scope="col" class="col-acciones col-acciones--una" *ngIf="conAcciones">Acciones</th>
       </tr>
     </thead>
     <tbody>

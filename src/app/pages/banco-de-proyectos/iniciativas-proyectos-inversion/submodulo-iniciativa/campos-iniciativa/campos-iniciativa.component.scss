@@ -233,11 +233,26 @@
   white-space: pre-line;
 }
 
+/* Ayuda pegada debajo de la caja: el margen de la caja pasa a la ayuda */
+.iniciativa-traida--con-ayuda {
+  margin-bottom: 0.25rem;
+}
+
+.iniciativa-ayuda.iniciativa-traida__ayuda {
+  margin: 0 0 1rem;
+  padding: 0 1rem;
+}
+
 .iniciativa-casilla {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   margin: 0.25rem 0 0.75rem;
+
+  /* Sin marcar: blanca con el borde gris (Material la deja transparente y toma el gris de la sección) */
+  ::ng-deep .mat-checkbox-frame {
+    background-color: #fff;
+  }
 }
 
 .iniciativa-etiqueta {

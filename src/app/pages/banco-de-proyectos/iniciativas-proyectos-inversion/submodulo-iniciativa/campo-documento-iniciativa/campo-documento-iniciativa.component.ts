@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
 import { take } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
@@ -27,6 +27,13 @@ export class CampoDocumentoIniciativaComponent {
   @Input() contexto: ContextoFormulario;
   /** Nombre del documento para los botones (p. ej. el que se escribió en la fila); si falta, el del campo. */
   @Input() etiqueta = '';
+  /** Los botones del archivo no van aquí: los pone el contenedor con `botones` (la columna Acciones de Anexos). */
+  @Input() botonesAparte = false;
+  /** Sin la caneca del archivo: el contenedor pone la suya (en los adicionales de Anexos, la que elimina la fila). */
+  @Input() eliminarAparte = false;
+
+  /** Los botones (ver, adjuntar, eliminar), para el contenedor cuando botonesAparte. */
+  @ViewChild('botones', { static: true }) botones: TemplateRef<unknown>;
 
   /** Nombre del archivo que se está subiendo; vacío si no hay ninguno. */
   subiendo = '';
@@ -115,11 +122,11 @@ export class CampoDocumentoIniciativaComponent {
    */
   async quitar(): Promise<void> {
     const respuesta = await Swal.fire({
-      title: `¿Quitar el archivo de «${this.nombre}»?`,
+      title: `¿Eliminar el archivo de «${this.nombre}»?`,
       text: 'El archivo se quita de la iniciativa.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Quitar',
+      confirmButtonText: 'Eliminar',
       cancelButtonText: 'Cancelar',
     });
     if (!respuesta.isConfirmed) {

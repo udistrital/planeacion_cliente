@@ -34,18 +34,26 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
-/* Columnas del mismo ancho sin importar el contenido; el ancho mínimo lo calcula el componente */
+/*
+ * Columnas del mismo ancho sin importar el contenido; el ancho mínimo lo calcula el componente.
+ * Cada celda lleva borde a los lados; el borde hidden de la tabla quita los de los extremos (con
+ * bordes colapsados, hidden gana).
+ */
 .tabla-caja > table {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.875rem;
+  border-right: hidden;
   border-bottom: 3px solid var(--primary);
+  border-left: hidden;
 
   /* styles.scss fija con !important el padding de todos los td. */
   th,
   td {
     padding: 6px 10px !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
     text-align: left;
     vertical-align: top;
   }
@@ -56,6 +64,11 @@
     color: #fff;
     font-weight: 500;
     background-color: var(--primary);
+  }
+
+  thead th {
+    border-right-color: rgba(255, 255, 255, 0.35);
+    border-left-color: rgba(255, 255, 255, 0.35);
   }
 
   td {
@@ -70,26 +83,59 @@
     text-align: center;
   }
 
+  /* Arriba, no al medio: el botón queda a la altura de la primera línea y no se mueve si el texto crece */
   td.acciones {
     padding: 2px 4px !important;
     white-space: nowrap;
-    text-align: right;
+    text-align: center;
   }
 }
 
+/*
+ * N.° y Acciones, al mínimo. En th el ancho es el del contenido, sin el padding:
+ * - N.°: la ficha de dos cifras o de n.m (1.10) mide 44px.
+ * - Acciones: con un botón, lo que pide la palabra «Acciones» (57px); con dos, los dos botones de 40px.
+ * En un <col> el ancho incluye el padding de la celda (10px por lado) y su borde.
+ */
+$ancho-numero: 48px;
+$ancho-acciones: 74px;
+$ancho-accion: 60px;
+$relleno-celda: 21px;
+
 .col-numero {
-  width: 76px;
+  width: $ancho-numero;
 }
 
 .col-numerica {
   width: 110px;
 }
+
 .col-acciones {
-  width: 96px;
+  width: $ancho-acciones;
 }
 
 .col-acciones--una {
-  width: 56px;
+  width: $ancho-accion;
+}
+
+col.col-numero {
+  width: $ancho-numero + $relleno-celda;
+}
+
+col.col-acciones {
+  width: $ancho-acciones + $relleno-celda;
+}
+
+col.col-acciones--una {
+  width: $ancho-accion + $relleno-celda;
+}
+
+/*
+ * Si todas las columnas tienen ancho fijo (p. ej. solo numéricas), la tabla reparte lo que sobra
+ * entre todas y N.° y Acciones crecen: con esta clase, las numéricas se quedan con ese espacio.
+ */
+.tabla-caja > table.tabla--solo-numericas .col-numerica {
+  width: auto;
 }
 
 /* Encabezado con la descripción del campo al pasar el mouse */

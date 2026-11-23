@@ -5,32 +5,30 @@
         <th scope="col" class="col-numero">N.°</th>
         <th scope="col" class="col-documento">Documento</th>
         <th scope="col">Archivo</th>
-        <th scope="col" class="col-acciones col-acciones--una" *ngIf="conAcciones">
-          <button *ngIf="puedeAgregar; else tituloAcciones" mat-icon-button type="button" class="agregar-encabezado" (click)="agregar()"
-            matTooltip="Agregar {{ etiqueta | lowercase }}" [attr.aria-label]="'Agregar ' + (etiqueta | lowercase)">
-            <mat-icon>add_circle_outline</mat-icon>
-          </button>
-          <ng-template #tituloAcciones>Acciones</ng-template>
-        </th>
+        <th scope="col" class="col-acciones" [class.col-acciones--una]="!conTresLugares" [class.col-acciones--tres]="conTresLugares">Acciones</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Documentos fijos -->
+      <!-- Documentos fijos; los botones del archivo van en Acciones -->
       <tr *ngFor="let campo of estructura.fijos; let posicion = index; trackBy: porClave" class="fila-fija">
         <td class="numero"><span class="chip">{{ posicion + 1 }}</span></td>
         <td class="fijo">
           <span class="fijo__nombre" [class.con-ayuda]="campo.descripcion" [matTooltip]="campo.descripcion">{{ campo.nombre }}</span>
           <small class="fijo__marca">{{ esObligatorio(campo) ? 'Obligatorio' : 'Opcional' }}</small>
         </td>
-        <td [class.con-error]="errores(campo.dato.clave).length">
-          <app-campo-documento-iniciativa [nodo]="campo" [(valor)]="datos[campo.dato.clave]" [ruta]="campo.dato.clave"
-            [contexto]="contexto" [etiqueta]="campo.nombre"></app-campo-documento-iniciativa>
+        <td class="archivo" [class.con-error]="errores(campo.dato.clave).length">
+          <app-campo-documento-iniciativa #documento [nodo]="campo" [(valor)]="datos[campo.dato.clave]" [ruta]="campo.dato.clave"
+            [contexto]="contexto" [etiqueta]="campo.nombre" [botonesAparte]="true"></app-campo-documento-iniciativa>
           <div class="error-celda" *ngFor="let mensaje of errores(campo.dato.clave)">{{ mensaje }}</div>
         </td>
-        <td *ngIf="conAcciones" class="acciones"></td>
+        <td class="acciones">
+          <div class="botones" [class.botones--tres]="conTresLugares">
+            <ng-container *ngTemplateOutlet="documento.botones"></ng-container>
+          </div>
+        </td>
       </tr>
 
-      <!-- Adicionales (otros anexos) -->
+      <!-- Adicionales (otros anexos): la caneca es la de la fila, que elimina el documento con su archivo -->
       <ng-container *ngIf="lista">
         <tr *ngFor="let fila of filas; let posicion = index; trackBy: porId" class="fila-adicional">
           <td class="numero"><span class="chip">{{ numero(posicion) }}</span></td>
@@ -38,16 +36,20 @@
             <app-celda-iniciativa [fila]="fila" [filas]="filas" [campo]="lista.nombre" [ruta]="rutaDeFila(fila)"
               [numero]="'' + numero(posicion)" [contexto]="contexto" [textoVacio]="'Escriba el nombre del documento'"></app-celda-iniciativa>
           </td>
-          <td [class.con-error]="errores(rutaDeArchivo(fila)).length">
-            <app-campo-documento-iniciativa [nodo]="lista.archivo" [(valor)]="fila[lista.archivo.dato.clave]" [ruta]="rutaDeArchivo(fila)"
-              [contexto]="contexto" [etiqueta]="nombreDe(fila, posicion)"></app-campo-documento-iniciativa>
+          <td class="archivo" [class.con-error]="errores(rutaDeArchivo(fila)).length">
+            <app-campo-documento-iniciativa #documento [nodo]="lista.archivo" [(valor)]="fila[lista.archivo.dato.clave]" [ruta]="rutaDeArchivo(fila)"
+              [contexto]="contexto" [etiqueta]="nombreDe(fila, posicion)" [botonesAparte]="true" [eliminarAparte]="true">
+            </app-campo-documento-iniciativa>
             <div class="error-celda" *ngFor="let mensaje of errores(rutaDeArchivo(fila))">{{ mensaje }}</div>
           </td>
-          <td *ngIf="conAcciones" class="acciones">
-            <button mat-icon-button color="primary" type="button" (click)="eliminar(posicion)"
-              matTooltip="Eliminar {{ etiqueta | lowercase }}" [attr.aria-label]="'Eliminar ' + (etiqueta | lowercase) + ' ' + numero(posicion)">
-              <mat-icon>delete</mat-icon>
-            </button>
+          <td class="acciones">
+            <div class="botones" [class.botones--tres]="conTresLugares">
+              <ng-container *ngTemplateOutlet="documento.botones"></ng-container>
+              <button *ngIf="puedeEliminar" mat-icon-button color="primary" type="button" class="botones__eliminar" (click)="eliminar(posicion)"
+                matTooltip="Eliminar {{ etiqueta | lowercase }}" [attr.aria-label]="'Eliminar ' + (etiqueta | lowercase) + ' ' + numero(posicion)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </td>
         </tr>
       </ng-container>
@@ -61,8 +63,11 @@
   </table>
 </div>
 
+<button *ngIf="puedeAgregar" mat-stroked-button color="primary" type="button" class="agregar" (click)="agregar()">
+  <mat-icon>add</mat-icon> Agregar {{ etiqueta | lowercase }}
+</button>
 <p class="iniciativa-ayuda" *ngIf="lista?.nodo.descripcion">{{ lista.nodo.descripcion }}</p>
 <p class="iniciativa-ayuda" *ngIf="!contexto.soloLectura">
-  Al adjuntar <mat-icon inline>attach_file</mat-icon>, quitar o eliminar un documento, el cambio queda guardado en la iniciativa de una vez.
+  Al adjuntar <mat-icon inline>attach_file</mat-icon> o eliminar <mat-icon inline>delete</mat-icon> un documento, el cambio queda guardado en la iniciativa de una vez.
   El nombre de los documentos adicionales se guarda con Guardar.
 </p>

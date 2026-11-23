@@ -43,18 +43,26 @@ export class TablaDocumentosIniciativaComponent {
     return this.lista ? this.lista.nodo.dato.etiqueta_fila || this.lista.nodo.nombre : '';
   }
 
-  /** La columna Acciones solo existe si hay lista y se puede editar. */
-  get conAcciones(): boolean {
+  /** Se agregan y eliminan adicionales si hay lista y se puede editar. */
+  get puedeEliminar(): boolean {
     return !!this.lista && !this.contexto.soloLectura;
   }
 
   get puedeAgregar(): boolean {
     const maximo = this.lista ? this.lista.nodo.dato.max : null;
-    return this.conAcciones && (maximo === undefined || maximo === null || this.filas.length < maximo);
+    return this.puedeEliminar && (maximo === undefined || maximo === null || this.filas.length < maximo);
+  }
+
+  /**
+   * Acciones tiene un lugar fijo por botón (ver, adjuntar, caneca), para que cada uno quede en la misma
+   * columna en todas las filas. En solo lectura solo está ver.
+   */
+  get conTresLugares(): boolean {
+    return !this.contexto.soloLectura;
   }
 
   get totalColumnas(): number {
-    return this.conAcciones ? 4 : 3;
+    return 4;
   }
 
   /** Errores de la lista (p. ej. el máximo) y de cada fila que no son de un campo. */

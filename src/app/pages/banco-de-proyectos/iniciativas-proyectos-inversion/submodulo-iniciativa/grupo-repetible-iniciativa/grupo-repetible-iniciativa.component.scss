@@ -24,6 +24,18 @@
   }
 }
 
+/*
+ * La tabla resumen va sin líneas verticales: quita las de _tabla-iniciativa.scss y también las de
+ * oas.css, que las pone en los th y td desde la segunda columna.
+ */
+.tabla-caja.tabla-resumen > table {
+  th,
+  td {
+    border-right: none;
+    border-left: none;
+  }
+}
+
 .col-datos {
   width: 130px;
 }

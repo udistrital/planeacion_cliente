@@ -41,9 +41,9 @@ const SIN_ESTRUCTURA: EstructuraDesglose = { campos: [], desglose: null, campoEn
 
 /**
  * Anchos mínimos (px) para que la tabla se desplace en pantallas angostas en vez de apretar las columnas.
- * La columna Acciones mide lo de .col-acciones: cabe la palabra «Acciones» del encabezado.
+ * La columna Acciones mide lo de .col-acciones--una (un solo botón): cabe la palabra «Acciones» del encabezado.
  */
-const ANCHO = { numero: 76, origen: 260, columna: 220, numerica: 130, acciones: 96, minimo: 560 };
+const ANCHO = { numero: 48, origen: 260, columna: 220, numerica: 130, acciones: 60, minimo: 560 };
 
 /**
  * Espejo con desglose (estructuraDeDesglose): una fila por elemento de origen, con su nombre y su
@@ -114,6 +114,11 @@ export class TablaDesgloseIniciativaComponent implements OnChanges {
   /** Número, origen, una columna por campo y, si hay, acciones. */
   get totalColumnas(): number {
     return this.estructura.campos.length + (this.conAcciones ? 3 : 2);
+  }
+
+  /** Todos los campos son numéricos: con el origen de ancho fijo, ellos se reparten el ancho (tabla--solo-numericas). */
+  get soloNumericas(): boolean {
+    return this.estructura.campos.length > 0 && this.estructura.campos.every(esCampoNumerico);
   }
 
   get anchoMinimo(): number {

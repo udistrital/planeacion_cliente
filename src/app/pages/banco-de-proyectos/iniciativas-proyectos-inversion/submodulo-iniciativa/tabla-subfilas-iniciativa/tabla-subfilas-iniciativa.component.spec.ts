@@ -117,6 +117,8 @@ describe('TablaSubfilasIniciativaComponent', () => {
 
     expect(marcas).toEqual(['Obligatorio', 'Opcional', 'Opcional', 'Obligatorio', 'Opcional', 'Obligatorio']);
     expect(filas.map((fila) => fila.origen)).toEqual(['a-1', 'a-2', 'a-3']);
+    // Como la financiera, la física va centrada en la celda
+    expect(elemento.querySelectorAll('app-celda-iniciativa:not(.celda--centrada)').length).toBe(0);
   });
 
   it('conserva lo escrito y muestra el error en su celda', fakeAsync(() => {

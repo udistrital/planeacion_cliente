@@ -25,7 +25,7 @@ import {
 const SIN_ESTRUCTURA: EstructuraTabla = { campos: [], interna: null, camposInternos: [] };
 
 /** Anchos mínimos (px) para que la tabla se desplace en pantallas angostas en vez de apretar las columnas. */
-const ANCHO = { numero: 76, codigo: 120, columna: 160, numerica: 110, acciones: 96, accion: 56, minimo: 560 };
+const ANCHO = { numero: 48, codigo: 120, columna: 160, numerica: 110, acciones: 74, accion: 60, minimo: 560 };
 
 /**
  * Lista como tabla: una columna por campo, editado en su celda (CeldaIniciativa). Las filas de la
@@ -119,12 +119,19 @@ export class TablaJerarquicaIniciativaComponent implements OnChanges {
     return (adicionales && adicionales.etiqueta) || this.etiqueta;
   }
 
-  /**
-   * Columna Acciones angosta (un solo botón): en las listas sin lista interna. En un espejo con filas
-   * agregadas va ancha, como en Trazadores presupuestales, para que quepa el encabezado «Acciones».
-   */
+  /** Con lista interna editable, la fila de primer nivel tiene dos botones: agregar a la interna y la caneca. */
+  get dosAcciones(): boolean {
+    return this.tieneInterna && this.puedeModificar;
+  }
+
+  /** Columna Acciones angosta (un solo botón, la caneca): siempre que no haya dos botones. */
   get accionAngosta(): boolean {
-    return !this.tieneInterna && !this.esEspejo;
+    return !this.dosAcciones;
+  }
+
+  /** Sin columna de ancho libre (ni origen ni texto): las numéricas se reparten el ancho (tabla--solo-numericas). */
+  get soloNumericas(): boolean {
+    return !this.esEspejo && this.columnas.length > 0 && this.columnas.every((posicion) => this.esNumerica(posicion));
   }
 
   /** Columna con el código del elemento de origen, antes de su nombre (columna_codigo). */

@@ -35,7 +35,7 @@
           <td *ngFor="let columna of estructura.columnas; trackBy: porColumna" [class.con-error]="conError(fila, subfila, campoDe(subfila, columna))">
             <app-celda-iniciativa *ngIf="campoDe(subfila, columna) as campo; else noAplica" [fila]="datosDe(fila, subfila)" [campo]="campo"
               [ruta]="rutaDeSubfila(fila, subfila)" [numero]="numero(fila, posicion) + ', ' + (subfila.nombre | lowercase)"
-              [contexto]="contexto" [filaOrigen]="origenDe(fila)"></app-celda-iniciativa>
+              [contexto]="contexto" [filaOrigen]="origenDe(fila)" [centrada]="true"></app-celda-iniciativa>
             <ng-template #noAplica><span class="no-aplica" matTooltip="No aplica">N/A</span></ng-template>
           </td>
         </tr>

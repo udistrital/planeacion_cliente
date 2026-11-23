@@ -52,8 +52,22 @@
   text-align: center;
 }
 
+/* centrada: el texto, «Ver todo» y el error también van al centro */
+:host(.celda--centrada) {
+  text-align: center;
+
+  .celda {
+    text-align: center;
+  }
+}
+
 .celda--casilla {
   text-align: center;
+
+  /* Sin marcar: blanca con el borde gris (Material la deja transparente y toma el fondo de la celda) */
+  ::ng-deep .mat-checkbox-frame {
+    background-color: #fff;
+  }
 
   ::ng-deep .mat-checkbox-checked:not(.mat-checkbox-disabled) .mat-checkbox-background {
     background-color: var(--primary);
