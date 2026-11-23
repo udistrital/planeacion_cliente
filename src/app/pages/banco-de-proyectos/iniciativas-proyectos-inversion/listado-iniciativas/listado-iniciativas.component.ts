@@ -29,9 +29,9 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./listado-iniciativas.component.scss'],
 })
 export class ListadoIniciativasComponent implements OnInit, OnDestroy {
-  readonly columnas = ['numero', 'nombre', 'estado', 'acciones'];
+  readonly columnas = ['numero', 'dependencia', 'nombre', 'estado', 'responsable', 'fecha', 'acciones'];
   readonly iniciativas = new MatTableDataSource<IniciativaListado>([]);
-  roles: string[] = [];
+  roles: string[] = []; 
   cargando = true;
   creando = false;
   sinUnidad = false;
@@ -252,7 +252,10 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
   }
 
   private textoDeBusqueda(fila: IniciativaListado): string {
-    return [fila.numero, fila.nombre, fila.estado.nombre].join(' ').toLowerCase();
+    return [fila.numero, fila.nombre, fila.dependencia_nombre, fila.responsable, fila.estado.nombre]
+      .filter((valor) => valor !== undefined && valor !== null)
+      .join(' ')
+      .toLowerCase();
   }
 
   private mostrarError(error: any, titulo = 'Error'): void {
