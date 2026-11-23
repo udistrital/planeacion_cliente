@@ -202,6 +202,8 @@ export interface IniciativaListado {
   numero: number;
   nombre: string;
   dependencia_id: string;
+  dependencia_nombre?: string;
+  responsable?: string;
   /** Estado general de la iniciativa. */
   estado: Estado;
   permite_editar: boolean;

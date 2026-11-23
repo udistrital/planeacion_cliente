@@ -61,6 +61,14 @@ table {
   border-collapse: collapse;
 }
 
+.columnaFecha {
+  white-space: nowrap;
+}
+
+td {
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 640px) {
   table {
     font-size: 12px;
