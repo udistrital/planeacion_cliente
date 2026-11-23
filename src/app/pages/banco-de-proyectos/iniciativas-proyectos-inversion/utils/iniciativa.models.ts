@@ -101,6 +101,7 @@ export interface Observacion {
   /** Documento del usuario. */
   usuario: string;
   fecha?: string;
+  usuario_nombre?: string;
 }
 
 export interface SolicitudObservacion {

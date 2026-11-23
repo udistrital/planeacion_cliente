@@ -77,10 +77,27 @@ export class ObservacionesSubmoduloIniciativaComponent {
   esPropia(observacion: Observacion): boolean {
     return !!this.datos.usuario && observacion.usuario === this.datos.usuario;
   }
+  
+  /** Cabecera «Nombre · Rol»; sin nombre (observaciones antiguas o Terceros no respondió), solo el rol. */
+  autor(observacion: Observacion): string {
+    const rol = nombreDeRol(observacion.rol);
+    const nombre = (observacion.usuario_nombre || '').trim();
+    return nombre ? `${nombre} · ${rol}` : rol;
+  }
 
   /** Iniciales del rol para el avatar: «Planeación» -> P, «Jefe de dependencia» -> JD. */
+  // iniciales(observacion: Observacion): string {
+  //   return nombreDeRol(observacion.rol)
+  //     .split(/\s+/)
+  //     .filter((palabra) => palabra.length > 2)
+  //     .slice(0, 2)
+  //     .map((palabra) => palabra[0].toUpperCase())
+  //     .join('');
+  // }
+  /** Iniciales del nombre si existe («Ana María Pérez» -> AM); si no, las del rol («Jefe de dependencia» -> JD). */
   iniciales(observacion: Observacion): string {
-    return nombreDeRol(observacion.rol)
+    const fuente = (observacion.usuario_nombre || '').trim() || nombreDeRol(observacion.rol);
+    return fuente
       .split(/\s+/)
       .filter((palabra) => palabra.length > 2)
       .slice(0, 2)
