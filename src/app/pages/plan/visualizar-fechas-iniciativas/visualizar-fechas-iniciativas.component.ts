@@ -22,7 +22,7 @@ const PROCESO_FORMULACION_INICIATIVAS: ProcesoFormulacion = { Etiqueta: 'Formula
 @Component({
   selector: 'app-visualizar-fechas-iniciativas',
   templateUrl: './visualizar-fechas-iniciativas.component.html',
-  styleUrls: ['./visualizar-fechas-iniciativas.component.scss']
+  styleUrls: ['../habilitar-reporte/habilitar-reporte.component.scss', './visualizar-fechas-iniciativas.component.scss']
 })
 export class VisualizarFechasIniciativasComponent implements OnInit {
 
