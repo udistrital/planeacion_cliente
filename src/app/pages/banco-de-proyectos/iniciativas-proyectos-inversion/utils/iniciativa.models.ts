@@ -207,7 +207,10 @@ export interface IniciativaListado {
   responsable?: string;
   /** Estado general de la iniciativa. */
   estado: Estado;
+  /** El estado de la iniciativa permite editarla. */
   permite_editar: boolean;
+  /** El estado permite editarla, pero hoy no hay fechas de formulación habilitadas para su unidad. */
+  fuera_de_fechas: boolean;
   fecha_creacion: string;
 }
 
@@ -228,8 +231,14 @@ export interface ResumenIniciativa {
   id: string;
   nombre: string;
   estado: Estado;
+  /** El estado de la iniciativa permite editarla. */
   permite_editar: boolean;
   permite_revisar: boolean;
+  /**
+   * El estado permite editarla, pero hoy no hay fechas de formulación habilitadas para su unidad:
+   * no se guarda ni se envía (acciones_posibles no trae enviar), aunque la dependencia sí comenta.
+   */
+  fuera_de_fechas: boolean;
   acciones_posibles: AccionIniciativa[];
   modulos: ResumenModulo[];
 }

@@ -6,8 +6,8 @@ function observacion(texto: string, rol = 'PLANEACION'): Observacion {
   return { texto, rol, usuario: 'U' };
 }
 
-function resumen(editable: boolean, revisable: boolean): ResumenIniciativa {
-  return { permite_editar: editable, permite_revisar: revisable } as ResumenIniciativa;
+function resumen(editable: boolean, revisable: boolean, fueraDeFechas = false): ResumenIniciativa {
+  return { permite_editar: editable, permite_revisar: revisable, fuera_de_fechas: fueraDeFechas } as ResumenIniciativa;
 }
 
 function estado(codigo: string): Estado {
@@ -46,5 +46,11 @@ describe('observaciones.utils', () => {
     expect(rolParaComentar(resumen(false, true), formulado, ['JEFE_DEPENDENCIA'])).toBeNull();
     expect(rolParaComentar(resumen(false, false), formulado, ['PLANEACION', 'JEFE_DEPENDENCIA'])).toBeNull();
     expect(rolParaComentar(null, formulado, ['PLANEACION'])).toBeNull();
+  });
+
+  it('la dependencia comenta aunque esté fuera de las fechas de formulación', () => {
+    const fueraDeFechas = resumen(true, false, true);
+
+    expect(rolParaComentar(fueraDeFechas, estado(ESTADO_SUBMODULO_SIN_FORMULAR), ['JEFE_DEPENDENCIA'])).toBe('JEFE_DEPENDENCIA');
   });
 });

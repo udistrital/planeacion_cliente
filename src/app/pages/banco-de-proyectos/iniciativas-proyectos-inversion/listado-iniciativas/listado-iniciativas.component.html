@@ -52,7 +52,7 @@
                                 <mat-icon>edit</mat-icon>
                             </button>
                             <ng-template #consultar>
-                                <button mat-icon-button matTooltip="Consultar" (click)="abrir(fila.id)"><mat-icon>search</mat-icon></button>
+                                <button mat-icon-button [matTooltip]="ayudaConsultar(fila)" (click)="abrir(fila.id)"><mat-icon>search</mat-icon></button>
                             </ng-template>
                         </td>
                     </ng-container>

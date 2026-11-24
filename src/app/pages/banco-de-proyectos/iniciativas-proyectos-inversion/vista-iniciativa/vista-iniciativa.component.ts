@@ -14,7 +14,7 @@ import {
   ResumenSubmodulo,
   RUTA_INICIATIVAS,
 } from '../utils';
-import { puedeFormular, puedeRevisar, tieneAlgunRol } from '../utils/roles.utils';
+import { fueraDeFechas, puedeFormular, puedeRevisar, tieneAlgunRol } from '../utils/roles.utils';
 import {
   DatosObservaciones,
   ObservacionesSubmoduloIniciativaComponent,
@@ -68,6 +68,11 @@ export class VistaIniciativaComponent implements OnInit {
   /** Puede formular, pero el servidor no ofrece la acción de enviar (faltan submódulos por formular). */
   get enviarPendiente(): boolean {
     return puedeFormular(this.resumen, this.roles) && !this.accionesDisponibles.includes('enviar');
+  }
+
+  /** La formularía, pero hoy no hay fechas de formulación habilitadas para su unidad: solo se consulta. */
+  get fueraDeFechas(): boolean {
+    return fueraDeFechas(this.resumen, this.roles);
   }
 
   /** Acción principal del submódulo: formular, revisar o consultar. */

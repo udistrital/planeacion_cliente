@@ -70,6 +70,10 @@
       <span class="ayuda">Podrá enviarla a revisión cuando todos los submódulos estén formulados.</span>
       <button mat-raised-button color="primary" disabled>{{ acciones.enviar.etiqueta }}</button>
     </ng-container>
+    <ng-container *ngIf="fueraDeFechas">
+      <span class="ayuda">La formulación de iniciativas no está habilitada para su unidad en estas fechas: puede consultarla, pero no modificarla ni enviarla a revisión.</span>
+      <button mat-raised-button color="primary" disabled>{{ acciones.enviar.etiqueta }}</button>
+    </ng-container>
     <button *ngFor="let accion of accionesDisponibles" mat-raised-button [color]="acciones[accion].color"
       [disabled]="procesando" (click)="ejecutar(accion)">{{ acciones[accion].etiqueta }}</button>
   </mat-card-actions>

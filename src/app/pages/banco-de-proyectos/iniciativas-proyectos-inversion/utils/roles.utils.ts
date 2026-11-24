@@ -6,9 +6,22 @@ export function tieneAlgunRol(rolesUsuario: string[], rolesPermitidos: string[])
   return (rolesUsuario || []).some((rol) => rolesPermitidos.includes(rol));
 }
 
-/** El usuario puede formular: la iniciativa está en un estado editable y tiene un rol formulador. */
-export function puedeFormular(resumen: ResumenIniciativa | null, roles: string[]): boolean {
+/**
+ * La iniciativa está en un estado editable y el usuario tiene un rol formulador, sin mirar las
+ * fechas de formulación (la dependencia comenta aunque estén cerradas).
+ */
+export function formulaPorEstado(resumen: ResumenIniciativa | null, roles: string[]): boolean {
   return !!resumen && resumen.permite_editar && tieneAlgunRol(roles, ROLES_FORMULADORES);
+}
+
+/** El usuario puede formular: estado editable, rol formulador y fechas de formulación habilitadas para la unidad de la iniciativa. */
+export function puedeFormular(resumen: ResumenIniciativa | null, roles: string[]): boolean {
+  return formulaPorEstado(resumen, roles) && !resumen.fuera_de_fechas;
+}
+
+/** El usuario formularía la iniciativa, pero hoy no hay fechas de formulación habilitadas para su unidad. */
+export function fueraDeFechas(resumen: ResumenIniciativa | null, roles: string[]): boolean {
+  return formulaPorEstado(resumen, roles) && resumen.fuera_de_fechas;
 }
 
 /** El usuario puede revisar el submódulo: la iniciativa está en revisión, es revisor y el submódulo ya se formuló. */

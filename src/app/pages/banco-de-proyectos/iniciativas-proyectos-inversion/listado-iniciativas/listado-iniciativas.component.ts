@@ -9,19 +9,18 @@ import Swal from 'sweetalert2';
 import { Dependencia } from 'src/app/@core/models/dependencia';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { mensajeDeError, IniciativaService } from '../iniciativa.service';
-import { IniciativaListado, ROLES_FORMULADORES, ROLES_REVISORES, RUTA_INICIATIVAS } from '../utils';
+import { HTTP_CONFLICTO, IniciativaListado, ROLES_FORMULADORES, ROLES_REVISORES, RUTA_INICIATIVAS } from '../utils';
 import { tieneAlgunRol } from '../utils/roles.utils';
 import {
   DatosSeleccionarUnidad,
   SeleccionarUnidadDialogoComponent,
 } from './seleccionar-unidad-dialogo/seleccionar-unidad-dialogo.component';
-import { RequestManager } from 'src/app/pages/services/requestManager';
-import { environment } from 'src/environments/environment';
 
 /**
  * Listado de iniciativas. Planeación ve todas; la dependencia, las de sus unidades.
  * Las unidades del usuario se consultan solo cuando hacen falta: al entrar (para
- * filtrar a la dependencia) y al crear.
+ * filtrar a la dependencia) y al crear. Las fechas de formulación las revisa el mid con
+ * la unidad de cada iniciativa: fuera de ellas la fila solo se consulta y crear se rechaza.
  */
 @Component({
   selector: 'app-listado-iniciativas',
@@ -31,7 +30,7 @@ import { environment } from 'src/environments/environment';
 export class ListadoIniciativasComponent implements OnInit, OnDestroy {
   readonly columnas = ['numero', 'dependencia', 'nombre', 'estado', 'responsable', 'fecha', 'acciones'];
   readonly iniciativas = new MatTableDataSource<IniciativaListado>([]);
-  roles: string[] = []; 
+  roles: string[] = [];
   cargando = true;
   creando = false;
   sinUnidad = false;
@@ -46,7 +45,6 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     private autenticacion: ImplicitAutenticationService,
     private router: Router,
     private dialogo: MatDialog,
-    private request: RequestManager
   ) {
     this.iniciativas.filterPredicate = (fila, filtro) => this.textoDeBusqueda(fila).includes(filtro);
   }
@@ -89,7 +87,14 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
   }
 
   puedeFormular(fila: IniciativaListado): boolean {
-    return fila.permite_editar && this.esFormulador;
+    return fila.permite_editar && !fila.fuera_de_fechas && this.esFormulador;
+  }
+
+  /** Ayuda del botón Consultar: dice si la fila se formularía de no estar fuera de las fechas de su unidad. */
+  ayudaConsultar(fila: IniciativaListado): string {
+    return fila.permite_editar && fila.fuera_de_fechas && this.esFormulador
+      ? 'Consultar (fuera de las fechas de formulación de la unidad)'
+      : 'Consultar';
   }
 
   mensajeSinFilas(busqueda: string): string {
@@ -102,7 +107,10 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     return this.sinUnidad ? 'Su usuario no está vinculado a ninguna unidad.' : 'No hay iniciativas registradas.';
   }
 
-  /** Crea la iniciativa a nombre de la unidad del usuario y abre sus componentes. */
+  /**
+   * Crea la iniciativa a nombre de la unidad del usuario y abre sus componentes. Fuera de las
+   * fechas de formulación de esa unidad, el mid no la crea y su mensaje se muestra como aviso.
+   */
   async nuevaIniciativa(): Promise<void> {
     let unidad: Dependencia | null;
     try {
@@ -114,90 +122,35 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     if (!unidad) {
       return;
     }
-    const body = { dependenciaId: String(unidad.Id) };
-    this.request.post(environment.PLANES_MID, `formulacion_iniciativas/validar_fechas_iniciativa`, body).subscribe((data: any) => {
-      if (data.Data != null) {
-        const datos = data.Data;
-
-        if (datos.habilitado && datos.unidadEncontrada) {
-          this.creando = true;
-          Swal.fire({ title: 'Creando la iniciativa…', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });
-          this.autenticacion.getDocument().then((documento) => {
-            if (!documento) {
-              this.creando = false;
-              Swal.fire({
-                icon: 'error',
-                title: 'No se pudo crear la iniciativa',
-                text: 'No se pudo identificar su documento. Vuelva a iniciar sesión e intente de nuevo.',
-              });
-              return;
-            }
-            this.servicio.crearIniciativa({
-              dependencia_id: String(unidad.Id),
-              responsable: String(documento)
-            }).subscribe(
-              (creada) => {
-                Swal.close();
-                this.abrir(creada.id);
-              },
-              (error) => {
-                this.creando = false;
-                Swal.fire({ icon: 'error', title: 'No se pudo crear la iniciativa', text: mensajeDeError(error) });
-              },
-            );
-          });
-        } else {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Nueva iniciativa',
-            text: 'No se puede crear la iniciativa porque no está dentro del rango de fechas habilitado para su unidad.',
-          });
-        }
-      }
-    }, () => {
+    const documento = await this.autenticacion.getDocument();
+    if (!documento) {
       Swal.fire({
-        icon: 'warning',
-        title: 'No se puede crear la iniciativa',
-        text: 'No se pudo validar el rango de fechas habilitado para su unidad. Intente nuevamente más tarde.',
+        icon: 'error',
+        title: 'No se pudo crear la iniciativa',
+        text: 'No se pudo identificar su documento. Vuelva a iniciar sesión e intente de nuevo.',
       });
-    });
+      return;
+    }
+    this.creando = true;
+    Swal.fire({ title: 'Creando la iniciativa…', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });
+    this.servicio.crearIniciativa({ dependencia_id: String(unidad.Id), responsable: String(documento) }).subscribe(
+      (creada) => {
+        Swal.close();
+        this.abrir(creada.id);
+      },
+      (error) => {
+        this.creando = false;
+        Swal.fire({
+          icon: error && error.status === HTTP_CONFLICTO ? 'warning' : 'error',
+          title: 'No se pudo crear la iniciativa',
+          text: mensajeDeError(error),
+        });
+      },
+    );
   }
 
-  async abrir(iniciativaId: string): Promise<void> {
-    let unidad: Dependencia | null;
-
-    try {
-      unidad = await this.unidadParaCrear();
-    } catch (error) {
-      this.mostrarError(error, 'No se pudieron consultar sus unidades');
-      return;
-    }
-    if (!unidad) {
-      return;
-    }
-
-    const body = { dependenciaId: String(unidad.Id) };
-    this.request.post(environment.PLANES_MID, `formulacion_iniciativas/validar_fechas_iniciativa`, body).subscribe((data: any) => {
-      if (data.Data != null) {
-        const datos = data.Data;
-
-        if (datos.habilitado && datos.unidadEncontrada) {
-          this.router.navigate([RUTA_INICIATIVAS, iniciativaId]);
-        } else {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Editar iniciativa',
-            text: 'No se puede editar la iniciativa porque no está dentro del rango de fechas habilitado para su unidad.',
-          });
-        }
-      }
-    }, () => {
-      Swal.fire({
-        icon: 'warning',
-        title: 'No se puede abrir la iniciativa',
-        text: 'No se pudo validar el rango de fechas habilitado para su unidad. Intente nuevamente más tarde.',
-      });
-    });
+  abrir(iniciativaId: string): void {
+    this.router.navigate([RUTA_INICIATIVAS, iniciativaId]);
   }
 
   private cargarDeUnidades(unidades: Dependencia[]): void {

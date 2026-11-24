@@ -25,6 +25,13 @@ export const ESTADOS_SUBMODULO_POR_FORMULAR = [ESTADO_SUBMODULO_SIN_FORMULAR, ES
 export const ESTADO_SUBMODULO_CON_OBSERVACIONES = 'CO_SUB';
 
 /**
+ * Código HTTP con el que el mid rechaza lo que el estado actual no permite: otra persona cambió
+ * el submódulo, el estado de la iniciativa no deja editarla o la unidad está fuera de sus fechas
+ * de formulación.
+ */
+export const HTTP_CONFLICTO = 409;
+
+/**
  * Listas del nivel superior (clave) con lista interna que cada submódulo muestra como tabla
  * jerárquica. Las listas sin lista interna van siempre en tabla sin nombrarlas aquí
  * (seMuestraEnTabla); las que tienen lista interna y no están aquí van en recuadros.

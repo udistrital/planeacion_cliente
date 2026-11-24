@@ -15,6 +15,7 @@ import {
   COLUMNAS_RESUMEN,
   GRUPOS_EN_ARBOL,
   GRUPOS_EN_COLUMNAS,
+  HTTP_CONFLICTO,
   ICONOS_SECCIONES,
   LISTAS_EN_TABLA,
   NodoDefinicion,
@@ -38,17 +39,18 @@ import {
 import { GuardadoEnCola } from '../utils/guardado.utils';
 import { rolParaComentar } from '../utils/observaciones.utils';
 import { registrarContenedorConScroll } from '../utils/scroll.utils';
-import { puedeFormular, puedeRevisar } from '../utils/roles.utils';
+import { fueraDeFechas, puedeFormular, puedeRevisar } from '../utils/roles.utils';
 import {
   DatosObservaciones,
   ObservacionesSubmoduloIniciativaComponent,
 } from './observaciones-submodulo-iniciativa/observaciones-submodulo-iniciativa.component';
 
-const HTTP_CONFLICTO = 409;
-
 /**
  * Formulario de un submódulo (hoja) de la iniciativa. El formulario se arma con la
  * definición de la plantilla; el servidor valida y decide el estado del submódulo.
+ * Fuera de las fechas de formulación de la unidad se muestra en solo lectura; si las
+ * fechas se cierran con el submódulo abierto, el mid rechaza el guardado (409) y el
+ * submódulo se recarga así.
  */
 @Component({
   selector: 'app-submodulo-iniciativa',
@@ -113,6 +115,11 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
 
   get puedeEditar(): boolean {
     return puedeFormular(this.resumen, this.roles);
+  }
+
+  /** Lo formularía, pero hoy no hay fechas de formulación habilitadas para su unidad. */
+  get fueraDeFechas(): boolean {
+    return fueraDeFechas(this.resumen, this.roles);
   }
 
   get puedeRevisar(): boolean {

@@ -1,6 +1,6 @@
 import { NOMBRES_ROL, ROLES_FORMULADORES, ROLES_REVISORES } from './constantes';
 import { Estado, Observacion, ResumenIniciativa } from './iniciativa.models';
-import { puedeFormular, puedeRevisar } from './roles.utils';
+import { formulaPorEstado, puedeRevisar } from './roles.utils';
 
 /**
  * Funciones puras sobre las observaciones de un submódulo: un historial de
@@ -25,14 +25,15 @@ export function esDePlaneacion(observacion: Observacion): boolean {
 /**
  * Rol con el que el usuario publica una observación ahora, o null si no puede:
  * Planeación mientras revisa un submódulo formulado, la dependencia mientras formula o
- * corrige. PLANEACION también formula; al formular se prefiere un rol de la dependencia.
+ * corrige, también fuera de las fechas de formulación. PLANEACION también formula; al
+ * formular se prefiere un rol de la dependencia.
  */
 export function rolParaComentar(resumen: ResumenIniciativa | null, estadoSubmodulo: Estado, roles: string[]): string | null {
   const propios = (permitidos: string[]) => (roles || []).filter((rol) => permitidos.includes(rol));
   if (puedeRevisar(resumen, estadoSubmodulo, roles)) {
     return propios(ROLES_REVISORES)[0] || null;
   }
-  if (puedeFormular(resumen, roles)) {
+  if (formulaPorEstado(resumen, roles)) {
     const formuladores = propios(ROLES_FORMULADORES);
     return formuladores.find((rol) => !ROLES_REVISORES.includes(rol)) || formuladores[0] || null;
   }

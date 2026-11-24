@@ -20,6 +20,11 @@
         </header>
 
         <mat-card-content class="iniciativa-contenido">
+          <div class="iniciativa-aviso" *ngIf="fueraDeFechas">
+            <h4><mat-icon inline>event_busy</mat-icon> Fuera de las fechas de formulación</h4>
+            <p class="iniciativa-texto-observacion">La formulación de iniciativas no está habilitada para su unidad en estas fechas: el submódulo está en solo lectura y no se puede guardar.</p>
+          </div>
+
           <div class="iniciativa-aviso iniciativa-aviso--observaciones" *ngIf="conObservaciones">
             <h4><mat-icon inline>rate_review</mat-icon> Planeación dejó observaciones sobre este submódulo</h4>
             <p class="iniciativa-texto-observacion" *ngIf="puedeEditar">
@@ -35,7 +40,7 @@
             </ul>
           </div>
 
-          <p *ngIf="contexto.soloLectura" class="iniciativa-ayuda">
+          <p *ngIf="contexto.soloLectura && !fueraDeFechas" class="iniciativa-ayuda">
             <mat-icon inline>lock</mat-icon> Solo lectura: la iniciativa está «{{ resumen.estado.nombre }}».
           </p>
 
