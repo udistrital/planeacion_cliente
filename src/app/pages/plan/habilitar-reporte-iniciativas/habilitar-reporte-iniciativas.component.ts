@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 import { CodigosService } from 'src/app/@core/services/codigos.service';
 import { MensajesCargaService } from 'src/app/@core/services/mensajes-carga.service';
-import { PeriodoSeguimiento, Unidad, Usuario, Vigencia } from '../habilitar-reporte/utils';
+import { PeriodoSeguimiento, Unidad, Usuario } from '../habilitar-reporte/utils';
 
 @Component({
   selector: 'app-habilitar-reporte-iniciativas',
@@ -15,9 +15,6 @@ import { PeriodoSeguimiento, Unidad, Usuario, Vigencia } from '../habilitar-repo
 })
 export class HabilitarReporteIniciativasComponent implements OnInit {
 
-  vigencias: Vigencia[] = [];
-  vigencia: Vigencia;
-  vigenciaSelected: boolean = false;
   tipoSelected: boolean = false;
   banderaUnidadesInteres: boolean = false;
   guardarDisabled: boolean = false;
@@ -25,7 +22,6 @@ export class HabilitarReporteIniciativasComponent implements OnInit {
   unidadesInteres: Unidad[] | any;
   user: Usuario;
 
-  selectVigencia = new FormControl();
   selectTipo = new FormControl();
   formFechas = new FormGroup({
     fechaInicio: new FormControl(''),
@@ -43,33 +39,10 @@ export class HabilitarReporteIniciativasComponent implements OnInit {
   async ngOnInit() {
     this.user = JSON.parse(atob(localStorage.getItem('user')));
     this.CODIGO_TIPO_SEGUIMIENTO_F = await this.codigosService.getId('PLANES_CRUD', 'tipo-seguimiento', 'FIPI_SP');
-    this.cargarVigencias();
-  }
-
-  cargarVigencias() {
-    this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=codigo_abreviacion:VG,activo:true`)
-      .subscribe((data: DataRequest) => {
-        if (data && data.Data) {
-          data.Data.sort((a, b) => a.Nombre - b.Nombre);
-          this.vigencias = data.Data;
-        }
-      }, () => {
-        this.mostrarMensaje('warning', 'No se pudieron cargar las vigencias, por favor comunicarse con computo@udistrital.edu.co');
-      });
   }
 
   manejarCambiosUnidadesInteres(nuevasUnidades: Unidad[]) {
     this.unidadesInteres = nuevasUnidades;
-  }
-
-  onChangeVigencia(vigencia: Vigencia) {
-    if (vigencia == undefined) {
-      this.vigenciaSelected = false;
-      this.vigencia = undefined;
-    } else {
-      this.vigenciaSelected = true;
-      this.vigencia = vigencia;
-    }
   }
 
   onChangeProceso(tipo: string) {
@@ -107,7 +80,7 @@ export class HabilitarReporteIniciativasComponent implements OnInit {
 
     Swal.fire({
       title: 'Habilitar Fechas',
-      text: `¿Desea habilitar la formulación de iniciativas para proyectos de inversión para la vigencia ${this.vigencia.Nombre} ?`,
+      text: '¿Desea habilitar la formulación de iniciativas para proyectos de inversión para las unidades seleccionadas?',
       showCancelButton: true,
       confirmButtonText: 'Sí',
       cancelButtonText: 'No',
@@ -117,7 +90,6 @@ export class HabilitarReporteIniciativasComponent implements OnInit {
 
       this.mensajesCarga.mostrarMensajeCarga(true);
       const periodoSeguimiento: PeriodoSeguimiento = {} as PeriodoSeguimiento;
-      periodoSeguimiento.periodo_id = this.vigencia.Id.toString();
       periodoSeguimiento.fecha_inicio = fechaInicio;
       periodoSeguimiento.fecha_fin = fechaFin;
       periodoSeguimiento.tipo_seguimiento_id = this.CODIGO_TIPO_SEGUIMIENTO_F;
@@ -125,7 +97,6 @@ export class HabilitarReporteIniciativasComponent implements OnInit {
       periodoSeguimiento.usuario_modificacion = this.user.userService.documento ? this.user.userService.documento : '';
       periodoSeguimiento.activo = true;
 
-      // revisar el endpoint
       this.request.post(environment.PLANES_MID, 'formulacion_iniciativas/habilitar_fechas_iniciativa', periodoSeguimiento)
         .subscribe((data: DataRequest) => {
           if (data && data.Success) {
@@ -144,12 +115,9 @@ export class HabilitarReporteIniciativasComponent implements OnInit {
   }
 
   limpiarForm() {
-    this.vigenciaSelected = false;
-    this.vigencia = undefined;
     this.tipo = undefined;
     this.tipoSelected = false;
     this.selectTipo.setValue('');
-    this.selectVigencia.setValue('--');
     this.unidadesInteres = undefined;
     this.banderaUnidadesInteres = false;
     this.formFechas.reset({ fechaInicio: '', fechaFin: '' });

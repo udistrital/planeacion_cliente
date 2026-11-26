@@ -7,16 +7,7 @@
       <div class="container-border">
         <h2 class="titulo">Iniciativas de inversión</h2>
         <mat-form-field appearance="fill" [style.width.%]="100">
-          <mat-label id="vigencia-input-label">Seleccione la Vigencia</mat-label>
-          <mat-select (selectionChange)="onChangeVigencia($event.value)" [formControl]="selectVigencia">
-            <mat-option>--</mat-option>
-            <mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
-              {{vigencia.Nombre}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="fill" [style.width.%]="100">
-          <mat-label id="tipo-input-label">Formulación</mat-label>
+          <mat-label id="tipo-input-label">Seleccione el proceso</mat-label>
           <mat-select (selectionChange)="onChangeProceso($event.value)" [formControl]="selectTipo">
             <mat-option value="formulacion">Formulación</mat-option>
           </mat-select>
@@ -24,18 +15,18 @@
       </div>
 
       <div>
-        <div class="btnUnidades-PlanesProyectos" *ngIf="vigenciaSelected">
-          <button mat-raised-button matPrefix color="primary" [disabled]="tipo !== 'formulacion'"
+        <div class="btnUnidades-PlanesProyectos" *ngIf="tipo == 'formulacion'">
+          <button mat-raised-button matPrefix color="primary"
             (click)="banderaTabla('unidades')">Unidades a las que desea asignar el proceso
           </button>
         </div>
         <!-- Tabla Unidades de interés -->
-        <div class="table-responsive" *ngIf="tipo == 'formulacion' && vigenciaSelected && banderaUnidadesInteres">
+        <div class="table-responsive" *ngIf="tipo == 'formulacion' && banderaUnidadesInteres">
           <app-tabla-unidades (unidadesInteresSeleccionadas)="manejarCambiosUnidadesInteres($event)" [filtroPlan]="false"></app-tabla-unidades>
         </div>
       </div>
 
-      <ng-container *ngIf="tipo == 'formulacion' && vigenciaSelected">
+      <ng-container *ngIf="tipo == 'formulacion'">
         <div class="container-border-for">
           <h4>Período de Formulación</h4>
           <mat-label class="label-fecha">Desde: </mat-label>
@@ -58,7 +49,7 @@
       </ng-container>
     </form>
   </mat-card-content>
-  <mat-card-footer *ngIf="vigenciaSelected && tipoSelected" style="text-align: center;">
+  <mat-card-footer *ngIf="tipoSelected" style="text-align: center;">
     <button mat-raised-button color="primary" [disabled]="guardarDisabled" (click)="guardar()">
       Guardar
     </button>

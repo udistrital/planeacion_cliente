@@ -4,7 +4,6 @@ import Swal from 'sweetalert2';
 import { environment } from 'src/environments/environment';
 import { DataRequest } from 'src/app/@core/models/interfaces/DataRequest.interface';
 import { RequestManager } from '../../services/requestManager';
-import { Vigencia } from '../habilitar-reporte/utils';
 import { DependenciaID } from '../gestion-usuarios/utils';
 
 interface ProcesoFormulacion {
@@ -26,7 +25,6 @@ const PROCESO_FORMULACION_INICIATIVAS: ProcesoFormulacion = { Etiqueta: 'Formula
 })
 export class VisualizarFechasIniciativasComponent implements OnInit {
 
-  vigencias: Vigencia[] = [];
   unidades: DependenciaID[] = [];
   auxUnidades: DependenciaID[] = [];
   procesos: ProcesoFormulacion[] = [PROCESO_FORMULACION_INICIATIVAS];
@@ -40,7 +38,6 @@ export class VisualizarFechasIniciativasComponent implements OnInit {
   columnasTabla: string[] = ['Unidad', 'Proceso', 'Fecha_Inicial', 'Fecha_Final'];
 
   formFechas = new FormGroup({
-    vigencia: new FormControl(null, Validators.required),
     unidad: new FormControl(null, Validators.required),
     proceso: new FormControl(null, Validators.required),
   });
@@ -51,23 +48,8 @@ export class VisualizarFechasIniciativasComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.mostrarMensajeCarga();
-    await this.cargarVigencias();
     await this.cargarUnidades();
     if (this.vCargaCorrecta) Swal.close();
-  }
-
-  async cargarVigencias() {
-    return await new Promise((resolve, reject) => {
-      this.request.get(environment.PARAMETROS_SERVICE, `periodo?query=CodigoAbreviacion:VG,activo:true`).subscribe((data: DataRequest) => {
-        if (data.Data && data.Data.length > 0) {
-          data.Data.sort((a, b) => a.Nombre - b.Nombre);
-          this.vigencias = data.Data;
-          resolve(this.vigencias);
-        } else {
-          reject(new Error('No se encontraron datos registrados'));
-        }
-      }, (error) => reject(error));
-    }).catch((error) => this.mostrarErrorCarga(error));
   }
 
   async cargarUnidades() {
@@ -92,14 +74,11 @@ export class VisualizarFechasIniciativasComponent implements OnInit {
     if (!this.vBotonBuscar()) {
       return;
     }
-    const { vigencia, unidad, proceso } = this.formFechas.value;
+    const { unidad, proceso } = this.formFechas.value;
     this.mostrarResultados = false;
     this.sinResultados = false;
     this.mostrarMensajeCarga(true);
-    const body = {
-      periodoId: vigencia.Id.toString(),
-      dependenciaId: unidad.Id,
-    };
+    const body = { dependenciaId: unidad.Id };
     this.request.post(environment.PLANES_MID, `formulacion_iniciativas/consultar_fechas_iniciativa`, body)
       .subscribe((data: DataRequest) => {
         Swal.close();

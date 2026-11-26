@@ -4,18 +4,10 @@
 		<mat-card-content>
 			<u class="textGuide">
 				En esta sección usted podrá consultar las fechas de formulación parametrizadas por el Jefe de Planeación
-				para las iniciativas de una determinada vigencia y unidad.
+				para las iniciativas de una determinada unidad.
 			</u>
 		</mat-card-content>
 		<form [formGroup]="formFechas">
-			<mat-form-field appearance="fill" class="selects-field">
-				<mat-label>Seleccione la vigencia</mat-label>
-				<mat-select formControlName="vigencia" (selectionChange)="alCambiarFiltro()">
-					<mat-option *ngFor="let vigencia of vigencias" [value]="vigencia">
-						{{vigencia.Nombre}}
-					</mat-option>
-				</mat-select>
-			</mat-form-field>
 			<mat-form-field appearance="fill" class="selects-field">
 				<mat-label>Seleccione la unidad</mat-label>
 				<mat-select formControlName="unidad" (selectionChange)="alCambiarFiltro()">
@@ -49,7 +41,7 @@
                 <h2 class="titulo titulo-consulta">Visualización de fechas</h2>
 		<mat-card-content *ngIf="sinResultados">
 			<u class="textGuide">
-				No se encontraron fechas de formulación parametrizadas para la vigencia y unidad seleccionadas.
+				No se encontraron fechas de formulación parametrizadas para la unidad seleccionada.
 			</u>
 		</mat-card-content>
 		<div class="table-responsive" *ngIf="mostrarResultados">
