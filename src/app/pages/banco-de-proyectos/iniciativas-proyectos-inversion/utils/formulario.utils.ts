@@ -439,6 +439,18 @@ export function esCalculoTraido(nodo: NodoDefinicion): boolean {
   return claseDe(nodo) === 'calculado' && !!nodo.dato.desde;
 }
 
+/** Calculado de texto fijo: su plantilla no usa campos (p. ej. el sector del Plan Nacional de Desarrollo). */
+export function esTextoFijo(nodo: NodoDefinicion): boolean {
+  const dato = nodo.dato;
+  return claseDe(nodo) === 'calculado' && !dato.desde && !dato.operacion && !dato.editable &&
+    !!dato.plantilla && !/\{[a-z0-9_]+\}/.test(dato.plantilla);
+}
+
+/** Grupo cuyos campos son todos textos fijos (el Plan Nacional de Desarrollo): no hay nada que diligenciar. */
+export function esGrupoFijo(grupo: NodoDefinicion): boolean {
+  return claseDe(grupo) === 'grupo' && (grupo.hijos || []).length > 0 && grupo.hijos.every(esTextoFijo);
+}
+
 /**
  * Si el campo se exige: required o, con obligatorio_si "origen.<campo>", si ese campo de la fila de
  * origen tiene valor (un número distinto de 0, un texto…), igual que el mid.

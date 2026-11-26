@@ -17,10 +17,10 @@ function nodo(clave: string, catalogo: string, extra: any = {}): NodoDefinicion 
   return { id: clave, nombre: clave, descripcion: '', dato, hijos: [] };
 }
 
-const PROGRAMAS: ItemCatalogo[] = [
-  { codigo: 'P1', nombre: 'Programa uno', padre: 'S1' },
-  { codigo: 'P2', nombre: 'Programa dos', padre: 'S1' },
-  { codigo: 'P3', nombre: 'Programa tres', padre: 'S2' },
+const MUNICIPIOS: ItemCatalogo[] = [
+  { codigo: 'M1', nombre: 'Municipio uno', padre: 'D1' },
+  { codigo: 'M2', nombre: 'Municipio dos', padre: 'D1' },
+  { codigo: 'M3', nombre: 'Municipio tres', padre: 'D2' },
 ];
 
 describe('CampoCatalogoIniciativaComponent', () => {
@@ -81,23 +81,23 @@ describe('CampoCatalogoIniciativaComponent', () => {
   }));
 
   it('al cambiar el padre limpia el valor y la lista ya muestra los hijos del nuevo padre', fakeAsync(() => {
-    items = PROGRAMAS;
-    const componente = montar(nodo('programa', 'programas_pnd', { depende_de: 'sector' }), { valor: 'P1', padre: 'S1' });
+    items = MUNICIPIOS;
+    const componente = montar(nodo('municipio', 'municipios', { depende_de: 'departamento' }), { valor: 'M1', padre: 'D1' });
     const emitidos: (string | null)[] = [];
     componente.valorChange.subscribe((valor) => emitidos.push(valor));
 
-    componente.padre = 'S2';
-    componente.ngOnChanges({ padre: new SimpleChange('S1', 'S2', false) });
+    componente.padre = 'D2';
+    componente.ngOnChanges({ padre: new SimpleChange('D1', 'D2', false) });
     tick();
     abrirLista();
 
     expect(emitidos).toEqual([null]);
-    expect(opciones()).toEqual(['P3 - Programa tres']);
+    expect(opciones()).toEqual(['M3 - Municipio tres']);
   }));
 
   it('sin el padre elegido, la lista lo explica en lugar de quedar vacía', fakeAsync(() => {
-    items = PROGRAMAS;
-    montar(nodo('programa', 'programas_pnd', { depende_de: 'sector' }), { padre: null });
+    items = MUNICIPIOS;
+    montar(nodo('municipio', 'municipios', { depende_de: 'departamento' }), { padre: null });
 
     abrirLista();
 
@@ -147,8 +147,8 @@ describe('CampoCatalogoIniciativaComponent', () => {
     expect(lista[lista.length - 1]).toBe('Hay 5 opciones más: escriba para filtrar.');
   }));
   it('al hacer scroll cierra la lista solo si el campo dejó de verse (p. ej. bajo algo fijo)', fakeAsync(() => {
-    items = PROGRAMAS;
-    const componente = montar(nodo('programa', 'programas_pnd'));
+    items = MUNICIPIOS;
+    const componente = montar(nodo('municipio', 'municipios'));
     abrirLista();
     expect(opciones().length).toBe(3);
 

@@ -260,6 +260,24 @@
   color: rgba(0, 0, 0, 0.6);
 }
 
+/* Grupo de textos fijos: una sola caja, cada campo con su etiqueta a la izquierda y su valor en negrilla */
+.iniciativa-calculado.iniciativa-fijos {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
+  margin-top: 0;
+
+  dt {
+    font-weight: normal;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 700;
+  }
+}
+
 .iniciativa-ayuda {
   font-size: 0.85rem;
   color: rgba(0, 0, 0, 0.6);

@@ -11,6 +11,8 @@ import {
   esEspejoTraido,
   esExigido,
   esFilaAgregada,
+  esGrupoFijo,
+  esTextoFijo,
   esVisible,
   estructuraDeDesglose,
   estructuraDeDocumentos,
@@ -239,6 +241,21 @@ describe('formulario.utils', () => {
     const valores = { proceso: 'Implementación', objeto: ' de la política ', localizacion: 'Bogotá D.C.' };
 
     expect(calcular(hermanos[3], hermanos, valores, contexto())).toBe('IMPLEMENTACIÓN DE LA POLÍTICA BOGOTÁ D.C.');
+  });
+
+  it('reconoce el grupo de textos fijos (el Plan Nacional de Desarrollo), pero no uno con algo que calcular o elegir', () => {
+    const sector = nodo('sector', 'calculado', { plantilla: '22 - EDUCACIÓN' });
+    const programa = nodo('programa', 'calculado', { plantilla: '2202 - Calidad y fomento de la educación superior' });
+    const nombre = nodo('nombre_proyecto', 'calculado', { plantilla: '{proceso} {objeto}' });
+
+    expect(esTextoFijo(sector)).toBeTrue();
+    expect(esTextoFijo(nombre)).toBeFalse();
+    expect(esTextoFijo(nodo('deficit', 'calculado', { operacion: 'resta', operandos: ['oferta', 'demanda'] }))).toBeFalse();
+    expect(esTextoFijo(nodo('objetivo', 'calculado', { desde: 'objetivos.objetivo_central' }))).toBeFalse();
+    expect(esGrupoFijo(nodo('pnd', undefined, {}, [sector, programa]))).toBeTrue();
+    expect(esGrupoFijo(nodo('pnd', undefined, {}, [sector, nodo('plan', 'catalogo', { catalogo: 'planes_pdd' })]))).toBeFalse();
+    expect(esGrupoFijo(nodo('vacio', undefined, {}, []))).toBeFalse();
+    expect(calcular(programa, [sector, programa], {}, contexto())).toBe('2202 - Calidad y fomento de la educación superior');
   });
 
   it('prepara la estructura: grupos, filas, espejos y matrices', () => {

@@ -415,9 +415,17 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
     expect(opciones).toEqual(['Fallas en los equipos', 'Falta de mantenimiento']);
   }));
 
-  it('en Articulación pliega los planes (uno abierto a la vez) y elige el PED en un árbol', fakeAsync(() => {
+  it('en Articulación deja el PND fijo en su recuadro, pliega los planes y elige el PED en un árbol', fakeAsync(() => {
+    const PND = nodo('pnd', 'Plan Nacional de Desarrollo', undefined, { required: false }, [
+      nodo('sector', 'Sector', 'calculado', { required: false, plantilla: '22 - EDUCACIÓN' }),
+      nodo('programa', 'Programa', 'calculado', { required: false, plantilla: '2202 - Calidad y fomento de la educación superior' }),
+    ]);
+    PND.descripcion = 'Sector y programa del Plan Nacional de Desarrollo a los que contribuye el proyecto.';
     const ARTICULACION = [
-      nodo('pnd', 'Plan Nacional de Desarrollo', undefined, { required: false }, [nodo('sector', 'Sector', 'catalogo', { catalogo: 'sectores_pnd' })]),
+      PND,
+      nodo('pdd', 'Plan Distrital de Desarrollo', undefined, { required: false }, [
+        nodo('plan', 'Plan distrital', 'catalogo', { catalogo: 'planes_pdd', sin_codigo: true }),
+      ]),
       nodo('ped', 'Plan Estratégico de Desarrollo', undefined, { required: false }, [
         nodo('plan', 'Plan estratégico', 'catalogo', { catalogo: 'planes_ped', sin_codigo: true }),
         nodo('meta', 'Meta estratégica', 'catalogo', { catalogo: 'metas_ped', depende_de: 'plan', sin_codigo: true, multiple: true }),
@@ -425,36 +433,51 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
     ];
     montar(ARTICULACION, 'articulacion_pnd', { ped: { plan: 'p1', meta: ['m1'] } }, {
       seccionesPlegables: true,
-      iconosSecciones: { pnd: 'menu_book' },
+      iconosSecciones: { pdd: 'apartment' },
       gruposEnArbol: ['ped'],
       errores: { 'ped.meta': ['Meta estratégica: «Meta 1» no pertenece a la opción seleccionada en Plan estratégico.'] },
       nombreEnCatalogo: (catalogo, codigo) => (codigo === 'm1' ? 'Meta 1' : codigo),
     }, true);
     const campos = fixture.componentInstance;
-    campos.ngOnChanges({ nodos: {} as any });
-    fixture.detectChanges();
     tick();
     fixture.detectChanges();
 
     const paneles = () => Array.from(elemento.querySelectorAll('mat-expansion-panel'));
     const abiertos = () => paneles().map((panel) => panel.classList.contains('mat-expanded'));
-    expect(elemento.querySelector('fieldset')).toBeNull();
-    expect(textos('.plegable__nombre')).toEqual(['Plan Nacional de Desarrollo', 'Plan Estratégico de Desarrollo']);
-    expect(textos('.plegable__icono')).toEqual(['menu_book']);
-    // Abre la sección con pendientes y la señala; la plegada muestra que no tiene nada elegido.
-    expect(abiertos()).toEqual([false, true]);
+    // El sector y el programa no se seleccionan: van escritos en una sola caja, con la ayuda debajo, en
+    // un recuadro que no se pliega.
+    expect(textos('fieldset > legend')).toEqual(['Plan Nacional de Desarrollo']);
+    expect(textos('fieldset dt')).toEqual(['Sector', 'Programa']);
+    expect(textos('fieldset dd')).toEqual(['22 - EDUCACIÓN', '2202 - Calidad y fomento de la educación superior']);
+    expect(textos('fieldset dl + .iniciativa-ayuda')).toEqual([PND.descripcion]);
+    expect(elemento.querySelectorAll('fieldset .iniciativa-calculado').length).toBe(1);
+    expect(elemento.querySelector('fieldset mat-expansion-panel, fieldset app-campos-iniciativa')).toBeNull();
+
+    expect(textos('.plegable__nombre')).toEqual(['Plan Distrital de Desarrollo', 'Plan Estratégico de Desarrollo']);
+    expect(textos('.plegable__icono')).toEqual(['apartment']);
+    // Empiezan todas plegadas, aunque una tenga pendientes: se señala, y cada una muestra lo elegido.
+    expect(abiertos()).toEqual([false, false]);
+    expect(campos.abierta).toBeNull();
     expect(textos('.plegable__chip')).toEqual(['Sin diligenciar', 'Meta 1']);
-    expect(textos('.plegable__flecha')).toEqual(['expand_more', 'expand_less']);
+    expect(textos('.plegable__flecha')).toEqual(['expand_more', 'expand_more']);
+    expect(paneles()[0].querySelector('.plegable__pendiente')).toBeNull();
     expect(paneles()[1].querySelector('.plegable__pendiente')).not.toBeNull();
     expect(paneles()[1].querySelector('app-arbol-catalogo-iniciativa')).not.toBeNull();
     expect(paneles()[0].querySelector('app-arbol-catalogo-iniciativa')).toBeNull();
 
-    (paneles()[0].querySelector('mat-expansion-panel-header') as HTMLElement).click();
-    fixture.detectChanges();
-    tick();
-    fixture.detectChanges();
+    // Una abierta a la vez: al abrir otra, la anterior se pliega.
+    const abrir = (i: number) => {
+      (paneles()[i].querySelector('mat-expansion-panel-header') as HTMLElement).click();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+    };
+    abrir(1);
+    expect(abiertos()).toEqual([false, true]);
+    expect(campos.abierta).toBe('ped');
+    abrir(0);
     expect(abiertos()).toEqual([true, false]);
-    expect(campos.abierta).toBe('pnd');
+    expect(campos.abierta).toBe('pdd');
     expect(textos('.plegable__flecha')).toEqual(['expand_less', 'expand_more']);
   }));
 });

@@ -1,5 +1,5 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, HostBinding, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 import { Datos, NodoDefinicion } from '../../utils';
 import {
   cadenaDeCatalogos,
@@ -9,6 +9,7 @@ import {
   ContextoFormulario,
   esCalculoNumerico,
   esEspejoTraido,
+  esGrupoFijo,
   estructuraDeDesglose,
   estructuraDeSubfilas,
   esVisible,
@@ -28,14 +29,14 @@ import {
  * Con `secciones` (nivel superior del submódulo) cada apartado va en un recuadro con
  * título, que reemplaza la etiqueta del campo. Los grupos van siempre en recuadro. Si el
  * submódulo es de SUBMODULOS_PLEGABLES, los recuadros del nivel superior son paneles que se
- * pliegan y solo uno queda abierto.
+ * pliegan: empiezan todos plegados y solo uno queda abierto.
  */
 @Component({
   selector: 'app-campos-iniciativa',
   templateUrl: './campos-iniciativa.component.html',
   styleUrls: ['./campos-iniciativa.component.scss'],
 })
-export class CamposIniciativaComponent implements OnChanges {
+export class CamposIniciativaComponent {
   @Input() nodos: NodoDefinicion[] = [];
   @Input() datos: Datos = {};
   @Input() ruta = '';
@@ -57,17 +58,8 @@ export class CamposIniciativaComponent implements OnChanges {
 
   readonly claseDe = claseDe;
 
-  /** Clave de la sección plegable abierta; null si están todas plegadas. */
+  /** Clave de la sección plegable abierta; null si están todas plegadas, como al entrar. */
   abierta: string | null = null;
-
-  /** Al llegar las secciones se abre la primera con errores o, si ninguna tiene, la primera. */
-  ngOnChanges(cambios: SimpleChanges): void {
-    if (cambios.nodos && this.plegables) {
-      const visibles = this.nodos.filter((nodo) => this.visible(nodo));
-      const inicial = visibles.find((nodo) => this.conErrores(nodo)) || visibles[0];
-      this.abierta = inicial ? inicial.dato.clave : null;
-    }
-  }
 
   /** Las secciones del nivel superior se pliegan (SUBMODULOS_PLEGABLES). */
   get plegables(): boolean {
@@ -154,6 +146,16 @@ export class CamposIniciativaComponent implements OnChanges {
   /** Grupo de GRUPOS_EN_COLUMNAS: sus campos van en columnas. */
   grupoEnColumnas(grupo: NodoDefinicion): boolean {
     return (this.contexto.gruposEnColumnas || []).includes(grupo.dato.clave);
+  }
+
+  /** Grupo de textos fijos (el Plan Nacional de Desarrollo): va en una sola caja y no se pliega. */
+  grupoFijo(grupo: NodoDefinicion): boolean {
+    return esGrupoFijo(grupo);
+  }
+
+  /** Texto de un campo de un grupo fijo, p. ej. «22 - EDUCACIÓN». */
+  textoFijo(campo: NodoDefinicion, grupo: NodoDefinicion): string {
+    return calcular(campo, grupo.hijos, {}, this.contexto);
   }
 
   /** Grupo de GRUPOS_EN_ARBOL cuyos campos son catálogos encadenados: se elige en un árbol. */

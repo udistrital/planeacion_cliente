@@ -67,7 +67,7 @@ export const SUBMODULOS_PLEGABLES: string[] = ['articulacion_pnd'];
 
 /** Ícono (Material Icons) de cada sección plegable, por submódulo y clave de la sección. */
 export const ICONOS_SECCIONES: { [submodulo: string]: { [seccion: string]: string } } = {
-  articulacion_pnd: { pnd: 'menu_book', pdd: 'apartment', ped: 'bar_chart', pi: 'assignment' },
+  articulacion_pnd: { pdd: 'apartment', ped: 'bar_chart', pi: 'assignment' },
 };
 
 /**
