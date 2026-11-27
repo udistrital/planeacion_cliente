@@ -15,18 +15,15 @@
       <span class="estado-general__valor">{{ resumen.estado.nombre }}</span>
     </div>
 
-    <section class="por-atender" *ngIf="porAtender.length" aria-label="Observaciones por atender">
-      <h3 class="por-atender__titulo"><mat-icon inline>rate_review</mat-icon> Observaciones por atender ({{ porAtender.length }})</h3>
-      <ul class="por-atender__lista">
-        <li *ngFor="let submodulo of porAtender" class="por-atender__item">
-          <button mat-button color="primary" class="por-atender__submodulo" (click)="abrir(submodulo)">{{ submodulo.nombre }}</button>
-          <p class="por-atender__texto" *ngIf="submodulo.ultima_observacion as observacion">
-            {{ observacion.texto }}
-            <span class="por-atender__autor">— {{ observacion.usuario_nombre || nombreDeRol(observacion.rol) }}</span>
-          </p>
-        </li>
-      </ul>
-    </section>
+    <div class="aviso-rojo" *ngIf="resumen.motivo_rechazo" role="status">
+      <p class="aviso-rojo__mensaje"><mat-icon inline>block</mat-icon> La OAP rechazó la iniciativa. Motivo:</p>
+      <p class="rechazo__motivo">{{ resumen.motivo_rechazo }}</p>
+    </div>
+
+    <div class="aviso-rojo" *ngIf="porAtender" role="status">
+      <p class="aviso-rojo__mensaje"><mat-icon inline>error_outline</mat-icon> {{ mensajePorAtender }}</p>
+      <p class="aviso-rojo__ayuda">Revise los submódulos en estado «Con observaciones» y lea sus observaciones en el ícono Ver observaciones.</p>
+    </div>
 
     <div class="mat-elevation-z8 tabla-contenedor">
       <h3 class="componentes-titulo">Componentes para la formulación de la iniciativa</h3>
@@ -84,7 +81,7 @@
     </span>
     <ng-container *ngFor="let accion of accionesDelUsuario">
       <span class="ayuda" *ngIf="motivoVisible(accion) as motivo">{{ motivo }}</span>
-      <button mat-raised-button [color]="acciones[accion.accion].color" [disabled]="procesando || !accion.habilitada"
+      <button mat-raised-button color="primary" [disabled]="procesando || !accion.habilitada"
         (click)="ejecutar(accion.accion)">{{ acciones[accion.accion].etiqueta }}</button>
     </ng-container>
   </mat-card-actions>

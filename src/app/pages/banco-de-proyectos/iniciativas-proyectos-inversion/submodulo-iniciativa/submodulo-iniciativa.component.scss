@@ -110,8 +110,27 @@
   margin: 0;
 }
 
+/* Veredicto de la OAP: mismo alto y borde vino que el botón Observaciones; el elegido, en vino */
 .veredicto {
-  margin-bottom: 0.5rem;
+  border-color: var(--primary);
+
+  .mat-button-toggle {
+    color: var(--primary);
+  }
+
+  .mat-button-toggle + .mat-button-toggle {
+    border-left-color: var(--primary);
+  }
+
+  .mat-button-toggle-checked {
+    color: #fff;
+    background-color: var(--primary);
+  }
+
+  /* El texto va dentro del botón del toggle (fuera del componente), por eso ::ng-deep */
+  ::ng-deep .mat-button-toggle-label-content {
+    line-height: 34px;
+  }
 }
 
 .iniciativa-aviso {

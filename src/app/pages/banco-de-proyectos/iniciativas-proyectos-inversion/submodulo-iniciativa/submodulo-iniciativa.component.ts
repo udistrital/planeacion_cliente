@@ -57,9 +57,9 @@ import {
  * Fuera de las fechas de la unidad se muestra en solo lectura; si las fechas se cierran con
  * el submódulo abierto, el mid rechaza el guardado (409) y el submódulo se recarga así.
  *
- * Revisar: el Jefe (03) solo observa; la OAP (05) da el veredicto «Aprobado» o «Con
- * observaciones». Si el último veredicto cambia el estado de la iniciativa, se notifica y la
- * pantalla se recarga con los permisos nuevos.
+ * Revisar: el Jefe solo observa; la OAP da el veredicto «Aprobado» o «Con observaciones». Si
+ * el último veredicto cambia el estado de la iniciativa, se notifica y la pantalla se recarga
+ * con los permisos nuevos.
  */
 @Component({
   selector: 'app-submodulo-iniciativa',
@@ -139,7 +139,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     return !!this.enResumen && this.enResumen.accion === 'revisar';
   }
 
-  /** Da el veredicto (la OAP en 05); si no, quien revisa es el Jefe (03), que solo observa. */
+  /** Revisa como OAP, así que da el veredicto del submódulo; el Jefe solo observa. */
   get daVeredicto(): boolean {
     return this.puedeRevisar && this.resumen.permisos.aprobar_submodulos;
   }
@@ -149,14 +149,9 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     return this.submodulo ? veredictoDe(this.submodulo.estado.codigo_abreviacion) : null;
   }
 
-  /** Publica observaciones: el formulador comenta mientras formula; el Jefe y la OAP observan lo formulado. */
+  /** Puede escribir observaciones: el Jefe y la OAP cuando revisan; la unidad solo las lee. */
   get puedePublicar(): boolean {
-    return !!this.resumen && (this.resumen.permisos.editar || (this.resumen.permisos.observar && this.puedeRevisar));
-  }
-
-  /** Qué pasa al publicar: si el Jefe o la OAP revisan, el submódulo queda «Con observaciones». */
-  get avisoComentario(): string {
-    return this.puedeRevisar ? 'Al publicar, el submódulo queda «Con observaciones».' : '';
+    return this.puedeRevisar && this.resumen.permisos.observar;
   }
 
   /** El submódulo tiene observaciones que la unidad debe atender. */
@@ -252,7 +247,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
           this.trasCambioDeEstado(vista.estado_iniciativa);
           return;
         }
-        Swal.fire({ icon: 'success', title: `Submódulo «${vista.estado.nombre}»`, timer: 2000, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: 'Submódulo aprobado', timer: 2000, showConfirmButton: false });
       },
       (error) => {
         this.guardando = false;
@@ -263,9 +258,9 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
 
   /**
    * Abre el modal de observaciones: se leen todas y, si el usuario puede publicar ahora,
-   * publica nuevas. Cada publicación actualiza el estado del submódulo de una vez; no
-   * cambia la versión, así que no interfiere con cambios sin guardar en el formulario. Si la
-   * observación es el último veredicto de la OAP, el modal se cierra y la iniciativa se recarga.
+   * publica nuevas. Cada publicación deja el submódulo «Con observaciones» de una vez, sin
+   * cambiar la versión. Si la observación es el último veredicto de la OAP, el modal se cierra y
+   * la iniciativa se recarga.
    */
   abrirObservaciones(): void {
     const datos: DatosObservaciones = {
@@ -275,7 +270,6 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       observaciones: this.submodulo.observaciones,
       usuario: this.usuario,
       puedePublicar: this.puedePublicar,
-      aviso: this.avisoComentario,
     };
     const modal = this.dialogo.open(ObservacionesSubmoduloIniciativaComponent, { width: '760px', maxWidth: '95vw', data: datos });
     modal.componentInstance.publicada.pipe(takeUntil(modal.afterClosed())).subscribe((vista: SubmoduloVista) => {
@@ -287,19 +281,21 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Antes del último veredicto, avisa a qué estado pasará la iniciativa y pide confirmarlo. */
+  /** Antes del último veredicto, avisa qué pasará con la iniciativa y pide confirmarlo. */
   private async confirmarUltimoVeredicto(veredicto: Veredicto): Promise<boolean> {
     const destino = estadoTrasVeredicto(this.resumen, this.clave, veredicto);
     if (!destino) {
       return true;
     }
-    const nombre = destino === ESTADO_INICIATIVA_APROBADA ? 'Aprobado' : 'Por corregir';
+    const aprobada = destino === ESTADO_INICIATIVA_APROBADA;
     const respuesta = await Swal.fire({
-      title: 'Último veredicto',
-      text: `Con este veredicto todos los submódulos quedan revisados y la iniciativa pasará a «${nombre}».`,
+      title: aprobada ? '¿Aprobar la iniciativa?' : '¿Devolver la iniciativa a la unidad?',
+      text: aprobada
+        ? 'Es el último submódulo por revisar: al aprobarlo, la iniciativa queda aprobada.'
+        : 'Es el último submódulo por revisar: al publicar la observación, la iniciativa vuelve a la unidad para corregirla.',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'Sí, continuar',
+      confirmButtonText: aprobada ? 'Sí, aprobar' : 'Sí, continuar',
       cancelButtonText: 'Cancelar',
     });
     return respuesta.isConfirmed;
@@ -339,9 +335,8 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       dependenciaId: this.resumen.dependencia_id,
       estado: estado.codigo_abreviacion,
     });
-    Swal.fire({ icon: 'success', title: `La iniciativa pasó a «${estado.nombre}»`, confirmButtonText: 'Aceptar' }).then(() =>
-      this.cargar(),
-    );
+    const titulo = estado.codigo_abreviacion === ESTADO_INICIATIVA_APROBADA ? 'Iniciativa aprobada' : 'Iniciativa devuelta a la unidad';
+    Swal.fire({ icon: 'success', title: titulo, confirmButtonText: 'Aceptar' }).then(() => this.cargar());
   }
 
   irA(submodulo: ResumenSubmodulo): void {
@@ -472,7 +467,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
 
   /**
    * Tras publicar una observación solo cambian el historial y el estado: los datos del
-   * formulario (quizá con cambios sin guardar) y la versión se conservan.
+   * formulario y la versión se conservan.
    */
   private aplicarObservaciones(vista: SubmoduloVista): void {
     this.submodulo = { ...this.submodulo, estado: vista.estado, observaciones: vista.observaciones };

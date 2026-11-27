@@ -178,7 +178,7 @@ export interface ErrorCampo {
   mensaje: string;
 }
 
-/** Entrada del historial de comentarios de un submódulo (siempre sobre el submódulo completo), en orden de registro. */
+/** Entrada del historial de observaciones de un submódulo (siempre sobre el submódulo completo), en orden de registro. */
 export interface Observacion {
   _id?: string;
   texto: string;
@@ -224,8 +224,6 @@ export interface ResumenSubmodulo {
   /** Lo que el usuario hace con el submódulo: formularlo, revisarlo o consultarlo. */
   accion: AccionSubmodulo;
   observaciones: number;
-  /** La observación más reciente, solo si el submódulo está Con observaciones. */
-  ultima_observacion?: Observacion;
   /** Claves de los submódulos que leen datos de este. */
   dependientes: string[];
 }
@@ -241,6 +239,8 @@ export interface ResumenIniciativa {
   nombre: string;
   dependencia_id: string;
   estado: Estado;
+  /** Por qué la OAP la rechazó; solo llega mientras la iniciativa está Rechazada. */
+  motivo_rechazo?: string;
   /**
    * El usuario tendría algo que hacer en este estado, pero hoy no hay fechas habilitadas para la
    * unidad: solo la consulta (los permisos no habilitan nada).
@@ -252,14 +252,12 @@ export interface ResumenIniciativa {
 
 /** Lo que el usuario puede hacer hoy con la iniciativa; lo calcula el mid con su estado, los roles, la unidad y las fechas. */
 export interface Permisos {
-  /** Guarda los submódulos no aprobados, sube anexos y comenta (formulador en 01, 02 y 06). */
+  /** Guarda los submódulos no aprobados y sube anexos (el formulador, mientras formula o corrige). */
   editar: boolean;
-  /** Sus observaciones dejan el submódulo «Con observaciones» (Jefe en 03, OAP en 05). */
+  /** Publica observaciones, que dejan el submódulo «Con observaciones» (el Jefe y la OAP, cuando revisan). */
   observar: boolean;
-  /** Da el veredicto «Aprobado» a los submódulos (OAP en 05). */
+  /** Da el veredicto «Aprobado» a los submódulos (la OAP, cuando revisa). */
   aprobar_submodulos: boolean;
-  /** Rol con el que firma lo que publica; falta si no publica observaciones. */
-  rol_observaciones?: string;
   /** Acciones de su carril en este estado, habilitadas o con el motivo por el que no. */
   acciones: AccionDisponible[];
 }
@@ -337,9 +335,16 @@ export interface DescripcionAccionSubmodulo {
 
 /** Cómo se presenta una acción sobre el estado general. Quién la ejecuta lo decide el mid. */
 export interface DescripcionAccion {
+  /** Texto del botón. */
   etiqueta: string;
+  /** Título del modal de confirmación: dice a dónde va la iniciativa. */
+  titulo: string;
+  /** Qué pasa después, en una frase. */
   confirmacion: string;
-  color: 'primary' | 'accent' | 'warn';
+  /** Texto del botón que confirma. */
+  confirmar: string;
+  /** Aviso cuando la acción termina bien. */
+  exito: string;
   /** Pide el motivo antes de ejecutarla (rechazar); va en la notificación. */
   pideMotivo?: boolean;
 }

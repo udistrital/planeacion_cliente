@@ -56,29 +56,6 @@
               <app-campos-iniciativa [nodos]="nodo.hijos" [datos]="datos" ruta="" [contexto]="contexto" [secciones]="true"></app-campos-iniciativa>
             </ng-template>
           </div>
-
-          <fieldset *ngIf="puedeRevisar" class="container-border">
-            <legend class="titulo">Revisión del submódulo</legend>
-            <ng-container *ngIf="daVeredicto; else observacionDelJefe">
-              <p class="iniciativa-ayuda">
-                Elija el veredicto del submódulo. «Con observaciones» pide escribir la observación.
-                La iniciativa cambia de estado sola cuando todos los submódulos tienen veredicto.
-              </p>
-              <mat-button-toggle-group #grupo class="veredicto" aria-label="Veredicto del submódulo" [value]="veredictoActual"
-                [disabled]="guardando" (change)="elegirVeredicto($event.value, grupo)">
-                <mat-button-toggle *ngFor="let veredicto of veredictos" [value]="veredicto.valor">{{ veredicto.etiqueta }}</mat-button-toggle>
-              </mat-button-toggle-group>
-            </ng-container>
-            <ng-template #observacionDelJefe>
-              <p class="iniciativa-ayuda">
-                Si hay algo por corregir, escríbalo: el submódulo quedará «Con observaciones» y podrá devolver la iniciativa
-                a la unidad. Si todo está bien, apruebe la iniciativa completa desde su vista general.
-              </p>
-              <div class="iniciativa-acciones">
-                <button mat-raised-button color="accent" [disabled]="guardando" (click)="abrirObservaciones()">Escribir observación</button>
-              </div>
-            </ng-template>
-          </fieldset>
         </mat-card-content>
 
         <mat-card-actions class="iniciativa-acciones iniciativa-barra">
@@ -86,6 +63,11 @@
           <button mat-stroked-button color="primary" class="boton-contorno" (click)="abrirObservaciones()">
             <mat-icon>forum</mat-icon> Observaciones<span *ngIf="submodulo.observaciones.length"> ({{ submodulo.observaciones.length }})</span>
           </button>
+          <mat-button-toggle-group *ngIf="daVeredicto" #grupo class="veredicto" aria-label="Veredicto del submódulo"
+            matTooltip="Veredicto del submódulo" [value]="veredictoActual" [disabled]="guardando"
+            (change)="elegirVeredicto($event.value, grupo)">
+            <mat-button-toggle *ngFor="let veredicto of veredictos" [value]="veredicto.valor">{{ veredicto.etiqueta }}</mat-button-toggle>
+          </mat-button-toggle-group>
           <span class="iniciativa-espacio"></span>
           <button mat-button color="primary" *ngIf="anterior" (click)="irA(anterior)"><mat-icon>chevron_left</mat-icon> {{ anterior.nombre }}</button>
           <button mat-button color="primary" *ngIf="siguiente" (click)="irA(siguiente)">{{ siguiente.nombre }} <mat-icon>chevron_right</mat-icon></button>

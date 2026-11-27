@@ -1,0 +1,44 @@
+/* Igual que el modal de observaciones: tarjeta gris, título vino y el campo en una caja blanca. */
+.tarjeta {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px;
+  background-color: #f1f5f8;
+}
+
+.titulo {
+  margin: 0;
+  color: var(--primary);
+}
+
+.motivo {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 12px 16px 8px;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+}
+
+.motivo__campo {
+  width: 100%;
+}
+
+.motivo__campo textarea {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 4px;
+
+  .mat-raised-button {
+    min-width: 7rem;
+  }
+}

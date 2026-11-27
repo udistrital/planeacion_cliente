@@ -11,18 +11,17 @@ import {
   AccionIniciativa,
   DescripcionAccionSubmodulo,
   ESTADO_INICIATIVA_POR_CORREGIR,
-  MAXIMO_TEXTO_OBSERVACION,
   ResumenIniciativa,
   ResumenModulo,
   ResumenSubmodulo,
   RUTA_INICIATIVAS,
 } from '../utils';
 import { observacionesPorAtender } from '../utils/estados.utils';
-import { nombreDeRol } from '../utils/observaciones.utils';
 import {
   DatosObservaciones,
   ObservacionesSubmoduloIniciativaComponent,
 } from '../submodulo-iniciativa/observaciones-submodulo-iniciativa/observaciones-submodulo-iniciativa.component';
+import { RechazoIniciativaDialogoComponent } from './rechazo-iniciativa-dialogo/rechazo-iniciativa-dialogo.component';
 
 /**
  * Vista general de la iniciativa: el estado de cada submódulo, agrupados por módulo, y las
@@ -36,7 +35,6 @@ import {
 })
 export class VistaIniciativaComponent implements OnInit {
   readonly acciones = ACCIONES_INICIATIVA;
-  readonly nombreDeRol = nombreDeRol;
   resumen: ResumenIniciativa | null = null;
   procesando = false;
   /** Clave del submódulo cuyas observaciones se están consultando, para no abrir el modal dos veces. */
@@ -66,10 +64,16 @@ export class VistaIniciativaComponent implements OnInit {
     return !accion.habilitada && !this.resumen.fuera_de_fechas ? accion.motivo || '' : '';
   }
 
-  /** En Por corregir se muestran primero las observaciones que hay que atender. */
-  get porAtender(): ResumenSubmodulo[] {
+  /** En Por corregir, cuántos submódulos tienen observaciones por atender; 0 en los demás estados. */
+  get porAtender(): number {
     const porCorregir = !!this.resumen && this.resumen.estado.codigo_abreviacion === ESTADO_INICIATIVA_POR_CORREGIR;
-    return porCorregir ? observacionesPorAtender(this.resumen) : [];
+    return porCorregir ? observacionesPorAtender(this.resumen).length : 0;
+  }
+
+  get mensajePorAtender(): string {
+    return this.porAtender === 1
+      ? 'Hay 1 submódulo con observaciones por atender.'
+      : `Hay ${this.porAtender} submódulos con observaciones por atender.`;
   }
 
   porClave(_: number, modulo: ResumenModulo): string {
@@ -125,26 +129,31 @@ export class VistaIniciativaComponent implements OnInit {
     this.router.navigate([RUTA_INICIATIVAS]);
   }
 
-  /** Confirma (y, al rechazar, pide el motivo), ejecuta la acción y notifica el cambio de estado. */
+  /** Confirma (al rechazar, pide el motivo), ejecuta la acción y notifica el cambio de estado. */
   async ejecutar(accion: AccionIniciativa): Promise<void> {
     const descripcion = ACCIONES_INICIATIVA[accion];
-    const confirmacion = await Swal.fire({
-      title: `${descripcion.etiqueta}?`,
-      text: descripcion.confirmacion,
-      icon: 'question',
-      input: descripcion.pideMotivo ? 'textarea' : undefined,
-      inputLabel: descripcion.pideMotivo ? 'Motivo' : undefined,
-      inputPlaceholder: descripcion.pideMotivo ? 'Escriba el motivo; llegará a la unidad en la notificación' : undefined,
-      inputAttributes: descripcion.pideMotivo ? { maxlength: String(MAXIMO_TEXTO_OBSERVACION) } : undefined,
-      inputValidator: descripcion.pideMotivo ? (valor: string) => (valor && valor.trim() ? null : 'Escriba el motivo.') : undefined,
-      showCancelButton: true,
-      confirmButtonText: 'Sí, continuar',
-      cancelButtonText: 'Cancelar',
-    });
-    if (!confirmacion.isConfirmed) {
-      return;
+    let motivo: string | undefined;
+    if (descripcion.pideMotivo) {
+      motivo = await this.dialogo
+        .open(RechazoIniciativaDialogoComponent, { width: '600px', maxWidth: '95vw', data: descripcion })
+        .afterClosed()
+        .toPromise();
+      if (!motivo) {
+        return;
+      }
+    } else {
+      const confirmacion = await Swal.fire({
+        title: descripcion.titulo,
+        text: descripcion.confirmacion,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: descripcion.confirmar,
+        cancelButtonText: 'Cancelar',
+      });
+      if (!confirmacion.isConfirmed) {
+        return;
+      }
     }
-    const motivo = descripcion.pideMotivo ? String(confirmacion.value).trim() : undefined;
     this.procesando = true;
     this.servicio.ejecutarAccion(this.iniciativaId, accion, motivo).subscribe(
       (resumen) => {
@@ -158,7 +167,7 @@ export class VistaIniciativaComponent implements OnInit {
           accion,
           motivo,
         });
-        Swal.fire({ icon: 'success', title: `Iniciativa «${resumen.estado.nombre}»`, timer: 2500, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: descripcion.exito, timer: 2500, showConfirmButton: false });
       },
       (error) => {
         this.procesando = false;

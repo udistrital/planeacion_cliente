@@ -15,13 +15,11 @@ export interface DatosObservaciones {
   usuario: string;
   /** Puede publicar (lo dice el mid en los permisos); si no, el modal es de solo lectura. El rol con que firma lo pone el mid. */
   puedePublicar: boolean;
-  /** Qué pasa al publicar, p. ej. que el submódulo queda «Con observaciones». */
-  aviso?: string;
 }
 
 /**
  * Modal de observaciones de un submódulo, de la más reciente a la más antigua. Si el usuario
- * puede publicar, muestra el formulario; si no, es solo lectura. Cada publicación se emite en
+ * puede publicar, muestra el formulario; si no, solo las lista. Cada publicación se emite en
  * (publicada) para que la pantalla actualice el estado del submódulo sin esperar a que se cierre.
  */
 @Component({

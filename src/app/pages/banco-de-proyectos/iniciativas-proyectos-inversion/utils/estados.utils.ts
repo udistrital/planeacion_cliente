@@ -41,7 +41,7 @@ export function estadoTrasVeredicto(resumen: ResumenIniciativa, clave: string, v
   return null;
 }
 
-/** Submódulos con observaciones por atender, en el orden de la iniciativa (traen su última observación). */
+/** Submódulos con observaciones por atender, en el orden de la iniciativa. */
 export function observacionesPorAtender(resumen: ResumenIniciativa | null): ResumenSubmodulo[] {
   return resumen ? submodulosDeResumen(resumen).filter((s) => s.estado.codigo_abreviacion === ESTADO_SUBMODULO_CON_OBSERVACIONES) : [];
 }

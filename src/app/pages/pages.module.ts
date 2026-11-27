@@ -90,6 +90,7 @@ import { ReportesProyectoInversionComponent } from './banco-de-proyectos/proyect
 import { ListadoIniciativasComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/listado-iniciativas/listado-iniciativas.component';
 import { SeleccionarUnidadDialogoComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/listado-iniciativas/seleccionar-unidad-dialogo/seleccionar-unidad-dialogo.component';
 import { VistaIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/vista-iniciativa/vista-iniciativa.component';
+import { RechazoIniciativaDialogoComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/vista-iniciativa/rechazo-iniciativa-dialogo/rechazo-iniciativa-dialogo.component';
 import { SubmoduloIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/submodulo-iniciativa.component';
 import { ObservacionesSubmoduloIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/observaciones-submodulo-iniciativa/observaciones-submodulo-iniciativa.component';
 import { CamposIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campos-iniciativa/campos-iniciativa.component';
@@ -257,6 +258,7 @@ const MY_FORMATS = {
     ListadoIniciativasComponent,
     SeleccionarUnidadDialogoComponent,
     VistaIniciativaComponent,
+    RechazoIniciativaDialogoComponent,
     SubmoduloIniciativaComponent,
     ObservacionesSubmoduloIniciativaComponent,
     CamposIniciativaComponent,

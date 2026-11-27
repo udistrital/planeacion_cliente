@@ -88,10 +88,9 @@ export class IniciativaService {
   }
 
   /**
-   * Agrega una observación al historial del submódulo. No cambia la versión, así que no
-   * interfiere con el formulario abierto. Si la publica el Jefe en 03 o la OAP en 05, el
-   * submódulo queda «Con observaciones» (y, con el último veredicto de la OAP, la iniciativa
-   * cambia de estado: va en estado_iniciativa).
+   * Agrega una observación al historial del submódulo, que queda «Con observaciones»; su versión
+   * no cambia. Si es el último veredicto de la OAP, la iniciativa cambia de estado (va en
+   * estado_iniciativa).
    */
   agregarObservacion(iniciativaId: string, clave: string, texto: string): Observable<SubmoduloVista> {
     return this.enviarComoActor('post', `${this.base}/iniciativas/${iniciativaId}/submodulos/${clave}/observaciones`, { texto });

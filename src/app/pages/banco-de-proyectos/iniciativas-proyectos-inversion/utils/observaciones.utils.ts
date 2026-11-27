@@ -3,7 +3,7 @@ import { Observacion } from './iniciativa.models';
 
 /**
  * Funciones puras sobre las observaciones de un submódulo: un historial de
- * comentarios sobre el submódulo completo que solo crece.
+ * observaciones sobre el submódulo completo que solo crece.
  */
 
 /** Del más reciente al más antiguo (el historial llega en orden de registro). */

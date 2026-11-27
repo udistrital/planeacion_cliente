@@ -124,34 +124,46 @@ export const ACCIONES_SUBMODULO: { [accion in AccionSubmodulo]: DescripcionAccio
 export const ACCIONES_INICIATIVA: { [accion in AccionIniciativa]: DescripcionAccion } = {
   enviar: {
     etiqueta: 'Enviar a revisión',
-    confirmacion: 'La iniciativa pasará al Jefe de la unidad para su aprobación. Mientras tanto no podrá editarla.',
-    color: 'primary',
+    titulo: '¿Enviar al Jefe de la unidad?',
+    confirmacion: 'El Jefe revisará la iniciativa. Mientras tanto no podrá editarla.',
+    confirmar: 'Sí, enviar',
+    exito: 'Iniciativa enviada al Jefe de la unidad',
   },
   devolver: {
     etiqueta: 'Devolver',
-    confirmacion: 'La iniciativa volverá a la unidad, Por corregir, con las observaciones registradas.',
-    color: 'accent',
+    titulo: '¿Devolver a la unidad?',
+    confirmacion: 'La unidad corregirá los submódulos con observaciones y la enviará de nuevo.',
+    confirmar: 'Sí, devolver',
+    exito: 'Iniciativa devuelta a la unidad',
   },
   aprobar: {
     etiqueta: 'Aprobar',
-    confirmacion: 'La iniciativa quedará radicada ante la OAP, Por revisar.',
-    color: 'primary',
+    titulo: '¿Aprobar y enviar a la OAP?',
+    confirmacion: 'La OAP revisará la iniciativa.',
+    confirmar: 'Sí, aprobar',
+    exito: 'Iniciativa enviada a la OAP',
   },
   'iniciar-revision': {
     etiqueta: 'Iniciar revisión',
-    confirmacion: 'La iniciativa pasará a En revisión OAP y podrá dar el veredicto de cada submódulo.',
-    color: 'primary',
+    titulo: '¿Iniciar la revisión?',
+    confirmacion: 'Podrá aprobar u observar cada submódulo de la iniciativa.',
+    confirmar: 'Sí, iniciar',
+    exito: 'Revisión iniciada',
   },
   rechazar: {
     etiqueta: 'Rechazar',
-    confirmacion: 'La iniciativa quedará Rechazada. El motivo llegará a la unidad en la notificación.',
-    color: 'warn',
+    titulo: '¿Rechazar la iniciativa?',
+    confirmacion: 'El motivo le llegará a la unidad en la notificación.',
+    confirmar: 'Rechazar',
+    exito: 'Iniciativa rechazada',
     pideMotivo: true,
   },
   'retractar-rechazo': {
     etiqueta: 'Retractar rechazo',
-    confirmacion: 'La iniciativa volverá a la unidad, Por corregir, y repetirá todo el flujo de revisión.',
-    color: 'primary',
+    titulo: '¿Retractar el rechazo?',
+    confirmacion: 'La iniciativa vuelve a la unidad para corregirla. Lo aprobado sigue aprobado, pero el Jefe y la OAP pueden volver a observarlo.',
+    confirmar: 'Sí, retractar',
+    exito: 'Iniciativa devuelta a la unidad',
   },
 };
 
@@ -167,7 +179,8 @@ export const MENSAJES_NOTIFICACION: { [estadoOAccion: string]: string } = {
   PC_IPI: 'La iniciativa «[INICIATIVA]» de [UNIDAD] fue devuelta con observaciones para corregir.',
   APR_IPI: 'La OAP aprobó la iniciativa «[INICIATIVA]» de [UNIDAD].',
   RCH_IPI: 'La OAP rechazó la iniciativa «[INICIATIVA]» de [UNIDAD]. Motivo: [MOTIVO]',
-  'retractar-rechazo': 'La OAP se retractó del rechazo de la iniciativa «[INICIATIVA]» de [UNIDAD]: vuelve a Por corregir y repetirá el flujo de revisión.',
+  'retractar-rechazo':
+    'La OAP se retractó del rechazo de la iniciativa «[INICIATIVA]» de [UNIDAD]: vuelve a la unidad para corregirla y pasará otra vez por el Jefe y la OAP.',
 };
 
 /** Asunto de las notificaciones de iniciativas. */

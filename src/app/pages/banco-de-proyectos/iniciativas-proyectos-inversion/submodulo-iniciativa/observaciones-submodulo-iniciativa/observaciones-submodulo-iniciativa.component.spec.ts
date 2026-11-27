@@ -12,7 +12,7 @@ import { DatosObservaciones, ObservacionesSubmoduloIniciativaComponent } from '.
 
 const HISTORIAL: Observacion[] = [
   { _id: 'o1', texto: 'Precisar la fuente.', rol: 'PLANEACION', usuario: '100', fecha: '2026-11-04T10:00:00Z' },
-  { _id: 'o2', texto: 'Se agregó la fuente.', rol: 'JEFE_DEPENDENCIA', usuario: '200', usuario_nombre: 'Ana María Pérez', fecha: '2026-11-05T09:00:00Z' },
+  { _id: 'o2', texto: 'Ajustar la meta.', rol: 'JEFE_DEPENDENCIA', usuario: '200', usuario_nombre: 'Ana María Pérez', fecha: '2026-11-05T09:00:00Z' },
 ];
 
 describe('ObservacionesSubmoduloIniciativaComponent (modal de observaciones)', () => {
@@ -51,7 +51,7 @@ describe('ObservacionesSubmoduloIniciativaComponent (modal de observaciones)', (
   it('sin permiso para publicar solo lista las entradas, de la más reciente a la más antigua', () => {
     montar({});
 
-    expect(textoDe('.entrada__texto')).toEqual(['Se agregó la fuente.', 'Precisar la fuente.']);
+    expect(textoDe('.entrada__texto')).toEqual(['Ajustar la meta.', 'Precisar la fuente.']);
     expect(textoDe('.entrada__autor')).toEqual(['Ana María Pérez', 'Planeación']);
     expect(textoDe('.entrada__rol')).toEqual(['Jefe de dependencia']);
     expect(textoDe('.entrada__propia')).toEqual(['Usted']);
@@ -65,21 +65,22 @@ describe('ObservacionesSubmoduloIniciativaComponent (modal de observaciones)', (
     expect(fixture.nativeElement.textContent).toContain('Aún no hay observaciones');
   });
 
-  it('si puede publicar, manda el texto (el rol lo pone el mid), la muestra de primera y avisa a la pantalla', () => {
+  it('si puede publicar, avisa que el submódulo queda «Con observaciones», manda el texto (el rol lo pone el mid), la muestra de primera y avisa a la pantalla', () => {
     montar({ puedePublicar: true });
-    const nueva: Observacion = { _id: 'o3', texto: 'Se ajustó la línea base.', rol: 'JEFE_DEPENDENCIA', usuario: '200' };
+    expect(fixture.nativeElement.textContent).toContain('Al publicar, el submódulo queda «Con observaciones».');
+    const nueva: Observacion = { _id: 'o3', texto: 'Ajustar la meta del indicador.', rol: 'JEFE_DEPENDENCIA', usuario: '200' };
     const vista = { observaciones: [...HISTORIAL, nueva] } as SubmoduloVista;
     servicio.agregarObservacion.and.returnValue(of(vista));
     const publicadas: SubmoduloVista[] = [];
     componente.publicada.subscribe((v: SubmoduloVista) => publicadas.push(v));
 
-    componente.texto = '  Se ajustó la línea base.  ';
+    componente.texto = '  Ajustar la meta del indicador.  ';
     componente.publicar();
     fixture.detectChanges();
 
-    expect(servicio.agregarObservacion).toHaveBeenCalledWith('p1', 'problematica', 'Se ajustó la línea base.');
+    expect(servicio.agregarObservacion).toHaveBeenCalledWith('p1', 'problematica', 'Ajustar la meta del indicador.');
     expect(componente.texto).toBe('');
-    expect(textoDe('.entrada__texto')[0]).toBe('Se ajustó la línea base.');
+    expect(textoDe('.entrada__texto')[0]).toBe('Ajustar la meta del indicador.');
     expect(publicadas).toEqual([vista]);
   });
 

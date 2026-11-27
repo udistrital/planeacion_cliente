@@ -1,0 +1,18 @@
+<mat-card class="tarjeta">
+  <mat-card-title class="titulo">{{ accion.titulo }}</mat-card-title>
+
+  <div class="motivo">
+    <mat-form-field appearance="outline" class="motivo__campo">
+      <mat-label>Motivo del rechazo</mat-label>
+      <textarea matInput name="motivo" cdkTextareaAutosize cdkAutosizeMinRows="3" cdkAutosizeMaxRows="6"
+        [(ngModel)]="motivo" [attr.maxlength]="maximo" placeholder="Escriba por qué se rechaza la iniciativa"></textarea>
+      <mat-hint>{{ accion.confirmacion }}</mat-hint>
+      <mat-hint align="end">{{ motivo.length }} / {{ maximo }}</mat-hint>
+    </mat-form-field>
+  </div>
+
+  <div class="acciones">
+    <button mat-raised-button color="primary" [disabled]="!motivoLimpio" [mat-dialog-close]="motivoLimpio">{{ accion.confirmar }}</button>
+    <button mat-raised-button color="primary" mat-dialog-close>Cancelar</button>
+  </div>
+</mat-card>
