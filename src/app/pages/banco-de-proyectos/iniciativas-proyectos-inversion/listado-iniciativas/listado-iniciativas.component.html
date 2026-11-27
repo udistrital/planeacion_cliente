@@ -48,12 +48,9 @@
                             <ng-template #tituloAcciones>Acciones</ng-template>
                         </th>
                         <td mat-cell *matCellDef="let fila" class="botonesAcciones">
-                            <button *ngIf="puedeFormular(fila); else consultar" mat-icon-button matTooltip="Formular" (click)="abrir(fila.id)">
-                                <mat-icon>edit</mat-icon>
+                            <button mat-icon-button [matTooltip]="ayuda(fila)" [attr.aria-label]="ayuda(fila) + ' ' + fila.nombre" (click)="abrir(fila.id)">
+                                <mat-icon>{{ accionDe(fila).icono }}</mat-icon>
                             </button>
-                            <ng-template #consultar>
-                                <button mat-icon-button [matTooltip]="ayudaConsultar(fila)" (click)="abrir(fila.id)"><mat-icon>search</mat-icon></button>
-                            </ng-template>
                         </td>
                     </ng-container>
                     <tr mat-header-row *matHeaderRowDef="columnas"></tr>

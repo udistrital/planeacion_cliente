@@ -1,17 +1,8 @@
-import { ESTADO_SUBMODULO_FORMULANDO, ESTADO_SUBMODULO_SIN_FORMULAR } from './constantes';
-import { Estado, Observacion, ResumenIniciativa } from './iniciativa.models';
-import { delMasReciente, esDePlaneacion, nombreDeRol, rolParaComentar } from './observaciones.utils';
+import { Observacion } from './iniciativa.models';
+import { delMasReciente, esDeLaOAP, nombreDeRol } from './observaciones.utils';
 
 function observacion(texto: string, rol = 'PLANEACION'): Observacion {
   return { texto, rol, usuario: 'U' };
-}
-
-function resumen(editable: boolean, revisable: boolean, fueraDeFechas = false): ResumenIniciativa {
-  return { permite_editar: editable, permite_revisar: revisable, fuera_de_fechas: fueraDeFechas } as ResumenIniciativa;
-}
-
-function estado(codigo: string): Estado {
-  return { nombre: codigo, codigo_abreviacion: codigo };
 }
 
 describe('observaciones.utils', () => {
@@ -29,28 +20,8 @@ describe('observaciones.utils', () => {
     expect(nombreDeRol('')).toBe('Sin rol');
   });
 
-  it('distingue las observaciones de Planeación', () => {
-    expect(esDePlaneacion(observacion('x', 'ASISTENTE_PLANEACION'))).toBe(true);
-    expect(esDePlaneacion(observacion('x', 'JEFE_DEPENDENCIA'))).toBe(false);
-  });
-
-  it('comenta la dependencia al formular y Planeación al revisar un submódulo formulado', () => {
-    const formulado = estado('FOR_SUB');
-    const sinFormular = estado(ESTADO_SUBMODULO_SIN_FORMULAR);
-
-    expect(rolParaComentar(resumen(true, false), sinFormular, ['PLANEACION', 'JEFE_DEPENDENCIA'])).toBe('JEFE_DEPENDENCIA');
-    expect(rolParaComentar(resumen(true, false), sinFormular, ['PLANEACION'])).toBe('PLANEACION');
-    expect(rolParaComentar(resumen(false, true), formulado, ['JEFE_DEPENDENCIA', 'PLANEACION'])).toBe('PLANEACION');
-    expect(rolParaComentar(resumen(false, true), sinFormular, ['PLANEACION'])).toBeNull();
-    expect(rolParaComentar(resumen(false, true), estado(ESTADO_SUBMODULO_FORMULANDO), ['PLANEACION'])).toBeNull();
-    expect(rolParaComentar(resumen(false, true), formulado, ['JEFE_DEPENDENCIA'])).toBeNull();
-    expect(rolParaComentar(resumen(false, false), formulado, ['PLANEACION', 'JEFE_DEPENDENCIA'])).toBeNull();
-    expect(rolParaComentar(null, formulado, ['PLANEACION'])).toBeNull();
-  });
-
-  it('la dependencia comenta aunque esté fuera de las fechas de formulación', () => {
-    const fueraDeFechas = resumen(true, false, true);
-
-    expect(rolParaComentar(fueraDeFechas, estado(ESTADO_SUBMODULO_SIN_FORMULAR), ['JEFE_DEPENDENCIA'])).toBe('JEFE_DEPENDENCIA');
+  it('distingue las observaciones de la OAP', () => {
+    expect(esDeLaOAP(observacion('x', 'ASISTENTE_PLANEACION'))).toBe(true);
+    expect(esDeLaOAP(observacion('x', 'JEFE_DEPENDENCIA'))).toBe(false);
   });
 });

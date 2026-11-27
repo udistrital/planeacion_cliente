@@ -50,6 +50,49 @@
   text-align: center;
 }
 
+/* En Por corregir, lo observado va antes de la tabla, con la última observación de cada submódulo */
+.por-atender {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background-color: #fff;
+  border: 1px solid var(--primary);
+  border-radius: 15px;
+  box-shadow: var(--primary) 3px 4px 0;
+}
+
+.por-atender__titulo {
+  margin: 0 0 0.5rem;
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.por-atender__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.por-atender__item + .por-atender__item {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.por-atender__submodulo {
+  padding: 0;
+  font-weight: 600;
+}
+
+.por-atender__texto {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  white-space: pre-line;
+}
+
+.por-atender__autor {
+  color: rgba(0, 0, 0, 0.6);
+  font-style: italic;
+}
+
 .tabla-contenedor {
   background-color: #fff;
   border-radius: 4px;

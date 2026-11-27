@@ -2,19 +2,23 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
-import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { mensajeDeError, IniciativaService } from '../iniciativa.service';
+import { NotificacionesIniciativaService } from '../notificaciones-iniciativa.service';
 import {
   ACCIONES_INICIATIVA,
   ACCIONES_SUBMODULO,
+  AccionDisponible,
   AccionIniciativa,
   DescripcionAccionSubmodulo,
+  ESTADO_INICIATIVA_POR_CORREGIR,
+  MAXIMO_TEXTO_OBSERVACION,
   ResumenIniciativa,
   ResumenModulo,
   ResumenSubmodulo,
   RUTA_INICIATIVAS,
 } from '../utils';
-import { fueraDeFechas, puedeFormular, puedeRevisar, tieneAlgunRol } from '../utils/roles.utils';
+import { observacionesPorAtender } from '../utils/estados.utils';
+import { nombreDeRol } from '../utils/observaciones.utils';
 import {
   DatosObservaciones,
   ObservacionesSubmoduloIniciativaComponent,
@@ -22,7 +26,8 @@ import {
 
 /**
  * Vista general de la iniciativa: el estado de cada submódulo, agrupados por módulo, y las
- * acciones sobre la iniciativa (enviar, devolver, avalar).
+ * acciones sobre la iniciativa que el usuario puede ejecutar en su estado. Qué puede hacer lo
+ * decide el mid (resumen.permisos); cada cambio de estado se notifica.
  */
 @Component({
   selector: 'app-vista-iniciativa',
@@ -31,59 +36,49 @@ import {
 })
 export class VistaIniciativaComponent implements OnInit {
   readonly acciones = ACCIONES_INICIATIVA;
+  readonly nombreDeRol = nombreDeRol;
   resumen: ResumenIniciativa | null = null;
-  roles: string[] = [];
   procesando = false;
   /** Clave del submódulo cuyas observaciones se están consultando, para no abrir el modal dos veces. */
   consultandoObservaciones: string | null = null;
-  private usuario = '';
   private iniciativaId: string;
 
   constructor(
     private ruta: ActivatedRoute,
     private router: Router,
     private servicio: IniciativaService,
-    private autenticacion: ImplicitAutenticationService,
+    private notificaciones: NotificacionesIniciativaService,
     private dialogo: MatDialog,
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     this.iniciativaId = this.ruta.snapshot.paramMap.get('id');
-    this.roles = (await this.autenticacion.getRole()) as string[];
-    this.usuario = String((await this.autenticacion.getDocument()) || '');
     this.cargar();
   }
 
-  /** Acciones posibles según el estado que además puede ejecutar este usuario. */
-  get accionesDisponibles(): AccionIniciativa[] {
-    return (this.resumen ? this.resumen.acciones_posibles : []).filter((accion) =>
-      tieneAlgunRol(this.roles, ACCIONES_INICIATIVA[accion].roles),
-    );
+  /** Acciones del carril del usuario en este estado, habilitadas o con su motivo. */
+  get accionesDelUsuario(): AccionDisponible[] {
+    return this.resumen ? this.resumen.permisos.acciones : [];
+  }
+
+  /** Por qué una acción no está habilitada; fuera de fechas se avisa una sola vez, arriba de los botones. */
+  motivoVisible(accion: AccionDisponible): string {
+    return !accion.habilitada && !this.resumen.fuera_de_fechas ? accion.motivo || '' : '';
+  }
+
+  /** En Por corregir se muestran primero las observaciones que hay que atender. */
+  get porAtender(): ResumenSubmodulo[] {
+    const porCorregir = !!this.resumen && this.resumen.estado.codigo_abreviacion === ESTADO_INICIATIVA_POR_CORREGIR;
+    return porCorregir ? observacionesPorAtender(this.resumen) : [];
   }
 
   porClave(_: number, modulo: ResumenModulo): string {
     return modulo.clave;
   }
 
-  /** Puede formular, pero el servidor no ofrece la acción de enviar (faltan submódulos por formular). */
-  get enviarPendiente(): boolean {
-    return puedeFormular(this.resumen, this.roles) && !this.accionesDisponibles.includes('enviar');
-  }
-
-  /** La formularía, pero hoy no hay fechas de formulación habilitadas para su unidad: solo se consulta. */
-  get fueraDeFechas(): boolean {
-    return fueraDeFechas(this.resumen, this.roles);
-  }
-
   /** Acción principal del submódulo: formular, revisar o consultar. */
   accionDe(submodulo: ResumenSubmodulo): DescripcionAccionSubmodulo {
-    if (puedeFormular(this.resumen, this.roles)) {
-      return ACCIONES_SUBMODULO.formular;
-    }
-    if (puedeRevisar(this.resumen, submodulo.estado, this.roles)) {
-      return ACCIONES_SUBMODULO.revisar;
-    }
-    return ACCIONES_SUBMODULO.consultar;
+    return ACCIONES_SUBMODULO[submodulo.accion] || ACCIONES_SUBMODULO.consultar;
   }
 
   puedeAbrirObservaciones(submodulo: ResumenSubmodulo): boolean {
@@ -107,15 +102,17 @@ export class VistaIniciativaComponent implements OnInit {
     this.servicio.submodulo(this.iniciativaId, submodulo.clave).subscribe(
       (respuesta) => {
         this.consultandoObservaciones = null;
-        const datos: DatosObservaciones = {
-          iniciativaId: this.iniciativaId,
-          clave: submodulo.clave,
-          nombreSubmodulo: submodulo.nombre,
-          observaciones: respuesta.submodulo.observaciones,
-          usuario: this.usuario,
-          rol: null,
-        };
-        this.dialogo.open(ObservacionesSubmoduloIniciativaComponent, { width: '760px', maxWidth: '95vw', data: datos });
+        this.servicio.actor().subscribe((actor) => {
+          const datos: DatosObservaciones = {
+            iniciativaId: this.iniciativaId,
+            clave: submodulo.clave,
+            nombreSubmodulo: submodulo.nombre,
+            observaciones: respuesta.submodulo.observaciones,
+            usuario: actor.usuario,
+            puedePublicar: false,
+          };
+          this.dialogo.open(ObservacionesSubmoduloIniciativaComponent, { width: '760px', maxWidth: '95vw', data: datos });
+        });
       },
       (error) => {
         this.consultandoObservaciones = null;
@@ -128,12 +125,18 @@ export class VistaIniciativaComponent implements OnInit {
     this.router.navigate([RUTA_INICIATIVAS]);
   }
 
+  /** Confirma (y, al rechazar, pide el motivo), ejecuta la acción y notifica el cambio de estado. */
   async ejecutar(accion: AccionIniciativa): Promise<void> {
     const descripcion = ACCIONES_INICIATIVA[accion];
     const confirmacion = await Swal.fire({
       title: `${descripcion.etiqueta}?`,
       text: descripcion.confirmacion,
       icon: 'question',
+      input: descripcion.pideMotivo ? 'textarea' : undefined,
+      inputLabel: descripcion.pideMotivo ? 'Motivo' : undefined,
+      inputPlaceholder: descripcion.pideMotivo ? 'Escriba el motivo; llegará a la unidad en la notificación' : undefined,
+      inputAttributes: descripcion.pideMotivo ? { maxlength: String(MAXIMO_TEXTO_OBSERVACION) } : undefined,
+      inputValidator: descripcion.pideMotivo ? (valor: string) => (valor && valor.trim() ? null : 'Escriba el motivo.') : undefined,
       showCancelButton: true,
       confirmButtonText: 'Sí, continuar',
       cancelButtonText: 'Cancelar',
@@ -141,16 +144,25 @@ export class VistaIniciativaComponent implements OnInit {
     if (!confirmacion.isConfirmed) {
       return;
     }
+    const motivo = descripcion.pideMotivo ? String(confirmacion.value).trim() : undefined;
     this.procesando = true;
-    this.servicio.ejecutarAccion(this.iniciativaId, accion).subscribe(
+    this.servicio.ejecutarAccion(this.iniciativaId, accion, motivo).subscribe(
       (resumen) => {
         this.resumen = resumen;
         this.procesando = false;
+        this.notificaciones.notificar({
+          iniciativaId: resumen.id,
+          nombre: resumen.nombre,
+          dependenciaId: resumen.dependencia_id,
+          estado: resumen.estado.codigo_abreviacion,
+          accion,
+          motivo,
+        });
         Swal.fire({ icon: 'success', title: `Iniciativa «${resumen.estado.nombre}»`, timer: 2500, showConfirmButton: false });
       },
       (error) => {
         this.procesando = false;
-        Swal.fire({ icon: 'error', title: 'No se pudo completar la acción', text: mensajeDeError(error) });
+        Swal.fire({ icon: 'error', title: 'No se pudo completar la acción', text: mensajeDeError(error) }).then(() => this.cargar());
       },
     );
   }

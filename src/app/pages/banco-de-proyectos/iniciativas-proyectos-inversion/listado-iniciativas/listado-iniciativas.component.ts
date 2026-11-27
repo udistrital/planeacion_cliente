@@ -9,7 +9,14 @@ import Swal from 'sweetalert2';
 import { Dependencia } from 'src/app/@core/models/dependencia';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { mensajeDeError, IniciativaService } from '../iniciativa.service';
-import { HTTP_CONFLICTO, IniciativaListado, ROLES_FORMULADORES, ROLES_REVISORES, RUTA_INICIATIVAS } from '../utils';
+import {
+  ACCIONES_SUBMODULO,
+  DescripcionAccionSubmodulo,
+  HTTP_CONFLICTO,
+  IniciativaListado,
+  ROLES_FORMULADORES,
+  RUTA_INICIATIVAS,
+} from '../utils';
 import { tieneAlgunRol } from '../utils/roles.utils';
 import {
   DatosSeleccionarUnidad,
@@ -17,10 +24,10 @@ import {
 } from './seleccionar-unidad-dialogo/seleccionar-unidad-dialogo.component';
 
 /**
- * Listado de iniciativas. Planeación ve todas; la dependencia, las de sus unidades.
- * Las unidades del usuario se consultan solo cuando hacen falta: al entrar (para
- * filtrar a la dependencia) y al crear. Las fechas de formulación las revisa el mid con
- * la unidad de cada iniciativa: fuera de ellas la fila solo se consulta y crear se rechaza.
+ * Listado de iniciativas. El mid decide qué ve cada usuario (la OAP, todas; los demás, las de
+ * sus unidades) y qué hace con cada una (formularla, revisarla o consultarla), según su estado,
+ * los roles del usuario y las fechas de la unidad. Las unidades del usuario se consultan solo al
+ * crear, para elegir con cuál.
  */
 @Component({
   selector: 'app-listado-iniciativas',
@@ -33,7 +40,6 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
   roles: string[] = [];
   cargando = true;
   creando = false;
-  sinUnidad = false;
   /** Unidades del usuario; null mientras no se han consultado. */
   private unidades: Dependencia[] | null = null;
   private readonly destruir$ = new Subject<void>();
@@ -49,10 +55,7 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     this.iniciativas.filterPredicate = (fila, filtro) => this.textoDeBusqueda(fila).includes(filtro);
   }
 
-  get esRevisor(): boolean {
-    return tieneAlgunRol(this.roles, ROLES_REVISORES);
-  }
-
+  /** Puede crear iniciativas (el mid valida además que sea para una de sus unidades). */
   get esFormulador(): boolean {
     return tieneAlgunRol(this.roles, ROLES_FORMULADORES);
   }
@@ -60,20 +63,7 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.iniciativas.paginator = this.paginador;
     this.roles = (await this.autenticacion.getRole()) as string[];
-    if (this.esRevisor) {
-      this.cargar([]);
-      return;
-    }
-    this.servicio
-      .unidadesDelUsuario()
-      .pipe(takeUntil(this.destruir$))
-      .subscribe(
-        (unidades) => {
-          this.unidades = unidades;
-          this.cargarDeUnidades(unidades);
-        },
-        (error) => this.mostrarError(error, 'No se pudieron consultar sus unidades'),
-      );
+    this.cargar();
   }
 
   ngOnDestroy(): void {
@@ -86,15 +76,14 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     this.iniciativas.paginator?.firstPage();
   }
 
-  puedeFormular(fila: IniciativaListado): boolean {
-    return fila.permite_editar && !fila.fuera_de_fechas && this.esFormulador;
+  /** Botón de la fila: formular, revisar o consultar, según lo que el mid dice que hace el usuario. */
+  accionDe(fila: IniciativaListado): DescripcionAccionSubmodulo {
+    return ACCIONES_SUBMODULO[fila.accion] || ACCIONES_SUBMODULO.consultar;
   }
 
-  /** Ayuda del botón Consultar: dice si la fila se formularía de no estar fuera de las fechas de su unidad. */
-  ayudaConsultar(fila: IniciativaListado): string {
-    return fila.permite_editar && fila.fuera_de_fechas && this.esFormulador
-      ? 'Consultar (fuera de las fechas de formulación de la unidad)'
-      : 'Consultar';
+  /** Ayuda del botón: si el usuario actuaría pero la unidad está fuera de sus fechas, lo dice. */
+  ayuda(fila: IniciativaListado): string {
+    return fila.fuera_de_fechas ? 'Consultar (fuera de las fechas de formulación de la unidad)' : this.accionDe(fila).etiqueta;
   }
 
   mensajeSinFilas(busqueda: string): string {
@@ -104,7 +93,7 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     if (busqueda) {
       return `No se han encontrado resultados para la búsqueda "${busqueda}"`;
     }
-    return this.sinUnidad ? 'Su usuario no está vinculado a ninguna unidad.' : 'No hay iniciativas registradas.';
+    return 'No hay iniciativas registradas.';
   }
 
   /**
@@ -122,18 +111,9 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     if (!unidad) {
       return;
     }
-    const documento = await this.autenticacion.getDocument();
-    if (!documento) {
-      Swal.fire({
-        icon: 'error',
-        title: 'No se pudo crear la iniciativa',
-        text: 'No se pudo identificar su documento. Vuelva a iniciar sesión e intente de nuevo.',
-      });
-      return;
-    }
     this.creando = true;
     Swal.fire({ title: 'Creando la iniciativa…', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });
-    this.servicio.crearIniciativa({ dependencia_id: String(unidad.Id), responsable: String(documento) }).subscribe(
+    this.servicio.crearIniciativa(String(unidad.Id)).subscribe(
       (creada) => {
         Swal.close();
         this.abrir(creada.id);
@@ -153,20 +133,10 @@ export class ListadoIniciativasComponent implements OnInit, OnDestroy {
     this.router.navigate([RUTA_INICIATIVAS, iniciativaId]);
   }
 
-  private cargarDeUnidades(unidades: Dependencia[]): void {
-    this.sinUnidad = unidades.length === 0;
-    if (this.sinUnidad) {
-      this.cargando = false;
-      return;
-    }
-    this.cargar(unidades.map((unidad) => String(unidad.Id)));
-  }
-
-  /** Sin dependencias, trae todas las iniciativas (Planeación). */
-  private cargar(dependencias: string[]): void {
+  private cargar(): void {
     this.cargando = true;
     this.servicio
-      .iniciativas(dependencias)
+      .iniciativas()
       .pipe(takeUntil(this.destruir$))
       .subscribe(
         (iniciativas) => {

@@ -27,7 +27,7 @@ describe('ObservacionesSubmoduloIniciativaComponent (modal de observaciones)', (
       nombreSubmodulo: 'Problemática',
       observaciones: HISTORIAL,
       usuario: '200',
-      rol: null,
+      puedePublicar: false,
       ...parcial,
     };
     servicio = jasmine.createSpyObj('IniciativaService', ['agregarObservacion']);
@@ -48,7 +48,7 @@ describe('ObservacionesSubmoduloIniciativaComponent (modal de observaciones)', (
     return Array.from(fixture.nativeElement.querySelectorAll(selector)).map((el: HTMLElement) => el.textContent.trim());
   }
 
-  it('sin rol solo lista las entradas, de la más reciente a la más antigua', () => {
+  it('sin permiso para publicar solo lista las entradas, de la más reciente a la más antigua', () => {
     montar({});
 
     expect(textoDe('.entrada__texto')).toEqual(['Se agregó la fuente.', 'Precisar la fuente.']);
@@ -65,8 +65,8 @@ describe('ObservacionesSubmoduloIniciativaComponent (modal de observaciones)', (
     expect(fixture.nativeElement.textContent).toContain('Aún no hay observaciones');
   });
 
-  it('con rol publica el texto con su rol y documento, la muestra de primera y avisa a la pantalla', () => {
-    montar({ rol: 'JEFE_DEPENDENCIA' });
+  it('si puede publicar, manda el texto (el rol lo pone el mid), la muestra de primera y avisa a la pantalla', () => {
+    montar({ puedePublicar: true });
     const nueva: Observacion = { _id: 'o3', texto: 'Se ajustó la línea base.', rol: 'JEFE_DEPENDENCIA', usuario: '200' };
     const vista = { observaciones: [...HISTORIAL, nueva] } as SubmoduloVista;
     servicio.agregarObservacion.and.returnValue(of(vista));
@@ -77,18 +77,14 @@ describe('ObservacionesSubmoduloIniciativaComponent (modal de observaciones)', (
     componente.publicar();
     fixture.detectChanges();
 
-    expect(servicio.agregarObservacion).toHaveBeenCalledWith('p1', 'problematica', {
-      texto: 'Se ajustó la línea base.',
-      rol: 'JEFE_DEPENDENCIA',
-      usuario: '200',
-    });
+    expect(servicio.agregarObservacion).toHaveBeenCalledWith('p1', 'problematica', 'Se ajustó la línea base.');
     expect(componente.texto).toBe('');
     expect(textoDe('.entrada__texto')[0]).toBe('Se ajustó la línea base.');
     expect(publicadas).toEqual([vista]);
   });
 
   it('no publica un texto vacío', () => {
-    montar({ rol: 'PLANEACION', observaciones: [] });
+    montar({ puedePublicar: true, observaciones: [] });
     componente.texto = '   ';
 
     componente.publicar();

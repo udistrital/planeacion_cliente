@@ -1,6 +1,5 @@
-import { NOMBRES_ROL, ROLES_FORMULADORES, ROLES_REVISORES } from './constantes';
-import { Estado, Observacion, ResumenIniciativa } from './iniciativa.models';
-import { formulaPorEstado, puedeRevisar } from './roles.utils';
+import { NOMBRES_ROL, ROLES_OAP } from './constantes';
+import { Observacion } from './iniciativa.models';
 
 /**
  * Funciones puras sobre las observaciones de un submódulo: un historial de
@@ -17,25 +16,7 @@ export function nombreDeRol(rol: string): string {
   return NOMBRES_ROL[rol] || rol || 'Sin rol';
 }
 
-/** Las observaciones de Planeación se distinguen de las de la dependencia. */
-export function esDePlaneacion(observacion: Observacion): boolean {
-  return ROLES_REVISORES.includes(observacion.rol);
-}
-
-/**
- * Rol con el que el usuario publica una observación ahora, o null si no puede:
- * Planeación mientras revisa un submódulo formulado, la dependencia mientras formula o
- * corrige, también fuera de las fechas de formulación. PLANEACION también formula; al
- * formular se prefiere un rol de la dependencia.
- */
-export function rolParaComentar(resumen: ResumenIniciativa | null, estadoSubmodulo: Estado, roles: string[]): string | null {
-  const propios = (permitidos: string[]) => (roles || []).filter((rol) => permitidos.includes(rol));
-  if (puedeRevisar(resumen, estadoSubmodulo, roles)) {
-    return propios(ROLES_REVISORES)[0] || null;
-  }
-  if (formulaPorEstado(resumen, roles)) {
-    const formuladores = propios(ROLES_FORMULADORES);
-    return formuladores.find((rol) => !ROLES_REVISORES.includes(rol)) || formuladores[0] || null;
-  }
-  return null;
+/** Las observaciones de la OAP se distinguen de las de la unidad. */
+export function esDeLaOAP(observacion: Observacion): boolean {
+  return ROLES_OAP.includes(observacion.rol);
 }

@@ -9,7 +9,14 @@ import { ResumenModulo, ResumenSubmodulo } from '../../utils';
 import { MenuSubmodulosIniciativaComponent } from './menu-submodulos-iniciativa.component';
 
 function submodulo(clave: string, nombre: string, codigo: string, estado: string, color: string): ResumenSubmodulo {
-  return { clave, nombre, observaciones: 0, estado: { nombre: estado, codigo_abreviacion: codigo, color } };
+  return {
+    clave,
+    nombre,
+    accion: 'consultar',
+    observaciones: 0,
+    dependientes: [],
+    estado: { nombre: estado, codigo_abreviacion: codigo, color },
+  };
 }
 
 function modulo(clave: string, nombre: string, submodulos: ResumenSubmodulo[]): ResumenModulo {
@@ -17,7 +24,7 @@ function modulo(clave: string, nombre: string, submodulos: ResumenSubmodulo[]): 
 }
 
 const MODULOS = [
-  modulo('identificacion', 'Identificación', [submodulo('nombre', 'Nombre', 'SO_SUB', 'Sin observaciones', '#2e7d32')]),
+  modulo('identificacion', 'Identificación', [submodulo('nombre', 'Nombre', 'APR_SUB', 'Aprobado', '#2e7d32')]),
   modulo('preparacion', 'Preparación', [
     submodulo('necesidades', 'Necesidades', 'FOR_SUB', 'Formulado', '#f9a825'),
     submodulo('riesgos', 'Riesgos', 'SF_SUB', 'Sin formular', '#c62828'),
@@ -68,7 +75,7 @@ describe('MenuSubmodulosIniciativaComponent (selector de submódulos)', () => {
 
     expect(textos(panel, '.mat-optgroup-label')).toEqual(['Identificación', 'Preparación']);
     expect(textos(panel, '.mat-optgroup:nth-of-type(2) .opcion__nombre')).toEqual(['Necesidades', 'Riesgos']);
-    expect(textos(panel, '.opcion__estado')).toEqual(['Sin observaciones', 'Formulado', 'Sin formular']);
+    expect(textos(panel, '.opcion__estado')).toEqual(['Aprobado', 'Formulado', 'Sin formular']);
   });
 
   it('pasa al anterior y al siguiente (también de un módulo al otro), y no deja salir de los extremos', async () => {

@@ -190,10 +190,13 @@ export interface Observacion {
   usuario_nombre?: string;
 }
 
-export interface SolicitudObservacion {
-  texto: string;
-  rol: string;
+/**
+ * Quien hace la solicitud: su documento y todos sus roles. El mid decide con ellos qué puede hacer
+ * (la suma de los carriles de sus roles); IniciativaService lo agrega a cada petición.
+ */
+export interface Actor {
   usuario: string;
+  roles: string[];
 }
 
 /** Fila del listado de iniciativas. */
@@ -207,9 +210,9 @@ export interface IniciativaListado {
   responsable?: string;
   /** Estado general de la iniciativa. */
   estado: Estado;
-  /** El estado de la iniciativa permite editarla. */
-  permite_editar: boolean;
-  /** El estado permite editarla, pero hoy no hay fechas de formulación habilitadas para su unidad. */
+  /** Lo que el usuario hace con ella: formularla, revisarla o consultarla. */
+  accion: AccionSubmodulo;
+  /** El usuario tendría algo que hacer en este estado, pero hoy no hay fechas habilitadas para la unidad. */
   fuera_de_fechas: boolean;
   fecha_creacion: string;
 }
@@ -218,7 +221,13 @@ export interface ResumenSubmodulo {
   clave: string;
   nombre: string;
   estado: Estado;
+  /** Lo que el usuario hace con el submódulo: formularlo, revisarlo o consultarlo. */
+  accion: AccionSubmodulo;
   observaciones: number;
+  /** La observación más reciente, solo si el submódulo está Con observaciones. */
+  ultima_observacion?: Observacion;
+  /** Claves de los submódulos que leen datos de este. */
+  dependientes: string[];
 }
 
 export interface ResumenModulo {
@@ -230,17 +239,35 @@ export interface ResumenModulo {
 export interface ResumenIniciativa {
   id: string;
   nombre: string;
+  dependencia_id: string;
   estado: Estado;
-  /** El estado de la iniciativa permite editarla. */
-  permite_editar: boolean;
-  permite_revisar: boolean;
   /**
-   * El estado permite editarla, pero hoy no hay fechas de formulación habilitadas para su unidad:
-   * no se guarda ni se envía (acciones_posibles no trae enviar), aunque la dependencia sí comenta.
+   * El usuario tendría algo que hacer en este estado, pero hoy no hay fechas habilitadas para la
+   * unidad: solo la consulta (los permisos no habilitan nada).
    */
   fuera_de_fechas: boolean;
-  acciones_posibles: AccionIniciativa[];
+  permisos: Permisos;
   modulos: ResumenModulo[];
+}
+
+/** Lo que el usuario puede hacer hoy con la iniciativa; lo calcula el mid con su estado, los roles, la unidad y las fechas. */
+export interface Permisos {
+  /** Guarda los submódulos no aprobados, sube anexos y comenta (formulador en 01, 02 y 06). */
+  editar: boolean;
+  /** Sus observaciones dejan el submódulo «Con observaciones» (Jefe en 03, OAP en 05). */
+  observar: boolean;
+  /** Da el veredicto «Aprobado» a los submódulos (OAP en 05). */
+  aprobar_submodulos: boolean;
+  /** Rol con el que firma lo que publica; falta si no publica observaciones. */
+  rol_observaciones?: string;
+  /** Acciones de su carril en este estado, habilitadas o con el motivo por el que no. */
+  acciones: AccionDisponible[];
+}
+
+export interface AccionDisponible {
+  accion: AccionIniciativa;
+  habilitada: boolean;
+  motivo?: string;
 }
 
 export interface SubmoduloVista {
@@ -249,6 +276,8 @@ export interface SubmoduloVista {
   observaciones: Observacion[];
   version: number;
   errores: ErrorCampo[];
+  /** Solo cuando el veredicto cambió el estado de la iniciativa (el último de la revisión de la OAP). */
+  estado_iniciativa?: Estado;
 }
 
 export interface SubmoduloConRelacionadas {
@@ -280,36 +309,37 @@ export interface ReferenciaDocumento {
   fecha?: string;
 }
 
-/** Cuerpo de POST /iniciativas/:id/submodulos/:clave/documentos: el mid sube el archivo al gestor y responde la referencia. */
+/**
+ * Cuerpo de POST /iniciativas/:id/submodulos/:clave/documentos (sin el actor, que agrega
+ * IniciativaService): el mid sube el archivo al gestor y responde la referencia.
+ */
 export interface SolicitudDocumento {
   /** Ruta del campo en el submódulo, sin ids de fila: "carta_presentacion" u "otros_anexos.archivo". */
   clave: string;
   nombre: string;
   /** Archivo en base64 (GestorDocumentalService.fileToBase64). */
   archivo: string;
-  usuario: string;
 }
 
-export type AccionIniciativa = 'enviar' | 'devolver' | 'avalar';
+/** Acciones sobre el estado general (PUT /iniciativas/:id/acciones/:accion). */
+export type AccionIniciativa = 'enviar' | 'aprobar' | 'devolver' | 'iniciar-revision' | 'rechazar' | 'retractar-rechazo';
 
-/** Acción principal sobre un submódulo en la vista de la iniciativa. */
+/** Acción principal sobre un submódulo (o sobre la iniciativa, en el listado). */
 export type AccionSubmodulo = 'formular' | 'revisar' | 'consultar';
+
+/** Veredicto de la OAP sobre un submódulo mientras revisa la iniciativa. */
+export type Veredicto = 'aprobado' | 'con_observaciones';
 
 export interface DescripcionAccionSubmodulo {
   etiqueta: string;
   icono: string;
 }
 
-/** La iniciativa se crea con la plantilla vigente; solo hace falta la unidad. */
-export interface SolicitudCrearIniciativa {
-  dependencia_id: string;
-  responsable: string;
-}
-
-/** Cómo se presenta una acción sobre el estado general y quién puede ejecutarla. */
+/** Cómo se presenta una acción sobre el estado general. Quién la ejecuta lo decide el mid. */
 export interface DescripcionAccion {
   etiqueta: string;
   confirmacion: string;
-  roles: string[];
   color: 'primary' | 'accent' | 'warn';
+  /** Pide el motivo antes de ejecutarla (rechazar); va en la notificación. */
+  pideMotivo?: boolean;
 }

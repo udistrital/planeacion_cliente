@@ -5,7 +5,7 @@
 
   <mat-card-content>
     <u class="textGuide">
-      En esta sección usted podrá formular o revisar, según su rol, cada submódulo de la iniciativa y consultar sus observaciones.
+      En esta sección usted podrá formular o revisar, según su rol y el estado de la iniciativa, cada submódulo y consultar sus observaciones.
     </u>
   </mat-card-content>
 
@@ -14,6 +14,19 @@
       <span class="estado-general__titulo">Estado general</span>
       <span class="estado-general__valor">{{ resumen.estado.nombre }}</span>
     </div>
+
+    <section class="por-atender" *ngIf="porAtender.length" aria-label="Observaciones por atender">
+      <h3 class="por-atender__titulo"><mat-icon inline>rate_review</mat-icon> Observaciones por atender ({{ porAtender.length }})</h3>
+      <ul class="por-atender__lista">
+        <li *ngFor="let submodulo of porAtender" class="por-atender__item">
+          <button mat-button color="primary" class="por-atender__submodulo" (click)="abrir(submodulo)">{{ submodulo.nombre }}</button>
+          <p class="por-atender__texto" *ngIf="submodulo.ultima_observacion as observacion">
+            {{ observacion.texto }}
+            <span class="por-atender__autor">— {{ observacion.usuario_nombre || nombreDeRol(observacion.rol) }}</span>
+          </p>
+        </li>
+      </ul>
+    </section>
 
     <div class="mat-elevation-z8 tabla-contenedor">
       <h3 class="componentes-titulo">Componentes para la formulación de la iniciativa</h3>
@@ -66,15 +79,13 @@
   <mat-card-actions class="barra-acciones">
     <button mat-raised-button color="primary" (click)="volver()">Regresar</button>
     <span class="espacio"></span>
-    <ng-container *ngIf="enviarPendiente">
-      <span class="ayuda">Podrá enviarla a revisión cuando todos los submódulos estén formulados.</span>
-      <button mat-raised-button color="primary" disabled>{{ acciones.enviar.etiqueta }}</button>
+    <span class="ayuda" *ngIf="resumen.fuera_de_fechas">
+      La formulación de iniciativas no está habilitada para la unidad de esta iniciativa en estas fechas: puede consultarla, pero no modificarla ni cambiar su estado.
+    </span>
+    <ng-container *ngFor="let accion of accionesDelUsuario">
+      <span class="ayuda" *ngIf="motivoVisible(accion) as motivo">{{ motivo }}</span>
+      <button mat-raised-button [color]="acciones[accion.accion].color" [disabled]="procesando || !accion.habilitada"
+        (click)="ejecutar(accion.accion)">{{ acciones[accion.accion].etiqueta }}</button>
     </ng-container>
-    <ng-container *ngIf="fueraDeFechas">
-      <span class="ayuda">La formulación de iniciativas no está habilitada para su unidad en estas fechas: puede consultarla, pero no modificarla ni enviarla a revisión.</span>
-      <button mat-raised-button color="primary" disabled>{{ acciones.enviar.etiqueta }}</button>
-    </ng-container>
-    <button *ngFor="let accion of accionesDisponibles" mat-raised-button [color]="acciones[accion].color"
-      [disabled]="procesando" (click)="ejecutar(accion)">{{ acciones[accion].etiqueta }}</button>
   </mat-card-actions>
 </mat-card>

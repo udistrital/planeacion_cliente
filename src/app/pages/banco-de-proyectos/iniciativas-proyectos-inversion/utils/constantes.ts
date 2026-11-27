@@ -4,30 +4,35 @@ import {
   ColumnaResumen,
   DescripcionAccion,
   DescripcionAccionSubmodulo,
+  Veredicto,
 } from './iniciativa.models';
 
-/** Roles que crean y formulan iniciativas (la dependencia y Planeación). */
-export const ROLES_FORMULADORES = ['JEFE_DEPENDENCIA', 'ASISTENTE_DEPENDENCIA', 'PLANEACION'];
+/**
+ * Roles del carril del formulador: crean y formulan las iniciativas de sus unidades. Solo deciden si
+ * se muestra el botón «Nueva iniciativa»; lo demás lo decide el mid (ResumenIniciativa.permisos).
+ */
+export const ROLES_FORMULADORES = ['JEFE_DEPENDENCIA', 'ASISTENTE_DEPENDENCIA', 'ASISTENTE_PLANEACION'];
 
-/** Roles que revisan las iniciativas (OAPC). */
-export const ROLES_REVISORES = ['PLANEACION', 'ASISTENTE_PLANEACION'];
+/** Roles de la OAP: sus observaciones se distinguen en el historial. */
+export const ROLES_OAP = ['PLANEACION', 'ASISTENTE_PLANEACION'];
 
-/** Submódulo sin información. */
-export const ESTADO_SUBMODULO_SIN_FORMULAR = 'SF_SUB';
+/** Estados de la iniciativa a los que lleva el último veredicto de la revisión de la OAP. */
+export const ESTADO_INICIATIVA_POR_CORREGIR = 'PC_IPI';
+export const ESTADO_INICIATIVA_APROBADA = 'APR_IPI';
 
-/** Submódulo con información, pero incompleto o con errores. */
-export const ESTADO_SUBMODULO_FORMULANDO = 'FN_SUB';
+/** Estados de submódulo que aún no están formulados (Sin formular y Formulando): no cuentan como formulados ni se revisan. */
+export const ESTADOS_SUBMODULO_POR_FORMULAR = ['SF_SUB', 'FN_SUB'];
 
-/** Estados de submódulo que aún no están formulados: no cuentan como formulados ni se pueden revisar. */
-export const ESTADOS_SUBMODULO_POR_FORMULAR = [ESTADO_SUBMODULO_SIN_FORMULAR, ESTADO_SUBMODULO_FORMULANDO];
-
-/** Código del estado de submódulo con observaciones de Planeación por atender. */
+/** Submódulo con observaciones por atender. */
 export const ESTADO_SUBMODULO_CON_OBSERVACIONES = 'CO_SUB';
+
+/** Submódulo aprobado por la OAP: nadie lo edita. */
+export const ESTADO_SUBMODULO_APROBADO = 'APR_SUB';
 
 /**
  * Código HTTP con el que el mid rechaza lo que el estado actual no permite: otra persona cambió
- * el submódulo, el estado de la iniciativa no deja editarla o la unidad está fuera de sus fechas
- * de formulación.
+ * el submódulo o el estado de la iniciativa, el submódulo está aprobado o la unidad está fuera de
+ * sus fechas de formulación.
  */
 export const HTTP_CONFLICTO = 409;
 
@@ -108,31 +113,74 @@ export const NOMBRES_ROL: { [rol: string]: string } = {
   ASISTENTE_DEPENDENCIA: 'Asistente de dependencia',
 };
 
-/** Ícono y texto de la acción principal de cada submódulo. */
+/** Ícono y texto de la acción principal de cada submódulo (y de cada iniciativa en el listado). */
 export const ACCIONES_SUBMODULO: { [accion in AccionSubmodulo]: DescripcionAccionSubmodulo } = {
   formular: { etiqueta: 'Formular', icono: 'edit' },
   revisar: { etiqueta: 'Revisar', icono: 'rate_review' },
   consultar: { etiqueta: 'Consultar', icono: 'search' },
 };
 
-/** Cómo se presenta cada acción sobre el estado general y quién puede ejecutarla. */
+/** Cómo se presenta cada acción sobre el estado general. Las que puede ejecutar el usuario las da el mid. */
 export const ACCIONES_INICIATIVA: { [accion in AccionIniciativa]: DescripcionAccion } = {
   enviar: {
     etiqueta: 'Enviar a revisión',
-    confirmacion: 'Una vez enviada no podrá editar la iniciativa hasta que sea devuelta.',
-    roles: ROLES_FORMULADORES,
+    confirmacion: 'La iniciativa pasará al Jefe de la unidad para su aprobación. Mientras tanto no podrá editarla.',
     color: 'primary',
   },
   devolver: {
-    etiqueta: 'Devolver para corregir',
-    confirmacion: 'La iniciativa volverá a la dependencia con las observaciones registradas.',
-    roles: ROLES_REVISORES,
+    etiqueta: 'Devolver',
+    confirmacion: 'La iniciativa volverá a la unidad, Por corregir, con las observaciones registradas.',
     color: 'accent',
   },
-  avalar: {
-    etiqueta: 'Avalar',
-    confirmacion: 'La iniciativa quedará avalada y no se podrá editar.',
-    roles: ROLES_REVISORES,
+  aprobar: {
+    etiqueta: 'Aprobar',
+    confirmacion: 'La iniciativa quedará radicada ante la OAP, Por revisar.',
+    color: 'primary',
+  },
+  'iniciar-revision': {
+    etiqueta: 'Iniciar revisión',
+    confirmacion: 'La iniciativa pasará a En revisión OAP y podrá dar el veredicto de cada submódulo.',
+    color: 'primary',
+  },
+  rechazar: {
+    etiqueta: 'Rechazar',
+    confirmacion: 'La iniciativa quedará Rechazada. El motivo llegará a la unidad en la notificación.',
+    color: 'warn',
+    pideMotivo: true,
+  },
+  'retractar-rechazo': {
+    etiqueta: 'Retractar rechazo',
+    confirmacion: 'La iniciativa volverá a la unidad, Por corregir, y repetirá todo el flujo de revisión.',
     color: 'primary',
   },
 };
+
+/**
+ * Texto de la notificación de cada cambio de estado, por el código del estado al que llega la
+ * iniciativa (la retractación del rechazo tiene el suyo). [INICIATIVA], [UNIDAD] y [MOTIVO] se
+ * reemplazan al notificar.
+ */
+export const MENSAJES_NOTIFICACION: { [estadoOAccion: string]: string } = {
+  PA_IPI: 'La iniciativa «[INICIATIVA]» de [UNIDAD] fue enviada al Jefe de la unidad para su aprobación.',
+  PR_IPI: 'El Jefe de [UNIDAD] aprobó la iniciativa «[INICIATIVA]» y la radicó ante la OAP.',
+  ER_IPI: 'La OAP inició la revisión de la iniciativa «[INICIATIVA]» de [UNIDAD].',
+  PC_IPI: 'La iniciativa «[INICIATIVA]» de [UNIDAD] fue devuelta con observaciones para corregir.',
+  APR_IPI: 'La OAP aprobó la iniciativa «[INICIATIVA]» de [UNIDAD].',
+  RCH_IPI: 'La OAP rechazó la iniciativa «[INICIATIVA]» de [UNIDAD]. Motivo: [MOTIVO]',
+  'retractar-rechazo': 'La OAP se retractó del rechazo de la iniciativa «[INICIATIVA]» de [UNIDAD]: vuelve a Por corregir y repetirá el flujo de revisión.',
+};
+
+/** Asunto de las notificaciones de iniciativas. */
+export const ASUNTO_NOTIFICACION = 'Iniciativas de inversión';
+
+/** Destinatarios de las notificaciones: cargos (Parámetros) de la unidad de la iniciativa y de Planeación, como en Formulación. */
+export const CARGOS_NOTIFICACION = ['JO', 'AS_D', 'NR'];
+
+/** Dependencia (Oikos) de Planeación, que recibe todas las notificaciones (la misma de Formulación y Seguimiento). */
+export const DEPENDENCIA_PLANEACION = '11';
+
+/** Veredictos de la OAP sobre un submódulo, con el texto del seleccionable. */
+export const VEREDICTOS: { valor: Veredicto; etiqueta: string }[] = [
+  { valor: 'aprobado', etiqueta: 'Aprobado' },
+  { valor: 'con_observaciones', etiqueta: 'Con observaciones' },
+];

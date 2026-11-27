@@ -19,7 +19,7 @@
     <p class="vacio" *ngIf="!entradas.length">Aún no hay observaciones para este submódulo.</p>
 
     <article *ngFor="let observacion of entradas; trackBy: porId" class="entrada"
-      [class.entrada--planeacion]="esDePlaneacion(observacion)">
+      [class.entrada--planeacion]="esDeLaOAP(observacion)">
       <div class="entrada__avatar" aria-hidden="true">{{ iniciales(observacion) }}</div>
       <div class="entrada__cuerpo">
         <header class="entrada__cabecera">

@@ -1,16 +1,20 @@
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { Component, ElementRef, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
-import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 import { mensajeDeError, IniciativaService } from '../iniciativa.service';
+import { NotificacionesIniciativaService } from '../notificaciones-iniciativa.service';
 import {
   Datos,
   Definicion,
+  Estado,
+  ESTADO_INICIATIVA_APROBADA,
+  ESTADO_SUBMODULO_APROBADO,
   ESTADO_SUBMODULO_CON_OBSERVACIONES,
   COLUMNAS_RESUMEN,
   GRUPOS_EN_ARBOL,
@@ -25,7 +29,10 @@ import {
   RUTA_INICIATIVAS,
   SubmoduloVista,
   SUBMODULOS_PLEGABLES,
+  Veredicto,
+  VEREDICTOS,
 } from '../utils';
+import { dependientesDe, estadoTrasVeredicto, estaAprobado, veredictoDe } from '../utils/estados.utils';
 import {
   ContextoFormulario,
   copiar,
@@ -37,9 +44,7 @@ import {
   submodulosDeResumen,
 } from '../utils/formulario.utils';
 import { GuardadoEnCola } from '../utils/guardado.utils';
-import { rolParaComentar } from '../utils/observaciones.utils';
 import { registrarContenedorConScroll } from '../utils/scroll.utils';
-import { fueraDeFechas, puedeFormular, puedeRevisar } from '../utils/roles.utils';
 import {
   DatosObservaciones,
   ObservacionesSubmoduloIniciativaComponent,
@@ -48,9 +53,13 @@ import {
 /**
  * Formulario de un submódulo (hoja) de la iniciativa. El formulario se arma con la
  * definición de la plantilla; el servidor valida y decide el estado del submódulo.
- * Fuera de las fechas de formulación de la unidad se muestra en solo lectura; si las
- * fechas se cierran con el submódulo abierto, el mid rechaza el guardado (409) y el
- * submódulo se recarga así.
+ * Lo que el usuario hace aquí (formular, revisar o consultar) lo dice el mid en el resumen.
+ * Fuera de las fechas de la unidad se muestra en solo lectura; si las fechas se cierran con
+ * el submódulo abierto, el mid rechaza el guardado (409) y el submódulo se recarga así.
+ *
+ * Revisar: el Jefe (03) solo observa; la OAP (05) da el veredicto «Aprobado» o «Con
+ * observaciones». Si el último veredicto cambia el estado de la iniciativa, se notifica y la
+ * pantalla se recarga con los permisos nuevos.
  */
 @Component({
   selector: 'app-submodulo-iniciativa',
@@ -58,6 +67,7 @@ import {
   styleUrls: ['./submodulo-iniciativa.component.scss'],
 })
 export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
+  readonly veredictos = VEREDICTOS;
   resumen: ResumenIniciativa | null = null;
   nodo: NodoDefinicion | null = null;
   /** Si el submódulo solo tiene documentos (Anexos), se dibuja como una sola tabla; si no, null. */
@@ -67,7 +77,6 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   contexto: ContextoFormulario | null = null;
   cargando = true;
   guardando = false;
-  private roles: string[] = [];
   private usuario = '';
   private iniciativaId: string;
   private clave: string;
@@ -86,7 +95,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     private ruta: ActivatedRoute,
     private router: Router,
     private servicio: IniciativaService,
-    private autenticacion: ImplicitAutenticationService,
+    private notificaciones: NotificacionesIniciativaService,
     private dialogo: MatDialog,
     private gestor: GestorDocumentalService,
     private elemento: ElementRef<HTMLElement>,
@@ -97,8 +106,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Las listas (catálogos, selects) siguen a su campo al bajar por el formulario.
     this.quitarContenedorConScroll = registrarContenedorConScroll(this.elemento.nativeElement, this.despachadorScroll, this.zona);
-    this.roles = (await this.autenticacion.getRole()) as string[];
-    this.usuario = String((await this.autenticacion.getDocument()) || '');
+    this.usuario = (await this.servicio.actor().toPromise()).usuario;
     // La misma instancia se reutiliza al pasar al submódulo anterior o siguiente.
     this.ruta.paramMap.pipe(takeUntil(this.destruir$)).subscribe((parametros) => {
       this.iniciativaId = parametros.get('id');
@@ -113,32 +121,56 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     this.destruir$.complete();
   }
 
-  get puedeEditar(): boolean {
-    return puedeFormular(this.resumen, this.roles);
+  /** El submódulo en el resumen: trae lo que el usuario hace con él (formular, revisar o consultar). */
+  get enResumen(): ResumenSubmodulo | null {
+    return (this.resumen && submodulosDeResumen(this.resumen).find((s) => s.clave === this.clave)) || null;
   }
 
-  /** Lo formularía, pero hoy no hay fechas de formulación habilitadas para su unidad. */
+  get puedeEditar(): boolean {
+    return !!this.enResumen && this.enResumen.accion === 'formular';
+  }
+
+  /** Tendría algo que hacer, pero hoy no hay fechas habilitadas para la unidad de la iniciativa. */
   get fueraDeFechas(): boolean {
-    return fueraDeFechas(this.resumen, this.roles);
+    return !!this.resumen && this.resumen.fuera_de_fechas;
   }
 
   get puedeRevisar(): boolean {
-    return !!this.submodulo && puedeRevisar(this.resumen, this.submodulo.estado, this.roles);
+    return !!this.enResumen && this.enResumen.accion === 'revisar';
   }
 
-  /** Rol con el que el usuario publica observaciones ahora; null si solo puede leerlas. */
-  get rolComentario(): string | null {
-    return this.submodulo ? rolParaComentar(this.resumen, this.submodulo.estado, this.roles) : null;
+  /** Da el veredicto (la OAP en 05); si no, quien revisa es el Jefe (03), que solo observa. */
+  get daVeredicto(): boolean {
+    return this.puedeRevisar && this.resumen.permisos.aprobar_submodulos;
   }
 
-  /** Qué pasa al publicar: si Planeación está revisando, el submódulo queda «Con observaciones». */
+  /** Veredicto que ya tiene el submódulo; null si aún no tiene (Formulado). */
+  get veredictoActual(): Veredicto | null {
+    return this.submodulo ? veredictoDe(this.submodulo.estado.codigo_abreviacion) : null;
+  }
+
+  /** Publica observaciones: el formulador comenta mientras formula; el Jefe y la OAP observan lo formulado. */
+  get puedePublicar(): boolean {
+    return !!this.resumen && (this.resumen.permisos.editar || (this.resumen.permisos.observar && this.puedeRevisar));
+  }
+
+  /** Qué pasa al publicar: si el Jefe o la OAP revisan, el submódulo queda «Con observaciones». */
   get avisoComentario(): string {
     return this.puedeRevisar ? 'Al publicar, el submódulo queda «Con observaciones».' : '';
   }
 
-  /** Planeación dejó observaciones que la dependencia debe atender. */
+  /** El submódulo tiene observaciones que la unidad debe atender. */
   get conObservaciones(): boolean {
     return !!this.submodulo && this.submodulo.estado.codigo_abreviacion === ESTADO_SUBMODULO_CON_OBSERVACIONES;
+  }
+
+  /** Por qué está en solo lectura (fuera de fechas se avisa aparte). */
+  get motivoSoloLectura(): string {
+    const aprobado = !!this.submodulo && this.submodulo.estado.codigo_abreviacion === ESTADO_SUBMODULO_APROBADO;
+    if (aprobado && this.resumen && this.resumen.permisos.editar) {
+      return 'el submódulo está aprobado';
+    }
+    return this.resumen ? `la iniciativa está «${this.resumen.estado.nombre}»` : '';
   }
 
   get claveActual(): string {
@@ -158,8 +190,8 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     return !!this.guardadoAutomatico && this.guardadoAutomatico.ocupado;
   }
 
-  guardar(): void {
-    if (this.guardando || this.guardandoDocumentos) {
+  async guardar(): Promise<void> {
+    if (this.guardando || this.guardandoDocumentos || !(await this.confirmarDependientes())) {
       return;
     }
     this.guardando = true;
@@ -190,13 +222,36 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     );
   }
 
-  /** Planeación da el submódulo por revisado sin observaciones. */
-  marcarSinObservaciones(): void {
+  /**
+   * Veredicto de la OAP desde el seleccionable. El grupo vuelve al veredicto que tiene el
+   * submódulo: cambia solo cuando el mid lo confirma (si se cancela, no queda marcado otro).
+   */
+  async elegirVeredicto(veredicto: Veredicto, grupo: MatButtonToggleGroup): Promise<void> {
+    grupo.value = this.veredictoActual;
+    if (veredicto === this.veredictoActual && veredicto === 'aprobado') {
+      return;
+    }
+    if (!(await this.confirmarUltimoVeredicto(veredicto))) {
+      return;
+    }
+    if (veredicto === 'con_observaciones') {
+      this.abrirObservaciones();
+      return;
+    }
+    this.aprobar();
+  }
+
+  /** Veredicto «Aprobado» de la OAP. */
+  private aprobar(): void {
     this.guardando = true;
-    this.servicio.marcarSinObservaciones(this.iniciativaId, this.clave, this.submodulo.version).subscribe(
+    this.servicio.aprobarSubmodulo(this.iniciativaId, this.clave, this.submodulo.version).subscribe(
       (vista) => {
         this.guardando = false;
         this.mostrar(vista);
+        if (vista.estado_iniciativa) {
+          this.trasCambioDeEstado(vista.estado_iniciativa);
+          return;
+        }
         Swal.fire({ icon: 'success', title: `Submódulo «${vista.estado.nombre}»`, timer: 2000, showConfirmButton: false });
       },
       (error) => {
@@ -207,9 +262,10 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Abre el modal de observaciones: se leen todas y, si el usuario puede comentar ahora,
+   * Abre el modal de observaciones: se leen todas y, si el usuario puede publicar ahora,
    * publica nuevas. Cada publicación actualiza el estado del submódulo de una vez; no
-   * cambia la versión, así que no interfiere con cambios sin guardar en el formulario.
+   * cambia la versión, así que no interfiere con cambios sin guardar en el formulario. Si la
+   * observación es el último veredicto de la OAP, el modal se cierra y la iniciativa se recarga.
    */
   abrirObservaciones(): void {
     const datos: DatosObservaciones = {
@@ -218,13 +274,74 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       nombreSubmodulo: this.nodo.nombre,
       observaciones: this.submodulo.observaciones,
       usuario: this.usuario,
-      rol: this.rolComentario,
+      puedePublicar: this.puedePublicar,
       aviso: this.avisoComentario,
     };
     const modal = this.dialogo.open(ObservacionesSubmoduloIniciativaComponent, { width: '760px', maxWidth: '95vw', data: datos });
-    modal.componentInstance.publicada
-      .pipe(takeUntil(modal.afterClosed()))
-      .subscribe((vista: SubmoduloVista) => this.aplicarObservaciones(vista));
+    modal.componentInstance.publicada.pipe(takeUntil(modal.afterClosed())).subscribe((vista: SubmoduloVista) => {
+      this.aplicarObservaciones(vista);
+      if (vista.estado_iniciativa) {
+        modal.close();
+        this.trasCambioDeEstado(vista.estado_iniciativa);
+      }
+    });
+  }
+
+  /** Antes del último veredicto, avisa a qué estado pasará la iniciativa y pide confirmarlo. */
+  private async confirmarUltimoVeredicto(veredicto: Veredicto): Promise<boolean> {
+    const destino = estadoTrasVeredicto(this.resumen, this.clave, veredicto);
+    if (!destino) {
+      return true;
+    }
+    const nombre = destino === ESTADO_INICIATIVA_APROBADA ? 'Aprobado' : 'Por corregir';
+    const respuesta = await Swal.fire({
+      title: 'Último veredicto',
+      text: `Con este veredicto todos los submódulos quedan revisados y la iniciativa pasará a «${nombre}».`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar',
+    });
+    return respuesta.isConfirmed;
+  }
+
+  /**
+   * Si el submódulo tiene dependientes aprobados, avisa antes de guardar: los aprobados no se
+   * vuelven a validar, y quien revisa decide si los observa de nuevo. Los demás dependientes se
+   * revalidan solos al guardar, así que no hace falta avisar por ellos.
+   */
+  private async confirmarDependientes(): Promise<boolean> {
+    const dependientes = dependientesDe(this.resumen, this.clave);
+    const aprobados = dependientes.filter(estaAprobado);
+    if (aprobados.length === 0) {
+      return true;
+    }
+    const nombres = (lista: ResumenSubmodulo[]) => lista.map((s) => `«${s.nombre}»`).join(', ');
+    const respuesta = await Swal.fire({
+      title: 'Submódulos que dependen de este',
+      html:
+        `<p>${nombres(dependientes)} ${dependientes.length === 1 ? 'toma' : 'toman'} datos de «${this.nodo.nombre}».</p>` +
+        `<p>${nombres(aprobados)} ${aprobados.length === 1 ? 'está aprobado y no se vuelve' : 'están aprobados y no se vuelven'} a validar: ` +
+        'si su cambio los afecta, quien revise decidirá si los observa de nuevo.</p>',
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+    });
+    return respuesta.isConfirmed;
+  }
+
+  /** El último veredicto cambió el estado de la iniciativa: se notifica y se recarga con los permisos nuevos. */
+  private trasCambioDeEstado(estado: Estado): void {
+    this.notificaciones.notificar({
+      iniciativaId: this.resumen.id,
+      nombre: this.resumen.nombre,
+      dependenciaId: this.resumen.dependencia_id,
+      estado: estado.codigo_abreviacion,
+    });
+    Swal.fire({ icon: 'success', title: `La iniciativa pasó a «${estado.nombre}»`, confirmButtonText: 'Aceptar' }).then(() =>
+      this.cargar(),
+    );
   }
 
   irA(submodulo: ResumenSubmodulo): void {
@@ -388,7 +505,6 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
           clave,
           nombre: archivo.name,
           archivo: String(base64),
-          usuario: this.usuario,
         }),
       ),
     );

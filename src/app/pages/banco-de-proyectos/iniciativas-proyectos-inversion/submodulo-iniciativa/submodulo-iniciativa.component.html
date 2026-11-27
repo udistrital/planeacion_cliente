@@ -22,11 +22,11 @@
         <mat-card-content class="iniciativa-contenido">
           <div class="iniciativa-aviso" *ngIf="fueraDeFechas">
             <h4><mat-icon inline>event_busy</mat-icon> Fuera de las fechas de formulación</h4>
-            <p class="iniciativa-texto-observacion">La formulación de iniciativas no está habilitada para su unidad en estas fechas: el submódulo está en solo lectura y no se puede guardar.</p>
+            <p class="iniciativa-texto-observacion">La formulación de iniciativas no está habilitada para la unidad de esta iniciativa en estas fechas: el submódulo está en solo lectura.</p>
           </div>
 
           <div class="iniciativa-aviso iniciativa-aviso--observaciones" *ngIf="conObservaciones">
-            <h4><mat-icon inline>rate_review</mat-icon> Planeación dejó observaciones sobre este submódulo</h4>
+            <h4><mat-icon inline>rate_review</mat-icon> Hay observaciones sobre este submódulo</h4>
             <p class="iniciativa-texto-observacion" *ngIf="puedeEditar">
               Léalas en Observaciones, corrija el submódulo y guárdelo.
             </p>
@@ -34,14 +34,17 @@
           </div>
 
           <div class="iniciativa-aviso iniciativa-aviso--errores" *ngIf="submodulo.errores.length">
-            <h4><mat-icon inline>error_outline</mat-icon> Pendientes para formular este submódulo ({{ submodulo.errores.length }})</h4>
+            <h4>
+              <mat-icon inline>error_outline</mat-icon>
+              {{ puedeEditar ? 'Pendientes para formular este submódulo' : 'Pendientes de validación de este submódulo' }} ({{ submodulo.errores.length }})
+            </h4>
             <ul>
               <li *ngFor="let error of submodulo.errores">{{ error.mensaje }}</li>
             </ul>
           </div>
 
           <p *ngIf="contexto.soloLectura && !fueraDeFechas" class="iniciativa-ayuda">
-            <mat-icon inline>lock</mat-icon> Solo lectura: la iniciativa está «{{ resumen.estado.nombre }}».
+            <mat-icon inline>lock</mat-icon> Solo lectura: {{ motivoSoloLectura }}.
           </p>
 
           <div class="iniciativa-formulario">
@@ -56,14 +59,25 @@
 
           <fieldset *ngIf="puedeRevisar" class="container-border">
             <legend class="titulo">Revisión del submódulo</legend>
-            <p class="iniciativa-ayuda">
-              Si hay algo por corregir, publíquelo en Observaciones: el submódulo quedará «Con observaciones».
-              Si está bien, apruébelo: quedará «Aprobado».
-            </p>
-            <div class="iniciativa-acciones">
-              <button mat-raised-button color="accent" [disabled]="guardando" (click)="abrirObservaciones()">Escribir observación</button>
-              <button mat-raised-button color="primary" [disabled]="guardando" (click)="marcarSinObservaciones()">Aprobar</button>
-            </div>
+            <ng-container *ngIf="daVeredicto; else observacionDelJefe">
+              <p class="iniciativa-ayuda">
+                Elija el veredicto del submódulo. «Con observaciones» pide escribir la observación.
+                La iniciativa cambia de estado sola cuando todos los submódulos tienen veredicto.
+              </p>
+              <mat-button-toggle-group #grupo class="veredicto" aria-label="Veredicto del submódulo" [value]="veredictoActual"
+                [disabled]="guardando" (change)="elegirVeredicto($event.value, grupo)">
+                <mat-button-toggle *ngFor="let veredicto of veredictos" [value]="veredicto.valor">{{ veredicto.etiqueta }}</mat-button-toggle>
+              </mat-button-toggle-group>
+            </ng-container>
+            <ng-template #observacionDelJefe>
+              <p class="iniciativa-ayuda">
+                Si hay algo por corregir, escríbalo: el submódulo quedará «Con observaciones» y podrá devolver la iniciativa
+                a la unidad. Si todo está bien, apruebe la iniciativa completa desde su vista general.
+              </p>
+              <div class="iniciativa-acciones">
+                <button mat-raised-button color="accent" [disabled]="guardando" (click)="abrirObservaciones()">Escribir observación</button>
+              </div>
+            </ng-template>
           </fieldset>
         </mat-card-content>
 
