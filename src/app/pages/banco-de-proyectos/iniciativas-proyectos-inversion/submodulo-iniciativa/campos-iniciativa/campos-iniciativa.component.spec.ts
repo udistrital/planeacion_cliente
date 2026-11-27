@@ -415,16 +415,6 @@ describe('CamposIniciativaComponent (formulario dinámico)', () => {
     expect(opciones).toEqual(['Fallas en los equipos', 'Falta de mantenimiento']);
   }));
 
-  it('un calculado de plantilla vacía (el indicador del producto) se muestra sin valor y no se diligencia', fakeAsync(() => {
-    montar([nodo('indicador_producto', 'Indicador de producto', 'calculado', { required: false, plantilla: '' })], 'cadena_valor', {});
-    tick();
-    fixture.detectChanges();
-
-    expect(textos('.iniciativa-calculado .iniciativa-etiqueta')).toEqual(['Indicador de producto']);
-    expect(textos('.iniciativa-calculado .iniciativa-traida__vacia')).toEqual(['Aún no disponible.']);
-    expect(elemento.querySelector('.iniciativa-calculado textarea, .iniciativa-calculado input')).toBeNull();
-  }));
-
   it('en Articulación deja el PND fijo en su recuadro, pliega los planes y elige el PED en un árbol', fakeAsync(() => {
     const PND = nodo('pnd', 'Plan Nacional de Desarrollo', undefined, { required: false }, [
       nodo('sector', 'Sector', 'calculado', { required: false, plantilla: '22 - EDUCACIÓN' }),

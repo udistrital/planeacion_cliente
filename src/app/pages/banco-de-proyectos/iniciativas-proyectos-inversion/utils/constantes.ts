@@ -4,6 +4,7 @@ import {
   ColumnaResumen,
   DescripcionAccion,
   DescripcionAccionSubmodulo,
+  DescripcionNotificacion,
   Veredicto,
 } from './iniciativa.models';
 
@@ -168,23 +169,48 @@ export const ACCIONES_INICIATIVA: { [accion in AccionIniciativa]: DescripcionAcc
 };
 
 /**
- * Texto de la notificación de cada cambio de estado, por el código del estado al que llega la
- * iniciativa (la retractación del rechazo tiene el suyo). [INICIATIVA], [UNIDAD] y [MOTIVO] se
- * reemplazan al notificar.
+ * Notificación de cada cambio de estado, por el código del estado al que llega la iniciativa (la
+ * retractación del rechazo tiene la suya): el texto en el sistema, con [INICIATIVA], [UNIDAD] y
+ * [MOTIVO] por reemplazar, y el código de su plantilla de correo (SISGPLAN_PLANTILLA_<código> en
+ * SES; sus textos están en docs/Plantillas de correo - Iniciativas de inversión.json).
  */
-export const MENSAJES_NOTIFICACION: { [estadoOAccion: string]: string } = {
-  PA_IPI: 'La iniciativa «[INICIATIVA]» de [UNIDAD] fue enviada al Jefe de la unidad para su aprobación.',
-  PR_IPI: 'El Jefe de [UNIDAD] aprobó la iniciativa «[INICIATIVA]» y la radicó ante la OAP.',
-  ER_IPI: 'La OAP inició la revisión de la iniciativa «[INICIATIVA]» de [UNIDAD].',
-  PC_IPI: 'La iniciativa «[INICIATIVA]» de [UNIDAD] fue devuelta con observaciones para corregir.',
-  APR_IPI: 'La OAP aprobó la iniciativa «[INICIATIVA]» de [UNIDAD].',
-  RCH_IPI: 'La OAP rechazó la iniciativa «[INICIATIVA]» de [UNIDAD]. Motivo: [MOTIVO]',
-  'retractar-rechazo':
-    'La OAP se retractó del rechazo de la iniciativa «[INICIATIVA]» de [UNIDAD]: vuelve a la unidad para corregirla y pasará otra vez por el Jefe y la OAP.',
+export const NOTIFICACIONES: { [estadoOAccion: string]: DescripcionNotificacion } = {
+  PA_IPI: {
+    mensaje: 'La iniciativa «[INICIATIVA]» de [UNIDAD] fue enviada al Jefe de la unidad para su aprobación.',
+    correo: 'IPA',
+  },
+  PR_IPI: {
+    mensaje: 'El Jefe de [UNIDAD] aprobó la iniciativa «[INICIATIVA]» y la envió a la OAP para su revisión.',
+    correo: 'IPR',
+  },
+  ER_IPI: {
+    mensaje: 'La OAP inició la revisión de la iniciativa «[INICIATIVA]» de [UNIDAD].',
+    correo: 'IER',
+  },
+  PC_IPI: {
+    mensaje: 'La iniciativa «[INICIATIVA]» de [UNIDAD] fue devuelta con observaciones para corregir.',
+    correo: 'IPC',
+  },
+  APR_IPI: {
+    mensaje: 'La OAP aprobó la iniciativa «[INICIATIVA]» de [UNIDAD].',
+    correo: 'IAP',
+  },
+  RCH_IPI: {
+    mensaje: 'La OAP rechazó la iniciativa «[INICIATIVA]» de [UNIDAD]. Motivo: [MOTIVO]',
+    correo: 'IRC',
+  },
+  'retractar-rechazo': {
+    mensaje:
+      'La OAP se retractó del rechazo de la iniciativa «[INICIATIVA]» de [UNIDAD]: vuelve a la unidad para corregirla y pasará otra vez por el Jefe y la OAP.',
+    correo: 'IRR',
+  },
 };
 
 /** Asunto de las notificaciones de iniciativas. */
 export const ASUNTO_NOTIFICACION = 'Iniciativas de inversión';
+
+/** Módulo en los metadatos de la notificación: con él, la notificación abre la iniciativa. */
+export const MODULO_NOTIFICACION = 'iniciativas';
 
 /** Destinatarios de las notificaciones: cargos (Parámetros) de la unidad de la iniciativa y de Planeación, como en Formulación. */
 export const CARGOS_NOTIFICACION = ['JO', 'AS_D', 'NR'];

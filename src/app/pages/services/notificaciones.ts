@@ -6,6 +6,7 @@ import { RequestManager } from '../services/requestManager';
 import { ImplicitAutenticationService } from 'src/app/@core/utils/implicit_autentication.service';
 
 import { plantillasDefault } from "./plantillasDefault";
+import { MODULO_NOTIFICACION, RUTA_INICIATIVAS } from '../banco-de-proyectos/iniciativas-proyectos-inversion/utils/constantes';
 
 @Injectable({
   providedIn: 'root',
@@ -296,6 +297,12 @@ export class Notificaciones {
   async redirigir(notificacion: any) {
     if (notificacion.metadatos) {
       const { modulo, nombre_plan, nombre_unidad, nombre_vigencia } = notificacion.metadatos;
+
+      // Las de iniciativas de inversión traen el id de la iniciativa: se abre su vista general
+      if (modulo === MODULO_NOTIFICACION && notificacion.metadatos.iniciativa_id) {
+        setTimeout(() => this.router.navigate([RUTA_INICIATIVAS, notificacion.metadatos.iniciativa_id]), 50);
+        return;
+      }
 
       if (modulo && nombre_plan && nombre_unidad && nombre_vigencia) {
         const id_unidad = await this.getIdUnidad(nombre_unidad)

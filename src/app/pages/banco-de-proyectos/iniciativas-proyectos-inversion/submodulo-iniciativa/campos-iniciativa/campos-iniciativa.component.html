@@ -113,15 +113,13 @@
         </button>
       </mat-form-field>
       <ng-template #calculadoFijo>
-        <!-- Con desde, el texto de otro submódulo (p. ej. el objetivo general en Cadena de valor). Con la
-             plantilla vacía, el campo se muestra sin valor (p. ej. el indicador del producto) -->
+        <!-- Con desde, el texto de otro submódulo (p. ej. el objetivo general en Cadena de valor) -->
         <div class="iniciativa-calculado" [class.iniciativa-traida]="nodo.dato.desde">
           <span class="iniciativa-etiqueta" *ngIf="!secciones">{{ nodo.nombre }}</span>
           <strong *ngIf="calculado(nodo) as valor; else calculadoVacio">{{ valor }}</strong>
           <ng-template #calculadoVacio>
             <span class="iniciativa-traida__vacia">
-              {{ nodo.dato.desde ? 'Aún no se ha diligenciado en el submódulo de donde se trae.'
-                : nodo.dato.plantilla ? 'Se completa con los campos anteriores' : 'Aún no disponible.' }}
+              {{ nodo.dato.desde ? 'Aún no se ha diligenciado en el submódulo de donde se trae.' : 'Se completa con los campos anteriores' }}
             </span>
           </ng-template>
           <span class="iniciativa-ayuda" *ngIf="nodo.descripcion">{{ nodo.descripcion }}</span>

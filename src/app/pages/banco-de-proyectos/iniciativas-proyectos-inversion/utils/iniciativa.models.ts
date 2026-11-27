@@ -348,3 +348,9 @@ export interface DescripcionAccion {
   /** Pide el motivo antes de ejecutarla (rechazar); va en la notificación. */
   pideMotivo?: boolean;
 }
+
+/** Notificación de un cambio de estado: el texto en el sistema y el código de la plantilla de correo. */
+export interface DescripcionNotificacion {
+  mensaje: string;
+  correo: string;
+}

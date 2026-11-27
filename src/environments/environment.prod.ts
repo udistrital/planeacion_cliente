@@ -27,6 +27,8 @@ export const environment = {
   NOTIFICACION_MID: "https://pruebasapi.intranetoas.udistrital.edu.co:8527/v1/",
   NOTIFICACION_MID_WS: "wss://pruebasapi.intranetoas.udistrital.edu.co:8527/v1/ws",
   NOTIFICACIONES_CRUD: "https://autenticacion.portaloas.udistrital.edu.co/apioas/notificaciones_crud/",
+  // Correo de pruebas: si tiene una dirección, los correos de iniciativas van solo a ella y la notificación en el sistema solo a quien hizo el cambio. Sin ella, los dos van a los destinatarios reales.
+  CORREO_PRUEBAS: "iniciativas_sisgplan@yopmail.com",
   
   TOKEN: {
     AUTORIZATION_URL: 'https://autenticacion.portaloas.udistrital.edu.co/oauth2/authorize',
