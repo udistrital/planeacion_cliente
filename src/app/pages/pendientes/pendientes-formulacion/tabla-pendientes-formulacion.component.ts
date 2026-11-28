@@ -253,6 +253,7 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
       if (data) {
         this.planes = data.Data;
         this.planes = this.filterPlanes(this.planes);
+        this.quitarPlantillasIniciativas();
       }
     }, (error) => {
       Swal.fire({
@@ -268,6 +269,19 @@ export class TablaPendientesFormulacionComponent implements OnInit, AfterViewIni
   filterPlanes(data) {
     var dataAux = data.filter(e => e.tipo_plan_id != this.CODIGO_TIPO_PROYECTO);
     return dataAux.filter(e => e.activo == true);
+  }
+
+  /**
+   * Quita de la lista las plantillas de iniciativas de inversión (IPI_SP), que no se formulan aquí.
+   * Si el tipo no existe en el ambiente o no se puede consultar, la lista queda completa.
+   */
+  quitarPlantillasIniciativas() {
+    this.request.get(environment.PLANES_CRUD, `tipo-plan?query=codigo_abreviacion:IPI_SP`).subscribe((data: any) => {
+      const tipo = data && data.Data && data.Data[0];
+      if (tipo && tipo._id) {
+        this.planes = this.planes.filter(plan => plan.tipo_plan_id !== tipo._id);
+      }
+    });
   }
 
   loadPeriodos() {

@@ -205,6 +205,7 @@ export class PlanAnualComponent implements OnInit {
       if (data) {
         this.planes = data.Data;
         this.auxPlanes = this.planes;
+        this.quitarPlantillasIniciativas();
       }
     }, (error) => {
       Swal.fire({
@@ -215,6 +216,20 @@ export class PlanAnualComponent implements OnInit {
         timer: 2500
       })
     })
+  }
+
+  /**
+   * Quita de la lista las plantillas de iniciativas de inversión (IPI_SP), que no tienen reporte de
+   * plan anual. Si el tipo no existe en el ambiente o no se puede consultar, la lista queda completa.
+   */
+  quitarPlantillasIniciativas() {
+    this.request.get(environment.PLANES_CRUD, `tipo-plan?query=codigo_abreviacion:IPI_SP`).subscribe((data: any) => {
+      const tipo = data && data.Data && data.Data[0];
+      if (tipo && tipo._id) {
+        this.planes = this.planes.filter(plan => plan.tipo_plan_id !== tipo._id);
+        this.auxPlanes = [...this.planes];
+      }
+    });
   }
 
 

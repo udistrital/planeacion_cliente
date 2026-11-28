@@ -58,7 +58,6 @@ import { PlanAccionFormulacionComponent } from './plan-accion/plan-accion-formul
 import { GestionParametrosComponent } from './plan/gestion-parametros/gestion-parametros.component';
 import { GestionUsuariosComponent } from './plan/gestion-usuarios/gestion-usuarios.component';
 import { VisualizarFechasComponent } from './plan/visualizar-fechas/visualizar-fechas.component';
-import { VisualizarFechasIniciativasComponent } from './plan/visualizar-fechas-iniciativas/visualizar-fechas-iniciativas.component';
 
 const routes: Routes = [{
   path: '',
@@ -101,7 +100,7 @@ const routes: Routes = [{
           component: HabilitarReporteComponent,
         },
         {
-          path: 'habilitar-reporte-iniciativas',
+          path: 'habilitar-fechas-iniciativas',
           component: HabilitarReporteIniciativasComponent,
         },
         {
@@ -123,10 +122,6 @@ const routes: Routes = [{
         {
           path: 'visualizar-fechas',
           component: VisualizarFechasComponent,
-        },
-        {
-       path: 'visualizar-fechas-iniciativas',
-       component: VisualizarFechasIniciativasComponent,
         }
       ]
     },

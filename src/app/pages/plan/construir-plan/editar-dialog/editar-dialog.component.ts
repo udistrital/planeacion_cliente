@@ -325,8 +325,7 @@ export class EditarDialogComponent implements OnInit {
               icon: 'warning',
               showConfirmButton: false,
               timer: 2500
-            });
-            resolve(false);
+            })
           }
         },
         (error) => {
@@ -336,8 +335,7 @@ export class EditarDialogComponent implements OnInit {
             icon: 'warning',
             showConfirmButton: false,
             timer: 2500
-          });
-          resolve(false);
+          })
         }
       );
     });
