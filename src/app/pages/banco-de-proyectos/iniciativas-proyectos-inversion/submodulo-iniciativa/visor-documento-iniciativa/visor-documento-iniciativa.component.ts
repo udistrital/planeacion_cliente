@@ -1,4 +1,4 @@
-import { Component, Inject, ViewEncapsulation } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -16,7 +16,6 @@ export interface DatosVisorDocumento {
   selector: 'app-visor-documento-iniciativa',
   templateUrl: './visor-documento-iniciativa.component.html',
   styleUrls: ['./visor-documento-iniciativa.component.scss'],
-  encapsulation: ViewEncapsulation.None,
 })
 export class VisorDocumentoIniciativaComponent {
   urlSegura: SafeResourceUrl | null = null;

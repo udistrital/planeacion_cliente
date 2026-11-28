@@ -157,7 +157,6 @@ export class CampoDocumentoIniciativaComponent {
           maxWidth: '95vw',
           height: '90vh',
           autoFocus: false,
-          panelClass: 'visor-documento-panel',
         });
         return;
       }
