@@ -1,0 +1,10 @@
+<div class="visor-doc">
+  <div class="visor-doc__barra">
+    <mat-icon class="visor-doc__icono" aria-hidden="true">description</mat-icon>
+    <span class="visor-doc__titulo" [title]="datos.nombre">{{ datos.nombre }}</span>
+    <button mat-icon-button type="button" class="visor-doc__cerrar" (click)="cerrar()" matTooltip="Cerrar" aria-label="Cerrar visor">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <iframe *ngIf="urlSegura" class="visor-doc__marco" [src]="urlSegura" [title]="'Documento ' + datos.nombre"></iframe>
+</div>

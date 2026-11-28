@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -55,7 +56,7 @@ describe('CampoDocumentoIniciativaComponent (archivo de un documento)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [CampoDocumentoIniciativaComponent],
-      imports: [NoopAnimationsModule, MatButtonModule, MatIconModule, MatTooltipModule],
+      imports: [NoopAnimationsModule, MatButtonModule, MatDialogModule, MatIconModule, MatTooltipModule],
       providers: [{ provide: GestorDocumentalService, useValue: { getByUUID: () => of('blob:local') } }],
     }).compileComponents();
   });
