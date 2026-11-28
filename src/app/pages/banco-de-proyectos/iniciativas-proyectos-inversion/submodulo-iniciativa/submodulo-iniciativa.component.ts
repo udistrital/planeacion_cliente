@@ -154,6 +154,14 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     return this.puedeRevisar && this.resumen.permisos.observar;
   }
 
+  /**
+   * Escribe desde el botón Observaciones. El Jefe sí; la OAP escribe solo con el veredicto «Con
+   * observaciones», que pasa por la confirmación del último veredicto, y desde el botón solo lee.
+   */
+  get publicaDesdeObservaciones(): boolean {
+    return this.puedePublicar && !this.daVeredicto;
+  }
+
   /** El submódulo tiene observaciones que la unidad debe atender. */
   get conObservaciones(): boolean {
     return !!this.submodulo && this.submodulo.estado.codigo_abreviacion === ESTADO_SUBMODULO_CON_OBSERVACIONES;
@@ -220,6 +228,8 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
   /**
    * Veredicto de la OAP desde el seleccionable. El grupo vuelve al veredicto que tiene el
    * submódulo: cambia solo cuando el mid lo confirma (si se cancela, no queda marcado otro).
+   * Responde al clic de cada opción, también de la ya marcada: «Con observaciones» sobre un
+   * submódulo que ya lo está abre el modal para agregar otra observación.
    */
   async elegirVeredicto(veredicto: Veredicto, grupo: MatButtonToggleGroup): Promise<void> {
     grupo.value = this.veredictoActual;
@@ -230,7 +240,7 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
       return;
     }
     if (veredicto === 'con_observaciones') {
-      this.abrirObservaciones();
+      this.abrirObservaciones(true);
       return;
     }
     this.aprobar();
@@ -256,20 +266,24 @@ export class SubmoduloIniciativaComponent implements OnInit, OnDestroy {
     );
   }
 
+  /** Botón Observaciones y aviso «Ver observaciones». */
+  verObservaciones(): void {
+    this.abrirObservaciones(this.publicaDesdeObservaciones);
+  }
+
   /**
-   * Abre el modal de observaciones: se leen todas y, si el usuario puede publicar ahora,
-   * publica nuevas. Cada publicación deja el submódulo «Con observaciones» de una vez, sin
-   * cambiar la versión. Si la observación es el último veredicto de la OAP, el modal se cierra y
-   * la iniciativa se recarga.
+   * Abre el modal de observaciones: se leen todas y, con publicar, se escriben nuevas. Cada
+   * publicación deja el submódulo «Con observaciones» de una vez, sin cambiar la versión. Si la
+   * observación es el último veredicto de la OAP, el modal se cierra y la iniciativa se recarga.
    */
-  abrirObservaciones(): void {
+  private abrirObservaciones(publicar: boolean): void {
     const datos: DatosObservaciones = {
       iniciativaId: this.iniciativaId,
       clave: this.clave,
       nombreSubmodulo: this.nodo.nombre,
       observaciones: this.submodulo.observaciones,
       usuario: this.usuario,
-      puedePublicar: this.puedePublicar,
+      puedePublicar: publicar,
     };
     const modal = this.dialogo.open(ObservacionesSubmoduloIniciativaComponent, { width: '760px', maxWidth: '95vw', data: datos });
     modal.componentInstance.publicada.pipe(takeUntil(modal.afterClosed())).subscribe((vista: SubmoduloVista) => {

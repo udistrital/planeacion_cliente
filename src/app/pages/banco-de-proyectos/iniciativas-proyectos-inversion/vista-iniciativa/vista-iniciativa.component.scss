@@ -178,12 +178,14 @@
 /*
  * Anula los márgenes negativos de mat-card-actions y el margen de Material en los botones
  * (el espacio lo da gap). Los 96px a la derecha dejan libre el botón fijo de IRIS.
+ * Los avisos ocupan el espacio libre y quedan a la izquierda de los botones de estado, que van
+ * juntos al final para que su posición no dependa de los mensajes.
  */
 .mat-card > .barra-acciones {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.5rem 1rem;
   margin: 1.25rem 0 0;
   padding: 0 96px 0.5rem 0;
 
@@ -192,8 +194,21 @@
   }
 }
 
-.espacio {
-  flex: 1 1 auto;
+.avisos {
+  flex: 1 1 16rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  text-align: right;
+}
+
+.botones {
+  flex: none;
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
 }
 
 .ayuda {
@@ -211,7 +226,8 @@
     min-width: 0;
   }
 
-  .espacio {
-    display: none;
+  .avisos {
+    align-items: flex-start;
+    text-align: left;
   }
 }

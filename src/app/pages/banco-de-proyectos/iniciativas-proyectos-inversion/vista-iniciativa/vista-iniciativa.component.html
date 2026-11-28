@@ -75,14 +75,17 @@
 
   <mat-card-actions class="barra-acciones">
     <button mat-raised-button color="primary" (click)="volver()">Regresar</button>
-    <span class="espacio"></span>
-    <span class="ayuda" *ngIf="resumen.fuera_de_fechas">
-      La formulación de iniciativas no está habilitada para la unidad de esta iniciativa en estas fechas: puede consultarla, pero no modificarla ni cambiar su estado.
-    </span>
-    <ng-container *ngFor="let accion of accionesDelUsuario">
-      <span class="ayuda" *ngIf="motivoVisible(accion) as motivo">{{ motivo }}</span>
-      <button mat-raised-button color="primary" [disabled]="procesando || !accion.habilitada"
-        (click)="ejecutar(accion.accion)">{{ acciones[accion.accion].etiqueta }}</button>
-    </ng-container>
+    <div class="avisos">
+      <span class="ayuda" *ngIf="resumen.fuera_de_fechas">
+        La formulación de iniciativas no está habilitada para la unidad de esta iniciativa en estas fechas: puede consultarla, pero no modificarla ni cambiar su estado.
+      </span>
+      <ng-container *ngFor="let accion of accionesDelUsuario">
+        <span class="ayuda" *ngIf="motivoVisible(accion) as motivo">{{ motivo }}</span>
+      </ng-container>
+    </div>
+    <div class="botones" *ngIf="accionesDelUsuario.length">
+      <button *ngFor="let accion of accionesDelUsuario" mat-raised-button color="primary"
+        [disabled]="procesando || !accion.habilitada" (click)="ejecutar(accion.accion)">{{ acciones[accion.accion].etiqueta }}</button>
+    </div>
   </mat-card-actions>
 </mat-card>

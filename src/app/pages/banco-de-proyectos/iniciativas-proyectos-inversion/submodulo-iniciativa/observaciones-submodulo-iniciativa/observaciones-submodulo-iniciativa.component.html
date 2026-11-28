@@ -24,11 +24,11 @@
       <div class="entrada__cuerpo">
         <header class="entrada__cabecera">
           <div class="entrada__identidad">
+            <span class="entrada__rol" *ngIf="observacion.usuario_nombre">{{ nombreDeRol(observacion.rol) }}</span>
             <div class="entrada__linea">
               <strong class="entrada__autor">{{ observacion.usuario_nombre || nombreDeRol(observacion.rol) }}</strong>
               <span class="entrada__propia" *ngIf="esPropia(observacion)">Usted</span>
             </div>
-            <span class="entrada__rol" *ngIf="observacion.usuario_nombre">{{ nombreDeRol(observacion.rol) }}</span>
           </div>
           <span class="entrada__meta">
             <time [attr.datetime]="observacion.fecha">{{ observacion.fecha | date: 'dd/MM/yyyy HH:mm' }}</time>
