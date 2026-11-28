@@ -104,6 +104,7 @@ import { TablaDesgloseIniciativaComponent } from './banco-de-proyectos/iniciativ
 import { CeldaIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/celda-iniciativa/celda-iniciativa.component';
 import { CasillasCatalogoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/casillas-catalogo-iniciativa/casillas-catalogo-iniciativa.component';
 import { CampoDocumentoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/campo-documento-iniciativa/campo-documento-iniciativa.component';
+import { VisorDocumentoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/visor-documento-iniciativa/visor-documento-iniciativa.component';
 import { TablaDocumentosIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/tabla-documentos-iniciativa/tabla-documentos-iniciativa.component';
 import { ArbolCatalogoIniciativaComponent } from './banco-de-proyectos/iniciativas-proyectos-inversion/submodulo-iniciativa/arbol-catalogo-iniciativa/arbol-catalogo-iniciativa.component';
 import { ProyectosOtrosFondosComponent } from './banco-de-proyectos/proyectos-otros-fondos/proyectos-otros-fondos.component';
@@ -271,6 +272,7 @@ const MY_FORMATS = {
     CeldaIniciativaComponent,
     CasillasCatalogoIniciativaComponent,
     CampoDocumentoIniciativaComponent,
+    VisorDocumentoIniciativaComponent,
     TablaDocumentosIniciativaComponent,
     ArbolCatalogoIniciativaComponent,
     ProyectosOtrosFondosComponent,

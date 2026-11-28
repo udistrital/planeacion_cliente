@@ -1,10 +1,12 @@
 import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { take } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 import { GestorDocumentalService } from 'src/app/@core/utils/gestor_documental.service';
 import { mensajeDeError } from '../../iniciativa.service';
 import { NodoDefinicion, ReferenciaDocumento } from '../../utils';
 import { ContextoFormulario, rutaEnPlantilla } from '../../utils/formulario.utils';
+import { VisorDocumentoIniciativaComponent } from '../visor-documento-iniciativa/visor-documento-iniciativa.component';
 
 /**
  * Campo `documento` (Anexos). Al elegir el archivo revisa `formatos` y `tamano_maximo_mb` y lo sube
@@ -40,7 +42,7 @@ export class CampoDocumentoIniciativaComponent {
   abriendo = false;
   error = '';
 
-  constructor(private gestor: GestorDocumentalService) {}
+  constructor(private gestor: GestorDocumentalService, private dialogo: MatDialog) {}
 
   get soloLectura(): boolean {
     return !this.contexto || this.contexto.soloLectura;
@@ -149,7 +151,14 @@ export class CampoDocumentoIniciativaComponent {
         return;
       }
       if (this.esPdf) {
-        window.open(url, '_blank');
+        this.dialogo.open(VisorDocumentoIniciativaComponent, {
+          data: { url, nombre: referencia.nombre },
+          width: '68vw',
+          maxWidth: '95vw',
+          height: '90vh',
+          autoFocus: false,
+          panelClass: 'visor-documento-panel',
+        });
         return;
       }
       const enlace = document.createElement('a');

@@ -1,0 +1,62 @@
+.visor-documento-panel .mat-dialog-container {
+  padding: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.visor-doc {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+}
+
+.visor-doc__barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  height: 52px;
+  padding: 0 8px 0 18px;
+  background: #fff;
+  border-bottom: 1px solid #e9e3e3;
+}
+
+.visor-doc__icono {
+  flex: 0 0 auto;
+  color: var(--primary);
+  font-size: 22px;
+  height: 22px;
+  width: 22px;
+}
+
+.visor-doc__titulo {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.visor-doc__cerrar {
+  flex: 0 0 auto;
+  color: #6b6b6b;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.visor-doc__cerrar:hover {
+  color: var(--primary);
+  background-color: rgba(120, 20, 24, 0.08);
+}
+
+.visor-doc__marco {
+  flex: 1 1 auto;
+  width: calc(100% - 36px);
+  margin: 0 18px 18px;
+  border: 0;
+  border-radius: 4px;
+  background: #525659;
+}
